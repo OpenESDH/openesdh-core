@@ -86,28 +86,20 @@
                         <many>true</many>
                     </target>
                 </association>
-                <association name="doc:main">
-                    <source>
-                        <mandatory>true</mandatory>
-                        <many>false</many>
-                    </source>
+                <child-association name="doc:main">
                     <target>
                         <class>cm:content</class>
                         <mandatory>true</mandatory>
                         <many>false</many>
                     </target>
-                </association>
-                <association name="doc:attachments">
-                    <source>
-                        <mandatory>true</mandatory>
-                        <many>false</many>
-                    </source>
+                </child-association>
+                <child-association name="doc:attachments">
                     <target>
                         <class>cm:content</class>
                         <mandatory>false</mandatory>
                         <many>true</many>
                     </target>
-                </association>
+                </child-association>
             </associations>
 
             <overrides>
