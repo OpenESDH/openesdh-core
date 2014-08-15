@@ -1,0 +1,23 @@
+<alfresco-config>
+    <config evaluator="model-type" condition="case:simple">
+        <forms>
+            <!-- Default form configuration for the case type -->
+            <form>
+                <field-visibility>
+                    <show id="case:id"/>
+                    <show id="case:title"/>
+                    <show id="case:description"/>
+                    <show id="case:status"/>
+                    <show id="case:owners"/>
+                    <show id="case:startDate"/>
+                    <show id="case:endDate"/>
+                </field-visibility>
+                <appearance>
+                    <field id="case:description">
+                        <control template="controls/textarea.ftl"></control>
+                    </field>
+                </appearance>
+            </form>
+        </forms>
+    </config>
+</alfresco-config>

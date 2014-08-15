@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model name="case:caseModel"
+       xmlns="http://www.alfresco.org/model/dictionary/1.0">
+    <description>ESDH Case Model</description>
+    <author>Ole Hejlskov</author>
+    <version>1.0</version>
+    <imports>
+        <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d" />
+        <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm" />
+        <import uri="http://www.alfresco.org/model/system/1.0" prefix="sys" />
+    </imports>
+    <namespaces>
+        <namespace uri="http://openesdh.dk/model/case/1.0/" prefix="case" />
+    </namespaces>
+    <constraints>
+        <constraint name="case:statusConstraint" type="LIST">
+            <parameter name="allowedValues">
+                <list>
+                    <!-- TODO: localize -->
+                    <value>Planlagt</value>
+                    <value>Igangværende</value>
+                    <value>Gældende</value>
+                    <value>Afventer</value>
+                    <value>Udgået</value>
+                    <value>Annulleret</value>
+                    <value>Lukket</value>
+                </list>
+            </parameter>
+        </constraint>
+    </constraints>
+    <types>
+        <type name="case:simple">
+            <title>Case</title>
+            <parent>cm:folder</parent>
+            <archive>true</archive>
+            <properties>
+                <property name="case:id">
+                    <type>d:long</type>
+                </property>
+
+                <property name="case:title">
+                    <type>d:text</type>
+                    <mandatory>false</mandatory>
+                </property>
+
+                <property name="case:description">
+                    <type>d:text</type>
+                    <mandatory>false</mandatory>
+                </property>
+
+                <property name="case:status">
+                    <type>d:text</type>
+                    <constraints>
+                        <constraint ref="case:statusConstraint"/>
+                    </constraints>
+                </property>
+
+                <property name="case:owners">
+                    <type>d:noderef</type>
+                    <mandatory>true</mandatory>
+                    <multiple>true</multiple>
+                </property>
+
+                <property name="case:startDate">
+                    <type>d:date</type>
+                    <mandatory>false</mandatory>
+                </property>
+
+                <property name="case:endDate">
+                    <type>d:date</type>
+                    <mandatory>false</mandatory>
+                </property>
+            </properties>
+            <mandatory-aspects>
+                <aspect>sys:undeletable</aspect>
+                <aspect>case:journalKey</aspect>
+            </mandatory-aspects>
+        </type>
+    </types>
+
+    <aspects>
+        <aspect name="case:closed">
+            <properties>
+                <property name="case:closedBy">
+                    <title>Username</title>
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
+                <property name="case:closedDate">
+                    <title>Closed Date</title>
+                    <type>d:datetime</type>
+                    <mandatory>true</mandatory>
+                </property>
+            </properties>
+        </aspect>
+
+        <aspect name="case:readOnlyAspect">
+            <title>ReadOnly Aspect</title>
+        </aspect>
+
+        <aspect name="case:journalized">
+            <properties>
+                <property name="case:journalizedBy">
+                    <title>Username</title>
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
+                <property name="case:journalizedDate">
+                    <title>Closed Date</title>
+                    <type>d:datetime</type>
+                    <mandatory>true</mandatory>
+                </property>
+            </properties>
+        </aspect>
+
+        <aspect name="case:journalKey">
+            <title>Journal Key</title>
+            <parent>cm:classifiable</parent>
+            <properties>
+                <property name="case:journalKey">
+                    <title>Journal Key</title>
+                    <type>d:category</type>
+                    <mandatory>false</mandatory>
+                    <multiple>false</multiple>
+                    <index enabled="true">
+                        <atomic>true</atomic>
+                        <stored>true</stored>
+                        <tokenised>false</tokenised>
+                    </index>
+                </property>
+            </properties>
+        </aspect>
+
+    </aspects>
+
+</model>

@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model name="doc:documentModel"
+       xmlns="http://www.alfresco.org/model/dictionary/1.0">
+    <description>ESDH Case Model</description>
+    <author>Ole Hejlskov</author>
+    <version>1.0</version>
+    <imports>
+        <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d" />
+        <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm" />
+        <import uri="http://www.alfresco.org/model/system/1.0" prefix="sys" />
+        <import uri="http://openesdh.dk/model/case/1.0/" prefix="case" />
+    </imports>
+    <namespaces>
+        <namespace uri="http://openesdh.dk/model/document/1.0/" prefix="doc" />
+    </namespaces>
+    <constraints>
+        <constraint name="doc:statusConstraint" type="LIST">
+            <parameter name="allowedValues">
+                <list>
+                    <!-- TODO: localize -->
+                    <value>Under behandling</value>
+                    <value>Gældende</value>
+                    <value>Godkendt</value>
+                    <value>Ikke godkendt</value>
+                    <value>Scannet</value>
+                    <value>Sendt til godkendelse</value>
+                    <value>Til kommentering</value>
+                    <value>Udgået</value>
+                    <value>Afsluttet</value>
+                    <value>Journaliseret</value>
+                </list>
+            </parameter>
+        </constraint>
+        <constraint name="doc:categoryConstraint" type="LIST">
+            <parameter name="allowedValues">
+                <list>
+                    <!-- TODO: localize -->
+                    <value>Andet</value>
+                    <value>Ansættelseskontrakt</value>
+                    <value>Andre kontrakter</value>
+                    <value>Afgørelse</value>
+                    <value>Faktura</value>
+                    <value>Korrespondance</value>
+                    <value>Notat</value>
+                    <value>Opsigelse</value>
+                    <value>Rapport</value>
+                    <value>Referat</value>
+                    <value>Regnskab</value>
+                    <value>Tilbud</value>
+                    <value>Vejledning</value>
+                </list>
+            </parameter>
+        </constraint>
+    </constraints>
+    <types>
+        <type name="doc:document">
+            <title>Document</title>
+            <parent>cm:folder</parent>
+            <archive>true</archive>
+            <properties>
+                <property name="doc:id">
+                    <type>d:long</type>
+                    <mandatory>true</mandatory>
+                </property>
+
+                <property name="doc:title">
+                    <type>d:text</type>
+                    <mandatory>false</mandatory>
+                </property>
+
+                <property name="doc:arrivalDate">
+                    <type>d:date</type>
+                    <mandatory>false</mandatory>
+                </property>
+
+                <property name="doc:description">
+                    <type>d:text</type>
+                    <mandatory>false</mandatory>
+                </property>
+
+                <property name="doc:status">
+                    <type>d:text</type>
+                    <constraints>
+                        <constraint ref="doc:statusConstraint"/>
+                    </constraints>
+                </property>
+
+                <property name="doc:category">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+
+                    <constraints>
+                        <constraint ref="doc:categoryConstraint"/>
+                    </constraints>
+                </property>
+            </properties>
+
+            <associations>
+                <association name="doc:caseRef">
+                    <title>Case reference</title>
+                    <source>
+                        <mandatory>true</mandatory>
+                        <many>true</many>
+                    </source>
+                    <target>
+                        <class>case:simple</class>
+                        <mandatory>true</mandatory>
+                        <many>true</many>
+                    </target>
+                </association>
+
+                <association name="doc:responsiblePerson">
+                    <source>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </source>
+                    <target>
+                        <class>cm:person</class>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </target>
+                </association>
+
+            </associations>
+
+            <mandatory-aspects>
+                <aspect>case:journalKey</aspect>
+            </mandatory-aspects>
+        </type>
+
+        <type name="doc:entry">
+            <parent>cm:content</parent>
+            <properties>
+                <property name="doc:isMainEntry">
+                    <type>d:boolean</type>
+                    <mandatory>true</mandatory>
+                    <default>false</default>
+                </property>
+            </properties>
+        </type>
+    </types>
+</model>
