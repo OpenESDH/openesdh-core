@@ -114,16 +114,5 @@
                 <aspect>oe:journalizable</aspect>
             </mandatory-aspects>
         </type>
-
-        <type name="doc:entry">
-            <parent>cm:content</parent>
-            <properties>
-                <property name="doc:isMainEntry">
-                    <type>d:boolean</type>
-                    <mandatory>true</mandatory>
-                    <default>false</default>
-                </property>
-            </properties>
-        </type>
     </types>
 </model>
