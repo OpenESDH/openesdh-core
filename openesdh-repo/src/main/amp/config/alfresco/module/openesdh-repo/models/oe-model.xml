@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model name="oe:openesdhModel"
+       xmlns="http://www.alfresco.org/model/dictionary/1.0">
+    <description>ESDH Case Model</description>
+    <author>Ole Hejlskov</author>
+    <version>1.0</version>
+    <imports>
+        <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d" />
+        <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm" />
+        <import uri="http://www.alfresco.org/model/system/1.0" prefix="sys" />
+    </imports>
+    <namespaces>
+        <namespace uri="http://openesdh.dk/model/openesdh/1.0/" prefix="oe" />
+    </namespaces>
+    <types>
+        <type name="oe:base">
+            <parent>cm:folder</parent>
+            <properties>
+                <property name="oe:id">
+                    <type>d:long</type>
+                </property>
+
+                <property name="oe:title">
+                    <type>d:text</type>
+                    <mandatory>false</mandatory>
+                </property>
+
+                <property name="oe:description">
+                    <type>d:text</type>
+                    <mandatory>false</mandatory>
+                </property>
+
+                <property name="oe:status">
+                    <type>d:text</type>
+                </property>
+            </properties>
+        </type>
+    </types>
+
+    <aspects>
+        <aspect name="oe:readOnly">
+            <title>Read-Only Aspect</title>
+        </aspect>
+
+        <aspect name="oe:journalizable">
+            <title>Journalizable</title>
+            <parent>cm:classifiable</parent>
+            <properties>
+                <property name="oe:journalKey">
+                    <title>Journal Key</title>
+                    <type>d:category</type>
+                    <mandatory>false</mandatory>
+                    <multiple>false</multiple>
+                    <index enabled="true">
+                        <atomic>true</atomic>
+                        <stored>true</stored>
+                        <tokenised>false</tokenised>
+                    </index>
+                </property>
+            </properties>
+        </aspect>
+
+    </aspects>
+
+</model>
