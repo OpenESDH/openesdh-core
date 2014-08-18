@@ -39,10 +39,6 @@ public class CaseMenuTest {
 
         WebElement searchLinkItem = Browser.Driver.findElement(By.id("CASE_MENU_SEARCH_LINK_text"));
         assertNotNull( searchLinkItem );
-
-
-
-
     }
 
     @After

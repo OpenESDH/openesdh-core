@@ -51,6 +51,7 @@ public class Browser {
         FirefoxBinary firefoxBinary = new FirefoxBinary();
         firefoxBinary.setEnvironmentProperty("DISPLAY", Xport);
 
+
         return firefoxBinary;
     }
 
@@ -69,7 +70,6 @@ public class Browser {
     public static void initialize() {
 
         boolean headless = false;
-
         if(headless) {
             Driver =  new FirefoxDriver(binary, profile); System.err.println("headless");
         } else if(!headless) {
