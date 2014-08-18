@@ -39,15 +39,12 @@
 
     <aspects>
         <aspect name="oe:readOnly">
-            <title>Read-Only Aspect</title>
         </aspect>
 
         <aspect name="oe:journalizable">
-            <title>Journalizable</title>
             <parent>cm:classifiable</parent>
             <properties>
                 <property name="oe:journalKey">
-                    <title>Journal Key</title>
                     <type>d:category</type>
                     <mandatory>false</mandatory>
                     <multiple>false</multiple>

@@ -55,7 +55,6 @@
     </constraints>
     <types>
         <type name="doc:document">
-            <title>Document</title>
             <parent>oe:base</parent>
             <archive>true</archive>
             <properties>
