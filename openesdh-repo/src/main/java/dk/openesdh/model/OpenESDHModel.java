@@ -28,14 +28,13 @@ public interface OpenESDHModel {
     public static final QName ASPECT_OE_JOURNALIZABLE = QName.createQName(OE_URI, "journalizable");
     public static final QName ASPECT_OE_JOURNALKEY = QName.createQName(OE_URI, "journalKey");
 
-    public static final QName ASPECT_CASE_CLOSED = QName.createQName(CASE_URI, "closed");
     public static final QName ASPECT_CASE_JOURNALIZED = QName.createQName(CASE_URI, "journalized");
     public static final QName ASPECT_CASE_JOURNALKEY = QName.createQName(CASE_URI, "journalKey");
 
     /**
      * Associations
      */
-    public static final QName ASSOC_DOC_RESPONSIBLE_PERSON = QName.createQName(DOC_URI, "responsiblePerson");
+    public static final QName ASSOC_DOC_RESPONSIBLE_PERSON = QName.createQName(DOC_URI, "owner");
     public static final QName ASSOC_DOC_MAIN = QName.createQName(DOC_URI, "main");
     public static final QName ASSOC_DOC_ATTACHMENTS = QName.createQName(DOC_URI, "attachments");
 
@@ -50,8 +49,6 @@ public interface OpenESDHModel {
     public static final QName PROP_CASE_OWNERS = QName.createQName(CASE_URI, "owners");
     public static final QName PROP_CASE_STARTDATE = QName.createQName(CASE_URI, "startDate");
     public static final QName PROP_CASE_ENDDATE = QName.createQName(CASE_URI, "endDate");
-    public static final QName PROP_CASE_CLOSED_BY = QName.createQName(CASE_URI, "closedBy");
-    public static final QName PROP_CASE_CLOSED_DATE = QName.createQName(CASE_URI, "closedDate");
     public static final QName PROP_CASE_JOURNALIZED_BY = QName.createQName(CASE_URI, "jounalizedBy");
     public static final QName PROP_CASE_JOURNALIZED_DATE = QName.createQName(CASE_URI, "journalizedDate");
     public static final QName PROP_CASE_JOURNAL_KEY = QName.createQName(CASE_URI, "journalKey");
