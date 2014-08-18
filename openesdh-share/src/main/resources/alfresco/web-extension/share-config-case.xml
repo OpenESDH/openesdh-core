@@ -26,10 +26,7 @@
                     <control template="/org/alfresco/components/form/controls/selectone.ftl"></control>
                   </field>
                   <field id="case:owners">
-                    <control template="/org/alfresco/components/form/controls/datapicker.ftl">
-                      <control-param name="multipleSelectMode">true</control-param>
-                      <control-param name="itemType">cm:object</control-param>
-                      <control-param name="itemFamily">authority</control-param>
+                    <control template="/org/alfresco/components/form/controls/authority.ftl">
                     </control>
                   </field>
                   <field id="case:startDate">
