@@ -75,15 +75,15 @@
             </properties>
 
             <associations>
-                <association name="doc:responsiblePerson">
+                <association name="doc:owner">
                     <source>
                         <mandatory>false</mandatory>
-                        <many>false</many>
+                        <many>true</many>
                     </source>
                     <target>
                         <class>cm:person</class>
-                        <mandatory>false</mandatory>
-                        <many>true</many>
+                        <mandatory>true</mandatory>
+                        <many>false</many>
                     </target>
                 </association>
                 <child-association name="doc:main">

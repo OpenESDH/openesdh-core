@@ -72,21 +72,6 @@
     </types>
 
     <aspects>
-        <aspect name="case:closed">
-            <properties>
-                <property name="case:closedBy">
-                    <title>Username</title>
-                    <type>d:text</type>
-                    <mandatory>true</mandatory>
-                </property>
-                <property name="case:closedDate">
-                    <title>Closed Date</title>
-                    <type>d:datetime</type>
-                    <mandatory>true</mandatory>
-                </property>
-            </properties>
-        </aspect>
-
         <aspect name="case:journalized">
             <properties>
                 <property name="case:journalizedBy">
