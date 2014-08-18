@@ -14,6 +14,7 @@ if (headerMenu != null) {
                             {
                                 name: "alfresco/menus/AlfMenuBarItem",
                                 config: {
+                                    id: "CASE_MENU_SEARCH_LINK",
                                     label: "Search",
                                     targetUrl: "/"
                                 }

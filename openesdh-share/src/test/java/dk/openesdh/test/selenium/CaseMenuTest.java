@@ -1,7 +1,5 @@
 package dk.openesdh.test.selenium;
 
-import static org.junit.Assert.*;
-
 import dk.openesdh.test.selenium.framework.Browser;
 import dk.openesdh.test.selenium.framework.Pages;
 import dk.openesdh.test.selenium.framework.enums.User;
@@ -9,6 +7,12 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
+import org.openqa.selenium.support.FindBy;
+
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 
 /**
@@ -19,7 +23,7 @@ import org.junit.Test;
  * @author Søren Kirkegård
  *
  */
-public class LoginTest {
+public class CaseMenuTest {
 
     @BeforeClass
     public static void setUpBeforeClass() {
@@ -27,15 +31,18 @@ public class LoginTest {
     }
 
     @Test
-    public void testCanGoToLoginPage() {
-        Pages.Login.gotoPage();
-        assertTrue(Pages.Login.isAt());
-    }
-
-    @Test
-    public void testCanLoginWithAdminUser() {
+    public void testCaseMenuIsVisibleAndClickable() {
         Pages.Login.loginWith(User.ADMIN);
         assertTrue(Pages.Dashboard.isAt(User.ADMIN));
+        WebElement menuItem = Browser.Driver.findElement(By.id("HEADER_CUSTOM_DROPDOWN_text"));
+        assertNotNull( menuItem );
+
+        WebElement searchLinkItem = Browser.Driver.findElement(By.id("CASE_MENU_SEARCH_LINK_text"));
+        assertNotNull( searchLinkItem );
+
+
+
+
     }
 
     @After
