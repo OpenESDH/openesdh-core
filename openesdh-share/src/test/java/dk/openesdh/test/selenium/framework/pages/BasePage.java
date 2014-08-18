@@ -24,7 +24,7 @@ public abstract class BasePage {
     /**
      * Headermenu item "Cases"
      */
-    @FindBy(id = "HEADER_CUSTOM_DROPDOWN_text")
+    @FindBy(id = "HEADER_CASES_DROPDOWN_text")
     protected WebElement headerCaseMenu;
 
 
