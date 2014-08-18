@@ -61,6 +61,11 @@ public class OpenESDHContentModelTest {
         Map<QName, Serializable> properties = new HashMap<QName, Serializable>();
         properties.put(ContentModel.PROP_NAME, name);
         ChildAssociationRef c = helper.createCase(nodeService, ADMIN_USER_NAME, companyHome, name, OpenESDHModel.TYPE_CASE_SIMPLE, properties);
+
+        NodeRef caseNode = c.getChildRef();
+        String caseName = (String) nodeService.getProperty(caseNode, ContentModel.PROP_NAME);
+        assertEquals( name, caseName );
+
     }
 
 
