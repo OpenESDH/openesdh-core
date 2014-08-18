@@ -11,14 +11,6 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 
 
-/**
- * This testcase requires:
- * -user admin with password admin
- * -user alice with password alice
- * -user invalid with password invalid NOT TO EXIST!
- * @author Søren Kirkegård
- *
- */
 public class LoginTest {
 
     @BeforeClass
