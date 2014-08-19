@@ -1,0 +1,23 @@
+.magenta-hide-label label {
+    display: none !important;
+}
+.esdh-filter-field-widget div[data-dojo-attach-point="containerNode"] > table,
+.esdh-filter-field-widget div[data-dojo-attach-point="containerNode"] > div {
+  display: inline-block;
+  vertical-align: top;
+}
+.esdh-filter-field-widget div[data-dojo-attach-point="containerNode"] > table {
+  
+}
+.esdh-filter-field-widget .form-field {
+  margin: 0;
+}
+.esdh-filter-field-widget .form-field > label,
+.esdh-filter-field-widget .form-field > div {
+  display: inline-block;
+  vertical-align: top;
+  margin: 0;
+}
+.esdh-filter-field-widget .form-field > label {
+  padding-right: 10px;
+}
