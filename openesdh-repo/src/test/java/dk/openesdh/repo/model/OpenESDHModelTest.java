@@ -1,4 +1,4 @@
-package dk.openesdh.repo;
+package dk.openesdh.repo.model;
 
 import static org.junit.Assert.*;
 

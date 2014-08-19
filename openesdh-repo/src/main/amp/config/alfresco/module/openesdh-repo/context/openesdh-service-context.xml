@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+<beans>
+  <bean id="caseService" class="dk.openesdh.repo.services.CaseServiceImpl">
+    <!-- property name="nodeService">
+      <ref bean="NodeService" />
+    </property>
+    <property name="searchService">
+      <ref bean="SearchService" />
+    </property>
+    <property name="authorityService">
+      <ref bean="AuthorityService" />
+    </property>
+    <property name="permissionService">
+      <ref bean="PermissionService" />
+    </property -->
+  </bean>
+
+</beans>
