@@ -2,6 +2,7 @@ package dk.openesdh.repo.model;
 
 import java.io.IOException;
 
+import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
@@ -14,26 +15,28 @@ import org.json.JSONObject;
  */
 public class CaseTypes extends AbstractWebScript {
 
-        public void execute(WebScriptRequest req, WebScriptResponse res)
-                throws IOException
+    // Dependencies
+    private DictionaryService dictionaryService;
+
+
+    public void execute(WebScriptRequest req, WebScriptResponse res)
+            throws IOException
+    {
+        try
         {
-            try
-            {
-                // build a json object
-                JSONObject obj = new JSONObject();
-
-                // put some data on it
-                obj.put("field1", "data1");
-
-                // build a JSON string and send it back
-                String jsonString = obj.toString();
-                res.getWriter().write(jsonString);
-            }
-            catch(JSONException e)
-            {
-                throw new WebScriptException("Unable to serialize JSON");
-            }
+            // build a json object
+            JSONObject obj = new JSONObject();
+            // put some data on it
+            obj.put("Hello", "World");
+            // build a JSON string and send it back
+            String jsonString = obj.toString();
+            res.getWriter().write(jsonString);
         }
+        catch(JSONException e)
+        {
+            throw new WebScriptException("Unable to serialize JSON");
+        }
+    }
 }
 
 

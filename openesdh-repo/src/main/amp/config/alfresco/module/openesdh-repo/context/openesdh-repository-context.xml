@@ -4,5 +4,9 @@
     <bean id="webscript.dk.openesdh.casetypes.get"
           class="dk.openesdh.repo.model.CaseTypes"
           parent="webscript">
+
+        <property name="dictionaryService">
+            <ref bean="dictionaryService"/>
+        </property>
     </bean>
 </beans>
