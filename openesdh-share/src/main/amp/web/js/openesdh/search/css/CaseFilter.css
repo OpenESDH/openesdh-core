@@ -1,0 +1,50 @@
+.esdh-filter {
+  display: block;
+  background: #eee;
+  padding: 10px;
+  margin: 5px 0;
+}
+.esdh-filter-field-widget {
+  vertical-align: top;
+}
+
+.esdh-filter-label,
+.esdh-filter-operator-select,
+.esdh-filter-field-widget,
+.esdh-filter-remove-button {
+  display: inline-block;
+  width: auto;
+  padding: 0 10px 0 0;
+}
+.esdh-filter-label {
+  width: 6em;
+}
+.esdh-filter-operator-select select {
+    width: 10em;
+}
+.esdh-filter-remove-button .dijitButton,
+.esdh-filter-remove-button .dijitButtonNode {
+  border: none !important;
+  background: transparent;
+  padding: 0 !important;
+  margin: 0;
+}
+.esdh-filter-remove-button .dijitButton {
+  background-color: #ddd;
+  border-radius: 5px;
+  height: 23px;
+}
+.esdh-filter-field-widget .object-finder .current-values {
+  margin: 0;
+}
+.esdh-filter-field-widget .object-finder .current-values,
+.esdh-filter-field-widget .object-finder .show-picker {
+  display: inline-block;
+  vertical-align: top;
+}
+.claro .dijitSelect .dijitInputField, .claro .dijitTextBox .dijitInputField {
+  padding: 1px 5px;
+}
+.esdh-filter-field-widget label {
+  padding: 2px 0 0 10px;
+}
