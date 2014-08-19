@@ -15,3 +15,16 @@ function getCaseTypeLabel (type) {
 function getNewCaseFolderNodeRef () {
     return "TODO";
 }
+
+/**
+ * Get the case types
+ */
+function getCaseTypes () {
+    // TODO: Call model webscript
+    return {
+        "case:simple": {
+            'label': 'Simple Case',
+            'roles': []
+        }
+    }
+}

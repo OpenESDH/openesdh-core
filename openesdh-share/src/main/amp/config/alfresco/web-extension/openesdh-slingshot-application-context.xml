@@ -59,4 +59,8 @@
       </list>
     </constructor-arg>
   </bean>
+
+  <!-- Custom evaluator which can test the uri prefix -->
+  <bean id="dk.magenta.evaluator.uriprefix"
+        class="dk.openesdh.evaluator.URIPrefixEvaluator" />
 </beans>
