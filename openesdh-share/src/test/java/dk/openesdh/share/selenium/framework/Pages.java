@@ -5,6 +5,7 @@ import java.util.concurrent.TimeUnit;
 import dk.openesdh.share.selenium.framework.pages.BasePage;
 import dk.openesdh.share.selenium.framework.pages.DashboardPage;
 import dk.openesdh.share.selenium.framework.pages.LoginPage;
+import dk.openesdh.share.selenium.framework.pages.SearchPage;
 import org.openqa.selenium.support.PageFactory;
 
 /**
@@ -17,6 +18,7 @@ public class Pages {
 
     public static LoginPage Login;
     public static DashboardPage Dashboard;
+    public static SearchPage Search;
 
     /**
      * helper method to initElements on a page
@@ -39,6 +41,6 @@ public class Pages {
     public static void initialize() {
         Login = (LoginPage) initializePage(new LoginPage());
         Dashboard = (DashboardPage) initializePage(new DashboardPage());
-
+        Search = (SearchPage) initializePage(new SearchPage());
     }
 }

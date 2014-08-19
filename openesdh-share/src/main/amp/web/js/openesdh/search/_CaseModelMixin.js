@@ -44,9 +44,6 @@ define(["dojo/_base/declare"],
             'case:endDate'
 //            'isFavourite'
         ],
-        
-        // Filters to show up by default (currently buggy)
-        defaultFilters: [],
                    
         // Definitions of different sets of operators that filters can have
         operatorSets: {
