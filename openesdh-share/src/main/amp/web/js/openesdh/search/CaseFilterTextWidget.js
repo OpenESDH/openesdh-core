@@ -10,7 +10,7 @@ define(["dojo/_base/declare",
 "dojo/_base/lang",
 "dojo/on",
 "dijit/form/TextBox",
-"esdh/frontpage/CaseFilterWidget"
+"openesdh/search/CaseFilterWidget"
 ],
 function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClass, array, lang, on, TextBox, CaseFilterWidget) {
     return declare([CaseFilterWidget], {

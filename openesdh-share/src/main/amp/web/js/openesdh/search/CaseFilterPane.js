@@ -17,9 +17,9 @@ define(["dojo/_base/declare",
 "dijit/form/DropDownButton",
 "dojo/fx",
 "dojo/fx/Toggler",
-"esdh/frontpage/CaseFilter",
-"esdh/frontpage/_CaseTopicsMixin",
-"esdh/frontpage/_CaseModelMixin"],
+"openesdh/search/CaseFilter",
+"openesdh/search/_CaseTopicsMixin",
+"openesdh/search/_CaseModelMixin"],
 function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, domClass, dom, on, lang, array, registry, AlfButton, DropDownMenu, MenuItem, DropDownButton, coreFx, Toggler, CaseFilter, _CaseTopicsMixin, _CaseModelMixin) {
     return declare([_Widget, _Templated, Core, CoreXhr, _CaseTopicsMixin, _CaseModelMixin], {
         

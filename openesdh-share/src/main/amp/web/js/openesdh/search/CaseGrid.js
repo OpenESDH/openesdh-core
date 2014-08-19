@@ -14,8 +14,8 @@ define(["dojo/_base/declare",
 "dijit/registry",
 "dojo/on",
 "dojo/dom-attr",
-"esdh/frontpage/_CaseTopicsMixin",
-"esdh/frontpage/_CaseModelMixin",
+"openesdh/search/_CaseTopicsMixin",
+"openesdh/search/_CaseModelMixin",
 
 "alfresco/dialogs/AlfDialog",
 
@@ -401,7 +401,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
             
 //            var store = new Memory({ data: data });
             var store = new CustomRest({
-                target: Alfresco.constants.PROXY_URI + "esdh/cases",
+                target: Alfresco.constants.PROXY_URI + "openesdh/search",
                 sortParam: "sortBy",
                 idProperty: "nodeRef"
             });

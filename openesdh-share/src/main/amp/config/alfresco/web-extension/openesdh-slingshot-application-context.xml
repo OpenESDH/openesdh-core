@@ -61,6 +61,6 @@
   </bean>
 
   <!-- Custom evaluator which can test the uri prefix -->
-  <bean id="dk.magenta.evaluator.uriprefix"
-        class="dk.openesdh.evaluator.URIPrefixEvaluator" />
+  <bean id="dk.openesdh.evaluator.uriprefix"
+        class="dk.openesdh.share.evaluator.URIPrefixEvaluator" />
 </beans>

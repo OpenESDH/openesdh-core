@@ -10,9 +10,9 @@ define(["dojo/_base/declare",
 "dojo/_base/lang",
 "dojo/on",
 "dijit/form/Select",
-"esdh/frontpage/CaseFilterWidget",
-"esdh/frontpage/CaseFilterAuthorityWidget",
-"esdh/frontpage/_CaseTopicsMixin"
+"openesdh/search/CaseFilterWidget",
+"openesdh/search/CaseFilterAuthorityWidget",
+"openesdh/search/_CaseTopicsMixin"
 ],
 function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClass, array, lang, on, Select, CaseFilterWidget, CaseFilterAuthorityWidget, _CaseTopicsMixin) {
     return declare([CaseFilterWidget, _CaseTopicsMixin], {

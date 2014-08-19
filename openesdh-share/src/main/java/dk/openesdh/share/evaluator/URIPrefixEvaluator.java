@@ -1,4 +1,4 @@
-package dk.openesdh.evaluator;
+package dk.openesdh.share.evaluator;
 
 import java.util.Map;
 

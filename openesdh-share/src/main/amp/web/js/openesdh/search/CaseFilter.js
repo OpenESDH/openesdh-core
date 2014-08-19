@@ -12,15 +12,15 @@ define(["dojo/_base/declare",
 "dojo/on",
 "alfresco/buttons/AlfButton",
 
-"esdh/frontpage/CaseFilterSelectWidget",
-"esdh/frontpage/CaseFilterTextWidget",
-"esdh/frontpage/CaseFilterAuthorityWidget",
-"esdh/frontpage/CaseFilterAssociationWidget",
-"esdh/frontpage/CaseFilterSingleUserSelectWidget",
-"esdh/frontpage/CaseFilterRoleWidget",
-"esdh/frontpage/CaseFilterDateRangeWidget",
+"openesdh/search/CaseFilterSelectWidget",
+"openesdh/search/CaseFilterTextWidget",
+"openesdh/search/CaseFilterAuthorityWidget",
+"openesdh/search/CaseFilterAssociationWidget",
+"openesdh/search/CaseFilterSingleUserSelectWidget",
+"openesdh/search/CaseFilterRoleWidget",
+"openesdh/search/CaseFilterDateRangeWidget",
 
-"esdh/frontpage/_CaseTopicsMixin"
+"openesdh/search/_CaseTopicsMixin"
 ],
 function(declare, _Widget, _Templated, template, Core, CoreXhr, dom, domConstruct, domClass, array, lang, on, AlfButton,
 CaseFilterSelectWidget, CaseFilterTextWidget, CaseFilterAuthorityWidget, CaseFilterAssociationWidget, CaseFilterSingleUserSelectWidget, CaseFilterRoleWidget, CaseFilterDateRangeWidget,

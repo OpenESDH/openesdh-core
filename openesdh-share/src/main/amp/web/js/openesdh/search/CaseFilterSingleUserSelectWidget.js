@@ -9,8 +9,8 @@ define(["dojo/_base/declare",
 "dojo/_base/array",
 "dojo/_base/lang",
 "dojo/on",
-"esdh/frontpage/MagentaSingleUserSelect",
-"esdh/frontpage/CaseFilterWidget"
+"openesdh/search/MagentaSingleUserSelect",
+"openesdh/search/CaseFilterWidget"
 ],
 function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClass, array, lang, on, MagentaSingleUserSelect, CaseFilterWidget) {
     return declare([CaseFilterWidget], {
