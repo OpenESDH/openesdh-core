@@ -1,0 +1,8 @@
+<webscript>
+    <shortname>Get all casetypes</shortname>
+    <description>Returns a list of casetypes that are subtypes of oe:base</description>
+    <url>/api/openesdh/casetypes</url>
+    <format default="json"></format>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+</webscript>
