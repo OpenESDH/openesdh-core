@@ -67,10 +67,5 @@ public class OpenESDHModelTest {
 
     }
     
-    @Test
-    public void testFailure() {
-        assertEquals(1,2);
-    }
-
 
 }
