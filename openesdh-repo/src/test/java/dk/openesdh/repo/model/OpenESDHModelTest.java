@@ -66,6 +66,11 @@ public class OpenESDHModelTest {
         assertEquals( name, caseName );
 
     }
+    
+    @Test
+    public void testFailure() {
+        assertEquals(1,2);
+    }
 
 
 }
