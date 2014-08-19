@@ -4,7 +4,7 @@ define(["dojo/_base/declare"],
     return declare(null, {
         // Columns which the user can add
         availableColumns: [
-            'type',
+            'TYPE',
             'oe:id',
             'oe:title',
             'case:owners',
@@ -17,8 +17,7 @@ define(["dojo/_base/declare"],
         
         // Columns which are visible by default (others will be hidden)
         defaultColumns: [
-            'type',
-            'type',
+            'TYPE',
             'oe:id',
             'oe:title',
             'case:owners',
@@ -31,8 +30,8 @@ define(["dojo/_base/declare"],
         
         // Properties that the user can filter on
         availableFilters: [
-            'query',
-            'type',
+            'ALL',
+            'TYPE',
 //            'role',
             'oe:id',
             'oe:title',
@@ -59,24 +58,20 @@ define(["dojo/_base/declare"],
             ]
         },
            
-        propertyDefinitions: {                        
-            'type': {
+        propertyDefinitions: {
+            // TODO: Don't hard-code
+            'TYPE': {
                 'title': 'Sagstype',
                 'dataType': 'd:text',
                 'widgetType': 'select',
                 'operatorSets': ['equality'],
                 'options': [
-                    { label: 'Alle Sager', value: 'all', selected: true },
-                    { label: 'Sag', value: 'esdh:case'},
-                    { label: 'Jobsag', value: 'esdh:jobCase' },
-                    { label: 'Driftssag', value: 'esdh:operationsCase' },
-                    { label: 'Kundesag', value: 'esdh:customerCase' },
-                    { label: 'PASsag', value: 'esdh:pasCase' },
-                    { label: 'Personalesag', value: 'esdh:personnelCase' }
+                    { label: 'Alle Sager', value: '', selected: true },
+                    { label: 'Simple Case', value: 'case:simple'}
                 ]
             },
 
-            'query': {
+            'ALL': {
                 'title': 'Søg',
                 'dataType': 'd:text',
                 'widgetType': 'text',

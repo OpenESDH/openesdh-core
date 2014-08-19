@@ -9,6 +9,14 @@
             <ref bean="dictionaryService"/>
         </property>
     </bean>
+    <bean id="webscript.dk.openesdh.search.get"
+          class="dk.openesdh.repo.webscripts.search.Search"
+          parent="webscript">
+        <property name="nodeService" ref="nodeService"/>
+        <property name="repository" ref="repositoryHelper"/>
+        <property name="searchService" ref="searchService"/>
+        <property name="namespaceService" ref="namespaceService"/>
+    </bean>
 
     <bean id="webscript.dk.openesdh.casemodel.get"
           class="dk.openesdh.repo.model.CaseModel"
