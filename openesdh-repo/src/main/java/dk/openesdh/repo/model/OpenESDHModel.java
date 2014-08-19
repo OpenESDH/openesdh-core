@@ -1,4 +1,4 @@
-package dk.openesdh.model;
+package dk.openesdh.repo.model;
 
 import org.alfresco.service.namespace.*;
 
@@ -8,8 +8,11 @@ import org.alfresco.service.namespace.*;
 public interface OpenESDHModel {
 
     public static final String CASE_URI = "http://openesdh.dk/model/case/1.0/";
+    public static final String CASE_PREFIX = "case";
     public static final String DOC_URI = "http://openesdh.dk/model/document/1.0/";
+    public static final String DOC_PREFIX = "doc";
     public static final String OE_URI = "http://openesdh.dk/model/openesdh/1.0/";
+    public static final String OE_PREFIX = "oe";
 
     /**
      * Types

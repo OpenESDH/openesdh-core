@@ -1,10 +1,10 @@
-package dk.openesdh.test.selenium;
+package dk.openesdh.repo.selenium;
 
 import static org.junit.Assert.*;
 
-import dk.openesdh.test.selenium.framework.Browser;
-import dk.openesdh.test.selenium.framework.Pages;
-import dk.openesdh.test.selenium.framework.enums.User;
+import dk.openesdh.repo.selenium.framework.Browser;
+import dk.openesdh.repo.selenium.framework.Pages;
+import dk.openesdh.repo.selenium.framework.enums.User;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

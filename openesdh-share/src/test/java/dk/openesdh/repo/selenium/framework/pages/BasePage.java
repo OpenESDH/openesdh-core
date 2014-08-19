@@ -1,13 +1,7 @@
-package dk.openesdh.test.selenium.framework.pages;
+package dk.openesdh.repo.selenium.framework.pages;
 
-import java.util.concurrent.TimeUnit;
-
-import org.joda.time.DateTime;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.FindBys;
-import org.openqa.selenium.support.ui.Select;
 
 
 /**

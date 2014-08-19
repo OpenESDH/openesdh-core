@@ -1,16 +1,15 @@
-package dk.openesdh.test.selenium;
+package dk.openesdh.repo.selenium;
 
-import dk.openesdh.test.selenium.framework.Browser;
-import dk.openesdh.test.selenium.framework.Pages;
-import dk.openesdh.test.selenium.framework.enums.User;
-import dk.openesdh.test.selenium.framework.pages.BasePage;
+import dk.openesdh.repo.selenium.framework.Browser;
+import dk.openesdh.repo.selenium.framework.Pages;
+import dk.openesdh.repo.selenium.framework.enums.User;
+import dk.openesdh.repo.selenium.framework.pages.BasePage;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;

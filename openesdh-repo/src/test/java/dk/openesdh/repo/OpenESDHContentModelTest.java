@@ -1,9 +1,9 @@
-package dk.openesdh.test;
+package dk.openesdh.repo;
 
 import static org.junit.Assert.*;
 
-import dk.openesdh.model.OpenESDHModel;
-import dk.openesdh.test.helper.CaseHelper;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.helper.CaseHelper;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.nodelocator.CompanyHomeNodeLocator;
 import org.alfresco.repo.nodelocator.NodeLocatorService;
@@ -11,7 +11,6 @@ import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -57,7 +56,7 @@ public class OpenESDHContentModelTest {
 
         NodeRef companyHome = nodeLocatorService.getNode(CompanyHomeNodeLocator.NAME, null, null);
 
-        String name = "My test case (" + System.currentTimeMillis() + ")";
+        String name = "My repo case (" + System.currentTimeMillis() + ")";
         Map<QName, Serializable> properties = new HashMap<QName, Serializable>();
         properties.put(ContentModel.PROP_NAME, name);
         ChildAssociationRef c = helper.createCase(nodeService, ADMIN_USER_NAME, companyHome, name, OpenESDHModel.TYPE_CASE_SIMPLE, properties);
