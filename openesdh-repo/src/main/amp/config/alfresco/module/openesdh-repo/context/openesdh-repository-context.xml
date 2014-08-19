@@ -9,4 +9,13 @@
             <ref bean="dictionaryService"/>
         </property>
     </bean>
+
+    <bean id="webscript.dk.openesdh.casemodel.get"
+          class="dk.openesdh.repo.model.CaseModel"
+          parent="webscript">
+
+        <property name="dictionaryService">
+            <ref bean="dictionaryService"/>
+        </property>
+    </bean>
 </beans>
