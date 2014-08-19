@@ -10,6 +10,7 @@ import org.alfresco.service.cmr.dictionary.ModelDefinition;
 import org.alfresco.service.cmr.dictionary.PropertyDefinition;
 import org.alfresco.service.cmr.dictionary.TypeDefinition;
 import org.alfresco.service.namespace.QName;
+import org.json.JSONArray;
 import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
@@ -35,38 +36,24 @@ public class CaseTypes extends AbstractWebScript {
     {
         Collection<QName> caseTypes = dictionaryService.getSubTypes(OpenESDHModel.TYPE_CASE_BASE,true);
 
-        ModelDefinition modelDefinition = dictionaryService.getModel(QName.createQName(OpenESDHModel.CASE_URI, "caseModel"));
-
-        Collection<QName> properties = dictionaryService.getProperties(QName.createQName(OpenESDHModel.CASE_URI,"caseModel"));
-
-        TypeDefinition simpleCase = dictionaryService.getType(OpenESDHModel.TYPE_CASE_SIMPLE);
-
-
         try
         {
-
-
-            Iterator iterator = simpleCase.getProperties().entrySet().iterator();
-            Iterator it = simpleCase.getProperties().entrySet().iterator();
-            while (it.hasNext()) {
-                Map.Entry pairs = (Map.Entry) it.next();
-                 System.out.println(pairs.getKey() + " = " + pairs.getValue());
-            }
-
-
-
             // build a json object
+
             JSONObject obj = new JSONObject();
+            JSONArray arr = new JSONArray();
 
-            for (QName c : properties) {
 
-                // System.out.println(c.getPrefixString());
+            for (QName caseType : caseTypes) {
+                JSONObject c = new JSONObject();
+                c.put("NamespaceURI", caseType.getNamespaceURI());
+                c.put("prefix", caseType.getPrefixString());
+                c.put("Name", caseType.getLocalName());
 
-                // put some data on it
-                PropertyDefinition def = dictionaryService.getProperty(c);
-                obj.put("name", "property:" + c + "  " + "type:" + def);
+                arr.put(c);
+
                 // build a JSON string and send it back
-                String jsonString = obj.toString();
+                String jsonString = arr.toString();
                 res.getWriter().write(jsonString);
             }
         }
