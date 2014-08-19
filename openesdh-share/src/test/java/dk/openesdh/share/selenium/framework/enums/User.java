@@ -1,4 +1,4 @@
-package dk.openesdh.repo.selenium.framework.enums;
+package dk.openesdh.share.selenium.framework.enums;
 
 import java.util.HashMap;
 import java.util.Map;

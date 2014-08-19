@@ -1,9 +1,9 @@
-package dk.openesdh.repo.selenium;
+package dk.openesdh.share.selenium;
 
-import dk.openesdh.repo.selenium.framework.Browser;
-import dk.openesdh.repo.selenium.framework.Pages;
-import dk.openesdh.repo.selenium.framework.enums.User;
-import dk.openesdh.repo.selenium.framework.pages.BasePage;
+import dk.openesdh.share.selenium.framework.Browser;
+import dk.openesdh.share.selenium.framework.Pages;
+import dk.openesdh.share.selenium.framework.enums.User;
+import dk.openesdh.share.selenium.framework.pages.BasePage;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;

@@ -1,4 +1,4 @@
-package dk.openesdh.repo.selenium.framework.pages;
+package dk.openesdh.share.selenium.framework.pages;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
