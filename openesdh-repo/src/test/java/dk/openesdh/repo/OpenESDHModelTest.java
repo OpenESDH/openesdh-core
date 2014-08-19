@@ -34,7 +34,7 @@ import java.util.Map;
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass=SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:alfresco/application-context.xml")
-public class OpenESDHContentModelTest {
+public class OpenESDHModelTest {
 
     private static final String ADMIN_USER_NAME = "admin";
 

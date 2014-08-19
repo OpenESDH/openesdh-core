@@ -1,10 +1,10 @@
-package dk.openesdh.repo.selenium.framework;
+package dk.openesdh.share.selenium.framework;
 
 import java.util.concurrent.TimeUnit;
 
-import dk.openesdh.repo.selenium.framework.pages.BasePage;
-import dk.openesdh.repo.selenium.framework.pages.DashboardPage;
-import dk.openesdh.repo.selenium.framework.pages.LoginPage;
+import dk.openesdh.share.selenium.framework.pages.BasePage;
+import dk.openesdh.share.selenium.framework.pages.DashboardPage;
+import dk.openesdh.share.selenium.framework.pages.LoginPage;
 import org.openqa.selenium.support.PageFactory;
 
 /**

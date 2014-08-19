@@ -1,4 +1,4 @@
-package dk.openesdh.repo.selenium.framework;
+package dk.openesdh.share.selenium.framework;
 
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.firefox.FirefoxBinary;
