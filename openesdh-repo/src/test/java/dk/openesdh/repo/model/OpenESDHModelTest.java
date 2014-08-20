@@ -66,6 +66,6 @@ public class OpenESDHModelTest {
         assertEquals( name, caseName );
 
     }
-
+    
 
 }

@@ -2,6 +2,8 @@
 
 var caseTypes = getCaseTypes();
 
+var baseType = "case:base";
+
 model.jsonModel = {
     services: [
         {
@@ -34,6 +36,7 @@ model.jsonModel = {
                                 {
                                     name: "openesdh/search/CaseGrid",
                                     config: {
+                                        baseType: baseType,
                                         caseTypes: caseTypes
                                     }
                                 }

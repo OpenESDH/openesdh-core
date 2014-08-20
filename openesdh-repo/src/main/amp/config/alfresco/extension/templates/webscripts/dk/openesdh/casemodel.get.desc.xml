@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Get all the properties and their datatypes for a given casetype</shortname>
+    <description>Returns a list of properties and their datatype for a given casetype</description>
+    <url>/api/openesdh/casemodel</url>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+</webscript>

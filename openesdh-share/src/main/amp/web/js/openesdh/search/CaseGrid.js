@@ -322,19 +322,14 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
         },
         
         getStoreQuery: function () {
-            return this.filtersToQuery(this.currentSearch.filters);
+            return {
+                "baseType": this.baseType,
+                "filters" : json.stringify(this.currentSearch.filters)
+            };
         },
         
         applySearch: function() {
             this.grid.set("query", this.getStoreQuery());
-        },
-        
-        filtersToQuery: function(filters) {
-            var query = {};
-            array.forEach(filters, function (filter, i) {
-                query['F' + filter.name] = escape(json.stringify({operator: filter.operator, value: filter.value}));
-            });
-            return query;
         },
         
         createGrid: function() {
@@ -342,55 +337,6 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
             
             // Custom JsonRest store hacked to look for ETag header in the response instead of Content-Range header
             var CustomRest = JsonRest;
-            CustomRest.prototype.query = function(query, options){
-                // summary:
-                //              Queries the store for objects. This will trigger a GET request to the server, with the
-                //              query added as a query string.
-                // query: Object
-                //              The query to use for retrieving objects from the store.
-                // options: __QueryOptions?
-                //              The optional arguments to apply to the resultset.
-                // returns: dojo/store/api/Store.QueryResults
-                //              The results of the query, extended with iterative methods.
-                options = options || {};
-
-                var headers = lang.mixin({ Accept: this.accepts }, this.headers, options.headers);
-
-                if(options.start >= 0 || options.count >= 0){
-                        //set X-Range for Opera since it blocks "Range" header
-                        headers.Range = headers["X-Range"] = "items=" + (options.start || '0') + '-' +
-                                (("count" in options && options.count != Infinity) ?
-                                        (options.count + (options.start || 0) - 1) : '');
-                }
-                var hasQuestionMark = this.target.indexOf("?") > -1;
-                if(query && typeof query == "object"){
-                        query = xhr.objectToQuery(query);
-                        query = query ? (hasQuestionMark ? "&" : "?") + query: "";
-                }
-                if(options && options.sort){
-                        var sortParam = this.sortParam;
-                        query += (query || hasQuestionMark ? "&" : "?") + (sortParam ? sortParam + '=' : "sort(");
-                        for(var i = 0; i<options.sort.length; i++){
-                                var sort = options.sort[i];
-                                query += (i > 0 ? "," : "") + (sort.descending ? this.descendingPrefix : this.ascendingPrefix) + encodeURIComponent(sort.attribute);
-                        }
-                        if(!sortParam){
-                                query += ")";
-                        }
-                }
-                var results = xhr("GET", {
-                        url: this.target + (query || ""),
-                        handleAs: "json",
-                        headers: headers
-                });
-                results.total = results.then(function(){
-                        // HACK by Seth: Use ETag header instead of Content-Range (and handle double-quotes around value)
-                        var range = results.ioArgs.xhr.getResponseHeader("ETag");
-                        range = range.replace(/^"|"$/g, "");
-                        return range && (range = range.match(/\/(.+)?/)) && +range[1];
-                });
-                return QueryResults(results);
-            };
             
             console.log("CREATING GRID");
 //            var data = [
@@ -401,7 +347,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
             
 //            var store = new Memory({ data: data });
             var store = new CustomRest({
-                target: Alfresco.constants.PROXY_URI + "openesdh/search",
+                target: Alfresco.constants.PROXY_URI + "api/openesdh/search",
                 sortParam: "sortBy",
                 idProperty: "nodeRef"
             });
@@ -465,7 +411,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                     formatter = function (value) {
                         return value ? 'Ja' : 'Nej';
                     };
-                } else if (columnName === 'type') {
+                } else if (columnName === 'TYPE') {
                     // Format case type
                     formatter = function (value) {
                         return _this.caseTypes[value].label;
@@ -554,7 +500,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                 var nodeRef = getSelectedNodeRef(this);
                 if (nodeRef) {    
                     // Navigate to the node details
-                    window.location = Alfresco.constants.URL_PAGECONTEXT + "esdh/modules/jump-to-case?nodeRef=" + nodeRef;
+                    window.location = Alfresco.constants.URL_PAGECONTEXT + "folder-details?nodeRef=" + nodeRef;
                 }
             });
             
@@ -575,7 +521,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
          */
         _renderActionsCell: function (item, value, node, options) {
             var actions = [
-                {path: "esdh/modules/jump-to-case?nodeRef=" + item.nodeRef, label: this.message("casegrid.goto_case")},
+                {path: "folder-details?nodeRef=" + item.nodeRef, label: this.message("casegrid.goto_case")},
                 {path: "edit-metadata?nodeRef=" + item.nodeRef, label: this.message("casegrid.edit_case")},
                 {path: "repository#filter=path|%2FSager%2FAlle%2520sager%2F" + item['cm:name'], label: this.message("casegrid.case_documents")}
             ];

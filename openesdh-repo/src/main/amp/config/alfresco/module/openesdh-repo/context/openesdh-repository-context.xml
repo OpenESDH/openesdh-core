@@ -1,0 +1,29 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+<beans>
+    <bean id="webscript.dk.openesdh.casetypes.get"
+          class="dk.openesdh.repo.model.CaseTypes"
+          parent="webscript">
+
+        <property name="dictionaryService">
+            <ref bean="dictionaryService"/>
+        </property>
+    </bean>
+    <bean id="webscript.dk.openesdh.search.get"
+          class="dk.openesdh.repo.webscripts.search.Search"
+          parent="webscript">
+        <property name="nodeService" ref="nodeService"/>
+        <property name="repository" ref="repositoryHelper"/>
+        <property name="searchService" ref="searchService"/>
+        <property name="namespaceService" ref="namespaceService"/>
+    </bean>
+
+    <bean id="webscript.dk.openesdh.casemodel.get"
+          class="dk.openesdh.repo.model.CaseModel"
+          parent="webscript">
+
+        <property name="dictionaryService">
+            <ref bean="dictionaryService"/>
+        </property>
+    </bean>
+</beans>
