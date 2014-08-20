@@ -3,7 +3,7 @@
 <beans>
   <bean id="caseBehaviour" class="dk.openesdh.repo.policy.CaseBehaviour" init-method="init">
     <property name="caseService">
-      <ref bean="caseService" />
+      <ref bean="CaseService" />
     </property>
     <property name="policyComponent">
       <ref bean="policyComponent" />
