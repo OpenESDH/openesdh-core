@@ -2,6 +2,4 @@
 <!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
 <beans>
   <bean id="CaseService" class="dk.openesdh.repo.services.CaseServiceImpl"></bean>
-
-  <bean id="ConstantService" class="dk.openesdh.repo.services.ConstantServiceImpl"></bean>
 </beans>
