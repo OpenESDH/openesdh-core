@@ -1,14 +1,25 @@
 package dk.openesdh.repo.services;
 
+import dk.openesdh.repo.model.OpenESDHModel;
+import org.alfresco.model.ContentModel;
+import org.alfresco.repo.model.Repository;
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AuthorityService;
+import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.PermissionService;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
+import org.alfresco.service.namespace.QName;
 
+import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -16,117 +27,191 @@ import java.util.logging.Logger;
  */
 public class CaseServiceImpl implements CaseService {
 
-  private Logger logger = Logger.getLogger(String.valueOf(this.getClass()));
+    private static final QName ASPECT_CASECOUNTER = QName.createQName(OpenESDHModel.CASE_URI, "counter");
 
-  @Autowired
-  @Qualifier("NodeService")
-  protected NodeService nodeService;
+    /* TODO: Get the correct group names */
+    private static final String CASE_CONSUMER = "CaseConsumer";
+    private static final String CASE_COORDINATOR = "CaseCoordinator";
+    private static final String DATE_FORMAT = "yyyyMMdd";
 
-  @Autowired
-  @Qualifier("SearchService")
-  protected SearchService searchService;
+    private static Logger LOGGER = Logger.getLogger(String.valueOf(CaseServiceImpl.class));
 
-  @Autowired
-  @Qualifier("AuthorityService")
-  protected AuthorityService authorityService;
+    private static final String CASES = "openesdh_cases";
 
-  @Autowired
-  @Qualifier("PermissionService")
-  protected PermissionService permissionService;
+    /**
+     * repositoryHelper cannot be autowired - seemingly
+     */
+    private Repository repositoryHelper;
+    private NodeService nodeService;
+    private SearchService searchService;
+    private AuthorityService authorityService;
+    private PermissionService permissionService;
 
+    public void setNodeService(NodeService nodeService) {
+        this.nodeService = nodeService;
+    }
 
-  @Override
-  public NodeRef getNewCaseFolder() {
-/*
-    AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Void>() {
-      @Override
-      public Void doWork() {
+    public void setSearchService(SearchService searchService) {
+        this.searchService = searchService;
+    }
 
+    public void setAuthorityService(AuthorityService authorityService) {
+        this.authorityService = authorityService;
+    }
 
-        NodeRef caseNodeRef = childAssocRef.getChildRef();
-        LOGGER.info("caseNodeRef "+caseNodeRef);
+    public void setPermissionService(PermissionService permissionService) {
+        this.permissionService = permissionService;
+    }
 
-        NodeRef casesFolderNodeRef;
+    public void setRepositoryHelper(Repository repositoryHelper) {
+        this.repositoryHelper = repositoryHelper;
+    }
 
-        //Create folder structure
-        ResultSet resultSet = searchService.query(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE, SearchService.LANGUAGE_XPATH, CaseConstants.COMPANY_HOME_QUERY);
-        if(resultSet.length()==0)
-        {
-          throw new AlfrescoRuntimeException(CaseConstants.COMPANY_HOME_ERROR);
+    @Override
+    public NodeRef getCasesFolderNodeRef() {
+        NodeRef companyHomeNodeRef = repositoryHelper.getCompanyHome();
+        LOGGER.info("companyHomeNodeRef" + companyHomeNodeRef);
+        NodeRef casesFolderNodeRef = nodeService.getChildByName(companyHomeNodeRef, ContentModel.ASSOC_CONTAINS, CASES);
 
-        }else {
-          NodeRef companyHomeNodeRef = resultSet.getNodeRef(0);
-          LOGGER.info("companyHomeNodeRef"+companyHomeNodeRef);
-          casesFolderNodeRef= nodeService.getChildByName(companyHomeNodeRef, ContentModel.ASSOC_CONTAINS, CaseConstants.CASES);
-
-          if(casesFolderNodeRef==null){
+        if (casesFolderNodeRef == null) {
             //Creating case folder
-            casesFolderNodeRef=createCaseFolder(companyHomeNodeRef) ;
-          }else{
+            casesFolderNodeRef = createCaseFolder(companyHomeNodeRef);
+        } else {
             int caseUniqueNumber = 1;
-            if(nodeService.getProperty(casesFolderNodeRef, CaseConstants.PROP_CASEUNIQUENUMBER)!=null){
-              String uniqueCaseNo = (String) nodeService.getProperty(casesFolderNodeRef, CaseConstants.PROP_CASEUNIQUENUMBER);
-              caseUniqueNumber= Integer.parseInt(uniqueCaseNo);
+            if (nodeService.getProperty(casesFolderNodeRef, OpenESDHModel.PROP_CASE_UNIQUE_NUMBER) != null) {
+                caseUniqueNumber = (int) nodeService.getProperty(casesFolderNodeRef, OpenESDHModel.PROP_CASE_UNIQUE_NUMBER);
             }
-            LOGGER.info("Case Folder exist : "+caseUniqueNumber);
+            LOGGER.info("Case Folder exist : " + caseUniqueNumber);
             //assigning Case number value for unique id generation
-            nodeService.setProperty(casesFolderNodeRef, CaseConstants.PROP_CASEUNIQUENUMBER, String.format("%03d", ++caseUniqueNumber));
-          }
-
-          NodeRef casesYearNodeRef = nodeService.getChildByName(casesFolderNodeRef, ContentModel.ASSOC_CONTAINS,Integer.toString(Calendar.getInstance().get(Calendar.YEAR)));
-          if(casesYearNodeRef==null){
-            casesYearNodeRef= createNode(casesFolderNodeRef,Integer.toString(Calendar.getInstance().get(Calendar.YEAR)));
-          }
-
-          String currentMonth=Integer.toString(Calendar.getInstance().get(Calendar.MONTH)+1);
-          NodeRef casesMonthNodeRef = nodeService.getChildByName(casesYearNodeRef, ContentModel.ASSOC_CONTAINS, currentMonth);
-          if(casesMonthNodeRef==null){
-            casesMonthNodeRef= createNode(casesYearNodeRef,currentMonth);
-          }
-
-          NodeRef casesDateNodeRef = nodeService.getChildByName(casesMonthNodeRef, ContentModel.ASSOC_CONTAINS,Integer.toString(Calendar.getInstance().get(Calendar.DATE)));
-          if(casesDateNodeRef==null){
-            casesDateNodeRef=createNode(casesMonthNodeRef,Integer.toString(Calendar.getInstance().get(Calendar.DATE)));
-          }
-
-
-          //Move Case to new location
-          nodeService.moveNode(caseNodeRef,casesDateNodeRef , ContentModel.ASSOC_CONTAINS, ContentModel.ASSOC_CHILDREN);
-
-          //Create Groups and assign permission on new case
-          createGroups(caseNodeRef,(String)nodeService.getProperty(casesFolderNodeRef,CaseConstants.PROP_CASEUNIQUENUMBER));
-
-          //Generating Case ID and setting on Case Folder
-          DateFormat dateFormat = new SimpleDateFormat(CaseConstants.DATE_FORMAT);
-          Date date = new Date();
-          StringBuffer caseid=new StringBuffer(dateFormat.format(date));
-          caseid.append("-");
-          caseid.append(nodeService.getProperty(casesFolderNodeRef,CaseConstants.PROP_CASEUNIQUENUMBER));
-          LOGGER.info("Case Id is "+caseid);
-          nodeService.setProperty(caseNodeRef, CaseConstants.PROP_CASEID, caseid.toString());
-
-          //Copy Name to title
-          Map<QName, Serializable> aspectProperties=new HashMap<QName, Serializable>();
-          aspectProperties.put(ContentModel.PROP_TITLE, nodeService.getProperty(caseNodeRef, ContentModel.PROP_NAME));
-          nodeService.addAspect(caseNodeRef, ContentModel.ASPECT_TITLED, aspectProperties);
-
-          //Renaming of Node to value of Case Id
-          nodeService.setProperty(caseNodeRef, ContentModel.PROP_NAME,caseid.toString());
-
+            nodeService.setProperty(casesFolderNodeRef, OpenESDHModel.PROP_CASE_UNIQUE_NUMBER, ++caseUniqueNumber);
         }
-        return null;
-      }
-    }, "admin");
+        return casesFolderNodeRef;
+    }
 
 
-*/
+    /**
+     * Creating Case Folder Ref
+     *
+     * @param companyHomeNodeRef
+     * @return
+     */
+    protected NodeRef createCaseFolder(NodeRef companyHomeNodeRef) {
+        Map<QName, Serializable> properties = new HashMap<QName, Serializable>();
+        properties.put(ContentModel.PROP_NAME, CASES);
+        NodeRef casesFolderNodeRef = nodeService.createNode(companyHomeNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, CASES), ContentModel.TYPE_FOLDER, properties).getChildRef();
+        Map<QName, Serializable> caseNumberAspect = new HashMap<QName, Serializable>();
+        caseNumberAspect.put(OpenESDHModel.PROP_CASE_UNIQUE_NUMBER, 1);
+        nodeService.addAspect(casesFolderNodeRef, ASPECT_CASECOUNTER, caseNumberAspect);
+        return casesFolderNodeRef;
 
-    return null;
-  }
+    }
 
-  @Override
-  public NodeRef createCase(ChildAssociationRef childAssociationRef) {
-    logger.info("Create Case was called");
-    return null;
-  }
+    /**
+     * Creating Groups and assigning permission on New case folder
+     *  @param caseNodeRef
+     * @param uniqueNumber
+     */
+    protected void createGroups(NodeRef caseNodeRef, int uniqueNumber) {
+
+        String gName1 = CASE_CONSUMER + uniqueNumber;
+        String groupName1 = authorityService.getName(AuthorityType.GROUP, gName1);
+
+        if (authorityService.authorityExists(groupName1) == false) {
+            groupName1 = authorityService.createAuthority(AuthorityType.GROUP, gName1);
+        }
+        permissionService.setPermission(caseNodeRef, groupName1, PermissionService.CONSUMER, true);
+
+        String gName2 = CASE_COORDINATOR + uniqueNumber;
+        String groupName2 = authorityService.getName(AuthorityType.GROUP, gName2);
+
+        if (authorityService.authorityExists(groupName2) == false) {
+            groupName2 = authorityService.createAuthority(AuthorityType.GROUP, gName2);
+        }
+        permissionService.setPermission(caseNodeRef, groupName2, PermissionService.COORDINATOR, true);
+
+    }
+
+    /**
+     * Create all required NodeRefs
+     *
+     * @param parentFolderNodeRef
+     * @param name
+     * @return
+     */
+    private NodeRef createNode(NodeRef parentFolderNodeRef, String name) {
+        Map<QName, Serializable> properties = new HashMap<QName, Serializable>();
+        properties.put(ContentModel.PROP_NAME, name);
+        return nodeService.createNode(parentFolderNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, name), ContentModel.TYPE_FOLDER, properties).getChildRef();
+
+    }
+
+    private void setupCase(NodeRef caseNodeRef, NodeRef caseFolder, NodeRef casesFolderNodeRef) {
+        //Generating Case ID
+        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+        Date date = new Date();
+        StringBuilder caseId = new StringBuilder(dateFormat.format(date));
+        caseId.append("-");
+        caseId.append(nodeService.getProperty(casesFolderNodeRef, OpenESDHModel.PROP_CASE_UNIQUE_NUMBER));
+        LOGGER.info("Case Id is " + caseId);
+
+        //Move Case to new location
+        nodeService.moveNode(caseNodeRef, caseFolder, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, caseId.toString()));
+
+        //Create Groups and assign permission on new case
+        createGroups(caseNodeRef, (int) nodeService.getProperty(casesFolderNodeRef, OpenESDHModel.PROP_CASE_UNIQUE_NUMBER));
+
+
+        // Set id on case
+        nodeService.setProperty(caseNodeRef, OpenESDHModel.PROP_OE_ID, caseId.toString());
+
+        //Copy Name to title
+        Map<QName, Serializable> aspectProperties = new HashMap<QName, Serializable>();
+        aspectProperties.put(ContentModel.PROP_TITLE, nodeService.getProperty(caseNodeRef, ContentModel.PROP_NAME));
+        nodeService.addAspect(caseNodeRef, ContentModel.ASPECT_TITLED, aspectProperties);
+
+        //Renaming of Node to value of Case Id
+        nodeService.setProperty(caseNodeRef, ContentModel.PROP_NAME, caseId.toString());
+
+
+    }
+
+
+    @Override
+    public void createCase(final ChildAssociationRef childAssocRef) {
+        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Void>() {
+            @Override
+            public Void doWork() {
+                NodeRef caseNodeRef = childAssocRef.getChildRef();
+                LOGGER.info("caseNodeRef " + caseNodeRef);
+
+                //Create folder structure
+                NodeRef casesFolderNodeRef = getCasesFolderNodeRef();
+
+                NodeRef caseFolderNodeRef = getCaseFolderNodeRef(casesFolderNodeRef);
+                setupCase(caseNodeRef, caseFolderNodeRef, casesFolderNodeRef);
+
+                return null;
+            }
+        }, "admin");
+    }
+
+    @Override
+    public NodeRef getCaseFolderNodeRef(NodeRef casesFolderNodeRef) {
+        NodeRef casesYearNodeRef = nodeService.getChildByName(casesFolderNodeRef, ContentModel.ASSOC_CONTAINS, Integer.toString(Calendar.getInstance().get(Calendar.YEAR)));
+        if (casesYearNodeRef == null) {
+            casesYearNodeRef = createNode(casesFolderNodeRef, Integer.toString(Calendar.getInstance().get(Calendar.YEAR)));
+        }
+
+        String currentMonth = Integer.toString(Calendar.getInstance().get(Calendar.MONTH) + 1);
+        NodeRef casesMonthNodeRef = nodeService.getChildByName(casesYearNodeRef, ContentModel.ASSOC_CONTAINS, currentMonth);
+        if (casesMonthNodeRef == null) {
+            casesMonthNodeRef = createNode(casesYearNodeRef, currentMonth);
+        }
+
+        NodeRef casesDateNodeRef = nodeService.getChildByName(casesMonthNodeRef, ContentModel.ASSOC_CONTAINS, Integer.toString(Calendar.getInstance().get(Calendar.DATE)));
+        if (casesDateNodeRef == null) {
+            casesDateNodeRef = createNode(casesMonthNodeRef, Integer.toString(Calendar.getInstance().get(Calendar.DATE)));
+        }
+        return casesDateNodeRef;
+    }
 }

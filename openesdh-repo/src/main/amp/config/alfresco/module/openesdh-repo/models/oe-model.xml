@@ -17,7 +17,7 @@
             <parent>cm:folder</parent>
             <properties>
                 <property name="oe:id">
-                    <type>d:long</type>
+                    <type>d:text</type>
                 </property>
 
                 <property name="oe:title">

@@ -82,6 +82,17 @@
                 </property>
             </properties>
         </aspect>
+
+
+        <aspect name="case:counter">
+            <title>Case Counter</title>
+            <properties>
+                <property name="case:uniqueNumber">
+                    <type>d:int</type>
+                </property>
+            </properties>
+        </aspect>
+
     </aspects>
 
 </model>

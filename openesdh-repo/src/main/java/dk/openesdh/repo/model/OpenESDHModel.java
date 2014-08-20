@@ -34,6 +34,8 @@ public interface OpenESDHModel {
     public static final QName ASPECT_CASE_JOURNALIZED = QName.createQName(CASE_URI, "journalized");
     public static final QName ASPECT_CASE_JOURNALKEY = QName.createQName(CASE_URI, "journalKey");
 
+    public static final QName ASPECT_CASE_COUNTER = QName.createQName(CASE_URI, "counter");
+
     /**
      * Associations
      */
@@ -55,6 +57,8 @@ public interface OpenESDHModel {
     public static final QName PROP_CASE_JOURNALIZED_BY = QName.createQName(CASE_URI, "jounalizedBy");
     public static final QName PROP_CASE_JOURNALIZED_DATE = QName.createQName(CASE_URI, "journalizedDate");
     public static final QName PROP_CASE_JOURNAL_KEY = QName.createQName(CASE_URI, "journalKey");
+
+    public static final QName PROP_CASE_UNIQUE_NUMBER = QName.createQName(CASE_URI, "uniqueNumber");
 
 
     public static final QName PROP_DOC_ARRIVAL_DATE = QName.createQName(DOC_URI, "arrivalDate");
