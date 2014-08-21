@@ -7,7 +7,11 @@ import org.alfresco.service.cmr.repository.NodeRef;
  * Created by torben on 19/08/14.
  */
 public interface CaseService {
-    public NodeRef getCasesFolderNodeRef();
+    /**
+     * Get the root folder for storing cases
+     * @return NodeRef for the root folder
+     */
+    public NodeRef getCasesRootNodeRef();
 
     /**
      * Create a case
