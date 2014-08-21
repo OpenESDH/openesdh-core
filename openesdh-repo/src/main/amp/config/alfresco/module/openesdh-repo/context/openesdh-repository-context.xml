@@ -18,8 +18,8 @@
         <property name="namespaceService" ref="namespaceService"/>
     </bean>
 
-    <bean id="webscript.dk.openesdh.casemodel.get"
-          class="dk.openesdh.repo.model.CaseModel"
+    <bean id="webscript.dk.openesdh.model.get"
+          class="dk.openesdh.repo.model.ModelLookup"
           parent="webscript">
 
         <property name="dictionaryService">
