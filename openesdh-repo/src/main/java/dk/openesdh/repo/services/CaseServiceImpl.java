@@ -162,7 +162,7 @@ public class CaseServiceImpl implements CaseService {
         Date date = new Date();
         StringBuilder caseId = new StringBuilder(dateFormat.format(date));
         caseId.append("-");
-        caseId.append(uniqueNumber);
+        caseId.append(String.format("%04d", uniqueNumber));
         LOGGER.info("Case Id is " + caseId);
         return caseId.toString();
     }
