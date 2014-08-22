@@ -63,6 +63,7 @@ public class OpenESDHModelTest {
 
         NodeRef caseNode = c.getChildRef();
         String caseName = (String) nodeService.getProperty(caseNode, ContentModel.PROP_NAME);
+        System.out.println(caseName);
         assertEquals( name, caseName );
 
     }

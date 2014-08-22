@@ -39,23 +39,20 @@ public class CaseTypes extends AbstractWebScript {
         try
         {
             // build a json object
-
-            JSONObject obj = new JSONObject();
             JSONArray arr = new JSONArray();
 
 
             for (QName caseType : caseTypes) {
                 JSONObject c = new JSONObject();
                 c.put("NamespaceURI", caseType.getNamespaceURI());
-                c.put("prefix", caseType.getPrefixString());
+                c.put("Prefix", caseType.getPrefixString());
                 c.put("Name", caseType.getLocalName());
 
                 arr.put(c);
-
-                // build a JSON string and send it back
-                String jsonString = arr.toString();
-                res.getWriter().write(jsonString);
             }
+            // build a JSON string and send it back
+            String jsonString = arr.toString();
+            res.getWriter().write(jsonString);
         }
         catch(JSONException e)
         {
