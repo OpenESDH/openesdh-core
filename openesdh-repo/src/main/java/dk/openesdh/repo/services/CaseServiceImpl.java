@@ -189,7 +189,12 @@ public class CaseServiceImpl implements CaseService {
         }, "admin");
     }
 
-    private int getUniqueNumber(NodeRef caseFolderNodeRef) {
+    /**
+     * Synchronized method to get the unique number used in caseIds.
+     * @param caseFolderNodeRef
+     * @return The unique number
+     */
+    private synchronized int getUniqueNumber(NodeRef caseFolderNodeRef) {
         int caseUniqueNumber = 1;
         if (nodeService.hasAspect(caseFolderNodeRef, OpenESDHModel.ASPECT_CASE_COUNTER)) {
             caseUniqueNumber = (int) nodeService.getProperty(caseFolderNodeRef, OpenESDHModel.PROP_CASE_UNIQUE_NUMBER);
