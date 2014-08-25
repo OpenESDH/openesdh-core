@@ -1,0 +1,79 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE permissions PUBLIC '-//ALFRESCO//DTD PERMISSIONS//EN' 'permissionSchema.dtd'>
+
+<permissions>
+
+    <!-- Namespaces used in type references -->
+    <namespaces>
+        <namespace uri="http://www.alfresco.org/model/system/1.0" prefix="sys"/>
+        <namespace uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>
+        <namespace uri="http://openesdh.dk/model/case/1.0/" prefix="case" />
+    </namespaces>
+    <!-- ============================================ -->
+    <!-- Permissions specific to the ESDH Case module -->
+    <!-- ============================================ -->
+
+    <!-- README!!: Permission group names MUST be unique, otherwise the name will get
+         prefixed with the qname of the type.
+    -->
+
+    <permissionSet type="case:simple" expose="selected">
+        <permissionGroup name="case_SimpleReader" expose="true">
+            <includePermissionGroup permissionGroup="Consumer" type="cm:cmobject" />
+        </permissionGroup>
+        <permissionGroup name="case_SimpleWriter"  expose="true">
+            <includePermissionGroup permissionGroup="Coordinator" type="cm:cmobject" />
+        </permissionGroup>
+
+        <!--
+        <permission name="_SimpleReader" expose="false" >
+            <grantedToGroup permissionGroup="SimpleReader" />
+            <requiredPermission on="parent" name="_ReadChildren" implies="false"/>
+        </permission>
+
+        <permission name="_SimpleWriter" expose="false" >
+            <grantedToGroup permissionGroup="SimpleWriter" />
+            <requiredPermission on="parent" name="_ReadChildren" implies="false"/>
+            <requiredPermission on="parent" name="_WriteChildren" implies="false"/>
+        </permission>
+-->
+    </permissionSet>
+
+
+    <!--
+        <permissionSet type="esdh:personnelCase" expose="selected">
+            <permissionGroup name="PersonnelStaff" expose="true"/>
+            <permissionGroup name="PersonnelAdministrator" expose="true"/>
+            <permissionGroup name="PersonnelManager" expose="true"/>
+            <permissionGroup name="PersonnelEmployee" expose="true"/>
+            <permissionGroup name="PersonnelMember" expose="true"/>
+        </permissionSet>
+
+        <permissionSet type="esdh:jobCase" expose="selected">
+            <permissionGroup name="JobManager" expose="true"/>
+            <permissionGroup name="JobParticipant" expose="true"/>
+        </permissionSet>
+
+        <permissionSet type="esdh:operationsCase" expose="selected">
+            <permissionGroup name="OperationsParticipant" expose="true"/>
+        </permissionSet>
+
+        <permissionSet type="esdh:customerCase" expose="selected">
+            <permissionGroup name="CustomerParticipant" expose="true"/>
+        </permissionSet>
+
+
+        <permissionSet type="esdh:pasCase" expose="selected">
+            <permissionGroup name="PasPortfolioManager" expose="true" />
+            <permissionGroup name="PasProjectBoss" expose="true" />
+            <permissionGroup name="PasSteeringCommitteeManager" expose="true" />
+            <permissionGroup name="PasProjectManager" expose="true" />
+            <permissionGroup name="PasProjectAdministrator" expose="true" />
+            <permissionGroup name="PasOperationsConsultant" expose="true" />
+            <permissionGroup name="PasProjectParticipant" expose="true" />
+        </permissionSet>
+    -->
+
+</permissions>
+
+

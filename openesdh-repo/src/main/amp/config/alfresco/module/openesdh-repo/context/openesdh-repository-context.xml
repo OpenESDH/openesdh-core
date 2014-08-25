@@ -26,4 +26,8 @@
             <ref bean="dictionaryService"/>
         </property>
     </bean>
+
+    <bean id="extendPermissionModel" parent="permissionModelBootstrap">
+        <property name="model" value="alfresco/module/openesdh-repo/models/permisson-model-extension.xml" />
+    </bean>
 </beans>

@@ -106,7 +106,7 @@ public class CaseServiceImpl implements CaseService {
         if (!authorityService.authorityExists(groupName1)) {
             groupName1 = authorityService.createAuthority(AuthorityType.GROUP, gName1);
         }
-        permissionService.setPermission(caseNodeRef, groupName1, PermissionService.CONSUMER, true);
+        permissionService.setPermission(caseNodeRef, groupName1, "case_SimpleReader", true);
 
         String gName2 = CASE_COORDINATOR + uniqueNumber;
         String groupName2 = authorityService.getName(AuthorityType.GROUP, gName2);
@@ -114,7 +114,7 @@ public class CaseServiceImpl implements CaseService {
         if (!authorityService.authorityExists(groupName2)) {
             groupName2 = authorityService.createAuthority(AuthorityType.GROUP, gName2);
         }
-        permissionService.setPermission(caseNodeRef, groupName2, PermissionService.COORDINATOR, true);
+        permissionService.setPermission(caseNodeRef, groupName2, "case_SimpleWriter", true);
 
     }
 
