@@ -16,10 +16,7 @@ import org.alfresco.service.namespace.QName;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Logger;
 
 /**
@@ -95,27 +92,24 @@ public class CaseServiceImpl implements CaseService {
 
     /**
      * Creating Groups and assigning permission on New case folder
-     *  @param caseNodeRef
+     * @param caseNodeRef
      * @param uniqueNumber
      */
-    protected void createGroups(NodeRef caseNodeRef, int uniqueNumber) {
+    protected void createGroups(NodeRef caseNodeRef, String caseId) {
 
-        String gName1 = CASE_CONSUMER + uniqueNumber;
-        String groupName1 = authorityService.getName(AuthorityType.GROUP, gName1);
+        Set<String> settablePermissions = permissionService.getSettablePermissions(caseNodeRef);
 
-        if (!authorityService.authorityExists(groupName1)) {
-            groupName1 = authorityService.createAuthority(AuthorityType.GROUP, gName1);
+        for (Iterator<String> iterator = settablePermissions.iterator(); iterator.hasNext(); ) {
+            String permission = iterator.next();
+
+            String groupSuffix = "case_" + caseId + "_" + permission;
+            String groupName = authorityService.getName(AuthorityType.GROUP, groupSuffix);
+
+            if (!authorityService.authorityExists(groupName)) {
+                groupName = authorityService.createAuthority(AuthorityType.GROUP, groupSuffix);
+            }
+            permissionService.setPermission(caseNodeRef, groupName, permission, true);
         }
-        permissionService.setPermission(caseNodeRef, groupName1, "case_SimpleReader", true);
-
-        String gName2 = CASE_COORDINATOR + uniqueNumber;
-        String groupName2 = authorityService.getName(AuthorityType.GROUP, gName2);
-
-        if (!authorityService.authorityExists(groupName2)) {
-            groupName2 = authorityService.createAuthority(AuthorityType.GROUP, gName2);
-        }
-        permissionService.setPermission(caseNodeRef, groupName2, "case_SimpleWriter", true);
-
     }
 
     /**
@@ -140,7 +134,7 @@ public class CaseServiceImpl implements CaseService {
         nodeService.moveNode(caseNodeRef, caseFolderNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, caseId));
 
         //Create Groups and assign permission on new case
-        createGroups(caseNodeRef, caseUniqueNumber);
+        createGroups(caseNodeRef, caseId);
 
         // Set id on case
         nodeService.setProperty(caseNodeRef, OpenESDHModel.PROP_OE_ID, caseId);
