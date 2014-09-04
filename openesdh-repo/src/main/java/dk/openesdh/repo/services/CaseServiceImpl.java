@@ -154,7 +154,7 @@ public class CaseServiceImpl implements CaseService {
 
     }
 
-    private void setupCase(NodeRef caseNodeRef, NodeRef caseFolderNodeRef, int caseUniqueNumber) {
+    private void setupCase(NodeRef caseNodeRef, NodeRef caseFolderNodeRef, long caseUniqueNumber) {
         String caseId = getCaseId(caseUniqueNumber);
 
 
@@ -180,14 +180,15 @@ public class CaseServiceImpl implements CaseService {
 
     }
 
-    private String getCaseId(Serializable uniqueNumber) {
+    private String getCaseId(long uniqueNumber) {
         //Generating Case ID
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Date date = new Date();
         StringBuilder caseId = new StringBuilder(dateFormat.format(date));
         caseId.append("-");
-        caseId.append(String.format("%04d", uniqueNumber));
+        caseId.append(String.format("%020d", uniqueNumber));
         LOGGER.info("Case Id is " + caseId);
+
         return caseId.toString();
     }
 
@@ -204,37 +205,14 @@ public class CaseServiceImpl implements CaseService {
                 NodeRef casesRootNodeRef = getCasesRootNodeRef();
 
                 NodeRef caseFolderNodeRef = getCaseFolderNodeRef(casesRootNodeRef);
-                int caseUniqueNumber = getUniqueNumber(caseFolderNodeRef);
+                // Get a unique number to append to the caseId. We are using node-dbid, as it is unique across nodes in a cluster
+                long caseUniqueNumber = (long) nodeService.getProperty(caseNodeRef, ContentModel.PROP_NODE_DBID);
 
                 setupCase(caseNodeRef, caseFolderNodeRef, caseUniqueNumber);
 
                 return null;
             }
         }, "admin");
-    }
-
-    /**
-     * Synchronized method to get the unique number used in caseIds.
-     * @param caseFolderNodeRef
-     * @return The unique number
-     */
-    // TODO Cluster problems
-    private synchronized int getUniqueNumber(NodeRef caseFolderNodeRef) {
-        int caseUniqueNumber = 1;
-        if (nodeService.hasAspect(caseFolderNodeRef, OpenESDHModel.ASPECT_CASE_COUNTER)) {
-            caseUniqueNumber = (int) nodeService.getProperty(caseFolderNodeRef, OpenESDHModel.PROP_CASE_UNIQUE_NUMBER);
-        }
-        else {
-            // Reset the counter for each day - thus storing it on the day nodes
-            Map<QName, Serializable> caseNumberAspect = new HashMap<QName, Serializable>();
-            // TODO Next line superfluous - test
-            caseNumberAspect.put(OpenESDHModel.PROP_CASE_UNIQUE_NUMBER, caseUniqueNumber);
-            nodeService.addAspect(caseFolderNodeRef, OpenESDHModel.ASPECT_CASE_COUNTER, caseNumberAspect);
-        }
-        LOGGER.info("Case Folder exist : " + caseUniqueNumber);
-        //assigning Case number value for unique id generation
-        nodeService.setProperty(caseFolderNodeRef, OpenESDHModel.PROP_CASE_UNIQUE_NUMBER, ++caseUniqueNumber);
-        return caseUniqueNumber;
     }
 
     /**\
