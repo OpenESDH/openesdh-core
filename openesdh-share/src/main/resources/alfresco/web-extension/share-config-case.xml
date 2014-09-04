@@ -4,6 +4,7 @@
             <!-- Default form configuration for the case type -->
             <form>
                 <field-visibility>
+                    <show id="case:test"/>
                     <show id="oe:id"/>
                     <show id="oe:title"/>
                     <show id="oe:description"/>
@@ -13,9 +14,6 @@
                     <show id="case:endDate"/>
                 </field-visibility>
                 <appearance>
-                    <field id="oe:id">
-                        <control template="/org/alfresco/components/form/controls/textfield.ftl"></control>
-                    </field>
                   <field id="oe:title">
                     <control template="/org/alfresco/components/form/controls/textfield.ftl"></control>
                   </field>
@@ -25,10 +23,13 @@
                   <field id="oe:status">
                     <control template="/org/alfresco/components/form/controls/selectone.ftl"></control>
                   </field>
-                  <field id="case:owners">
+                  <!-- field id="case:owners">
                     <control template="/org/alfresco/components/form/controls/authority.ftl">
+                        <control-param name="multipleSelectMode">true</control-param>
+                        <control-param name="itemType">cm:object</control-param>
+                        <control-param name="itemFamily">authority</control-param>
                     </control>
-                  </field>
+                  </field -->
                   <field id="case:startDate">
                     <control template="/org/alfresco/components/form/controls/date.ftl"></control>
                   </field>

@@ -4,6 +4,7 @@ import dk.openesdh.repo.model.OpenESDHModel;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -93,7 +94,7 @@ public class CaseServiceImpl implements CaseService {
     /**
      * Creating Groups and assigning permission on New case folder
      * @param caseNodeRef
-     * @param uniqueNumber
+     * @param caseId
      */
     protected void createGroups(NodeRef caseNodeRef, String caseId) {
 
@@ -109,6 +110,33 @@ public class CaseServiceImpl implements CaseService {
                 groupName = authorityService.createAuthority(AuthorityType.GROUP, groupSuffix);
             }
             permissionService.setPermission(caseNodeRef, groupName, permission, true);
+        }
+
+        // Setup owners
+        // Create the owner group
+        String groupSuffix = "case_" + caseId + "_CaseOwners";
+        String groupName = authorityService.getName(AuthorityType.GROUP, groupSuffix);
+
+        if (!authorityService.authorityExists(groupName)) {
+            groupName = authorityService.createAuthority(AuthorityType.GROUP, groupSuffix);
+        }
+        permissionService.setPermission(caseNodeRef, groupName, "CaseOwners", true);
+
+        // Add the owners
+        List<AssociationRef> owners = nodeService.getTargetAssocs(caseNodeRef, OpenESDHModel.PROP_CASE_OWNERS);
+        for (Iterator<AssociationRef> iterator = owners.iterator(); iterator.hasNext(); ) {
+            AssociationRef next = iterator.next();
+            NodeRef owner = next.getTargetRef();
+
+            // authorityName, userName
+            String ownerName = "";
+            if(nodeService.getType(owner).equals(ContentModel.TYPE_AUTHORITY_CONTAINER)) {
+                ownerName = (String) nodeService.getProperty(owner, ContentModel.PROP_AUTHORITY_NAME);
+            }
+            else {
+                ownerName = (String) nodeService.getProperty(owner, ContentModel.PROP_USERNAME);
+            }
+            authorityService.addAuthority(groupName, ownerName);
         }
     }
 
@@ -131,6 +159,7 @@ public class CaseServiceImpl implements CaseService {
 
 
         //Move Case to new location
+        // TODO Perhaps use onBeforeCreateNode
         nodeService.moveNode(caseNodeRef, caseFolderNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, caseId));
 
         //Create Groups and assign permission on new case
@@ -141,6 +170,7 @@ public class CaseServiceImpl implements CaseService {
 
         //Copy Name to title
         Map<QName, Serializable> aspectProperties = new HashMap<QName, Serializable>();
+        // TODO Use title from cm:folder as property
         aspectProperties.put(ContentModel.PROP_TITLE, nodeService.getProperty(caseNodeRef, ContentModel.PROP_NAME));
         nodeService.addAspect(caseNodeRef, ContentModel.ASPECT_TITLED, aspectProperties);
 
@@ -188,6 +218,7 @@ public class CaseServiceImpl implements CaseService {
      * @param caseFolderNodeRef
      * @return The unique number
      */
+    // TODO Cluster problems
     private synchronized int getUniqueNumber(NodeRef caseFolderNodeRef) {
         int caseUniqueNumber = 1;
         if (nodeService.hasAspect(caseFolderNodeRef, OpenESDHModel.ASPECT_CASE_COUNTER)) {
@@ -196,6 +227,7 @@ public class CaseServiceImpl implements CaseService {
         else {
             // Reset the counter for each day - thus storing it on the day nodes
             Map<QName, Serializable> caseNumberAspect = new HashMap<QName, Serializable>();
+            // TODO Next line superfluous - test
             caseNumberAspect.put(OpenESDHModel.PROP_CASE_UNIQUE_NUMBER, caseUniqueNumber);
             nodeService.addAspect(caseFolderNodeRef, OpenESDHModel.ASPECT_CASE_COUNTER, caseNumberAspect);
         }

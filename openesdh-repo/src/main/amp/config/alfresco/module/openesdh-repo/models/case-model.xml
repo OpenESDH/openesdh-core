@@ -34,11 +34,11 @@
             <parent>oe:base</parent>
             <archive>true</archive>
             <properties>
-                <property name="case:owners">
+                <!-- property name="case:owners">
                     <type>d:noderef</type>
                     <mandatory>true</mandatory>
                     <multiple>true</multiple>
-                </property>
+                </property -->
 
                 <property name="case:startDate">
                     <type>d:date</type>
@@ -50,6 +50,21 @@
                     <mandatory>false</mandatory>
                 </property>
             </properties>
+
+            <associations>
+                <association name="case:owners">
+                    <source>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </source>
+                    <target>
+                        <class>cm:authority</class>
+                        <mandatory>true</mandatory>
+                        <many>true</many>
+                    </target>
+                </association>
+            </associations>
+
             <mandatory-aspects>
                 <aspect>sys:undeletable</aspect>
                 <aspect>oe:journalizable</aspect>

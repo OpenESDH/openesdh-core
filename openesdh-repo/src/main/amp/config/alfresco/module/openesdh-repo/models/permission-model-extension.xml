@@ -20,6 +20,15 @@
     <!-- permissionGroup names are camelcase, including URI prefix, and width a capital first letter, e.g.:
         A reader for the case:simple type, should be named CaseSimpleReader -->
 
+    <!--
+    1.Coordinator: read, edit, add, delete (full access)
+    2.Collaborator: read, edit, add
+    3.Contributor: read, add
+    4.Editor: read, edit
+    5.Consumer: read
+    -->
+
+
     <permissionSet type="case:simple" expose="selected">
         <permissionGroup name="CaseSimpleReader" expose="true">
             <includePermissionGroup permissionGroup="Consumer" type="cm:cmobject" />
@@ -46,40 +55,11 @@
     </permissionSet>
 
 
-    <!--
-        <permissionSet type="esdh:personnelCase" expose="selected">
-            <permissionGroup name="PersonnelStaff" expose="true"/>
-            <permissionGroup name="PersonnelAdministrator" expose="true"/>
-            <permissionGroup name="PersonnelManager" expose="true"/>
-            <permissionGroup name="PersonnelEmployee" expose="true"/>
-            <permissionGroup name="PersonnelMember" expose="true"/>
-        </permissionSet>
-
-        <permissionSet type="esdh:jobCase" expose="selected">
-            <permissionGroup name="JobManager" expose="true"/>
-            <permissionGroup name="JobParticipant" expose="true"/>
-        </permissionSet>
-
-        <permissionSet type="esdh:operationsCase" expose="selected">
-            <permissionGroup name="OperationsParticipant" expose="true"/>
-        </permissionSet>
-
-        <permissionSet type="esdh:customerCase" expose="selected">
-            <permissionGroup name="CustomerParticipant" expose="true"/>
-        </permissionSet>
-
-
-        <permissionSet type="esdh:pasCase" expose="selected">
-            <permissionGroup name="PasPortfolioManager" expose="true" />
-            <permissionGroup name="PasProjectBoss" expose="true" />
-            <permissionGroup name="PasSteeringCommitteeManager" expose="true" />
-            <permissionGroup name="PasProjectManager" expose="true" />
-            <permissionGroup name="PasProjectAdministrator" expose="true" />
-            <permissionGroup name="PasOperationsConsultant" expose="true" />
-            <permissionGroup name="PasProjectParticipant" expose="true" />
-        </permissionSet>
-    -->
-
+    <permissionSet type="case:base" expose="selected">
+        <permissionGroup name="CaseOwners" expose="false">
+            <includePermissionGroup permissionGroup="Coordinator" type="cm:cmobject" />
+        </permissionGroup>
+    </permissionSet>
 </permissions>
 
 
