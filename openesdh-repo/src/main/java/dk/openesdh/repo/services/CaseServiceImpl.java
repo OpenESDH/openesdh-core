@@ -25,14 +25,8 @@ import java.util.logging.Logger;
  */
 public class CaseServiceImpl implements CaseService {
 
-    /* TODO: Get the correct group names */
-    private static final String CASE_CONSUMER = "CaseConsumer";
-    private static final String CASE_COORDINATOR = "CaseCoordinator";
-    private static final String DATE_FORMAT = "yyyyMMdd";
 
     private static Logger LOGGER = Logger.getLogger(CaseServiceImpl.class.toString());
-
-    private static final String CASES = "openesdh_cases";
 
     /**
      * repositoryHelper cannot be autowired - seemingly
@@ -96,7 +90,7 @@ public class CaseServiceImpl implements CaseService {
      * @param caseNodeRef
      * @param caseId
      */
-    protected void createGroups(NodeRef caseNodeRef, String caseId) {
+    void createGroups(NodeRef caseNodeRef, String caseId) {
 
         Set<String> settablePermissions = permissionService.getSettablePermissions(caseNodeRef);
 
@@ -154,12 +148,11 @@ public class CaseServiceImpl implements CaseService {
 
     }
 
-    private void setupCase(NodeRef caseNodeRef, NodeRef caseFolderNodeRef, long caseUniqueNumber) {
+    void setupCase(NodeRef caseNodeRef, NodeRef caseFolderNodeRef, long caseUniqueNumber) {
         String caseId = getCaseId(caseUniqueNumber);
 
 
         //Move Case to new location
-        // TODO Perhaps use onBeforeCreateNode
         nodeService.moveNode(caseNodeRef, caseFolderNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, caseId));
 
         //Create Groups and assign permission on new case
@@ -180,7 +173,7 @@ public class CaseServiceImpl implements CaseService {
 
     }
 
-    private String getCaseId(long uniqueNumber) {
+    String getCaseId(long uniqueNumber) {
         //Generating Case ID
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Date date = new Date();
@@ -233,7 +226,7 @@ public class CaseServiceImpl implements CaseService {
      * @param calendarType The type of calendar info to look up, i.e. Calendar.YEAR, Calendar.MONTH, or Calendar.DATE
      * @return
      */
-    private NodeRef getCasePathNodeRef(NodeRef parent, int calendarType) {
+    NodeRef getCasePathNodeRef(NodeRef parent, int calendarType) {
         // Add 1 for months, as they are indexed form 0
         String casePathName = Integer.toString(Calendar.getInstance().get(calendarType) + (calendarType == Calendar.MONTH ? 1 : 0));
         NodeRef casePathNodeRef = nodeService.getChildByName(parent, ContentModel.ASSOC_CONTAINS, casePathName);

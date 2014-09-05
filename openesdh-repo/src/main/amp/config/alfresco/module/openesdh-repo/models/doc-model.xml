@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <model name="doc:documentModel"
        xmlns="http://www.alfresco.org/model/dictionary/1.0">
-    <description>ESDH Case Model</description>
-    <author>Ole Hejlskov</author>
+    <description>openESDH Document Model</description>
+    <author>Seth Yastrov, Flemming Heide Pedersern, Ole Hejlskov, Torben Lauritzen</author>
     <version>1.0</version>
     <imports>
         <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d" />

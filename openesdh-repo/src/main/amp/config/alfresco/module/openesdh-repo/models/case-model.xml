@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <model name="case:caseModel"
        xmlns="http://www.alfresco.org/model/dictionary/1.0">
-    <description>ESDH Case Model</description>
-    <author>Ole Hejlskov</author>
+    <description>openESDH Case Model</description>
+    <author>Seth Yastrov, Flemming Heide Pedersern, Ole Hejlskov, Torben Lauritzen</author>
     <version>1.0</version>
     <imports>
         <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d" />
@@ -91,17 +91,6 @@
                 </property>
             </properties>
         </aspect>
-
-
-        <aspect name="case:counter">
-            <title>Case Counter</title>
-            <properties>
-                <property name="case:uniqueNumber">
-                    <type>d:int</type>
-                </property>
-            </properties>
-        </aspect>
-
     </aspects>
 
 </model>

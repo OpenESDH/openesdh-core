@@ -4,21 +4,23 @@
             <!-- Default form configuration for the case type -->
             <form>
                 <field-visibility>
-                    <show id="oe:title"/>
-                    <show id="oe:description"/>
-                    <show id="oe:status"/>
-                    <show id="case:owners"/>
-                    <show id="case:startDate"/>
-                    <show id="case:endDate"/>
+                    <show id="oe:title" force="true"/>
+                    <show id="oe:description" force="true"/>
+                    <show id="oe:status" />
+                    <show id="case:owners" />
+                    <show id="case:startDate" />
+                    <show id="case:endDate" />
                 </field-visibility>
                 <appearance>
-                  <field id="oe:title">
-                    <control template="/org/alfresco/components/form/controls/textfield.ftl"></control>
-                  </field>
-                  <field id="oe:description">
-                    <control template="/org/alfresco/components/form/controls/textarea.ftl"></control>
-                  </field>
-                  <field id="oe:status">
+                    <field id="oe:title">
+                        <control template="/org/alfresco/components/form/controls/textfield.ftl" />
+                    </field>
+                    <field id="oe:description">
+                        <control>
+                            <control-param name="activateLinks">true</control-param>
+                        </control>
+                    </field>
+                  <!-- field id="oe:status">
                     <control template="/org/alfresco/components/form/controls/selectone.ftl"></control>
                   </field>
                   <field id="case:startDate">
@@ -26,7 +28,7 @@
                   </field>
                   <field id="case:endDate">
                     <control template="/org/alfresco/components/form/controls/date.ftl"></control>
-                  </field>
+                  </field -->
                 </appearance>
             </form>
         </forms>

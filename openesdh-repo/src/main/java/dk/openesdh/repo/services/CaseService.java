@@ -7,6 +7,11 @@ import org.alfresco.service.cmr.repository.NodeRef;
  * Created by torben on 19/08/14.
  */
 public interface CaseService {
+
+    static final String DATE_FORMAT = "yyyyMMdd";
+    static final String CASES = "openesdh_cases";
+
+
     /**
      * Get the root folder for storing cases
      * @return NodeRef for the root folder
