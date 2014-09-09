@@ -36,10 +36,6 @@
         <permissionGroup name="CaseSimpleWriter"  expose="true">
             <includePermissionGroup permissionGroup="Coordinator" type="cm:cmobject" />
         </permissionGroup>
-
-        <permissionGroup name="CaseComplexWriter"  expose="true">
-            <includePermissionGroup permissionGroup="Coordinator" type="cm:cmobject" />
-        </permissionGroup>
         <!--
         <permission name="_SimpleReader" expose="false" >
             <grantedToGroup permissionGroup="SimpleReader" />
