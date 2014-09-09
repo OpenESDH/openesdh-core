@@ -4,10 +4,15 @@ import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 import dk.openesdh.repo.model.OpenESDHModel;
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
+import org.alfresco.service.ServiceRegistry;
+import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.search.ResultSet;
+import org.alfresco.service.cmr.search.SearchParameters;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
@@ -16,10 +21,12 @@ import org.alfresco.repo.model.Repository;
 import org.alfresco.service.namespace.DynamicNamespacePrefixResolver;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
+import org.alfresco.util.ApplicationContextHelper;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -63,6 +70,8 @@ public class CaseServiceImplTest {
     @Qualifier("retryingTransactionHelper")
     protected RetryingTransactionHelper retryingTransactionHelper;
 
+    protected BehaviourFilter behaviourFilter;
+
     private CaseServiceImpl caseService = null;
     private DynamicNamespacePrefixResolver namespacePrefixResolver = new DynamicNamespacePrefixResolver(null);
     private NodeRef temporaryRepoNodeRef;
@@ -70,8 +79,8 @@ public class CaseServiceImplTest {
 
     @Before
     public void setUp() throws Exception {
-        // TODO: All of this could have been done only once
 
+        // TODO: All of this could have been done only once
         AuthenticationUtil.setFullyAuthenticatedUser(ADMIN_USER_NAME);
 
         caseService = new CaseServiceImpl();
@@ -93,6 +102,8 @@ public class CaseServiceImplTest {
             temporaryRepoNodeRef = nodeService.createNode(repositoryHelper.getCompanyHome(), ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, name), ContentModel.TYPE_FOLDER, properties).getChildRef();
         }
 
+        behaviourFilter = (BehaviourFilter) ApplicationContextHelper.getApplicationContext().getBean("policyBehaviourFilter");
+
 
         name = "unittest_case";
         temporaryCaseNodeRef = nodeService.getChildByName(repositoryHelper.getCompanyHome(), ContentModel.ASSOC_CONTAINS, name);
@@ -105,7 +116,10 @@ public class CaseServiceImplTest {
                     Map<QName, Serializable> properties = new HashMap<QName, Serializable>();
                     String name = "unittest_case";
                     properties.put(ContentModel.PROP_NAME, name);
-                    temporaryCaseNodeRef = nodeService.createNode(temporaryRepoNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, "hej"), ContentModel.TYPE_FOLDER).getChildRef();
+
+                    // Disable behaviour for txn
+                    behaviourFilter.disableBehaviour();
+
                     temporaryCaseNodeRef = nodeService.createNode(temporaryRepoNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, name), OpenESDHModel.TYPE_CASE_SIMPLE, properties).getChildRef();
 
                     LinkedList owners = new LinkedList();
@@ -113,6 +127,7 @@ public class CaseServiceImplTest {
                     owners.add(repositoryHelper.getPerson());
                     nodeService.setAssociations(temporaryCaseNodeRef, OpenESDHModel.ASSOC_CASE_OWNERS, owners);
 
+                    behaviourFilter.enableBehaviour();
                     return null;
                 }
             });
@@ -251,5 +266,28 @@ public class CaseServiceImplTest {
         */
 
 
+    }
+
+
+    @Test
+    public void testSetupCase() throws Exception {
+        /*
+        // Used for removing aspects, in the absence of the javascript console.
+        SearchParameters sp = new SearchParameters();
+        sp.addStore(repositoryHelper.getCompanyHome().getStoreRef());
+        sp.setLanguage(SearchService.LANGUAGE_LUCENE);
+        sp.setQuery("TYPE:\"case:base\"");
+        ResultSet rs = searchService.query(sp);
+        try {
+            List<NodeRef> cases = rs.getNodeRefs();
+            for (int i = 0; i < cases.size(); i++) {
+                NodeRef nodeRef = cases.get(i);
+                nodeService.removeAspect(nodeRef, ContentModel.ASPECT_UNDELETABLE);
+            }
+        }
+        finally {
+            rs.close();
+        }
+        */
     }
 }
