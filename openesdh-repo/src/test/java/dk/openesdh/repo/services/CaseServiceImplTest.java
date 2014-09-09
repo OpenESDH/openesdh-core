@@ -6,7 +6,6 @@ import dk.openesdh.repo.model.OpenESDHModel;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
-import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.search.SearchService;
@@ -66,7 +65,7 @@ public class CaseServiceImplTest {
 
     private CaseServiceImpl caseService = null;
     private DynamicNamespacePrefixResolver namespacePrefixResolver = new DynamicNamespacePrefixResolver(null);
-    private NodeRef temporaryNode;
+    private NodeRef temporaryRepoNodeRef;
     private NodeRef temporaryCaseNodeRef;
 
     @Before
@@ -87,11 +86,11 @@ public class CaseServiceImplTest {
 
         Map<QName, Serializable> properties = new HashMap<QName, Serializable>();
         String name = "unittest_tmp";
-        temporaryNode = nodeService.getChildByName(repositoryHelper.getCompanyHome(), ContentModel.ASSOC_CONTAINS, name);
-        if (temporaryNode == null) {
+        temporaryRepoNodeRef = nodeService.getChildByName(repositoryHelper.getCompanyHome(), ContentModel.ASSOC_CONTAINS, name);
+        if (temporaryRepoNodeRef == null) {
             // Create temporary node for use during testing
             properties.put(ContentModel.PROP_NAME, name);
-            temporaryNode = nodeService.createNode(repositoryHelper.getCompanyHome(), ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, name), ContentModel.TYPE_FOLDER, properties).getChildRef();
+            temporaryRepoNodeRef = nodeService.createNode(repositoryHelper.getCompanyHome(), ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, name), ContentModel.TYPE_FOLDER, properties).getChildRef();
         }
 
 
@@ -106,8 +105,8 @@ public class CaseServiceImplTest {
                     Map<QName, Serializable> properties = new HashMap<QName, Serializable>();
                     String name = "unittest_case";
                     properties.put(ContentModel.PROP_NAME, name);
-                    temporaryCaseNodeRef = nodeService.createNode(temporaryNode, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, "hej"), ContentModel.TYPE_FOLDER).getChildRef();
-                    temporaryCaseNodeRef = nodeService.createNode(temporaryNode, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, name), OpenESDHModel.TYPE_CASE_SIMPLE, properties).getChildRef();
+                    temporaryCaseNodeRef = nodeService.createNode(temporaryRepoNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, "hej"), ContentModel.TYPE_FOLDER).getChildRef();
+                    temporaryCaseNodeRef = nodeService.createNode(temporaryRepoNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, name), OpenESDHModel.TYPE_CASE_SIMPLE, properties).getChildRef();
 
                     LinkedList owners = new LinkedList();
 
@@ -123,7 +122,7 @@ public class CaseServiceImplTest {
     @After
     public void tearDown() throws Exception {
         // Remove temporary node, and all its content, also removes testcase
-        nodeService.deleteNode(temporaryNode);
+        nodeService.deleteNode(temporaryRepoNodeRef);
 //        policyBehaviourFilter.enableBehaviour();
     }
 
@@ -132,7 +131,7 @@ public class CaseServiceImplTest {
         NodeRef casesRootNodeRef = caseService.getCasesRootNodeRef();
         assertNotNull("Cases root noderef does not exist", casesRootNodeRef);
         String path = nodeService.getPath(casesRootNodeRef).toPrefixString(namespacePrefixResolver);
-        assertTrue("Cases root noderef is not in the right position", "/app:company_home/case:openesdh_cases".equals(path));
+        assertTrue("Cases root noderef is not in the right place", "/app:company_home/case:openesdh_cases".equals(path));
     }
 
     @Test
@@ -151,7 +150,7 @@ public class CaseServiceImplTest {
     @Test
     public void testGetCasePathNodeRef() throws Exception {
         Calendar c = Calendar.getInstance();
-        NodeRef y = caseService.getCasePathNodeRef(temporaryNode, Calendar.YEAR);
+        NodeRef y = caseService.getCasePathNodeRef(temporaryRepoNodeRef, Calendar.YEAR);
         assertTrue("Year node does not have the correct value", c.get(Calendar.YEAR) == Integer.parseInt((String) nodeService.getProperty(y, ContentModel.PROP_NAME)));
         NodeRef m = caseService.getCasePathNodeRef(y, Calendar.MONTH);
         assertTrue("Month node does not have the correct value", (c.get(Calendar.MONTH) + 1) == Integer.parseInt((String) nodeService.getProperty(m, ContentModel.PROP_NAME)));
@@ -222,17 +221,35 @@ public class CaseServiceImplTest {
     }
 
     @Test
-    public void testSetupCase() {
-
-    }
-
-    @Test
-    public void testCreateCase() throws Exception {
-
-    }
-
-    @Test
     public void testGetCaseFolderNodeRef() throws Exception {
+        Calendar c = Calendar.getInstance();
+
+        NodeRef caseFolderNodeRef = caseService.getCaseFolderNodeRef(temporaryRepoNodeRef);
+        int name = Integer.parseInt((String) nodeService.getProperty(caseFolderNodeRef, ContentModel.PROP_NAME));
+        assertTrue("Day not correct",  name == c.get(Calendar.DATE));
+
+        NodeRef parentRef = nodeService.getPrimaryParent(caseFolderNodeRef).getParentRef();
+        name = Integer.parseInt((String)nodeService.getProperty(parentRef, ContentModel.PROP_NAME));
+        assertTrue("Month not correct", name == c.get(Calendar.MONTH) + 1);
+
+        parentRef = nodeService.getPrimaryParent(parentRef).getParentRef();
+        name = Integer.parseInt((String)nodeService.getProperty(parentRef, ContentModel.PROP_NAME));
+        assertTrue("Month not correct", name == c.get(Calendar.YEAR));
+
+
+        String path = nodeService.getPath(caseFolderNodeRef).toPrefixString(namespacePrefixResolver);
+        System.out.println(path);
+//        assertTrue("Cases folder noderef is not in the right place", "/app:company_home/case:openesdh_cases".equals(path));
+
+        /*
+        Calendar c = Calendar.getInstance();
+        assertTrue("Year node does not have the correct value", c.get(Calendar.YEAR) == Integer.parseInt((String) nodeService.getProperty(y, ContentModel.PROP_NAME)));
+        NodeRef m = caseService.getCasePathNodeRef(y, Calendar.MONTH);
+        assertTrue("Month node does not have the correct value", (c.get(Calendar.MONTH) + 1) == Integer.parseInt((String) nodeService.getProperty(m, ContentModel.PROP_NAME)));
+        NodeRef d = caseService.getCasePathNodeRef(m, Calendar.DATE);
+        assertTrue("Day node does not have the correct value", c.get(Calendar.DATE) == Integer.parseInt((String) nodeService.getProperty(d, ContentModel.PROP_NAME)));
+        */
+
 
     }
 }

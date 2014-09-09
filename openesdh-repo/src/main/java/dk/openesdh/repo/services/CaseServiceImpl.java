@@ -93,7 +93,7 @@ public class CaseServiceImpl implements CaseService {
      * @param caseNodeRef
      * @param caseId
      */
-    void manageGroups(NodeRef caseNodeRef, String caseId) {
+    void managePermissionGroups(NodeRef caseNodeRef, String caseId) {
         setupPermissionGroups(caseNodeRef, caseId);
         String ownersPermissionGroupName = setupOwnersPermissionGroup(caseNodeRef, caseId);
         addOwnersToPermissionGroup(caseNodeRef, ownersPermissionGroupName);
@@ -168,7 +168,7 @@ public class CaseServiceImpl implements CaseService {
         nodeService.moveNode(caseNodeRef, caseFolderNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, caseId));
 
         //Create Groups and assign permission on new case
-        manageGroups(caseNodeRef, caseId);
+        managePermissionGroups(caseNodeRef, caseId);
 
         // Set id on case
         nodeService.setProperty(caseNodeRef, OpenESDHModel.PROP_OE_ID, caseId);
