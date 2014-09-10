@@ -15,7 +15,6 @@ define(["dojo/_base/declare",
 "dojo/on",
 "dojo/dom-attr",
 "openesdh/search/_CaseTopicsMixin",
-"openesdh/search/_CaseModelMixin",
 
 "alfresco/dialogs/AlfDialog",
 
@@ -34,12 +33,12 @@ define(["dojo/_base/declare",
 "dgrid/extensions/ColumnResizer",
 "dgrid/extensions/ColumnHider",
 "dgrid/extensions/ColumnReorder"],
-function(declare, _Widget, _Templated, template, Core, CoreXhr, dom, domConstruct, domClass, keys, xhr, array, lang, registry, on, domAttr, _CaseTopicsMixin, _CaseModelMixin,
+function(declare, _Widget, _Templated, template, Core, CoreXhr, dom, domConstruct, domClass, keys, xhr, array, lang, registry, on, domAttr, _CaseTopicsMixin,
 AlfDialog,
 json,
 Memory, JsonRest, QueryResults,
 DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResizer, ColumnHider, ColumnReorder) {
-    return declare([_Widget, _Templated, Core, CoreXhr, _CaseTopicsMixin, _CaseModelMixin], {
+    return declare([_Widget, _Templated, Core, CoreXhr, _CaseTopicsMixin], {
         templateString: template,
         
         i18nRequirements: [{i18nFile: "./i18n/CaseGrid.properties"}],
@@ -367,12 +366,19 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
             // Note: We mixin _Widget because otherwise we can't call grid.placeAt
             var CustomGrid = declare([_Widget, Grid, DijitRegistry, Keyboard, Selection, MyPagination, ColumnResizer, ColumnHider, ColumnReorder]);
 
-            // Load columns from Model mixin
+            // Load columns from model
             var columns = [];
             
             array.forEach(this.availableColumns, function (columnName, i) {
-                var propDef = _this.propertyDefinitions[columnName];
-                var dataType = propDef.dataType;
+                var propDef = _this.properties[columnName];
+                if (typeof propDef === 'undefined') {
+                    console.log(_this.properties);
+                    throw "Column " + columnName + " has no property definition.";
+                }
+                var dataType = null;
+                if (typeof propDef.dataType !== 'undefined') {
+                    dataType = propDef.dataType;
+                }
                 var sortable = typeof propDef.sortable !== 'undefined' ? propDef.sortable : true;
                 var hidden = array.indexOf(_this.defaultColumns, columnName) === -1;
                 if (typeof _this.currentSearch.columns[columnName] !== 'undefined') {
@@ -380,6 +386,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                     hidden = !_this.currentSearch.columns[columnName];
                 }
                 var formatter;
+                // TODO: Make formatter functions configurable
                 if (dataType === 'd:datetime') {
                     formatter = function (value) {
                         if (typeof value !== 'undefined') {
@@ -414,7 +421,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                 } else if (columnName === 'TYPE') {
                     // Format case type
                     formatter = function (value) {
-                        return _this.caseTypes[value].label;
+                        return _this.types[value].label;
                     };
                 } else {
                     formatter = function (value) {
@@ -426,9 +433,11 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                     };
                 }
                 
-                columns.push({ field: columnName, label: _this.propertyDefinitions[columnName].title, formatter: formatter, sortable: sortable, hidden: hidden});
+                columns.push({ field: columnName, label: _this.properties[columnName].title, formatter: formatter, sortable: sortable, hidden: hidden});
                 _this.currentSearch.columns[columnName] = !hidden;
             });
+
+            console.log("Columns " + columns);
             
             // Add Actions column
             columns.push({

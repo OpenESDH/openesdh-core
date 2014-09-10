@@ -1,0 +1,52 @@
+<alfresco-config>
+    <config evaluator="string-compare" condition="SearchModel">
+        <default-controls>
+            <type name="d:text" control="CaseFilterTextWidget"/>
+            <type name="d:int" control="CaseFilterTextWidget"/>
+            <type name="d:long" control="CaseFilterTextWidget"/>
+            <type name="d:date" control="CaseFilterDateRangeWidget"/>
+            <type name="d:datetime" control="CaseFilterDateRangeWidget"/>
+            <type name="cm:authority" control="CaseFilterAuthorityWidget"/>
+        </default-controls>
+        <searches>
+            <search type="case:base">
+                <columns>
+                    <available>
+                        <column name="TYPE"/>
+                        <column name="oe:id"/>
+                        <column name="oe:title"/>
+                        <column name="case:owners"/>
+                        <column name="cm:modified"/>
+                        <column name="cm:created'"/>
+                        <column name="oe:status"/>
+                        <column name="case:startDate"/>
+                        <column name="case:endDate"/>
+                    </available>
+                    <visible>
+                        <column name="TYPE"/>
+                        <column name="oe:id"/>
+                        <column name="oe:title"/>
+                        <column name="case:owners"/>
+                        <column name="cm:modified"/>
+                        <column name="cm:created'"/>
+                        <column name="oe:status"/>
+                        <column name="case:startDate"/>
+                        <column name="case:endDate"/>
+                    </visible>
+                </columns>
+                <filters>
+                    <filter name="ALL"/>
+                    <filter name="TYPE" control="CaseFilterSelectWidget"/>
+                    <filter name="oe:id"/>
+                    <filter name="cm:title"/>
+                    <filter name="case:owners"/>
+                    <filter name="cm:modified"/>
+                    <filter name="cm:created"/>
+                    <filter name="oe:status"/>
+                    <filter name="case:startDate"/>
+                    <filter name="case:endDate"/>
+                </filters>
+            </search>
+        </searches>
+    </config>
+</alfresco-config>

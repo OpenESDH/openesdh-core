@@ -25,6 +25,9 @@
         <property name="dictionaryService">
             <ref bean="dictionaryService"/>
         </property>
+        <property name="namespaceService">
+            <ref bean="namespaceService"/>
+        </property>
     </bean>
 
     <bean id="extendPermissionModel" parent="permissionModelBootstrap">

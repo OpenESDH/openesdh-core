@@ -63,7 +63,7 @@ define(["dojo/_base/declare"],
             'TYPE': {
                 'title': 'Sagstype',
                 'dataType': 'd:text',
-                'widgetType': 'select',
+                'widgetType': 'CaseFilterSelectWidget',
                 'operatorSets': ['equality'],
                 'options': [
                     { label: 'Alle Sager', value: '', selected: true },
@@ -74,7 +74,7 @@ define(["dojo/_base/declare"],
             'ALL': {
                 'title': 'Søg',
                 'dataType': 'd:text',
-                'widgetType': 'text',
+                'widgetType': 'CaseFilterTextWidget',
                 'operatorSets': ['equality']
             },
 
@@ -95,7 +95,7 @@ define(["dojo/_base/declare"],
             'case:owners': {
                 'title': 'Sagsejer',
                 'dataType': 'authority',
-                'widgetType': 'authorityPicker',
+                'widgetType': 'CaseFilterAuthorityWidget',
                 'widgetOptions': {
                     itemType: 'cm:object',
                     multiple: true
@@ -107,19 +107,19 @@ define(["dojo/_base/declare"],
             'oe:title': {
                 'title': 'Titel',
                 'dataType': 'd:text',
-                'widgetType': 'text',
+                'widgetType': 'CaseFilterTextWidget',
                 'operatorSets': ['equality']
             },
             'oe:id': {
                 'title': 'ID',
                 'dataType': 'd:long',
-                'widgetType': 'text',
+                'widgetType': 'CaseFilterTextWidget',
                 'operatorSets': ['equality']
             },
             'cm:modifier': {
                 'title': 'Ændret af',
                 'dataType': 'd:text',
-                'widgetType': 'singleUserSelect',
+                'widgetType': 'CaseFilterTextWidget',
 //                'widgetOptions': {
 //                    itemType: 'cm:person',
 //                    multiple: true
@@ -129,13 +129,13 @@ define(["dojo/_base/declare"],
             'cm:modified': {
                 'title': 'Ændret',
                 'dataType': 'd:datetime',
-                'widgetType': 'dateRange',
+                'widgetType': 'CaseFilterDateRangeWidget',
                 'operatorSets': ['equality']
             },
             'cm:creator': {
                 'title': 'Oprettet af',
                 'dataType': 'd:text',
-                'widgetType': 'singleUserSelect',
+                'widgetType': 'CaseFilterTextWidget',
 //                'widgetOptions': {
 //                    itemType: 'cm:person',
 //                    multiple: true
@@ -145,14 +145,14 @@ define(["dojo/_base/declare"],
             'cm:created': {
                 'title': 'Oprettet',
                 'dataType': 'd:datetime',
-                'widgetType': 'dateRange',
+                'widgetType': 'CaseFilterDateRangeWidget',
                 'operatorSets': ['equality']
             },
 
             'oe:status': {
                 title: 'Status',
                 dataType: 'd:text',
-                widgetType: 'select',
+                widgetType: 'CaseFilterSelectWidget',
                 options: [
                     { label: 'Ikke startet endnu', value: 'Ikke startet endnu', selected: true},
                     { label: 'Igangværende', value: 'Igangværende' },
@@ -162,13 +162,13 @@ define(["dojo/_base/declare"],
             'case:startDate': {
                 title: 'Startdato',
                 dataType: 'd:datetime',
-                widgetType: 'dateRange'
+                widgetType: 'CaseFilterDateRangeWidget'
             },
             
             'case:endDate': {
                 title: 'Slutdato',
                 dataType: 'd:datetime',
-                widgetType: 'dateRange'
+                widgetType: 'CaseFilterDateRangeWidget'
             }
 
 //            'isFavourite': {

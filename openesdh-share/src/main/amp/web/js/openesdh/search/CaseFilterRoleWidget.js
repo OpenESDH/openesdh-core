@@ -27,7 +27,7 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
             
             
             var typeFilter = this.filterPane.getFilterByName('type');
-            var caseType = 'esdh:case';
+            var type = this.filterPane.baseType;
             if (typeFilter != null) {
                 console.log("type filter", typeFilter.value);
 
@@ -37,7 +37,7 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
                 caseType = typeFilter.value;
             }
 
-            this.filterDef.options = this._rolesToOptions(this.getRolesByCaseType(caseType));
+            this.filterDef.options = this._rolesToOptions(this.getRolesByCaseType(type));
             
             this.filterWidget = new Select({ options: this.filterDef.options });
             
@@ -107,21 +107,21 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
             console.log("onFilterPaneFilterRemoved", payload);
             if (payload.filter == 'type') {
                 // When type filter has been removed, reset the role filter options
-                this.updateOptions(this._rolesToOptions(this.getRolesByCaseType('esdh:case')));
+                this.updateOptions(this._rolesToOptions(this.getRolesByCaseType(this.filterPane.baseType)));
             }
         },
         
         /**
-         * Returns the roles array for the given case type, or the default roles if the case type is invalid or doesn't exist
-         * @param {type} caseType
+         * Returns the roles array for the given type, or the default roles if the type is invalid or doesn't exist
+         * @param {type} type
          * @returns {object}
          */
-        getRolesByCaseType: function (caseType) {
-            if (typeof caseType == 'undefined' || !caseType || typeof this.filterPane.caseTypes[caseType] == 'undefined') {
-                caseType = 'esdh:case';
+        getRolesByCaseType: function (type) {
+            if (typeof caseType == 'undefined' || !caseType || typeof this.filterPane.types[type] == 'undefined') {
+                type = this.filterPane.baseType;
             }
             
-            return this.filterPane.caseTypes[caseType].roles;
+            return this.filterPane.types[type].roles;
         },
         
         /**

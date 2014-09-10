@@ -7,6 +7,7 @@ import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.dictionary.TypeDefinition;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.namespace.NamespaceService;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
@@ -37,6 +38,10 @@ public class ModelLookupTest {
     protected DictionaryService dictionaryService;
 
     @Autowired
+    @Qualifier("namespaceService")
+    protected NamespaceService namespaceService;
+
+    @Autowired
     @Qualifier("NodeService")
     protected NodeService nodeService;
 
@@ -47,7 +52,7 @@ public class ModelLookupTest {
 
 
     protected ModelLookup modelLookup = new ModelLookup();
-    protected String testURI = OpenESDHModel.DOC_URI;
+    protected String testPrefix = OpenESDHModel.DOC_PREFIX;
     protected String testType = OpenESDHModel.TYPE_DOC_NAME;
 
 
@@ -56,17 +61,18 @@ public class ModelLookupTest {
     @Test
     public void testCreateSimpleCase() {
         AuthenticationUtil.setFullyAuthenticatedUser(ADMIN_USER_NAME);
-        System.out.println(testURI);
         System.out.println(testType);
 
         modelLookup.setDictionaryService(dictionaryService);
-        TypeDefinition modelType = modelLookup.getTypeDefinition(testURI,testType);
+        modelLookup.setNamespaceService(namespaceService);
+        TypeDefinition modelType = modelLookup.getTypeDefinition(testPrefix
+                        + ":" + testType);
 
 
         Map properties = modelLookup.getProperties(modelType);
-        JSONObject property = (JSONObject)properties.get( "{http://openesdh.dk/model/openesdh/1.0/}title");
+        JSONObject property = (JSONObject)properties.get("oe:id");
         try {
-            assertEquals(property.get("type"),"{http://www.alfresco.org/model/dictionary/1.0}text");
+            assertEquals(property.get("type"),"d:text");
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -75,7 +81,7 @@ public class ModelLookupTest {
         Map associations = modelLookup.getAssociations(modelType);
         System.out.println(associations);
 
-        JSONObject association = (JSONObject)associations.get( "{http://openesdh.dk/model/document/1.0/}main");
+        JSONObject association = (JSONObject)associations.get("doc:main");
 
         try {
             assertEquals(association.get("isTargetMany"),false);

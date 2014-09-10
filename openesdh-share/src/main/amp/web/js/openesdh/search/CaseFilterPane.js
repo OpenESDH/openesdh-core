@@ -18,10 +18,9 @@ define(["dojo/_base/declare",
 "dojo/fx",
 "dojo/fx/Toggler",
 "openesdh/search/CaseFilter",
-"openesdh/search/_CaseTopicsMixin",
-"openesdh/search/_CaseModelMixin"],
-function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, domClass, dom, on, lang, array, registry, AlfButton, DropDownMenu, MenuItem, DropDownButton, coreFx, Toggler, CaseFilter, _CaseTopicsMixin, _CaseModelMixin) {
-    return declare([_Widget, _Templated, Core, CoreXhr, _CaseTopicsMixin, _CaseModelMixin], {
+"openesdh/search/_CaseTopicsMixin"],
+function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, domClass, dom, on, lang, array, registry, AlfButton, DropDownMenu, MenuItem, DropDownButton, coreFx, Toggler, CaseFilter, _CaseTopicsMixin) {
+    return declare([_Widget, _Templated, Core, CoreXhr, _CaseTopicsMixin], {
         
         templateString: template,
         
@@ -100,7 +99,7 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
             this.alfSubscribe(this.CaseFiltersSetTopic, lang.hitch(this, "_handleFiltersSet"));
             
             console.log("CaseFilterPane: Post create");
-            console.log("Case types", this.caseTypes);
+            console.log("Types", this.types);
         },
         
         /**
@@ -113,7 +112,7 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
         addFilterWidget: function (filterName, operator, value) {
             var _this = this;
             
-            var filterDef = this.propertyDefinitions[filterName];
+            var filterDef = this.properties[filterName];
             filterDef.name = filterName;
             
             // Prepare operators from operatorSets definitions
@@ -129,6 +128,8 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
                console.log('operatorSets', _this.operatorSets[operatorSet]);
                filterDef.operators = filterDef.operators.concat(_this.operatorSets[operatorSet]); 
             });
+
+            filterDef.widgetType = filterDef.control;
 
             console.log(filterDef);
             var filterWidget = new CaseFilter({
@@ -157,16 +158,16 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
 
             // Sort alphabetically by title
             this.availableFilters = this.availableFilters.sort(function (a, b) {
-                return _this.propertyDefinitions[a].title.localeCompare(_this.propertyDefinitions[b].title);
+                return _this.properties[a].title.localeCompare(_this.properties[b].title);
             });
 
             // Add a menu item for each available filter
             array.forEach(this.availableFilters, function (filter, i) {
-                if (typeof _this.propertyDefinitions[filter] == 'undefined') {
-                    throw "No property definition for filter: '" + filter + "'";
+                if (typeof _this.properties[filter] == 'undefined') {
+                    throw "No model definition for filter: '" + filter + "'";
                 }
                 var menuItem = new MenuItem({
-                    label: _this.propertyDefinitions[filter].title,
+                    label: _this.properties[filter].title,
                     name: filter,
                     onClick: _onNewFilterClick
                 });

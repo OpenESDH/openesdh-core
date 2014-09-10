@@ -61,28 +61,13 @@ _CaseTopicsMixin) {
                 this.operatorSelect.value = this.filter.operator;
             }
 
-            // Create filter widget based on field type
-            var wt = this.filterDef.widgetType;
-            
             var init = {filterDef: this.filterDef, initialValue: this.filter.value, filterPane: this.filterPane};
-            
-            if (wt === 'text') {
-                this.filterWidget = new CaseFilterTextWidget(init);
-            } else if (wt === 'select') {
-                this.filterWidget = new CaseFilterSelectWidget(init);
-            } else if (wt === 'authorityPicker') {
-                this.filterWidget = new CaseFilterAuthorityWidget(init);
-            } else if (wt === 'associationPicker') {
-                this.filterWidget = new CaseFilterAssociationWidget(init);
-            } else if (wt === 'role') {
-                this.filterWidget = new CaseFilterRoleWidget(init);
-            } else if (wt === 'singleUserSelect') {
-                this.filterWidget = new CaseFilterSingleUserSelectWidget(init);
-            } else if (wt === 'dateRange') {
-                this.filterWidget = new CaseFilterDateRangeWidget(init);
-            } else {
-                throw "Unknown widget type: '" + wt + "'";
-            }
+
+            // Create filter widget based on field type
+            require(["openesdh/search/" + this.filterDef.widgetType], function (FilterWidget) {
+                _this.filterWidget = FilterWidget(init);
+            });
+            console.log("Filter widget" + this.filterWidget);
             
             this.filterWidget.placeAt(this.widgetNode);
             this.filterWidget.startup();
