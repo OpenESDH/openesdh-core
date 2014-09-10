@@ -36,41 +36,139 @@
             <parameter name="allowedValues">
                 <list>
                     <!-- TODO: localize -->
-                    <value>Andet</value>
-                    <value>Ansættelseskontrakt</value>
-                    <value>Andre kontrakter</value>
-                    <value>Afgørelse</value>
-                    <value>Faktura</value>
-                    <value>Korrespondance</value>
-                    <value>Notat</value>
-                    <value>Opsigelse</value>
+                    <value>Bilag</value>
+                    <value>Bevis</value>
+                    <value>Kontrakt</value>
+                    <value>Note</value>
                     <value>Rapport</value>
+                    <value>Fuldmagt</value>
+                    <value>Garanti</value>
+                    <value>Afgørelse</value>
+                    <value>Opgørelse</value>
                     <value>Referat</value>
                     <value>Regnskab</value>
                     <value>Tilbud</value>
-                    <value>Vejledning</value>
+                    <value>Andet</value>
+                </list>
+            </parameter>
+        </constraint>
+
+        <constraint name="doc:typeConstraint" type="LIST">
+            <parameter name="allowedValues">
+                <list>
+                    <!-- TODO: localize -->
+                    <value>Faktura</value>
+                    <value>Brev</value>
+                    <value>Notat</value>
+                    <value>Rapport</value>
+                    <value>Dagsorden</value>
+                    <value>Andet</value>
+                </list>
+            </parameter>
+        </constraint>
+
+        <constraint name="doc:stateConstraint" type="LIST">
+            <parameter name="allowedValues">
+                <list>
+                    <!-- TODO: localize -->
+                    <value>Modtaget</value>
+                    <value>Fordelt</value>
+                    <value>Under udarbejdelse</value>
+                    <value>Under review</value>
+                    <value>Publiceet</value>
+                    <value>Endeligt</value>
+                    <value>Afleveret</value>
+                </list>
+            </parameter>
+        </constraint>
+
+        <constraint name="doc:relationConstraint" type="LIST">
+            <parameter name="allowedValues">
+                <list>
+                    <!-- TODO: localize -->
+                    <value>Underaktivitet</value>
+                    <value>Reference fra</value>
+                    <value>Har relevans i</value>
+                </list>
+            </parameter>
+        </constraint>
+
+        <constraint name="doc:variantConstraint" type="LIST">
+            <parameter name="allowedValues">
+                <list>
+                    <!-- TODO: localize -->
+                    <value>Produktion</value>
+                    <value>Offentliggørelse</value>
+                    <value>Arkivering</value>
+                    <value>Signeret</value>
                 </list>
             </parameter>
         </constraint>
     </constraints>
     <types>
-        <type name="doc:document">
+        <type name="doc:base">
             <parent>oe:base</parent>
             <archive>true</archive>
             <properties>
+                <property name="doc:uid">
+                    <description>Id suppiled by the user</description>
+                    <type>d:text</type>
+                </property>
+                <property name="doc:type">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                    <constraints>
+                        <constraint ref="doc:typeConstraint"/>
+                    </constraints>
+                </property>
+
+                <property name="doc:letterDate">
+                    <description>Brevdato</description>
+                    <type>d:date</type>
+                </property>
+                
+                <property name="doc:discardmentCode">
+                    <description>Kassationskode</description>
+                    <type>d:text</type>
+                </property>
+
+                <property name="doc:state">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                    <constraints>
+                        <constraint ref="doc:stateConstraint"/>
+                    </constraints>
+                </property>
+
+                <property name="doc:comment">
+                    <type>d:text</type>
+                    <multiple>true</multiple>
+                </property>
+
+                <property name="doc:archive">
+                    <description>Angiver arkiv som dokumentet indgår i</description>
+                    <type>d:text</type>
+                </property>
+
+                <property name="doc:classification">
+                    <description>Primær klassifikation</description>
+                    <type>d:text</type>
+                </property>
+
+                <property name="doc:category">
+                    <description>Kunden vælger selv disse</description>
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                    <constraints>
+                        <constraint ref="doc:categoryConstraint"/>
+                    </constraints>
+                </property>
+
                 <property name="doc:arrivalDate">
                     <type>d:date</type>
                     <mandatory>false</mandatory>
                 </property>
 
-                <property name="doc:category">
-                    <type>d:text</type>
-                    <mandatory>true</mandatory>
-
-                    <constraints>
-                        <constraint ref="doc:categoryConstraint"/>
-                    </constraints>
-                </property>
             </properties>
 
             <associations>
@@ -85,16 +183,42 @@
                         <many>false</many>
                     </target>
                 </association>
-                <child-association name="doc:main">
+
+                <association name="doc:responsible">
+                    <source>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </source>
                     <target>
-                        <class>cm:content</class>
+                        <class>cm:person</class>
                         <mandatory>true</mandatory>
                         <many>false</many>
                     </target>
-                </child-association>
-                <child-association name="doc:attachments">
+                </association>
+
+                <association name="doc:concernedParties">
+                    <source>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </source>
                     <target>
-                        <class>cm:content</class>
+                        <class>cm:person</class>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </target>
+                </association>
+
+                <child-association name="doc:caseReferences">
+                    <target>
+                        <class>doc:reference</class>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </target>
+                </child-association>
+
+                <child-association name="doc:documentReferences">
+                    <target>
+                        <class>doc:reference</class>
                         <mandatory>false</mandatory>
                         <many>true</many>
                     </target>
@@ -111,7 +235,99 @@
 
             <mandatory-aspects>
                 <aspect>oe:journalizable</aspect>
+                <aspect>doc:publicityExempted</aspect>
+                <aspect>cm:versionable</aspect>
             </mandatory-aspects>
         </type>
+
+        <type name="doc:reference">
+            <properties>
+                <property name="doc:nodeReference">
+                    <type>d:noderef</type>
+                </property>
+                <property name="doc:relation">
+                    <type>d:text</type>
+                    <constraints>
+                        <constraint ref="doc:relationConstraint" />
+                    </constraints>
+                </property>
+                <property name="doc:relationDescription">
+                    <type>d:text</type>
+                </property>
+            </properties>
+        </type>
+
+        <type name="doc:simple">
+            <parent>doc:base</parent>
+            <associations>
+                <child-association name="doc:main">
+                    <target>
+                        <class>doc:file</class>
+                        <mandatory>true</mandatory>
+                        <many>false</many>
+                    </target>
+                </child-association>
+                <child-association name="doc:attachments">
+                    <target>
+                        <class>doc:file</class>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </target>
+                </child-association>
+            </associations>
+        </type>
+
+        <type name="doc:file">
+            <parent>oe:base</parent>
+            <properties>
+                <property name="doc:variant">
+                    <type>d:text</type>
+                    <constraints>
+                        <constraint ref="doc:variantConstraint"/>
+                    </constraints>
+                </property>
+            </properties>
+        </type>
+
+        <type name="doc:virtualFile">
+            <parent>doc:file</parent>
+            <associations>
+                <child-association name="doc:content">
+                    <description>The file</description>
+                    <target>
+                        <class>cm:content</class>
+                        <mandatory>true</mandatory>
+                        <many>false</many>
+                    </target>
+                </child-association>
+            </associations>
+        </type>
+
+        <type name="doc:physicalFile">
+            <parent>oe:base</parent>
+            <properties>
+                <property name="doc:filePosition">
+                    <description>A description of the physical position of a physical file</description>
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                    <multiple>false</multiple>
+                </property>
+            </properties>
+        </type>
+
     </types>
+
+    <aspects>
+        <aspect name="doc:publicityExempted">
+            <properties>
+                <property name="doc:alternativeTitle">
+                    <type>d:text</type>
+                </property>
+                <property name="doc:statutoryAuthority">
+                    <description>Reference to the legal document where the allowance of the exemption is found. Lovhjemmel</description>
+                    <type>d:text</type>
+                </property>
+            </properties>
+        </aspect>
+    </aspects>
 </model>
