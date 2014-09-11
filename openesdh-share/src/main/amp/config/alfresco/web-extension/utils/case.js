@@ -30,24 +30,22 @@ function getNewCaseFolderNodeRef () {
  */
 function getCaseTypes () {
 
-    // TODO: Call model webscript
-    /*
     var connector = remote.connect("alfresco");
     var caseTypes = connector.get("/api/openesdh/casetypes");
 
     caseTypes = eval('(' + caseTypes + ')');
-
     var casesArr = new Array();
 
     for (var i in caseTypes) {
+
         var c = caseTypes[i];
         var cObject = {};
-        cObject["type"] = c.prefix;
+        cObject["type"] = c.Prefix;
         cObject["label"] = c.Name + " case";
         casesArr.push(cObject);
     }
     return casesArr;
-    */
+
 
 
 
