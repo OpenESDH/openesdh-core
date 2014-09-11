@@ -1,0 +1,32 @@
+<extension>
+  <modules>
+    <module>
+      <id>OpenESDH Case</id>
+      <version>1.0</version>
+      <auto-deploy>true</auto-deploy>
+      <evaluator type="dk.openesdh.evaluator.uriprefix">
+          <params>
+              <uriPrefix>/share/page/hdp/ws/dk-openesdh-pages-case-dashboard</uriPrefix>
+              <apply>true</apply>
+          </params>
+      </evaluator>
+      <configurations>
+        <config evaluator="string-compare" condition="WebFramework" replace="false">
+          <web-framework>
+            <dojo-pages>
+              <packages>
+                <package name="openesdh-case" location="js/dk/openesdh/pages/case"/>
+              </packages>
+            </dojo-pages>
+          </web-framework>
+        </config>
+      </configurations>
+      <!-- customizations>
+        <customization>
+          <targetPackageRoot>org.alfresco.share.header</targetPackageRoot>
+          <sourcePackageRoot>dk.openesdh.search-header</sourcePackageRoot>
+        </customization>
+      </customizations -->
+    </module>
+  </modules>
+</extension>
