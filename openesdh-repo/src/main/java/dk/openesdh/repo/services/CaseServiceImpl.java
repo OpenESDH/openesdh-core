@@ -85,28 +85,21 @@ public class CaseServiceImpl implements CaseService {
 
     }
 
+
+
+
     /**
      * Creating Groups and assigning permission on New case folder
      * @param caseNodeRef
      * @param caseId
      */
-    void createGroups(NodeRef caseNodeRef, String caseId) {
+    void managePermissionGroups(NodeRef caseNodeRef, String caseId) {
+        setupPermissionGroups(caseNodeRef, caseId);
+        String ownersPermissionGroupName = setupOwnersPermissionGroup(caseNodeRef, caseId);
+        addOwnersToPermissionGroup(caseNodeRef, ownersPermissionGroupName);
+    }
 
-        Set<String> settablePermissions = permissionService.getSettablePermissions(caseNodeRef);
-
-        for (Iterator<String> iterator = settablePermissions.iterator(); iterator.hasNext(); ) {
-            String permission = iterator.next();
-
-            String groupSuffix = "case_" + caseId + "_" + permission;
-            String groupName = authorityService.getName(AuthorityType.GROUP, groupSuffix);
-
-            if (!authorityService.authorityExists(groupName)) {
-                groupName = authorityService.createAuthority(AuthorityType.GROUP, groupSuffix);
-            }
-            permissionService.setPermission(caseNodeRef, groupName, permission, true);
-        }
-
-        // Setup owners
+    String setupOwnersPermissionGroup(NodeRef caseNodeRef, String caseId) {
         // Create the owner group
         String groupSuffix = "case_" + caseId + "_CaseOwners";
         String groupName = authorityService.getName(AuthorityType.GROUP, groupSuffix);
@@ -115,9 +108,12 @@ public class CaseServiceImpl implements CaseService {
             groupName = authorityService.createAuthority(AuthorityType.GROUP, groupSuffix);
         }
         permissionService.setPermission(caseNodeRef, groupName, "CaseOwners", true);
+        return groupName;
+    }
 
+    void addOwnersToPermissionGroup(NodeRef caseNodeRef, String groupName) {
         // Add the owners
-        List<AssociationRef> owners = nodeService.getTargetAssocs(caseNodeRef, OpenESDHModel.PROP_CASE_OWNERS);
+        List<AssociationRef> owners = nodeService.getTargetAssocs(caseNodeRef, OpenESDHModel.ASSOC_CASE_OWNERS);
         for (Iterator<AssociationRef> iterator = owners.iterator(); iterator.hasNext(); ) {
             AssociationRef next = iterator.next();
             NodeRef owner = next.getTargetRef();
@@ -131,6 +127,22 @@ public class CaseServiceImpl implements CaseService {
                 ownerName = (String) nodeService.getProperty(owner, ContentModel.PROP_USERNAME);
             }
             authorityService.addAuthority(groupName, ownerName);
+        }
+    }
+
+    void setupPermissionGroups(NodeRef caseNodeRef, String caseId) {
+        Set<String> settablePermissions = permissionService.getSettablePermissions(caseNodeRef);
+
+        for (Iterator<String> iterator = settablePermissions.iterator(); iterator.hasNext(); ) {
+            String permission = iterator.next();
+
+            String groupSuffix = "case_" + caseId + "_" + permission;
+            String groupName = authorityService.getName(AuthorityType.GROUP, groupSuffix);
+
+            if (!authorityService.authorityExists(groupName)) {
+                groupName = authorityService.createAuthority(AuthorityType.GROUP, groupSuffix);
+            }
+            permissionService.setPermission(caseNodeRef, groupName, permission, true);
         }
     }
 
@@ -156,7 +168,7 @@ public class CaseServiceImpl implements CaseService {
         nodeService.moveNode(caseNodeRef, caseFolderNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, caseId));
 
         //Create Groups and assign permission on new case
-        createGroups(caseNodeRef, caseId);
+        managePermissionGroups(caseNodeRef, caseId);
 
         // Set id on case
         nodeService.setProperty(caseNodeRef, OpenESDHModel.PROP_OE_ID, caseId);

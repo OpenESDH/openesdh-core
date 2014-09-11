@@ -32,32 +32,33 @@ public class CaseTypes extends AbstractWebScript {
     }
 
     public void execute(WebScriptRequest req, WebScriptResponse res)
-            throws IOException
-    {
-        Collection<QName> caseTypes = dictionaryService.getSubTypes(OpenESDHModel.TYPE_CASE_BASE,true);
+            throws IOException {
+        Collection<QName> caseTypes = dictionaryService.getSubTypes(OpenESDHModel.TYPE_CASE_BASE, true);
 
-        try
-        {
-            // build a json object
-            JSONArray arr = new JSONArray();
+        // build a json object
+        JSONArray arr = new JSONArray();
 
+        for (QName caseType : caseTypes) {
 
-            for (QName caseType : caseTypes) {
+            // skip the basetype - getSubTypes returns it together with the subtypes
+            if (!caseType.getLocalName().equals(OpenESDHModel.TYPE_BASE_NAME)) {
+                System.out.println(caseType.getLocalName());
                 JSONObject c = new JSONObject();
-                c.put("NamespaceURI", caseType.getNamespaceURI());
-                c.put("Prefix", caseType.getPrefixString());
-                c.put("Name", caseType.getLocalName());
+                try {
+                    c.put("NamespaceURI", caseType.getNamespaceURI());
+                    c.put("Prefix", caseType.getPrefixString());
+                    c.put("Name", caseType.getLocalName());
 
-                arr.put(c);
+                    arr.put(c);
+                } catch (JSONException e) {
+                    throw new WebScriptException("Unable to serialize JSON");
+                }
             }
-            // build a JSON string and send it back
-            String jsonString = arr.toString();
-            res.getWriter().write(jsonString);
+
         }
-        catch(JSONException e)
-        {
-            throw new WebScriptException("Unable to serialize JSON");
-        }
+        // build a JSON string and send it back
+        String jsonString = arr.toString();
+        res.getWriter().write(jsonString);
     }
 }
 
