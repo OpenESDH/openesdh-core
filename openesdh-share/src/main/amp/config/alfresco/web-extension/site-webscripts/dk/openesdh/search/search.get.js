@@ -11,8 +11,8 @@ function getListFromConfigElement(configElement, type) {
         var iter = configSection.getChildren().iterator();
         while(iter.hasNext()) {
             var column = iter.next();
-            var columnName = column.getAttribute(new String('name'));
-            list.push(columnName);
+            var columnId = column.getAttribute(new String('id'));
+            list.push(columnId);
         }
     }
     return list;
@@ -24,10 +24,9 @@ function getFilterList(configElement) {
     var iter = configElement.getChildren().iterator();
     while(iter.hasNext()) {
         var filter = iter.next();
-        var name = filter.getAttribute(new String('name'));
+        var id = filter.getAttribute(new String('id'));
         var control = filter.getAttribute(new String('control'));
-        var title = filter.getAttribute(new String('title'));
-        list.push({"name": name, "control": control, "title": title});
+        list.push(id);
     }
     return list;
 }
@@ -57,16 +56,13 @@ function getSearchConfig() {
         if (type in searchTypes) {
             search = searchTypes[type];
         }
-        var columnsConfig = searchConfig.getChild("columns");
-        if (columnsConfig != null) {
-            mergeArrays(search, 'availableColumns',
-                getListFromConfigElement(columnsConfig, "available"));
-            mergeArrays(search, 'visibleColumns',
-                getListFromConfigElement(columnsConfig, "visible"));
-        }
-        var filtersConfig = searchConfig.getChild("filters");
-        if (filtersConfig != null) {
-            mergeArrays(search, 'filters', getFilterList(filtersConfig));
+        mergeArrays(search, 'availableColumns',
+            getListFromConfigElement(searchConfig, "column-availability"));
+        mergeArrays(search, 'visibleColumns',
+            getListFromConfigElement(searchConfig, "column-visibility"));
+        var filtersAvailability = searchConfig.getChild(new String("filters-availability"));
+        if (filtersAvailability != null) {
+            mergeArrays(search, 'availableFilters', getFilterList(filtersAvailability));
         }
         logger.warn(type + ": " + jsonUtils.toJSONString(search));
         searchTypes[type] = search;
@@ -85,16 +81,20 @@ function getSearchConfig() {
     return {"searches": searchTypes, "defaultControls": defaultControls};
 }
 
-function getTypeModel(type) {
+function getTypeModel(type, subclasses) {
     var connector = remote.connect("alfresco");
 //    var model = connector.get("/api/openesdh/model?type=" + encodeURIComponent(type));
-    var model = connector.get("/api/classes/" + type.replace(":", "_") + "/subclasses");
+    var fetchSubclasses = false;
+    if (typeof subclasses !== 'undefined') {
+        fetchSubclasses = subclasses;
+    }
+    var model = connector.get("/api/classes/" + type.replace(":", "_") + (fetchSubclasses ? "/subclasses" : ""));
     model = eval('(' + model + ')');
     return model;
 }
 
 function getSearchModel(baseType) {
-    var typeModels = getTypeModel(baseType);
+    var typeModels = getTypeModel(baseType, true);
     var model = {};
     model.types = {};
     model.properties = {};
@@ -104,6 +104,24 @@ function getSearchModel(baseType) {
             "name": typeModel.name,
             "title": typeModel.title
         };
+        if ("defaultAspects" in typeModel) {
+            // Gather properties from default aspects
+            var defaultAspects = Object.keys(typeModel.defaultAspects);
+            defaultAspects.push("cm:titled");
+            defaultAspects.forEach(function (aspect) {
+                var aspectModel = getTypeModel(aspect);
+                for (property in aspectModel.properties) {
+                    if (!aspectModel.properties.hasOwnProperty(property)) {
+                        continue;
+                    }
+                    if (property in model.properties) {
+                        // TODO: Merge constraints?
+                    } else {
+                        model.properties[property] = aspectModel.properties[property];
+                    }
+                }
+            });
+        }
         for (property in typeModel.properties) {
             if (!typeModel.properties.hasOwnProperty(property)) {
                 continue;
@@ -112,6 +130,17 @@ function getSearchModel(baseType) {
                 // TODO: Merge constraints
             } else {
                 model.properties[property] = typeModel.properties[property];
+            }
+        }
+        for (association in typeModel.associations) {
+            if (!typeModel.associations.hasOwnProperty(association)) {
+                continue;
+            }
+            if (!(association in model.properties)) {
+                var metadata = typeModel.associations[association];
+                metadata.dataType = metadata.target.class;
+                metadata.multiValued = metadata.target.many;
+                model.properties[association] = metadata;
             }
         }
     });
@@ -124,10 +153,30 @@ function getSearchDefinition(type) {
     var model = getSearchModel(type);
     var config = getSearchConfig();
 
+    // Assign default controls
+    for (var key in model.properties) {
+        if (!model.properties.hasOwnProperty(key)) {
+            continue;
+        }
+        var property = model.properties[key];
+        if (property.dataType in config.defaultControls) {
+            property.control = config.defaultControls[property.dataType];
+        } else {
+            property.control = defaultWidget;
+        }
+    }
+
+    var availableFilters = Object.keys(model.properties);
+    // Remove ALL column from default columns
+    var visibleColumns = Object.keys(model.properties).filter(function (item) {
+        return item !== "ALL";
+    });
+    var availableColumns = visibleColumns;
+
     // TODO: Make customizable, or at least localize
     model.properties["TYPE"] = {
         "name": "TYPE",
-        "title": "Typ",
+        "title": "Type",
         // TODO: Make select
         "dataType": "d:text"
     };
@@ -136,24 +185,6 @@ function getSearchDefinition(type) {
         "title": "Søg",
         "dataType": "d:text"
     };
-
-    // Assign default controls
-    for (key in model.properties) {
-        var property = model.properties[key]
-        if (property.dataType in config.defaultControls) {
-            property.control = config.defaultControls[property.dataType];
-        } else {
-            property.control = defaultWidget;
-        }
-    }
-
-    var visibleFilters = Object.keys(model.properties);
-    var availableFilters = Object.keys(model.properties);
-    // Remove ALL column from default columns
-    var defaultColumns = Object.keys(model.properties).filter(function (item) {
-        return item !== "ALL";
-    });
-    var availableColumns = Object.keys(model.properties);
 
     // TODO: Load from config
     var operatorSets = {
@@ -169,16 +200,27 @@ function getSearchDefinition(type) {
         ]
     };
 
-    // TODO: Apply overrides from search configuration
-    // For example, which filters should be visible, which available,
-    // Which columns should be default...
-//    var typeConfig = config["searches"][type];
+    // Apply overrides from search configuration
+    // For example, which filters should be available
+    // Which columns should be visible/available...
+    var searchConfig = config["searches"][type];
+    if (typeof searchConfig.availableFilters !== 'undefined' &&
+        searchConfig.availableFilters.length > 0) {
+        availableFilters = searchConfig.availableFilters;
+    }
+    if (typeof searchConfig.visibleColumns !== 'undefined' &&
+        searchConfig.visibleColumns.length > 0) {
+        visibleColumns = searchConfig.visibleColumns;
+    }
+    if (typeof searchConfig.availableColumns !== 'undefined' &&
+        searchConfig.availableColumns.length > 0) {
+        availableColumns = searchConfig.availableColumns;
+    }
 
     return {
         "model": model,
-        "visibleFilters": visibleFilters,
         "availableFilters": availableFilters,
-        "defaultColumns": defaultColumns,
+        "visibleColumns": visibleColumns,
         "availableColumns": availableColumns,
         "operatorSets": operatorSets
     };
@@ -189,8 +231,6 @@ var baseType = "case:base";
 
 var searchDefinition = getSearchDefinition(baseType);
 
-var availableFilters = searchDefinition["availableFilters"];
-var visibleFilters = searchDefinition["visibleFilters"];
 var operatorSets = searchDefinition["operatorSets"];
 var searchModel = searchDefinition["model"];
 
@@ -230,7 +270,6 @@ model.jsonModel = {
                                         types: searchModel.types,
                                         properties: searchModel.properties,
                                         availableFilters: searchDefinition.availableFilters,
-                                        visibleFilters: searchDefinition.visibleFilters,
                                         operatorSets: operatorSets
                                     }
                                 },
@@ -240,7 +279,7 @@ model.jsonModel = {
                                         baseType: baseType,
                                         types: searchModel.types,
                                         properties: searchModel.properties,
-                                        defaultColumns: searchDefinition.defaultColumns,
+                                        visibleColumns: searchDefinition.visibleColumns,
                                         availableColumns: searchDefinition.availableColumns
                                     }
                                 }

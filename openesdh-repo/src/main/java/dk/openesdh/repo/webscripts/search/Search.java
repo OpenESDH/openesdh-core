@@ -3,11 +3,14 @@ package dk.openesdh.repo.webscripts.search;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.search.impl.querymodel.impl.lucene.LuceneQueryBuilder;
+import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.search.*;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
+import org.alfresco.service.namespace.QNamePattern;
+import org.alfresco.service.namespace.RegexQNamePattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
 import org.apache.lucene.queryParser.QueryParser;
@@ -120,6 +123,22 @@ public class Search extends AbstractWebScript {
         for (Map.Entry<QName, Serializable> entry : properties.entrySet()) {
             json.put(entry.getKey().toPrefixString(namespaceService), entry.getValue());
         }
+        List<AssociationRef> associations = nodeService.getTargetAssocs
+                (nodeRef, RegexQNamePattern.MATCH_ALL);
+        for (AssociationRef association : associations) {
+            String assocName = association.getTypeQName().toPrefixString
+                    (namespaceService);
+            if (!json.has(assocName)) {
+                JSONArray refs = new JSONArray();
+                refs.put(association.getTargetRef());
+                json.put(assocName, refs);
+            } else {
+                JSONArray refs = (JSONArray) json.get(assocName);
+                refs.put(association.getTargetRef());
+                json.put(association.getTypeQName().toPrefixString
+                        (namespaceService), refs);
+            }
+        }
         json.put("TYPE", nodeService.getType(nodeRef).toPrefixString(namespaceService));
         json.put("nodeRef", nodeRef.toString());
         return json;
@@ -163,16 +182,55 @@ public class Search extends AbstractWebScript {
         }
 
         searchTerms.add("TYPE:" + quote(baseType));
-        String query = StringUtils.join(searchTerms, " AND ");
-        return query;
+        return StringUtils.join(searchTerms, " AND ");
+    }
+
+    private String stripTimeZoneFromDateTime(String str) {
+        return str.replaceAll("((\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2}))[+-](\\d{2}):(\\d{2})", "$1");
+    }
+
+    private String processFilterValue(JSONObject filter) throws JSONException {
+        try {
+            JSONObject value = filter.getJSONObject("value");
+            if (value.has("dateRange")) {
+                JSONArray dateRange = value.getJSONArray("dateRange");
+                if (dateRange.length() > 0) {
+                    if (dateRange.getString(0).equals("")) {
+                        dateRange.put(0, "MIN");
+                    }
+                    if (dateRange.getString(1).equals("")) {
+                        dateRange.put(1, "MAX");
+                    }
+                    String rangeFrom = quote(
+                            stripTimeZoneFromDateTime(dateRange.getString(0)));
+                    String rangeTo = quote(
+                            stripTimeZoneFromDateTime(dateRange.getString(1)));
+                    return "[" + rangeFrom + " TO " + rangeTo + "]";
+                } else {
+                    return value.toString();
+                }
+            } else {
+                return value.toString();
+            }
+        } catch (JSONException e) {
+            try {
+                JSONArray value = filter.getJSONArray("value");
+                List<String> list = new ArrayList<>();
+                for (int i = 0; i < value.length(); i++) {
+                    list.add(quote(value.getString(i)));
+                }
+                return "(" + StringUtils.join(list, ",") + ")";
+            } catch (JSONException e2) {
+                return quote(filter.getString("value"));
+            }
+        }
     }
 
     private String processFilter(JSONObject filter) throws JSONException {
         String name = filter.getString("name");
         String operator = filter.getString("operator");
 
-        // TODO: Handle non-string values
-        String value = filter.getString("value");
+        String value = processFilterValue(filter);
         System.out.println("Filter " + name + " " + operator + " " + value);
 
         if (value.equals("")) {
@@ -191,7 +249,7 @@ public class Search extends AbstractWebScript {
             field = "@" + field;
         }
 
-        return prepend + field + ':' + quote(value);
+        return prepend + field + ':' + value;
     }
 
     /**

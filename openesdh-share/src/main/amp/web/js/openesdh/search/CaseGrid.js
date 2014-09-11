@@ -380,7 +380,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                     dataType = propDef.dataType;
                 }
                 var sortable = typeof propDef.sortable !== 'undefined' ? propDef.sortable : true;
-                var hidden = array.indexOf(_this.defaultColumns, columnName) === -1;
+                var hidden = array.indexOf(_this.visibleColumns, columnName) === -1;
                 if (typeof _this.currentSearch.columns[columnName] !== 'undefined') {
                     // Load column visibility from search setting if it exists
                     hidden = !_this.currentSearch.columns[columnName];
@@ -395,7 +395,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                             return '';
                         }
                     };
-                } else if (dataType === 'authority') {
+                } else if (dataType === 'cm:authority') {
                     formatter = function (value) {
                         if (typeof value !== 'undefined') {
                             if (typeof value === "string"){
@@ -416,12 +416,13 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                     };
                 } else if (dataType === 'd:boolean') {
                     formatter = function (value) {
+                        // TODO: i18n
                         return value ? 'Ja' : 'Nej';
                     };
                 } else if (columnName === 'TYPE') {
-                    // Format case type
+                    // Format type
                     formatter = function (value) {
-                        return _this.types[value].label;
+                        return _this.types[value].title;
                     };
                 } else {
                     formatter = function (value) {
@@ -503,7 +504,8 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                     return null;
                 }
             };
-                
+
+            // TODO: Make keyboard shortcuts configurable
             // ENTER
             this.grid.addKeyHandler(keys.ENTER, function (event) {
                 var nodeRef = getSelectedNodeRef(this);
@@ -529,6 +531,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
          * Renders a list of actions given the case item.
          */
         _renderActionsCell: function (item, value, node, options) {
+            // TODO: Make configurable
             var actions = [
                 {path: "folder-details?nodeRef=" + item.nodeRef, label: this.message("casegrid.goto_case")},
                 {path: "edit-metadata?nodeRef=" + item.nodeRef, label: this.message("casegrid.edit_case")},
