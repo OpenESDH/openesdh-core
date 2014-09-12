@@ -45,12 +45,15 @@
                     <show id="case:endDate"/>
                 </filters-availability>
                 <actions>
-                    <action name="case-dashboard"
-                            href="folder-details?nodeRef={nodeRef}"/>
-                    <action name="case-edit"
-                            href="edit-metadata?nodeRef={nodeRef}"/>
-                    <!--<action name="case-documents"-->
-                            <!--href="folder-details?nodeRef={{nodeRef}}"/>-->
+                    <action id="case-dashboard"
+                            href="folder-details?nodeRef={nodeRef}"
+                            label="casegrid.goto_case"/>
+                    <action id="case-edit"
+                            href="edit-metadata?nodeRef={nodeRef}"
+                            label="casegrid.edit_case"/>
+                    <action id="case-documents"
+                            href="folder-details?nodeRef={nodeRef}"
+                            label="casegrid.case_documents"/>
                 </actions>
             </search>
         </searches>

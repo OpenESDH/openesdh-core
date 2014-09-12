@@ -25,8 +25,22 @@ function getFilterList(configElement) {
     while(iter.hasNext()) {
         var filter = iter.next();
         var id = filter.getAttribute(new String('id'));
-        var control = filter.getAttribute(new String('control'));
         list.push(id);
+    }
+    return list;
+}
+
+function getActionList(configElement) {
+    var String = java.lang.String;
+    var list = [];
+    var iter = configElement.getChildren().iterator();
+    while(iter.hasNext()) {
+        var action = iter.next();
+        list.push({
+            id: action.getAttribute(new String('id')),
+            label: action.getAttribute(new String('label')),
+            href: action.getAttribute(new String('href'))
+        });
     }
     return list;
 }
@@ -63,6 +77,10 @@ function getSearchConfig() {
         var filtersAvailability = searchConfig.getChild(new String("filters-availability"));
         if (filtersAvailability != null) {
             mergeArrays(search, 'availableFilters', getFilterList(filtersAvailability));
+        }
+        var actionsConfig = searchConfig.getChild(new String("actions"));
+        if (actionsConfig != null) {
+            mergeArrays(search, 'actions', getActionList(actionsConfig));
         }
         logger.warn(type + ": " + jsonUtils.toJSONString(search));
         searchTypes[type] = search;
@@ -217,12 +235,19 @@ function getSearchDefinition(type) {
         availableColumns = searchConfig.availableColumns;
     }
 
+    var actions = [];
+    if (typeof searchConfig.actions !== 'undefined' &&
+        searchConfig.actions.length > 0) {
+        actions = searchConfig.actions;
+    }
+
     return {
         "model": model,
         "availableFilters": availableFilters,
         "visibleColumns": visibleColumns,
         "availableColumns": availableColumns,
-        "operatorSets": operatorSets
+        "operatorSets": operatorSets,
+        "actions": actions
     };
 }
 
@@ -231,7 +256,6 @@ var baseType = "case:base";
 
 var searchDefinition = getSearchDefinition(baseType);
 
-var operatorSets = searchDefinition["operatorSets"];
 var searchModel = searchDefinition["model"];
 
 // TODO: Make configurable?
@@ -270,7 +294,7 @@ model.jsonModel = {
                                         types: searchModel.types,
                                         properties: searchModel.properties,
                                         availableFilters: searchDefinition.availableFilters,
-                                        operatorSets: operatorSets
+                                        operatorSets: searchDefinition.operatorSets
                                     }
                                 },
                                 {
@@ -280,7 +304,8 @@ model.jsonModel = {
                                         types: searchModel.types,
                                         properties: searchModel.properties,
                                         visibleColumns: searchDefinition.visibleColumns,
-                                        availableColumns: searchDefinition.availableColumns
+                                        availableColumns: searchDefinition.availableColumns,
+                                        actions: searchDefinition.actions
                                     }
                                 }
                             ]

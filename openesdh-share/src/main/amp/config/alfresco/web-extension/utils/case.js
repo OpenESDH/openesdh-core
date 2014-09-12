@@ -1,15 +1,3 @@
-
-
-/**
- * Get the localized label for the case type
- * @param type
- * @returns {*}
- */
-function getCaseTypeLabel (type) {
-    // TODO
-    return type;
-}
-
 /**
  * Get the nodeRef of the folder to store new cases in.
  * @returns {string}
@@ -22,7 +10,7 @@ function getNewCaseFolderNodeRef () {
     companyHome = eval('(' + companyHome + ')');
     companyHome = companyHome["data"];
 
-    return companyHome["nodeRef"];;
+    return companyHome["nodeRef"];
 }
 
 /**
@@ -45,16 +33,4 @@ function getCaseTypes () {
         casesArr.push(cObject);
     }
     return casesArr;
-
-
-
-
-
-    return {
-        "case:simple": {
-            'label': 'Simple Case',
-            'roles': []
-        }
-
-    }
 }

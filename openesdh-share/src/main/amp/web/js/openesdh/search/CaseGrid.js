@@ -45,7 +45,12 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
         
         // Override default Dijit theme to look like Alfresco's.
         // This applies to the whole page, but I haven't found a better place to put it.
-        cssRequirements: [{cssFile:"./css/AlfrescoStyle.css"}, {cssFile:"./css/CaseGrid.css"}],
+        cssRequirements: [
+            {cssFile:"./css/AlfrescoStyle.css"},
+            {cssFile:"./css/CaseGrid.css"},
+            {cssFile:"./css/GridActions.css"},
+            {cssFile:"./css/GridColumns.css"}
+        ],
         
         // An array holding the property names of the currently visible columns
         columns: null,
@@ -61,7 +66,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
         postCreate: function () {
             console.log('CaseGrid');
             this.inherited(arguments);
-            
+
             this.currentSearch = {};
             
             this.preferences = new Alfresco.service.Preferences();
@@ -531,16 +536,12 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
          * Renders a list of actions given the case item.
          */
         _renderActionsCell: function (item, value, node, options) {
-            // TODO: Make configurable
-            var actions = [
-                {path: "folder-details?nodeRef=" + item.nodeRef, label: this.message("casegrid.goto_case")},
-                {path: "edit-metadata?nodeRef=" + item.nodeRef, label: this.message("casegrid.edit_case")},
-                {path: "repository#filter=path|%2FSager%2FAlle%2520sager%2F" + item['cm:name'], label: this.message("casegrid.case_documents")}
-            ];
-            
+            var _this = this;
             var actionElems = [];
-            array.forEach(actions, function (action, i) {
-                actionElems.push("<span><a class='magenta ui-icon action" + i + "' href='" + Alfresco.constants.URL_PAGECONTEXT + action.path + "' title='" + action.label + "'>" + action.label + "</a></span>");
+            array.forEach(this.actions, function (action, i) {
+                var label = _this.message(action.label);
+                var href = Alfresco.constants.URL_PAGECONTEXT + action.href.replace("{nodeRef}", item.nodeRef);
+                actionElems.push("<span><a class='magenta ui-icon grid-action action-" + action.id + "' href='" + href + "' title='" + label + "'>" + label + "</a></span>");
             });
             
             var div = '<div style="white-space: nowrap;">' + actionElems.join('') + "</div>";

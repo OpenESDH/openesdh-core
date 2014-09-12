@@ -23,7 +23,7 @@ function getCreateCaseWidgets (caseTypes) {
     });
     return widgets;
 }
-//TODO
+
 var caseTypes = getCaseTypes();
 var createCasesWidgets = getCreateCaseWidgets(caseTypes);
 
