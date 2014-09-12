@@ -7,6 +7,7 @@
             <type name="d:date" control="CaseFilterDateRangeWidget"/>
             <type name="d:datetime" control="CaseFilterDateRangeWidget"/>
             <type name="cm:authority" control="CaseFilterAuthorityWidget"/>
+            <type name="LIST:*" control="CaseFilterSelectWidget"/>
         </default-controls>
         <searches>
             <search type="case:base">

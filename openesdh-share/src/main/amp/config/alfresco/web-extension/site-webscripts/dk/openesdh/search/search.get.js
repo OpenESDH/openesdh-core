@@ -107,8 +107,14 @@ function getTypeModel(type, subclasses) {
         fetchSubclasses = subclasses;
     }
     var model = connector.get("/api/classes/" + type.replace(":", "_") + (fetchSubclasses ? "/subclasses" : ""));
+    return eval('(' + model + ')');
+}
+
+function getPropertyConstraints(type, property) {
+    var connector = remote.connect("alfresco");
+    var model = connector.get("/api/classes/" + type.replace(":", "_") + "/property/" + property.replace(":", "_"));
     model = eval('(' + model + ')');
-    return model;
+    return model.constraints;
 }
 
 function getSearchModel(baseType) {
@@ -144,8 +150,10 @@ function getSearchModel(baseType) {
             if (!typeModel.properties.hasOwnProperty(property)) {
                 continue;
             }
+            typeModel.properties[property].constraints = getPropertyConstraints(type, property);
             if (property in model.properties) {
-                // TODO: Merge constraints
+                // Merge constraints
+                mergeArrays(model.properties[property], "constraints", typeModel.properties[property].constraints);
             } else {
                 model.properties[property] = typeModel.properties[property];
             }
@@ -166,10 +174,14 @@ function getSearchModel(baseType) {
 }
 
 function getSearchDefinition(type) {
-    var defaultWidget = "CaseFilterTextWidget";
-
     var model = getSearchModel(type);
     var config = getSearchConfig();
+
+    var defaultWidget = config.defaultControls["*"];
+    if (!defaultWidget) {
+        defaultWidget = "CaseFilterTextWidget";
+    }
+    var defaultSelectWidget = "CaseFilterSelectWidget";
 
     // Assign default controls
     for (var key in model.properties) {
@@ -177,10 +189,31 @@ function getSearchDefinition(type) {
             continue;
         }
         var property = model.properties[key];
-        if (property.dataType in config.defaultControls) {
-            property.control = config.defaultControls[property.dataType];
-        } else {
-            property.control = defaultWidget;
+        var control = null;
+        if ("constraints" in property && property.constraints.length > 0) {
+            // Check for default constraint control
+            property.constraints.forEach(function (constraint) {
+                var check = constraint.type + ":" + property.dataType;
+                logger.warn("Checking " + check);
+                if (check in config.defaultControls) {
+                    property.control = config.defaultControls[check];
+                    logger.warn("Yes");
+                } else {
+                    check = constraint.type + ":*";
+                    logger.warn("Checking " + check);
+                    if (check in config.defaultControls) {
+                        logger.warn("Yes *");
+                        property.control = config.defaultControls[check];
+                    }
+                }
+            });
+        }
+        if (!property.control) {
+            if (property.dataType in config.defaultControls) {
+                property.control = config.defaultControls[property.dataType];
+            } else {
+                property.control = defaultWidget;
+            }
         }
     }
 
@@ -191,12 +224,21 @@ function getSearchDefinition(type) {
     });
     var availableColumns = visibleColumns;
 
+    // TODO: Make configurable?
+    // We don't want the base type as one of the types available.
+    delete model.types[baseType];
+
+    var typeOptions = Object.keys(model.types).map(function (id, i) {
+        return { label: model.types[id].title, value: id };
+    });
+
     // TODO: Make customizable, or at least localize
     model.properties["TYPE"] = {
         "name": "TYPE",
         "title": "Type",
-        // TODO: Make select
-        "dataType": "d:text"
+        "dataType": "d:text",
+        "control": defaultSelectWidget,
+        "options": typeOptions
     };
     model.properties["ALL"] = {
         "name": "ALL",
@@ -257,10 +299,6 @@ var baseType = "case:base";
 var searchDefinition = getSearchDefinition(baseType);
 
 var searchModel = searchDefinition["model"];
-
-// TODO: Make configurable?
-// We don't want the base type as one of the types available.
-delete searchModel.types[baseType];
 
 logger.warn(jsonUtils.toJSONString(searchDefinition));
 

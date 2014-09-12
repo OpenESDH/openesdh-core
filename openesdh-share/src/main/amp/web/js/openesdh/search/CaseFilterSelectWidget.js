@@ -20,8 +20,40 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
             this.inherited(arguments);
             
             console.log("CaseFilterSelectWidget: post create");
-            
-            this.filterWidget = new Select({ options: this.filterDef.options });
+
+
+            var options = null;
+            if ("constraints" in this.filterDef) {
+                array.forEach(this.filterDef.constraints, function (constraint) {
+                    // Convert the array of parameters into a map
+                    // because of the funny way Alfresco outputs them
+                    var constraintParams = {};
+                    array.forEach(constraint.parameters, function (parameter) {
+                        var keys = Object.keys(parameter);
+                        array.forEach(keys, function (key) {
+                            constraintParams[key] = parameter[key];
+                        });
+                    });
+                    constraint.parameters = constraintParams;
+                    if (constraint.type == "LIST") {
+                        if (constraint.parameters.sorted) {
+                            constraint.parameters.allowedValues.sort();
+                        }
+                        console.log(constraint);
+                        if (!options) {
+                            options = [];
+                        }
+                        array.forEach(constraint.parameters.allowedValues, function (value) {
+                            options.push({ label: value, value: value });
+                        });
+                    }
+                });
+            }
+            console.log("Constraint options" + options);
+            if (!options) {
+                options = this.filterDef.options;
+            }
+            this.filterWidget = new Select({ options: options });
             this.filterWidget.set('value', this.initialValue);
             this.filterWidget.placeAt(this.containerNode);
             this.filterWidget.startup();
