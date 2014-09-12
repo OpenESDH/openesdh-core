@@ -22,17 +22,15 @@ import java.util.Map;
  * Created by flemmingheidepedersen on 12/09/14.
  */
 public class XSearchServiceImpl extends XSearchService {
-    String baseType;
-
     public XResultSet getNodes(Map<String, String> params, int startIndex, int pageSize, String sortField, boolean ascending) {
-        baseType = params.get("baseType");
+        String baseType = params.get("baseType");
         if (baseType == null) {
             throw new AlfrescoRuntimeException("Must specify a baseType parameter");
         }
 
         String filtersJSON = params.get("filters");
         try {
-            String query = buildQuery(filtersJSON);
+            String query = buildQuery(filtersJSON, baseType);
             return executeQuery(query);
         } catch (JSONException e) {
             throw new AlfrescoRuntimeException("Unable to parse filters JSON");
@@ -40,7 +38,8 @@ public class XSearchServiceImpl extends XSearchService {
     }
 
 
-    protected String buildQuery(String filtersJSON) throws JSONException {
+    protected String buildQuery(String filtersJSON,
+                                String baseType) throws JSONException {
         List<String> searchTerms = new ArrayList<>();
 
         if (filtersJSON != null) {

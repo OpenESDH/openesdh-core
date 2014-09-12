@@ -43,7 +43,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
         
         i18nRequirements: [
             {i18nFile: "./i18n/Grid.properties"},
-            {i18nFile: "./i18n/GridActions.properties"}
+            {i18nFile: "./i18n/.properties"}
         ],
         
         // Override default Dijit theme to look like Alfresco's.
@@ -88,10 +88,10 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
             
             // Subscribe to saving xsearch
             this.alfSubscribe("XSEARCH_SAVE_SEARCH_AS_TOPIC", lang.hitch(this, "handleSaveSearchAs"));
-            this.alfSubscribe("CASEGRID_SAVE_SEARCH_AS_OK", lang.hitch(this, "handleSaveSearchAsOK"));
+            this.alfSubscribe("XSEARCH_SAVE_SEARCH_AS_OK", lang.hitch(this, "handleSaveSearchAsOK"));
             
             this.alfSubscribe(this.ManageSavedSearchesTopic, lang.hitch(this, "handleManageSavedSearches"));
-            this.alfSubscribe("CASEGRID_MANAGE_SAVED_SEARCHES_DELETE", lang.hitch(this, "handleManageSavedSearchesDelete"));
+            this.alfSubscribe("XSEARCH_MANAGE_SAVED_SEARCHES_DELETE", lang.hitch(this, "handleManageSavedSearchesDelete"));
         },
 
         overrideScrollbarSizeTests: function () {
@@ -245,7 +245,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                       name: "alfresco/buttons/AlfButton",
                       config: {
                          label: this.message("xsearch.button.ok"),
-                         publishTopic: "CASEGRID_SAVE_SEARCH_AS_OK",
+                         publishTopic: "XSEARCH_SAVE_SEARCH_AS_OK",
                          publishPayload: {}
                       }
                    },
@@ -253,7 +253,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                       name: "alfresco/buttons/AlfButton",
                       config: {
                          label: this.message("xsearch.button.cancel"),
-                         publishTopic: "CASEGRID_SAVE_SEARCH_AS_CANCEL",
+                         publishTopic: "XSEARCH_SAVE_SEARCH_AS_CANCEL",
                          publishPayload: {}
                       }
                    }
@@ -301,7 +301,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                           name: "alfresco/buttons/AlfButton",
                           config: {
                              label: _this.message("xsearch.manage_saved_searches.dialog.button.delete"),
-                             publishTopic: "CASEGRID_MANAGE_SAVED_SEARCHES_DELETE",
+                             publishTopic: "XSEARCH_MANAGE_SAVED_SEARCHES_DELETE",
                              publishPayload: {}
                           }
                        },
@@ -309,7 +309,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                           name: "alfresco/buttons/AlfButton",
                           config: {
                              label: _this.message("xsearch.button.cancel"),
-                             publishTopic: "CASEGRID_MANAGE_SAVED_SEARCHES_CANCEL",
+                             publishTopic: "XSEARCH_MANAGE_SAVED_SEARCHES_CANCEL",
                              publishPayload: {}
                           }
                        }
@@ -331,7 +331,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
         getStoreQuery: function () {
             return {
                 "baseType": this.baseType,
-                "filters" : json.stringify(this.currentSearch.filters)
+                "filters" : encodeURIComponent(json.stringify(this.currentSearch.filters))
             };
         },
         
