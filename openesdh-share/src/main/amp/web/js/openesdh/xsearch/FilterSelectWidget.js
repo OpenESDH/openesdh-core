@@ -10,16 +10,16 @@ define(["dojo/_base/declare",
 "dojo/_base/lang",
 "dojo/on",
 "dijit/form/Select",
-"openesdh/search/CaseFilterWidget",
-"openesdh/search/_CaseTopicsMixin"
+"openesdh/xsearch/FilterWidget",
+"openesdh/xsearch/_TopicsMixin"
 ],
-function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClass, array, lang, on, Select, CaseFilterWidget, _CaseTopicsMixin) {
-    return declare([CaseFilterWidget, _CaseTopicsMixin], {
+function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClass, array, lang, on, Select, FilterWidget, _TopicsMixin) {
+    return declare([FilterWidget, _TopicsMixin], {
         postCreate: function () {
             var _this = this;
             this.inherited(arguments);
             
-            console.log("CaseFilterSelectWidget: post create");
+            console.log("FilterSelectWidget: post create");
 
 
             var options = null;
@@ -34,16 +34,15 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
                             constraintParams[key] = parameter[key];
                         });
                     });
-                    constraint.parameters = constraintParams;
                     if (constraint.type == "LIST") {
-                        if (constraint.parameters.sorted) {
-                            constraint.parameters.allowedValues.sort();
+                        if (constraintParams.sorted) {
+                            constraintParams.allowedValues.sort();
                         }
                         console.log(constraint);
                         if (!options) {
                             options = [];
                         }
-                        array.forEach(constraint.parameters.allowedValues, function (value) {
+                        array.forEach(constraintParams.allowedValues, function (value) {
                             options.push({ label: value, value: value });
                         });
                     }

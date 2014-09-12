@@ -10,16 +10,16 @@ define(["dojo/_base/declare",
 "dojo/_base/array",
 "dojo/_base/lang",
 "dojo/on",
-"openesdh/search/CaseFilterWidget"
+"openesdh/xsearch/FilterWidget"
 ],
-function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClass, domAttr, array, lang, on, CaseFilterWidget) {
-    return declare([CaseFilterWidget], {
+function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClass, domAttr, array, lang, on, FilterWidget) {
+    return declare([FilterWidget], {
         selectedItems: [],
         
         postCreate: function () {
             this.inherited(arguments);
             
-            console.log("CaseFilterDateRangeWidget: post create");
+            console.log("FilterDateRangeWidget: post create");
             
             var pickerId = Alfresco.util.generateDomId();
 
@@ -62,7 +62,7 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
             if (valueParts.length == 1) {
                 valueParts = ['', ''];
             }
-            console.log("CaseFilterDateRangeWidget: getValue", valueParts);
+            console.log("FilterDateRangeWidget: getValue", valueParts);
             return {dateRange: valueParts};
         },
         

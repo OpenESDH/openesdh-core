@@ -1,7 +1,7 @@
 define(["dojo/_base/declare",
 "dijit/_WidgetBase",
 "dijit/_TemplatedMixin",
-"dojo/text!./templates/CaseFilterPane.html",
+"dojo/text!./templates/FilterPane.html",
 "alfresco/core/Core",
 "alfresco/core/CoreXhr",
 "dojo/dom-construct",
@@ -17,16 +17,16 @@ define(["dojo/_base/declare",
 "dijit/form/DropDownButton",
 "dojo/fx",
 "dojo/fx/Toggler",
-"openesdh/search/CaseFilter",
-"openesdh/search/_CaseTopicsMixin"],
-function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, domClass, dom, on, lang, array, registry, AlfButton, DropDownMenu, MenuItem, DropDownButton, coreFx, Toggler, CaseFilter, _CaseTopicsMixin) {
-    return declare([_Widget, _Templated, Core, CoreXhr, _CaseTopicsMixin], {
+"openesdh/xsearch/Filter",
+"openesdh/xsearch/_TopicsMixin"],
+function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, domClass, dom, on, lang, array, registry, AlfButton, DropDownMenu, MenuItem, DropDownButton, coreFx, Toggler, Filter, _TopicsMixin) {
+    return declare([_Widget, _Templated, Core, CoreXhr, _TopicsMixin], {
         
         templateString: template,
         
-        i18nRequirements: [{i18nFile: "./i18n/CaseFilterPane.properties"}],
+        i18nRequirements: [{i18nFile: "./i18n/FilterPane.properties"}],
         
-        cssRequirements: [{cssFile:"./css/CaseFilterPane.css"}],
+        cssRequirements: [{cssFile:"./css/FilterPane.css"}],
         
         widgets: [],
         
@@ -45,7 +45,7 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
             // Setup click handlers 
             // Apply button
             this.applyButton = new AlfButton({
-                label: "<span class='magenta ui-icon update'></span> " + this.message("casefilterpane.apply_filters"),
+                label: "<span class='magenta ui-icon update'></span> " + this.message("xsearch.filterpane.apply_filters"),
                 onClick: lang.hitch(this, '_onApplyButtonClick')
             });
             this.applyButton.placeAt(this.applyButtonNode);
@@ -53,7 +53,7 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
 
             // Remove all button
             this.removeAllButton = new AlfButton({
-                label: "<span class='magenta ui-icon cross'></span> " + this.message("casefilterpane.remove_all_filters"),
+                label: "<span class='magenta ui-icon cross'></span> " + this.message("xsearch.filterpane.remove_all_filters"),
                 onClick: lang.hitch(this, '_onRemoveAllButtonClick')
             });
             this.removeAllButton.placeAt(this.removeAllButtonNode);
@@ -75,7 +75,7 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
 
             toggler.visible = true;
 
-            var filtersLabel = this.message("casefilterpane.filters");
+            var filtersLabel = this.message("xsearch.filterpane.filters");
             var filtersToggleButton = new AlfButton({
                 label: filtersLabel + "&nbsp;&#9650;",
                 onClick: function (e) {
@@ -93,12 +93,12 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
             filtersToggleButton.placeAt(this.filtersToggleButtonNode);
 
             // Subscribe to removing filters
-            this.alfSubscribe(this.CaseFilterRemoveTopic, lang.hitch(this, "_handleFilterRemove"));
+            this.alfSubscribe(this.FilterRemoveTopic, lang.hitch(this, "_handleFilterRemove"));
             
             // Subscribe to filters being set
-            this.alfSubscribe(this.CaseFiltersSetTopic, lang.hitch(this, "_handleFiltersSet"));
+            this.alfSubscribe(this.FiltersSetTopic, lang.hitch(this, "_handleFiltersSet"));
             
-            console.log("CaseFilterPane: Post create");
+            console.log("FilterPane: Post create");
             console.log("Types", this.types);
         },
         
@@ -106,12 +106,14 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
          * Adds a single filter widget with given the name.
          * Optionally, set the operator and value.
          * @param {string} filterName
-         * @param {string} operator The search operator
+         * @param {string} operator The xsearch operator
          * @param {string} value The value of the filter
          */
         addFilterWidget: function (filterName, operator, value) {
             var _this = this;
-            
+
+            console.log("Add filter widget");
+            console.log(this.properties[filterName]);
             var filterDef = this.properties[filterName];
             filterDef.name = filterName;
             
@@ -132,7 +134,7 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
             filterDef.widgetType = filterDef.control;
 
             console.log(filterDef);
-            var filterWidget = new CaseFilter({
+            var filterWidget = new Filter({
                 filterDef: filterDef,
                 filter: {operator: operator, value: value},
                 filterPane: this
@@ -177,7 +179,7 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
             this.newFilterMenu = menu;
 
             this.newFilterButton = new DropDownButton({
-                label: "<span class='magenta ui-icon plus add-filter-icon'></span> " + this.message("casefilterpane.new_filter"),
+                label: "<span class='magenta ui-icon plus add-filter-icon'></span> " + this.message("xsearch.filterpane.new_filter"),
                 dropDown: this.newFilterMenu
             });
             this.newFilterButton.placeAt(this.newFilterButtonNode);
@@ -199,7 +201,7 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
 
             console.log('Filters', filters);
 
-            this.alfPublish(this.CaseFiltersApplyTopic, { filters: filters });
+            this.alfPublish(this.FiltersApplyTopic, { filters: filters });
         },
         
         removeAllFilters: function () {
@@ -243,7 +245,7 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
             this._filtersSet = true;
             
             // Acknowledge that we've got the event to set the filters
-            this.alfPublish(this.CaseFiltersSetAckTopic, {});
+            this.alfPublish(this.FiltersSetAckTopic, {});
             
             if (payload.filters === undefined) {
                 return;

@@ -56,7 +56,7 @@
                 <value>classpath:alfresco/web-extension/share-config-custom-dev.xml</value>
                 <value>jar:*!/META-INF/share-config-custom-dev.xml</value>
                 <value>classpath:alfresco/web-extension/share-config-case.xml</value>
-                <value>classpath:alfresco/web-extension/share-config-search.xml</value>
+                <value>classpath:alfresco/web-extension/share-config-xsearch.xml</value>
             </list>
         </constructor-arg>
     </bean>

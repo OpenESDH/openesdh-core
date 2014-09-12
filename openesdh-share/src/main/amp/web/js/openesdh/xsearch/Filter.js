@@ -1,7 +1,7 @@
 define(["dojo/_base/declare",
 "dijit/_WidgetBase",
 "dijit/_TemplatedMixin",
-"dojo/text!./templates/CaseFilter.html",
+"dojo/text!./templates/Filter.html",
 "alfresco/core/Core",
 "alfresco/core/CoreXhr",
 "dojo/dom",
@@ -12,24 +12,24 @@ define(["dojo/_base/declare",
 "dojo/on",
 "alfresco/buttons/AlfButton",
 
-"openesdh/search/CaseFilterSelectWidget",
-"openesdh/search/CaseFilterTextWidget",
-"openesdh/search/CaseFilterAuthorityWidget",
-"openesdh/search/CaseFilterAssociationWidget",
-"openesdh/search/CaseFilterSingleUserSelectWidget",
-"openesdh/search/CaseFilterRoleWidget",
-"openesdh/search/CaseFilterDateRangeWidget",
+"openesdh/xsearch/FilterSelectWidget",
+"openesdh/xsearch/FilterTextWidget",
+"openesdh/xsearch/FilterAuthorityWidget",
+"openesdh/xsearch/FilterAssociationWidget",
+"openesdh/xsearch/FilterSingleUserSelectWidget",
+"openesdh/xsearch/FilterRoleWidget",
+"openesdh/xsearch/FilterDateRangeWidget",
 
-"openesdh/search/_CaseTopicsMixin"
+"openesdh/xsearch/_TopicsMixin"
 ],
 function(declare, _Widget, _Templated, template, Core, CoreXhr, dom, domConstruct, domClass, array, lang, on, AlfButton,
-CaseFilterSelectWidget, CaseFilterTextWidget, CaseFilterAuthorityWidget, CaseFilterAssociationWidget, CaseFilterSingleUserSelectWidget, CaseFilterRoleWidget, CaseFilterDateRangeWidget,
-_CaseTopicsMixin) {
-    return declare([_Widget, _Templated, Core, CoreXhr, _CaseTopicsMixin], {
+FilterSelectWidget, FilterTextWidget, FilterAuthorityWidget, FilterAssociationWidget, FilterSingleUserSelectWidget, FilterRoleWidget, FilterDateRangeWidget,
+_TopicsMixin) {
+    return declare([_Widget, _Templated, Core, CoreXhr, _TopicsMixin], {
         
         templateString: template,
         
-        cssRequirements: [{cssFile:"./css/CaseFilter.css"}],
+        cssRequirements: [{cssFile:"./css/Filter.css"}],
         
         
         // The widget containing the filter
@@ -40,7 +40,7 @@ _CaseTopicsMixin) {
             
             var _this = this;
             
-            console.log("CaseFilter: Post create");
+            console.log("Filter: Post create");
 
             var removeButton = new AlfButton({
                 label: "<span class='magenta ui-icon cross'>Remove filter</span>",
@@ -64,7 +64,7 @@ _CaseTopicsMixin) {
             var init = {filterDef: this.filterDef, initialValue: this.filter.value, filterPane: this.filterPane};
 
             // Create filter widget based on field type
-            require(["openesdh/search/" + this.filterDef.widgetType], function (FilterWidget) {
+            require(["openesdh/xsearch/" + this.filterDef.widgetType], function (FilterWidget) {
                 _this.filterWidget = FilterWidget(init);
             });
             console.log("Filter widget" + this.filterWidget);
@@ -72,7 +72,7 @@ _CaseTopicsMixin) {
             this.filterWidget.placeAt(this.widgetNode);
             this.filterWidget.startup();
             
-            this.alfSubscribe("CASE_FILTER_WIDGET_ON_CHANGE", lang.hitch(this, "onFilterWidgetChange"));
+            this.alfSubscribe("XSEARCH_FILTER_WIDGET_ON_CHANGE", lang.hitch(this, "onFilterWidgetChange"));
                      
             on(this.operatorSelect, "change", function (){
                 console.log('operator Change!');
@@ -81,7 +81,7 @@ _CaseTopicsMixin) {
         },
         
         onFilterWidgetChange: function (payload) {
-            this.alfPublish('CASE_FILTER_ON_CHANGE', this.getFilter());
+            this.alfPublish('XSEARCH_FILTER_ON_CHANGE', this.getFilter());
         },
         
         getName: function () {
@@ -103,7 +103,7 @@ _CaseTopicsMixin) {
         
         destroy: function () {
             this.inherited(arguments);
-            console.log("CaseFilter: destroy");
+            console.log("Filter: destroy");
             // Destroy the filter widget
             if (this.filterWidget) {
                 this.filterWidget.destroyRecursive();
@@ -113,7 +113,7 @@ _CaseTopicsMixin) {
         _onRemoveFilterClick: function (event) {
             console.log('remove', event);
             var payload = this.filterDef.name;
-            this.alfPublish(this.CaseFilterRemoveTopic, { filter: payload });
+            this.alfPublish(this.FilterRemoveTopic, { filter: payload });
         }
     });
 });

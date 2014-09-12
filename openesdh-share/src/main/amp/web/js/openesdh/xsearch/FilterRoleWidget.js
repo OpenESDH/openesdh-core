@@ -10,20 +10,20 @@ define(["dojo/_base/declare",
 "dojo/_base/lang",
 "dojo/on",
 "dijit/form/Select",
-"openesdh/search/CaseFilterWidget",
-"openesdh/search/CaseFilterAuthorityWidget",
-"openesdh/search/_CaseTopicsMixin"
+"openesdh/xsearch/FilterWidget",
+"openesdh/xsearch/FilterAuthorityWidget",
+"openesdh/xsearch/_TopicsMixin"
 ],
-function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClass, array, lang, on, Select, CaseFilterWidget, CaseFilterAuthorityWidget, _CaseTopicsMixin) {
-    return declare([CaseFilterWidget, _CaseTopicsMixin], {
+function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClass, array, lang, on, Select, FilterWidget, FilterAuthorityWidget, _TopicsMixin) {
+    return declare([FilterWidget, _TopicsMixin], {
         
-        i18nRequirements: [{i18nFile: "./i18n/CaseFilterRoleWidget.properties"}],
+        i18nRequirements: [{i18nFile: "./i18n/FilterRoleWidget.properties"}],
         
         postCreate: function () {
             var _this = this;
             this.inherited(arguments);
             
-            console.log("CaseFilterRoleWidget: post create");
+            console.log("FilterRoleWidget: post create");
             
             
             var typeFilter = this.filterPane.getFilterByName('type');
@@ -37,7 +37,7 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
                 caseType = typeFilter.value;
             }
 
-            this.filterDef.options = this._rolesToOptions(this.getRolesByCaseType(type));
+            this.filterDef.options = this._rolesToOptions(this.getRolesByType(type));
             
             this.filterWidget = new Select({ options: this.filterDef.options });
             
@@ -64,8 +64,8 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
             var authorityFilterDef = this.filterDef;
             authorityFilterDef.widgetOptions = this.filterDef.widgetOptions.authorityPicker;
             
-            var init = {filterDef: authorityFilterDef, initialValue: authorityInitialValue, filterPane: this.filterPane, label: this.message('label.authority-to-search')};
-            this.authorityWidget = new CaseFilterAuthorityWidget(init);
+            var init = {filterDef: authorityFilterDef, initialValue: authorityInitialValue, filterPane: this.filterPane, label: this.message('label.authority-to-xsearch')};
+            this.authorityWidget = new FilterAuthorityWidget(init);
             console.log('authority widget', this.authorityWidget);
             this.authorityWidget.placeAt(this.containerNode);
             this.authorityWidget.startup();
@@ -74,8 +74,8 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
                 _this.publishChangeEvent();
             });
             
-            this.alfSubscribe("CASE_FILTER_ON_CHANGE", lang.hitch(this, "onFilterChange"));
-            this.alfSubscribe(this.CaseFilterRemoveTopic, lang.hitch(this, "onFilterPaneFilterRemoved"));
+            this.alfSubscribe("XSEARCH_FILTER_ON_CHANGE", lang.hitch(this, "onFilterChange"));
+            this.alfSubscribe(this.FilterRemoveTopic, lang.hitch(this, "onFilterPaneFilterRemoved"));
         },
         
         _rolesToOptions: function (roles) {
@@ -97,7 +97,7 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
                     // Handle NOT operator: Just show default case type roles
                     caseType = 'esdh:case';
                 }
-                var roles = this.getRolesByCaseType(caseType);
+                var roles = this.getRolesByType(caseType);
                 var options = this._rolesToOptions(roles);
                 this.updateOptions(options);
             }
@@ -107,7 +107,7 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
             console.log("onFilterPaneFilterRemoved", payload);
             if (payload.filter == 'type') {
                 // When type filter has been removed, reset the role filter options
-                this.updateOptions(this._rolesToOptions(this.getRolesByCaseType(this.filterPane.baseType)));
+                this.updateOptions(this._rolesToOptions(this.getRolesByType(this.filterPane.baseType)));
             }
         },
         
@@ -116,7 +116,7 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
          * @param {type} type
          * @returns {object}
          */
-        getRolesByCaseType: function (type) {
+        getRolesByType: function (type) {
             if (typeof caseType == 'undefined' || !caseType || typeof this.filterPane.types[type] == 'undefined') {
                 type = this.filterPane.baseType;
             }

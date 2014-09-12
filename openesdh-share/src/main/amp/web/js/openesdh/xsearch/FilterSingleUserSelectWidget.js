@@ -9,16 +9,17 @@ define(["dojo/_base/declare",
 "dojo/_base/array",
 "dojo/_base/lang",
 "dojo/on",
-"dijit/form/TextBox",
-"openesdh/search/CaseFilterWidget"
+"openesdh/xsearch/MagentaSingleUserSelect",
+"openesdh/xsearch/FilterWidget"
 ],
-function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClass, array, lang, on, TextBox, CaseFilterWidget) {
-    return declare([CaseFilterWidget], {
+function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClass, array, lang, on, MagentaSingleUserSelect, FilterWidget) {
+    return declare([FilterWidget], {
         postCreate: function () {
             this.inherited(arguments);
-            
-            console.log("CaseFilterTextWidget: post create");
-            this.filterWidget = new TextBox({value: this.initialValue});
+
+            // Bug in SingleUserSelect widget: We use our own overridden version
+            this.filterWidget = new MagentaSingleUserSelect({});
+            this.filterWidget.set('value', this.initialValue);
             this.filterWidget.placeAt(this.containerNode);
             this.filterWidget.startup();
         },

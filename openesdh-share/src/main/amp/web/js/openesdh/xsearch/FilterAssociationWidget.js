@@ -9,16 +9,16 @@ define(["dojo/_base/declare",
 "dojo/_base/array",
 "dojo/_base/lang",
 "dojo/on",
-"openesdh/search/CaseFilterWidget"
+"openesdh/xsearch/FilterWidget"
 ],
-function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClass, array, lang, on, CaseFilterWidget) {
-    return declare([CaseFilterWidget], {
+function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClass, array, lang, on, FilterWidget) {
+    return declare([FilterWidget], {
         selectedItems: [],
         
         postCreate: function () {
             this.inherited(arguments);
             
-            console.log("CaseFilterAuthorityWidget: post create");
+            console.log("FilterAssociationWidget: post create");
             
             var pickerId = Alfresco.util.generateDomId();
 
@@ -27,12 +27,10 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
                 innerHTML: '',
                 id: pickerId
                 }, this.containerNode);
-                
+
             // Alfresco provides no way for us to not show a label, so we have to hide it
-            if (typeof this.label === 'undefined') {
-                domClass.add(pickerContainer, "magenta-hide-label");
-            }
-            
+            domClass.add(pickerContainer, "magenta-hide-label");
+
             var opts = this.filterDef.widgetOptions;
             if (!opts) {
                 opts = {};
@@ -40,45 +38,49 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
             
             var itemType = opts.itemType ? opts.itemType : "cm:object";
             var many = opts.multiple ? opts.multiple : false;
+            var startLocation = opts.startLocation ? opts.startLocation : false;
 
             // TODO: internationalize
-            var picker = this.createAuthorityPicker(itemType, pickerId, this.label, this.initialValue, many,
+            var picker = this.createAssociationPicker(itemType, pickerId, "", this.initialValue, many, startLocation,
                 (function(scope) {
                     return function(obj) {
                         console.log("Item selected:", obj.selectedItems[0]);
                         scope.selectedItems = obj.selectedItems;
-                    };
+                    }
                 })(this));
         },
         
         // Return the filter data as an object
         getValue: function () {
-            console.log("CaseFilterAuthorityWidget: getValue");
+            console.log("FilterAssociationWidget: getValue");
             return this.selectedItems;
         },
         
-        
         /**
-         * Create a picker for authorities
+         * Create a picker for associations
          *
-         * @method createAuthorityPicker
+         * @method createAssociationPicker
          * @param itemType {string} type of item to select, i.e. 'cm:object' or 'cm:person' 
          * @param containerName {string} htmlId of the element to contain the picker
          * @param value {string} initial value for the control
          * @param many {boolean} If the picker should allow choosing multiple items
+         * @param startLocation {string} The path to start the picker in
          * @param label {string} Label to disply on the picker
          * @param callback {function(obj)} Function to call when the value changes
          */
-        createAuthorityPicker: function(itemType, containerName, label, value, many, callback) {
-            var domId = Alfresco.util.generateDomId();
-            console.log("Authority picker dom ID", domId, containerName);
-            var picker = new Alfresco.module.ControlWrapper(domId);
+        createAssociationPicker: function(itemType, containerName, label, value, many, startLocation, callback) {
+            var picker = new Alfresco.module.ControlWrapper(Alfresco.util.generateDomId());
             picker.setOptions(
                 {
-                    type: "authority",
+                    type: "association",
                     container: containerName,
                     value: value,
                     label: label,
+                    controlParams:
+                    {
+                       startLocation: startLocation,
+                       multipleSelectMode: many
+                    },
                     field:
                     {
                         endpointType: itemType,

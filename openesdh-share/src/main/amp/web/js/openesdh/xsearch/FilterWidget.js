@@ -1,7 +1,7 @@
 define(["dojo/_base/declare",
 "dijit/_WidgetBase",
 "dijit/_TemplatedMixin",
-"dojo/text!./templates/CaseFilterWidget.html",
+"dojo/text!./templates/FilterWidget.html",
 "alfresco/core/Core",
 "alfresco/core/CoreXhr",
 "dojo/dom",
@@ -15,7 +15,7 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, dom, domConstruc
         
         templateString: template,
         
-        cssRequirements: [{cssFile:"./css/CaseFilterWidget.css"}],
+        cssRequirements: [{cssFile:"./css/FilterWidget.css"}],
         
         // The filter definition should be passed into the widget
         filterDef: null,
@@ -28,7 +28,7 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, dom, domConstruc
         
         postCreate: function () {
             this.inherited(arguments);
-            console.log("CaseFilterWidget: Post create");
+            console.log("FilterWidget: Post create");
         },
         
         destroy: function () {
@@ -49,7 +49,7 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, dom, domConstruc
         },
         
         publishChangeEvent: function () {
-            this.alfPublish("CASE_FILTER_WIDGET_ON_CHANGE", 
+            this.alfPublish("XSEARCH_FILTER_WIDGET_ON_CHANGE",
                 {
                   name: this.filterDef.name,
                   value: this.getValue()

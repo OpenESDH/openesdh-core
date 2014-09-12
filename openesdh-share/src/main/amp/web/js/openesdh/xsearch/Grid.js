@@ -1,7 +1,7 @@
 define(["dojo/_base/declare",
 "dijit/_WidgetBase",
 "dijit/_TemplatedMixin",
-"dojo/text!./templates/CaseGrid.html",
+"dojo/text!./templates/Grid.html",
 "alfresco/core/Core",
 "alfresco/core/CoreXhr",
 "dojo/dom",
@@ -14,7 +14,7 @@ define(["dojo/_base/declare",
 "dijit/registry",
 "dojo/on",
 "dojo/dom-attr",
-"openesdh/search/_CaseTopicsMixin",
+"openesdh/xsearch/_TopicsMixin",
 
 "alfresco/dialogs/AlfDialog",
 
@@ -33,21 +33,24 @@ define(["dojo/_base/declare",
 "dgrid/extensions/ColumnResizer",
 "dgrid/extensions/ColumnHider",
 "dgrid/extensions/ColumnReorder"],
-function(declare, _Widget, _Templated, template, Core, CoreXhr, dom, domConstruct, domClass, keys, xhr, array, lang, registry, on, domAttr, _CaseTopicsMixin,
+function(declare, _Widget, _Templated, template, Core, CoreXhr, dom, domConstruct, domClass, keys, xhr, array, lang, registry, on, domAttr, _TopicsMixin,
 AlfDialog,
 json,
 Memory, JsonRest, QueryResults,
 DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResizer, ColumnHider, ColumnReorder) {
-    return declare([_Widget, _Templated, Core, CoreXhr, _CaseTopicsMixin], {
+    return declare([_Widget, _Templated, Core, CoreXhr, _TopicsMixin], {
         templateString: template,
         
-        i18nRequirements: [{i18nFile: "./i18n/CaseGrid.properties"}],
+        i18nRequirements: [
+            {i18nFile: "./i18n/Grid.properties"},
+            {i18nFile: "./i18n/GridActions.properties"}
+        ],
         
         // Override default Dijit theme to look like Alfresco's.
         // This applies to the whole page, but I haven't found a better place to put it.
         cssRequirements: [
             {cssFile:"./css/AlfrescoStyle.css"},
-            {cssFile:"./css/CaseGrid.css"},
+            {cssFile:"./css/Grid.css"},
             {cssFile:"./css/GridActions.css"},
             {cssFile:"./css/GridColumns.css"}
         ],
@@ -64,7 +67,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
         scriptURI: '/page/hdp/ws/cases',
         
         postCreate: function () {
-            console.log('CaseGrid');
+            console.log('Grid');
             this.inherited(arguments);
 
             this.currentSearch = {};
@@ -74,20 +77,20 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
         },
 
         startup: function () {
-            console.log('CaseGrid startup');
+            console.log('Grid startup');
             var _this = this;
 
             this.loadInitialSearch();
             this.createGrid();
             
             // Subscribe to applying filters
-            this.alfSubscribe(this.CaseFiltersApplyTopic, lang.hitch(this, "handleFiltersApply"));
+            this.alfSubscribe(this.FiltersApplyTopic, lang.hitch(this, "handleFiltersApply"));
             
-            // Subscribe to saving search
-            this.alfSubscribe("CASE_SAVE_SEARCH_AS_TOPIC", lang.hitch(this, "handleSaveSearchAs"));
+            // Subscribe to saving xsearch
+            this.alfSubscribe("XSEARCH_SAVE_SEARCH_AS_TOPIC", lang.hitch(this, "handleSaveSearchAs"));
             this.alfSubscribe("CASEGRID_SAVE_SEARCH_AS_OK", lang.hitch(this, "handleSaveSearchAsOK"));
             
-            this.alfSubscribe(this.CaseManageSavedSearchesTopic, lang.hitch(this, "handleManageSavedSearches"));
+            this.alfSubscribe(this.ManageSavedSearchesTopic, lang.hitch(this, "handleManageSavedSearches"));
             this.alfSubscribe("CASEGRID_MANAGE_SAVED_SEARCHES_DELETE", lang.hitch(this, "handleManageSavedSearchesDelete"));
         },
 
@@ -133,7 +136,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
             var all = Alfresco.util.getQueryStringParameter('all');
             if (all === null) {
                 this.allSearch = false;
-                // If 'all' parameter is not set, load a search
+                // If 'all' parameter is not set, load a xsearch
                 if (searchArg !== null) {
                     this.searchName = searchArg;
                 } else {
@@ -144,7 +147,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
             }
             
             var search = this.loadSearch(this.searchName);
-            console.log("Loaded search", search);
+            console.log("Loaded xsearch", search);
             
             if (search !== null) {
                 this.currentSearch = search;
@@ -152,16 +155,16 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                     this.currentSearch.columns = {};
                 }
                 
-                // Repeatedly try to set the filters, because CaseFilterPane might not have loaded yet,
-                // in which case the loaded search's filters would not be set in the UI
+                // Repeatedly try to set the filters, because FilterPane might not have loaded yet,
+                // in which case the loaded xsearch's filters would not be set in the UI
                 var intervalID = window.setInterval(function () {
                     // Publish current filters when we load the widget
-                    // so the filters reflect the current search
-                    _this.alfPublish(_this.CaseFiltersSetTopic, { filters: _this.currentSearch.filters });
+                    // so the filters reflect the current xsearch
+                    _this.alfPublish(_this.FiltersSetTopic, { filters: _this.currentSearch.filters });
                 }, 50);
                 
-                // Stop trying to set the filters when we get acknowledgement from CaseFilterPane
-                this.alfSubscribe(this.CaseFiltersSetAckTopic, function () {
+                // Stop trying to set the filters when we get acknowledgement from FilterPane
+                this.alfSubscribe(this.FiltersSetAckTopic, function () {
                     clearInterval(intervalID);
                 });
             } else {
@@ -209,21 +212,21 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
             }
             var dialog = new AlfDialog({
                pubSubScope: this.pubSubScope,
-               title: this.message("casegrid.save_search_as.dialog.title"),
+               title: this.message("xsearch.save_search_as.dialog.title"),
                 widgetsContent: [
                     {
                        name: "alfresco/forms/controls/DojoCheckBox",
                        config: {
                           fieldId: 'save_as_default',
                           value: defaultSearch,
-                          label: this.message("casegrid.save_search_as.dialog.save_as_default.label"),
+                          label: this.message("xsearch.save_search_as.dialog.save_as_default.label"),
                        }
                     },
                     {
                        name: "alfresco/forms/controls/DojoValidationTextBox",
                        config: {
                           fieldId: 'search_name',
-                          label: this.message("casegrid.save_search_as.dialog.search_name.label"),
+                          label: this.message("xsearch.save_search_as.dialog.search_name.label"),
                           value: searchName,
                           disablementConfig: {
                               initialValue: defaultSearch,
@@ -241,7 +244,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                    {
                       name: "alfresco/buttons/AlfButton",
                       config: {
-                         label: this.message("casegrid.button.ok"),
+                         label: this.message("xsearch.button.ok"),
                          publishTopic: "CASEGRID_SAVE_SEARCH_AS_OK",
                          publishPayload: {}
                       }
@@ -249,7 +252,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                    {
                       name: "alfresco/buttons/AlfButton",
                       config: {
-                         label: this.message("casegrid.button.cancel"),
+                         label: this.message("xsearch.button.cancel"),
                          publishTopic: "CASEGRID_SAVE_SEARCH_AS_CANCEL",
                          publishPayload: {}
                       }
@@ -283,12 +286,12 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                 
                 var dialog = new AlfDialog({
                    pubSubScope: _this.pubSubScope,
-                   title: _this.message("casegrid.manage_saved_searches.dialog.title"),
+                   title: _this.message("xsearch.manage_saved_searches.dialog.title"),
                     widgetsContent: [
                         {
                            name: "alfresco/forms/controls/DojoSelect",
                            config: {
-                              label: _this.message("casegrid.manage_saved_searches.dialog.select_search.label"),
+                              label: _this.message("xsearch.manage_saved_searches.dialog.select_search.label"),
                               options: options
                            }
                         }
@@ -297,7 +300,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                        {
                           name: "alfresco/buttons/AlfButton",
                           config: {
-                             label: _this.message("casegrid.manage_saved_searches.dialog.button.delete"),
+                             label: _this.message("xsearch.manage_saved_searches.dialog.button.delete"),
                              publishTopic: "CASEGRID_MANAGE_SAVED_SEARCHES_DELETE",
                              publishPayload: {}
                           }
@@ -305,7 +308,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                        {
                           name: "alfresco/buttons/AlfButton",
                           config: {
-                             label: _this.message("casegrid.button.cancel"),
+                             label: _this.message("xsearch.button.cancel"),
                              publishTopic: "CASEGRID_MANAGE_SAVED_SEARCHES_CANCEL",
                              publishPayload: {}
                           }
@@ -387,7 +390,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                 var sortable = typeof propDef.sortable !== 'undefined' ? propDef.sortable : true;
                 var hidden = array.indexOf(_this.visibleColumns, columnName) === -1;
                 if (typeof _this.currentSearch.columns[columnName] !== 'undefined') {
-                    // Load column visibility from search setting if it exists
+                    // Load column visibility from xsearch setting if it exists
                     hidden = !_this.currentSearch.columns[columnName];
                 }
                 var formatter;
@@ -448,7 +451,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
             // Add Actions column
             columns.push({
                 field: "nodeRef",
-                label: this.message("casegrid.actions"),
+                label: this.message("xsearch.grid.actions"),
                 renderCell: lang.hitch(this, '_renderActionsCell'),
                 sortable: false,
                 unhidable: true
@@ -460,8 +463,8 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                 store: store,
                 query: initialQuery,
                 columns: columns,
-                noDataMessage: this.message("casegrid.no_data_message"),
-                loadingMessage: this.message("casegrid.loading_message"),
+                noDataMessage: this.message("xsearch.grid.no_data_message"),
+                loadingMessage: this.message("xsearch.grid.loading_message"),
                 rowsPerPage: 25,
                 pageSizeOptions: [25, 50, 75, 100],
                 selectionMode: "single",
@@ -559,9 +562,9 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
         },
         
         /**
-         * Loads a search.
-         * @param name {string} the name of the search to load
-         * @returns {object} The saved search or null if none exists.
+         * Loads a xsearch.
+         * @param name {string} the name of the xsearch to load
+         * @returns {object} The saved xsearch or null if none exists.
          */
         loadSearch: function (name) {
             var savedSearches = this.getCachedSavedSearches();
@@ -581,7 +584,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                 successMessage = success;
             }
             var failureMessage = failureMessage ? failureMessage : this.message('message.save_search.failure');
-            this.preferences.set('savedCaseSearches', json.stringify(savedSearches),
+            this.preferences.set('savedSearches', json.stringify(savedSearches),
                 {
                   successCallback: {
                       fn: successCallback,
@@ -597,7 +600,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
             if (!preferences) {
                 return {};
             }
-            var prefVal = preferences.savedCaseSearches;
+            var prefVal = preferences.savedSearches;
             if (!prefVal) {
                 return {};
             } else {
@@ -606,7 +609,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
         },
         
         getSavedSearches: function (callback) {
-            var preferences = this.preferences.request('savedCaseSearches',
+            var preferences = this.preferences.request('savedSearches',
                 {
                     successCallback: {
                         fn: function (response) {
@@ -618,7 +621,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                                 return;
                             }
                             
-                            var prefVal = response.json.savedCaseSearches;
+                            var prefVal = response.json.savedSearches;
                             if (!prefVal) {
                                 callback({});
                             } else {
@@ -632,9 +635,9 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
         },
         
         /**
-         * Takes a search object and saves it
+         * Takes a xsearch object and saves it
          * @param {object} search
-         * @param {string} name of the search
+         * @param {string} name of the xsearch
          * @returns {undefined}
          */
         saveSearch: function (search, name) {
@@ -677,7 +680,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                         // Delay so the user can see the message, before reloading
                         window.setTimeout(function () {
                             if (name === _this.searchName) {
-                                // Redirect to the default search if the current search was deleted
+                                // Redirect to the default xsearch if the current xsearch was deleted
                                 location.href = _this.scriptURI;
                             } else {
                                 // Reload
