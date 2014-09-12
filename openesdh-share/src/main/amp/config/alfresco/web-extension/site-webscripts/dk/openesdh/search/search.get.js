@@ -138,6 +138,7 @@ function getSearchModel(baseType) {
                     if (!aspectModel.properties.hasOwnProperty(property)) {
                         continue;
                     }
+                    aspectModel.properties[property].constraints = getPropertyConstraints(aspect, property);
                     if (property in model.properties) {
                         // TODO: Merge constraints?
                     } else {
@@ -194,15 +195,11 @@ function getSearchDefinition(type) {
             // Check for default constraint control
             property.constraints.forEach(function (constraint) {
                 var check = constraint.type + ":" + property.dataType;
-                logger.warn("Checking " + check);
                 if (check in config.defaultControls) {
                     property.control = config.defaultControls[check];
-                    logger.warn("Yes");
                 } else {
                     check = constraint.type + ":*";
-                    logger.warn("Checking " + check);
                     if (check in config.defaultControls) {
-                        logger.warn("Yes *");
                         property.control = config.defaultControls[check];
                     }
                 }
