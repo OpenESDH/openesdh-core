@@ -46,7 +46,8 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
             // Apply button
             this.applyButton = new AlfButton({
                 label: "<span class='magenta ui-icon update'></span> " + this.message("xsearch.filterpane.apply_filters"),
-                onClick: lang.hitch(this, '_onApplyButtonClick')
+                onClick: lang.hitch(this, '_onApplyButtonClick'),
+                id: 'apply-filters-button'
             });
             this.applyButton.placeAt(this.applyButtonNode);
             
@@ -54,7 +55,8 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
             // Remove all button
             this.removeAllButton = new AlfButton({
                 label: "<span class='magenta ui-icon cross'></span> " + this.message("xsearch.filterpane.remove_all_filters"),
-                onClick: lang.hitch(this, '_onRemoveAllButtonClick')
+                onClick: lang.hitch(this, '_onRemoveAllButtonClick'),
+                id: 'remove-all-filters-button'
             });
             this.removeAllButton.placeAt(this.removeAllButtonNode);
 
@@ -171,7 +173,8 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
                 var menuItem = new MenuItem({
                     label: _this.properties[filter].title,
                     name: filter,
-                    onClick: _onNewFilterClick
+                    onClick: _onNewFilterClick,
+                    id: "new-filter-" + filter.replace(":", "-")
                 });
                 menu.addChild(menuItem); 
             });
@@ -180,7 +183,8 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
 
             this.newFilterButton = new DropDownButton({
                 label: "<span class='magenta ui-icon plus add-filter-icon'></span> " + this.message("xsearch.filterpane.new_filter"),
-                dropDown: this.newFilterMenu
+                dropDown: this.newFilterMenu,
+                id: "new-filter-button"
             });
             this.newFilterButton.placeAt(this.newFilterButtonNode);
         },

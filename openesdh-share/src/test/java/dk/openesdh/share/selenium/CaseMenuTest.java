@@ -4,6 +4,7 @@ import dk.openesdh.share.selenium.framework.Browser;
 import dk.openesdh.share.selenium.framework.Pages;
 import dk.openesdh.share.selenium.framework.enums.User;
 import dk.openesdh.share.selenium.framework.pages.BasePage;
+import dk.openesdh.share.selenium.framework.pages.CreateCasePage;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -34,20 +35,13 @@ public class CaseMenuTest {
     public void testCaseMenuIsVisibleAndClickable() {
         Pages.Login.loginWith(User.ADMIN);
         assertTrue(Pages.Dashboard.isAt(User.ADMIN));
-        WebElement menuItem = Browser.Driver.findElement(By.id("HEADER_CASES_DROPDOWN_text"));
-        assertNotNull( menuItem );
 
-        WebElement searchLinkItem = Browser.Driver.findElement(By.id("CASE_MENU_SEARCH_LINK_text"));
-        assertNotNull( searchLinkItem );
-
-        WebElement createSimpleCaseItem = Browser.Driver.findElement(By.id("CASE_MENU_CREATE_CASE_CASE_SIMPLE_text"));
-        assertNotNull( createSimpleCaseItem );
-
-        menuItem.click();
-        createSimpleCaseItem.click();
-
-        String createCaseURL = BasePage.BASE_URL + "/page/create-content";
-        assertTrue(Browser.Driver.getCurrentUrl().startsWith(createCaseURL));
+        Pages.Dashboard.clickCasesMenuItem();
+        Pages.Dashboard.clickCasesMenuSearchItem();
+        assertTrue(Pages.Search.isAt());
+        Pages.Search.clickCasesMenuItem();
+        Pages.Search.clickCreateSimpleCaseItem();
+        assertTrue(Pages.CreateCase.isAt());
     }
 
     @After
