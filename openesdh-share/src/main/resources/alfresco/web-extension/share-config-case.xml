@@ -4,18 +4,18 @@
             <!-- Default form configuration for the case type -->
             <form>
                 <field-visibility>
-                    <show id="oe:title" force="true"/>
-                    <show id="oe:description" force="true"/>
+                    <show id="cm:title" force="true"/>
+                    <show id="cm:description" force="true"/>
                     <show id="oe:status" />
                     <show id="case:owners" />
                     <show id="case:startDate" />
                     <show id="case:endDate" />
                 </field-visibility>
                 <appearance>
-                    <field id="oe:title">
+                    <field id="cm:title">
                         <control template="/org/alfresco/components/form/controls/textfield.ftl" />
                     </field>
-                    <field id="oe:description">
+                    <field id="cm:description">
                         <control>
                             <control-param name="activateLinks">true</control-param>
                         </control>
