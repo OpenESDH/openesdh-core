@@ -1,3 +1,12 @@
+/**
+ * A grid to show search results in.
+ * @module openesdh/xsearch/Grid
+ * @extends dijit/_WidgetBase
+ * @mixes dijit/_TemplatedMixin
+ * @mixes alfresco/core/Core
+ * @mixes alfresco/core/CoreXhr
+ * @mixes module:openesdh/xsearch/_TopicsMixin
+ */
 define(["dojo/_base/declare",
 "dijit/_WidgetBase",
 "dijit/_TemplatedMixin",
@@ -536,7 +545,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
         },
         
         /**
-         * Renders a list of actions given the case item.
+         * Renders a list of actions given the case item
          */
         _renderActionsCell: function (item, value, node, options) {
             var _this = this;
