@@ -624,12 +624,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
         setColumns: function (columns) {
             this.columns = columns;
         },
-        
-         
-        setData: function (data) {
-           this.currentData = data;
-        },
-        
+
         /**
          * Loads a xsearch.
          * @param name {string} the name of the xsearch to load
