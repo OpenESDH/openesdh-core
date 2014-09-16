@@ -52,7 +52,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
         
         i18nRequirements: [
             {i18nFile: "./i18n/Grid.properties"},
-            {i18nFile: "./i18n/.properties"}
+            {i18nFile: "./i18n/GridActions.properties"}
         ],
         
         // Override default Dijit theme to look like Alfresco's.
@@ -63,11 +63,79 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
             {cssFile:"./css/GridActions.css"},
             {cssFile:"./css/GridColumns.css"}
         ],
-        
-        // An array holding the property names of the currently visible columns
+
+        /**
+         * An object containing metadata about the properties that we want to show in the grid.
+         *
+         *
+         * @instance
+         * @type {object}
+         * @default null
+         */
+        properties: null,
+
+        /**
+         * The base type that the search will be based on.
+         *
+         * All searches will be performed with this type.
+         *
+         * @instance
+         * @type {string}
+         * @default ""
+         */
+        baseType: "",
+
+        /**
+         * An object keyed by type containing metadata about types.
+         * The metadata objects should contain the "title" of the type,
+         * as it should be displayed in the TYPE column.
+         *
+         * @instance
+         * @type {object}
+         * @default null
+         */
+        types: null,
+
+        /**
+         * An array specifying which columns should be visible when the widget is loaded.
+         * @instance
+         * @type {string[]}
+         */
+        visibleColumns: null,
+
+        /**
+         * An array specifying which columns should be available for the user to show.
+         *
+         * @instance
+         * @type {string[]}
+         */
+        availableColumns: null,
+
+        /**
+         * An array containing the actions which should be available on all
+         * result rows.
+         *
+         * @instance
+         * @type {object[]}
+         */
+        actions: null,
+
+        /**
+         * An array holding the property names of the currently visible columns.
+         *
+         * @instance
+         * @type {string[]}
+         * @default null
+         */
         columns: null,
-        
-        // The Grid widget
+
+        /**
+         * The Grid widget
+         *
+         * @instance
+         * @type {dgrid/Grid}
+         * @default null
+         */
         grid: null,
         
         DEFAULT_SEARCH_NAME: '__default__',

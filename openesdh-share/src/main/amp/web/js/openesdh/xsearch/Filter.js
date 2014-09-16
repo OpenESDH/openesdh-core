@@ -17,13 +17,12 @@ define(["dojo/_base/declare",
 "openesdh/xsearch/FilterAuthorityWidget",
 "openesdh/xsearch/FilterAssociationWidget",
 "openesdh/xsearch/FilterSingleUserSelectWidget",
-"openesdh/xsearch/FilterRoleWidget",
 "openesdh/xsearch/FilterDateRangeWidget",
 
 "openesdh/xsearch/_TopicsMixin"
 ],
 function(declare, _Widget, _Templated, template, Core, CoreXhr, dom, domConstruct, domClass, array, lang, on, AlfButton,
-FilterSelectWidget, FilterTextWidget, FilterAuthorityWidget, FilterAssociationWidget, FilterSingleUserSelectWidget, FilterRoleWidget, FilterDateRangeWidget,
+FilterSelectWidget, FilterTextWidget, FilterAuthorityWidget, FilterAssociationWidget, FilterSingleUserSelectWidget, FilterDateRangeWidget,
 _TopicsMixin) {
     return declare([_Widget, _Templated, Core, CoreXhr, _TopicsMixin], {
         
@@ -63,7 +62,7 @@ _TopicsMixin) {
 
             var init = {filterDef: this.filterDef, initialValue: this.filter.value, filterPane: this.filterPane};
 
-            // Create filter widget based on field type
+            // Create filter widget based on the chosen widget type
             require(["openesdh/xsearch/" + this.filterDef.widgetType], function (FilterWidget) {
                 _this.filterWidget = FilterWidget(init);
             });

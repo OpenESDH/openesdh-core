@@ -29,8 +29,13 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
         cssRequirements: [{cssFile:"./css/FilterPane.css"}],
         
         widgets: [],
-        
-        // An array of the filter widgets
+
+        /**
+         * An array holding the current filter widgets.
+         *
+         * @instance
+         * @type {object[]}
+         */
         filterWidgets: [],
 
         // Keep track of whether the filters were initially set (e.g. when page is loaded)
