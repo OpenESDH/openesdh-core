@@ -104,9 +104,6 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
             
             // Subscribe to filters being set
             this.alfSubscribe(this.FiltersSetTopic, lang.hitch(this, "_handleFiltersSet"));
-            
-            console.log("FilterPane: Post create");
-            console.log("Types", this.types);
         },
         
         /**
@@ -119,8 +116,6 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
         addFilterWidget: function (filterName, operator, value) {
             var _this = this;
 
-            console.log("Add filter widget");
-            console.log(this.properties[filterName]);
             var filterDef = this.properties[filterName];
             filterDef.name = filterName;
             
@@ -133,14 +128,11 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
             }
             
             array.forEach(filterDef.operatorSets, function (operatorSet, i) {
-               console.log('operator', operatorSet);
-               console.log('operatorSets', _this.operatorSets[operatorSet]);
                filterDef.operators = filterDef.operators.concat(_this.operatorSets[operatorSet]); 
             });
 
             filterDef.widgetType = filterDef.control;
 
-            console.log(filterDef);
             var filterWidget = new Filter({
                 filterDef: filterDef,
                 filter: {operator: operator, value: value},
@@ -160,7 +152,6 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
             var menu = new DropDownMenu({ style: "display: none;"});
             
             var _onNewFilterClick = function (event) {
-                console.log('newFilterOnClick', this);
                 _this.addFilterWidget(this.name);
                 _this.onFilterListChanged();   
             };
@@ -199,8 +190,6 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
         },
 
         applyFilters: function () {
-            console.log('Apply filters');
-
             // Build filters array
             var filters = [];
 
@@ -208,7 +197,7 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
                 filters.push(filterWidget.getFilter());
             });
 
-            console.log('Filters', filters);
+            this.alfLog('debug', 'Filters', filters);
 
             this.alfPublish(this.FiltersApplyTopic, { filters: filters });
         },
@@ -227,12 +216,9 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
         },
         
         _handleFilterRemove: function (payload) {
-            console.log('handleFilterRemove', payload);
-
             // Destroy the filter widget and remove from filterWidgets array
             this.filterWidgets = dojo.filter(this.filterWidgets, function (item, index) {
                 if (item.getName() === payload.filter) {
-                    console.log("Removing filter", payload.filter);
                     item.destroyRecursive();
                     return false;
                 }
@@ -247,7 +233,7 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
         },
         
         _handleFiltersSet: function (payload) {
-            console.log("handleFiltersSet", payload);
+            this.alfLog("debug", "handleFiltersSet", payload);
             if (this._filtersSet) {
                 return;
             }
@@ -265,7 +251,7 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
             this.removeAllFilters();
             
             array.forEach(payload.filters, function (filter) {
-                console.log("addFilterWidget", filter);
+                _this.alfLog("debug", "addFilterWidget", filter);
                 _this.addFilterWidget(filter.name, filter.operator, filter.value);
             });
             
@@ -306,9 +292,6 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
                 return dojo.indexOf(currentFilters, item) === -1;
             });
             
-            console.log('curFilters', currentFilters);
-            console.log('newFilters', newFilters);
-            
             // Update New filter drop-down menu, showing/hiding filters as needed
             array.forEach(this.newFilterMenu.getChildren(), function (menuItem, i) {
                 if (dojo.indexOf(newFilters, menuItem.name) === -1) {
@@ -319,7 +302,6 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
             });
             
             // Hide the New Filter button if there are no more filters that can be added
-            console.log('cur filters', currentFilters.length, 'available', this.availableFilters.length);
             if (currentFilters.length === this.availableFilters.length) {
                 domClass.add(this.newFilterButton.domNode, "share-hidden");
             } else {

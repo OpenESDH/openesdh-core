@@ -19,8 +19,6 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
         postCreate: function () {
             this.inherited(arguments);
             
-            console.log("FilterDateRangeWidget: post create");
-            
             var pickerId = Alfresco.util.generateDomId();
 
             // Create a container element for the picker
@@ -42,7 +40,6 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
             var initialValue = '';
             if (this.initialValue && this.initialValue.dateRange) {
                 initialValue = this.initialValue.dateRange;
-                console.log('init value',this.initialValue, initialValue);
             }
             
             // TODO: internationalize
@@ -62,7 +59,6 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
             if (valueParts.length == 1) {
                 valueParts = ['', ''];
             }
-            console.log("FilterDateRangeWidget: getValue", valueParts);
             return {dateRange: valueParts};
         },
         

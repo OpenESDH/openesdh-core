@@ -144,17 +144,13 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
         scriptURI: '/page/hdp/ws/cases',
         
         postCreate: function () {
-            console.log('Grid');
             this.inherited(arguments);
 
             this.currentSearch = {};
-            
             this.preferences = new Alfresco.service.Preferences();
-            console.log("Saved searches", this.getCachedSavedSearches());
         },
 
         startup: function () {
-            console.log('Grid startup');
             var _this = this;
 
             this.loadInitialSearch();
@@ -179,6 +175,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
             // The code is pulled almost intact from dgrid's List.js
             // The proper workaround would be to figure out why the test is failing to detect the correct size in certain circumstances
             var defaultSize = 16;
+            var _this = this;
             require(["dojo/has", "put-selector/put"], function (has, put) {
                 function cleanupTestElement(element) {
                     element.className = "";
@@ -192,7 +189,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                     cleanupTestElement(element);
                     if (!size) {
                         // Default to 16 px if nothing is detected
-                        console.log("Scrollbar " + dimension + " not detected, defaulting to " + defaultSize + "px");
+                        _this.alfLog("debug", "Scrollbar " + dimension + " not detected, defaulting to " + defaultSize + "px");
                         size = defaultSize;
                     }
                     return size;
@@ -224,7 +221,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
             }
             
             var search = this.loadSearch(this.searchName);
-            console.log("Loaded xsearch", search);
+            this.alfLog("debug", "Loaded search", search);
             
             if (search !== null) {
                 this.currentSearch = search;
@@ -251,13 +248,12 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
         },
         
         handleFiltersApply: function (payload) {
-            console.log('handleFiltersApply', payload.filters);
+            this.alfLog('debug', 'handleFiltersApply', payload.filters);
             this.currentSearch.filters = payload.filters;
             this.applySearch();
         },
 
         handleSaveSearchAsOK: function (payload) {
-            console.log("Dialog OK clicked");
             var saveAsDefault = payload.dialogContent[0].getValue();
             var name;
             if (saveAsDefault) {
@@ -344,7 +340,6 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
             var _this = this;
             
             this.getSavedSearches(function (savedSearches) {
-                console.log("handleManageSavedSearches callback, saved searches", savedSearches);
                 var options = [];
                 for (var x in savedSearches) {
                     if (x === _this.DEFAULT_SEARCH_NAME) {
@@ -352,7 +347,6 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                     }
                     options.push({ label: x, value: x });
                 }
-                console.log(options);
                 if (options.length === 0) {
                     Alfresco.util.PopupManager.displayMessage(
                     {
@@ -399,7 +393,6 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
         
         handleManageSavedSearchesDelete: function (payload) {
             var name = payload.dialogContent[0].getValue();
-            console.log("Delete search", name);
             if (name !== '') {
                 var result = this.deleteSearch(name);
             }
@@ -421,8 +414,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
             
             // Custom JsonRest store hacked to look for ETag header in the response instead of Content-Range header
             var CustomRest = JsonRest;
-            
-            console.log("CREATING GRID");
+
 //            var data = [
 //                { id: 1, first: "Bob", last: "Barker", age: 89 },
 //                { id: 2, first: "Vanna", last: "White", age: 55 },
@@ -457,7 +449,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
             array.forEach(this.availableColumns, function (columnName, i) {
                 var propDef = _this.properties[columnName];
                 if (typeof propDef === 'undefined') {
-                    console.log(_this.properties);
+                    this.alfLog("debug", _this.properties);
                     throw "Column " + columnName + " has no property definition.";
                 }
                 var dataType = null;
@@ -523,7 +515,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                 _this.currentSearch.columns[columnName] = !hidden;
             });
 
-            console.log("Columns " + columns);
+            this.alfLog("debug", "Columns " + columns);
             
             // Add Actions column
             columns.push({
@@ -550,7 +542,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
             
             this.grid.on("dgrid-columnstatechange", function(evt){
                 _this.currentSearch.columns[evt.column.field] = !evt.hidden;
-                console.log("Column for field " + evt.column.field + " is now " +
+                _this.alfLog("debug", "Column for field " + evt.column.field + " is now " +
                         (evt.hidden ? "hidden" : "shown"));
             });
             
@@ -690,9 +682,6 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                 {
                     successCallback: {
                         fn: function (response) {
-                            console.log('success callback');
-                            console.log(arguments);
-                            
                             if (!response.json) {
                                 callback({});
                                 return;
@@ -720,7 +709,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
         saveSearch: function (search, name) {
             var _this = this;
             this.getSavedSearches(function (savedSearches) {
-                console.log("Saved searches", savedSearches);
+                this.alfLog("debug", "Saved searches", savedSearches);
 
                 savedSearches[name] = search;
                 _this.setSavedSearches(savedSearches, function (response) {

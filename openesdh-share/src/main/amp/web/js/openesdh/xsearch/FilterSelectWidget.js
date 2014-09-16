@@ -18,9 +18,6 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
         postCreate: function () {
             var _this = this;
             this.inherited(arguments);
-            
-            console.log("FilterSelectWidget: post create");
-
 
             var options = null;
             if ("constraints" in this.filterDef) {
@@ -48,7 +45,7 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
                     }
                 });
             }
-            console.log("Constraint options" + options);
+            this.alfLog("debug", "Constraint options" + options);
             if (!options) {
                 options = this.filterDef.options;
             }

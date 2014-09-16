@@ -16,8 +16,7 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
     return declare([FilterWidget], {
         postCreate: function () {
             this.inherited(arguments);
-            
-            console.log("FilterTextWidget: post create");
+
             this.filterWidget = new TextBox({value: this.initialValue});
             this.filterWidget.placeAt(this.containerNode);
             this.filterWidget.startup();

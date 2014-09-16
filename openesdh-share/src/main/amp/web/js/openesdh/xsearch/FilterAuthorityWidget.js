@@ -17,9 +17,7 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
         
         postCreate: function () {
             this.inherited(arguments);
-            
-            console.log("FilterAuthorityWidget: post create");
-            
+
             var pickerId = Alfresco.util.generateDomId();
 
             // Create a container element for the picker
@@ -53,7 +51,6 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
         
         // Return the filter data as an object
         getValue: function () {
-            console.log("FilterAuthorityWidget: getValue");
             return this.selectedItems;
         },
         

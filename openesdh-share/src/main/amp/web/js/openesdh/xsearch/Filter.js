@@ -38,8 +38,6 @@ _TopicsMixin) {
             this.inherited(arguments);
             
             var _this = this;
-            
-            console.log("Filter: Post create");
 
             var removeButton = new AlfButton({
                 label: "<span class='magenta ui-icon cross'>Remove filter</span>",
@@ -66,7 +64,6 @@ _TopicsMixin) {
             require(["openesdh/xsearch/" + this.filterDef.widgetType], function (FilterWidget) {
                 _this.filterWidget = FilterWidget(init);
             });
-            console.log("Filter widget" + this.filterWidget);
             
             this.filterWidget.placeAt(this.widgetNode);
             this.filterWidget.startup();
@@ -74,7 +71,7 @@ _TopicsMixin) {
             this.alfSubscribe("XSEARCH_FILTER_WIDGET_ON_CHANGE", lang.hitch(this, "onFilterWidgetChange"));
                      
             on(this.operatorSelect, "change", function (){
-                console.log('operator Change!');
+                _this.alfLog('debug', 'Operator Change!');
                 _this.onFilterWidgetChange();
             });
         },
@@ -89,8 +86,6 @@ _TopicsMixin) {
 
         // Return the filter data as an object
         getFilter: function () {
-            console.log(this.filterWidget);
-            
             var value = this.filterWidget.getValue();
             
             return {
@@ -102,7 +97,6 @@ _TopicsMixin) {
         
         destroy: function () {
             this.inherited(arguments);
-            console.log("Filter: destroy");
             // Destroy the filter widget
             if (this.filterWidget) {
                 this.filterWidget.destroyRecursive();
@@ -110,7 +104,6 @@ _TopicsMixin) {
         },
         
         _onRemoveFilterClick: function (event) {
-            console.log('remove', event);
             var payload = this.filterDef.name;
             this.alfPublish(this.FilterRemoveTopic, { filter: payload });
         }

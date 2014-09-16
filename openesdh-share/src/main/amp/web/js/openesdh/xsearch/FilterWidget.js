@@ -28,13 +28,11 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, dom, domConstruc
         
         postCreate: function () {
             this.inherited(arguments);
-            console.log("FilterWidget: Post create");
         },
         
         destroy: function () {
             // Destroy any dijit widget under us (if we have one)
             if (this.filterWidget) {
-                console.log("DESTROY", this.filterWidget);
                 this.filterWidget.destroy();
             }
         },
