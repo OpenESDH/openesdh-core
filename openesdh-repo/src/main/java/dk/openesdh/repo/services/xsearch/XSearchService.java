@@ -20,6 +20,10 @@ public abstract class XSearchService {
 
     public abstract XResultSet getNodes(Map<String, String> params, int startIndex, int pageSize, String sortField, boolean ascending);
 
+    public XResultSet getNodes(Map<String, String> params) {
+        return getNodes(params, 0, -1, "@cm:name", true);
+    }
+
     private SearchParameters.SortDefinition getSortDefinition(String sortField, boolean ascending) {
         return new SearchParameters.SortDefinition(SearchParameters.SortDefinition.SortType.FIELD, "@" + sortField, ascending);
     }
@@ -51,12 +55,8 @@ public abstract class XSearchService {
         }
     }
 
-    protected XResultSet executeQuery(String query) {
-        return executeQuery(query, 0, -1, "cm:name", true);
-    }
 
-
-    protected String stripTimeZoneFromDateTime(String str) {
+    protected static String stripTimeZoneFromDateTime(String str) {
         return str.replaceAll("((\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2}))[+-](\\d{2}):(\\d{2})", "$1");
     }
 
@@ -67,7 +67,7 @@ public abstract class XSearchService {
      * @param value
      * @return
      */
-    protected String quote(String value) {
+    protected static String quote(String value) {
         return "\"" +
                 value.replace("\\", "\\\\"). // Backslash
                         replace("'", "\\'"). // Single quote

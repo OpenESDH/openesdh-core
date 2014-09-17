@@ -42,7 +42,6 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
             var picker = this.createAssociationPicker(itemType, pickerId, "", this.initialValue, many, startLocation,
                 (function(scope) {
                     return function(obj) {
-                        console.log("Item selected:", obj.selectedItems[0]);
                         scope.selectedItems = obj.selectedItems;
                     }
                 })(this));

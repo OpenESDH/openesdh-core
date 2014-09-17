@@ -43,7 +43,6 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
             var picker = this.createAuthorityPicker(itemType, pickerId, this.label, this.initialValue, many,
                 (function(scope) {
                     return function(obj) {
-                        console.log("Item selected:", obj.selectedItems[0]);
                         scope.selectedItems = obj.selectedItems;
                     };
                 })(this));
@@ -68,7 +67,6 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
          */
         createAuthorityPicker: function(itemType, containerName, label, value, many, callback) {
             var domId = Alfresco.util.generateDomId();
-            console.log("Authority picker dom ID", domId, containerName);
             var picker = new Alfresco.module.ControlWrapper(domId);
             picker.setOptions(
                 {

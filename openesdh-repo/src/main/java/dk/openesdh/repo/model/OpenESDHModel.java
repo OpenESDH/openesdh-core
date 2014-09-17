@@ -13,8 +13,7 @@ public interface OpenESDHModel {
     public static final String DOC_PREFIX = "doc";
     public static final String OE_URI = "http://openesdh.dk/model/openesdh/1.0/";
     public static final String OE_PREFIX = "oe";
-    public static final String TYPE_DOC_NAME = "document";
-    public static final String TYPE_CASE_NAME = "simple";
+    public static final String TYPE_SIMPLE_NAME = "simple";
     public static final String TYPE_BASE_NAME = "base";
 
 
@@ -25,9 +24,12 @@ public interface OpenESDHModel {
     public static final QName TYPE_OE_BASE = QName.createQName(OE_URI, TYPE_BASE_NAME);
 
     public static final QName TYPE_CASE_BASE = QName.createQName(CASE_URI, TYPE_BASE_NAME);
-    public static final QName TYPE_CASE_SIMPLE = QName.createQName(CASE_URI, TYPE_CASE_NAME);
+    public static final QName TYPE_CASE_SIMPLE = QName.createQName(CASE_URI, TYPE_SIMPLE_NAME);
 
-    public static final QName TYPE_DOC_DOCUMENT = QName.createQName(DOC_URI, TYPE_DOC_NAME);
+    public static final QName TYPE_DOC_BASE = QName.createQName(DOC_URI,
+            TYPE_BASE_NAME);
+    public static final QName TYPE_DOC_SIMPLE = QName.createQName(DOC_URI,
+            TYPE_SIMPLE_NAME);
 
     /**
      * Aspects

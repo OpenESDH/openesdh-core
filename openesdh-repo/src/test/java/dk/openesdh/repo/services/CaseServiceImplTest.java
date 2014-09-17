@@ -2,12 +2,14 @@ package dk.openesdh.repo.services;
 
 import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
+import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.OpenESDHModel;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.ServiceRegistry;
+import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -70,8 +72,6 @@ public class CaseServiceImplTest {
     @Qualifier("retryingTransactionHelper")
     protected RetryingTransactionHelper retryingTransactionHelper;
 
-    protected BehaviourFilter behaviourFilter;
-
     private CaseServiceImpl caseService = null;
     private DynamicNamespacePrefixResolver namespacePrefixResolver = new DynamicNamespacePrefixResolver(null);
     private NodeRef temporaryRepoNodeRef;
@@ -102,35 +102,15 @@ public class CaseServiceImplTest {
             temporaryRepoNodeRef = nodeService.createNode(repositoryHelper.getCompanyHome(), ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, name), ContentModel.TYPE_FOLDER, properties).getChildRef();
         }
 
-        behaviourFilter = (BehaviourFilter) ApplicationContextHelper.getApplicationContext().getBean("policyBehaviourFilter");
-
-
         name = "unittest_case";
         temporaryCaseNodeRef = nodeService.getChildByName(repositoryHelper.getCompanyHome(), ContentModel.ASSOC_CONTAINS, name);
         if (temporaryCaseNodeRef == null) {
-
-            retryingTransactionHelper.doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
-                @Override
-                public Object execute() throws Throwable {
-                    // Create test case
-                    Map<QName, Serializable> properties = new HashMap<QName, Serializable>();
-                    String name = "unittest_case";
-                    properties.put(ContentModel.PROP_NAME, name);
-
-                    // Disable behaviour for txn
-                    behaviourFilter.disableBehaviour();
-
-                    temporaryCaseNodeRef = nodeService.createNode(temporaryRepoNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, name), OpenESDHModel.TYPE_CASE_SIMPLE, properties).getChildRef();
-
-                    LinkedList owners = new LinkedList();
-
-                    owners.add(repositoryHelper.getPerson());
-                    nodeService.setAssociations(temporaryCaseNodeRef, OpenESDHModel.ASSOC_CASE_OWNERS, owners);
-
-                    behaviourFilter.enableBehaviour();
-                    return null;
-                }
-            });
+            LinkedList<NodeRef> owners = new LinkedList<>();
+            owners.add(repositoryHelper.getPerson());
+            temporaryCaseNodeRef = CaseHelper.createCase(nodeService,
+                    retryingTransactionHelper,
+                    ADMIN_USER_NAME, temporaryRepoNodeRef, name,
+                    OpenESDHModel.TYPE_CASE_SIMPLE, properties, owners, true);
         }
     }
 

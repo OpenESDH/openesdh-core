@@ -139,8 +139,7 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
                 filterPane: this
             });
             filterWidget.startup();
-            
-            console.log(filterWidget);
+
             filterWidget.placeAt(_this.containerNode);
             this.filterWidgets.push(filterWidget);
         },

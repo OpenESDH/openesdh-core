@@ -1,20 +1,13 @@
 package dk.openesdh.repo.services.xsearch;
 
 import org.alfresco.error.AlfrescoRuntimeException;
-import org.alfresco.repo.model.Repository;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.search.ResultSet;
-import org.alfresco.service.cmr.search.SearchParameters;
-import org.alfresco.service.cmr.search.SearchService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.queryParser.QueryParser;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.extensions.webscripts.WebScriptException;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -31,7 +24,8 @@ public class XSearchServiceImpl extends XSearchService {
         String filtersJSON = params.get("filters");
         try {
             String query = buildQuery(filtersJSON, baseType);
-            return executeQuery(query);
+            System.out.println("Query: " + query);
+            return executeQuery(query, startIndex, pageSize, sortField, ascending);
         } catch (JSONException e) {
             throw new AlfrescoRuntimeException("Unable to parse filters JSON");
         }
@@ -57,7 +51,7 @@ public class XSearchServiceImpl extends XSearchService {
         return StringUtils.join(searchTerms, " AND ");
     }
 
-    private String processFilterValue(JSONObject filter) throws JSONException {
+    String processFilterValue(JSONObject filter) throws JSONException {
         try {
             JSONObject value = filter.getJSONObject("value");
             if (value.has("dateRange")) {
@@ -94,14 +88,14 @@ public class XSearchServiceImpl extends XSearchService {
         }
     }
 
-    private String processFilter(JSONObject filter) throws JSONException {
+    String processFilter(JSONObject filter) throws JSONException {
         String name = filter.getString("name");
         String operator = filter.getString("operator");
 
         String value = processFilterValue(filter);
         System.out.println("Filter " + name + " " + operator + " " + value);
 
-        if (value.equals("")) {
+        if (value.equals("\"\"")) {
             return null;
         }
 

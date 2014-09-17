@@ -42,7 +42,6 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, dom, domConstruc
          * @returns {object}
          */
         getValue: function () {
-            console.log("getValue");
             return null;
         },
         

@@ -35,7 +35,6 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
                         if (constraintParams.sorted) {
                             constraintParams.allowedValues.sort();
                         }
-                        console.log(constraint);
                         if (!options) {
                             options = [];
                         }
