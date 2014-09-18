@@ -21,7 +21,7 @@ import java.util.Map;
 /**
  * Created by flemmingheidepedersen on 12/09/14.
  */
-public class XSearchServiceImpl extends XSearchService {
+public class XSearchServiceImpl extends AbstractXSearchService implements XSearchService {
     String baseType;
 
     public XResultSet getNodes(Map<String, String> params, int startIndex, int pageSize, String sortField, boolean ascending) {
@@ -58,7 +58,7 @@ public class XSearchServiceImpl extends XSearchService {
         return StringUtils.join(searchTerms, " AND ");
     }
 
-    private String processFilterValue(JSONObject filter) throws JSONException {
+    String processFilterValue(JSONObject filter) throws JSONException {
         try {
             JSONObject value = filter.getJSONObject("value");
             if (value.has("dateRange")) {
@@ -90,19 +90,24 @@ public class XSearchServiceImpl extends XSearchService {
                 }
                 return "(" + StringUtils.join(list, ",") + ")";
             } catch (JSONException e2) {
-                return quote(filter.getString("value"));
+                String value = filter.getString("value");
+                if (!value.equals("")) {
+                    return quote(value);
+                } else {
+                    return null;
+                }
             }
         }
     }
 
-    private String processFilter(JSONObject filter) throws JSONException {
+    String processFilter(JSONObject filter) throws JSONException {
         String name = filter.getString("name");
         String operator = filter.getString("operator");
 
         String value = processFilterValue(filter);
         System.out.println("Filter " + name + " " + operator + " " + value);
 
-        if (value.equals("")) {
+        if (value == null) {
             return null;
         }
 

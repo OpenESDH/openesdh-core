@@ -138,8 +138,8 @@ public class CaseServiceImplTest {
         Date date = new Date();
         StringBuilder testCaseId = new StringBuilder(dateFormat.format(date));
         testCaseId.append("-");
-        testCaseId.append(String.format("%020d", uniqueNumber));
-        assertTrue("CaseId is not on the form yyyyMMdd-xxxxxxxxxxxxxxxxxxxx", testCaseId.toString().equals(caseId));
+        testCaseId.append(uniqueNumber);
+        assertEquals("CaseId is not on the form yyyyMMdd-xxxxxx", testCaseId.toString(), caseId);
     }
 
     @Test

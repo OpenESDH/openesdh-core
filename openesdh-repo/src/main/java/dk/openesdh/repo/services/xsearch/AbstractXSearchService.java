@@ -64,7 +64,7 @@ public abstract class AbstractXSearchService implements XSearchService {
     }
 
 
-    protected String stripTimeZoneFromDateTime(String str) {
+    protected static String stripTimeZoneFromDateTime(String str) {
         return str.replaceAll("((\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2}))[+-](\\d{2}):(\\d{2})", "$1");
     }
 
@@ -75,7 +75,7 @@ public abstract class AbstractXSearchService implements XSearchService {
      * @param value
      * @return
      */
-    protected String quote(String value) {
+    protected static String quote(String value) {
         return "\"" +
                 value.replace("\\", "\\\\"). // Backslash
                         replace("'", "\\'"). // Single quote
@@ -92,84 +92,7 @@ public abstract class AbstractXSearchService implements XSearchService {
         this.searchService = searchService;
     }
 
-    protected String buildQuery(String filtersJSON) throws JSONException {
-        List<String> searchTerms = new ArrayList<>();
-
-        if (filtersJSON != null) {
-            JSONArray filters = new JSONArray(filtersJSON);
-            for (int i = 0; i < filters.length(); i++) {
-                JSONObject filter = filters.getJSONObject(i);
-                String searchTerm = processFilter(filter);
-                if (searchTerm != null) {
-                    searchTerms.add(searchTerm);
-                }
-            }
-        }
-
-        searchTerms.add("TYPE:" + quote(baseType));
-        return StringUtils.join(searchTerms, " AND ");
-    }
-
-    protected String processFilter(JSONObject filter) throws JSONException {
-        String name = filter.getString("name");
-        String operator = filter.getString("operator");
-
-        String value = processFilterValue(filter);
-        System.out.println("Filter " + name + " " + operator + " " + value);
-
-        if (value.equals("")) {
-            return null;
-        }
-
-        // Escape field name for lucene
-        String field = QueryParser.escape(name);
-        String prepend = "";
-        if (operator.equals("!=")) {
-            prepend = "-";
-        }
-
-        // Prefix fields with @ symbol
-        if (name.contains(":") && !name.startsWith("@")) {
-            field = "@" + field;
-        }
-
-        return prepend + field + ':' + value;
-    }
-
-    private String processFilterValue(JSONObject filter) throws JSONException {
-        try {
-            JSONObject value = filter.getJSONObject("value");
-            if (value.has("dateRange")) {
-                JSONArray dateRange = value.getJSONArray("dateRange");
-                if (dateRange.length() > 0) {
-                    if (dateRange.getString(0).equals("")) {
-                        dateRange.put(0, "MIN");
-                    }
-                    if (dateRange.getString(1).equals("")) {
-                        dateRange.put(1, "MAX");
-                    }
-                    String rangeFrom = quote(
-                            stripTimeZoneFromDateTime(dateRange.getString(0)));
-                    String rangeTo = quote(
-                            stripTimeZoneFromDateTime(dateRange.getString(1)));
-                    return "[" + rangeFrom + " TO " + rangeTo + "]";
-                } else {
-                    return value.toString();
-                }
-            } else {
-                return value.toString();
-            }
-        } catch (JSONException e) {
-            try {
-                JSONArray value = filter.getJSONArray("value");
-                List<String> list = new ArrayList<>();
-                for (int i = 0; i < value.length(); i++) {
-                    list.add(quote(value.getString(i)));
-                }
-                return "(" + StringUtils.join(list, ",") + ")";
-            } catch (JSONException e2) {
-                return quote(filter.getString("value"));
-            }
-        }
+    public XResultSet getNodes(Map<String, String> params) {
+        return getNodes(params, 0, -1, "@cm:name", true);
     }
 }

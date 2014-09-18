@@ -53,7 +53,7 @@ public class ModelLookupTest {
 
     protected ModelLookup modelLookup = new ModelLookup();
     protected String testPrefix = OpenESDHModel.DOC_PREFIX;
-    protected String testType = OpenESDHModel.TYPE_DOC_NAME;
+    protected String testType = OpenESDHModel.TYPE_SIMPLE_NAME;
 
 
 
