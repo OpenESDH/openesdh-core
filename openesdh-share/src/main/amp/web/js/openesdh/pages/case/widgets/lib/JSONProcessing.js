@@ -1,5 +1,5 @@
-**
-* @module openesdh/common/widgets/lib/JSONProcessing
+/**
+* @module openesdh / common / widgets / lib / JSONProcessing
 * @author Torben Lauritzen
 */
 define(["dojo/_base/declare",

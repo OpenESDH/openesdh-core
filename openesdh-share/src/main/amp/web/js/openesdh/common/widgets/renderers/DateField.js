@@ -26,9 +26,9 @@ define(["dojo/_base/declare",
              *
              * @instance
              * @type {object[]}
-             * @default [{i18nFile: "./i18n/Date.properties"}]
+             * @default [{i18nFile: "./i18n/Date1.properties"}]
              */
-            i18nRequirements: [{i18nFile: "./i18n/Date.properties"}],
+            i18nRequirements: [{i18nFile: "./i18n/Date1.properties"}],
 
             /**
              * Set up the attributes to be used when rendering the template.
