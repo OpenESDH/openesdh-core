@@ -163,12 +163,6 @@
                         <constraint ref="doc:categoryConstraint"/>
                     </constraints>
                 </property>
-
-                <property name="doc:arrivalDate">
-                    <type>d:date</type>
-                    <mandatory>false</mandatory>
-                </property>
-
             </properties>
 
             <associations>

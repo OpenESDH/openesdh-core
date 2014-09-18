@@ -13,7 +13,19 @@ model.jsonModel = {
                 widgetWidth: 50,
                 widgets: [
                     {
-                        name: "openesdh-case/widgets/InfoWidget"
+                        name: "openesdh/common/widgets/dashlets/CaseInfoDashlet",
+                        config: {
+                            title: "Hej"
+                        }
+                        /*
+                        ,
+                        widgets: [
+                            {
+                                name: "openesdh/pages/case/widgets/InfoWidget",
+                                config: {}
+                            }
+                        ]
+                        */
                     },
                     {
                         name: "alfresco/buttons/AlfButton",
@@ -24,5 +36,15 @@ model.jsonModel = {
                 ]
             }
         }
+    ],
+    services: [
+        {
+            name: "openesdh/pages/case/widgets/InfoWidgetService",
+            config: {
+                nodeRef: page.url.args.nodeRef
+
+            }
+        }
+
     ]
 };
