@@ -1,0 +1,6 @@
+<webscript>
+    <shortname>Dashboard for simple case</shortname>
+    <description>Dashboard for simple case, showing information related to the case</description>
+    <family>Share</family>
+    <url>/dk-openesdh-pages-case-dashboard?nodeRef={nodeRef}</url>
+</webscript>

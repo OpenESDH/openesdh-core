@@ -1,33 +1,40 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
 <beans>
-  <bean id="CaseService" class="dk.openesdh.repo.services.CaseServiceImpl">
-      <property name="nodeService">
-          <ref bean="NodeService" />
-      </property>
+    <bean id="CaseService" class="dk.openesdh.repo.services.CaseServiceImpl">
+        <property name="nodeService">
+            <ref bean="NodeService"/>
+        </property>
 
-      <property name="searchService">
-          <ref bean="SearchService" />
-      </property>
-
-      <property name="authorityService">
-          <ref bean="AuthorityService" />
-      </property>
-
-      <property name="permissionService">
-          <ref bean="PermissionService" />
-      </property>
-
-      <property name="repositoryHelper">
-      <ref bean="repositoryHelper" />
-    </property>
-  </bean>
-  <bean id="XSearchService" class="dk.openesdh.repo.services.xsearch.XSearchServiceImpl">
         <property name="searchService">
-            <ref bean="SearchService" />
+            <ref bean="SearchService"/>
+        </property>
+
+        <property name="authorityService">
+            <ref bean="AuthorityService"/>
+        </property>
+
+        <property name="permissionService">
+            <ref bean="PermissionService"/>
+        </property>
+
+        <property name="repositoryHelper">
+            <ref bean="repositoryHelper"/>
+        </property>
+    </bean>
+
+    <bean id="NodeInfoService" class="dk.openesdh.repo.services.NodeInfoServiceImpl">
+        <property name="nodeService">
+            <ref bean="NodeService"/>
+        </property>
+    </bean>
+
+    <bean id="XSearchService" class="dk.openesdh.repo.services.xsearch.XSearchServiceImpl">
+        <property name="searchService">
+            <ref bean="SearchService"/>
         </property>
         <property name="repositoryHelper">
-            <ref bean="repositoryHelper" />
+            <ref bean="repositoryHelper"/>
         </property>
-  </bean>
+    </bean>
 </beans>

@@ -59,7 +59,7 @@ public class ModelLookupTest {
 
 
     @Test
-    public void testDocAttributes() {
+    public void testCreateSimpleCase() {
         AuthenticationUtil.setFullyAuthenticatedUser(ADMIN_USER_NAME);
         System.out.println(testType);
 

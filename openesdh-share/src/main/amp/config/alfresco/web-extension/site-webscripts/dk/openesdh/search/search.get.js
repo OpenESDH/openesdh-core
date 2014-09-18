@@ -180,9 +180,9 @@ function getSearchDefinition(type) {
 
     var defaultWidget = config.defaultControls["*"];
     if (!defaultWidget) {
-        defaultWidget = "CaseFilterTextWidget";
+        defaultWidget = "FilterTextWidget";
     }
-    var defaultSelectWidget = "CaseFilterSelectWidget";
+    var defaultSelectWidget = "FilterSelectWidget";
 
     // Assign default controls
     for (var key in model.properties) {
@@ -240,7 +240,8 @@ function getSearchDefinition(type) {
     model.properties["ALL"] = {
         "name": "ALL",
         "title": "Søg",
-        "dataType": "d:text"
+        "dataType": "d:text",
+        "control": defaultWidget
     };
 
     // TODO: Load from config
@@ -257,7 +258,7 @@ function getSearchDefinition(type) {
         ]
     };
 
-    // Apply overrides from search configuration
+    // Apply overrides from xsearch configuration
     // For example, which filters should be available
     // Which columns should be visible/available...
     var searchConfig = config["searches"][type];
@@ -300,11 +301,6 @@ var searchModel = searchDefinition["model"];
 logger.warn(jsonUtils.toJSONString(searchDefinition));
 
 model.jsonModel = {
-    services: [
-        {
-            name: "openesdh/search/CaseNavigationService"
-        }
-    ],
     widgets: [
         {
             id: "SET_PAGE_TITLE",
@@ -323,7 +319,7 @@ model.jsonModel = {
                         config: {
                             widgets: [
                                 {
-                                    name: "openesdh/search/CaseFilterPane",
+                                    name: "openesdh/xsearch/FilterPane",
                                     config: {
                                         baseType: baseType,
                                         types: searchModel.types,
@@ -333,7 +329,7 @@ model.jsonModel = {
                                     }
                                 },
                                 {
-                                    name: "openesdh/search/CaseGrid",
+                                    name: "openesdh/xsearch/Grid",
                                     config: {
                                         baseType: baseType,
                                         types: searchModel.types,

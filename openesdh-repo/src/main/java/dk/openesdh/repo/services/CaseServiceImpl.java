@@ -173,12 +173,6 @@ public class CaseServiceImpl implements CaseService {
         // Set id on case
         nodeService.setProperty(caseNodeRef, OpenESDHModel.PROP_OE_ID, caseId);
 
-        //Copy Name to title
-        Map<QName, Serializable> aspectProperties = new HashMap<QName, Serializable>();
-        // TODO Use title from cm:folder as property
-        aspectProperties.put(ContentModel.PROP_TITLE, nodeService.getProperty(caseNodeRef, ContentModel.PROP_NAME));
-        nodeService.addAspect(caseNodeRef, ContentModel.ASPECT_TITLED, aspectProperties);
-
         //Renaming of Node to value of Case Id
         nodeService.setProperty(caseNodeRef, ContentModel.PROP_NAME, caseId);
 

@@ -1,0 +1,62 @@
+<alfresco-config>
+    <config evaluator="string-compare" condition="SearchModel">
+        <default-controls>
+            <type name="d:text" control="FilterTextWidget"/>
+            <type name="d:int" control="FilterTextWidget"/>
+            <type name="d:long" control="FilterTextWidget"/>
+            <type name="d:date" control="FilterDateRangeWidget"/>
+            <type name="d:datetime" control="FilterDateRangeWidget"/>
+            <type name="cm:authority" control="FilterAuthorityWidget"/>
+            <type name="LIST:*" control="FilterSelectWidget"/>
+        </default-controls>
+        <searches>
+            <search type="case:base">
+                <column-visibility>
+                    <show id="TYPE"/>
+                    <show id="oe:id"/>
+                    <show id="cm:title"/>
+                    <show id="case:owners"/>
+                    <show id="cm:modified"/>
+                    <show id="cm:created"/>
+                    <show id="oe:status"/>
+                    <show id="case:startDate"/>
+                    <show id="case:endDate"/>
+                </column-visibility>
+                <column-availability>
+                    <show id="TYPE"/>
+                    <show id="oe:id"/>
+                    <show id="cm:title"/>
+                    <show id="case:owners"/>
+                    <show id="cm:modified"/>
+                    <show id="cm:created"/>
+                    <show id="oe:status"/>
+                    <show id="case:startDate"/>
+                    <show id="case:endDate"/>
+                </column-availability>
+                <filters-availability>
+                    <show id="ALL"/>
+                    <show id="TYPE"/>
+                    <show id="oe:id"/>
+                    <show id="cm:title"/>
+                    <show id="case:owners"/>
+                    <show id="cm:modified"/>
+                    <show id="cm:created"/>
+                    <show id="oe:status"/>
+                    <show id="case:startDate"/>
+                    <show id="case:endDate"/>
+                </filters-availability>
+                <actions>
+                    <action id="case-dashboard"
+                            href="folder-details?nodeRef={nodeRef}"
+                            label="xsearch.grid.actions.goto_case"/>
+                    <action id="case-edit"
+                            href="edit-metadata?nodeRef={nodeRef}"
+                            label="xsearch.grid.actions.edit_case"/>
+                    <action id="case-documents"
+                            href="folder-details?nodeRef={nodeRef}"
+                            label="xsearch.grid.actions.case_documents"/>
+                </actions>
+            </search>
+        </searches>
+    </config>
+</alfresco-config>

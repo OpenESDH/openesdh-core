@@ -19,6 +19,15 @@
         <property name="xSearchService" ref="XSearchService"/>
     </bean>
 
+    <bean id="webscript.dk.openesdh.caseinfo.get"
+          class="dk.openesdh.repo.webscripts.cases.CaseInfo"
+          parent="webscript">
+        <property name="nodeInfoService" ref="NodeInfoService"/>
+        <property name="namespaceService" ref="namespaceService"/>
+        <property name="dictionaryService" ref="dictionaryService"/>
+    </bean>
+
+
     <bean id="webscript.dk.openesdh.model.get"
           class="dk.openesdh.repo.model.ModelLookup"
           parent="webscript">
