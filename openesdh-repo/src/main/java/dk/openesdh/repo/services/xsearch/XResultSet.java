@@ -5,8 +5,14 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import java.util.List;
 
 public class XResultSet {
+
+
         List<NodeRef> nodeRefs;
         int length;
+
+        public void setNodeRefs(List<NodeRef> nodeRefs) {
+            this.nodeRefs = nodeRefs;
+        }
 
         public List<NodeRef> getNodeRefs() {
             return nodeRefs;

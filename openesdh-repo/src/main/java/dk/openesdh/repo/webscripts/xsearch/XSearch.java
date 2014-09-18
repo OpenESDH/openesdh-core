@@ -1,7 +1,9 @@
 package dk.openesdh.repo.webscripts.xsearch;
 
+import dk.openesdh.repo.services.xsearch.AbstractXSearchService;
 import dk.openesdh.repo.services.xsearch.XResultSet;
 import dk.openesdh.repo.services.xsearch.XSearchService;
+import dk.openesdh.repo.services.xsearch.XSearchServiceImpl;
 import dk.openesdh.repo.utils.Utils;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.service.cmr.repository.AssociationRef;
