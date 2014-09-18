@@ -15,6 +15,13 @@ define(["dojo/_base/declare",
         return declare([Property, UrlUtils], {
 
             /**
+             * The i18n scope to use for this widget.
+             *
+             * @instance
+             */
+            i18nScope: "openesdh.renderers.Date",
+
+            /**
              * An array of the i18n files to use with this widget.
              *
              * @instance
@@ -30,16 +37,25 @@ define(["dojo/_base/declare",
              */
             postMixInProperties: function alfresco_renderers_Date__postMixInProperties() {
 
-                var modifiedDate = lang.getObject("cm:modified", false, this.currentItem);
+                if(this.propertyToRender == "cm:created") {
+                    var createdDate = lang.getObject("cm:created", false, this.currentItem);
+                    var createdBy = lang.getObject("cm:creator", false, this.currentItem);
+                    var dateI18N = "details.created-by";
+                    this.renderedValue = this.message(dateI18N, {
+                        0: TemporalUtils.getRelativeTime(createdDate),
+                        1: createdBy
+                    });
+                }
+                else if(this.propertyToRender == "cm:modified") {
+                    var modifiedDate = lang.getObject("cm:modified", false, this.currentItem);
+                    var modifiedBy = lang.getObject("cm:modifier", false, this.currentItem);
+                    var dateI18N = "details.modified-by";
+                    this.renderedValue = this.message(dateI18N, {
+                        0: TemporalUtils.getRelativeTime(modifiedDate),
+                        1: modifiedBy
+                    });
+                }
 
-                var modifiedBy = lang.getObject("cm:modifier", false, this.currentItem);
-
-                var dateI18N = "details.modified-by";
-
-                this.renderedValue = this.message(dateI18N, {
-                    0: TemporalUtils.getRelativeTime(modifiedDate),
-                    1: modifiedBy
-                });
 
                 this.renderedValueClass = this.renderedValueClass + " " + this.renderSize + " block";
                 console.log(this.renderedValueClass);

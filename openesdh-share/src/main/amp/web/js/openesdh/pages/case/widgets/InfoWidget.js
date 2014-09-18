@@ -5,13 +5,14 @@ define(["dojo/_base/declare",
         "dijit/_TemplatedMixin",
         "dojo/text!./templates/InfoWidget.html",
         "dojo/_base/lang",
-        "openesdh/pages/_TopicsMixin"
+        "openesdh/pages/_TopicsMixin",
+        "openesdh/pages/case/widgets/lib/JSONProcessing"
     ],
-    function (declare, _Widget, Core, CoreWidgetProcessing, _Templated, template, lang, _TopicsMixin) {
-        return declare([_Widget, Core, CoreWidgetProcessing, _Templated, _TopicsMixin], {
+    function (declare, _Widget, Core, CoreWidgetProcessing, _Templated, template, lang, _TopicsMixin, JSONProcessing) {
+        return declare([_Widget, Core, CoreWidgetProcessing, _Templated, _TopicsMixin, JSONProcessing], {
             templateString: template,
             i18nRequirements: [
-                {i18nFile: "./messages/InfoWidget.properties"}
+                {i18nFile: "./i18n/InfoWidget.properties"}
             ],
 
             bodyNode: null,
@@ -25,65 +26,24 @@ define(["dojo/_base/declare",
                 this.inherited(arguments);
             },
 
-
             _onPayloadReceive: function (payload) {
                 console.log(payload);
 
                 this.widgetsForBody = [];
-                for (var i in payload) {
-                    console.log(i + " " + payload[i]);
-                    var propertyWidget = {
-                        name: "alfresco/renderers/Property",
-                        config: {
-                            currentItem: payload,
-                            propertyToRender: i,
-                            label: i,
-                            renderOnNewLine: true
-                        }
-                    };
-
-                    this.widgetsForBody.push(propertyWidget);
-//                console.log(i + " " + payload[i].value + " " + eval("new " + payload[i].type + "(" + payload[i].value + ")"));
-                }
-
-                this.processWidgets(this.widgetsForBody, this.bodyNode);
-            },
-
-
-
-            _applyTypes: function (payload) {
-                var result = {};
-                for (var i in payload) {
-                    if (i == "alfTopic") continue;
-                    //    console.log(payload[i].type + " " + payload[i].value)
-                    result[i] = new window[payload[i].type](payload[i].value);
-                   // console.log(result[i]);
-                }
-                return result;
-            },
-
-            _onPayloadReceive1: function (payload) {
-                console.log(payload);
-
-                this.widgetsForBody = [];
-                var currentItem = this._applyTypes(payload);
+                var currentItem = this.unmarshal(payload);
                 console.log(currentItem);
                 for (var i in currentItem) {
                     console.log(i + " " + currentItem[i]);
                     var widget = "";
-                    switch (payload[i].type) {
-                        case "Date":
-                            widget = "openesdh/common/widgets/renderers/Date";
-                            widget = "alfresco/renderers/Property";
-                            break;
-                        case "String":
-                            widget = "alfresco/renderers/Property";
-                            break;
-                        default:
-                            widget = "alfresco/renderers/Property";
+                    if(currentItem[i] instanceof Date) {
+                        widget = "openesdh/common/widgets/renderers/Date";
                     }
+                    else {
+                        widget = "alfresco/renderers/Property";
+                    }
+
                     var propertyWidget = {
-                        name: "alfresco/renderers/Property",
+                        name: widget,
                         config: {
                             currentItem: currentItem,
                             propertyToRender: i,
