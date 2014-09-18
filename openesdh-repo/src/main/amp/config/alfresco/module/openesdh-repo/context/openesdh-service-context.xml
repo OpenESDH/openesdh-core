@@ -28,4 +28,13 @@
             <ref bean="NodeService"/>
         </property>
     </bean>
+
+    <bean id="XSearchService" class="dk.openesdh.repo.services.xsearch.XSearchServiceImpl">
+        <property name="searchService">
+            <ref bean="SearchService"/>
+        </property>
+        <property name="repositoryHelper">
+            <ref bean="repositoryHelper"/>
+        </property>
+    </bean>
 </beans>

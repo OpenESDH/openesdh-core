@@ -10,12 +10,13 @@
         </property>
     </bean>
     <bean id="webscript.dk.openesdh.search.get"
-          class="dk.openesdh.repo.webscripts.search.Search"
+          class="dk.openesdh.repo.webscripts.xsearch.XSearch"
           parent="webscript">
         <property name="nodeService" ref="nodeService"/>
         <property name="repository" ref="repositoryHelper"/>
         <property name="searchService" ref="searchService"/>
         <property name="namespaceService" ref="namespaceService"/>
+        <property name="xSearchService" ref="XSearchService"/>
     </bean>
 
     <bean id="webscript.dk.openesdh.caseinfo.get"
@@ -33,6 +34,9 @@
 
         <property name="dictionaryService">
             <ref bean="dictionaryService"/>
+        </property>
+        <property name="namespaceService">
+            <ref bean="namespaceService"/>
         </property>
     </bean>
 

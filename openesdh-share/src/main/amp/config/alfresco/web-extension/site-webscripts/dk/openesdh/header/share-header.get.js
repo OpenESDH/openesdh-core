@@ -8,24 +8,23 @@
 function getCreateCaseWidgets (caseTypes) {
     var newCaseFolder = getNewCaseFolderNodeRef();
     var widgets = [];
-    caseTypes.forEach(function (type) {
-        var label = getCaseTypeLabel(type);
+    caseTypes.forEach(function (c) {
+        var label = c.label;
         widgets.push(
             {
                 name: "alfresco/menus/AlfMenuBarItem",
                 config: {
-                    id: "CASE_MENU_CREATE_CASE_" + type.replace(":", "_").toUpperCase(),
+                    id: "CASE_MENU_CREATE_CASE_" + c.type.replace(":", "_").toUpperCase(),
                     label: label,
-                    targetUrl: "create-content?destination=" + encodeURIComponent(newCaseFolder) + "&itemId=" + encodeURIComponent(type)
+                    targetUrl: "create-content?destination=" + encodeURIComponent(newCaseFolder) + "&itemId=" + encodeURIComponent(c.type)
                 }
             }
         );
     });
     return widgets;
 }
-//TODO
-//var caseTypes = getCaseTypes();
-var caseTypes = ["case:simple"];
+
+var caseTypes = getCaseTypes();
 var createCasesWidgets = getCreateCaseWidgets(caseTypes);
 
 var headerMenu = widgetUtils.findObject(model.jsonModel, "id", "HEADER_APP_MENU_BAR");

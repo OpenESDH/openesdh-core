@@ -5,8 +5,8 @@ import org.alfresco.service.cmr.dictionary.AssociationDefinition;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.dictionary.PropertyDefinition;
 import org.alfresco.service.cmr.dictionary.TypeDefinition;
+import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.extensions.webscripts.AbstractWebScript;
@@ -26,10 +26,11 @@ public class ModelLookup extends AbstractWebScript {
 
     // Dependencies
     private DictionaryService dictionaryService;
+    private NamespaceService namespaceService;
 
-    private String typeParameter;
-    private String uriParameter;
-
+    public void setNamespaceService(NamespaceService namespaceService) {
+        this.namespaceService = namespaceService;
+    }
 
     public void setDictionaryService(DictionaryService dictionaryService) {
         this.dictionaryService = dictionaryService;
@@ -37,19 +38,18 @@ public class ModelLookup extends AbstractWebScript {
 
     public void execute(WebScriptRequest req, WebScriptResponse res)
             throws IOException  {
+        String typeParameter = req.getParameter("type");
 
-        typeParameter = req.getParameter("type");
-        uriParameter = req.getParameter("uri");
-
-        if (typeParameter == null || uriParameter == null) {
-            throw new AlfrescoRuntimeException("Must specify a type and uri parameter - ex. type=simpel and uri=http://openesdh.dk/model/case/1.0/");
+        if (typeParameter == null) {
+            throw new AlfrescoRuntimeException("Must specify a type " +
+                    "parameter");
         }
 
-        TypeDefinition modelType = getTypeDefinition(uriParameter, typeParameter);
+        TypeDefinition modelType = getTypeDefinition(typeParameter);
 
         JSONObject mainObject = new JSONObject();
 
-        Map properties = getProperties(modelType);
+        Map<String, JSONObject> properties = getProperties(modelType);
 
         try {
             mainObject.put("properties", properties);
@@ -57,7 +57,7 @@ public class ModelLookup extends AbstractWebScript {
             throw new WebScriptException("Unable to serialize JSON");
         }
 
-        Map associations = getAssociations(modelType);
+        Map<String, JSONObject> associations = getAssociations(modelType);
 
         try {
             mainObject.put("associations", associations);
@@ -70,42 +70,49 @@ public class ModelLookup extends AbstractWebScript {
         res.getWriter().write(jsonString);
     }
 
-    TypeDefinition getTypeDefinition(String uriParameter, String typeParameter) {
-        return dictionaryService.getType(QName.createQName(uriParameter, typeParameter));
+    TypeDefinition getTypeDefinition(String typeParameter) {
+        return dictionaryService.getType(QName.createQName(typeParameter,
+                namespaceService));
     }
 
-    Map getAssociations(TypeDefinition modelType) {
-        Map associations = new HashMap();
-        Iterator it = modelType.getAssociations().entrySet().iterator();
+    Map<String, JSONObject> getAssociations(TypeDefinition modelType) {
+        Map<String, JSONObject> associations = new HashMap<String, JSONObject>();
+        Iterator<Map.Entry<QName, AssociationDefinition>> it = modelType.getAssociations().entrySet().iterator();
         while (it.hasNext()) {
-            Map.Entry pairs = (Map.Entry) it.next();
+            Map.Entry<QName, AssociationDefinition> pairs = it.next();
             JSONObject name = new JSONObject();
             try {
-                name.put("isSourceMany", ((AssociationDefinition)pairs.getValue()).isSourceMany());
-                name.put("isTargetMany", ((AssociationDefinition)pairs.getValue()).isTargetMany());
+                name.put("isSourceMany", (pairs.getValue()).isSourceMany());
+                name.put("isTargetMany", (pairs.getValue()).isTargetMany());
+                name.put("title", pairs.getValue()
+                        .getTitle(dictionaryService));
 
             } catch (JSONException e) {
                 throw new WebScriptException("Unable to serialize JSON");
             }
-            associations.put(pairs.getKey().toString(), name);
+            associations.put(pairs.getKey().toPrefixString(namespaceService), name);
 
         }
         return associations;
     }
 
-    Map getProperties(TypeDefinition modelType) {
-        Map properties = new HashMap();
-        Iterator it = modelType.getProperties().entrySet().iterator();
+    Map<String, JSONObject> getProperties(TypeDefinition modelType) {
+        Map<String, JSONObject> properties = new HashMap<String, JSONObject>();
+        Iterator<Map.Entry<QName, PropertyDefinition>> it = modelType.getProperties().entrySet().iterator();
         while (it.hasNext()) {
-            Map.Entry pairs = (Map.Entry) it.next();
+            Map.Entry<QName, PropertyDefinition> pairs = it.next();
             JSONObject dataType = new JSONObject();
             try {
-                dataType.put("type", ((PropertyDefinition) pairs.getValue()).getDataType().toString());
-                dataType.put("isMultiValued", ((PropertyDefinition) pairs.getValue()).isMultiValued());
+                dataType.put("type", pairs.getValue()
+                        .getDataType().getName().toPrefixString(namespaceService));
+                dataType.put("title", pairs.getValue()
+                        .getTitle(dictionaryService));
+                dataType.put("isMultiValued", pairs.getValue().isMultiValued());
             } catch (JSONException e) {
                 throw new WebScriptException("Unable to serialize JSON");
             }
-            properties.put(pairs.getKey().toString(), dataType);
+            properties.put(pairs.getKey().toPrefixString(namespaceService),
+                    dataType);
         }
         return properties;
     }

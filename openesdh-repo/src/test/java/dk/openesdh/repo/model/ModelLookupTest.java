@@ -7,6 +7,7 @@ import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.dictionary.TypeDefinition;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.namespace.NamespaceService;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Test;
@@ -20,13 +21,11 @@ import java.util.Map;
 
 import static org.junit.Assert.assertEquals;
 
-
 /**
  * Created by flemming on 18/08/14.
  */
-
 @RunWith(RemoteTestRunner.class)
-@Remote(runnerClass=SpringJUnit4ClassRunner.class)
+@Remote(runnerClass = SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:alfresco/application-context.xml")
 public class ModelLookupTest {
 
@@ -37,6 +36,10 @@ public class ModelLookupTest {
     protected DictionaryService dictionaryService;
 
     @Autowired
+    @Qualifier("namespaceService")
+    protected NamespaceService namespaceService;
+
+    @Autowired
     @Qualifier("NodeService")
     protected NodeService nodeService;
 
@@ -44,45 +47,30 @@ public class ModelLookupTest {
     @Qualifier("nodeLocatorService")
     protected NodeLocatorService nodeLocatorService;
 
-
-
     protected ModelLookup modelLookup = new ModelLookup();
-    protected String testURI = OpenESDHModel.DOC_URI;
-    protected String testType = OpenESDHModel.TYPE_DOC_NAME;
-
-
-
+    protected String testPrefix = OpenESDHModel.DOC_PREFIX;
+    protected String testType = OpenESDHModel.TYPE_SIMPLE_NAME;
 
     @Test
-    public void testCreateSimpleCase() {
+    public void testCreateSimpleCase() throws Exception {
         AuthenticationUtil.setFullyAuthenticatedUser(ADMIN_USER_NAME);
-        System.out.println(testURI);
         System.out.println(testType);
 
         modelLookup.setDictionaryService(dictionaryService);
-        TypeDefinition modelType = modelLookup.getTypeDefinition(testURI,testType);
-
+        modelLookup.setNamespaceService(namespaceService);
+        TypeDefinition modelType = modelLookup.getTypeDefinition(testPrefix + ":" + testType);
 
         Map properties = modelLookup.getProperties(modelType);
-        JSONObject property = (JSONObject)properties.get( "{http://openesdh.dk/model/openesdh/1.0/}title");
-        try {
-            assertEquals(property.get("type"),"{http://www.alfresco.org/model/dictionary/1.0}text");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        JSONObject property = (JSONObject) properties.get("oe:id");
 
+        assertEquals(property.get("type"), "d:text");
 
         Map associations = modelLookup.getAssociations(modelType);
         System.out.println(associations);
 
-        JSONObject association = (JSONObject)associations.get( "{http://openesdh.dk/model/document/1.0/}main");
+        JSONObject association = (JSONObject) associations.get("doc:main");
 
-        try {
-            assertEquals(association.get("isTargetMany"),false);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        assertEquals(association.get("isTargetMany"), false);
     }
-    
 
 }
