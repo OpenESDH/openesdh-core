@@ -17,6 +17,7 @@ public class Pages {
     public static DashboardPage Dashboard;
     public static SearchPage Search;
     public static CreateCasePage CreateCase;
+    public static EditCasePage EditCase;
     public static CaseDashboardPage CaseDashboard;
 
     /**
@@ -42,6 +43,7 @@ public class Pages {
         Dashboard = (DashboardPage) initializePage(new DashboardPage());
         Search = (SearchPage) initializePage(new SearchPage());
         CreateCase = (CreateCasePage) initializePage(new CreateCasePage());
+        EditCase = (EditCasePage) initializePage(new EditCasePage());
         CaseDashboard = (CaseDashboardPage) initializePage(new CaseDashboardPage());
     }
 }
