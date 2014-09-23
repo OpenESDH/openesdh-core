@@ -59,6 +59,10 @@ public class XSearchServiceImplTest {
     @Qualifier("retryingTransactionHelper")
     protected RetryingTransactionHelper retryingTransactionHelper;
 
+    @Autowired
+    @Qualifier("TestCaseHelper")
+    protected CaseHelper caseHelper;
+
     private XSearchServiceImpl xSearchService = null;
 
     private static final String ADMIN_USER_NAME = "admin";
@@ -84,8 +88,7 @@ public class XSearchServiceImplTest {
         properties.put(ContentModel.PROP_TITLE, title);
         List<NodeRef> owners = new LinkedList<>();
         owners.add(repositoryHelper.getPerson());
-        caseNode = CaseHelper.createCase(nodeService,
-                retryingTransactionHelper, ADMIN_USER_NAME,
+        caseNode = caseHelper.createCase(ADMIN_USER_NAME,
                 companyHome,
                 name, OpenESDHModel.TYPE_CASE_SIMPLE, properties, owners);
         testCaseTitle = title;
@@ -115,13 +118,6 @@ public class XSearchServiceImplTest {
         return filter;
     }
 
-    protected JSONArray createTestFilters() throws JSONException {
-        JSONArray filters = new JSONArray();
-        JSONObject titleFilter = createFilterObject("cm:title", "=", testCaseTitle);
-        filters.put(titleFilter);
-        return filters;
-    }
-
     @Test
     public void testBuildQuery() throws Exception {
         JSONArray filters = createTestFilters();
@@ -133,6 +129,13 @@ public class XSearchServiceImplTest {
                 "TYPE:" + AbstractXSearchService.quote(baseType), query);
 
         // TODO: Test other types of filters
+    }
+
+    protected JSONArray createTestFilters() throws JSONException {
+        JSONArray filters = new JSONArray();
+        JSONObject titleFilter = createFilterObject("cm:title", "=", testCaseTitle);
+        filters.put(titleFilter);
+        return filters;
     }
 
     @Test

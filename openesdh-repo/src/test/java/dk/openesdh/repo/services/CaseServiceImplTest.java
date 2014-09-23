@@ -72,6 +72,10 @@ public class CaseServiceImplTest {
     @Qualifier("retryingTransactionHelper")
     protected RetryingTransactionHelper retryingTransactionHelper;
 
+    @Autowired
+    @Qualifier("TestCaseHelper")
+    protected CaseHelper caseHelper;
+
     private CaseServiceImpl caseService = null;
     private DynamicNamespacePrefixResolver namespacePrefixResolver = new DynamicNamespacePrefixResolver(null);
     private NodeRef temporaryRepoNodeRef;
@@ -107,8 +111,7 @@ public class CaseServiceImplTest {
         if (temporaryCaseNodeRef == null) {
             LinkedList<NodeRef> owners = new LinkedList<>();
             owners.add(repositoryHelper.getPerson());
-            temporaryCaseNodeRef = CaseHelper.createCase(nodeService,
-                    retryingTransactionHelper,
+            temporaryCaseNodeRef = caseHelper.createCase(
                     ADMIN_USER_NAME, temporaryRepoNodeRef, name,
                     OpenESDHModel.TYPE_CASE_SIMPLE, properties, owners, true);
         }

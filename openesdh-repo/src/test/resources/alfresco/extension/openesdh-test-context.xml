@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
 <beans>
-    <bean id="CaseService" class="dk.openesdh.repo.services.CaseServiceImpl">
+    <bean id="TestCaseHelper" class="dk.openesdh.repo.helper.CaseHelper">
         <property name="nodeService">
             <ref bean="NodeService"/>
         </property>
@@ -21,22 +21,25 @@
         <property name="repositoryHelper">
             <ref bean="repositoryHelper"/>
         </property>
+
+        <property name="nodeLocatorService">
+            <ref bean="nodeLocatorService"/>
+        </property>
+
+        <property name="retryingTransactionHelper">
+            <ref bean="retryingTransactionHelper"/>
+        </property>
+
+        <property name="personService">
+            <ref bean="personService"/>
+        </property>
+
+        <property name="authenticationService">
+            <ref bean="authenticationService"/>
+        </property>
+
     </bean>
 
-    <bean id="NodeInfoService" class="dk.openesdh.repo.services.NodeInfoServiceImpl">
-        <property name="nodeService">
-            <ref bean="NodeService"/>
-        </property>
-    </bean>
-
-    <bean id="XSearchService" class="dk.openesdh.repo.services.xsearch.XSearchServiceImpl">
-        <property name="searchService">
-            <ref bean="SearchService"/>
-        </property>
-        <property name="repositoryHelper">
-            <ref bean="repositoryHelper"/>
-        </property>
-    </bean>
 
 
 </beans>

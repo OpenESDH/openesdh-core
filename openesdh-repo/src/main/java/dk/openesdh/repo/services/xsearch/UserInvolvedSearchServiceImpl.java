@@ -2,19 +2,20 @@ package dk.openesdh.repo.services.xsearch;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 import org.alfresco.error.AlfrescoRuntimeException;
+import org.alfresco.model.ContentModel;
 import org.alfresco.repo.domain.permissions.Authority;
 import org.alfresco.repo.node.SystemNodeUtils;
 import org.alfresco.repo.security.authority.AuthorityDAO;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.security.AuthorityService;
-import org.alfresco.service.cmr.security.AuthorityType;
-import org.alfresco.service.cmr.security.PermissionService;
+import org.alfresco.service.cmr.security.*;
+import org.alfresco.service.namespace.QName;
 import org.apache.solr.common.util.Hash;
 import org.json.JSONException;
 import org.omg.CORBA.RepositoryIdHelper;
 
 import javax.xml.soap.Node;
+import java.io.Serializable;
 import java.security.Permission;
 import java.util.*;
 import java.util.regex.Matcher;
@@ -45,8 +46,7 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService {
         if (caseGroupsNodedbid.size() == 0) {
             String query = "TYPE:\"esdh:case\" AND NOT ASPECT:\"case:journalized\" AND @sys\\:node-dbid:( \"-1\" )";
             return executeQuery(query);
-        }
-        else {
+        } else {
             int collected = 0;
             int limit = 2;
 
@@ -69,8 +69,7 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService {
                     combinedResult.getNodeRefs().addAll(result.getNodeRefs());
                     collected = 0;
                     nodedbidsQuery = "";
-                }
-                else if (!iterator.hasNext()) {
+                } else if (!iterator.hasNext()) {
                     XResultSet result = executeQuery(baseQuery + " AND " + "@sys\\:node-dbid:(" + nodedbidsQuery + ")");
 
                     combinedResult.getNodeRefs().addAll(result.getNodeRefs());
@@ -82,7 +81,7 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService {
     }
 
 
-    protected HashMap<String, String> getCaseGroupsNodedbid (String user) {
+    protected HashMap<String, String> getCaseGroupsNodedbid(String user) {
 
         // put nodedbid in hashmap as the user can be a member of two groups that belong to the same case
         HashMap<String, String> caseGroupsNodedbid = new HashMap<>();
@@ -92,7 +91,7 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService {
         Iterator iterator = allGroups.iterator();
 
         while (iterator.hasNext()) {
-            String groupName = (String)iterator.next();
+            String groupName = (String) iterator.next();
             Pattern pattern = Pattern.compile("GROUP_case_(\\d+)-(\\d+)_(\\D+)");
             Matcher matcher = pattern.matcher(groupName);
 
@@ -108,4 +107,8 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService {
         }
         return caseGroupsNodedbid;
     }
+
+
+
+
 }
