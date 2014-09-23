@@ -31,12 +31,10 @@ define(["dojo/_base/declare",
 
                 this.widgetsForBody = [];
                 var currentItem = this.unmarshal(payload);
-                console.log(currentItem);
-                for (var i in currentItem) {
-                    console.log(i + " " + currentItem[i]);
+                for (var i in currentItem.values) {
                     var widget = "";
-                    if(currentItem[i] instanceof Date) {
-                        widget = "openesdh/common/widgets/renderers/Date";
+                    if(currentItem.values[i] instanceof Date) {
+                        widget = "openesdh/common/widgets/renderers/DateField";
                     }
                     else {
                         widget = "alfresco/renderers/Property";
@@ -45,15 +43,14 @@ define(["dojo/_base/declare",
                     var propertyWidget = {
                         name: widget,
                         config: {
-                            currentItem: currentItem,
+                            currentItem: currentItem.values,
                             propertyToRender: i,
-                            label: i,
+                            label: currentItem.labels[i],
                             renderOnNewLine: true
                         }
                     };
 
                     this.widgetsForBody.push(propertyWidget);
-//                console.log(i + " " + payload[i].value + " " + eval("new " + payload[i].type + "(" + payload[i].value + ")"));
                 }
 
                 this.processWidgets(this.widgetsForBody, this.bodyNode);

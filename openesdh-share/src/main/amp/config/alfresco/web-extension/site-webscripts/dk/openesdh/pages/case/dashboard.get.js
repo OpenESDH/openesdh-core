@@ -28,11 +28,16 @@ model.jsonModel = {
                         */
                     },
                     {
-                        name: "alfresco/buttons/AlfButton",
+
+                        name: "openesdh/common/widgets/renderers/DateField",
                         config: {
-                            label: "Hello world!"
+                            currentItem: {"cm:modified": new Date("3214232542432"), "cm:modifier": "admin"},
+                            propertyToRender: "cm:modified",
+                            renderOnNewLine: true
                         }
                     }
+
+//                    {name: "alfresco/buttons/AlfButton",config: {label: "Hello world!"}}
                 ]
             }
         }

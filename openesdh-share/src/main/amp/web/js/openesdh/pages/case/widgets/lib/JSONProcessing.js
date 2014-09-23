@@ -13,12 +13,13 @@ define(["dojo/_base/declare",
              * @returns An array of (native) objects.
              */
             unmarshal: function (payload) {
-                var result = {};
+                var result = {}, labels ={};
                 for (var i in payload) {
                     if (i == "alfTopic") continue;
                     result[i] = new window[payload[i].type](payload[i].value);
+                    labels[i] = payload[i].label;
                 }
-                return result;
+                return {"values": result, "labels": labels};
             }
         });
     })
