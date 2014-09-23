@@ -61,6 +61,9 @@ public class OpenESDHModelTest {
     @Qualifier("retryingTransactionHelper")
     protected RetryingTransactionHelper retryingTransactionHelper;
 
+    @Autowired
+    @Qualifier("TestCaseHelper")
+    protected CaseHelper caseHelper;
 
     @Before
     public void setUp() throws Exception {
@@ -77,8 +80,7 @@ public class OpenESDHModelTest {
         properties.put(ContentModel.PROP_NAME, name);
         List<NodeRef> owners = new LinkedList<>();
         owners.add(repositoryHelper.getPerson());
-        NodeRef caseNode = CaseHelper.createCase(nodeService,
-                retryingTransactionHelper, ADMIN_USER_NAME,
+        NodeRef caseNode = caseHelper.createCase(ADMIN_USER_NAME,
                 companyHome,
                 name, OpenESDHModel.TYPE_CASE_SIMPLE, properties, owners,
                 true);

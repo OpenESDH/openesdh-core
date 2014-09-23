@@ -1,39 +1,46 @@
 package dk.openesdh.repo.services.xsearch;
 
 import org.alfresco.error.AlfrescoRuntimeException;
+import org.alfresco.repo.model.Repository;
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.search.ResultSet;
+import org.alfresco.service.cmr.search.SearchParameters;
+import org.alfresco.service.cmr.search.SearchService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.queryParser.QueryParser;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.extensions.webscripts.WebScriptException;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 /**
  * Created by flemmingheidepedersen on 12/09/14.
  */
-public class XSearchServiceImpl extends XSearchService {
+public class XSearchServiceImpl extends AbstractXSearchService implements XSearchService {
+    String baseType;
+
     public XResultSet getNodes(Map<String, String> params, int startIndex, int pageSize, String sortField, boolean ascending) {
-        String baseType = params.get("baseType");
+        baseType = params.get("baseType");
         if (baseType == null) {
             throw new AlfrescoRuntimeException("Must specify a baseType parameter");
         }
 
         String filtersJSON = params.get("filters");
         try {
-            String query = buildQuery(filtersJSON, baseType);
-            System.out.println("Query: " + query);
-            return executeQuery(query, startIndex, pageSize, sortField, ascending);
+            String query = buildQuery(filtersJSON);
+            return executeQuery(query);
         } catch (JSONException e) {
             throw new AlfrescoRuntimeException("Unable to parse filters JSON");
         }
     }
 
 
-    protected String buildQuery(String filtersJSON,
-                                String baseType) throws JSONException {
+    protected String buildQuery(String filtersJSON) throws JSONException {
         List<String> searchTerms = new ArrayList<>();
 
         if (filtersJSON != null) {
@@ -83,7 +90,12 @@ public class XSearchServiceImpl extends XSearchService {
                 }
                 return "(" + StringUtils.join(list, ",") + ")";
             } catch (JSONException e2) {
-                return quote(filter.getString("value"));
+                String value = filter.getString("value");
+                if (!value.equals("")) {
+                    return quote(value);
+                } else {
+                    return null;
+                }
             }
         }
     }
@@ -95,7 +107,7 @@ public class XSearchServiceImpl extends XSearchService {
         String value = processFilterValue(filter);
         System.out.println("Filter " + name + " " + operator + " " + value);
 
-        if (value.equals("\"\"")) {
+        if (value == null) {
             return null;
         }
 

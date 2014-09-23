@@ -59,6 +59,10 @@ public class XSearchServiceImplTest {
     @Qualifier("retryingTransactionHelper")
     protected RetryingTransactionHelper retryingTransactionHelper;
 
+    @Autowired
+    @Qualifier("TestCaseHelper")
+    protected CaseHelper caseHelper;
+
     private XSearchServiceImpl xSearchService = null;
 
     private static final String ADMIN_USER_NAME = "admin";
@@ -84,8 +88,7 @@ public class XSearchServiceImplTest {
         properties.put(ContentModel.PROP_TITLE, title);
         List<NodeRef> owners = new LinkedList<>();
         owners.add(repositoryHelper.getPerson());
-        caseNode = CaseHelper.createCase(nodeService,
-                retryingTransactionHelper, ADMIN_USER_NAME,
+        caseNode = caseHelper.createCase(ADMIN_USER_NAME,
                 companyHome,
                 name, OpenESDHModel.TYPE_CASE_SIMPLE, properties, owners);
         testCaseTitle = title;
@@ -115,23 +118,24 @@ public class XSearchServiceImplTest {
         return filter;
     }
 
+    @Test
+    public void testBuildQuery() throws Exception {
+        JSONArray filters = createTestFilters();
+        xSearchService.baseType = baseType;
+        String query = xSearchService.buildQuery(filters.toString());
+        System.out.println(query);
+        assertEquals("@cm\\:title:" + AbstractXSearchService.quote(testCaseTitle) +
+                " AND " +
+                "TYPE:" + AbstractXSearchService.quote(baseType), query);
+
+        // TODO: Test other types of filters
+    }
+
     protected JSONArray createTestFilters() throws JSONException {
         JSONArray filters = new JSONArray();
         JSONObject titleFilter = createFilterObject("cm:title", "=", testCaseTitle);
         filters.put(titleFilter);
         return filters;
-    }
-
-    @Test
-    public void testBuildQuery() throws Exception {
-        JSONArray filters = createTestFilters();
-        String query = xSearchService.buildQuery(filters.toString(), baseType);
-        System.out.println(query);
-        assertEquals("@cm\\:title:" + XSearchService.quote(testCaseTitle) +
-                " AND " +
-                "TYPE:" + XSearchService.quote(baseType), query);
-
-        // TODO: Test other types of filters
     }
 
     @Test
@@ -187,21 +191,21 @@ public class XSearchServiceImplTest {
     @Test
     public void testStripTimeZoneFromDateTime() throws Exception {
         assertEquals("2006-07-20T00:00:00",
-                XSearchService.stripTimeZoneFromDateTime
+                AbstractXSearchService.stripTimeZoneFromDateTime
                         ("2006-07-20T00:00:00+02:00"));
     }
 
     @Test
     public void testQuote() throws Exception {
         // Basic quoting
-        assertEquals("\"Blah\"", XSearchService.quote("Blah"));
+        assertEquals("\"Blah\"", AbstractXSearchService.quote("Blah"));
         // Escape double-quotes
-        assertEquals("\"Bl\\\"ah\"", XSearchService.quote("Bl\"ah"));
+        assertEquals("\"Bl\\\"ah\"", AbstractXSearchService.quote("Bl\"ah"));
         // Escape single-quotes
-        assertEquals("\"Bl\\'ah\"", XSearchService.quote("Bl'ah"));
+        assertEquals("\"Bl\\'ah\"", AbstractXSearchService.quote("Bl'ah"));
         // Escape backslash
-        assertEquals("\"Bl\\\\ah\"", XSearchService.quote("Bl\\ah"));
+        assertEquals("\"Bl\\\\ah\"", AbstractXSearchService.quote("Bl\\ah"));
         // Escape backslash with double-quotes
-        assertEquals("\"Bl\\\\\\\"ah\"", XSearchService.quote("Bl\\\"ah"));
+        assertEquals("\"Bl\\\\\\\"ah\"", AbstractXSearchService.quote("Bl\\\"ah"));
     }
 }

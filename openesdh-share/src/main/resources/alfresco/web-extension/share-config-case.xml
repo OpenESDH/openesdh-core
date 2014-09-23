@@ -1,7 +1,7 @@
 <alfresco-config>
     <config evaluator="model-type" condition="case:simple">
         <forms>
-            <!-- Default form configuration for the case type -->
+            <!-- Default create content form configuration for a simple case -->
             <form>
                 <field-visibility>
                     <show id="cm:title" force="true"/>
@@ -12,23 +12,33 @@
                     <show id="case:endDate" />
                 </field-visibility>
                 <appearance>
-                    <field id="cm:title">
-                        <control template="/org/alfresco/components/form/controls/textfield.ftl" />
-                    </field>
                     <field id="cm:description">
                         <control>
                             <control-param name="activateLinks">true</control-param>
                         </control>
                     </field>
-                  <!-- field id="oe:status">
-                    <control template="/org/alfresco/components/form/controls/selectone.ftl"></control>
-                  </field>
-                  <field id="case:startDate">
-                    <control template="/org/alfresco/components/form/controls/date.ftl"></control>
-                  </field>
-                  <field id="case:endDate">
-                    <control template="/org/alfresco/components/form/controls/date.ftl"></control>
-                  </field -->
+                </appearance>
+            </form>
+        </forms>
+    </config>
+    <config evaluator="node-type" condition="case:simple">
+        <forms>
+            <!-- Default edit properties form configuration for a simple case -->
+            <form>
+                <field-visibility>
+                    <show id="cm:title" force="true"/>
+                    <show id="cm:description" force="true"/>
+                    <show id="oe:status" />
+                    <show id="case:owners" />
+                    <show id="case:startDate" />
+                    <show id="case:endDate" />
+                </field-visibility>
+                <appearance>
+                    <field id="cm:description">
+                        <control>
+                            <control-param name="activateLinks">true</control-param>
+                        </control>
+                    </field>
                 </appearance>
             </form>
         </forms>

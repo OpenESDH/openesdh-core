@@ -1,5 +1,6 @@
 <alfresco-config>
 
+    <!--
       <config evaluator="string-compare" condition="WebFramework">
            <web-framework>
                <autowire>
@@ -7,7 +8,7 @@
                </autowire>
            </web-framework>
        </config>
-
+-->s
 
 
 
