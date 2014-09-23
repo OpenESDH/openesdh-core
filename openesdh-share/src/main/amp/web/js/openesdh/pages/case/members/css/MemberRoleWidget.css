@@ -1,0 +1,20 @@
+.member-role {
+    width: 100%;
+    margin-bottom: 1em;
+}
+
+.member-role div {
+    display: inline-block;
+}
+
+.member-role .authority-name {
+    width: 20%;
+}
+
+.member-role .role-select {
+    width: 10em;
+}
+
+.member-role .remove-button {
+    width: 10em;
+}

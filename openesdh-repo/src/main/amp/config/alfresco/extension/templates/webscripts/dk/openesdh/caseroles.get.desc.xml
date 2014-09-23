@@ -1,0 +1,8 @@
+<webscript>
+    <shortname>Case Roles</shortname>
+    <description>Retrieve a list of roles for a case</description>
+    <url>/api/openesdh/caseroles</url>
+    <format default="json"></format>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+</webscript>

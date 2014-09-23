@@ -13,6 +13,14 @@ define(["dojo/_base/declare",
 ],
 function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClass, array, lang, on, FilterWidget) {
     return declare([FilterWidget], {
+
+        nonAmdDependencies: [
+            "/modules/form/control-wrapper.js",
+            "/components/object-finder/object-finder.js"
+        ],
+
+        cssRequirements: [{cssFile:"/components/object-finder/object-finder.css"}],
+
         selectedItems: [],
         
         postCreate: function () {

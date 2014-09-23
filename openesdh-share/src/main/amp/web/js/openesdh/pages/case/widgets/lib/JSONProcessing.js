@@ -1,4 +1,4 @@
-**
+/**
 * @module openesdh/common/widgets/lib/JSONProcessing
 * @author Torben Lauritzen
 */

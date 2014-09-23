@@ -5,16 +5,10 @@ import com.tradeshift.test.remote.RemoteTestRunner;
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.OpenESDHModel;
 import org.alfresco.model.ContentModel;
-import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
-import org.alfresco.service.ServiceRegistry;
-import org.alfresco.service.cmr.repository.AssociationRef;
-import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.search.ResultSet;
-import org.alfresco.service.cmr.search.SearchParameters;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
@@ -23,12 +17,10 @@ import org.alfresco.repo.model.Repository;
 import org.alfresco.service.namespace.DynamicNamespacePrefixResolver;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
-import org.alfresco.util.ApplicationContextHelper;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -248,6 +240,24 @@ public class CaseServiceImplTest {
 
     }
 
+    @Test
+    public void testGetRoles() throws Exception {
+        long uniqueNumber = 1231L;
+        String caseId = caseService.getCaseId(uniqueNumber);
+        caseService.setupPermissionGroups(temporaryCaseNodeRef, caseId);
+        Set<String> permissionGroups = caseService.getRoles(temporaryCaseNodeRef);
+        assertTrue(permissionGroups.contains("CaseSimpleReader"));
+        assertTrue(permissionGroups.contains("CaseSimpleWriter"));
+    }
+
+
+    @Test
+    public void testGetMembersByRoles() throws Exception {
+        caseService.setupPermissionGroups(temporaryCaseNodeRef,
+                caseService.getCaseId(temporaryCaseNodeRef));
+        Map<String, Set<String>> membersByRoles = caseService.getMembersByRole(temporaryCaseNodeRef);
+        assertTrue(membersByRoles.get("CaseOwners").contains("admin"));
+    }
 
     @Test
     public void testSetupCase() throws Exception {

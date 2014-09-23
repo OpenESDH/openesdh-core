@@ -1,0 +1,8 @@
+<webscript>
+    <shortname>Case Members</shortname>
+    <description>Retrieve a list of members for a case.</description>
+    <url>/api/openesdh/casemembers</url>
+    <format default="json"></format>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+</webscript>
