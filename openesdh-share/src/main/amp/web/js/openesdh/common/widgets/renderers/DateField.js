@@ -19,16 +19,16 @@ define(["dojo/_base/declare",
              *
              * @instance
              */
-            i18nScope: "openesdh.renderers.Date",
+            i18nScope: "openesdh.renderers.DateField",
 
             /**
              * An array of the i18n files to use with this widget.
              *
              * @instance
              * @type {object[]}
-             * @default [{i18nFile: "./i18n/Date1.properties"}]
+             * @default [{i18nFile: "./i18n/DateField.properties"}]
              */
-            i18nRequirements: [{i18nFile: "./i18n/Date1.properties"}],
+            i18nRequirements: [{i18nFile: "./i18n/DateField.properties"}],
 
             /**
              * Set up the attributes to be used when rendering the template.
@@ -40,11 +40,13 @@ define(["dojo/_base/declare",
                 if(this.propertyToRender == "cm:created") {
                     var createdDate = lang.getObject("cm:created", false, this.currentItem);
                     var createdBy = lang.getObject("cm:creator", false, this.currentItem);
-                    var dateI18N = "details.created-by";
+                    var dateI18N = "details.created-by1";
                     this.renderedValue = this.message(dateI18N, {
                         0: TemporalUtils.getRelativeTime(createdDate),
                         1: createdBy
                     });
+
+                    console.log(this.i18nRequirements);
                 }
                 else if(this.propertyToRender == "cm:modified") {
                     var modifiedDate = lang.getObject("cm:modified", false, this.currentItem);

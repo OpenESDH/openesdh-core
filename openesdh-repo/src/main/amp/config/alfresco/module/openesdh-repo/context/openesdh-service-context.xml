@@ -27,6 +27,9 @@
         <property name="nodeService">
             <ref bean="NodeService"/>
         </property>
+        <property name="dictionaryService">
+            <ref bean="DictionaryService"/>
+        </property>
     </bean>
 
     <bean id="XSearchService" class="dk.openesdh.repo.services.xsearch.XSearchServiceImpl">

@@ -29,7 +29,6 @@ define(["dojo/_base/declare",
    "alfresco/dashlets/Dashlet"],
       function(declare, AlfCore, Dashlet) {
 
-         var i18nScope = "openesdh.case.CaseInfoDashlet";
          return declare([Dashlet], {
 
             /**

@@ -16,7 +16,8 @@ define(["dojo/_base/declare",
                 var result = {};
                 for (var i in payload) {
                     if (i == "alfTopic") continue;
-                    result[i] = new window[payload[i].type](payload[i].value);
+                    var key = i.replace(":", "_");
+                    result[key] = new window[payload[i].type](payload[i].value);
                 }
                 return result;
             }

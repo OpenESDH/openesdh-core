@@ -36,7 +36,7 @@ define(["dojo/_base/declare",
                     console.log(i + " " + currentItem[i]);
                     var widget = "";
                     if(currentItem[i] instanceof Date) {
-                        widget = "openesdh/common/widgets/renderers/Date";
+                        widget = "openesdh/common/widgets/renderers/DateField";
                     }
                     else {
                         widget = "alfresco/renderers/Property";
@@ -47,7 +47,7 @@ define(["dojo/_base/declare",
                         config: {
                             currentItem: currentItem,
                             propertyToRender: i,
-                            label: i,
+                            label: this.message(i),
                             renderOnNewLine: true
                         }
                     };
