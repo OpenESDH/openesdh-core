@@ -44,9 +44,6 @@ public class CaseInfo extends AbstractWebScript {
 
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
-        System.out.println("Content Locale: " + I18NUtil.getContentLocale().toString());
-        System.out.println("Locale: " + I18NUtil.getLocale().toString());
-
         NodeRef caseNodeRef = new NodeRef(req.getParameter("nodeRef"));
         Map<QName, Serializable> nodeInfo = nodeInfoService.getNodeInfo(caseNodeRef);
         JSONObject json = nodeInfoService.buildJSON(nodeInfo, this);

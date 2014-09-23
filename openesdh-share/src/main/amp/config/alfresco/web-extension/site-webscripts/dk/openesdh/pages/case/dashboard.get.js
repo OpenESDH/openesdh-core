@@ -27,7 +27,6 @@ model.jsonModel = {
                         ]
                         */
                     },
-
                     {
 
                         name: "openesdh/common/widgets/renderers/DateField",
@@ -38,17 +37,7 @@ model.jsonModel = {
                         }
                     }
 
-/*
-                    {
-
-
-
-                        name: "alfresco/buttons/AlfButton",
-                        config: {
-                            label: "Hello world!"
-                        }
-                    }
-                    */
+//                    {name: "alfresco/buttons/AlfButton",config: {label: "Hello world!"}}
                 ]
             }
         }

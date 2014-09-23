@@ -37,10 +37,14 @@ define(["dojo/_base/declare",
              */
             postMixInProperties: function alfresco_renderers_Date__postMixInProperties() {
 
+                console.log("OUT: " + this.propertyToRender);
+                console.log(this.currentItem);
+                console.log(lang.getObject("cm:created", false, this.currentItem));
+
                 if(this.propertyToRender == "cm:created") {
                     var createdDate = lang.getObject("cm:created", false, this.currentItem);
                     var createdBy = lang.getObject("cm:creator", false, this.currentItem);
-                    var dateI18N = "details.created-by1";
+                    var dateI18N = "details.created-by";
                     this.renderedValue = this.message(dateI18N, {
                         0: TemporalUtils.getRelativeTime(createdDate),
                         1: createdBy
@@ -57,7 +61,6 @@ define(["dojo/_base/declare",
                         1: modifiedBy
                     });
                 }
-
 
                 this.renderedValueClass = this.renderedValueClass + " " + this.renderSize + " block";
                 console.log(this.renderedValueClass);
