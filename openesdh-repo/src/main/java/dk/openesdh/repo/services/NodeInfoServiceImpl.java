@@ -1,9 +1,13 @@
 package dk.openesdh.repo.services;
 
 import dk.openesdh.repo.webscripts.cases.CaseInfo;
+import org.alfresco.model.ContentModel;
+import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.security.AuthorityService;
+import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -19,6 +23,7 @@ public class NodeInfoServiceImpl implements NodeInfoService {
 
     private NodeService nodeService;
     private DictionaryService dictionaryService;
+    private PersonService personService;
 
     public void setDictionaryService(DictionaryService dictionaryService) {
         this.dictionaryService = dictionaryService;
@@ -26,6 +31,10 @@ public class NodeInfoServiceImpl implements NodeInfoService {
 
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
+    }
+
+    public void setPersonService(PersonService personService) {
+        this.personService = personService;
     }
 
     @Override
@@ -46,6 +55,14 @@ public class NodeInfoServiceImpl implements NodeInfoService {
                     if (Date.class.equals(value.getClass())) {
                         valueObj.put("type", "Date");
                         valueObj.put("value", ((Date) value).getTime());
+                    }
+                    else if(key.getPrefixString().equals("modifier") || key.getPrefixString().equals("creator")) {
+                        valueObj.put("type", "UserName");
+                        valueObj.put("value", value);
+                        NodeRef personNodeRef = personService.getPerson((String) value);
+                        String firstName = (String) nodeService.getProperty(personNodeRef, ContentModel.PROP_FIRSTNAME);
+                        String lastName = (String) nodeService.getProperty(personNodeRef, ContentModel.PROP_LASTNAME);
+                        valueObj.put("fullname", firstName + " " + lastName);
                     } else {
                         valueObj.put("value", value);
                         valueObj.put("type", "String");

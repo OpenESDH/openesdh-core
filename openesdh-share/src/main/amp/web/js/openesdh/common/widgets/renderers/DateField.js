@@ -36,34 +36,38 @@ define(["dojo/_base/declare",
              * @instance
              */
             postMixInProperties: function alfresco_renderers_Date__postMixInProperties() {
-
-                console.log("OUT: " + this.propertyToRender);
-                console.log(this.currentItem);
-                console.log(lang.getObject("cm:created", false, this.currentItem));
-
+                var property = lang.getObject(this.propertyToRender, false, this.currentItem);
+                var date = new Date(property.value);
                 if(this.propertyToRender == "cm:created") {
-                    var createdDate = lang.getObject("cm:created", false, this.currentItem);
-                    var createdBy = lang.getObject("cm:creator", false, this.currentItem);
+                    var creatorProperty = lang.getObject("cm:creator", false, this.currentItem);
+                    var createdBy = creatorProperty.value;
+                    var creatorName = creatorProperty.fullname;
+
+                    var userName = property.value;
+                    var displayName = property.fullname;
+
                     var dateI18N = "details.created-by";
                     this.renderedValue = this.message(dateI18N, {
-                        0: TemporalUtils.getRelativeTime(createdDate),
-                        1: createdBy
+                        0: TemporalUtils.getRelativeTime(date),
+                        1: this.userProfileLink(createdBy, creatorName)
                     });
-
-                    console.log(this.i18nRequirements);
-                }
+               }
                 else if(this.propertyToRender == "cm:modified") {
-                    var modifiedDate = lang.getObject("cm:modified", false, this.currentItem);
-                    var modifiedBy = lang.getObject("cm:modifier", false, this.currentItem);
+                    var modifierProperty = lang.getObject("cm:modifier", false, this.currentItem);
+                    var modifiedBy = modifierProperty.value;
+                    var modifierName = modifierProperty.fullname;
+
                     var dateI18N = "details.modified-by";
                     this.renderedValue = this.message(dateI18N, {
-                        0: TemporalUtils.getRelativeTime(modifiedDate),
-                        1: modifiedBy
+                        0: TemporalUtils.getRelativeTime(date),
+                        1: this.userProfileLink(modifiedBy, modifierName)
                     });
+                }
+                else {
+                    this.renderedValue = date;
                 }
 
                 this.renderedValueClass = this.renderedValueClass + " " + this.renderSize + " block";
-                console.log(this.renderedValueClass);
             }
         });
     });

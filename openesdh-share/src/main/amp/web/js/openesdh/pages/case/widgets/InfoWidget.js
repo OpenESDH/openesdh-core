@@ -30,22 +30,26 @@ define(["dojo/_base/declare",
                 console.log(payload);
 
                 this.widgetsForBody = [];
-                var currentItem = this.unmarshal(payload);
-                for (var i in currentItem.values) {
+//                var currentItem = this.unmarshal(payload);
+                for (var i in payload) {
+                    if (i == "alfTopic") continue;
                     var widget = "";
-                    if(currentItem.values[i] instanceof Date) {
+                    if(payload[i].type == "Date") {
                         widget = "openesdh/common/widgets/renderers/DateField";
                     }
+                    else if(payload[i].type == "UserName") {
+                        widget = "openesdh/common/widgets/renderers/UserNameField";
+                    }
                     else {
-                        widget = "alfresco/renderers/Property";
+                        widget = "openesdh/common/widgets/renderers/PropertyField";
                     }
 
                     var propertyWidget = {
                         name: widget,
                         config: {
-                            currentItem: currentItem.values,
+                            currentItem: payload,
                             propertyToRender: i,
-                            label: currentItem.labels[i],
+                            label: payload[i].label,
                             renderOnNewLine: true
                         }
                     };

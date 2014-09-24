@@ -34,6 +34,9 @@
         <property name="dictionaryService">
             <ref bean="DictionaryService"/>
         </property>
+        <property name="personService">
+            <ref bean="PersonService"/>
+        </property>
     </bean>
 
     <bean id="XSearchService" class="dk.openesdh.repo.services.xsearch.XSearchServiceImpl">
