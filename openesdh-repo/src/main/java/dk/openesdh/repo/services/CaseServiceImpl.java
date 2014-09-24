@@ -130,6 +130,40 @@ public class CaseServiceImpl implements CaseService {
         }
     }
 
+    @Override
+    public Set<String> getRoles(NodeRef caseNodeRef) {
+        return permissionService.getSettablePermissions(caseNodeRef);
+    }
+
+
+    public String getCaseId(NodeRef caseNodeRef) {
+        // We are using node-dbid, as it is unique across nodes in a cluster
+        return getCaseId(getCaseUniqueId(caseNodeRef));
+    }
+
+    long getCaseUniqueId(NodeRef caseNodeRef) {
+        // We are using node-dbid, as it is unique across nodes in a cluster
+        return (long) nodeService.getProperty(caseNodeRef,
+                ContentModel.PROP_NODE_DBID);
+    }
+
+    @Override
+    public Map<String, Set<String>> getMembersByRole(NodeRef caseNodeRef) {
+        String caseId = getCaseId(caseNodeRef);
+        Set<String> roles = getRoles(caseNodeRef);
+        Map<String, Set<String>> membersByRole = new HashMap<>();
+        for (String role : roles) {
+            String groupSuffix = "case_" + caseId + "_" + role;
+            String groupName = authorityService.getName(AuthorityType.GROUP,
+                    groupSuffix);
+            Set<String> authorities = authorityService.getContainedAuthorities
+                    (null, groupName, true);
+            membersByRole.put(role, authorities);
+
+        }
+        return membersByRole;
+    }
+
     void setupPermissionGroups(NodeRef caseNodeRef, String caseId) {
         Set<String> settablePermissions = permissionService.getSettablePermissions(caseNodeRef);
 
@@ -204,8 +238,8 @@ public class CaseServiceImpl implements CaseService {
                 NodeRef casesRootNodeRef = getCasesRootNodeRef();
 
                 NodeRef caseFolderNodeRef = getCaseFolderNodeRef(casesRootNodeRef);
-                // Get a unique number to append to the caseId. We are using node-dbid, as it is unique across nodes in a cluster
-                long caseUniqueNumber = (long) nodeService.getProperty(caseNodeRef, ContentModel.PROP_NODE_DBID);
+                // Get a unique number to append to the caseId.
+                long caseUniqueNumber = getCaseUniqueId(caseNodeRef);
 
                 setupCase(caseNodeRef, caseFolderNodeRef, caseUniqueNumber);
 

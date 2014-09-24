@@ -14,8 +14,17 @@ define(["dojo/_base/declare",
 ],
 function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClass, domAttr, array, lang, on, FilterWidget) {
     return declare([FilterWidget], {
+
+        nonAmdDependencies: [
+            "/modules/form/control-wrapper.js",
+            "/components/form/date-range.js",
+            "/components/form/date.js"
+        ],
+
+        cssRequirements: [{cssFile:"/components/object-finder/object-finder.css"}],
+
         selectedItems: [],
-        
+
         postCreate: function () {
             this.inherited(arguments);
             
