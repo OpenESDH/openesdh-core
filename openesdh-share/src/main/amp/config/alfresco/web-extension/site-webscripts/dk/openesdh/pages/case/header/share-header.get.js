@@ -12,8 +12,8 @@ navMenu.config.widgets.push({
     config: {
         id: "HEADER_CASE_MEMBERS",
         iconClass: "alf-user-icon",
-        iconAltText: "header.menu.invite.altText",
-        title: "header.menu.invite.altText",
+        iconAltText: "header.menu.members.altText",
+        title: "header.menu.members.altText",
         targetUrl: "/members"
     }
 });
@@ -27,8 +27,8 @@ var caseConfig = {
         id: "HEADER_CASE_CONFIGURATION_DROPDOWN",
         label: "",
         iconClass: "alf-configure-icon",
-        iconAltText: "header.menu.siteConfig.altText",
-        title: "header.menu.siteConfig.altText",
+        iconAltText: "header.menu.caseConfig.altText",
+        title: "header.menu.caseConfig.altText",
         widgets: []
     }
 };
