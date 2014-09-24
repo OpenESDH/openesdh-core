@@ -1,13 +1,6 @@
 model.jsonModel = {
     widgets: [
         {
-            id: "SET_PAGE_TITLE",
-            name: "alfresco/header/SetTitle",
-            config: {
-                title: msg.get("header.title")
-            }
-        },
-        {
             name: "alfresco/layout/HorizontalWidgets",
             config: {
                 widgetWidth: 50,
@@ -17,27 +10,7 @@ model.jsonModel = {
                         config: {
                             title: "Hej"
                         }
-                        /*
-                        ,
-                        widgets: [
-                            {
-                                name: "openesdh/pages/case/widgets/InfoWidget",
-                                config: {}
-                            }
-                        ]
-                        */
-                    },
-                    {
-
-                        name: "openesdh/common/widgets/renderers/DateField",
-                        config: {
-                            currentItem: {"cm:modified": new Date("3214232542432"), "cm:modifier": "admin"},
-                            propertyToRender: "cm:modified",
-                            renderOnNewLine: true
-                        }
                     }
-
-//                    {name: "alfresco/buttons/AlfButton",config: {label: "Hello world!"}}
                 ]
             }
         }
