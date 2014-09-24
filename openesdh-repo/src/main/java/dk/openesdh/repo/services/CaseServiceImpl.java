@@ -4,6 +4,7 @@ import dk.openesdh.repo.model.OpenESDHModel;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -13,6 +14,7 @@ import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.namespace.QName;
+import org.alfresco.service.transaction.TransactionService;
 
 import java.io.Serializable;
 import java.text.DateFormat;
@@ -36,6 +38,7 @@ public class CaseServiceImpl implements CaseService {
     private SearchService searchService;
     private AuthorityService authorityService;
     private PermissionService permissionService;
+    private TransactionService transactionService;
 
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
@@ -55,6 +58,10 @@ public class CaseServiceImpl implements CaseService {
 
     public void setRepositoryHelper(Repository repositoryHelper) {
         this.repositoryHelper = repositoryHelper;
+    }
+
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
     }
 
     @Override
@@ -86,10 +93,9 @@ public class CaseServiceImpl implements CaseService {
     }
 
 
-
-
     /**
      * Creating Groups and assigning permission on New case folder
+     *
      * @param caseNodeRef
      * @param caseId
      */
@@ -120,10 +126,9 @@ public class CaseServiceImpl implements CaseService {
 
             // authorityName, userName
             String ownerName = "";
-            if(nodeService.getType(owner).equals(ContentModel.TYPE_AUTHORITY_CONTAINER)) {
+            if (nodeService.getType(owner).equals(ContentModel.TYPE_AUTHORITY_CONTAINER)) {
                 ownerName = (String) nodeService.getProperty(owner, ContentModel.PROP_AUTHORITY_NAME);
-            }
-            else {
+            } else {
                 ownerName = (String) nodeService.getProperty(owner, ContentModel.PROP_USERNAME);
             }
             authorityService.addAuthority(groupName, ownerName);
@@ -137,8 +142,8 @@ public class CaseServiceImpl implements CaseService {
 
 
     public String getCaseId(NodeRef caseNodeRef) {
-        // We are using node-dbid, as it is unique across nodes in a cluster
-        return getCaseId(getCaseUniqueId(caseNodeRef));
+        return (String) nodeService.getProperty(caseNodeRef,
+                OpenESDHModel.PROP_OE_ID);
     }
 
     long getCaseUniqueId(NodeRef caseNodeRef) {
@@ -147,21 +152,59 @@ public class CaseServiceImpl implements CaseService {
                 ContentModel.PROP_NODE_DBID);
     }
 
+    protected String getCaseRoleGroupName(String caseId, String role) {
+        String groupSuffix = "case_" + caseId + "_" + role;
+        return authorityService.getName(AuthorityType.GROUP, groupSuffix);
+    }
+
     @Override
     public Map<String, Set<String>> getMembersByRole(NodeRef caseNodeRef) {
         String caseId = getCaseId(caseNodeRef);
         Set<String> roles = getRoles(caseNodeRef);
         Map<String, Set<String>> membersByRole = new HashMap<>();
         for (String role : roles) {
-            String groupSuffix = "case_" + caseId + "_" + role;
-            String groupName = authorityService.getName(AuthorityType.GROUP,
-                    groupSuffix);
+            String groupName = getCaseRoleGroupName(caseId, role);
             Set<String> authorities = authorityService.getContainedAuthorities
                     (null, groupName, true);
             membersByRole.put(role, authorities);
 
         }
         return membersByRole;
+    }
+
+    @Override
+    public void removeAuthorityFromRole(String authorityName,
+                                        String role,
+                                        NodeRef caseNodeRef) {
+        String caseId = getCaseId(caseNodeRef);
+        String groupName = getCaseRoleGroupName(caseId, role);
+        authorityService.removeAuthority(groupName, authorityName);
+    }
+
+    @Override
+    public void addAuthorityToRole(String authorityName,
+                                   String role,
+                                   NodeRef caseNodeRef) {
+        String caseId = getCaseId(caseNodeRef);
+        String groupName = getCaseRoleGroupName(caseId, role);
+        authorityService.addAuthority(groupName, authorityName);
+    }
+
+    @Override
+    public void changeAuthorityRole(final String authorityName,
+                                    final String fromRole,
+                                    final String toRole,
+                                    final NodeRef caseNodeRef) {
+        // Do in transaction
+        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper
+                .RetryingTransactionCallback<Object>() {
+            @Override
+            public Object execute() throws Throwable {
+                removeAuthorityFromRole(authorityName, fromRole, caseNodeRef);
+                addAuthorityToRole(authorityName, toRole, caseNodeRef);
+                return null;
+            }
+        });
     }
 
     void setupPermissionGroups(NodeRef caseNodeRef, String caseId) {
@@ -248,8 +291,10 @@ public class CaseServiceImpl implements CaseService {
         }, "admin");
     }
 
-    /**\
+    /**
+     * \
      * Get the nodeRef for the folder in which to place the case.
+     *
      * @param casesRootNodeRef The root folder nodeRef in the case hierarchy
      * @return The NodeRef for the folder in which to place the case
      */
@@ -262,7 +307,8 @@ public class CaseServiceImpl implements CaseService {
 
     /**
      * Get a node in the calendarbased path of the casefolders
-     * @param parent The nodeRef to start from
+     *
+     * @param parent       The nodeRef to start from
      * @param calendarType The type of calendar info to look up, i.e. Calendar.YEAR, Calendar.MONTH, or Calendar.DATE
      * @return
      */

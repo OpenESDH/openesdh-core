@@ -27,19 +27,21 @@
         <property name="dictionaryService" ref="dictionaryService"/>
     </bean>
 
-    <bean id="webscript.dk.openesdh.casemembers.get"
+    <bean id="caseMemberWebscript"
           class="dk.openesdh.repo.webscripts.cases.CaseMembers"
           parent="webscript">
         <property name="caseService" ref="CaseService"/>
         <property name="authorityService" ref="AuthorityService"/>
     </bean>
-
-    <bean id="webscript.dk.openesdh.caseroles.get"
-          class="dk.openesdh.repo.webscripts.cases.CaseRoles"
-          parent="webscript">
-        <property name="caseService" ref="CaseService"/>
+    <bean id="webscript.dk.openesdh.casemembers.get"
+          parent="caseMemberWebscript">
     </bean>
-
+    <bean id="webscript.dk.openesdh.casemembers.post"
+          parent="caseMemberWebscript">
+    </bean>
+    <bean id="webscript.dk.openesdh.casemembers.delete"
+          parent="caseMemberWebscript">
+    </bean>
 
 
     <bean id="webscript.dk.openesdh.model.get"

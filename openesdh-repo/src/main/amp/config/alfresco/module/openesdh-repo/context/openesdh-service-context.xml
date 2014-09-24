@@ -21,6 +21,10 @@
         <property name="repositoryHelper">
             <ref bean="repositoryHelper"/>
         </property>
+
+        <property name="transactionService">
+            <ref bean="TransactionService"/>
+        </property>
     </bean>
 
     <bean id="NodeInfoService" class="dk.openesdh.repo.services.NodeInfoServiceImpl">
