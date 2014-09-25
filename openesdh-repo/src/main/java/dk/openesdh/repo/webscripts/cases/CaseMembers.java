@@ -3,9 +3,9 @@ package dk.openesdh.repo.webscripts.cases;
 import dk.openesdh.repo.services.CaseService;
 import org.alfresco.service.cmr.repository.DuplicateChildNodeNameException;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PersonService;
-import org.alfresco.service.namespace.QName;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -15,8 +15,8 @@ import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
 import java.io.IOException;
-import java.io.Serializable;
-import java.util.Date;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -25,12 +25,18 @@ public class CaseMembers extends AbstractWebScript {
     private CaseService caseService;
     private AuthorityService authorityService;
 
+    private PersonService personService;
+
     public void setCaseService(CaseService caseService) {
         this.caseService = caseService;
     }
 
     public void setAuthorityService(AuthorityService authorityService) {
         this.authorityService = authorityService;
+    }
+
+    public void setPersonService(PersonService personService) {
+        this.personService = personService;
     }
 
     @Override
@@ -69,7 +75,16 @@ public class CaseMembers extends AbstractWebScript {
                 // When "fromRole" is specified, move the authority
                 caseService.changeAuthorityRole(authority, fromRole, role, caseNodeRef);
             } else {
-                caseService.addAuthorityToRole(authority, role, caseNodeRef);
+                String[] authorityNodeRefsStr = req.getParameterValues("authorityNodeRefs");
+                if (authorityNodeRefsStr != null) {
+                    List<NodeRef> authorities = new LinkedList<>();
+                    for (String authorityNodeRefStr : authorityNodeRefsStr) {
+                        authorities.add(new NodeRef(authorityNodeRefStr));
+                    }
+                    caseService.addAuthoritiesToRole(authorities, role, caseNodeRef);
+                } else {
+                    caseService.addAuthorityToRole(authority, role, caseNodeRef);
+                }
             }
         } catch (DuplicateChildNodeNameException e) {
             json.put("duplicate", true);
@@ -97,18 +112,24 @@ public class CaseMembers extends AbstractWebScript {
             Set<String> value = entry.getValue();
             for (String authority : value) {
                 JSONObject memberObj = new JSONObject();
-//                {authorityType: "user", "authority": "admin", "authorityName": "Administrator", role: "casesimplewriter"},
-//                    {authorityType: "user", "authority": "abeecher", "authorityName": "Alice Beecher", role: "casesimplereader"}
-//                ]
-                memberObj.put("authorityType", authority.startsWith("GROUP") ?
-                        "group" : "user");
+                boolean isGroup = authority.startsWith("GROUP_");
+                memberObj.put("authorityType", isGroup ? "group" : "user");
                 memberObj.put("authority", authority);
-                // TODO: Output displayName
-//                PersonService p;
-//                p.getPerson(new NodeRef()).getFirstName();
-                memberObj.put("authorityName", authorityService
-                        .getAuthorityDisplayName(authority));
+
+                NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef
+                        (authority);
+
+                String displayName;
+                if (isGroup) {
+                    displayName = authorityService.getAuthorityDisplayName(authority);
+                } else {
+                    PersonService.PersonInfo personInfo = personService.getPerson(authorityNodeRef);
+                    displayName = personInfo.getFirstName() + " " +
+                            personInfo.getLastName();
+                }
+                memberObj.put("displayName", displayName);
                 memberObj.put("role", entry.getKey());
+                memberObj.put("nodeRef", authorityNodeRef);
                 result.put(memberObj);
             }
 

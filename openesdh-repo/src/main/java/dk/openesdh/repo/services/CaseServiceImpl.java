@@ -5,6 +5,7 @@ import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
+import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -39,6 +40,7 @@ public class CaseServiceImpl implements CaseService {
     private AuthorityService authorityService;
     private PermissionService permissionService;
     private TransactionService transactionService;
+    private DictionaryService dictionaryService;
 
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
@@ -62,6 +64,10 @@ public class CaseServiceImpl implements CaseService {
 
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    public void setDictionaryService(DictionaryService dictionaryService) {
+        this.dictionaryService = dictionaryService;
     }
 
     @Override
@@ -191,6 +197,45 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
+    public void addAuthoritiesToRole(final List<NodeRef> authorities,
+                                   String role,
+                                   NodeRef caseNodeRef) {
+        String caseId = getCaseId(caseNodeRef);
+        final String groupName = getCaseRoleGroupName(caseId, role);
+        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper
+                .RetryingTransactionCallback<Object>() {
+            @Override
+            public Object execute() throws Throwable {
+                for (NodeRef authorityNodeRef : authorities) {
+                    String authority = getAuthorityName(authorityNodeRef);
+                    authorityService.addAuthority(groupName, authority);
+                }
+                return null;
+            }
+        });
+    }
+
+    // Copied (almost directly) from AuthorityDAOImpl because it is not exposed
+    // in the AuthorityService public API
+    protected String getAuthorityName(NodeRef authorityRef)
+    {
+        String name = null;
+        if (nodeService.exists(authorityRef))
+        {
+            QName type = nodeService.getType(authorityRef);
+            if (dictionaryService.isSubClass(type, ContentModel.TYPE_AUTHORITY_CONTAINER))
+            {
+                name = (String) nodeService.getProperty(authorityRef, ContentModel.PROP_AUTHORITY_NAME);
+            }
+            else if (dictionaryService.isSubClass(type, ContentModel.TYPE_PERSON))
+            {
+                name = (String) nodeService.getProperty(authorityRef, ContentModel.PROP_USERNAME);
+            }
+        }
+        return name;
+    }
+
+        @Override
     public void changeAuthorityRole(final String authorityName,
                                     final String fromRole,
                                     final String toRole,

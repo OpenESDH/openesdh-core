@@ -3,6 +3,7 @@ package dk.openesdh.repo.services;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -63,6 +64,16 @@ public interface CaseService {
     public void addAuthorityToRole(String authorityName,
                             String role,
                             NodeRef caseNodeRef);
+
+    /**
+     * Add the list of authorities to the given role group on the case.
+     * @param authorities
+     * @param role
+     * @param caseNodeRef
+     */
+    public void addAuthoritiesToRole(List<NodeRef> authorities,
+                              String role,
+                              NodeRef caseNodeRef);
 
     /**
      * Moves an authority from one role to another on a case.
