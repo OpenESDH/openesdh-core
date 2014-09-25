@@ -17,6 +17,7 @@ import org.alfresco.repo.model.Repository;
 import org.alfresco.service.namespace.DynamicNamespacePrefixResolver;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
+import org.alfresco.service.transaction.TransactionService;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,8 +62,8 @@ public class CaseServiceImplTest {
     protected Repository repositoryHelper;
 
     @Autowired
-    @Qualifier("retryingTransactionHelper")
-    protected RetryingTransactionHelper retryingTransactionHelper;
+    @Qualifier("TransactionService")
+    protected TransactionService transactionService;
 
     @Autowired
     @Qualifier("TestCaseHelper")
@@ -85,6 +86,7 @@ public class CaseServiceImplTest {
         caseService.setAuthorityService(authorityService);
         caseService.setPermissionService(permissionService);
         caseService.setRepositoryHelper(repositoryHelper);
+        caseService.setTransactionService(transactionService);
 
         namespacePrefixResolver.registerNamespace(NamespaceService.APP_MODEL_PREFIX, NamespaceService.APP_MODEL_1_0_URI);
         namespacePrefixResolver.registerNamespace(OpenESDHModel.CASE_PREFIX, OpenESDHModel.CASE_URI);
@@ -197,7 +199,7 @@ public class CaseServiceImplTest {
 
         // Hack to see if 'admin' was added to the ownergroup. The exception means it already exists, and all is well
         try {
-            authorityService.addAuthority(groupName, "admin");
+            authorityService.addAuthority(groupName, ADMIN_USER_NAME);
             assertNotNull("Owner was not added to correct owner group", null);
         }
         catch (Exception e) {
@@ -255,11 +257,57 @@ public class CaseServiceImplTest {
 
 
     @Test
-    public void testGetMembersByRoles() throws Exception {
+    public void testAddRemoveAuthorityRole() throws Exception {
         caseService.setupPermissionGroups(temporaryCaseNodeRef,
                 caseService.getCaseId(temporaryCaseNodeRef));
+        caseService.removeAuthorityFromRole(ADMIN_USER_NAME, "CaseSimpleReader",
+                temporaryCaseNodeRef);
+        caseService.addAuthorityToRole(ADMIN_USER_NAME, "CaseSimpleReader",
+                temporaryCaseNodeRef);
         Map<String, Set<String>> membersByRoles = caseService.getMembersByRole(temporaryCaseNodeRef);
-        assertTrue(membersByRoles.get("CaseOwners").contains("admin"));
+        assertTrue(membersByRoles.get("CaseSimpleReader").contains(ADMIN_USER_NAME));
+
+        caseService.removeAuthorityFromRole(ADMIN_USER_NAME, "CaseSimpleReader",
+                temporaryCaseNodeRef);
+        membersByRoles = caseService.getMembersByRole(temporaryCaseNodeRef);
+        assertFalse(membersByRoles.get("CaseSimpleReader").contains
+                (ADMIN_USER_NAME));
+    }
+
+    @Test
+    public void testChangeAuthorityRole() throws Exception {
+        caseService.setupPermissionGroups(temporaryCaseNodeRef,
+                caseService.getCaseId(temporaryCaseNodeRef));
+        caseService.removeAuthorityFromRole(ADMIN_USER_NAME, "CaseSimpleReader",
+                temporaryCaseNodeRef);
+        caseService.removeAuthorityFromRole(ADMIN_USER_NAME,
+                "CaseSimpleWriter",
+                temporaryCaseNodeRef);
+        caseService.addAuthorityToRole(ADMIN_USER_NAME,
+                "CaseSimpleReader", temporaryCaseNodeRef);
+        caseService.changeAuthorityRole(ADMIN_USER_NAME,
+                "CaseSimpleReader", "CaseSimpleWriter", temporaryCaseNodeRef);
+        Map<String, Set<String>> membersByRoles = caseService.getMembersByRole(temporaryCaseNodeRef);
+        assertFalse(membersByRoles.get("CaseSimpleReader").contains(ADMIN_USER_NAME));
+        assertTrue(membersByRoles.get("CaseSimpleWriter").contains(ADMIN_USER_NAME));
+        caseService.removeAuthorityFromRole(ADMIN_USER_NAME,
+                "CaseSimpleWriter", temporaryCaseNodeRef);
+    }
+
+    @Test
+    public void testGetMembersByRole() throws Exception {
+        caseService.setupPermissionGroups(temporaryCaseNodeRef,
+                caseService.getCaseId(temporaryCaseNodeRef));
+        caseService.removeAuthorityFromRole(ADMIN_USER_NAME,
+                "CaseSimpleReader", temporaryCaseNodeRef);
+        caseService.addAuthorityToRole(ADMIN_USER_NAME,
+                "CaseSimpleReader", temporaryCaseNodeRef);
+        Map<String, Set<String>> membersByRole = caseService.getMembersByRole(temporaryCaseNodeRef);
+        assertTrue(membersByRole.get("CaseSimpleReader").contains(ADMIN_USER_NAME));
+        caseService.removeAuthorityFromRole(ADMIN_USER_NAME,
+                "CaseSimpleReader", temporaryCaseNodeRef);
+        membersByRole = caseService.getMembersByRole(temporaryCaseNodeRef);
+        assertFalse(membersByRole.get("CaseSimpleReader").contains(ADMIN_USER_NAME));
     }
 
     @Test

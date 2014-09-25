@@ -5,7 +5,7 @@
 function getNewCaseFolderNodeRef () {
 
     var connector = remote.connect("alfresco");
-    var companyHome = connector.get("/api/nodelocator/companyhome");
+    var companyHome = connector.get("/api/nodelocator/userhome");
 
     companyHome = eval('(' + companyHome + ')');
     companyHome = companyHome["data"];

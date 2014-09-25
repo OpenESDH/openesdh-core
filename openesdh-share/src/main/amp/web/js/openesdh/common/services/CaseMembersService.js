@@ -19,32 +19,48 @@ define(["dojo/_base/declare",
 
             _loadCaseMembers: function () {
                 // Get members from webscript
-                var url = Alfresco.constants.PROXY_URI + "api/openesdh/casemembers?nodeRef=" + this.nodeRef;
                 this.serviceXhr({
-                    url: url,
+                    url: Alfresco.constants.PROXY_URI + "api/openesdh/casemembers",
+                    query: {
+                        nodeRef: this.nodeRef
+                    },
                     method: "GET",
-                    successCallback: this._onSuccessCallback,
+                    successCallback: function (response, config) {
+                        this.alfPublish(this.CaseMembersTopic, {members: response});
+                    },
                     callbackScope: this
                 });
             },
 
-            _onSuccessCallback: function (response, config) {
-//                [
-//                    {authorityType: "user", "authority": "admin", "authorityName": "Administrator", role: "casesimplewriter"},
-//                    {authorityType: "user", "authority": "abeecher", "authorityName": "Alice Beecher", role: "casesimplereader"}
-//                ]
-                console.log(response);
-                this.alfPublish(this.CaseMembersTopic, {members: response});
-            },
-
             _onCaseMemberChangeRole: function (payload) {
-                // TODO
                 this.alfLog("debug", "Change", payload.authority, "from role", payload.oldRole, "to role", payload.newRole);
+                this.serviceXhr({
+                    url: Alfresco.constants.PROXY_URI + "api/openesdh/casemembers",
+                    method: "POST",
+                    query: {
+                        nodeRef: this.nodeRef,
+                        authority: payload.authority,
+                        fromRole: payload.oldRole,
+                        role: payload.newRole
+                    },
+                    successCallback: payload.successCallback,
+                    failureCallback: payload.failureCallback
+                });
             },
 
             _onCaseMemberRemoveRole: function (payload) {
-                // TODO
-                this.alfLog("debug", "Remove", payload.authority, "from role", payload.authorityRole);
+                this.alfLog("debug", "Remove", payload.authority, "from role", payload.role);
+                this.serviceXhr({
+                    url: Alfresco.constants.PROXY_URI + "api/openesdh/casemembers",
+                    method: "DELETE",
+                    query: {
+                        nodeRef: this.nodeRef,
+                        authority: payload.authority,
+                        role: payload.role
+                    },
+                    successCallback: payload.successCallback,
+                    failureCallback: payload.failureCallback
+                });
             }
         });
     });

@@ -1,13 +1,16 @@
 package dk.openesdh.repo.webscripts.cases;
 
 import dk.openesdh.repo.services.CaseService;
+import org.alfresco.service.cmr.repository.DuplicateChildNodeNameException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.AuthorityService;
+import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.extensions.webscripts.AbstractWebScript;
+import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
@@ -32,14 +35,58 @@ public class CaseMembers extends AbstractWebScript {
 
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
-        NodeRef caseNodeRef = new NodeRef(req.getParameter("nodeRef"));
-        Map<String, Set<String>> membersByRole = caseService.getMembersByRole(caseNodeRef);
+        String method = req.getServiceMatch().getWebScript().getDescription()
+                .getMethod();
         try {
-            JSONArray json = buildJSON(membersByRole);
-            json.write(res.getWriter());
+            if (method.equals("GET")) {
+                get(req, res);
+            } else if (method.equals("POST")) {
+                post(req, res);
+            } else if (method.equals("DELETE")) {
+                delete(req, res);
+            }
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    private void get(WebScriptRequest req, WebScriptResponse res) throws
+            IOException, JSONException {
+        NodeRef caseNodeRef = new NodeRef(req.getParameter("nodeRef"));
+        Map<String, Set<String>> membersByRole = caseService.getMembersByRole(caseNodeRef);
+        JSONArray json = buildJSON(membersByRole);
+        json.write(res.getWriter());
+    }
+
+    private void post(WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
+        JSONObject json = new JSONObject();
+        NodeRef caseNodeRef = new NodeRef(req.getParameter("nodeRef"));
+        String authority = req.getParameter("authority");
+        String role = req.getParameter("role");
+        String fromRole = req.getParameter("fromRole");
+        try {
+            if (fromRole != null) {
+                // When "fromRole" is specified, move the authority
+                caseService.changeAuthorityRole(authority, fromRole, role, caseNodeRef);
+            } else {
+                caseService.addAuthorityToRole(authority, role, caseNodeRef);
+            }
+        } catch (DuplicateChildNodeNameException e) {
+            json.put("duplicate", true);
+            res.setStatus(Status.STATUS_CONFLICT);
+        }
+
+        json.write(res.getWriter());
+    }
+
+    private void delete(WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
+        NodeRef caseNodeRef = new NodeRef(req.getParameter("nodeRef"));
+        String authority = req.getParameter("authority");
+        String role = req.getParameter("role");
+        caseService.removeAuthorityFromRole(authority, role, caseNodeRef);
+        JSONObject json = new JSONObject();
+        json.put("success", true);
+        json.write(res.getWriter());
     }
 
     JSONArray buildJSON(Map<String, Set<String>> membersByRole) throws
@@ -56,10 +103,15 @@ public class CaseMembers extends AbstractWebScript {
                 memberObj.put("authorityType", authority.startsWith("GROUP") ?
                         "group" : "user");
                 memberObj.put("authority", authority);
-                memberObj.put("authorityName", authorityService.getAuthorityDisplayName(authority));
+                // TODO: Output displayName
+//                PersonService p;
+//                p.getPerson(new NodeRef()).getFirstName();
+                memberObj.put("authorityName", authorityService
+                        .getAuthorityDisplayName(authority));
                 memberObj.put("role", entry.getKey());
                 result.put(memberObj);
             }
+
         }
 
         return result;

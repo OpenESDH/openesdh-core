@@ -35,21 +35,23 @@ define(["dojo/_base/declare",
             _onCaseMembers: function (payload) {
                 var _this = this;
 
-                array.forEach(payload.members, function (member) {
-                    var memberRoleWidget = {
-                        name: "openesdh/pages/case/members/MemberRoleWidget",
-                        config: {
-                            authorityType: member.authorityType,
-                            authority: member.authority,
-                            authorityName: member.authorityName,
-                            authorityRole: member.role,
-                            roleTypes: _this.roleTypes
-                        }
-                    };
-                    _this.widgets.push(memberRoleWidget);
+                array.forEach(this.widgets, function (widget, i) {
+                    widget.destroyRecursive();
                 });
 
-                this.processWidgets(this.widgets, this.containerNode);
+                this.widgets = [];
+
+                array.forEach(payload.members, function (member) {
+                    var memberRoleWidget = new MemberRoleWidget({
+                        authorityType: member.authorityType,
+                        authority: member.authority,
+                        authorityName: member.authorityName,
+                        authorityRole: member.role,
+                        roleTypes: _this.roleTypes
+                    });
+                    _this.widgets.push(memberRoleWidget);
+                    memberRoleWidget.placeAt(_this.containerNode);
+                });
             }
         });
     });

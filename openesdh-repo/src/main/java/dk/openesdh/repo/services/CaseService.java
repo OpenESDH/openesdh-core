@@ -45,6 +45,38 @@ public interface CaseService {
     public String getCaseId(NodeRef caseNodeRef);
 
     /**
+     * Remove the authority from the given role group on the case.
+     * @param authorityName
+     * @param role
+     * @param caseNodeRef
+     */
+    public void removeAuthorityFromRole(String authorityName,
+                                 String role,
+                                 NodeRef caseNodeRef);
+
+    /**
+     * Add the authority to the given role group on the case.
+     * @param authorityName
+     * @param role
+     * @param caseNodeRef
+     */
+    public void addAuthorityToRole(String authorityName,
+                            String role,
+                            NodeRef caseNodeRef);
+
+    /**
+     * Moves an authority from one role to another on a case.
+     * @param authorityName
+     * @param fromRole
+     * @param toRole
+     * @param caseNodeRef
+     */
+    public void changeAuthorityRole(String authorityName,
+                             String fromRole,
+                             String toRole,
+                             NodeRef caseNodeRef);
+
+    /**
      * Create a case
      *
      * @param childAssociationRef

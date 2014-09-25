@@ -1,14 +1,24 @@
 .member-role {
     width: 100%;
-    margin-bottom: 1em;
+    margin-top: .5em;
+}
+
+.member-role:first-child {
+    margin-top: 0;
 }
 
 .member-role div {
     display: inline-block;
+    vertical-align: middle;
 }
 
-.member-role .authority-name {
-    width: 20%;
+.member-role .authority {
+    width: 70%;
+}
+
+.member-role .authority .authority-picture {
+    margin-right: 1.5em;
+    vertical-align: middle;
 }
 
 .member-role .role-select {
@@ -16,5 +26,5 @@
 }
 
 .member-role .remove-button {
-    width: 10em;
+    width: 5em;
 }
