@@ -28,7 +28,18 @@ define(["dojo/_base/declare",
             },
 
             _onSuccessCallback: function (response, config) {
-                this.alfPublish(this.CaseInfoTopic, response);
+
+                var domReadyFunction = (function (scope) {
+                    return function () {
+                        scope.alfPublish(scope.CaseInfoTopic, response);
+                        scope.alfPublish("ALF_UPDATE_PAGE_TITLE", {title: response["cm:title"].value});
+                    }
+                })(this);
+
+                require(["dojo/ready"], function(ready) {
+                    // will not be called until DOM is ready
+                    ready(domReadyFunction);
+                });
             }
         });
     });

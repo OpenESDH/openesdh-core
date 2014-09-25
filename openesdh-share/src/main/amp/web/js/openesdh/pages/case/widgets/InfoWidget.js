@@ -59,6 +59,7 @@ define(["dojo/_base/declare",
 
                 this.processWidgets(this.widgetsForBody, this.bodyNode);
             }
+
         });
     })
 ;

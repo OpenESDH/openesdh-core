@@ -1,10 +1,10 @@
-var title = widgetUtils.findObject(model.jsonModel, "id", "HEADER_TITLE");
-title.config.label = "header.title";
-
+//var title = widgetUtils.findObject(model.jsonModel, "id", "HEADER_TITLE");
+//title.config.label = "header.title";
 
 var args = page.url.args;
 
 var navMenu = widgetUtils.findObject(model.jsonModel, "id", "HEADER_NAVIGATION_MENU_BAR");
+
 
 navMenu.config.widgets.push({
     id: "HEADER_CASE_MEMBERS",
