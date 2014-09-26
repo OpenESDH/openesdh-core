@@ -1,15 +1,23 @@
 <alfresco-config>
 
-    <!--
-      <config evaluator="string-compare" condition="WebFramework">
+      <!--config evaluator="string-compare" condition="WebFramework">
            <web-framework>
                <autowire>
                    <mode>development</mode>
                </autowire>
            </web-framework>
-       </config>
--->s
+       </config-->
 
+
+    <config evaluator="string-compare" condition="DocumentLibrary">
+        <aspects>
+            <!-- Aspects that a user can see -->
+            <visible>
+                <aspect name="case:journalized" />
+            </visible>
+        </aspects>
+
+    </config>
 
 
 
