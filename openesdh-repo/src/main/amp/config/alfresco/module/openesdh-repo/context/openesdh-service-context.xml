@@ -25,6 +25,10 @@
         <property name="transactionService">
             <ref bean="TransactionService"/>
         </property>
+
+        <property name="dictionaryService">
+            <ref bean="DictionaryService"/>
+        </property>
     </bean>
 
     <bean id="NodeInfoService" class="dk.openesdh.repo.services.NodeInfoServiceImpl">

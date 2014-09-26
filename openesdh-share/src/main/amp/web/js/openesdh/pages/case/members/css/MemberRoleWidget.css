@@ -7,24 +7,29 @@
     margin-top: 0;
 }
 
-.member-role div {
+.member-role > div {
     display: inline-block;
     vertical-align: middle;
 }
 
-.member-role .authority {
-    width: 70%;
+
+.member-role .authority-picture {
+    margin-right: 1.5em;
 }
 
-.member-role .authority .authority-picture {
-    margin-right: 1.5em;
-    vertical-align: middle;
+.member-role .authority-name {
+    width: 60%;
 }
 
 .member-role .role-select {
-    width: 10em;
 }
 
 .member-role .remove-button {
-    width: 5em;
+    margin-left: 1em;
+    width: 10em;
+}
+
+.role-select .alfresco-forms-controls-BaseFormControl,
+.role-select .alfresco-forms-controls-BaseFormControl > .clear-both {
+    margin-bottom: 0;
 }

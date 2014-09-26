@@ -10,6 +10,14 @@ model.jsonModel = {
                         config: {
                             title: "Hej"
                         }
+                    },
+                    {
+                        name: "openesdh/common/widgets/renderers/DateField",
+                        config: {
+                            currentItem: {"cm:modified": new Date("3214232542432"), "cm:modifier": "admin"},
+                            propertyToRender: "cm:modified",
+                            renderOnNewLine: true
+                        }
                     }
                 ]
             }
@@ -17,7 +25,7 @@ model.jsonModel = {
     ],
     services: [
         {
-            name: "openesdh/pages/case/widgets/InfoWidgetService",
+            name: "openesdh/pages/case/widgets/DashboardService",
             config: {
                 nodeRef: page.url.args.nodeRef
 

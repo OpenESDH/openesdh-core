@@ -12,6 +12,7 @@ define(["dojo/_base/declare",
 
             constructor: function (args) {
                 lang.mixin(this, args);
+                this.alfSubscribe(this.CaseMembersAddToRoleTopic, lang.hitch(this, "_onCaseMemberAddToRole"));
                 this.alfSubscribe(this.CaseMembersChangeRoleTopic, lang.hitch(this, "_onCaseMemberChangeRole"));
                 this.alfSubscribe(this.CaseMembersRemoveRoleTopic, lang.hitch(this, "_onCaseMemberRemoveRole"));
                 this.alfSubscribe(this.CaseMembersGet, lang.hitch(this, "_loadCaseMembers"));
@@ -25,10 +26,28 @@ define(["dojo/_base/declare",
                         nodeRef: this.nodeRef
                     },
                     method: "GET",
+                    handleAs: "json",
                     successCallback: function (response, config) {
                         this.alfPublish(this.CaseMembersTopic, {members: response});
                     },
                     callbackScope: this
+                });
+            },
+
+            _onCaseMemberAddToRole: function (payload) {
+                this.alfLog("debug", "Add", payload.authorityNodeRefs, "to role", payload.role);
+                this.serviceXhr({
+                    url: Alfresco.constants.PROXY_URI + "api/openesdh/casemembers",
+                    method: "POST",
+                    handleAs: "json",
+                    data: {},
+                    query: {
+                        nodeRef: this.nodeRef,
+                        authorityNodeRefs: payload.authorityNodeRefs,
+                        role: payload.role
+                    },
+                    successCallback: payload.successCallback,
+                    failureCallback: payload.failureCallback
                 });
             },
 
@@ -37,6 +56,8 @@ define(["dojo/_base/declare",
                 this.serviceXhr({
                     url: Alfresco.constants.PROXY_URI + "api/openesdh/casemembers",
                     method: "POST",
+                    handleAs: "json",
+                    data: {},
                     query: {
                         nodeRef: this.nodeRef,
                         authority: payload.authority,
@@ -53,6 +74,7 @@ define(["dojo/_base/declare",
                 this.serviceXhr({
                     url: Alfresco.constants.PROXY_URI + "api/openesdh/casemembers",
                     method: "DELETE",
+                    handleAs: "json",
                     query: {
                         nodeRef: this.nodeRef,
                         authority: payload.authority,
