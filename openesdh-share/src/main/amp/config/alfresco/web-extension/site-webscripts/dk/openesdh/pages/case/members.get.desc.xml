@@ -2,5 +2,5 @@
     <shortname>Page for editing case members</shortname>
     <description>Page for editing case members, showing users and groups with roles on the case.</description>
     <family>Share</family>
-    <url>/dk-openesdh-pages-case-members?nodeRef={nodeRef}</url>
+    <url>/dk-openesdh-pages-case-dashboard-members?nodeRef={nodeRef}</url>
 </webscript>

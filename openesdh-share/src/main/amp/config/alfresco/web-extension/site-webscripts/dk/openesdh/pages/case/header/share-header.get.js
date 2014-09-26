@@ -14,7 +14,7 @@ navMenu.config.widgets.push({
         iconClass: "alf-user-icon",
         iconAltText: "header.menu.members.altText",
         title: "header.menu.members.altText",
-        targetUrl: "/members"
+        targetUrl: "hdp/ws/dk-openesdh-pages-case-dashboard-members?nodeRef=" + args.nodeRef
     }
 });
 

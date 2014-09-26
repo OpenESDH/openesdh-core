@@ -1,11 +1,12 @@
 <div class="member-role">
-    <div class="authority">
-        <img class="authority-picture"
-             src=""
+    <div class="authority-picture">
+        <img src=""
              data-dojo-attach-point="authorityPictureNode"/>
-        <div class="authority-name">
-            <a data-dojo-attach-point="authorityNameNode">${authorityName}</a>
-        </div>
+    </div>
+    <div class="authority-name">
+        <a data-dojo-attach-point="authorityDisplayNameNode">${displayName}</a>
+        <span class="lighter authority-username"
+              data-dojo-attach-point="authorityUserNameNode">(${authority})</span>
     </div>
     <div data-dojo-attach-point="roleNode" class="role-select"></div>
     <div data-dojo-attach-point="removeButtonNode" class="remove-button"></div>

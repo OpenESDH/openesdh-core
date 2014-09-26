@@ -19,6 +19,7 @@ public class Pages {
     public static CreateCasePage CreateCase;
     public static EditCasePage EditCase;
     public static CaseDashboardPage CaseDashboard;
+    public static CaseMembersPage CaseMembers;
 
     /**
      * helper method to initElements on a page
@@ -45,5 +46,6 @@ public class Pages {
         CreateCase = (CreateCasePage) initializePage(new CreateCasePage());
         EditCase = (EditCasePage) initializePage(new EditCasePage());
         CaseDashboard = (CaseDashboardPage) initializePage(new CaseDashboardPage());
+        CaseMembers = (CaseMembersPage) initializePage(new CaseMembersPage());
     }
 }

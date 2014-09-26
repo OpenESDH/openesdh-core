@@ -32,6 +32,7 @@
           parent="webscript">
         <property name="caseService" ref="CaseService"/>
         <property name="authorityService" ref="AuthorityService"/>
+        <property name="personService" ref="PersonService"/>
     </bean>
     <bean id="webscript.dk.openesdh.casemembers.get"
           parent="caseMemberWebscript">
@@ -54,6 +55,12 @@
         <property name="namespaceService">
             <ref bean="namespaceService"/>
         </property>
+    </bean>
+
+    <bean id="webscript.dk.openesdh.authorities.get"
+          class="dk.openesdh.repo.webscripts.Authorities"
+          parent="webscript">
+        <property name="authorityService" ref="AuthorityService"/>
     </bean>
 
     <bean id="extendPermissionModel" parent="permissionModelBootstrap">

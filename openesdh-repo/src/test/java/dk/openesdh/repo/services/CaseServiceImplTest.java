@@ -7,6 +7,7 @@ import dk.openesdh.repo.model.OpenESDHModel;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
+import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.search.SearchService;
@@ -66,6 +67,10 @@ public class CaseServiceImplTest {
     protected TransactionService transactionService;
 
     @Autowired
+    @Qualifier("DictionaryService")
+    protected DictionaryService dictionaryService;
+
+    @Autowired
     @Qualifier("TestCaseHelper")
     protected CaseHelper caseHelper;
 
@@ -87,6 +92,7 @@ public class CaseServiceImplTest {
         caseService.setPermissionService(permissionService);
         caseService.setRepositoryHelper(repositoryHelper);
         caseService.setTransactionService(transactionService);
+        caseService.setDictionaryService(dictionaryService);
 
         namespacePrefixResolver.registerNamespace(NamespaceService.APP_MODEL_PREFIX, NamespaceService.APP_MODEL_1_0_URI);
         namespacePrefixResolver.registerNamespace(OpenESDHModel.CASE_PREFIX, OpenESDHModel.CASE_URI);
@@ -272,6 +278,27 @@ public class CaseServiceImplTest {
         membersByRoles = caseService.getMembersByRole(temporaryCaseNodeRef);
         assertFalse(membersByRoles.get("CaseSimpleReader").contains
                 (ADMIN_USER_NAME));
+    }
+
+
+    @Test
+    public void testAddAuthoritiesToRole() throws Exception {
+        caseService.setupPermissionGroups(temporaryCaseNodeRef,
+                caseService.getCaseId(temporaryCaseNodeRef));
+
+        caseService.removeAuthorityFromRole(ADMIN_USER_NAME, "CaseSimpleReader",
+                temporaryCaseNodeRef);
+
+        NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef(ADMIN_USER_NAME);
+        List<NodeRef> authorities = new LinkedList<>();
+        authorities.add(authorityNodeRef);
+        caseService.addAuthoritiesToRole(authorities, "CaseSimpleReader",
+                temporaryCaseNodeRef);
+        Map<String, Set<String>> membersByRoles = caseService.getMembersByRole(temporaryCaseNodeRef);
+        assertTrue(membersByRoles.get("CaseSimpleReader").contains
+                (ADMIN_USER_NAME));
+        caseService.removeAuthorityFromRole(ADMIN_USER_NAME, "CaseSimpleReader",
+                temporaryCaseNodeRef);
     }
 
     @Test

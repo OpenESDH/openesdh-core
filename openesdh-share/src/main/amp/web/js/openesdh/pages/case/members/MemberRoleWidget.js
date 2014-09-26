@@ -10,10 +10,11 @@ define(["dojo/_base/declare",
         "openesdh/common/services/_CaseMembersServiceTopicsMixin",
         "dijit/form/Select",
         "alfresco/buttons/AlfButton",
-        "alfresco/core/NotificationUtils"
+        "alfresco/core/NotificationUtils",
+        "alfresco/core/UrlUtils"
     ],
-    function (declare, _Widget, Core, CoreWidgetProcessing, _Templated, template, lang, array, domAttr, _CaseMembersServiceTopicsMixin, Select, AlfButton, NotificationUtils) {
-        return declare([_Widget, Core, CoreWidgetProcessing, _Templated, _CaseMembersServiceTopicsMixin, NotificationUtils], {
+    function (declare, _Widget, Core, CoreWidgetProcessing, _Templated, template, lang, array, domAttr, _CaseMembersServiceTopicsMixin, Select, AlfButton, NotificationUtils, UrlUtils) {
+        return declare([_Widget, Core, CoreWidgetProcessing, _Templated, _CaseMembersServiceTopicsMixin, NotificationUtils, UrlUtils], {
             templateString: template,
 
             cssRequirements: [
@@ -41,7 +42,7 @@ define(["dojo/_base/declare",
              * The display name of the authority.
              * @type {string}
              */
-            authorityName: "",
+            displayName: "",
 
             /**
              * The role associated with the authority.
@@ -63,7 +64,6 @@ define(["dojo/_base/declare",
 
                 var photoUrl;
                 var alt;
-                // TODO: Use Torben's User widget
                 if (this.authorityType == "user") {
                     photoUrl = Alfresco.constants.URL_CONTEXT + "res/components/images/no-user-photo-64.png";
                     alt = "avatar";
@@ -75,8 +75,9 @@ define(["dojo/_base/declare",
                 domAttr.set(this.authorityPictureNode, "alt", alt);
 
                 if (this.authorityType == "user") {
-                    var authorityUrl = Alfresco.constants.URL_PAGECONTEXT + "user/" + this.authority + "/profile";
-                    domAttr.set(this.authorityNameNode, "href", authorityUrl);
+                    domAttr.set(this.authorityDisplayNameNode, "innerHTML", this.userProfileLink(this.authority, this.displayName));
+                } else {
+                    domAttr.set(this.authorityUserNameNode, "innerHTML", "");
                 }
 
                 var options = array.map(this.roleTypes, function (roleType) {
@@ -100,9 +101,9 @@ define(["dojo/_base/declare",
                 var newRole = this.roleSelectWidget.get("value");
                 var oldRole = this.authorityRole;
 
-                var textResult = this.message('case-members.' + this.authorityType + '-change-role-success', [this.authorityName, this._getRoleName(newRole)]);
-                var textError = this.message('case-members.' + this.authorityType + '-change-role-failure', [this.authorityName]);
-                var textAlreadyAssigned = this.message('case-members.' + this.authorityType + '-change-role-already-assigned', [this.authorityName]);
+                var textResult = this.message('case-members.' + this.authorityType + '-change-role-success', [this.displayName, this._getRoleName(newRole)]);
+                var textError = this.message('case-members.' + this.authorityType + '-change-role-failure', [this.displayName]);
+                var textAlreadyAssigned = this.message('case-members.' + this.authorityType + '-change-role-already-assigned', [this.displayName]);
 
                 this.alfPublish(this.CaseMembersChangeRoleTopic,
                     {
@@ -116,9 +117,7 @@ define(["dojo/_base/declare",
                         },
                         failureCallback: function (response, config) {
                             // Handle different reasons for failure
-                            // HACK: We don't get a JSON object back for some reason,
-                            // so just find the word "duplicate" in the response
-                            if (response.response.data.indexOf("duplicate") != -1) {
+                            if ("duplicate" in response.response.data) {
                                 _this.displayMessage(textAlreadyAssigned);
                             } else {
                                 _this.displayMessage(textError);
@@ -145,13 +144,13 @@ define(["dojo/_base/declare",
                 var text = this.message(
                         "case-members." + this.authorityType + "-remove",
                     [
-                        this.authorityName,
+                        this.displayName,
                         this._getRoleName(this.authorityRole)
                     ]
                 );
                 if (confirm(text)) {
-                    var textResult = this.message('case-members.' + this.authorityType + '-remove-success', [this.authorityName]);
-                    var textError = this.message('case-members.' + this.authorityType + '-remove-failure', [this.authorityName]);
+                    var textResult = this.message('case-members.' + this.authorityType + '-remove-success', [this.displayName]);
+                    var textError = this.message('case-members.' + this.authorityType + '-remove-failure', [this.displayName]);
 
                     this.alfPublish(this.CaseMembersRemoveRoleTopic,
                         {
@@ -160,7 +159,7 @@ define(["dojo/_base/declare",
                             successCallback: function () {
                                 _this.displayMessage(textResult);
                                 // Reload the members list
-                                _this.alfPublish(_this.CaseMembersGet);
+                                _this.alfPublish(_this.CaseMembersGet, {});
                             },
                             failureCallback: function () {
                                 _this.displayMessage(textError);

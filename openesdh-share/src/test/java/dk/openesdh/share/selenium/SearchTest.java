@@ -25,12 +25,6 @@ public class SearchTest {
 
     String testCaseNodeRef;
 
-    /**
-     * Headermenu item "Cases"
-     */
-    @FindBy(id = "HEADER_CASES_DROPDOWN_text")
-    protected WebElement headerCaseMenu;
-
     @BeforeClass
     public static void setUpBeforeClass() {
         Browser.initialize();

@@ -3,6 +3,7 @@ define(["dojo/_base/declare"],
         return declare(null, {
             CaseMembersTopic: "CASE_MEMBERS",
             CaseMembersGet: "CASE_MEMBERS_GET",
+            CaseMembersAddToRoleTopic: "CASE_MEMBERS_ADD_TO_ROLE",
             CaseMembersChangeRoleTopic: "CASE_MEMBERS_CHANGE_ROLE",
             CaseMembersRemoveRoleTopic: "CASE_MEMBERS_REMOVE_ROLE"
         });
