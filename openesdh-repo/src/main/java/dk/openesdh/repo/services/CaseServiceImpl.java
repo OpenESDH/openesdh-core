@@ -16,6 +16,7 @@ import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.io.Serializable;
 import java.text.DateFormat;
@@ -117,10 +118,10 @@ public class CaseServiceImpl implements CaseService {
         // GROUP_EVERYONE set to Consumer, which we do not want)
         permissionService.setInheritParentPermissions(caseNodeRef, false);
 
-        setupPermissionGroups(caseNodeRef, caseId);
         String ownersPermissionGroupName = setupPermissionGroup(caseNodeRef,
                 caseId, "CaseOwners");
         addOwnersToPermissionGroup(caseNodeRef, ownersPermissionGroupName);
+        setupPermissionGroups(caseNodeRef, caseId);
     }
 
     void addOwnersToPermissionGroup(NodeRef caseNodeRef, String groupName) {
@@ -185,77 +186,126 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public void removeAuthorityFromRole(String authorityName,
-                                        String role,
-                                        NodeRef caseNodeRef) {
-        String caseId = getCaseId(caseNodeRef);
-        String groupName = getCaseRoleGroupName(caseId, role);
-        authorityService.removeAuthority(groupName, authorityName);
+    public void removeAuthorityFromRole(final String authorityName,
+                                        final String role,
+                                        final NodeRef caseNodeRef) {
+        checkCanUpdateCaseRoles(caseNodeRef);
+
+        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Object>() {
+            @Override
+            public Object doWork() throws Exception {
+                String caseId = getCaseId(caseNodeRef);
+                String groupName = getCaseRoleGroupName(caseId, role);
+                authorityService.removeAuthority(groupName, authorityName);
+                return null;
+            }
+        }, "admin");
     }
 
     @Override
-    public void addAuthorityToRole(String authorityName,
-                                   String role,
-                                   NodeRef caseNodeRef) {
-        String caseId = getCaseId(caseNodeRef);
-        String groupName = getCaseRoleGroupName(caseId, role);
-        authorityService.addAuthority(groupName, authorityName);
+    public void addAuthorityToRole(final String authorityName,
+                                   final String role,
+                                   final NodeRef caseNodeRef) {
+        checkCanUpdateCaseRoles(caseNodeRef);
+
+        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Object>() {
+            @Override
+            public Object doWork() throws Exception {
+                String caseId = getCaseId(caseNodeRef);
+                String groupName = getCaseRoleGroupName(caseId, role);
+                authorityService.addAuthority(groupName, authorityName);
+                return null;
+            }
+        }, "admin");
     }
 
     @Override
     public void addAuthoritiesToRole(final List<NodeRef> authorities,
-                                   String role,
-                                   NodeRef caseNodeRef) {
-        String caseId = getCaseId(caseNodeRef);
-        final String groupName = getCaseRoleGroupName(caseId, role);
-        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper
-                .RetryingTransactionCallback<Object>() {
+                                     final String role,
+                                     final NodeRef caseNodeRef) {
+        checkCanUpdateCaseRoles(caseNodeRef);
+
+        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Object>() {
             @Override
-            public Object execute() throws Throwable {
-                for (NodeRef authorityNodeRef : authorities) {
-                    String authority = getAuthorityName(authorityNodeRef);
-                    authorityService.addAuthority(groupName, authority);
-                }
+            public Object doWork() throws Exception {
+                String caseId = getCaseId(caseNodeRef);
+                final String groupName = getCaseRoleGroupName(caseId, role);
+                transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper
+                        .RetryingTransactionCallback<Object>() {
+                    @Override
+                    public Object execute() throws Throwable {
+                        for (NodeRef authorityNodeRef : authorities) {
+                            String authority = getAuthorityName(authorityNodeRef);
+                            authorityService.addAuthority(groupName, authority);
+                        }
+                        return null;
+                    }
+                });
                 return null;
             }
-        });
+        }, "admin");
     }
 
-    // Copied (almost directly) from AuthorityDAOImpl because it is not exposed
-    // in the AuthorityService public API
-    protected String getAuthorityName(NodeRef authorityRef)
-    {
-        String name = null;
-        if (nodeService.exists(authorityRef))
-        {
-            QName type = nodeService.getType(authorityRef);
-            if (dictionaryService.isSubClass(type, ContentModel.TYPE_AUTHORITY_CONTAINER))
-            {
-                name = (String) nodeService.getProperty(authorityRef, ContentModel.PROP_AUTHORITY_NAME);
-            }
-            else if (dictionaryService.isSubClass(type, ContentModel.TYPE_PERSON))
-            {
-                name = (String) nodeService.getProperty(authorityRef, ContentModel.PROP_USERNAME);
-            }
-        }
-        return name;
-    }
-
-        @Override
+    @Override
     public void changeAuthorityRole(final String authorityName,
                                     final String fromRole,
                                     final String toRole,
                                     final NodeRef caseNodeRef) {
-        // Do in transaction
-        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper
-                .RetryingTransactionCallback<Object>() {
+        checkCanUpdateCaseRoles(caseNodeRef);
+
+        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Object>() {
             @Override
-            public Object execute() throws Throwable {
-                removeAuthorityFromRole(authorityName, fromRole, caseNodeRef);
-                addAuthorityToRole(authorityName, toRole, caseNodeRef);
+            public Object doWork() throws Exception {
+                // Do in transaction
+                transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper
+                        .RetryingTransactionCallback<Object>() {
+                    @Override
+                    public Object execute() throws Throwable {
+                        removeAuthorityFromRole(authorityName, fromRole, caseNodeRef);
+                        addAuthorityToRole(authorityName, toRole, caseNodeRef);
+                        return null;
+                    }
+                });
                 return null;
             }
-        });
+        }, "admin");
+    }
+
+    public void checkCanUpdateCaseRoles(NodeRef caseNodeRef) throws
+            AccessDeniedException {
+        String user = AuthenticationUtil.getFullyAuthenticatedUser();
+        if (!canUpdateCaseRoles(user, caseNodeRef)) {
+            throw new AccessDeniedException(user + " is not allowed to " +
+                    "update case roles for case " + caseNodeRef);
+        }
+    }
+
+    @Override
+    public boolean canUpdateCaseRoles(String user, NodeRef caseNodeRef) {
+        if (authorityService.isAdminAuthority(user)) {
+            return true;
+        }
+        String caseId = getCaseId(caseNodeRef);
+        // Check that the user is a case owner
+        Set<String> authorities = authorityService.getContainedAuthorities(AuthorityType
+                        .USER, getCaseRoleGroupName(caseId, "CaseOwners"),
+                false);
+        return authorities.contains(user);
+    }
+
+    // Copied (almost directly) from AuthorityDAOImpl because it is not exposed
+    // in the AuthorityService public API
+    protected String getAuthorityName(NodeRef authorityRef) {
+        String name = null;
+        if (nodeService.exists(authorityRef)) {
+            QName type = nodeService.getType(authorityRef);
+            if (dictionaryService.isSubClass(type, ContentModel.TYPE_AUTHORITY_CONTAINER)) {
+                name = (String) nodeService.getProperty(authorityRef, ContentModel.PROP_AUTHORITY_NAME);
+            } else if (dictionaryService.isSubClass(type, ContentModel.TYPE_PERSON)) {
+                name = (String) nodeService.getProperty(authorityRef, ContentModel.PROP_USERNAME);
+            }
+        }
+        return name;
     }
 
     void setupPermissionGroups(NodeRef caseNodeRef, String caseId) {
@@ -268,9 +318,9 @@ public class CaseServiceImpl implements CaseService {
     }
 
     String setupPermissionGroup(NodeRef caseNodeRef, String caseId,
-                           String permission) {
-        String groupSuffix = getCaseRoleGroupName(caseId, permission);
-        String groupName = getCaseRoleGroupAuthorityName(caseId, permission);
+                                String permission) {
+        String groupSuffix = getCaseRoleGroupAuthorityName(caseId, permission);
+        String groupName = getCaseRoleGroupName(caseId, permission);
 
         if (!authorityService.authorityExists(groupName)) {
             HashSet<String> shareZones = new HashSet<>();
@@ -283,13 +333,10 @@ public class CaseServiceImpl implements CaseService {
         }
         permissionService.setPermission(caseNodeRef, groupName, permission, true);
         NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef(groupName);
-        permissionService.deletePermissions(authorityNodeRef);
 
-        // Make sure only case owners can modify (add/remove/edit) the case
+        // TODO: Don't inherit parent permissions (GROUP_EVERYONE can read)
+        // TODO: Allow only certain roles to read case members from case
         // role groups.
-        permissionService.setPermission(authorityNodeRef,
-                getCaseRoleGroupName(caseId, "CaseOwners"),
-                "Collaborator", true);
         return groupName;
     }
 
@@ -374,6 +421,61 @@ public class CaseServiceImpl implements CaseService {
         NodeRef casesMonthNodeRef = getCasePathNodeRef(casesYearNodeRef, Calendar.MONTH);
         return getCasePathNodeRef(casesMonthNodeRef, Calendar.DATE);
     }
+
+    @Override
+    public void journalize(final NodeRef nodeRef, final NodeRef journalKey) {
+        // Run it in a transaction
+        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
+            @Override
+            public Object execute() throws Throwable {
+                journalizeImpl(nodeRef, journalKey);
+                // TODO: Set Journalized permission DENY on case role groups
+                return null;
+            }
+        });
+    }
+
+    private void journalizeImpl(NodeRef nodeRef, NodeRef journalKey) {
+        Map<QName, Serializable> props = new HashMap<>();
+        props.put(OpenESDHModel.PROP_OE_JOURNALKEY, journalKey);
+        props.put(OpenESDHModel.PROP_OE_IS_JOURNALIZED, true);
+        props.put(OpenESDHModel.PROP_OE_JOURNALIZED_BY, AuthenticationUtil.getFullyAuthenticatedUser());
+        props.put(OpenESDHModel.PROP_OE_JOURNALIZED_DATE, new Date());
+        nodeService.addAspect(nodeRef, OpenESDHModel.ASPECT_OE_JOURNALIZED, props);
+
+        permissionService.setPermission(nodeRef, PermissionService.ALL_AUTHORITIES, "Journalized", false);
+
+        List<ChildAssociationRef> childAssociationRefs = nodeService.getChildAssocs(nodeRef);
+        for (int i = 0; i < childAssociationRefs.size(); i++) {
+            ChildAssociationRef childAssociationRef = childAssociationRefs.get(i);
+            journalizeImpl(childAssociationRef.getChildRef(), journalKey);
+        }
+    }
+
+    @Override
+    public void unJournalize(final NodeRef nodeRef) {
+        // Run it in a transaction
+        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
+            @Override
+            public Object execute() throws Throwable {
+                unJournalizeImpl(nodeRef);
+                // TODO: Remove Journalized permission DENY on case role groups
+                return null;
+            }
+        });
+    }
+
+    private void unJournalizeImpl(NodeRef nodeRef) {
+        permissionService.deletePermission(nodeRef, PermissionService.ALL_AUTHORITIES, "Journalized");
+        nodeService.removeAspect(nodeRef, OpenESDHModel.ASPECT_OE_JOURNALIZED);
+
+        List<ChildAssociationRef> childAssociationRefs = nodeService.getChildAssocs(nodeRef);
+        for (int i = 0; i < childAssociationRefs.size(); i++) {
+            ChildAssociationRef childAssociationRef = childAssociationRefs.get(i);
+            unJournalizeImpl(childAssociationRef.getChildRef());
+        }
+    }
+
 
     /**
      * Get a node in the calendarbased path of the casefolders

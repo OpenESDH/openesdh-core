@@ -9,9 +9,10 @@ define(["dojo/_base/declare",
         "openesdh/common/services/_CaseMembersServiceTopicsMixin",
         "openesdh/pages/case/members/MemberRoleWidget",
         "openesdh/common/utils/AuthorityPickerUtils",
-        "alfresco/core/NotificationUtils"
+        "alfresco/core/NotificationUtils",
+        "alfresco/html/Label"
     ],
-    function (declare, _Widget, Core, CoreWidgetProcessing, _Templated, template, lang, array, _CaseMembersServiceTopicsMixin, MemberRoleWidget, AuthorityPickerUtils, NotificationUtils) {
+    function (declare, _Widget, Core, CoreWidgetProcessing, _Templated, template, lang, array, _CaseMembersServiceTopicsMixin, MemberRoleWidget, AuthorityPickerUtils, NotificationUtils, Label) {
         return declare([_Widget, Core, CoreWidgetProcessing, _Templated, _CaseMembersServiceTopicsMixin, AuthorityPickerUtils, NotificationUtils], {
             templateString: template,
 
@@ -89,7 +90,7 @@ define(["dojo/_base/declare",
                     return a.displayName.localeCompare(b.displayName);
                 });
 
-                array.forEach(payload.members, function (member) {
+                array.forEach(members, function (member) {
                     var memberRoleWidget = new MemberRoleWidget({
                         authorityType: member.authorityType,
                         authority: member.authority,
@@ -100,6 +101,14 @@ define(["dojo/_base/declare",
                     _this.widgets.push(memberRoleWidget);
                     memberRoleWidget.placeAt(_this.containerNode);
                 });
+
+//                if (members.length == 0) {
+//                    var labelWidget = new Label({
+//                        label: this.message("case-members.none")
+//                    });
+//                    this.widgets.push(labelWidget);
+//                    labelWidget.placeAt(this.containerNode);
+//                }
             }
         });
     });

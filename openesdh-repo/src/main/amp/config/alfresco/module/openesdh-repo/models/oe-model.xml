@@ -5,12 +5,12 @@
     <author>Seth Yastrov, Flemming Heide Pedersern, Ole Hejlskov, Torben Lauritzen</author>
     <version>1.0</version>
     <imports>
-        <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d" />
-        <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm" />
-        <import uri="http://www.alfresco.org/model/system/1.0" prefix="sys" />
+        <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>
+        <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>
+        <import uri="http://www.alfresco.org/model/system/1.0" prefix="sys"/>
     </imports>
     <namespaces>
-        <namespace uri="http://openesdh.dk/model/openesdh/1.0/" prefix="oe" />
+        <namespace uri="http://openesdh.dk/model/openesdh/1.0/" prefix="oe"/>
     </namespaces>
     <types>
         <type name="oe:base">
@@ -30,12 +30,20 @@
     </types>
 
     <aspects>
-        <aspect name="oe:readOnly">
+        <aspect name="oe:journalizable">
         </aspect>
 
-        <aspect name="oe:journalizable">
+        <aspect name="oe:journalized">
             <parent>cm:classifiable</parent>
             <properties>
+                <property name="oe:journalizedBy">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
+                <property name="oe:journalizedDate">
+                    <type>d:datetime</type>
+                    <mandatory>true</mandatory>
+                </property>
                 <property name="oe:journalKey">
                     <type>d:category</type>
                     <mandatory>false</mandatory>
@@ -46,9 +54,14 @@
                         <tokenised>false</tokenised>
                     </index>
                 </property>
+                <property name="oe:isJournalized">
+                    <type>d:boolean</type>
+                    <mandatory>false</mandatory>
+                    <multiple>false</multiple>
+                    <default>false</default>
+                </property>
             </properties>
         </aspect>
-
     </aspects>
 
 </model>

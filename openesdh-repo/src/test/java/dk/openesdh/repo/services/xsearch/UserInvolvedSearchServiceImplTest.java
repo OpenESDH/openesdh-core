@@ -13,10 +13,7 @@ import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.search.SearchService;
-import org.alfresco.service.cmr.security.AuthenticationService;
-import org.alfresco.service.cmr.security.AuthorityService;
-import org.alfresco.service.cmr.security.AuthorityType;
-import org.alfresco.service.cmr.security.PersonService;
+import org.alfresco.service.cmr.security.*;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
 import org.apache.ibatis.annotations.Case;
@@ -88,6 +85,8 @@ public class UserInvolvedSearchServiceImplTest {
     @Qualifier("transactionService")
     protected TransactionService transactionService;
 
+    private PermissionService permissionService;
+
 
     private UserInvolvedSearchServiceImpl userInvolvedSearchService = null;
     private String caseATitle = "caseA";
@@ -97,6 +96,8 @@ public class UserInvolvedSearchServiceImplTest {
 
     @Before
     public void setUp() throws Exception {
+
+
 
         userInvolvedSearchService = new UserInvolvedSearchServiceImpl();
         userInvolvedSearchService.setAuthorityService(authorityService);
@@ -162,6 +163,9 @@ public class UserInvolvedSearchServiceImplTest {
         NodeRef nodeRef = list.get(0);
 
         assertEquals(caseATitle, nodeService.getProperty(nodeRef, ContentModel.PROP_TITLE));
+
+
+
     }
 
     @After
@@ -173,7 +177,7 @@ public class UserInvolvedSearchServiceImplTest {
 
             public Boolean execute() throws Throwable {
 
-                personService.deletePerson(owner);
+                caseHelper.deleteDummyUser();
                 nodeService.deleteNode(caseA);
 
                 return true;

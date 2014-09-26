@@ -77,20 +77,4 @@
             </overrides>
         </type>
     </types>
-
-    <aspects>
-        <aspect name="case:journalized">
-            <properties>
-                <property name="case:journalizedBy">
-                    <type>d:text</type>
-                    <mandatory>true</mandatory>
-                </property>
-                <property name="case:journalizedDate">
-                    <type>d:datetime</type>
-                    <mandatory>true</mandatory>
-                </property>
-            </properties>
-        </aspect>
-    </aspects>
-
 </model>

@@ -8,8 +8,11 @@ import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
+import org.alfresco.service.cmr.repository.ChildAssociationRef;
+import org.alfresco.service.cmr.repository.DuplicateChildNodeNameException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.search.CategoryService;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
@@ -19,6 +22,7 @@ import org.alfresco.service.namespace.DynamicNamespacePrefixResolver;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
+import org.apache.http.auth.AUTH;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,6 +75,10 @@ public class CaseServiceImplTest {
     protected DictionaryService dictionaryService;
 
     @Autowired
+    @Qualifier("CategoryService")
+    protected CategoryService categoryService;
+
+    @Autowired
     @Qualifier("TestCaseHelper")
     protected CaseHelper caseHelper;
 
@@ -78,11 +86,16 @@ public class CaseServiceImplTest {
     private DynamicNamespacePrefixResolver namespacePrefixResolver = new DynamicNamespacePrefixResolver(null);
     private NodeRef temporaryRepoNodeRef;
     private NodeRef temporaryCaseNodeRef;
+    private NodeRef dummyUser;
 
     @Before
     public void setUp() throws Exception {
 
         // TODO: All of this could have been done only once
+        AuthenticationUtil.setFullyAuthenticatedUser(ADMIN_USER_NAME);
+
+        dummyUser = caseHelper.createDummyUser();
+
         AuthenticationUtil.setFullyAuthenticatedUser(ADMIN_USER_NAME);
 
         caseService = new CaseServiceImpl();
@@ -110,7 +123,7 @@ public class CaseServiceImplTest {
         temporaryCaseNodeRef = nodeService.getChildByName(repositoryHelper.getCompanyHome(), ContentModel.ASSOC_CONTAINS, name);
         if (temporaryCaseNodeRef == null) {
             LinkedList<NodeRef> owners = new LinkedList<>();
-            owners.add(repositoryHelper.getPerson());
+            owners.add(dummyUser);
             temporaryCaseNodeRef = caseHelper.createCase(
                     ADMIN_USER_NAME, temporaryRepoNodeRef, name,
                     OpenESDHModel.TYPE_CASE_SIMPLE, properties, owners, true);
@@ -119,9 +132,17 @@ public class CaseServiceImplTest {
 
     @After
     public void tearDown() throws Exception {
-        // Remove temporary node, and all its content, also removes testcase
-        nodeService.deleteNode(temporaryRepoNodeRef);
-//        policyBehaviourFilter.enableBehaviour();
+        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ADMIN_USER_NAME);
+
+        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Boolean>() {
+            public Boolean execute() throws Throwable {
+                caseHelper.deleteDummyUser();
+
+                // Remove temporary node, and all its content, also removes testcase
+                nodeService.deleteNode(temporaryRepoNodeRef);
+                return true;
+            }
+        });
     }
 
     @Test
@@ -204,12 +225,12 @@ public class CaseServiceImplTest {
 
         String groupName = authorityService.getName(AuthorityType.GROUP, "case_" + caseId + "_CaseOwners");
 
-        // Hack to see if 'admin' was added to the ownergroup. The exception means it already exists, and all is well
+        // Hack to see if owner was added to the ownergroup. The exception
+        // means it already exists, and all is well
         try {
-            authorityService.addAuthority(groupName, ADMIN_USER_NAME);
+            authorityService.addAuthority(groupName, CaseHelper.DEFAULT_USERNAME);
             assertNotNull("Owner was not added to correct owner group", null);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
         }
 
         if (groupName != null) {
@@ -225,14 +246,14 @@ public class CaseServiceImplTest {
 
         NodeRef caseFolderNodeRef = caseService.getCaseFolderNodeRef(temporaryRepoNodeRef);
         int name = Integer.parseInt((String) nodeService.getProperty(caseFolderNodeRef, ContentModel.PROP_NAME));
-        assertTrue("Day not correct",  name == c.get(Calendar.DATE));
+        assertTrue("Day not correct", name == c.get(Calendar.DATE));
 
         NodeRef parentRef = nodeService.getPrimaryParent(caseFolderNodeRef).getParentRef();
-        name = Integer.parseInt((String)nodeService.getProperty(parentRef, ContentModel.PROP_NAME));
+        name = Integer.parseInt((String) nodeService.getProperty(parentRef, ContentModel.PROP_NAME));
         assertTrue("Month not correct", name == c.get(Calendar.MONTH) + 1);
 
         parentRef = nodeService.getPrimaryParent(parentRef).getParentRef();
-        name = Integer.parseInt((String)nodeService.getProperty(parentRef, ContentModel.PROP_NAME));
+        name = Integer.parseInt((String) nodeService.getProperty(parentRef, ContentModel.PROP_NAME));
         assertTrue("Month not correct", name == c.get(Calendar.YEAR));
 
 
@@ -336,6 +357,95 @@ public class CaseServiceImplTest {
                 "CaseSimpleReader", temporaryCaseNodeRef);
         membersByRole = caseService.getMembersByRole(temporaryCaseNodeRef);
         assertFalse(membersByRole.get("CaseSimpleReader").contains(ADMIN_USER_NAME));
+    }
+
+    @Test
+    public void testJournalize() throws Exception {
+        AuthenticationUtil.setFullyAuthenticatedUser(ADMIN_USER_NAME);
+
+        // TODO: Use real journal key categories from bootstrapped XML file
+        // Create a test journal key category
+        String categoryName = "Test Journal Key";
+        String rootCategoryName = "journalKeys";
+        Collection<ChildAssociationRef> rootCategories = categoryService
+                .getRootCategories
+                        (repositoryHelper.getCompanyHome().getStoreRef(),
+                                ContentModel.ASPECT_GEN_CLASSIFIABLE,
+                                rootCategoryName, true);
+        NodeRef rootCategory = rootCategories.iterator().next().getChildRef();
+        NodeRef journalKey = rootCategory;
+//        ChildAssociationRef categoryAssoc = categoryService.getCategory(rootCategory,
+//                ContentModel.ASPECT_GEN_CLASSIFIABLE, categoryName);
+//        if (categoryAssoc != null) {
+//            journalKey = categoryAssoc.getChildRef();
+//        } else {
+//            journalKey = categoryService.createCategory(rootCategory, categoryName);
+//        }
+
+        assertFalse("Case node has journalized aspect although it is not " +
+                "journalized", nodeService.hasAspect
+                (temporaryCaseNodeRef,
+                        OpenESDHModel.ASPECT_OE_JOURNALIZED));
+
+        final String originalTitle = (String) nodeService.getProperty(temporaryCaseNodeRef,
+                OpenESDHModel.PROP_OE_TITLE);
+
+        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
+
+        caseService.journalize(temporaryCaseNodeRef, journalKey);
+
+        // Test that journalized properties got set
+        assertTrue("Case node does not have journalized aspect after it has " +
+                "been journalized", nodeService.hasAspect
+                (temporaryCaseNodeRef,
+                        OpenESDHModel.ASPECT_OE_JOURNALIZED));
+        assertTrue("Case isJournalized is not true", (Boolean) nodeService
+                .getProperty(temporaryCaseNodeRef,
+                        OpenESDHModel.PROP_OE_IS_JOURNALIZED));
+        assertEquals("Case journalizedBy is not set correctly",
+                nodeService.getProperty(temporaryCaseNodeRef,
+                        OpenESDHModel.PROP_OE_JOURNALIZED_BY),
+                AuthenticationUtil.getFullyAuthenticatedUser());
+        assertEquals("Case journalKey is not set correctly",
+                nodeService.getProperty(temporaryCaseNodeRef,
+                        OpenESDHModel.PROP_OE_JOURNALKEY),
+                journalKey);
+
+        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Object>() {
+            @Override
+            public Object doWork() throws Exception {
+                // Test that a user cannot write to a journalized case
+                try {
+                    nodeService.setProperty(temporaryCaseNodeRef,
+                            OpenESDHModel.PROP_OE_TITLE, "new title");
+                    assertTrue("A property could be updated on a " +
+                            "journalized case", false);
+                } catch (Exception e) {
+                }
+
+                // Test that a user can still read from the journalized case
+                assertEquals(nodeService.getProperty(temporaryCaseNodeRef,
+                        OpenESDHModel.PROP_OE_TITLE), originalTitle);
+                return null;
+            }
+        }, CaseHelper.DEFAULT_USERNAME);
+
+        caseService.unJournalize(temporaryCaseNodeRef);
+
+        // Test that a user can write again: these would throw exceptions if
+        // they failed.
+        nodeService.setProperty(temporaryCaseNodeRef,
+                OpenESDHModel.PROP_OE_TITLE, "new title");
+        nodeService.setProperty(temporaryCaseNodeRef,
+                OpenESDHModel.PROP_OE_TITLE, originalTitle);
+
+        assertFalse("Case node has journalized aspect after being " +
+                "unjournalized", nodeService.hasAspect(temporaryCaseNodeRef,
+                OpenESDHModel.ASPECT_OE_JOURNALIZED));
+
+        // Delete test journal key categories
+//        categoryService.deleteCategory(journalKey);
+        categoryService.deleteCategory(rootCategory);
     }
 
     @Test

@@ -257,6 +257,11 @@ public class CaseHelper {
 
             }
         });
+
         return result;
+    }
+
+    public void deleteDummyUser() {
+        personService.deletePerson(DEFAULT_USERNAME);
     }
 }

@@ -1,6 +1,7 @@
 package dk.openesdh.repo.webscripts.cases;
 
 import dk.openesdh.repo.services.CaseService;
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.DuplicateChildNodeNameException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -70,6 +71,7 @@ public class CaseMembers extends AbstractWebScript {
         String authority = req.getParameter("authority");
         String role = req.getParameter("role");
         String fromRole = req.getParameter("fromRole");
+
         try {
             if (fromRole != null) {
                 // When "fromRole" is specified, move the authority
@@ -98,7 +100,9 @@ public class CaseMembers extends AbstractWebScript {
         NodeRef caseNodeRef = new NodeRef(req.getParameter("nodeRef"));
         String authority = req.getParameter("authority");
         String role = req.getParameter("role");
+
         caseService.removeAuthorityFromRole(authority, role, caseNodeRef);
+
         JSONObject json = new JSONObject();
         json.put("success", true);
         json.write(res.getWriter());
