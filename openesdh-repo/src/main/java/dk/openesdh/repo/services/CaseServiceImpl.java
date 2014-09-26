@@ -350,6 +350,11 @@ public class CaseServiceImpl implements CaseService {
         return getCasePathNodeRef(casesMonthNodeRef, Calendar.DATE);
     }
 
+    @Override
+    public void journalizeCase(NodeRef caseNodeRef) {
+
+    }
+
     /**
      * Get a node in the calendarbased path of the casefolders
      *

@@ -101,4 +101,11 @@ public interface CaseService {
      * @return NodeRef to folder
      */
     public NodeRef getCaseFolderNodeRef(NodeRef casesFolderNodeRef);
+
+    /**
+     * Journalize case and all childnodes
+     * @param caseNodeRef Noderef of the case to journalize
+     */
+    public void journalizeCase(NodeRef caseNodeRef);
+
 }
