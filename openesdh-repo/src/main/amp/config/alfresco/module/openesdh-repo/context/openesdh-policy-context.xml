@@ -9,4 +9,38 @@
       <ref bean="policyComponent" />
     </property>
   </bean>
+
+    <bean id="journalizeBehaviour" class="dk.openesdh.repo.policy.JournalizeBehaviour" init-method="init">
+        <property name="lockService">
+            <ref bean="lockService" />
+        </property>
+        <property name="policyComponent">
+        <ref bean="policyComponent" />
+        </property>
+        <property name="permissionService">
+            <ref bean="permissionService" />
+        </property>
+        <property name="authorityService">
+            <ref bean="authorityService" />
+        </property>
+        <property name="nodeService">
+            <ref bean="nodeService" />
+        </property>
+        <property name="retryingTransactionHelper">
+            <ref bean="retryingTransactionHelper" />
+        </property>
+
+
+
+        <property name="policyBehaviourFilter" ref="policyBehaviourFilter" />
+
+
+
+
+
+
+
+
+
+    </bean>
 </beans>
