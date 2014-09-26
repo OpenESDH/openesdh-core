@@ -3,7 +3,6 @@
     <description>Add an authority to or change an authority's case role group</description>
     <url>/api/openesdh/casemembers</url>
     <format default="json"></format>
-    <authentication runas="admin">user</authentication>
-    <!--<authentication>user</authentication>-->
+    <authentication>user</authentication>
     <transaction>required</transaction>
 </webscript>

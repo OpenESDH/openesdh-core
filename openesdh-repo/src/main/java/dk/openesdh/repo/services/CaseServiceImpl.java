@@ -105,22 +105,22 @@ public class CaseServiceImpl implements CaseService {
      * @param caseNodeRef
      * @param caseId
      */
-    void managePermissionGroups(NodeRef caseNodeRef, String caseId) {
+    void managePermissions(NodeRef caseNodeRef, String caseId) {
+        // Add cm:ownable aspect and set the cm:owner to admin
+        // so that the node creator does not have full control.
+        Map<QName, Serializable> aspectProperties = new HashMap<>();
+        aspectProperties.put(ContentModel.PROP_OWNER, "admin");
+        nodeService.addAspect(caseNodeRef, ContentModel.ASPECT_OWNABLE,
+                aspectProperties);
+
+        // Do not inherit parent permissions (which probably has
+        // GROUP_EVERYONE set to Consumer, which we do not want)
+        permissionService.setInheritParentPermissions(caseNodeRef, false);
+
         setupPermissionGroups(caseNodeRef, caseId);
-        String ownersPermissionGroupName = setupOwnersPermissionGroup(caseNodeRef, caseId);
+        String ownersPermissionGroupName = setupPermissionGroup(caseNodeRef,
+                caseId, "CaseOwners");
         addOwnersToPermissionGroup(caseNodeRef, ownersPermissionGroupName);
-    }
-
-    String setupOwnersPermissionGroup(NodeRef caseNodeRef, String caseId) {
-        // Create the owner group
-        String groupSuffix = "case_" + caseId + "_CaseOwners";
-        String groupName = authorityService.getName(AuthorityType.GROUP, groupSuffix);
-
-        if (!authorityService.authorityExists(groupName)) {
-            groupName = authorityService.createAuthority(AuthorityType.GROUP, groupSuffix);
-        }
-        permissionService.setPermission(caseNodeRef, groupName, "CaseOwners", true);
-        return groupName;
     }
 
     void addOwnersToPermissionGroup(NodeRef caseNodeRef, String groupName) {
@@ -158,9 +158,15 @@ public class CaseServiceImpl implements CaseService {
                 ContentModel.PROP_NODE_DBID);
     }
 
-    protected String getCaseRoleGroupName(String caseId, String role) {
-        String groupSuffix = "case_" + caseId + "_" + role;
-        return authorityService.getName(AuthorityType.GROUP, groupSuffix);
+    protected String getCaseRoleGroupName(String caseId,
+                                          String role) {
+        return authorityService.getName(AuthorityType.GROUP,
+                getCaseRoleGroupAuthorityName(caseId, role));
+    }
+
+    protected String getCaseRoleGroupAuthorityName(String caseId,
+                                                   String role) {
+        return "case_" + caseId + "_" + role;
     }
 
     @Override
@@ -257,15 +263,34 @@ public class CaseServiceImpl implements CaseService {
 
         for (Iterator<String> iterator = settablePermissions.iterator(); iterator.hasNext(); ) {
             String permission = iterator.next();
-
-            String groupSuffix = "case_" + caseId + "_" + permission;
-            String groupName = authorityService.getName(AuthorityType.GROUP, groupSuffix);
-
-            if (!authorityService.authorityExists(groupName)) {
-                groupName = authorityService.createAuthority(AuthorityType.GROUP, groupSuffix);
-            }
-            permissionService.setPermission(caseNodeRef, groupName, permission, true);
+            setupPermissionGroup(caseNodeRef, caseId, permission);
         }
+    }
+
+    String setupPermissionGroup(NodeRef caseNodeRef, String caseId,
+                           String permission) {
+        String groupSuffix = getCaseRoleGroupName(caseId, permission);
+        String groupName = getCaseRoleGroupAuthorityName(caseId, permission);
+
+        if (!authorityService.authorityExists(groupName)) {
+            HashSet<String> shareZones = new HashSet<>();
+            shareZones.add(AuthorityService.ZONE_APP_SHARE);
+            shareZones.add(AuthorityService.ZONE_AUTH_ALFRESCO);
+            // Add the authority group to the Share zone so that it is not
+            // searchable from the authority picker.
+            groupName = authorityService.createAuthority(AuthorityType
+                    .GROUP, groupSuffix, groupSuffix, shareZones);
+        }
+        permissionService.setPermission(caseNodeRef, groupName, permission, true);
+        NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef(groupName);
+        permissionService.deletePermissions(authorityNodeRef);
+
+        // Make sure only case owners can modify (add/remove/edit) the case
+        // role groups.
+        permissionService.setPermission(authorityNodeRef,
+                getCaseRoleGroupName(caseId, "CaseOwners"),
+                "Collaborator", true);
+        return groupName;
     }
 
     /**
@@ -290,7 +315,7 @@ public class CaseServiceImpl implements CaseService {
         nodeService.moveNode(caseNodeRef, caseFolderNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, caseId));
 
         //Create Groups and assign permission on new case
-        managePermissionGroups(caseNodeRef, caseId);
+        managePermissions(caseNodeRef, caseId);
 
         // Set id on case
         nodeService.setProperty(caseNodeRef, OpenESDHModel.PROP_OE_ID, caseId);

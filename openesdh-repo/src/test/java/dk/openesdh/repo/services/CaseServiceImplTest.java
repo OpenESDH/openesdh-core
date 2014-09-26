@@ -181,7 +181,8 @@ public class CaseServiceImplTest {
     public void testSetupCaseOwners() throws Exception {
         long uniqueNumber = 1231L;
         String caseId = caseService.getCaseId(uniqueNumber);
-        caseService.setupOwnersPermissionGroup(temporaryCaseNodeRef, caseId);
+        caseService.setupPermissionGroup(temporaryCaseNodeRef, caseId,
+                "CaseOwners");
 
         String groupSuffix = "case_" + caseId + "_CaseOwners";
         String groupName = authorityService.getName(AuthorityType.GROUP, groupSuffix);
@@ -197,7 +198,7 @@ public class CaseServiceImplTest {
     public void testAddOwnersToPermissionGroup() throws Exception {
         long uniqueNumber = 1231L;
         String caseId = caseService.getCaseId(uniqueNumber);
-        String ownersPermissionGroupName = caseService.setupOwnersPermissionGroup(temporaryCaseNodeRef, caseId);
+        String ownersPermissionGroupName = caseService.setupPermissionGroup(temporaryCaseNodeRef, caseId, "CaseOwners");
 
         caseService.addOwnersToPermissionGroup(temporaryCaseNodeRef, ownersPermissionGroupName);
 
