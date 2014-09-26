@@ -46,6 +46,12 @@
                         <tokenised>false</tokenised>
                     </index>
                 </property>
+                <property name="oe:isJournalized">
+                    <type>d:boolean</type>
+                    <mandatory>false</mandatory>
+                    <multiple>false</multiple>
+                    <default>false</default>
+                </property>
             </properties>
         </aspect>
 

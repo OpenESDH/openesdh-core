@@ -7,7 +7,7 @@
     <namespaces>
         <namespace uri="http://www.alfresco.org/model/system/1.0" prefix="sys"/>
         <namespace uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>
-        <namespace uri="http://openesdh.dk/model/case/1.0/" prefix="case" />
+        <namespace uri="http://openesdh.dk/model/case/1.0/" prefix="case"/>
     </namespaces>
     <!-- ============================================ -->
     <!-- Permissions specific to the ESDH Case module -->
@@ -31,10 +31,10 @@
 
     <permissionSet type="case:simple" expose="selected">
         <permissionGroup name="CaseSimpleReader" expose="true">
-            <includePermissionGroup permissionGroup="Consumer" type="cm:cmobject" />
+            <includePermissionGroup permissionGroup="Consumer" type="cm:cmobject"/>
         </permissionGroup>
-        <permissionGroup name="CaseSimpleWriter"  expose="true">
-            <includePermissionGroup permissionGroup="Coordinator" type="cm:cmobject" />
+        <permissionGroup name="CaseSimpleWriter" expose="true">
+            <includePermissionGroup permissionGroup="Collaborator" type="cm:cmobject"/>
         </permissionGroup>
         <!--
         <permission name="_SimpleReader" expose="false" >
@@ -50,10 +50,26 @@
 -->
     </permissionSet>
 
+    <permissionSet type="oe:journalizable">
+        <!-- Groups for used in denying, when journalizing -->
+        <permissionGroup name="Journalized" extends="true">
+            <includePermissionGroup permissionGroup="WriteProperties"/>
+            <includePermissionGroup permissionGroup="WriteContent"/>
+            <includePermissionGroup permissionGroup="ExecuteContent"/>
+            <includePermissionGroup permissionGroup="DeleteNode"/>
+            <includePermissionGroup permissionGroup="DeleteChildren"/>
+            <includePermissionGroup permissionGroup="CreateChildren"/>
+            <includePermissionGroup permissionGroup="LinkChildren"/>
+            <includePermissionGroup permissionGroup="DeleteAssociations"/>
+            <includePermissionGroup permissionGroup="CreateAssociations"/>
+            <includePermissionGroup permissionGroup="ChangePermissions"/>
+            <includePermissionGroup permissionGroup="Flatten"/>
+        </permissionGroup>
+    </permissionSet>
 
     <permissionSet type="case:base" expose="selected">
         <permissionGroup name="CaseOwners" expose="false">
-            <includePermissionGroup permissionGroup="Coordinator" type="cm:cmobject" />
+            <includePermissionGroup permissionGroup="Coordinator" type="cm:cmobject"/>
         </permissionGroup>
     </permissionSet>
 </permissions>
