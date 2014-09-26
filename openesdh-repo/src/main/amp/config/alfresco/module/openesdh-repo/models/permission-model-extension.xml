@@ -7,6 +7,7 @@
     <namespaces>
         <namespace uri="http://www.alfresco.org/model/system/1.0" prefix="sys"/>
         <namespace uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>
+        <namespace uri="http://openesdh.dk/model/openesdh/1.0/" prefix="oe" />
         <namespace uri="http://openesdh.dk/model/case/1.0/" prefix="case"/>
     </namespaces>
     <!-- ============================================ -->
@@ -51,19 +52,19 @@
     </permissionSet>
 
     <permissionSet type="oe:journalizable">
-        <!-- Groups for used in denying, when journalizing -->
-        <permissionGroup name="Journalized" extends="true">
-            <includePermissionGroup permissionGroup="WriteProperties"/>
-            <includePermissionGroup permissionGroup="WriteContent"/>
-            <includePermissionGroup permissionGroup="ExecuteContent"/>
-            <includePermissionGroup permissionGroup="DeleteNode"/>
-            <includePermissionGroup permissionGroup="DeleteChildren"/>
-            <includePermissionGroup permissionGroup="CreateChildren"/>
-            <includePermissionGroup permissionGroup="LinkChildren"/>
-            <includePermissionGroup permissionGroup="DeleteAssociations"/>
-            <includePermissionGroup permissionGroup="CreateAssociations"/>
-            <includePermissionGroup permissionGroup="ChangePermissions"/>
-            <includePermissionGroup permissionGroup="Flatten"/>
+        <!-- Groups used in denying, when journalizing -->
+        <permissionGroup name="Journalized">
+            <includePermissionGroup permissionGroup="WriteProperties" type="sys:base"/>
+            <includePermissionGroup permissionGroup="WriteContent" type="sys:base"/>
+            <includePermissionGroup permissionGroup="ExecuteContent" type="sys:base"/>
+            <includePermissionGroup permissionGroup="DeleteNode" type="sys:base"/>
+            <includePermissionGroup permissionGroup="DeleteChildren" type="sys:base"/>
+            <includePermissionGroup permissionGroup="CreateChildren" type="sys:base"/>
+            <includePermissionGroup permissionGroup="LinkChildren" type="sys:base"/>
+            <includePermissionGroup permissionGroup="DeleteAssociations" type="sys:base"/>
+            <includePermissionGroup permissionGroup="CreateAssociations" type="sys:base"/>
+            <includePermissionGroup permissionGroup="ChangePermissions" type="sys:base"/>
+            <includePermissionGroup permissionGroup="Flatten" type="sys:base"/>
         </permissionGroup>
     </permissionSet>
 

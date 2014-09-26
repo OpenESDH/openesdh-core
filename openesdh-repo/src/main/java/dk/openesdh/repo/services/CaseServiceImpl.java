@@ -351,9 +351,35 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public void journalizeCase(NodeRef caseNodeRef) {
+    public void journalize(NodeRef nodeRef, String journalKey) {
+        Map<QName, Serializable> props = new HashMap<>();
+        props.put(OpenESDHModel.PROP_OE_JOURNALKEY, journalKey);
+        props.put(OpenESDHModel.PROP_OE_IS_JOURNALIZED, true);
+        props.put(OpenESDHModel.PROP_OE_JOURNALIZED_BY, AuthenticationUtil.getFullyAuthenticatedUser());
+        props.put(OpenESDHModel.PROP_OE_JOURNALIZED_DATE, new Date());
+        nodeService.addAspect(nodeRef, OpenESDHModel.ASPECT_OE_JOURNALIZABLE, props);
 
+        permissionService.setPermission(nodeRef, PermissionService.ALL_AUTHORITIES, "Journalized", false);
+
+        List<ChildAssociationRef> childAssociationRefs = nodeService.getChildAssocs(nodeRef);
+        for (int i = 0; i < childAssociationRefs.size(); i++) {
+            ChildAssociationRef childAssociationRef = childAssociationRefs.get(i);
+            journalize(childAssociationRef.getChildRef(), journalKey);
+        }
     }
+
+    @Override
+    public void unJournalize(NodeRef nodeRef) {
+        permissionService.deletePermission(nodeRef, PermissionService.ALL_AUTHORITIES, "Journalized");
+        nodeService.removeAspect(nodeRef, OpenESDHModel.ASPECT_OE_JOURNALIZABLE);
+
+        List<ChildAssociationRef> childAssociationRefs = nodeService.getChildAssocs(nodeRef);
+        for (int i = 0; i < childAssociationRefs.size(); i++) {
+            ChildAssociationRef childAssociationRef = childAssociationRefs.get(i);
+            unJournalize(childAssociationRef.getChildRef());
+        }
+    }
+
 
     /**
      * Get a node in the calendarbased path of the casefolders

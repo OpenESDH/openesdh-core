@@ -36,7 +36,6 @@ public interface OpenESDHModel {
      */
     public static final QName ASPECT_OE_READONLY = QName.createQName(OE_URI, "readOnly");
     public static final QName ASPECT_OE_JOURNALIZABLE = QName.createQName(OE_URI, "journalizable");
-    public static final QName ASPECT_OE_JOURNALKEY = QName.createQName(OE_URI, "journalKey");
 
     public static final QName ASPECT_CASE_JOURNALIZED = QName.createQName(CASE_URI, "journalized");
     public static final QName ASPECT_CASE_JOURNALKEY = QName.createQName(CASE_URI, "journalKey");
@@ -58,12 +57,13 @@ public interface OpenESDHModel {
     public static final QName PROP_OE_TITLE = QName.createQName(OE_URI, "title");
     public static final QName PROP_OE_DESCRIPTION = QName.createQName(OE_URI, "description");
     public static final QName PROP_OE_STATUS = QName.createQName(OE_URI, "status");
+    public static final QName PROP_OE_JOURNALIZED_BY = QName.createQName(CASE_URI, "jounalizedBy");
+    public static final QName PROP_OE_JOURNALIZED_DATE = QName.createQName(CASE_URI, "journalizedDate");
+    public static final QName PROP_OE_JOURNALKEY = QName.createQName(OE_URI, "journalKey");
+    public static final QName PROP_OE_IS_JOURNALIZED = QName.createQName(OE_URI, "journalKey");
 
     public static final QName PROP_CASE_STARTDATE = QName.createQName(CASE_URI, "startDate");
     public static final QName PROP_CASE_ENDDATE = QName.createQName(CASE_URI, "endDate");
-    public static final QName PROP_CASE_JOURNALIZED_BY = QName.createQName(CASE_URI, "jounalizedBy");
-    public static final QName PROP_CASE_JOURNALIZED_DATE = QName.createQName(CASE_URI, "journalizedDate");
-    public static final QName PROP_CASE_JOURNAL_KEY = QName.createQName(CASE_URI, "journalKey");
 
     public static final QName PROP_CASE_UNIQUE_NUMBER = QName.createQName(CASE_URI, "uniqueNumber");
 
