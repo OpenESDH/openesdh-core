@@ -31,6 +31,6 @@ public class CaseMembersPage extends BasePage {
                         "_text"));
         addAuthorityToRole.click();
 
-        // TODO: Select an authority in authority picker
+        selectAuthoritiesInPicker("alf-id1_wrapper-authority", authorities);
     }
 }

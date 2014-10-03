@@ -83,13 +83,14 @@ define(["dojo/_base/declare",
                 var options = array.map(this.roleTypes, function (roleType) {
                     return {label: _this.message("roles." + roleType.toLowerCase()), value: roleType};
                 });
-                this.roleSelectWidget = new Select({ options: options });
+                this.roleSelectWidget = new Select({ id: this.authority + "-" + this.authorityRole + "-select", options: options });
                 this.roleSelectWidget.set('value', this.authorityRole, false);
                 this.roleSelectWidget.placeAt(this.roleNode);
 
                 this.roleSelectWidget.on("change", lang.hitch(this, "_onRoleChanged"));
 
                 var removeButton = new AlfButton({
+                    id: this.authority + "-" + this.authorityRole + "-remove",
                     label: this.message("case-members.remove"),
                     onClick: lang.hitch(this, '_onRemoveRoleClick')
                 });

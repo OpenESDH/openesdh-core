@@ -5,7 +5,9 @@ import dk.openesdh.share.selenium.framework.Pages;
 import dk.openesdh.share.selenium.framework.enums.User;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.*;
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
@@ -13,8 +15,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 public class CaseMembersTest {
 
@@ -49,12 +50,39 @@ public class CaseMembersTest {
     }
 
     @Test
-    public void testAddUser() {
+    public void testAddChangeRemoveUser() {
         String role = "CaseSimpleReader";
         List<String> authorities = new LinkedList<>();
-        authorities.add("admin");
+        String testUser = "admin";
+        authorities.add(testUser);
         Pages.CaseMembers.addAuthoritiesToRole(authorities, role);
-        // TODO: Assert that authority appears in member list
+
+        String memberRoleId = testUser + "-" + role;
+        WebElement elem = Browser.Driver.findElement(By.id(memberRoleId));
+        assertTrue("Added user role is displayed", elem.isDisplayed());
+
+        JavascriptExecutor js = (JavascriptExecutor) Browser.Driver;
+        String roleVal = (String) js.executeScript("return dijit.byId('" +
+                memberRoleId  + "-select').get('value')");
+        assertEquals("Role is displayed correctly", role, roleVal);
+
+        // Change the role
+        String newRole = "CaseSimpleWriter";
+        js.executeScript("dijit.byId('" +
+                memberRoleId  + "-select').set('value', '" + newRole + "')");
+
+        roleVal = (String) js.executeScript("return dijit.byId('" +
+                memberRoleId  + "-select').get('value')");
+        assertEquals("Role is changed", newRole, roleVal);
+
+        // Remove the user from the role
+        js.executeScript("dijit.byId('" +
+                memberRoleId  + "-remove').onClick()");
+        Alert alert = Browser.Driver.switchTo().alert();
+        alert.accept();
+
+        assertTrue("Removed user role is not displayed",
+                Browser.Driver.findElements(By.id(memberRoleId)).isEmpty());
     }
 
 

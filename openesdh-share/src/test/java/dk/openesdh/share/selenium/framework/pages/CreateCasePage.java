@@ -62,26 +62,7 @@ public class CreateCasePage extends BasePage {
         endDateField.sendKeys(endDate);
 
         ownersFieldButton.click();
-        // TODO: Generalize automation of authority picker
-        WebElement searchInput = Browser.Driver.findElement(By.id
-                ("template_x002e_create-content_x002e_create-content_x0023_default_assoc_case_owners-cntrl-picker-searchText"));
-        WebElement searchButton = Browser.Driver.findElement(By.id
-                ("template_x002e_create-content_x002e_create-content_x0023_default_assoc_case_owners-cntrl-picker-searchButton-button"));
-        for (String owner : owners) {
-            searchInput.clear();
-            searchInput.sendKeys(owner);
-            searchButton.click();
-            // Wonderfully complicated XPath way to get the Add button for
-            // adding the particular authority we want to add.
-            WebElement addAuthority = Browser.Driver.findElement(By
-                    .xpath("//td[contains(@class, 'yui-dt-col-name') and " +
-                            "contains(., " +
-                            "'" + owner + "')]/following-sibling::td[contains(@class, 'yui-dt-col-add')]/descendant::a"));
-            addAuthority.click();
-        }
-        WebElement authorityPickerOkButton = Browser.Driver.findElement(By
-                .id("template_x002e_create-content_x002e_create-content_x0023_default_assoc_case_owners-cntrl-ok-button"));
-        authorityPickerOkButton.click();
+        selectAuthoritiesInPicker("template_x002e_create-content_x002e_create-content_x0023_default_assoc_case_owners", owners);
 
         createButton.click();
 
