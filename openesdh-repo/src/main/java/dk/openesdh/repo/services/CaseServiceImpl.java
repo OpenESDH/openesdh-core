@@ -10,6 +10,7 @@ import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.search.ResultSet;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
@@ -147,6 +148,12 @@ public class CaseServiceImpl implements CaseService {
         return permissionService.getSettablePermissions(caseNodeRef);
     }
 
+    @Override
+    public Set<String> getAllRoles(NodeRef caseNodeRef) {
+        Set<String> roles = getRoles(caseNodeRef);
+        roles.add("CaseOwners");
+        return roles;
+    }
 
     public String getCaseId(NodeRef caseNodeRef) {
         return (String) nodeService.getProperty(caseNodeRef,
@@ -282,6 +289,9 @@ public class CaseServiceImpl implements CaseService {
 
     @Override
     public boolean canUpdateCaseRoles(String user, NodeRef caseNodeRef) {
+        if (isJournalized(caseNodeRef)) {
+            return false;
+        }
         if (authorityService.isAdminAuthority(user)) {
             return true;
         }
@@ -423,13 +433,20 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
+    public boolean isJournalized(NodeRef nodeRef) {
+        return nodeService.hasAspect(nodeRef,
+                OpenESDHModel.ASPECT_OE_JOURNALIZED) && (Boolean) nodeService
+                .getProperty(nodeRef, OpenESDHModel.PROP_OE_IS_JOURNALIZED);
+    }
+
+    @Override
     public void journalize(final NodeRef nodeRef, final NodeRef journalKey) {
         // Run it in a transaction
         transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
             @Override
             public Object execute() throws Throwable {
                 journalizeImpl(nodeRef, journalKey);
-                // TODO: Set Journalized permission DENY on case role groups
+                journalizeCaseGroups(nodeRef);
                 return null;
             }
         });
@@ -446,10 +463,26 @@ public class CaseServiceImpl implements CaseService {
         permissionService.setPermission(nodeRef, PermissionService.ALL_AUTHORITIES, "Journalized", false);
 
         List<ChildAssociationRef> childAssociationRefs = nodeService.getChildAssocs(nodeRef);
-        for (int i = 0; i < childAssociationRefs.size(); i++) {
-            ChildAssociationRef childAssociationRef = childAssociationRefs.get(i);
+        for (ChildAssociationRef childAssociationRef : childAssociationRefs) {
             journalizeImpl(childAssociationRef.getChildRef(), journalKey);
         }
+    }
+
+    private void journalizeCaseGroups(final NodeRef caseNodeRef) {
+        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Void>() {
+            @Override
+            public Void doWork() {
+                List<ChildAssociationRef> childAssociationRefs = nodeService.getChildAssocs(caseNodeRef);
+                Set<String> roles = getAllRoles(caseNodeRef);
+                for (String role : roles) {
+                    NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef(
+                            getCaseRoleGroupName(getCaseId(caseNodeRef), role));
+                    permissionService.setPermission(authorityNodeRef,
+                            PermissionService.ALL_AUTHORITIES, "Journalized", false);
+                }
+                return null;
+            }
+        }, AuthenticationUtil.getAdminUserName());
     }
 
     @Override
@@ -459,21 +492,47 @@ public class CaseServiceImpl implements CaseService {
             @Override
             public Object execute() throws Throwable {
                 unJournalizeImpl(nodeRef);
-                // TODO: Remove Journalized permission DENY on case role groups
+                unJournalizeCaseGroups(nodeRef);
                 return null;
             }
         });
     }
 
-    private void unJournalizeImpl(NodeRef nodeRef) {
-        permissionService.deletePermission(nodeRef, PermissionService.ALL_AUTHORITIES, "Journalized");
+    private void unJournalizeImpl(final NodeRef nodeRef) {
+        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Void>() {
+            @Override
+            public Void doWork() {
+                // Deleting the Journalized permission must be run as admin
+                // because the case is journalized and therefore the user
+                // is currently denied the ChangePermissions permission
+                permissionService.deletePermission(nodeRef, PermissionService.ALL_AUTHORITIES, "Journalized");
+                return null;
+            }
+        }, AuthenticationUtil.getAdminUserName());
+
         nodeService.removeAspect(nodeRef, OpenESDHModel.ASPECT_OE_JOURNALIZED);
 
         List<ChildAssociationRef> childAssociationRefs = nodeService.getChildAssocs(nodeRef);
-        for (int i = 0; i < childAssociationRefs.size(); i++) {
-            ChildAssociationRef childAssociationRef = childAssociationRefs.get(i);
+        for (ChildAssociationRef childAssociationRef : childAssociationRefs) {
             unJournalizeImpl(childAssociationRef.getChildRef());
         }
+    }
+
+    private void unJournalizeCaseGroups(final NodeRef caseNodeRef) {
+        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Void>() {
+            @Override
+            public Void doWork() {
+                List<ChildAssociationRef> childAssociationRefs = nodeService.getChildAssocs(caseNodeRef);
+                Set<String> roles = getAllRoles(caseNodeRef);
+                for (String role : roles) {
+                    NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef(
+                            getCaseRoleGroupName(getCaseId(caseNodeRef), role));
+                    permissionService.deletePermission(authorityNodeRef,
+                            PermissionService.ALL_AUTHORITIES, "Journalized");
+                }
+                return null;
+            }
+        }, AuthenticationUtil.getAdminUserName());
     }
 
 

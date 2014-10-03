@@ -223,6 +223,11 @@ public class CaseHelper {
                                           String lastName,
                                           String email,
                                           String company) {
+
+        if (personService.personExists(userName)) {
+            personService.deletePerson(userName);
+        }
+
         HashMap<QName, Serializable> properties = new HashMap<QName, Serializable>();
 
         properties.put(ContentModel.PROP_USERNAME, userName);

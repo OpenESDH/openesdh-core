@@ -32,6 +32,13 @@ public interface CaseService {
      */
     public Set<String> getRoles(NodeRef caseNodeRef);
 
+    /**
+     * Get all roles for the given case (including owners role).
+     *
+     * @param caseNodeRef
+     * @return Set containing the role names
+     */
+    Set<String> getAllRoles(NodeRef caseNodeRef);
 
     /**
      * Get the members on the case grouped by role.
@@ -118,6 +125,13 @@ public interface CaseService {
      * @return NodeRef to folder
      */
     public NodeRef getCaseFolderNodeRef(NodeRef casesFolderNodeRef);
+
+    /**
+     * Return whether a node is journalized or not.
+     * @param nodeRef
+     * @return
+     */
+    boolean isJournalized(NodeRef nodeRef);
 
     /**
      * Journalize case and all childnodes

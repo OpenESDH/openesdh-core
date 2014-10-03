@@ -87,6 +87,7 @@ public class CaseServiceImplTest {
     private NodeRef temporaryRepoNodeRef;
     private NodeRef temporaryCaseNodeRef;
     private NodeRef dummyUser;
+    private NodeRef behaviourOnCaseNodeRef;
 
     @Before
     public void setUp() throws Exception {
@@ -128,6 +129,14 @@ public class CaseServiceImplTest {
                     ADMIN_USER_NAME, temporaryRepoNodeRef, name,
                     OpenESDHModel.TYPE_CASE_SIMPLE, properties, owners, true);
         }
+
+        // Create a case with the behaviour on
+        name = "unittest_case_behaviour_on";
+        LinkedList<NodeRef> owners = new LinkedList<>();
+        owners.add(dummyUser);
+        behaviourOnCaseNodeRef = caseHelper.createCase(
+                ADMIN_USER_NAME, temporaryRepoNodeRef, name,
+                OpenESDHModel.TYPE_CASE_SIMPLE, properties, owners);
     }
 
     @After
@@ -140,6 +149,8 @@ public class CaseServiceImplTest {
 
                 // Remove temporary node, and all its content, also removes testcase
                 nodeService.deleteNode(temporaryRepoNodeRef);
+
+                nodeService.deleteNode(behaviourOnCaseNodeRef);
                 return true;
             }
         });
@@ -384,64 +395,86 @@ public class CaseServiceImplTest {
 
         assertFalse("Case node has journalized aspect although it is not " +
                 "journalized", nodeService.hasAspect
-                (temporaryCaseNodeRef,
+                (behaviourOnCaseNodeRef,
                         OpenESDHModel.ASPECT_OE_JOURNALIZED));
+        assertFalse("Case isJournalized returns true for an unjournalized " +
+                "case", caseService.isJournalized(behaviourOnCaseNodeRef));
 
-        final String originalTitle = (String) nodeService.getProperty(temporaryCaseNodeRef,
+        final String originalTitle = (String) nodeService.getProperty(behaviourOnCaseNodeRef,
                 OpenESDHModel.PROP_OE_TITLE);
 
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
 
-        caseService.journalize(temporaryCaseNodeRef, journalKey);
+        caseService.journalize(behaviourOnCaseNodeRef, journalKey);
 
         // Test that journalized properties got set
+        assertTrue("Case isJournalized returns false for a journalized " +
+                "case", caseService.isJournalized(behaviourOnCaseNodeRef));
         assertTrue("Case node does not have journalized aspect after it has " +
                 "been journalized", nodeService.hasAspect
-                (temporaryCaseNodeRef,
+                (behaviourOnCaseNodeRef,
                         OpenESDHModel.ASPECT_OE_JOURNALIZED));
         assertTrue("Case isJournalized is not true", (Boolean) nodeService
-                .getProperty(temporaryCaseNodeRef,
+                .getProperty(behaviourOnCaseNodeRef,
                         OpenESDHModel.PROP_OE_IS_JOURNALIZED));
         assertEquals("Case journalizedBy is not set correctly",
-                nodeService.getProperty(temporaryCaseNodeRef,
+                nodeService.getProperty(behaviourOnCaseNodeRef,
                         OpenESDHModel.PROP_OE_JOURNALIZED_BY),
                 AuthenticationUtil.getFullyAuthenticatedUser());
         assertEquals("Case journalKey is not set correctly",
-                nodeService.getProperty(temporaryCaseNodeRef,
+                nodeService.getProperty(behaviourOnCaseNodeRef,
                         OpenESDHModel.PROP_OE_JOURNALKEY),
                 journalKey);
 
-        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Object>() {
-            @Override
-            public Object doWork() throws Exception {
-                // Test that a user cannot write to a journalized case
-                try {
-                    nodeService.setProperty(temporaryCaseNodeRef,
-                            OpenESDHModel.PROP_OE_TITLE, "new title");
-                    assertTrue("A property could be updated on a " +
-                            "journalized case", false);
-                } catch (Exception e) {
-                }
+        // Test that the owner cannot write to a journalized case
+        try {
+            nodeService.setProperty(behaviourOnCaseNodeRef,
+                    OpenESDHModel.PROP_OE_TITLE, "new title");
+            assertTrue("A property could be updated on a " +
+                    "journalized case", false);
+            // TODO: Test the same for case documents
+        } catch (Exception e) {
+        }
 
-                // Test that a user can still read from the journalized case
-                assertEquals(nodeService.getProperty(temporaryCaseNodeRef,
-                        OpenESDHModel.PROP_OE_TITLE), originalTitle);
-                return null;
-            }
-        }, CaseHelper.DEFAULT_USERNAME);
+        // Test that the owner cannot change permissions on the case
+        try {
+            caseService.removeAuthorityFromRole(CaseHelper.DEFAULT_USERNAME,
+                    "CaseOwners", behaviourOnCaseNodeRef);
+            assertTrue("An authority could be removed from a role on a " +
+                    "journalized case", false);
+        } catch (Exception e) {
+        }
 
-        caseService.unJournalize(temporaryCaseNodeRef);
+        // Test that the owner cannot add an authority to a role on the case
+        try {
+            caseService.addAuthorityToRole("admin",
+                    "CaseSimpleReader", behaviourOnCaseNodeRef);
+            assertTrue("An authority could be added to a role on a " +
+                    "journalized case", false);
+        } catch (Exception e) {
+        }
+
+        // Test that a user can still read from the journalized case
+        assertEquals(nodeService.getProperty(behaviourOnCaseNodeRef,
+                OpenESDHModel.PROP_OE_TITLE), originalTitle);
+
+        caseService.unJournalize(behaviourOnCaseNodeRef);
+
+        assertFalse("Case isJournalized returns true for an unjournalized " +
+                "case", caseService.isJournalized(behaviourOnCaseNodeRef));
 
         // Test that a user can write again: these would throw exceptions if
         // they failed.
-        nodeService.setProperty(temporaryCaseNodeRef,
+        nodeService.setProperty(behaviourOnCaseNodeRef,
                 OpenESDHModel.PROP_OE_TITLE, "new title");
-        nodeService.setProperty(temporaryCaseNodeRef,
+        nodeService.setProperty(behaviourOnCaseNodeRef,
                 OpenESDHModel.PROP_OE_TITLE, originalTitle);
 
         assertFalse("Case node has journalized aspect after being " +
-                "unjournalized", nodeService.hasAspect(temporaryCaseNodeRef,
+                "unjournalized", nodeService.hasAspect(behaviourOnCaseNodeRef,
                 OpenESDHModel.ASPECT_OE_JOURNALIZED));
+
+        AuthenticationUtil.setFullyAuthenticatedUser(ADMIN_USER_NAME);
 
         // Delete test journal key categories
 //        categoryService.deleteCategory(journalKey);
