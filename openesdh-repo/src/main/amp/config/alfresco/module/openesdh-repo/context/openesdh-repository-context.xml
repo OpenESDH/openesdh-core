@@ -19,6 +19,16 @@
         <property name="xSearchService" ref="XSearchService"/>
     </bean>
 
+    <bean id="webscript.dk.openesdh.userinvolvedsearch.get"
+          class="dk.openesdh.repo.webscripts.xsearch.UserInvolvedSearch"
+          parent="webscript">
+        <property name="nodeService" ref="nodeService"/>
+        <property name="repository" ref="repositoryHelper"/>
+        <property name="namespaceService" ref="namespaceService"/>
+        <property name="userInvolvedSearchService" ref="UserInvolvedSearchService"/>
+        <property name="authenticationService" ref="authenticationService" />
+    </bean>
+
     <bean id="webscript.dk.openesdh.caseinfo.get"
           class="dk.openesdh.repo.webscripts.cases.CaseInfo"
           parent="webscript">

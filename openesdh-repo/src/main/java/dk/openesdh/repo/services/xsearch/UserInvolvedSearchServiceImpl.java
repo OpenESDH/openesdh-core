@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
 /**
  * Created by flemmingheidepedersen on 12/09/14.
  */
-public class UserInvolvedSearchServiceImpl extends AbstractXSearchService {
+public class UserInvolvedSearchServiceImpl extends AbstractXSearchService implements UserInvolvedSearchService {
 
     protected AuthorityService authorityService;
 
@@ -44,15 +44,18 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService {
         HashMap<String, String> caseGroupsNodedbid = getCaseGroupsNodedbid(user);
 
         if (caseGroupsNodedbid.size() == 0) {
-            String query = "TYPE:\"esdh:case\" AND NOT ASPECT:\"case:journalized\" AND @sys\\:node-dbid:( \"-1\" )";
+            String query = "TYPE:\"esdh:case\" AND NOT ASPECT:\"" + "oe:" + OpenESDHModel.ASPECT_OE_JOURNALIZED + "\"" + "   AND @sys\\:node-dbid:( \"-1\" )";
+            System.out.println("query: " + query);
             return executeQuery(query);
         } else {
             int collected = 0;
-            int limit = 2;
+            int limit = 200; // execute the query for every 200 groups
 
 
             XResultSet combinedResult = new XResultSet(new LinkedList<NodeRef>(), 0);
-            String baseQuery = "TYPE:\"" + OpenESDHModel.CASE_PREFIX + ":" + OpenESDHModel.TYPE_BASE_NAME + "\"" + " AND NOT ASPECT:\"case:journalized\" ";
+            String baseQuery = "TYPE:\"" + OpenESDHModel.CASE_PREFIX + ":" + OpenESDHModel.TYPE_BASE_NAME + "\"" + " AND NOT ASPECT:\"" + OpenESDHModel.ASPECT_OE_JOURNALIZED  + "\"";
+            System.out.println("baseQuery: " + baseQuery);
+
             Iterator iterator = caseGroupsNodedbid.keySet().iterator();
             System.out.println(caseGroupsNodedbid.size());
 
@@ -65,15 +68,12 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService {
 
                 if (collected == limit) {
                     XResultSet result = executeQuery(baseQuery + " AND " + "@sys\\:node-dbid:(" + nodedbidsQuery + ")");
-
                     combinedResult.getNodeRefs().addAll(result.getNodeRefs());
                     collected = 0;
                     nodedbidsQuery = "";
                 } else if (!iterator.hasNext()) {
                     XResultSet result = executeQuery(baseQuery + " AND " + "@sys\\:node-dbid:(" + nodedbidsQuery + ")");
-
                     combinedResult.getNodeRefs().addAll(result.getNodeRefs());
-
                 }
             }
             return combinedResult;

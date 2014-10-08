@@ -59,10 +59,7 @@
                 </association>
             </associations>
 
-            <mandatory-aspects>
-                <!-- aspect>sys:undeletable</aspect -->
-                <aspect>oe:journalizable</aspect>
-            </mandatory-aspects>
+
         </type>
 
         <type name="case:simple">

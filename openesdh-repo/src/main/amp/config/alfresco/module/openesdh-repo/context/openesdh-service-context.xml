@@ -52,5 +52,21 @@
         </property>
     </bean>
 
+    <bean id="UserInvolvedSearchService" class="dk.openesdh.repo.services.xsearch.UserInvolvedSearchServiceImpl">
+        <property name="searchService">
+            <ref bean="SearchService"/>
+        </property>
+        <property name="repositoryHelper">
+            <ref bean="repositoryHelper"/>
+        </property>
+        <property name="authorityService">
+            <ref bean="authorityService"/>
+        </property>
+
+
+    </bean>
+
+
+
 
 </beans>

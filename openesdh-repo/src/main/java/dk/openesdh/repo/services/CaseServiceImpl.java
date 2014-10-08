@@ -381,6 +381,8 @@ public class CaseServiceImpl implements CaseService {
         nodeService.setProperty(caseNodeRef, ContentModel.PROP_NAME, caseId);
 
 
+
+
     }
 
     String getCaseId(long uniqueNumber) {
@@ -435,8 +437,7 @@ public class CaseServiceImpl implements CaseService {
     @Override
     public boolean isJournalized(NodeRef nodeRef) {
         return nodeService.hasAspect(nodeRef,
-                OpenESDHModel.ASPECT_OE_JOURNALIZED) && (Boolean) nodeService
-                .getProperty(nodeRef, OpenESDHModel.PROP_OE_IS_JOURNALIZED);
+                OpenESDHModel.ASPECT_OE_JOURNALIZED);
     }
 
     @Override
@@ -455,7 +456,6 @@ public class CaseServiceImpl implements CaseService {
     private void journalizeImpl(NodeRef nodeRef, NodeRef journalKey) {
         Map<QName, Serializable> props = new HashMap<>();
         props.put(OpenESDHModel.PROP_OE_JOURNALKEY, journalKey);
-        props.put(OpenESDHModel.PROP_OE_IS_JOURNALIZED, true);
         props.put(OpenESDHModel.PROP_OE_JOURNALIZED_BY, AuthenticationUtil.getFullyAuthenticatedUser());
         props.put(OpenESDHModel.PROP_OE_JOURNALIZED_DATE, new Date());
         nodeService.addAspect(nodeRef, OpenESDHModel.ASPECT_OE_JOURNALIZED, props);

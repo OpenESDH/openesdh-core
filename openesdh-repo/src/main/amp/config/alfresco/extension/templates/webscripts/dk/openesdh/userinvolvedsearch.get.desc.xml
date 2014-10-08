@@ -1,0 +1,8 @@
+<webscript>
+    <shortname>Search</shortname>
+    <description>Performs a userinvolved search</description>
+    <url>/api/openesdh/userinvolvedsearch</url>
+    <format default="json"></format>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+</webscript>

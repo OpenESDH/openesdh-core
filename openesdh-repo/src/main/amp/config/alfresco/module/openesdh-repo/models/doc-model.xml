@@ -228,7 +228,6 @@
             </overrides>
 
             <mandatory-aspects>
-                <aspect>oe:journalizable</aspect>
                 <aspect>doc:publicityExempted</aspect>
                 <aspect>cm:versionable</aspect>
             </mandatory-aspects>

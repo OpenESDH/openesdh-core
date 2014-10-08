@@ -414,9 +414,6 @@ public class CaseServiceImplTest {
                 "been journalized", nodeService.hasAspect
                 (behaviourOnCaseNodeRef,
                         OpenESDHModel.ASPECT_OE_JOURNALIZED));
-        assertTrue("Case isJournalized is not true", (Boolean) nodeService
-                .getProperty(behaviourOnCaseNodeRef,
-                        OpenESDHModel.PROP_OE_IS_JOURNALIZED));
         assertEquals("Case journalizedBy is not set correctly",
                 nodeService.getProperty(behaviourOnCaseNodeRef,
                         OpenESDHModel.PROP_OE_JOURNALIZED_BY),
