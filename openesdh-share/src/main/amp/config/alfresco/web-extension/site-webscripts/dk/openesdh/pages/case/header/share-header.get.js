@@ -6,14 +6,27 @@ var args = page.url.args;
 var navMenu = widgetUtils.findObject(model.jsonModel, "id", "HEADER_NAVIGATION_MENU_BAR");
 
 
+
+navMenu.config.widgets.push({
+    id: "HEADER_CASE_DOCUMENTS",
+    name: "alfresco/menus/AlfMenuBarItem",
+    config: {
+        id: "HEADER_CASE_DOCUMENTS",
+        label: "header.case.documents" ,
+        title: "header.case.documents.altText",
+        targetUrl: "hdp/ws/dk-openesdh-pages-case-dashboard-documents?nodeRef=" + args.nodeRef
+    }
+});
+
+
 navMenu.config.widgets.push({
     id: "HEADER_CASE_MEMBERS",
     name: "alfresco/menus/AlfMenuBarItem",
     config: {
         id: "HEADER_CASE_MEMBERS",
         iconClass: "alf-user-icon",
-        iconAltText: "header.menu.members.altText",
-        title: "header.menu.members.altText",
+        iconAltText: "header.case.members.altText",
+//        title: "header.case.members.title",
         targetUrl: "hdp/ws/dk-openesdh-pages-case-dashboard-members?nodeRef=" + args.nodeRef
     }
 });
@@ -27,8 +40,8 @@ var caseConfig = {
         id: "HEADER_CASE_CONFIGURATION_DROPDOWN",
         label: "",
         iconClass: "alf-configure-icon",
-        iconAltText: "header.menu.caseConfig.altText",
-        title: "header.menu.caseConfig.altText",
+        iconAltText: "header.case.config.altText",
+  //      title: "header.case.config.title", does not work :-(
         widgets: []
     }
 };

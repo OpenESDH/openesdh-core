@@ -43,6 +43,19 @@
         </property>
     </bean>
 
+
+    <bean id="DocumentService" class="dk.openesdh.repo.services.documents.DocumentServiceImpl">
+        <property name="nodeService">
+            <ref bean="NodeService"/>
+        </property>
+        <property name="dictionaryService">
+            <ref bean="DictionaryService"/>
+        </property>
+        <property name="personService">
+            <ref bean="PersonService"/>
+        </property>
+    </bean>
+
     <bean id="XSearchService" class="dk.openesdh.repo.services.xsearch.XSearchServiceImpl">
         <property name="searchService">
             <ref bean="SearchService"/>

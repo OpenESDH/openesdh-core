@@ -1,0 +1,6 @@
+<webscript>
+    <shortname>Documents on a case</shortname>
+    <description>Show documents on a case</description>
+    <family>Share</family>
+    <url>/dk-openesdh-pages-documents?nodeRef={nodeRef}</url>
+</webscript>

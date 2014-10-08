@@ -37,6 +37,14 @@
         <property name="dictionaryService" ref="dictionaryService"/>
     </bean>
 
+
+    <bean id="webscript.dk.openesdh.documents.get"
+          class="dk.openesdh.repo.webscripts.documents.Documents"
+          parent="webscript">
+        <property name="documentService" ref="DocumentService"/>
+        <property name="nodeService" ref="NodeService"/>
+    </bean>
+
     <bean id="caseMemberWebscript"
           class="dk.openesdh.repo.webscripts.cases.CaseMembers"
           parent="webscript">

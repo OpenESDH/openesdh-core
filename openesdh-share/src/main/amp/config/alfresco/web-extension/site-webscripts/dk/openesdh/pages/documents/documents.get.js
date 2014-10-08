@@ -1,20 +1,19 @@
 model.jsonModel = {
     widgets: [
         {
-            name: "alfresco/layout/HorizontalWidgets",
+            name: "alfresco/layout/VerticalWidgets",
             config: {
                 widgetMarginLeft: 10,
                 widgetMarginRight: 10,
-                widgetWidth: 50,
                 widgets: [
                     {
-                        name: "openesdh/common/widgets/dashlets/CaseInfoDashlet",
+                        name: "openesdh/pages/documents/widgets/Documents",
                         config: {
                             title: "Hej"
                         }
                     },
                     {
-                        name: "openesdh/common/widgets/dashlets/CaseInfoDashlet",
+                        name: "openesdh/pages/documents/widgets/Documents",
                         config: {
                             title: "Hej 2"
                         }
@@ -26,7 +25,7 @@ model.jsonModel = {
     ],
     services: [
         {
-            name: "openesdh/pages/case/services/Dashboard",
+            name: "openesdh/pages/documents/services/Documents",
             config: {
                 nodeRef: page.url.args.nodeRef
 

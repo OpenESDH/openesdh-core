@@ -43,4 +43,74 @@
             </form>
         </forms>
     </config>
+
+
+    <config evaluator="model-type" condition="doc:simple">
+        <forms>
+            <!-- Default create content form configuration for a simple case -->
+            <form>
+                <field-visibility>
+                    <show id="doc:uid" />
+                    <show id="doc:type" />
+                    <show id="doc:letterDate" />
+                    <show id="doc:discardmentCode" />
+                    <show id="doc:state" />
+                    <show id="doc:comment" />
+                    <show id="doc:archive" />
+                    <show id="doc:classification" />
+                    <show id="doc:category" />
+
+                    <show id="doc:owner" />
+                    <show id="doc:responsible" />
+                    <show id="doc:concernedParties" />
+                    <show id="doc:caseReferences" />
+                    <show id="doc:documentReferences" />
+                    <show id="oe:status" />
+                    <show id="doc:main" />
+                    <show id="doc:attachments" />
+                </field-visibility>
+                <appearance>
+                    <field id="cm:description">
+                        <control>
+                            <control-param name="activateLinks">true</control-param>
+                        </control>
+                    </field>
+                </appearance>
+            </form>
+        </forms>
+    </config>
+    <config evaluator="node-type" condition="doc:simple">
+        <forms>
+            <!-- Default edit properties form configuration for a simple case -->
+            <form>
+                <field-visibility>
+                    <show id="doc:uid" />
+                    <show id="doc:type" />
+                    <show id="doc:letterDate" />
+                    <show id="doc:discardmentCode" />
+                    <show id="doc:state" />
+                    <show id="doc:comment" />
+                    <show id="doc:archive" />
+                    <show id="doc:classification" />
+                    <show id="doc:category" />
+
+                    <show id="doc:owner" />
+                    <show id="doc:responsible" />
+                    <show id="doc:concernedParties" />
+                    <show id="doc:caseReferences" />
+                    <show id="doc:documentReferences" />
+                    <show id="oe:status" />
+                    <show id="doc:main" />
+                    <show id="doc:attachments" />
+                </field-visibility>
+                <appearance>
+                    <field id="cm:description">
+                        <control>
+                            <control-param name="activateLinks">true</control-param>
+                        </control>
+                    </field>
+                </appearance>
+            </form>
+        </forms>
+    </config>
 </alfresco-config>

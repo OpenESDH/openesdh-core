@@ -1,0 +1,8 @@
+<webscript>
+    <shortname>Documents</shortname>
+    <description>Get documents for a case</description>
+    <url>/api/openesdh/documents?nodeRef={nodeRef}</url>
+    <format default="json"></format>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+</webscript>

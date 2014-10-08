@@ -18,6 +18,25 @@
                 </customization>
             </customizations>
         </module>
+
+        <module>
+            <id>OpenESDH Document Extensions</id>
+            <version>1.0</version>
+            <auto-deploy>true</auto-deploy>
+            <evaluator type="dk.openesdh.evaluator.uriprefix">
+                <params>
+                    <uriPrefix>/share/page/hdp/ws/dk-openesdh-pages-documents</uriPrefix>
+                    <apply>true</apply>
+                </params>
+            </evaluator>
+
+            <customizations>
+                <customization>
+                    <targetPackageRoot>org.alfresco.share.header</targetPackageRoot>
+                    <sourcePackageRoot>dk.openesdh.pages.documents.header</sourcePackageRoot>
+                </customization>
+            </customizations>
+        </module>
     </modules>
 </extension>
 
