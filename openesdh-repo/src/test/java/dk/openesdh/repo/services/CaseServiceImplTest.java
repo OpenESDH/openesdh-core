@@ -269,7 +269,6 @@ public class CaseServiceImplTest {
 
 
         String path = nodeService.getPath(caseFolderNodeRef).toPrefixString(namespacePrefixResolver);
-        System.out.println(path);
 //        assertTrue("Cases folder noderef is not in the right place", "/app:company_home/case:openesdh_cases".equals(path));
 
         /*

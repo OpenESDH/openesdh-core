@@ -105,7 +105,7 @@ public class XSearchServiceImpl extends AbstractXSearchService implements XSearc
         String operator = filter.getString("operator");
 
         String value = processFilterValue(filter);
-        System.out.println("Filter " + name + " " + operator + " " + value);
+        //System.out.println("Filter " + name + " " + operator + " " + value);
 
         if (value == null) {
             return null;

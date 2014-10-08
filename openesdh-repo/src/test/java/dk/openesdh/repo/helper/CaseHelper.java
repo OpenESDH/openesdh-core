@@ -241,7 +241,6 @@ public class CaseHelper {
         properties.put(ContentModel.PROP_SIZE_QUOTA, -1);
 
         NodeRef person = personService.createPerson(properties);
-        System.out.println(person);
 
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
 

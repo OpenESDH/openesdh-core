@@ -123,7 +123,6 @@ public class XSearchServiceImplTest {
         JSONArray filters = createTestFilters();
         xSearchService.baseType = baseType;
         String query = xSearchService.buildQuery(filters.toString());
-        System.out.println(query);
         assertEquals("@cm\\:title:" + AbstractXSearchService.quote(testCaseTitle) +
                 " AND " +
                 "TYPE:" + AbstractXSearchService.quote(baseType), query);

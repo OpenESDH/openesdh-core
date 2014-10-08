@@ -45,7 +45,6 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService implem
 
         if (caseGroupsNodedbid.size() == 0) {
             String query = "TYPE:\"esdh:case\" AND NOT ASPECT:\"" + OpenESDHModel.ASPECT_OE_JOURNALIZED + "\"" + "   AND @sys\\:node-dbid:( \"-1\" )";
-            System.out.println("query: " + query);
             return executeQuery(query);
         } else {
             int collected = 0;
@@ -54,10 +53,8 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService implem
 
             XResultSet combinedResult = new XResultSet(new LinkedList<NodeRef>(), 0);
             String baseQuery = "TYPE:\"" + OpenESDHModel.CASE_PREFIX + ":" + OpenESDHModel.TYPE_BASE_NAME + "\"" + " AND NOT ASPECT:\"" + OpenESDHModel.ASPECT_OE_JOURNALIZED  + "\"";
-            System.out.println("baseQuery: " + baseQuery);
 
             Iterator iterator = caseGroupsNodedbid.keySet().iterator();
-            System.out.println(caseGroupsNodedbid.size());
 
             String nodedbidsQuery = "";
             while (iterator.hasNext()) {

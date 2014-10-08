@@ -61,7 +61,6 @@ public class ModelLookupTest {
     @Test
     public void testCreateSimpleCase() {
         AuthenticationUtil.setFullyAuthenticatedUser(ADMIN_USER_NAME);
-        System.out.println(testType);
 
         modelLookup.setDictionaryService(dictionaryService);
         modelLookup.setNamespaceService(namespaceService);
