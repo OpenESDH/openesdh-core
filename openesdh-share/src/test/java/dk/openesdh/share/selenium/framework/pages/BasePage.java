@@ -6,6 +6,8 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
+import java.util.List;
+
 import static org.junit.Assert.assertNotNull;
 
 
@@ -47,6 +49,30 @@ public abstract class BasePage {
     public void clickCreateSimpleCaseItem() {
         assertNotNull(createSimpleCaseItem);
         createSimpleCaseItem.click();
+    }
+
+    public static void selectAuthoritiesInPicker(String id,
+                                                  List<String> authorities) {
+        WebElement searchInput = Browser.Driver.findElement(By.id
+                (id + "-cntrl-picker-searchText"));
+        WebElement searchButton = Browser.Driver.findElement(By.id
+                (id + "-cntrl-picker-searchButton-button"));
+        for (String authority : authorities) {
+            searchInput.clear();
+            searchInput.sendKeys(authority);
+            searchButton.click();
+            // Wonderfully complicated XPath way to get the Add button for
+            // adding the particular authority we want to add.
+            WebElement addAuthority = Browser.Driver.findElement(By
+                    .xpath("//td[contains(@class, 'yui-dt-col-name') and " +
+                            "contains(., " +
+                            "'" + authority + "')]/following-sibling::td[contains(@class, 'yui-dt-col-add')]/descendant::a"));
+            addAuthority.click();
+        }
+
+        WebElement authorityPickerOkButton = Browser.Driver.findElement(By
+                .id(id + "-cntrl-ok-button"));
+        authorityPickerOkButton.click();
     }
 
 }

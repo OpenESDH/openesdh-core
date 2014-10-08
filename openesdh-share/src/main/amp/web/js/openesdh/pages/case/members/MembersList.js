@@ -92,6 +92,7 @@ define(["dojo/_base/declare",
 
                 array.forEach(members, function (member) {
                     var memberRoleWidget = new MemberRoleWidget({
+                        id: member.authority + "-" + member.role,
                         authorityType: member.authorityType,
                         authority: member.authority,
                         displayName: member.displayName,
