@@ -44,7 +44,7 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService implem
         HashMap<String, String> caseGroupsNodedbid = getCaseGroupsNodedbid(user);
 
         if (caseGroupsNodedbid.size() == 0) {
-            String query = "TYPE:\"esdh:case\" AND NOT ASPECT:\"" + "oe:" + OpenESDHModel.ASPECT_OE_JOURNALIZED + "\"" + "   AND @sys\\:node-dbid:( \"-1\" )";
+            String query = "TYPE:\"esdh:case\" AND NOT ASPECT:\"" + OpenESDHModel.ASPECT_OE_JOURNALIZED + "\"" + "   AND @sys\\:node-dbid:( \"-1\" )";
             System.out.println("query: " + query);
             return executeQuery(query);
         } else {
