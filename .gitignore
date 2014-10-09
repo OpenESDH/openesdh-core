@@ -4,3 +4,6 @@ alf_data_dev
 *.iml
 .idea
 .DS_Store
+.project
+.classpath
+.settings
