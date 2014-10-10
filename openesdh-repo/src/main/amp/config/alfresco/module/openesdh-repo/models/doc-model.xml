@@ -282,7 +282,7 @@
             </properties>
         </type>
 
-        <type name="doc:virtualFile">
+        <type name="doc:digitalFile">
             <parent>doc:file</parent>
             <associations>
                 <child-association name="doc:content">
@@ -316,7 +316,7 @@
                 <property name="doc:alternativeTitle">
                     <type>d:text</type>
                 </property>
-                <property name="doc:statutoryAuthority">
+                <property name="doc:legalBasis">
                     <description>Reference to the legal document where the allowance of the exemption is found. Lovhjemmel</description>
                     <type>d:text</type>
                 </property>
