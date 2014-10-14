@@ -117,7 +117,7 @@ public class CaseHelper {
      *
      *
      * @param parent
-     * @param cmName
+     * @param name
      * @param caseType
      * @param properties
      * @param owners
@@ -126,7 +126,7 @@ public class CaseHelper {
      */
     public NodeRef createCase(       String username,
                                      final NodeRef parent,
-                                     final String cmName,
+                                     final String name,
                                      final QName caseType,
                                      final Map<QName, Serializable> properties,
                                      final List<NodeRef> owners,
@@ -149,13 +149,13 @@ public class CaseHelper {
                     finalBehaviourFilter.disableBehaviour();
                 }
 
-                properties.put(ContentModel.PROP_NAME, cmName);
+                properties.put(ContentModel.PROP_NAME, name);
 
                 // Create test case
                 ChildAssociationRef childAssoc = nodeService.createNode(
                         parent,
                         ContentModel.ASSOC_CONTAINS,
-                        QName.createQName(NamespaceService.CONTENT_MODEL_PREFIX, cmName),
+                        QName.createQName(OpenESDHModel.CASE_URI, name),
                         caseType,
                         properties
                 );
