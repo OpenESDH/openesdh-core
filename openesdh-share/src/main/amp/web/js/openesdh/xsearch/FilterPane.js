@@ -134,7 +134,7 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
             filterDef.widgetType = filterDef.control;
 
             var filterWidget = new Filter({
-                filterDef: filterDef,
+                    filterDef: filterDef,
                 filter: {operator: operator, value: value},
                 filterPane: this
             });

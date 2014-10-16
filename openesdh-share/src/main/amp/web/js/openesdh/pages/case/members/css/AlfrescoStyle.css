@@ -14,6 +14,7 @@
     margin: inherit;
     border: 1px #ddd solid;
 }
+
 .alfresco-share .dojoDndItemOver {
     background-color: #f4f4f4;
 }
@@ -25,10 +26,9 @@
 .alfresco-share .dijitButton .dijitButtonNode,
 .alfresco-share .dijitDropDownButton .dijitButtonNode,
 .alfresco-share .dijitComboButton .dijitButtonNode,
-.alfresco-share .dijitToggleButton .dijitButtonNode
-{
+.alfresco-share .dijitToggleButton .dijitButtonNode {
     background: none repeat scroll 0 0;
-    border: $theme-border-1;
+    border: $ theme-border-1;
     border-radius: 0 0 0 0;
     box-shadow: none;
     padding: 2px 10px;
@@ -39,54 +39,61 @@
 .alfresco-share .dijitMenu .dijitMenuItemHover,
 .alfresco-share .dijitComboBoxMenu .dijitMenuItemHover,
 .alfresco-share .dijitMenuItemSelected {
-   background-color: #f0f0f0;
-   background-image: none;
-   background-repeat: no-repeat;
+    background-color: #f0f0f0;
+    background-image: none;
+    background-repeat: no-repeat;
 }
 
 .alfresco-share a.alfresco-menus-_AlfMenuItemMixin {
-   color: inherit;
-   text-decoration: inherit;
+    color: inherit;
+    text-decoration: inherit;
 }
 
 .alfresco-share .dijitMenu .dijitMenuItem td, .alfresco-share .dijitComboBoxMenu .dijitMenuItem {
-  border-style: none;
-  border-width: 0;
+    border-style: none;
+    border-width: 0;
 }
 
 .alfresco-share .dijitReset.dijitInline.dijitMenuItemLabel.dijitMenuItem {
-   margin: 0 5px;
-   padding: 2px 5px;
+    margin: 0 5px;
+    padding: 2px 5px;
 }
+
 *:focus {
-  outline:none;
+    outline: none;
 }
 
 /* Dialog */
 .alfresco-dialog-AlfDialog .dijitDialogTitleBar {
-  text-align: left;
-  position: relative;
+    text-align: left;
+    position: relative;
 }
+
 .alfresco-dialog-AlfDialog .dijitDialogTitleBar .dijitDialogTitle {
-  font-size: 120%;
-  padding-right: 20px;
+    font-size: 120%;
+    padding-right: 20px;
 }
+
 .dijitDialogCloseIcon {
-  z-index: 1000;
-  top: 7px;
+    z-index: 1000;
+    top: 7px;
 }
+
 .dijitDialogPaneContent .alfresco-buttons-AlfButton {
-  border: none;
-  margin: 5px;
+    border: none;
+    margin: 5px;
 }
+
 .alfresco-dialog-AlfDialog.dijitDialog .alfresco-forms-controls-BaseFormControl {
-  margin-top: 10px;
+    margin-top: 10px;
 }
+
 .alfresco-dialog-AlfDialog.dijitDialog .alfresco-forms-controls-BaseFormControl:first-child {
-  margin-top: 0;
+    margin-top: 0;
 }
+
 .alfresco-dialog-AlfDialog.dijitDialog .alfresco-forms-controls-BaseFormControl > .label,
 .alfresco-dialog-AlfDialog.dijitDialog .alfresco-forms-controls-BaseFormControl > .control {
-  display: inline-block;
-  float: none;
+    display: inline-block;
+    float: none;
 }

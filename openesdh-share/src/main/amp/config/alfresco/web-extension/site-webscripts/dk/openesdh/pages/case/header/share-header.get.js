@@ -64,7 +64,9 @@ caseConfig.config.widgets.push({
         id: "HEADER_CASE_JOURNALIZE",
         label: "header.case.journalize" ,
         iconClass: "alf-cog-icon",
-        targetUrl: "/dashboard"
+
+        publishTopic: "JOURNALIZE",
+        publishPayload: {}
     }
 });
 

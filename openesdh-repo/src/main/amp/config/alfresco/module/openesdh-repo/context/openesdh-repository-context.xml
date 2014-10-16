@@ -79,7 +79,7 @@
           class="dk.openesdh.repo.webscripts.Authorities"
           parent="webscript">
         <property name="authorityService" ref="AuthorityService"/>
-    </bean>
+    </bean>ß
 
     <bean id="extendPermissionModel" parent="permissionModelBootstrap">
         <property name="model" value="alfresco/module/openesdh-repo/models/permission-model-extension.xml" />

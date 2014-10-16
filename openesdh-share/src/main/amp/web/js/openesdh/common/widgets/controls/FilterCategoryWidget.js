@@ -38,13 +38,10 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
                 domClass.add(pickerContainer, "magenta-hide-label");
             }
             
-            var opts = this.filterDef.widgetOptions;
-            if (!opts) {
-                opts = {};
-            }
+
             
-            var itemType = opts.itemType ? opts.itemType : "cm:object";
-            var many = opts.multiple ? opts.multiple : false;
+            var itemType = "cm:category";
+            var many = false;
 
             // TODO: internationalize
             var picker = this.  createAuthorityPicker(itemType, pickerId, this.label, this.initialValue, many,
@@ -53,6 +50,9 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
                         scope.selectedItems = obj.selectedItems;
                     };
                 })(this));
+
+            alert("hej");
+
         },
         
         // Return the filter data as an object
@@ -77,7 +77,7 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
             var picker = new Alfresco.module.ControlWrapper(domId);
             picker.setOptions(
                 {
-                    type: "authority",
+                    type: "category",
                     container: containerName,
                     value: value,
                     label: label,
@@ -97,6 +97,7 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
                     }
                 });
             picker.render();
+
             return picker;
         }
     });

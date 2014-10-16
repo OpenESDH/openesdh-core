@@ -19,6 +19,8 @@ define(["dojo/_base/declare",
 
             widgetsForBody: [],
 
+
+
             buildRendering: function dk_openesdh_pages_case_widgets_InfoWidget__buildRendering() {
                 this.alfSubscribe(this.CaseInfoTopic, lang.hitch(this, "_onPayloadReceive"));
 
@@ -59,6 +61,8 @@ define(["dojo/_base/declare",
 
                 this.processWidgets(this.widgetsForBody, this.bodyNode);
             }
+
+
 
         });
     })

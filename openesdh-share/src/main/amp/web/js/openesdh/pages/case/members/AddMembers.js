@@ -48,7 +48,7 @@ define(["dojo/_base/declare",
             _onAddMemberClick: function (payload) {
                 var _this = this;
                 var options = array.map(this.roleTypes, function (roleType) {
-                    return {label: _this.message("roles." + roleType.toLowerCase()), value: roleType};
+                        return {label: _this.message("roles." + roleType.toLowerCase()), value: roleType};
                 });
                 var dialog = new AlfDialog({
                     pubSubScope: this.pubSubScope,
