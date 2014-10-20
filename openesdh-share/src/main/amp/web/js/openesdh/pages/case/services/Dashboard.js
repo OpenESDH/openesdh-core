@@ -17,6 +17,7 @@ define(["dojo/_base/declare",
 
             constructor: function (args) {
                 lang.mixin(this, args);
+                nodeRef = args.NodeRef;
                 this._caseInfo(args.nodeRef);
             },
 
@@ -31,7 +32,7 @@ define(["dojo/_base/declare",
 
                 this.alfSubscribe("JOURNALIZE", lang.hitch(this, "_onClickJournalize"));
                 this.alfSubscribe("JOURNALIZE_CLICK_OK", lang.hitch(this, "handleJournalizeClickOk"));
-                this.alfSubscribe("JOURNALIZE_CLICK_TEST", lang.hitch(this, "_onClickTest"));
+
 
 
                 this.alfSubscribe("XSEARCH_FILTER_WIDGET_ON_CHANGE", lang.hitch(this, "handleJournalizeClickOk"));
@@ -53,94 +54,88 @@ define(["dojo/_base/declare",
             },
 
             handleJournalizeClickOk: function (payload) {
-                console.log("hej");
-                console.log( payload.dialogContent[1].getValue());
+//                console.log("hej");
+//                console.log( payload.dialogContent[1].getValue());
 
-//                var saveAsDefault = payload.dialogContent[0].getValue();
-//                var name;
-//                if (saveAsDefault) {
-//                    name = this.DEFAULT_SEARCH_NAME;
-//                } else {
-//                    name = payload.dialogContent[1].getValue();
-//                }
-//                if (name == '') {
-//                    // Don't allow blank names
-//                    Alfresco.util.PopupManager.displayMessage(
-//                        {
-//                            text: this.message('message.save_search.failure')
-//                        });
-//                } else {
-//                    var result = this.saveSearch(this.currentSearch, name);
-//                    // TODO: Ask to overwrite if name already exists.
-//                }
+
             },
 
-            _onClickTest: function (payload) {
+            _onJournalizeSuccessCallback: function (response, config) {
+
                 Alfresco.util.PopupManager.displayMessage(
                         {
-                            text: this.message('hej')
+                            text: this.message('journalize.success')
                         });
+
+                window.location.reload();
             },
 
-            _onClickJournalize: function (payload) {
+            _onClickJournalize: function () {
                 var _this = this;
 
-
+                console.log(_this);
 
                 this.widgets = [];
 
-
+                var url = Alfresco.constants.PROXY_URI + "api/openesdh/journalize?nodeRef=" + this.nodeRef + "&journalKey=workspace://SpacesStore/8544ad16-e88f-4dce-979e-1eff675262ee";
+                this.serviceXhr({
+                    url: url,
+                    method: "PUT",
+                    successCallback: this._onJournalizeSuccessCallback,
+                    callbackScope: this});
 
 
 //                var picker = new FilterCategoryWidget();
 //                picker.startup();
 //
-//
+//                console.log(picker.options);
+//                picker.connect();
+
 //                console.log(picker);
 
 
 
 
-                var dialog = new AlfDialog({
-                    pubSubScope: this.pubSubScope,
-                    title: this.message("xsearch.save_search_as.dialog.title"),
-                    widgetsContent: [
-
-
-                        {
-                            name: "openesdh/common/widgets/controls/FilterCategoryWidget",
-                            config: {
-                                label: this.message("asdasd"),
-                                publishTopic: "JOURNALIZE_CLICK_TEST",
-                                publishPayload: {}
-
-
-                            }
-                        }
-
-
-                    ],
-                    widgetsButtons: [
-                        {
-                            name: "alfresco/buttons/AlfButton",
-                            config: {
-                                label: this.message("journalize.button.ok"),
-                                publishTopic: "JOURNALIZE_CLICK_OK",
-                                publishPayload: {}
-                            }
-                        },
-                        {
-                            name: "alfresco/buttons/AlfButton",
-                            config: {
-                                label: this.message("journalize.button.cancel"),
-                                publishTopic: "XSEARCH_SAVE_SEARCH_AS_CANCEL",
-                                publishPayload: {}
-                            }
-                        }
-                    ]
-
-                });
-                dialog.show();
+//                var dialog = new AlfDialog({
+//                    pubSubScope: this.pubSubScope,
+//                    title: this.message("xsearch.save_search_as.dialog.title"),
+//                    widgetsContent: [
+//
+//
+//                        {
+//                            name: "openesdh/common/widgets/controls/FilterCategoryWidget",
+//                            config: {
+//                                label: this.message("asdasd"),
+//                                publishTopic: "JOURNALIZE_CLICK_TEST",
+//                                publishPayload: {}
+//
+//
+//                            }
+//                        }
+//
+//
+//                    ],
+//                    widgetsButtons: [
+//                        {
+//                            name: "alfresco/buttons/AlfButton",
+//                            config: {
+//                                label: this.message("journalize.button.ok"),
+//                                publishTopic: "JOURNALIZE_CLICK_OK",
+//                                publishPayload: {}
+//                            }
+//                        },
+//                        {
+//                            name: "alfresco/buttons/AlfButton",
+//                            config: {
+//                                label: this.message("journalize.button.cancel"),
+//                                publishTopic: "XSEARCH_SAVE_SEARCH_AS_CANCEL",
+//                                publishPayload: {}
+//                            }
+//                        }
+//                    ]
+//
+//                });
+//                dialog.show();
 
 
             }

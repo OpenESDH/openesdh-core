@@ -46,6 +46,7 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, dom, domConstruc
         },
         
         publishChangeEvent: function () {
+            alert("hej3")
             this.alfPublish("XSEARCH_FILTER_WIDGET_ON_CHANGE",
                 {
                   name: this.filterDef.name,

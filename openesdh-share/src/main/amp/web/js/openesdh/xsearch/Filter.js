@@ -77,6 +77,7 @@ _TopicsMixin) {
         },
         
         onFilterWidgetChange: function (payload) {
+            alert("hej2")
             this.alfPublish('XSEARCH_FILTER_ON_CHANGE', this.getFilter());
         },
         

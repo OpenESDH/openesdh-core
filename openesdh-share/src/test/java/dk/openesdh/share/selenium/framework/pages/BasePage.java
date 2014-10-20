@@ -22,6 +22,7 @@ public abstract class BasePage {
     public static final String BASE_URL = "http://localhost:8081/share";
 
 
+
     /**
      * Headermenu item "Cases"
      */

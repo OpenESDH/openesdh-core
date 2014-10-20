@@ -27,18 +27,23 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
 
             var pickerId = Alfresco.util.generateDomId();
 
+
+
+
             // Create a container element for the picker
             var pickerContainer = domConstruct.create("span", {
                 innerHTML: '',
                 id: pickerId
                 }, this.containerNode);
-                
+
+
+
             // Alfresco provides no way for us to not show a label, so we have to hide it
             if (typeof this.label === 'undefined') {
                 domClass.add(pickerContainer, "magenta-hide-label");
             }
-            
 
+            this.alfSubscribe("JOURNALIZE_CLICK_TEST", lang.hitch(this, "_onClickTest"));
             
             var itemType = "cm:category";
             var many = false;
@@ -48,16 +53,23 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
                 (function(scope) {
                     return function(obj) {
                         scope.selectedItems = obj.selectedItems;
+
                     };
                 })(this));
+            this.connect(picker.field, "onclick", "_onClickTest");
 
-            alert("hej");
+
 
         },
         
         // Return the filter data as an object
         getValue: function () {
             return this.selectedItems;
+        },
+
+        _onClickTest: function (payload) {
+           alert("clicktest");
+            console.log(this);
         },
         
         
