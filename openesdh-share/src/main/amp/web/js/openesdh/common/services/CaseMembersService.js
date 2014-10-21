@@ -8,7 +8,7 @@ define(["dojo/_base/declare",
 
         return declare([AlfCore, CoreXhr, _CaseMembersServiceTopicsMixin], {
 
-            nodeRef: "",
+            caseNodeRef: "",
 
             constructor: function (args) {
                 lang.mixin(this, args);
@@ -23,7 +23,7 @@ define(["dojo/_base/declare",
                 this.serviceXhr({
                     url: Alfresco.constants.PROXY_URI + "api/openesdh/casemembers",
                     query: {
-                        nodeRef: this.nodeRef
+                        caseNodeRef: this.caseNodeRef
                     },
                     method: "GET",
                     handleAs: "json",
@@ -42,7 +42,7 @@ define(["dojo/_base/declare",
                     handleAs: "json",
                     data: {},
                     query: {
-                        nodeRef: this.nodeRef,
+                        caseNodeRef: this.caseNodeRef,
                         authorityNodeRefs: payload.authorityNodeRefs,
                         role: payload.role
                     },
@@ -59,7 +59,7 @@ define(["dojo/_base/declare",
                     handleAs: "json",
                     data: {},
                     query: {
-                        nodeRef: this.nodeRef,
+                        caseNodeRef: this.caseNodeRef,
                         authority: payload.authority,
                         fromRole: payload.oldRole,
                         role: payload.newRole
@@ -76,7 +76,7 @@ define(["dojo/_base/declare",
                     method: "DELETE",
                     handleAs: "json",
                     query: {
-                        nodeRef: this.nodeRef,
+                        caseNodeRef: this.caseNodeRef,
                         authority: payload.authority,
                         role: payload.role
                     },

@@ -28,7 +28,7 @@ model.jsonModel = {
         {
             name: "openesdh/pages/case/services/Dashboard",
             config: {
-                nodeRef: page.url.args.nodeRef
+                caseNodeRef: page.url.args.nodeRef
 
             }
         }

@@ -252,26 +252,10 @@
 
         <type name="doc:simple">
             <parent>doc:base</parent>
-            <associations>
-                <child-association name="doc:main">
-                    <target>
-                        <class>doc:file</class>
-                        <mandatory>true</mandatory>
-                        <many>false</many>
-                    </target>
-                </child-association>
-                <child-association name="doc:attachments">
-                    <target>
-                        <class>doc:file</class>
-                        <mandatory>false</mandatory>
-                        <many>true</many>
-                    </target>
-                </child-association>
-            </associations>
         </type>
 
         <type name="doc:file">
-            <parent>oe:base</parent>
+            <parent>cm:content</parent>
             <properties>
                 <property name="doc:variant">
                     <type>d:text</type>
@@ -284,20 +268,10 @@
 
         <type name="doc:digitalFile">
             <parent>doc:file</parent>
-            <associations>
-                <child-association name="doc:content">
-                    <description>The file</description>
-                    <target>
-                        <class>cm:content</class>
-                        <mandatory>true</mandatory>
-                        <many>false</many>
-                    </target>
-                </child-association>
-            </associations>
         </type>
 
         <type name="doc:physicalFile">
-            <parent>oe:base</parent>
+            <parent>doc:file</parent>
             <properties>
                 <property name="doc:filePosition">
                     <description>A description of the physical position of a physical file</description>
@@ -322,5 +296,10 @@
                 </property>
             </properties>
         </aspect>
+
+        <aspect name="doc:documentContainer">
+            <description>If aspect is applied, the folder may contain documents</description>
+        </aspect>
     </aspects>
+
 </model>

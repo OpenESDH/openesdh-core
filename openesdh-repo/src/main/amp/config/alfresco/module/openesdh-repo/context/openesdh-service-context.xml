@@ -54,6 +54,10 @@
         <property name="personService">
             <ref bean="PersonService"/>
         </property>
+
+        <property name="transactionService">
+            <ref bean="TransactionService"/>
+        </property>
     </bean>
 
     <bean id="XSearchService" class="dk.openesdh.repo.services.xsearch.XSearchServiceImpl">

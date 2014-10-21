@@ -27,7 +27,7 @@ model.jsonModel = {
         {
             name: "openesdh/pages/documents/services/Documents",
             config: {
-                nodeRef: page.url.args.nodeRef
+                caseNodeRef: page.url.args.nodeRef
 
             }
         }

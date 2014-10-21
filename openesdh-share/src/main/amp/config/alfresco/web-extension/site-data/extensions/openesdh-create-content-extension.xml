@@ -1,0 +1,15 @@
+<extension>
+    <modules>
+        <module>
+            <id>Customize create content form</id>
+            <version>1.0</version>
+            <auto-deploy>true</auto-deploy>
+            <customizations>
+                <customization>
+                    <targetPackageRoot>org.alfresco.components.create-content</targetPackageRoot>
+                    <sourcePackageRoot>dk.openesdh.components.create-content</sourcePackageRoot>
+                </customization>
+            </customizations>
+        </module>
+    </modules>
+</extension>

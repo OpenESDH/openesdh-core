@@ -18,5 +18,7 @@ public interface DocumentService {
 
     public java.util.List<ChildAssociationRef> getDocumentsForCase(NodeRef nodeRef);
 
-    JSONObject buildJSON(List<ChildAssociationRef> childAssociationRefs, Documents documents);
+    JSONObject buildJSON(List<ChildAssociationRef> childAssociationRefs, Documents documents, NodeRef caseNodeRef);
+
+    void createDocument(ChildAssociationRef childAssociationRef);
 }

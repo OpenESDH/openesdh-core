@@ -17,18 +17,17 @@
  * along with Alfresco. If not, see <http://www.gnu.org/licenses/>.
  */
 
+
+var OpenESDH = OpenESDH || {};
+
 /**
  * CreateContentMgr template.
  *
- * @namespace Alfresco
- * @class Alfresco.CreateContentMgr
+ * @namespace OpenESDH
+ * @class OpenESDH.CreateContentMgr
  */
 (function()
 {
-    /**
-     * YUI Library aliases
-     */
-    var Dom = YAHOO.util.Dom;
 
     /**
      * Alfresco Slingshot aliases
@@ -39,142 +38,17 @@
      * CreateContentMgr constructor.
      *
      * @param {String} htmlId The HTML id of the parent element
-     * @return {Alfresco.CreateContentMgr} The new CreateContentMgr instance
+     * @return {OpenESDH.CreateContentMgr} The new CreateContentMgr instance
      * @constructor
      */
-    Alfresco.CreateContentMgr = function CreateContentMgr_constructor(htmlId)
+    OpenESDH.CreateContentMgr = function CreateContentMgr_constructor(htmlId)
     {
-        Alfresco.CreateContentMgr.superclass.constructor.call(this, "Alfresco.CreateContentMgr", htmlId);
-
-        /* Decoupled event listeners */
-        YAHOO.Bubbling.on("formContentReady", this.onFormContentReady, this);
-        YAHOO.Bubbling.on("beforeFormRuntimeInit", this.onBeforeFormRuntimeInit, this);
-
+        OpenESDH.CreateContentMgr.superclass.constructor.call(this, "OpenESDH.CreateContentMgr", htmlId);
         return this;
     };
 
-    YAHOO.extend(Alfresco.CreateContentMgr, Alfresco.component.Base,
+    YAHOO.extend(OpenESDH.CreateContentMgr, Alfresco.CreateContentMgr,
         {
-            /**
-             * Object container for initialization options
-             *
-             * @property options
-             * @type object
-             */
-            options:
-            {
-                /**
-                 * Is the created type expected to be a container?
-                 * The manager needs to know whether the following page is document-details or folder-details.
-                 *
-                 * @property isContainer
-                 * @type boolean
-                 * @default false
-                 */
-                isContainer: false,
-
-                /**
-                 * Current siteId.
-                 *
-                 * @property siteId
-                 * @type string
-                 */
-                siteId: null
-            },
-
-            /**
-             * Event handler called when the "formContentReady" event is received
-             */
-            onFormContentReady: function CreateContentMgr_onFormContentReady(layer, args)
-            {
-                // change the default 'Submit' label to be 'Save'
-                var submitButton = args[1].buttons.submit;
-                submitButton.set("label", this.msg("button.create"));
-
-                // add a handler to the cancel button
-                var cancelButton = args[1].buttons.cancel;
-                cancelButton.addListener("click", this.onCancelButtonClick, null, this);
-            },
-
-            /**
-             * Event handler called when the "beforeFormRuntimeInit" event is received
-             */
-            onBeforeFormRuntimeInit: function CreateContentMgr_onBeforeFormRuntimeInit(layer, args)
-            {
-                args[1].runtime.setAJAXSubmit(true,
-                    {
-                        successCallback:
-                        {
-                            fn: this.onCreateContentSuccess,
-                            scope: this
-                        },
-                        failureCallback:
-                        {
-                            fn: this.onCreateContentFailure,
-                            scope: this
-                        }
-                    });
-            },
-
-            /**
-             * Handler called when the metadata was updated successfully
-             *
-             * @method onCreateContentSuccess
-             * @param response The response from the submission
-             */
-            onCreateContentSuccess: function CreateContentMgr_onCreateContentSuccess(response)
-            {
-                var nodeRef = null;
-                if (response.json && response.json.persistedObject)
-                {
-                    // Grab the new nodeRef and pass it on to _navigateForward() to optionally use
-                    nodeRef = new Alfresco.util.NodeRef(response.json.persistedObject);
-
-                    // Activity post - documents only
-                    if (!this.options.isContainer)
-                    {
-                        Alfresco.Share.postActivity(this.options.siteId, "org.alfresco.documentlibrary.file-created", "{cm:name}", "document-details?nodeRef=" + nodeRef.toString(),
-                            {
-                                appTool: "documentlibrary",
-                                nodeRef: nodeRef.toString()
-                            }, this.bind(function() { this._navigateForward(nodeRef); }));
-                    }
-                }
-            },
-
-            /**
-             * Handler called when the metadata update operation failed
-             *
-             * @method onCreateContentFailure
-             * @param response The response from the submission
-             */
-            onCreateContentFailure: function CreateContentMgr_onCreateContentFailure(response)
-            {
-                var errorMsg = this.msg("create-content-mgr.create.failed");
-                if (response.json && response.json.message)
-                {
-                    errorMsg = errorMsg + ": " + response.json.message;
-                }
-
-                Alfresco.util.PopupManager.displayPrompt(
-                    {
-                        title: this.msg("message.failure"),
-                        text: errorMsg
-                    });
-            },
-
-            /**
-             * Called when user clicks on the cancel button.
-             *
-             * @method onCancelButtonClick
-             * @param type
-             * @param args
-             */
-            onCancelButtonClick: function CreateContentMgr_onCancel(type, args)
-            {
-                this._navigateForward();
-            },
-
             /**
              * Displays the corresponding details page for the current node
              *
@@ -187,7 +61,7 @@
                 /* Have we been given a nodeRef from the Forms Service? */
                 if (YAHOO.lang.isObject(nodeRef))
                 {
-                    window.location.href = $siteURL("page/hdp/ws/dk-openesdh-pages-case-dashboard?nodeRef=" + nodeRef.toString());
+                    window.location.href = $siteURL("hdp/ws/dk-openesdh-pages-case-dashboard?nodeRef=" + nodeRef.toString());
                 }
                 else if (document.referrer)
                 {

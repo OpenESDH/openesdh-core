@@ -26,10 +26,12 @@ public interface OpenESDHModel {
     public static final QName TYPE_CASE_BASE = QName.createQName(CASE_URI, TYPE_BASE_NAME);
     public static final QName TYPE_CASE_SIMPLE = QName.createQName(CASE_URI, TYPE_SIMPLE_NAME);
 
-    public static final QName TYPE_DOC_BASE = QName.createQName(DOC_URI,
-            TYPE_BASE_NAME);
-    public static final QName TYPE_DOC_SIMPLE = QName.createQName(DOC_URI,
-            TYPE_SIMPLE_NAME);
+    public static final QName TYPE_DOC_BASE = QName.createQName(DOC_URI, TYPE_BASE_NAME);
+    public static final QName TYPE_DOC_SIMPLE = QName.createQName(DOC_URI, TYPE_SIMPLE_NAME);
+
+    public static final QName TYPE_DOC_FILE = QName.createQName(DOC_URI, "file");
+    public static final QName TYPE_DOC_DIGITAL_FILE = QName.createQName(DOC_URI, "digitalFile");
+    public static final QName TYPE_DOC_PHYSICAL_FILE = QName.createQName(DOC_URI, "physicalFile");
 
     /**
      * Aspects
@@ -38,14 +40,24 @@ public interface OpenESDHModel {
     public static final QName ASPECT_OE_JOURNALIZED = QName.createQName(OE_URI, "journalized");
 
     public static final QName ASPECT_CASE_COUNTER = QName.createQName(CASE_URI, "counter");
+    public static final QName ASPECT_DOCUMENT_CONTAINER = QName.createQName(DOC_URI, "documentContainer");
 
     /**
      * Associations
      */
-    public static final QName ASSOC_DOC_RESPONSIBLE_PERSON = QName.createQName(DOC_URI, "owner");
+    public static final QName ASSOC_CASE_OWNERS = QName.createQName(CASE_URI, "owners");
+
+    public static final QName ASSOC_DOC_OWNER = QName.createQName(DOC_URI, "owner");
+    public static final QName ASSOC_DOC_RESPONSIBLE_PERSON = QName.createQName(DOC_URI, "responsible");
     public static final QName ASSOC_DOC_MAIN = QName.createQName(DOC_URI, "main");
     public static final QName ASSOC_DOC_ATTACHMENTS = QName.createQName(DOC_URI, "attachments");
-    public static final QName ASSOC_CASE_OWNERS = QName.createQName(CASE_URI, "owners");
+
+    public static final QName ASSOC_DOC_CONCERNED_PARTIES = QName.createQName(DOC_URI, "concernedParties");
+    public static final QName ASSOC_DOC_CASE_REFERENCES = QName.createQName(DOC_URI, "caseReferences");
+    public static final QName ASSOC_DOC_DOCUMENT_REFERENCES = QName.createQName(DOC_URI, "documentReferences");
+
+    public static final QName ASSOC_DOC_FILE_CONTENT = QName.createQName(DOC_URI, "fileContent");
+    public static final QName ASSOC_DOC_FILE_POSITION = QName.createQName(DOC_URI, "filePosition");
 
     /**
      * Properties
@@ -68,6 +80,7 @@ public interface OpenESDHModel {
     public static final QName PROP_DOC_ARRIVAL_DATE = QName.createQName(DOC_URI, "arrivalDate");
     public static final QName PROP_DOC_CATEGORY = QName.createQName(DOC_URI, "category");
     public static final QName PROP_DOC_IS_MAIN_ENTRY = QName.createQName(DOC_URI, "isMainEntry");
+    public static final QName PROP_DOC_VARIANT = QName.createQName(DOC_URI, "variant");
 
     /**
      * Constraints

@@ -380,9 +380,10 @@ public class CaseServiceImpl implements CaseService {
         //Renaming of Node to value of Case Id
         nodeService.setProperty(caseNodeRef, ContentModel.PROP_NAME, caseId);
 
-
-
-
+        // Create folder for documents
+        // TODO: Test
+        NodeRef documentsNodeRef = createNode(caseNodeRef, "documents");
+        nodeService.addAspect(documentsNodeRef, OpenESDHModel.ASPECT_DOCUMENT_CONTAINER, null);
     }
 
     String getCaseId(long uniqueNumber) {

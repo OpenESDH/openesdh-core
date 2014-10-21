@@ -1,12 +1,25 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
 <beans>
-  <bean id="caseBehaviour" class="dk.openesdh.repo.policy.CaseBehaviour" init-method="init">
-    <property name="caseService">
-      <ref bean="CaseService" />
-    </property>
-    <property name="policyComponent">
-      <ref bean="policyComponent" />
-    </property>
-  </bean>
+    <bean id="caseBehaviour" class="dk.openesdh.repo.policy.CaseBehaviour" init-method="init">
+        <property name="caseService">
+            <ref bean="CaseService"/>
+        </property>
+        <property name="policyComponent">
+            <ref bean="policyComponent"/>
+        </property>
+    </bean>
+
+
+    <bean id="documentsBehaviour" class="dk.openesdh.repo.policy.DocumentsBehaviour" init-method="init">
+        <property name="documentService">
+            <ref bean="DocumentService"/>
+        </property>
+        <property name="nodeService">
+            <ref bean="NodeService"/>
+        </property>
+        <property name="policyComponent">
+            <ref bean="policyComponent"/>
+        </property>
+    </bean>
 </beans>
