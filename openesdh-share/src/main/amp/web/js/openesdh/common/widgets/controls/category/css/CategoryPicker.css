@@ -1,11 +1,15 @@
 .category-picker .header {
-
+    padding: 1em;
 }
 
 .category-picker .back-button {
+    text-align: center;
+    padding-left: .5em;
+    padding-right: .5em;
+    font-size: 1.5em;
     border: 1px solid #000;
 }
 
-.back-button .disabled {
+.back-button.disabled {
     background: #ccc;
 }
