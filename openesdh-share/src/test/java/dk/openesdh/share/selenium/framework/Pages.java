@@ -21,6 +21,7 @@ public class Pages {
     public static CaseDashboardPage CaseDashboard;
     public static DocumentDetailsPage DocumentDetails;
     public static CaseMembersPage CaseMembers;
+    public static JournalizeCasePage JournalizeCasePage;
 
     /**
      * helper method to initElements on a page
@@ -50,5 +51,6 @@ public class Pages {
         DocumentDetails = (DocumentDetailsPage) initializePage(new
                 DocumentDetailsPage());
         CaseMembers = (CaseMembersPage) initializePage(new CaseMembersPage());
+        JournalizeCasePage = (JournalizeCasePage) initializePage(new JournalizeCasePage());
     }
 }

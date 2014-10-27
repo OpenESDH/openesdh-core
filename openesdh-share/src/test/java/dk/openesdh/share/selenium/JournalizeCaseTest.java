@@ -51,42 +51,40 @@ public class JournalizeCaseTest {
     @Test
     public void testJournalizeCase() {
 
+        // TODO load a valid journalKey instead of supplying the dummy ref
+        Pages.JournalizeCasePage.gotoPage(testCaseNodeRef, "dummy key");
+
+        WebElement elem = Browser.Driver.findElement(By.name("Journaliseret af"));
+        System.out.println("hvad er elem" + elem);
 
 
 
-
-        String role = "CaseSimpleReader";
-        List<String> authorities = new LinkedList<>();
-        String testUser = "admin";
-        authorities.add(testUser);
-        Pages.CaseMembers.addAuthoritiesToRole(authorities, role);
-
-        String memberRoleId = testUser + "-" + role;
-        WebElement elem = Browser.Driver.findElement(By.id(memberRoleId));
-        assertTrue("Added user role is displayed", elem.isDisplayed());
-
-        JavascriptExecutor js = (JavascriptExecutor) Browser.Driver;
-        String roleVal = (String) js.executeScript("return dijit.byId('" +
-                memberRoleId  + "-select').get('value')");
-        assertEquals("Role is displayed correctly", role, roleVal);
-
-        // Change the role
-        String newRole = "CaseSimpleWriter";
-        js.executeScript("dijit.byId('" +
-                memberRoleId  + "-select').set('value', '" + newRole + "')");
-
-        roleVal = (String) js.executeScript("return dijit.byId('" +
-                memberRoleId  + "-select').get('value')");
-        assertEquals("Role is changed", newRole, roleVal);
-
-        // Remove the user from the role
-        js.executeScript("dijit.byId('" +
-                memberRoleId  + "-remove').onClick()");
-        Alert alert = Browser.Driver.switchTo().alert();
-        alert.accept();
-
-        assertTrue("Removed user role is not displayed",
-                Browser.Driver.findElements(By.id(memberRoleId)).isEmpty());
+//        String memberRoleId = testUser + "-" + role;
+//        WebElement elem = Browser.Driver.findElement(By.id(memberRoleId));
+//        assertTrue("Added user role is displayed", elem.isDisplayed());
+//
+//        JavascriptExecutor js = (JavascriptExecutor) Browser.Driver;
+//        String roleVal = (String) js.executeScript("return dijit.byId('" +
+//                memberRoleId  + "-select').get('value')");
+//        assertEquals("Role is displayed correctly", role, roleVal);
+//
+//        // Change the role
+//        String newRole = "CaseSimpleWriter";
+//        js.executeScript("dijit.byId('" +
+//                memberRoleId  + "-select').set('value', '" + newRole + "')");
+//
+//        roleVal = (String) js.executeScript("return dijit.byId('" +
+//                memberRoleId  + "-select').get('value')");
+//        assertEquals("Role is changed", newRole, roleVal);
+//
+//        // Remove the user from the role
+//        js.executeScript("dijit.byId('" +
+//                memberRoleId  + "-remove').onClick()");
+//        Alert alert = Browser.Driver.switchTo().alert();
+//        alert.accept();
+//
+//        assertTrue("Removed user role is not displayed",
+//                Browser.Driver.findElements(By.id(memberRoleId)).isEmpty());
     }
 
 
