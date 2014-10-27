@@ -1,12 +1,12 @@
 <alfresco-config>
 
-      <!--config evaluator="string-compare" condition="WebFramework">
+      <config evaluator="string-compare" condition="WebFramework">
            <web-framework>
                <autowire>
                    <mode>development</mode>
                </autowire>
            </web-framework>
-       </config-->
+       </config>
 
 
     <config evaluator="string-compare" condition="DocumentLibrary">
@@ -28,7 +28,7 @@
             <!--
                Developer debugging setting to turn on DEBUG mode for client scripts in the browser
             -->
-            <client-debug>false</client-debug>
+            <client-debug>true</client-debug>
             <!--
                LOGGING can always be toggled at runtime when in DEBUG mode (Ctrl, Ctrl, Shift, Shift).
                This flag automatically activates logging on page load.

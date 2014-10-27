@@ -19,6 +19,7 @@ public class Pages {
     public static CreateCasePage CreateCase;
     public static EditCasePage EditCase;
     public static CaseDashboardPage CaseDashboard;
+    public static DocumentDetailsPage DocumentDetails;
     public static CaseMembersPage CaseMembers;
 
     /**
@@ -46,6 +47,8 @@ public class Pages {
         CreateCase = (CreateCasePage) initializePage(new CreateCasePage());
         EditCase = (EditCasePage) initializePage(new EditCasePage());
         CaseDashboard = (CaseDashboardPage) initializePage(new CaseDashboardPage());
+        DocumentDetails = (DocumentDetailsPage) initializePage(new
+                DocumentDetailsPage());
         CaseMembers = (CaseMembersPage) initializePage(new CaseMembersPage());
     }
 }

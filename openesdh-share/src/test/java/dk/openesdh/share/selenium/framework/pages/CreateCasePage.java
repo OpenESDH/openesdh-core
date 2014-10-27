@@ -1,6 +1,7 @@
 package dk.openesdh.share.selenium.framework.pages;
 
 import dk.openesdh.share.selenium.framework.Browser;
+import dk.openesdh.share.selenium.framework.Pages;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -66,23 +67,9 @@ public class CreateCasePage extends BasePage {
 
         createButton.click();
 
-        // TODO: Update code when we create the case dashboard
-        // Check that we arrive at the document details page
-        WebElement documentDetailsHeaderElem = (new WebDriverWait(Browser.Driver,
-                10)).until(ExpectedConditions.presenceOfElementLocated(By
-                .id("template_x002e_node-header_x002e_document-details")));
-        if (documentDetailsHeaderElem != null) {
-            Pattern p = Pattern.compile("nodeRef=(.+)");
-            Matcher matcher = p.matcher(Browser.Driver.getCurrentUrl());
+        // Wait for the case dashboard to load
+        Browser.Driver.findElement(By.cssSelector(".dashlet"));
 
-            if (matcher.find()) {
-                // Return the newly created nodeRef
-                return matcher.group(1);
-            } else {
-                return null;
-            }
-        } else {
-            return null;
-        }
+        return Pages.CaseDashboard.getNodeRef();
     }
 }

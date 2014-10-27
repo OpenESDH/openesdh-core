@@ -60,8 +60,8 @@ public class CreateCaseTest {
     @After
     public void tearDown() {
         // Delete the test case
-        Pages.CaseDashboard.gotoPage(testCaseNodeRef);
-        Pages.CaseDashboard.deleteCase();
+        Pages.DocumentDetails.gotoPage(testCaseNodeRef);
+        Pages.DocumentDetails.deleteNode();
         Pages.Login.logout();
     }
 
