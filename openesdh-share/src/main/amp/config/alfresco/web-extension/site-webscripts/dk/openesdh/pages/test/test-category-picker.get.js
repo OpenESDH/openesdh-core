@@ -5,7 +5,7 @@ model.jsonModel = {
             config: {
                 widgets: [
                     {
-                        name: "openesdh/common/widgets/controls/category/CategoryPicker",
+                        name: "openesdh/common/widgets/controls/category/CategoryPickerControl",
                         config: {
                             rootItemId: "root"
                         }

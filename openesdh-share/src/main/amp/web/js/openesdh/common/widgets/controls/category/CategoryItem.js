@@ -10,8 +10,9 @@ define(["dojo/_base/declare",
         "dojo/_base/array",
         "dojo/dom-construct",
         "dojo/dom-class",
+        "dojo/dom-attr",
         "dojo/on"],
-    function (declare, _Widget, AlfCore, _Templated, template, lang, array, domConstruct, domClass, on) {
+    function (declare, _Widget, AlfCore, _Templated, template, lang, array, domConstruct, domClass, domAttr, on) {
 
         return declare([_Widget, AlfCore, _Templated], {
 
@@ -61,6 +62,15 @@ define(["dojo/_base/declare",
              */
             selected: false,
 
+            /**
+             * Whether the item can be selected.
+             *
+             * @instance
+             * @default true
+             * @type boolean
+             */
+            selectable: true,
+
             postCreate: function () {
                 this.inherited(arguments);
 
@@ -68,7 +78,12 @@ define(["dojo/_base/declare",
                     domConstruct.destroy(this.browseButtonNode);
                 }
 
-                on(this.labelNode, "click", lang.hitch(this, "_onLabelClick"));
+                var iconUrl = Alfresco.constants.URL_CONTEXT + "res/components/images/filetypes/generic-category-16.png";
+                domAttr.set(this.iconImgNode, "src", iconUrl);
+
+                if (this.selectable) {
+                    on(this.labelNode, "click", lang.hitch(this, "_onLabelClick"));
+                }
                 on(this.browseButtonNode, "click", lang.hitch(this, "_onBrowseClick"));
             },
 

@@ -96,6 +96,12 @@ define(["dojo/_base/declare",
             postCreate: function () {
                 this.inherited(arguments);
 
+                // Single-select doesn't have any concept of selected items in
+                // the picker dialog..
+                if (!this.multipleSelect) {
+                    this.selectedItems = [];
+                }
+
                 if (this.store == null) {
                     // TODO: Use JSON store
 //                  this.store = new JsonRest({
@@ -181,8 +187,7 @@ define(["dojo/_base/declare",
                     console.log(this.selectedItems);
                     this.selectionChanged();
                 } else {
-                    // TODO: Close dialog
-                    alert(itemId);
+                    this.alfPublish("CATEGORY_PICKER_DIALOG_OK", {selectedItems: [itemId]});
                 }
             },
 
@@ -218,6 +223,8 @@ define(["dojo/_base/declare",
 
                 this.widgets = [];
 
+                var selectable = !this.canPickFirstLevelItems && this.currentItemId == this.rootItemId;
+
                 array.forEach(children, function (child) {
                     var isSelected = array.indexOf(_this.selectedItems, child.id) >= 0;
                     var hasChildren = "children" in child && child.children;
@@ -225,7 +232,8 @@ define(["dojo/_base/declare",
                         itemLabel: child.name,
                         itemId: child.id,
                         selected: isSelected,
-                        hasChildren: hasChildren
+                        hasChildren: hasChildren,
+                        selectable: selectable
                     });
                     _this.widgets.push(itemWidget);
                     itemWidget.placeAt(_this.containerNode);
@@ -243,7 +251,7 @@ define(["dojo/_base/declare",
             },
 
             getRestUrl: function () {
-                return Alfresco.constants.PROXY_URI + "api/openesdh/categories/";
+                return Alfresco.constants.PROXY_URI + "slingshot/doclib/categorynode/node/";
             }
         });
     });

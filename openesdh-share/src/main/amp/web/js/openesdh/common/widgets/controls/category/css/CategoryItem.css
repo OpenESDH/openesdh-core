@@ -11,6 +11,7 @@
 
 .browse-button {
     float: right;
+    font-weight: bold;
     text-align: center;
     padding-left: .5em;
     padding-right: .5em;
