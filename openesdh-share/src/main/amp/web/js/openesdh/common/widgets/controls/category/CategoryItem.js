@@ -71,10 +71,21 @@ define(["dojo/_base/declare",
              */
             selectable: true,
 
+            /**
+             * Whether the item can be removed.
+             *
+             * @instance
+             * @default false
+             * @type boolean
+             */
+            removable: false,
+
             postCreate: function () {
                 this.inherited(arguments);
 
-                this.domNode.setAttribute("tabIndex", "-1");
+                if (!this.removable) {
+                    domConstruct.destroy(this.removeButtonNode);
+                }
 
                 if (!this.hasChildren) {
                     domConstruct.destroy(this.browseButtonNode);
@@ -85,11 +96,14 @@ define(["dojo/_base/declare",
 
                 if (this.selectable) {
                     on(this.labelNode, "click", lang.hitch(this, "_onLabelClick"));
+                    // Clicking on the item should be like clicking on the label.
+                    on(this.domNode, "click", lang.hitch(this, "_onLabelClick"));
+                } else {
+                    domAttr.remove(this.labelNode, "href");
                 }
-                on(this.browseButtonNode, "click", lang.hitch(this, "_onBrowseClick"));
 
-                // Clicking on the item should be like clicking on the label.
-                on(this.domNode, "click", lang.hitch(this, "_onLabelClick"));
+                on(this.removeButtonNode, "click", lang.hitch(this, "_onRemoveClick"));
+                on(this.browseButtonNode, "click", lang.hitch(this, "_onBrowseClick"));
             },
 
             focus: function(){
@@ -100,12 +114,23 @@ define(["dojo/_base/declare",
                 return {name: this.itemName, nodeRef: this.nodeRef, hasChildren: this.hasChildren};
             },
 
-            _onLabelClick: function () {
-                this.alfPublish("CATEGORY_PICKER_ITEM_SELECT", {item: this}, true);
+            _onLabelClick: function (e) {
+                if (!this.selected) {
+                    this.alfPublish("CATEGORY_PICKER_ITEM_SELECT", {item: this}, true);
+                } else {
+                    this.alfPublish("CATEGORY_PICKER_ITEM_DESELECT", {item: this}, true);
+                }
+                e.stopPropagation();
             },
 
             _onBrowseClick: function (e) {
                 this.alfPublish("CATEGORY_PICKER_ITEM_BROWSE", {item: this}, true);
+                e.stopPropagation();
+            },
+
+            _onRemoveClick: function (e) {
+                this.alfPublish("CATEGORY_PICKER_ITEM_DESELECT", {item: this}, true);
+                console.log("Remove", this);
                 e.stopPropagation();
             },
 

@@ -11,10 +11,11 @@ define(["dojo/_base/declare",
         "dojo/_base/lang",
         "dojo/_base/array",
         "dojo/on",
+        "dojo/dom-construct",
         "dojo/dom-class",
         "dojo/dom-style",
         "./CategoryItem"],
-    function (declare, _Widget, AlfCore, CoreXhr, _KeyNavMixin, _Templated, template, lang, array, on, domClass, domStyle, CategoryItem) {
+    function (declare, _Widget, AlfCore, CoreXhr, _KeyNavMixin, _Templated, template, lang, array, on, domConstruct, domClass, domStyle, CategoryItem) {
 
         return declare([_Widget, AlfCore, CoreXhr, _KeyNavMixin, _Templated], {
 
@@ -74,6 +75,26 @@ define(["dojo/_base/declare",
              */
             selectedItems: null,
 
+            constructor: function () {
+                this.inherited(arguments);
+                // Polyfill
+                if (!Object.keys) {
+                    Object.keys = function(o){
+                        if (o !== Object(o)) {
+                            throw new TypeError('Object.keys called on non-object');
+                        }
+                        var ret=[], p;
+                        for (p in o) {
+                            if (Object.prototype.hasOwnProperty.call(o,p)) {
+                                ret.push(p);
+                            }
+                        }
+                        return ret;
+                    };
+                }
+
+            },
+
             postCreate: function () {
                 this.inherited(arguments);
 
@@ -95,16 +116,20 @@ define(["dojo/_base/declare",
                 // the picker dialog..
                 if (!this.multipleSelect) {
                     this.selectedItems = {};
+                    domConstruct.destroy(this.selectedItemsNode);
                 }
 
                 this.loadingNode.innerHTML = this.message("label.loading");
+                this.emptySelectionNode.innerHTML = this.message("message.empty.selection");
 
                 on(this.backButtonNode, "click", lang.hitch(this, "_onBackClick"));
 
                 this.alfSubscribe("CATEGORY_PICKER_ITEM_SELECT", lang.hitch(this, "_onSelectItem"), true);
                 this.alfSubscribe("CATEGORY_PICKER_ITEM_BROWSE", lang.hitch(this, "_onBrowseItem"), true);
+                this.alfSubscribe("CATEGORY_PICKER_ITEM_DESELECT", lang.hitch(this, "_onDeselectItem"), true);
 
                 this.browse(true);
+                this.selectionChanged();
             },
 
             _onBackClick: function () {
@@ -112,11 +137,15 @@ define(["dojo/_base/declare",
             },
 
             _onSelectItem: function (payload) {
-                this.select(payload.item.getItem());
+                this.select(payload.item.getItem(), true);
             },
 
             _onBrowseItem: function (payload) {
                 this.browseTo(payload.item.getItem());
+            },
+
+            _onDeselectItem: function (payload) {
+                this.select(payload.item.getItem(), false);
             },
 
             browseTo: function (item) {
@@ -134,8 +163,13 @@ define(["dojo/_base/declare",
                 }
             },
 
-            select: function (item) {
-                this.selectedItems[item.nodeRef] = item;
+            select: function (item, select) {
+                if (select) {
+                    this.selectedItems[item.nodeRef] = item;
+                } else {
+                    delete this.selectedItems[item.nodeRef];
+                }
+
                 if (this.multipleSelect) {
                     this.selectionChanged();
                 } else {
@@ -144,17 +178,46 @@ define(["dojo/_base/declare",
             },
 
             selectionChanged: function () {
+                if (!this.multipleSelect) {
+                    return;
+                }
+
                 var _this = this;
+
                 array.forEach(this.widgets, function (widget, i) {
                     var isSelected = widget.nodeRef in _this.selectedItems;
                     widget.set("selected", isSelected);
                 });
+
+                if (Object.keys(this.selectedItems).length > 0) {
+                    domStyle.set(this.emptySelectionNode, "display", "none");
+                }  else {
+                    domStyle.set(this.emptySelectionNode, "display", "");
+                }
+
+                array.forEach(this.selectedItemWidgets, function (widget, i) {
+                    widget.destroyRecursive();
+                });
+                this.selectedItemWidgets = [];
+                for (var nodeRef in this.selectedItems) {
+                    if (!this.selectedItems.hasOwnProperty(nodeRef)) continue;
+                    var item = this.selectedItems[nodeRef];
+                    var itemWidget = new CategoryItem({
+                        itemName: item.name,
+                        nodeRef: item.nodeRef,
+                        hasChildren: false,
+                        selectable: false,
+                        removable: true
+                    });
+                    this.selectedItemWidgets.push(itemWidget);
+                    itemWidget.placeAt(this.selectedItemsNode);
+                }
             },
 
             browse: function (firstTime) {
                 var _this = this;
 
-                domStyle.set(_this.loadingNode, "display", "inline");
+                domStyle.set(_this.loadingNode, "display", "");
 
                 this.getChildCategories(this.path.join("/"), function (response, config) {
                     domStyle.set(_this.loadingNode, "display", "none");
@@ -184,6 +247,7 @@ define(["dojo/_base/declare",
                         });
                         _this.widgets.push(itemWidget);
                         itemWidget.placeAt(_this.containerNode);
+                        itemWidget.domNode.setAttribute("tabIndex", "-1");
                     });
 
                     if (!firstTime) {

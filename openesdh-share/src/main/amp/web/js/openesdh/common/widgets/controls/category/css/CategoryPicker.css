@@ -16,9 +16,19 @@
 }
 
 .category-picker .container {
-    width: 500px;
+    width: 350px;
     height: 300px;
     overflow: auto;
+}
+
+.selected-items-container {
+    float: right;
+    width: 250px;
+    height: 300px;
+    overflow: auto;
+    border-left: 2px #ccc solid;
+    margin-left: .5em;
+    padding-left: .5em;
 }
 
 .back-button.disabled {
