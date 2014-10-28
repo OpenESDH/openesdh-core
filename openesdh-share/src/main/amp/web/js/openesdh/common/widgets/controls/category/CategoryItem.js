@@ -87,6 +87,9 @@ define(["dojo/_base/declare",
                     on(this.labelNode, "click", lang.hitch(this, "_onLabelClick"));
                 }
                 on(this.browseButtonNode, "click", lang.hitch(this, "_onBrowseClick"));
+
+                // Clicking on the item should be like clicking on the label.
+                on(this.domNode, "click", lang.hitch(this, "_onLabelClick"));
             },
 
             focus: function(){
@@ -101,8 +104,9 @@ define(["dojo/_base/declare",
                 this.alfPublish("CATEGORY_PICKER_ITEM_SELECT", {item: this}, true);
             },
 
-            _onBrowseClick: function () {
+            _onBrowseClick: function (e) {
                 this.alfPublish("CATEGORY_PICKER_ITEM_BROWSE", {item: this}, true);
+                e.stopPropagation();
             },
 
             _setSelectedAttr: function (selected) {

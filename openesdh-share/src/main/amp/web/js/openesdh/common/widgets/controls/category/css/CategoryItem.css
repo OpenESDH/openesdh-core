@@ -1,8 +1,7 @@
 .category-item {
     border-top: 1px solid #ccc;
     clear: both;
-    height: 2em;
-    padding: 1em;
+    padding: .25em;
 }
 
 .category-item .icon {
