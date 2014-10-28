@@ -1,8 +1,12 @@
 .category-item {
     border-top: 1px solid #ccc;
     clear: both;
-    height: 1em;
+    height: 2em;
     padding: 1em;
+}
+
+.category-item .icon {
+    vertical-align: middle;
 }
 
 .item-selected {

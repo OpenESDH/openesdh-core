@@ -10,6 +10,12 @@
     font-size: 1.5em;
 }
 
+.category-picker .container {
+    width: 500px;
+    height: 300px;
+    overflow: auto;
+}
+
 .back-button.disabled {
     visibility: hidden;
 }

@@ -4,18 +4,17 @@
 define(["dojo/_base/declare",
         "dijit/_WidgetBase",
         "alfresco/core/Core",
+        "alfresco/core/CoreXhr",
         "dijit/_TemplatedMixin",
         "dojo/text!./templates/CategoryPicker.html",
-        "dojo/store/Memory",
-        "dojo/store/JsonRest",
         "dojo/_base/lang",
         "dojo/_base/array",
         "dojo/on",
         "dojo/dom-class",
         "./CategoryItem"],
-    function (declare, _Widget, AlfCore, _Templated, template, Memory, JsonRest, lang, array, on, domClass, CategoryItem) {
+    function (declare, _Widget, AlfCore, CoreXhr, _Templated, template, lang, array, on, domClass, CategoryItem) {
 
-        return declare([_Widget, AlfCore, _Templated], {
+        return declare([_Widget, AlfCore, CoreXhr, _Templated], {
 
             templateString: template,
 
@@ -28,13 +27,13 @@ define(["dojo/_base/declare",
             ],
 
             /**
-             * The ID of the root item, for where to start the picker.
+             * The NodeRef of the root category
              *
              * @instance
              * @default null
              * @type string
              */
-            rootItemId: null,
+            rootNodeRef: null,
 
             /**
              * Whether the picker should allow multiple selections.
@@ -55,203 +54,147 @@ define(["dojo/_base/declare",
             canPickFirstLevelItems: false,
 
             /**
-             * The current item that we are viewing children of.
-             *
-             * @instance
-             * @default null
-             * @type string
-             */
-            currentItemId: null,
-
-            /**
-             * An array of parent items of the current item.
+             * The current path as an array of strings.
              *
              * @instance
              * @default null
              * @type string[]
              */
-            parentItemIds: null,
+            path: null,
 
             /**
-             * The items currently selected in the picker.
+             * The items currently selected in the picker. An object of the
+             * form: {nodeRef: {name, nodeRef}}.
              *
              * @instance
              * @default null
-             * @type string[]
+             * @type {object}
              */
             selectedItems: null,
-
-            constructor: function() {
-                this.inherited(arguments);
-
-                if (this.selectedItems == null) {
-                    this.selectedItems = [];
-                }
-
-                this.parentItemIds = [];
-
-                this.widgets = [];
-            },
 
             postCreate: function () {
                 this.inherited(arguments);
 
+                this.widgets = [];
+
+                if (this.selectedItems == null) {
+                    this.selectedItems = {};
+                }
+
+                if (this.path != null) {
+                    this.initialPath = this.path;
+                } else {
+                    this.initialPath = [];
+                }
+
+                this.path = [];
+
                 // Single-select doesn't have any concept of selected items in
                 // the picker dialog..
                 if (!this.multipleSelect) {
-                    this.selectedItems = [];
+                    this.selectedItems = {};
                 }
-
-                if (this.store == null) {
-                    // TODO: Use JSON store
-//                  this.store = new JsonRest({
-//                      target: this.getRestUrl()
-//                  });
-                    this.store = new Memory({
-                        data: [
-                            {
-                                "name": "US Government",
-                                "id": "root",
-                                "children": [
-                                    {
-                                        "name": "Congress",
-                                        "id": "congress",
-                                        "children": [
-                                            "blah1", "blah2"
-                                        ]
-                                    },
-                                    {
-                                        "name": "Executive",
-                                        "id": "exec"
-                                    },
-                                    {
-                                        "name": "Judicial",
-                                        "id": "judicial"
-                                    }
-                                ]
-                            },
-                            {
-                                "name": "Congress",
-                                "id": "congress",
-                                "children": [
-
-                                    {
-                                        "name": "Blah 1",
-                                        "id": "blah1"
-                                    },
-                                    {
-                                        "name": "Blah 2",
-                                        "id": "blah2"
-                                    }
-                                ]
-                            }
-                        ],
-                        getChildren: function (object) {
-                            if ("children" in object && object.children) {
-                                return object.children;
-                            } else {
-                                return [];
-                            }
-                        }
-                    });
-                }
-
-                // TODO: Change when using JSON store
-//                this.store.idProperty = 'id';
 
                 on(this.backButtonNode, "click", lang.hitch(this, "_onBackClick"));
 
-                this.alfSubscribe("CATEGORY_PICKER_ITEM_SELECT", lang.hitch(this, "_onSelectItem"));
-                this.alfSubscribe("CATEGORY_PICKER_ITEM_BROWSE", lang.hitch(this, "_onBrowseItem"));
+                this.alfSubscribe("CATEGORY_PICKER_ITEM_SELECT", lang.hitch(this, "_onSelectItem"), true);
+                this.alfSubscribe("CATEGORY_PICKER_ITEM_BROWSE", lang.hitch(this, "_onBrowseItem"), true);
 
-                this.browse(this.rootItemId, false);
+                this.browse();
             },
 
             _onBackClick: function () {
-                if (this.parentItemIds.length > 0) {
-                    this.browse(this.parentItemIds[this.parentItemIds.length - 1], false);
+                if (this.path.length > 0) {
+                    this.path.pop();
+                    this.browse();
                 }
             },
 
             _onSelectItem: function (payload) {
-                this.select(payload.itemId);
+                this.select(payload.item.getItem());
             },
 
             _onBrowseItem: function (payload) {
-                this.browse(payload.itemId, true);
+                this.path.push(payload.item.itemName);
+                this.browse();
             },
 
-            select: function (itemId) {
+            select: function (item) {
+                this.selectedItems[item.nodeRef] = item;
                 if (this.multipleSelect) {
-                    this.selectedItems.push(itemId);
-                    console.log(this.selectedItems);
                     this.selectionChanged();
                 } else {
-                    this.alfPublish("CATEGORY_PICKER_DIALOG_OK", {selectedItems: [itemId]});
+                    this.alfPublish("CATEGORY_PICKER_DIALOG_OK", {selectedItems: this.selectedItems});
                 }
             },
 
             selectionChanged: function () {
                 var _this = this;
                 array.forEach(this.widgets, function (widget, i) {
-                    var isSelected = array.indexOf(_this.selectedItems, widget.itemId) >= 0;
-                    console.log("is selected?", widget.itemId, widget, isSelected);
+                    var isSelected = widget.nodeRef in _this.selectedItems;
                     widget.set("selected", isSelected);
                 });
             },
 
-            browse: function (itemId, isChild) {
+            browse: function () {
                 var _this = this;
 
-                if (isChild) {
-                    this.parentItemIds.push(this.currentItemId);
-                } else {
-                    this.parentItemIds.pop();
-                }
+                this._onPathChanged();
 
-                this.currentItemId = itemId;
-
-                var currentItem = this.store.get(this.currentItemId);
-                var children = this.store.getChildren(currentItem);
-
-                // Update the header
-                this.currentItemNode.innerHTML = currentItem.name;
-
-                array.forEach(this.widgets, function (widget, i) {
-                    widget.destroyRecursive();
-                });
-
-                this.widgets = [];
-
-                var selectable = !this.canPickFirstLevelItems && this.currentItemId == this.rootItemId;
-
-                array.forEach(children, function (child) {
-                    var isSelected = array.indexOf(_this.selectedItems, child.id) >= 0;
-                    var hasChildren = "children" in child && child.children;
-                    var itemWidget = new CategoryItem({
-                        itemLabel: child.name,
-                        itemId: child.id,
-                        selected: isSelected,
-                        hasChildren: hasChildren,
-                        selectable: selectable
+                this.getChildCategories(this.path.join("/"), function (response, config) {
+                    array.forEach(this.widgets, function (widget, i) {
+                        widget.destroyRecursive();
                     });
-                    _this.widgets.push(itemWidget);
-                    itemWidget.placeAt(_this.containerNode);
-                });
 
-                this.currentItemChanged();
+                    this.widgets = [];
+
+                    // TODO: Test
+                    var selectable = this.canPickFirstLevelItems || this.path.toString() != this.initialPath.toString();
+
+                    var items = response.items;
+
+                    array.forEach(items, function (child) {
+                        var isSelected = child.nodeRef in _this.selectedItems;
+                        var itemWidget = new CategoryItem({
+                            itemName: child.name,
+                            nodeRef: child.nodeRef,
+                            hasChildren: child.hasChildren,
+                            selected: isSelected,
+                            selectable: selectable
+                        });
+                        _this.widgets.push(itemWidget);
+                        itemWidget.placeAt(_this.containerNode);
+                    });
+                });
             },
 
-            currentItemChanged: function () {
-                if (this.parentItemIds.length > 0) {
+            _onPathChanged: function () {
+                // Update the header
+                var currentPathElem = this.path[this.path.length - 1];
+                this.currentItemNode.innerHTML = currentPathElem || "";
+
+                if (this.path.length > 0) {
                     domClass.remove(this.backButtonNode, "disabled");
                 } else {
                     domClass.add(this.backButtonNode, "disabled");
                 }
             },
 
-            getRestUrl: function () {
-                return Alfresco.constants.PROXY_URI + "slingshot/doclib/categorynode/node/";
+            getChildCategories: function (path, callback) {
+                var url = this.getChildCategoriesUrl(path);
+                this.serviceXhr({
+                    url: url,
+                    method: "GET",
+                    handleAs: "json",
+                    successCallback: callback,
+                    callbackScope: this
+                });
+            },
+
+            getChildCategoriesUrl: function (path) {
+                var nodeRef = new Alfresco.util.NodeRef(this.rootNodeRef),
+                    uriTemplate = "slingshot/doclib/categorynode/node/" + encodeURI(nodeRef.uri) + "/" + Alfresco.util.encodeURIPath(path);
+                return Alfresco.constants.PROXY_URI + uriTemplate + "?perms=false&children=true";
             }
         });
     });

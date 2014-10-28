@@ -43,13 +43,13 @@ define(["dojo/_base/declare",
             pickerWidget: "openesdh/common/widgets/controls/category/CategoryPicker",
 
             /**
-             * The ID of the root item, for where to start the picker.
+             * The NodeRef of the root category
              *
              * @instance
              * @default null
              * @type string
              */
-            rootItemId: null,
+            rootNodeRef: null,
 
             /**
              * Whether the picker should allow multiple selections.
@@ -68,6 +68,15 @@ define(["dojo/_base/declare",
              * @type boolean
              */
             canPickFirstLevelItems: false,
+
+            /**
+             * The current path as an array of strings.
+             *
+             * @instance
+             * @default null
+             * @type string[]
+             */
+            path: null,
 
             /**
              * The items currently selected.
@@ -89,16 +98,12 @@ define(["dojo/_base/declare",
 
             constructor: function () {
                 this.inherited(arguments);
-
-                if (this.selectedItems == null) {
-                    this.selectedItems = [];
-                }
-//
-//                this.widgets = [];
             },
 
             postCreate: function () {
                 this.inherited(arguments);
+
+                this.pubSubScope = this.id;
 
                 var selectButton = new AlfButton({
                     label: this.message("button.select"),
@@ -114,14 +119,16 @@ define(["dojo/_base/declare",
 
             _onDialogOK: function (payload) {
                 if (this.dialog) {
+                    var selectedItems = ("selectedItems" in payload &&
+                        payload.selectedItems) ||
+                        payload.dialogContent[0].selectedItems;
+
                     this.dialog.hide();
                     this.dialog.destroyRecursive();
-                }
 
-                if ("selectedItems" in payload) {
-                    this.set("selectedItems", payload.selectedItems);
+                    this.set("selectedItems", selectedItems);
+                    console.log("OK", payload);
                 }
-                console.log("OK", payload);
             },
 
             _onDialogClear: function (payload) {
@@ -129,23 +136,23 @@ define(["dojo/_base/declare",
                     this.dialog.hide();
                     this.dialog.destroyRecursive();
                 }
-                this.set("selectedItems", []);
+                this.set("selectedItems", {});
             },
 
             _setSelectedItemsAttr: function (selectedItems) {
                 this._set("selectedItems", selectedItems);
-                var _this = this;
                 var itemsHTML = [];
-                array.forEach(selectedItems, function (item) {
-                    itemsHTML.push(_this._renderItem(item));
-                });
+                for (var nodeRef in selectedItems) {
+                    if (!selectedItems.hasOwnProperty(nodeRef)) continue;
+                    itemsHTML.push(this._renderItem(selectedItems[nodeRef]));
+                }
                 var markup = '<div>' + itemsHTML.join(" ") + '</div>';
                 domConstruct.place(markup, this.selectedItemsNode, "only");
             },
 
             _renderItem: function (item) {
                 var iconUrl = Alfresco.constants.URL_CONTEXT + "res/components/images/filetypes/generic-category-16.png";
-                return '<img src="' + iconUrl + '"/> ' + item;
+                return '<img src="' + iconUrl + '"/> ' + item.name;
             },
 
             _onDialogCancel: function (payload) {
@@ -186,7 +193,9 @@ define(["dojo/_base/declare",
                 var buttons = [];
                 if (this.multipleSelect) {
                     buttons.push(okButton);
-                } else if (this.selectedItems.length > 0) {
+                }
+
+                if (this.selectedItems) {
                     buttons.push(clearButton);
                 }
                 buttons.push(cancelButton);
@@ -198,9 +207,10 @@ define(["dojo/_base/declare",
                         {
                             name: this.pickerWidget,
                             config: {
-                                rootItemId: this.rootItemId,
+                                rootNodeRef: this.rootNodeRef,
                                 multipleSelect: this.multipleSelect,
                                 canPickFirstLevelItems: this.canPickFirstLevelItems,
+                                path: this.path,
                                 selectedItems: this.selectedItems
                             }
                         }

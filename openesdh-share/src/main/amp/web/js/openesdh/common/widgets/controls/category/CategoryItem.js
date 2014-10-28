@@ -27,22 +27,22 @@ define(["dojo/_base/declare",
             ],
 
             /**
-             * The text label of the item.
+             * The name of the item.
              *
              * @instance
              * @default ""
              * @type string
              */
-            itemLabel: "",
+            itemName: "",
 
             /**
-             * The ID of the item.
+             * The nodeRef of the item.
              *
              * @instance
              * @default ""
              * @type string
              */
-            itemId: "",
+            nodeRef: "",
 
             /**
              * Whether the item has children.
@@ -78,7 +78,7 @@ define(["dojo/_base/declare",
                     domConstruct.destroy(this.browseButtonNode);
                 }
 
-                var iconUrl = Alfresco.constants.URL_CONTEXT + "res/components/images/filetypes/generic-category-16.png";
+                var iconUrl = Alfresco.constants.URL_CONTEXT + "res/components/images/filetypes/generic-category-32.png";
                 domAttr.set(this.iconImgNode, "src", iconUrl);
 
                 if (this.selectable) {
@@ -87,12 +87,16 @@ define(["dojo/_base/declare",
                 on(this.browseButtonNode, "click", lang.hitch(this, "_onBrowseClick"));
             },
 
+            getItem: function () {
+                return {name: this.itemName, nodeRef: this.nodeRef};
+            },
+
             _onLabelClick: function () {
-                this.alfPublish("CATEGORY_PICKER_ITEM_SELECT", {itemId: this.itemId});
+                this.alfPublish("CATEGORY_PICKER_ITEM_SELECT", {item: this}, true);
             },
 
             _onBrowseClick: function () {
-                this.alfPublish("CATEGORY_PICKER_ITEM_BROWSE", {itemId: this.itemId});
+                this.alfPublish("CATEGORY_PICKER_ITEM_BROWSE", {item: this}, true);
             },
 
             _setSelectedAttr: function (selected) {
