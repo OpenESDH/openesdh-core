@@ -23,9 +23,7 @@ define(["dojo/_base/declare",
             templateString: template,
 
             cssRequirements: [
-                {cssFile: "./css/CategoryPickerControl.css"},
-                {cssFile: "./css/CategoryPicker.css"},
-                {cssFile: "./css/CategoryItem.css"}
+                {cssFile: "./css/CategoryPickerControl.css"}
             ],
 
             i18nRequirements: [
@@ -46,10 +44,10 @@ define(["dojo/_base/declare",
              * The NodeRef of the root category
              *
              * @instance
-             * @default null
+             * @default "workspace://SpacesStore/abc/"
              * @type string
              */
-            rootNodeRef: null,
+            rootNodeRef: "workspace://SpacesStore/abc/",
 
             /**
              * Whether the picker should allow multiple selections.
@@ -64,10 +62,10 @@ define(["dojo/_base/declare",
              * Whether or not the first level items in the picker can be chosen.
              *
              * @instance
-             * @default false
+             * @default true
              * @type boolean
              */
-            canPickFirstLevelItems: false,
+            canPickFirstLevelItems: true,
 
             /**
              * The current path as an array of strings.

@@ -50,10 +50,10 @@ define(["dojo/_base/declare",
              * Whether or not the first level items in the picker can be chosen.
              *
              * @instance
-             * @default false
+             * @default true
              * @type boolean
              */
-            canPickFirstLevelItems: false,
+            canPickFirstLevelItems: true,
 
             /**
              * The current path as an array of strings.
@@ -104,7 +104,7 @@ define(["dojo/_base/declare",
                 this.alfSubscribe("CATEGORY_PICKER_ITEM_SELECT", lang.hitch(this, "_onSelectItem"), true);
                 this.alfSubscribe("CATEGORY_PICKER_ITEM_BROWSE", lang.hitch(this, "_onBrowseItem"), true);
 
-                this.browse();
+                this.browse(true);
             },
 
             _onBackClick: function () {
@@ -151,7 +151,7 @@ define(["dojo/_base/declare",
                 });
             },
 
-            browse: function () {
+            browse: function (firstTime) {
                 var _this = this;
 
                 domStyle.set(_this.loadingNode, "display", "inline");
@@ -171,6 +171,8 @@ define(["dojo/_base/declare",
 
                     var items = response.items;
 
+                    this.domNode.setAttribute("tabIndex", "0");
+
                     array.forEach(items, function (child) {
                         var isSelected = child.nodeRef in _this.selectedItems;
                         var itemWidget = new CategoryItem({
@@ -184,12 +186,11 @@ define(["dojo/_base/declare",
                         itemWidget.placeAt(_this.containerNode);
                     });
 
-                    this.domNode.setAttribute("tabIndex", "0");
-
-                    if (this.widgets.length > 0) {
-                        this.widgets[0].focus();
-                    } else {
-                        this.domNode.focus();
+                    if (!firstTime) {
+                        // We should not call focus on the first time,
+                        // as something else seems to be doing that for us,
+                        // leading to problems focusing the first item.
+                        this.focus();
                     }
                 });
             },
