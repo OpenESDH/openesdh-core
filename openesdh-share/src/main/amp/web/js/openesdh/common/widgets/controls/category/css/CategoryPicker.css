@@ -3,6 +3,11 @@
     margin-bottom: .5em;
 }
 
+.category-picker .loading {
+    font-weight: normal;
+    margin-left: 2em;
+}
+
 .category-picker .back-button {
     text-align: center;
     padding-left: .5em;

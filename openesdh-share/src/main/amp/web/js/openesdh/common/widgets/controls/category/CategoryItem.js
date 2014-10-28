@@ -74,6 +74,8 @@ define(["dojo/_base/declare",
             postCreate: function () {
                 this.inherited(arguments);
 
+                this.domNode.setAttribute("tabIndex", "-1");
+
                 if (!this.hasChildren) {
                     domConstruct.destroy(this.browseButtonNode);
                 }
@@ -87,8 +89,12 @@ define(["dojo/_base/declare",
                 on(this.browseButtonNode, "click", lang.hitch(this, "_onBrowseClick"));
             },
 
+            focus: function(){
+                this.labelNode.focus();
+            },
+
             getItem: function () {
-                return {name: this.itemName, nodeRef: this.nodeRef};
+                return {name: this.itemName, nodeRef: this.nodeRef, hasChildren: this.hasChildren};
             },
 
             _onLabelClick: function () {
