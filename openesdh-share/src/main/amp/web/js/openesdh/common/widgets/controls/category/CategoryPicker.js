@@ -14,8 +14,12 @@ define(["dojo/_base/declare",
         "dojo/dom-construct",
         "dojo/dom-class",
         "dojo/dom-style",
+        "dijit/layout/BorderContainer",
+        "dijit/layout/ContentPane",
         "./CategoryItem"],
-    function (declare, _Widget, AlfCore, CoreXhr, _KeyNavMixin, _Templated, template, lang, array, on, domConstruct, domClass, domStyle, CategoryItem) {
+    function (declare, _Widget, AlfCore, CoreXhr, _KeyNavMixin, _Templated, template, lang, array, on, domConstruct, domClass, domStyle,
+              BorderContainer, ContentPane,
+              CategoryItem) {
 
         return declare([_Widget, AlfCore, CoreXhr, _KeyNavMixin, _Templated], {
 
@@ -130,6 +134,50 @@ define(["dojo/_base/declare",
 
                 this.browse(true);
                 this.selectionChanged();
+            },
+
+            startup: function () {
+                this.inherited(arguments);
+                if ("_startup" in this && this._startup) {
+                    return;
+                }
+
+                this._startup = true;
+                var bc = new BorderContainer({
+                    style: (this.multipleSelect ?
+                        "width: 750px; height: 300px;" :
+                        "width: 400px; height: 300px;")
+                });
+
+                // create a ContentPane as the center pane in the BorderContainer
+                var cp1 = new ContentPane({
+                    region: "center",
+                    content: this.containerNode,
+                    splitter: true
+                });
+                bc.addChild(cp1);
+
+                if (this.multipleSelect) {
+                    // create a ContentPane as the right pane in the BorderContainer
+                    var cp2 = new ContentPane({
+                        region: "right",
+                        style: "width: 45%",
+                        splitter: true,
+                        content: this.selectedItemsNode
+                    });
+                    bc.addChild(cp2);
+                }
+
+                // put the top level widget into the document, and then call startup()
+                bc.placeAt(this.borderContainerNode);
+                bc.startup();
+                this.bc = bc;
+            },
+
+            resize: function () {
+                // This is necessary so the BorderContainer resizes
+                this.bc.resize(arguments);
+                this.inherited(arguments);
             },
 
             _onBackClick: function () {
