@@ -6,9 +6,10 @@ define(["dojo/_base/declare",
         "dojo/text!./templates/InfoWidget.html",
         "dojo/_base/lang",
         "openesdh/pages/_TopicsMixin",
-        "openesdh/pages/case/widgets/lib/JSONProcessing"
+        "openesdh/pages/case/widgets/lib/JSONProcessing",
+        "openesdh/common/widgets/renderers/PropertyField"
     ],
-    function (declare, _Widget, Core, CoreWidgetProcessing, _Templated, template, lang, _TopicsMixin, JSONProcessing) {
+    function (declare, _Widget, Core, CoreWidgetProcessing, _Templated, template, lang, _TopicsMixin, JSONProcessing, PropertyField) {
         return declare([_Widget, Core, CoreWidgetProcessing, _Templated, _TopicsMixin, JSONProcessing], {
             templateString: template,
             i18nRequirements: [
