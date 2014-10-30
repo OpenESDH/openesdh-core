@@ -1,5 +1,22 @@
 .category-item {
     border-top: 1px solid #ccc;
+    clear: both;
+    padding: .25em;
+}
+
+.category-item .icon {
+    vertical-align: middle;
+}
+
+.category-item .remove-button {
+    float: right;
+    border-radius: 50%;
+    border: 1px #ccc solid;
+    width: 1.5em;
+    height: 1.5em;
+    font-size: 1.25em;
+    text-align: center;
+    margin-left: 1em;
 }
 
 .item-selected {
@@ -7,7 +24,12 @@
 }
 
 .browse-button {
-    width: 5em;
-    height: 5em;
+    float: right;
+    font-weight: bold;
+    text-align: center;
+    padding-left: .5em;
+    padding-right: .5em;
+    font-size: 1.5em;
     border-left: 1px solid #ccc;
+    margin-left: 1em;
 }

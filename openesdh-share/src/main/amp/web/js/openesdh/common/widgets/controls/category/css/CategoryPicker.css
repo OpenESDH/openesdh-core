@@ -1,11 +1,20 @@
 .category-picker .header {
+    font-weight: bold;
+    margin-bottom: 1em;
+}
 
+.category-picker .loading {
+    font-weight: normal;
+    margin-left: 2em;
 }
 
 .category-picker .back-button {
-    border: 1px solid #000;
+    text-align: center;
+    padding-left: .5em;
+    padding-right: .5em;
+    font-size: 1.5em;
 }
 
-.back-button .disabled {
-    background: #ccc;
+.back-button.disabled {
+    visibility: hidden;
 }

@@ -61,9 +61,6 @@ model.jsonModel = {
                             ]
                         }
                     },
-//                    {
-//                        name: "openesdh/pages/case/members/AddMembers"
-//                    },
                     {
                         name: "openesdh/pages/case/members/MembersList",
                         config: {

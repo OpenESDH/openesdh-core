@@ -5,9 +5,14 @@ model.jsonModel = {
             config: {
                 widgets: [
                     {
-                        name: "openesdh/common/widgets/controls/category/CategoryPicker",
+                        name: "openesdh/common/widgets/controls/category/CategoryPickerControl",
                         config: {
-                            rootItemId: "root"
+                        }
+                    },
+                    {
+                        name: "openesdh/common/widgets/controls/category/CategoryPickerControl",
+                        config: {
+                            multipleSelect: true
                         }
                     }
                 ]
