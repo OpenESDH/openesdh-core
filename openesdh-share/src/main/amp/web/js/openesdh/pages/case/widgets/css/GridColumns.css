@@ -1,0 +1,31 @@
+/* Actions column */
+.field-nodeRef {
+   width: 6em;
+}
+.field-type {
+    width: 8em;
+}
+.field-esdh-caseID {
+    width: 5em;
+}
+.field-esdh-journalCity,
+.field-esdh-journalDepartment {
+    width: 12em;
+}
+.field-esdh-caseOwner {
+    width: 8em;
+}
+
+/* Date fields */
+.field-cm-modified,
+.field-cm-created,
+.field-esdh-startDate,
+.field-esdh-endDate {
+    width: 8em;
+}
+.field-esdh-status {
+    width: 10em;
+}
+.field-esdh-pasId {
+    width: 7em;
+}
