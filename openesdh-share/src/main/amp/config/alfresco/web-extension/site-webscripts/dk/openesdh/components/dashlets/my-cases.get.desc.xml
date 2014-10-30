@@ -1,0 +1,6 @@
+<webscript>
+    <shortname>MyCases dashlet</shortname>
+    <description>Displays a list of cases that a user belongs to in a certain way</description>
+    <family>user-dashlet</family>
+    <url>/components/dashlets/my-cases</url>
+</webscript>
