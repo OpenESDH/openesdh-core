@@ -11,8 +11,10 @@ define(["dojo/_base/declare",
         "dojo/dom-construct",
         "dojo/dom-class",
         "dojo/dom-attr",
-        "dojo/on"],
-    function (declare, _Widget, AlfCore, _Templated, template, lang, array, domConstruct, domClass, domAttr, on) {
+        "dojo/dom-style",
+        "dojo/on",
+        "dojo/keys"],
+    function (declare, _Widget, AlfCore, _Templated, template, lang, array, domConstruct, domClass, domAttr, domStyle, on, keys) {
 
         return declare([_Widget, AlfCore, _Templated], {
 
@@ -25,6 +27,15 @@ define(["dojo/_base/declare",
             i18nRequirements: [
                 {i18nFile: "./i18n/CategoryItem.properties"}
             ],
+
+            /**
+             * A reference to the picker object.
+             *
+             * @instance
+             * @default null
+             * @type CategoryPicker
+             */
+            picker: null,
 
             /**
              * The name of the item.
@@ -94,10 +105,12 @@ define(["dojo/_base/declare",
                 var iconUrl = Alfresco.constants.URL_CONTEXT + "res/components/images/filetypes/generic-category-32.png";
                 domAttr.set(this.iconImgNode, "src", iconUrl);
 
+                var _this = this;
                 if (this.selectable) {
-                    on(this.labelNode, "click", lang.hitch(this, "_onLabelClick"));
-                    // Clicking on the item should be like clicking on the label.
-                    on(this.domNode, "click", lang.hitch(this, "_onLabelClick"));
+                    array.forEach([this.domNode, this.labelNode], function (node) {
+                        on(node, "click", lang.hitch(_this, "_onLabelClick"));
+                    });
+                    domStyle.set(_this.domNode, "cursor", "pointer");
                 } else {
                     domAttr.remove(this.labelNode, "href");
                 }
@@ -115,22 +128,17 @@ define(["dojo/_base/declare",
             },
 
             _onLabelClick: function (e) {
-                if (!this.selected) {
-                    this.alfPublish("CATEGORY_PICKER_ITEM_SELECT", {item: this}, true);
-                } else {
-                    this.alfPublish("CATEGORY_PICKER_ITEM_DESELECT", {item: this}, true);
-                }
+                this.picker.select(this.getItem(), !this.selected);
                 e.stopPropagation();
             },
 
             _onBrowseClick: function (e) {
-                this.alfPublish("CATEGORY_PICKER_ITEM_BROWSE", {item: this}, true);
+                this.picker.browseTo(this.getItem());
                 e.stopPropagation();
             },
 
             _onRemoveClick: function (e) {
-                this.alfPublish("CATEGORY_PICKER_ITEM_DESELECT", {item: this}, true);
-                console.log("Remove", this);
+                this.picker.select(this.getItem(), false);
                 e.stopPropagation();
             },
 

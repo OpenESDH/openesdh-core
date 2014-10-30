@@ -16,9 +16,10 @@ define(["dojo/_base/declare",
         "dojo/dom-style",
         "dijit/layout/BorderContainer",
         "dijit/layout/ContentPane",
+        "openesdh/common/utils/openesdh",
         "./CategoryItem"],
     function (declare, _Widget, AlfCore, CoreXhr, _KeyNavMixin, _Templated, template, lang, array, on, domConstruct, domClass, domStyle,
-              BorderContainer, ContentPane,
+              BorderContainer, ContentPane, openesdh,
               CategoryItem) {
 
         return declare([_Widget, AlfCore, CoreXhr, _KeyNavMixin, _Templated], {
@@ -79,26 +80,6 @@ define(["dojo/_base/declare",
              */
             selectedItems: null,
 
-            constructor: function () {
-                this.inherited(arguments);
-                // Polyfill
-                if (!Object.keys) {
-                    Object.keys = function(o){
-                        if (o !== Object(o)) {
-                            throw new TypeError('Object.keys called on non-object');
-                        }
-                        var ret=[], p;
-                        for (p in o) {
-                            if (Object.prototype.hasOwnProperty.call(o,p)) {
-                                ret.push(p);
-                            }
-                        }
-                        return ret;
-                    };
-                }
-
-            },
-
             postCreate: function () {
                 this.inherited(arguments);
 
@@ -127,10 +108,6 @@ define(["dojo/_base/declare",
                 this.emptySelectionNode.innerHTML = this.message("message.empty.selection");
 
                 on(this.backButtonNode, "click", lang.hitch(this, "_onBackClick"));
-
-                this.alfSubscribe("CATEGORY_PICKER_ITEM_SELECT", lang.hitch(this, "_onSelectItem"), true);
-                this.alfSubscribe("CATEGORY_PICKER_ITEM_BROWSE", lang.hitch(this, "_onBrowseItem"), true);
-                this.alfSubscribe("CATEGORY_PICKER_ITEM_DESELECT", lang.hitch(this, "_onDeselectItem"), true);
 
                 this.browse(true);
                 this.selectionChanged();
@@ -184,18 +161,6 @@ define(["dojo/_base/declare",
                 this.back();
             },
 
-            _onSelectItem: function (payload) {
-                this.select(payload.item.getItem(), true);
-            },
-
-            _onBrowseItem: function (payload) {
-                this.browseTo(payload.item.getItem());
-            },
-
-            _onDeselectItem: function (payload) {
-                this.select(payload.item.getItem(), false);
-            },
-
             browseTo: function (item) {
                 if (!item.hasChildren) {
                     return;
@@ -221,8 +186,12 @@ define(["dojo/_base/declare",
                 if (this.multipleSelect) {
                     this.selectionChanged();
                 } else {
-                    this.alfPublish("CATEGORY_PICKER_DIALOG_OK", {selectedItems: this.selectedItems});
+                    this.pressOK();
                 }
+            },
+
+            pressOK: function () {
+                this.alfPublish("CATEGORY_PICKER_DIALOG_OK", {selectedItems: this.selectedItems});
             },
 
             selectionChanged: function () {
@@ -237,7 +206,7 @@ define(["dojo/_base/declare",
                     widget.set("selected", isSelected);
                 });
 
-                if (Object.keys(this.selectedItems).length > 0) {
+                if (!openesdh.isEmpty(this.selectedItems)) {
                     domStyle.set(this.emptySelectionNode, "display", "none");
                 }  else {
                     domStyle.set(this.emptySelectionNode, "display", "");
@@ -251,6 +220,7 @@ define(["dojo/_base/declare",
                     if (!this.selectedItems.hasOwnProperty(nodeRef)) continue;
                     var item = this.selectedItems[nodeRef];
                     var itemWidget = new CategoryItem({
+                        picker: this,
                         itemName: item.name,
                         nodeRef: item.nodeRef,
                         hasChildren: false,
@@ -287,6 +257,7 @@ define(["dojo/_base/declare",
                     array.forEach(items, function (child) {
                         var isSelected = child.nodeRef in _this.selectedItems;
                         var itemWidget = new CategoryItem({
+                            picker: _this,
                             itemName: child.name,
                             nodeRef: child.nodeRef,
                             hasChildren: child.hasChildren,
@@ -309,8 +280,7 @@ define(["dojo/_base/declare",
 
             _onPathChanged: function () {
                 // Update the header
-                var currentPathElem = this.path[this.path.length - 1];
-                this.currentItemNode.innerHTML = currentPathElem || "";
+                this.currentItemNode.innerHTML = this.path.join("/");
 
                 if (this.path.length > 0) {
                     domClass.remove(this.backButtonNode, "disabled");

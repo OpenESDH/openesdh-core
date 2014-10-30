@@ -15,8 +15,9 @@ define(["dojo/_base/declare",
         "dojo/dom-construct",
         "alfresco/buttons/AlfButton",
         "alfresco/dialogs/AlfDialog",
+        "openesdh/common/utils/openesdh",
         "openesdh/common/widgets/controls/category/CategoryPicker"],
-    function (declare, _Widget, AlfCore, _Templated, template, Memory, JsonRest, lang, array, on, domClass, domConstruct, AlfButton, AlfDialog, CategoryPicker) {
+    function (declare, _Widget, AlfCore, _Templated, template, Memory, JsonRest, lang, array, on, domClass, domConstruct, AlfButton, AlfDialog, openesdh, CategoryPicker) {
 
         return declare([_Widget, AlfCore, _Templated], {
 
@@ -157,6 +158,7 @@ define(["dojo/_base/declare",
                 if (this.dialog) {
                     this.dialog.hide();
                     this.dialog.destroyRecursive();
+                    console.log("DESTROYING");
                 }
             },
 
@@ -191,9 +193,7 @@ define(["dojo/_base/declare",
                 var buttons = [];
                 if (this.multipleSelect) {
                     buttons.push(okButton);
-                }
-
-                if (this.selectedItems) {
+                } else if (!openesdh.isEmpty(this.selectedItems)) {
                     buttons.push(clearButton);
                 }
                 buttons.push(cancelButton);
@@ -209,7 +209,7 @@ define(["dojo/_base/declare",
                                 multipleSelect: this.multipleSelect,
                                 canPickFirstLevelItems: this.canPickFirstLevelItems,
                                 path: this.path,
-                                selectedItems: this.selectedItems
+                                selectedItems: lang.clone(this.selectedItems)
                             }
                         }
                     ],
