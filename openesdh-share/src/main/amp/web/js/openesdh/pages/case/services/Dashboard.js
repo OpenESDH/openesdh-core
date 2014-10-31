@@ -4,10 +4,10 @@ define(["dojo/_base/declare",
         "dojo/_base/array",
         "dojo/_base/lang",
         "openesdh/pages/_TopicsMixin",
-        "alfresco/dialogs/AlfDialog",
+        "alfresco/dialogs/AlfFormDialog",
         "alfresco/core/NotificationUtils",
         "openesdh/common/widgets/controls/category/CategoryPickerControl"],
-    function (declare, AlfCore, CoreXhr, array, lang, _TopicsMixin, AlfDialog, NotificationUtils, CategoryPickerControl) {
+    function (declare, AlfCore, CoreXhr, array, lang, _TopicsMixin, AlfFormDialog, NotificationUtils, CategoryPickerControl) {
 
         return declare([AlfCore, CoreXhr, _TopicsMixin, NotificationUtils], {
 
@@ -59,37 +59,22 @@ define(["dojo/_base/declare",
             },
 
             _onJournalize: function () {
-                var dialog = new AlfDialog({
+                var dialog = new AlfFormDialog({
                     pubSubScope: this.pubSubScope,
                     title: this.message("journalize.dialog.title"),
+                    formSubmissionTopic: "JOURNALIZE_DIALOG_OK",
+                    dialogConfirmationButtonTitle: this.message("button.ok"),
+                    dialogCancellationButtonTitle: this.message("button.cancel"),
                     widgetsContent: [
                         {
                             name: "openesdh/common/widgets/controls/category/CategoryPickerControl",
                             config: {
-//                                requirementConfig: {
-//                                    initialValue: true
-//                                }
+                                label: this.message("journal.key"),
+                                requirementConfig: {
+                                    initialValue: true
+                                }
                                 // TODO: Set the root category for the journal key
 //                                rootNodeRef: "workspace://SpacesStore/abc/"
-                            }
-                        }
-                    ],
-                    widgetsButtons: [
-                        {
-                            name: "alfresco/buttons/AlfButton",
-                            config: {
-                                label: this.message("button.ok"),
-                                publishTopic: "JOURNALIZE_DIALOG_OK",
-                                publishPayload: {}
-                            }
-                        },
-
-                        {
-                            name: "alfresco/buttons/AlfButton",
-                            config: {
-                                label: this.message("button.cancel"),
-                                publishTopic: "JOURNALIZE_DIALOG_CANCEL",
-                                publishPayload: {}
                             }
                         }
                     ]
@@ -100,15 +85,15 @@ define(["dojo/_base/declare",
             },
 
             _onJournalizeDialogOK: function (payload) {
-                var selectedItems = payload.dialogContent[0].selectedItems;
-                if (!selectedItems) {
-                    // TODO: Better form validation.. Make it a "required" field?
-                    return;
+                if (!confirm(this.message("case.journalize.confirm"))) {
+                    return false;
                 }
+
                 var journalKey;
-                for (var nodeRef in selectedItems) {
-                    journalKey = nodeRef;
-                    break;
+                for (var property in payload) {
+                    if (!payload.hasOwnProperty(property)) continue;
+                    if (property == "alfTopic") continue;
+                    journalKey = property;
                 }
 
                 var url = Alfresco.constants.PROXY_URI + "api/openesdh/journalize?nodeRef=" + this.caseNodeRef + "&journalKey=" + journalKey;
