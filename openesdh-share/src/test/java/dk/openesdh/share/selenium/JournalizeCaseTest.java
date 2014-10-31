@@ -44,47 +44,21 @@ public class JournalizeCaseTest {
                 testCaseOwners, testCaseStartDate, testCaseEndDate);
         assertNotNull(testCaseNodeRef);
 
-        Pages.CaseMembers.gotoPage(testCaseNodeRef);
-        assertTrue(Pages.CaseMembers.isAt());
+        Pages.CaseDashboard.gotoPage(testCaseNodeRef);
+        assertTrue(Pages.CaseDashboard.isAt());
     }
 
     @Test
     public void testJournalizeCase() {
 
         // TODO load a valid journalKey instead of supplying the dummy ref
-        Pages.JournalizeCasePage.gotoPage(testCaseNodeRef, "dummy key");
+        Pages.CaseDashboard.journalize("Languages");
 
-        WebElement elem = Browser.Driver.findElement(By.name("Journaliseret af"));
-        System.out.println("hvad er elem" + elem);
+        // TODO: Make it language-independent
+        WebElement elem = Browser.Driver.findElement(By.xpath("//*[text()='Journaliseret af']//following-sibling::*[@class='value']"));
+        assertEquals(User.ADMIN.username(), elem.getText());
 
-
-
-//        String memberRoleId = testUser + "-" + role;
-//        WebElement elem = Browser.Driver.findElement(By.id(memberRoleId));
-//        assertTrue("Added user role is displayed", elem.isDisplayed());
-//
-//        JavascriptExecutor js = (JavascriptExecutor) Browser.Driver;
-//        String roleVal = (String) js.executeScript("return dijit.byId('" +
-//                memberRoleId  + "-select').get('value')");
-//        assertEquals("Role is displayed correctly", role, roleVal);
-//
-//        // Change the role
-//        String newRole = "CaseSimpleWriter";
-//        js.executeScript("dijit.byId('" +
-//                memberRoleId  + "-select').set('value', '" + newRole + "')");
-//
-//        roleVal = (String) js.executeScript("return dijit.byId('" +
-//                memberRoleId  + "-select').get('value')");
-//        assertEquals("Role is changed", newRole, roleVal);
-//
-//        // Remove the user from the role
-//        js.executeScript("dijit.byId('" +
-//                memberRoleId  + "-remove').onClick()");
-//        Alert alert = Browser.Driver.switchTo().alert();
-//        alert.accept();
-//
-//        assertTrue("Removed user role is not displayed",
-//                Browser.Driver.findElements(By.id(memberRoleId)).isEmpty());
+        // TODO: Assert that journal key is correct
     }
 
 
