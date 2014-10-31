@@ -61,12 +61,49 @@ caseConfig.config.widgets.push({
     id: "HEADER_CASE_JOURNALIZE",
     name: "alfresco/menus/AlfMenuBarItem",
     config: {
-        id: "HEADER_CASE_JOURNALIZE",
-        label: "header.case.journalize" ,
+        label: "header.case.journalize",
         iconClass: "alf-cog-icon",
 
         publishTopic: "JOURNALIZE",
-        publishPayload: {}
+        publishPayload: {},
+        visibilityConfig: {
+            initialValue: false,
+            rules: [
+                {
+                    topic: "CASE_INFO",
+                    attribute: "isJournalized",
+                    isNot: [true]
+                }
+            ]
+        }
+    }
+});
+caseConfig.config.widgets.push({
+    id: "HEADER_CASE_UNJOURNALIZE",
+    name: "alfresco/menus/AlfMenuBarItem",
+    config: {
+        label: "header.case.unjournalize",
+        iconClass: "alf-cog-icon",
+
+        publishTopic: "UNJOURNALIZE",
+        publishPayload: {},
+        visibilityConfig: {
+            initialValue: false,
+            rules: [
+                {
+                    topic: "CASE_INFO",
+                    attribute: "isJournalized",
+                    is: [true]
+                }
+            ]
+        }
+    }
+});
+
+model.jsonModel.services.push({
+    name: "openesdh/pages/case/services/Dashboard",
+    config: {
+        caseNodeRef: args.nodeRef
     }
 });
 

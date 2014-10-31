@@ -16,14 +16,5 @@ model.jsonModel = {
                 ]
             }
         }
-    ],
-    services: [
-        {
-            name: "openesdh/pages/case/services/Dashboard",
-            config: {
-                caseNodeRef: page.url.args.nodeRef
-            }
-        }
-
     ]
 };

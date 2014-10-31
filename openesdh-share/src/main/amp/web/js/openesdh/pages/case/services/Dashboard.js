@@ -5,10 +5,11 @@ define(["dojo/_base/declare",
         "dojo/_base/lang",
         "openesdh/pages/_TopicsMixin",
         "alfresco/dialogs/AlfDialog",
+        "alfresco/core/NotificationUtils",
         "openesdh/common/widgets/controls/category/CategoryPickerControl"],
-    function (declare, AlfCore, CoreXhr, array, lang, _TopicsMixin, AlfDialog, CategoryPickerControl) {
+    function (declare, AlfCore, CoreXhr, array, lang, _TopicsMixin, AlfDialog, NotificationUtils, CategoryPickerControl) {
 
-        return declare([AlfCore, CoreXhr, _TopicsMixin], {
+        return declare([AlfCore, CoreXhr, _TopicsMixin, NotificationUtils], {
 
             destinationNodeRef: null,
 
@@ -17,9 +18,12 @@ define(["dojo/_base/declare",
             constructor: function (args) {
                 lang.mixin(this, args);
                 this.caseNodeRef = args.caseNodeRef;
+
+                this.alfSubscribe(this.CaseInfoTopic, lang.hitch(this, "_onCaseInfo"));
                 this._caseInfo(this.caseNodeRef);
 
                 this.alfSubscribe("JOURNALIZE", lang.hitch(this, "_onJournalize"));
+                this.alfSubscribe("UNJOURNALIZE", lang.hitch(this, "_onUnJournalize"));
             },
 
             _caseInfo: function (nodeRef) {
@@ -37,7 +41,7 @@ define(["dojo/_base/declare",
                 var domReadyFunction = (function (scope) {
                     return function () {
                         scope.alfPublish(scope.CaseInfoTopic, response);
-                        scope.alfPublish("ALF_UPDATE_PAGE_TITLE", {title: response["cm:title"].value});
+                        scope.alfPublish("ALF_UPDATE_PAGE_TITLE", {title: response.properties["cm:title"].value});
                     }
                 })(this);
 
@@ -47,14 +51,11 @@ define(["dojo/_base/declare",
                 });
             },
 
-            _onJournalizeSuccessCallback: function (response, config) {
-
-                Alfresco.util.PopupManager.displayMessage(
-                    {
-                        text: this.message('journalize.success')
-                    });
-
-                window.location.reload();
+            _onCaseInfo: function (payload) {
+                // Update menu
+                // TODO: Check if case is journalized or not.
+//                this.alfPublish("CASE_JOURNALIZED", {isJournalized: "oe:journalized" in payload.aspects});
+                var isJournalized = false;
             },
 
             _onJournalize: function () {
@@ -65,6 +66,9 @@ define(["dojo/_base/declare",
                         {
                             name: "openesdh/common/widgets/controls/category/CategoryPickerControl",
                             config: {
+//                                requirementConfig: {
+//                                    initialValue: true
+//                                }
                                 // TODO: Set the root category for the journal key
 //                                rootNodeRef: "workspace://SpacesStore/abc/"
                             }
@@ -111,9 +115,37 @@ define(["dojo/_base/declare",
                 this.serviceXhr({
                     url: url,
                     method: "PUT",
-                    successCallback: this._onJournalizeSuccessCallback,
+                    data: {},
+                    successCallback: lang.hitch(this, function () {
+                        this.displayMessage(this.message('journalize.success'));
+                        window.location.reload();
+                    }),
+                    failureCallback: lang.hitch(this, function () {
+                        this.displayMessage(this.message('journalize.failure'));
+                        window.location.reload();
+                    }),
                     callbackScope: this
                 });
+            },
+
+            _onUnJournalize: function (payload) {
+                if (confirm(this.message("case.unjournalize.confirm"))) {
+                    var url = Alfresco.constants.PROXY_URI + "api/openesdh/journalize?nodeRef=" + this.caseNodeRef + "&unjournalize=true";
+                    this.serviceXhr({
+                        url: url,
+                        method: "PUT",
+                        data: {},
+                        successCallback: lang.hitch(this, function () {
+                            this.displayMessage(this.message('unjournalize.success'));
+                            window.location.reload();
+                        }),
+                        failureCallback: lang.hitch(this, function () {
+                            this.displayMessage(this.message('unjournalize.failure'));
+                            window.location.reload();
+                        }),
+                        callbackScope: this
+                    });
+                }
             }
         });
     });

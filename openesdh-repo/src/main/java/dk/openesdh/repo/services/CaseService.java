@@ -135,16 +135,16 @@ public interface CaseService {
 
     /**
      * Journalize case and all childnodes
-     *  @param caseNodeRef Noderef of the case to journalize
+     * @param caseNodeRef Noderef of the case to journalize
      * @param journalKey
      */
-    public void journalize(NodeRef caseNodeRef, NodeRef journalKey);
+    public boolean journalize(NodeRef caseNodeRef, NodeRef journalKey);
 
     /**
      * Unjournalize case and all childnodes
      *
      * @param nodeRef Noderef of the case to unjournalize
      */
-    public void unJournalize(NodeRef nodeRef);
+    public boolean unJournalize(NodeRef nodeRef);
 
 }

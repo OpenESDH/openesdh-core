@@ -10,7 +10,6 @@ import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.search.ResultSet;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
@@ -442,7 +441,11 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public void journalize(final NodeRef nodeRef, final NodeRef journalKey) {
+    public boolean journalize(final NodeRef nodeRef,
+                              final NodeRef journalKey) {
+        if (isJournalized(nodeRef)) {
+            return false;
+        }
         // Run it in a transaction
         transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
             @Override
@@ -452,6 +455,7 @@ public class CaseServiceImpl implements CaseService {
                 return null;
             }
         });
+        return true;
     }
 
     private void journalizeImpl(NodeRef nodeRef, NodeRef journalKey) {
@@ -487,7 +491,10 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public void unJournalize(final NodeRef nodeRef) {
+    public boolean unJournalize(final NodeRef nodeRef) {
+        if (!isJournalized(nodeRef)) {
+            return false;
+        }
         // Run it in a transaction
         transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
             @Override
@@ -497,6 +504,7 @@ public class CaseServiceImpl implements CaseService {
                 return null;
             }
         });
+        return true;
     }
 
     private void unJournalizeImpl(final NodeRef nodeRef) {

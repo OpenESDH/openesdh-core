@@ -34,13 +34,14 @@ define(["dojo/_base/declare",
 
                 this.widgetsForBody = [];
 //                var currentItem = this.unmarshal(payload);
-                for (var i in payload) {
+                var properties = payload.properties;
+                for (var i in properties) {
                     if (i == "alfTopic") continue;
                     var widget = "";
-                    if(payload[i].type == "Date") {
+                    if(properties[i].type == "Date") {
                         widget = "openesdh/common/widgets/renderers/DateField";
                     }
-                    else if(payload[i].type == "UserName") {
+                    else if(properties[i].type == "UserName") {
                         widget = "openesdh/common/widgets/renderers/UserNameField";
                     }
                     else {
@@ -50,9 +51,9 @@ define(["dojo/_base/declare",
                     var propertyWidget = {
                         name: widget,
                         config: {
-                            currentItem: payload,
+                            currentItem: properties,
                             propertyToRender: i,
-                            label: payload[i].label,
+                            label: properties[i].label,
                             renderOnNewLine: true
                         }
                     };

@@ -30,13 +30,24 @@ public class Journalize extends AbstractWebScript {
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
         NodeRef caseNodeRef = new NodeRef(req.getParameter("nodeRef"));
-        NodeRef journalKey = new NodeRef(req.getParameter("journalKey"));
+        Boolean unjournalize = Boolean.valueOf(req.getParameter("unjournalize"));
 
-        caseService.journalize(caseNodeRef, journalKey);
+        boolean result;
+        if (unjournalize != null && unjournalize) {
+            result = caseService.unJournalize(caseNodeRef);
+        } else {
+            NodeRef journalKey = new NodeRef(req.getParameter("journalKey"));
+            result = caseService.journalize(caseNodeRef, journalKey);
+        }
+
+        if (!result) {
+            res.setStatus(409);
+            return;
+        }
 
         JSONObject json = new JSONObject();
         try {
-            json.put("Result", "Success");
+            json.put("result", result);
             json.write(res.getWriter());
         } catch (JSONException e) {
             e.printStackTrace();

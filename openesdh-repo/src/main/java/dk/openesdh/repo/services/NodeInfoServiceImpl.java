@@ -1,12 +1,11 @@
 package dk.openesdh.repo.services;
 
+import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.webscripts.cases.CaseInfo;
 import org.alfresco.model.ContentModel;
-import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
 import org.json.JSONException;
@@ -38,16 +37,20 @@ public class NodeInfoServiceImpl implements NodeInfoService {
     }
 
     @Override
-    public Map<QName, Serializable> getNodeInfo(NodeRef nodeRef) {
-        Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
-        return properties;
+    public NodeInfo getNodeInfo(NodeRef nodeRef) {
+        NodeInfo nodeInfo = new NodeInfo();
+        nodeInfo.properties = nodeService.getProperties(nodeRef);
+        nodeInfo.aspects = nodeService.getAspects(nodeRef);
+        return nodeInfo;
     }
 
     @Override
-    public JSONObject buildJSON(Map<QName, Serializable> nodeInfo, CaseInfo caseInfo) {
+    public JSONObject buildJSON(NodeInfo nodeInfo, CaseInfo caseInfo) {
         JSONObject result = new JSONObject();
+        JSONObject properties = new JSONObject();
         try {
-            for (Map.Entry<QName, Serializable> entry : nodeInfo.entrySet()) {
+            for (Map.Entry<QName, Serializable> entry : nodeInfo
+                    .properties.entrySet()) {
                 Serializable value = entry.getValue();
                 QName key = entry.getKey();
                 JSONObject valueObj = new JSONObject();
@@ -69,9 +72,17 @@ public class NodeInfoServiceImpl implements NodeInfoService {
                     }
 
                     valueObj.put("label", dictionaryService.getProperty(key).getTitle(dictionaryService));
-                    result.put(entry.getKey().toPrefixString(caseInfo.getNamespaceService()), valueObj);
+                    properties.put(entry.getKey().toPrefixString(caseInfo.getNamespaceService()), valueObj);
                 }
             }
+            result.put("properties", properties);
+            JSONObject aspectsObj = new JSONObject();
+            for (QName aspect : nodeInfo.aspects) {
+                aspectsObj.put(aspect.toPrefixString(caseInfo
+                        .getNamespaceService()), true);
+            }
+            result.put("aspects", aspectsObj);
+            result.put("isJournalized", nodeInfo.aspects.contains(OpenESDHModel.ASPECT_OE_JOURNALIZED));
         } catch (JSONException e) {
             e.printStackTrace();
         }
