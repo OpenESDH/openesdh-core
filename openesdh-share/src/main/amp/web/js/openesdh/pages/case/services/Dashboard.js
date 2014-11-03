@@ -11,6 +11,10 @@ define(["dojo/_base/declare",
 
         return declare([AlfCore, CoreXhr, _TopicsMixin, NotificationUtils], {
 
+            i18nRequirements: [
+                {i18nFile: "./i18n/Dashboard.properties"}
+            ],
+
             destinationNodeRef: null,
 
             caseNodeRef: "",
@@ -85,7 +89,7 @@ define(["dojo/_base/declare",
             },
 
             _onJournalizeDialogOK: function (payload) {
-                if (!confirm(this.message("case.journalize.confirm"))) {
+                if (!confirm(this.message("journalize.confirm"))) {
                     return false;
                 }
 
@@ -114,7 +118,7 @@ define(["dojo/_base/declare",
             },
 
             _onUnJournalize: function (payload) {
-                if (confirm(this.message("case.unjournalize.confirm"))) {
+                if (confirm(this.message("unjournalize.confirm"))) {
                     var url = Alfresco.constants.PROXY_URI + "api/openesdh/journalize?nodeRef=" + this.caseNodeRef + "&unjournalize=true";
                     this.serviceXhr({
                         url: url,
