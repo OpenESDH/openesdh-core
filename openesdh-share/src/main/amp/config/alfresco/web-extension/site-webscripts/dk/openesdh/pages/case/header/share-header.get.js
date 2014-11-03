@@ -6,7 +6,6 @@ var args = page.url.args;
 var navMenu = widgetUtils.findObject(model.jsonModel, "id", "HEADER_NAVIGATION_MENU_BAR");
 
 
-
 navMenu.config.widgets.push({
     id: "HEADER_CASE_DOCUMENTS",
     name: "alfresco/menus/AlfMenuBarItem",
@@ -87,6 +86,27 @@ caseConfig.config.widgets.push({
 
         publishTopic: "UNJOURNALIZE",
         publishPayload: {},
+        visibilityConfig: {
+            initialValue: false,
+            rules: [
+                {
+                    topic: "CASE_INFO",
+                    attribute: "isJournalized",
+                    is: [true]
+                }
+            ]
+        }
+    }
+});
+
+var verticalLayout = widgetUtils.findObject(model.jsonModel, "id", "SHARE_VERTICAL_LAYOUT");
+verticalLayout.config.widgets.push({
+    name: "alfresco/header/Warning",
+    config: {
+        warnings: [{
+            message: msg.get("warning.case.journalized"),
+            level: 1
+        }],
         visibilityConfig: {
             initialValue: false,
             rules: [
