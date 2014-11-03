@@ -51,14 +51,29 @@ public class JournalizeCaseTest {
     @Test
     public void testJournalizeCase() {
 
+        WebElement warning = Browser.Driver.findElement(By.id("HEADER_CASE_JOURNALIZED_WARNING"));
+        assertFalse(warning.isDisplayed());
+
         // TODO load a valid journalKey instead of supplying the dummy ref
+        // Journalize
         Pages.CaseDashboard.journalize("Languages");
 
         // TODO: Make it language-independent
         WebElement elem = Browser.Driver.findElement(By.xpath("//*[text()='Journaliseret af']//following-sibling::*[@class='value']"));
         assertEquals(User.ADMIN.username(), elem.getText());
 
+        warning = Browser.Driver.findElement(By.id("HEADER_CASE_JOURNALIZED_WARNING"));
+        assertTrue(warning.isDisplayed());
+
         // TODO: Assert that journal key is correct
+
+
+        // Unjournalize
+        Pages.CaseDashboard.unJournalize();
+
+
+        warning = Browser.Driver.findElement(By.id("HEADER_CASE_JOURNALIZED_WARNING"));
+        assertFalse(warning.isDisplayed());
     }
 
 

@@ -18,6 +18,9 @@ public class CaseDashboardPage extends BasePage {
     @FindBy(id = "HEADER_CASE_JOURNALIZE_text")
     WebElement headerJournalizeItem;
 
+    @FindBy(id = "HEADER_CASE_UNJOURNALIZE_text")
+    WebElement headerUnJournalizeItem;
+
     public boolean isAt() {
         return Browser.Driver.getCurrentUrl().startsWith(URL);
     }
@@ -81,6 +84,15 @@ public class CaseDashboardPage extends BasePage {
 
         // Click OK
         Browser.Driver.switchTo().activeElement().click();
+
+        // Accept the confirmation dialog
+        Alert alert = Browser.Driver.switchTo().alert();
+        alert.accept();
+    }
+
+    public void unJournalize() {
+        headerCaseConfigDropdown.click();
+        headerUnJournalizeItem.click();
 
         // Accept the confirmation dialog
         Alert alert = Browser.Driver.switchTo().alert();

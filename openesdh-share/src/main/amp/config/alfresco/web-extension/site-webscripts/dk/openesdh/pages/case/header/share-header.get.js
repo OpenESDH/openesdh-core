@@ -101,6 +101,7 @@ caseConfig.config.widgets.push({
 
 var verticalLayout = widgetUtils.findObject(model.jsonModel, "id", "SHARE_VERTICAL_LAYOUT");
 verticalLayout.config.widgets.push({
+    id: "HEADER_CASE_JOURNALIZED_WARNING",
     name: "alfresco/header/Warning",
     config: {
         warnings: [{
