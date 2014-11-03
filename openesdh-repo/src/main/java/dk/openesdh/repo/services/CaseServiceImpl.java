@@ -291,13 +291,15 @@ public class CaseServiceImpl implements CaseService {
         if (isJournalized(caseNodeRef)) {
             return false;
         }
-        if (authorityService.isAdminAuthority(user)) {
-            return true;
-        }
+        return authorityService.isAdminAuthority(user) ||
+                isCaseOwner(user, caseNodeRef);
+    }
+
+    protected boolean isCaseOwner(String user, NodeRef caseNodeRef) {
         String caseId = getCaseId(caseNodeRef);
         // Check that the user is a case owner
-        Set<String> authorities = authorityService.getContainedAuthorities(AuthorityType
-                        .USER, getCaseRoleGroupName(caseId, "CaseOwners"),
+        Set<String> authorities = authorityService.getContainedAuthorities(
+                AuthorityType.USER, getCaseRoleGroupName(caseId, "CaseOwners"),
                 false);
         return authorities.contains(user);
     }
@@ -343,7 +345,6 @@ public class CaseServiceImpl implements CaseService {
         permissionService.setPermission(caseNodeRef, groupName, permission, true);
         NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef(groupName);
 
-        // TODO: Don't inherit parent permissions (GROUP_EVERYONE can read)
         // TODO: Allow only certain roles to read case members from case
         // role groups.
         return groupName;
@@ -434,6 +435,26 @@ public class CaseServiceImpl implements CaseService {
         return getCasePathNodeRef(casesMonthNodeRef, Calendar.DATE);
     }
 
+    public void checkCanJournalize(NodeRef caseNodeRef,
+                                   boolean unJournalize) throws
+            AccessDeniedException {
+        String user = AuthenticationUtil.getFullyAuthenticatedUser();
+        if (!canJournalize(user, caseNodeRef, unJournalize)) {
+            throw new AccessDeniedException(user + " is not allowed to " +
+                    "journalize the case " + caseNodeRef);
+        }
+    }
+
+    @Override
+    public boolean canJournalize(String user, NodeRef caseNodeRef,
+                                 boolean unJournalize) {
+        if (isJournalized(caseNodeRef) != unJournalize) {
+            return false;
+        }
+        return authorityService.isAdminAuthority(user) ||
+                isCaseOwner(user, caseNodeRef);
+    }
+
     @Override
     public boolean isJournalized(NodeRef nodeRef) {
         return nodeService.hasAspect(nodeRef,
@@ -441,11 +462,9 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public boolean journalize(final NodeRef nodeRef,
-                              final NodeRef journalKey) {
-        if (isJournalized(nodeRef)) {
-            return false;
-        }
+    public void journalize(final NodeRef nodeRef,
+                           final NodeRef journalKey) {
+        checkCanJournalize(nodeRef, false);
         // Run it in a transaction
         transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
             @Override
@@ -455,20 +474,25 @@ public class CaseServiceImpl implements CaseService {
                 return null;
             }
         });
-        return true;
     }
 
-    private void journalizeImpl(NodeRef nodeRef, NodeRef journalKey) {
-        Map<QName, Serializable> props = new HashMap<>();
-        props.put(OpenESDHModel.PROP_OE_JOURNALKEY, journalKey);
-        props.put(OpenESDHModel.PROP_OE_JOURNALIZED_BY, AuthenticationUtil.getFullyAuthenticatedUser());
-        props.put(OpenESDHModel.PROP_OE_JOURNALIZED_DATE, new Date());
-        nodeService.addAspect(nodeRef, OpenESDHModel.ASPECT_OE_JOURNALIZED, props);
-
-        permissionService.setPermission(nodeRef, PermissionService.ALL_AUTHORITIES, "Journalized", false);
+    private void journalizeImpl(final NodeRef nodeRef, final NodeRef journalKey) {
+        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Void>() {
+                @Override
+                public Void doWork() {
+                    Map<QName, Serializable> props = new HashMap<>();
+                    props.put(OpenESDHModel.PROP_OE_JOURNALKEY, journalKey);
+                    props.put(OpenESDHModel.PROP_OE_JOURNALIZED_BY, AuthenticationUtil.getFullyAuthenticatedUser());
+                    props.put(OpenESDHModel.PROP_OE_JOURNALIZED_DATE, new Date());
+                    nodeService.addAspect(nodeRef, OpenESDHModel.ASPECT_OE_JOURNALIZED, props);
+                    permissionService.setPermission(nodeRef, PermissionService.ALL_AUTHORITIES, "Journalized", false);
+                    return null;
+                }
+            }, AuthenticationUtil.getAdminUserName());
 
         List<ChildAssociationRef> childAssociationRefs = nodeService.getChildAssocs(nodeRef);
-        for (ChildAssociationRef childAssociationRef : childAssociationRefs) {
+        for(ChildAssociationRef childAssociationRef : childAssociationRefs)
+        {
             journalizeImpl(childAssociationRef.getChildRef(), journalKey);
         }
     }
@@ -491,10 +515,8 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public boolean unJournalize(final NodeRef nodeRef) {
-        if (!isJournalized(nodeRef)) {
-            return false;
-        }
+    public void unJournalize(final NodeRef nodeRef) {
+        checkCanJournalize(nodeRef, true);
         // Run it in a transaction
         transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
             @Override
@@ -504,7 +526,6 @@ public class CaseServiceImpl implements CaseService {
                 return null;
             }
         });
-        return true;
     }
 
     private void unJournalizeImpl(final NodeRef nodeRef) {
@@ -515,11 +536,10 @@ public class CaseServiceImpl implements CaseService {
                 // because the case is journalized and therefore the user
                 // is currently denied the ChangePermissions permission
                 permissionService.deletePermission(nodeRef, PermissionService.ALL_AUTHORITIES, "Journalized");
+                nodeService.removeAspect(nodeRef, OpenESDHModel.ASPECT_OE_JOURNALIZED);
                 return null;
             }
         }, AuthenticationUtil.getAdminUserName());
-
-        nodeService.removeAspect(nodeRef, OpenESDHModel.ASPECT_OE_JOURNALIZED);
 
         List<ChildAssociationRef> childAssociationRefs = nodeService.getChildAssocs(nodeRef);
         for (ChildAssociationRef childAssociationRef : childAssociationRefs) {

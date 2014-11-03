@@ -4,6 +4,7 @@ import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.OpenESDHModel;
+import net.sf.acegisecurity.AccessDeniedException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
@@ -404,6 +405,15 @@ public class CaseServiceImplTest {
 
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
 
+        assertFalse("Case should not be journalized when initially created",
+                caseService.isJournalized(behaviourOnCaseNodeRef));
+
+        try {
+            caseService.unJournalize(behaviourOnCaseNodeRef);
+            assertFalse("Cannot unjournalize an unjournalized case", true);
+        } catch (Exception e) {
+        }
+
         caseService.journalize(behaviourOnCaseNodeRef, journalKey);
 
         // Test that journalized properties got set
@@ -453,6 +463,15 @@ public class CaseServiceImplTest {
         // Test that a user can still read from the journalized case
         assertEquals(nodeService.getProperty(behaviourOnCaseNodeRef,
                 OpenESDHModel.PROP_OE_TITLE), originalTitle);
+
+        assertTrue(caseService.isJournalized(behaviourOnCaseNodeRef));
+
+        // Test that a case cannot be journalized twice
+        try {
+            caseService.journalize(behaviourOnCaseNodeRef, journalKey);
+            assertFalse("Cannot journalize a journalized case", true);
+        } catch (Exception e) {
+        }
 
         caseService.unJournalize(behaviourOnCaseNodeRef);
 

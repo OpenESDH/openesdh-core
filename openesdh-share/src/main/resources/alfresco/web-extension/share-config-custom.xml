@@ -13,7 +13,7 @@
         <aspects>
             <!-- Aspects that a user can see -->
             <visible>
-                <aspect name="case:journalized" />
+                <!--<aspect name="case:journalized" />-->
             </visible>
         </aspects>
 

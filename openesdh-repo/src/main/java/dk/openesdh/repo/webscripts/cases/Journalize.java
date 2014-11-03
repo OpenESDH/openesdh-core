@@ -11,6 +11,7 @@ import org.json.JSONObject;
 import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -32,15 +33,15 @@ public class Journalize extends AbstractWebScript {
         NodeRef caseNodeRef = new NodeRef(req.getParameter("nodeRef"));
         Boolean unjournalize = Boolean.valueOf(req.getParameter("unjournalize"));
 
-        boolean result;
-        if (unjournalize != null && unjournalize) {
-            result = caseService.unJournalize(caseNodeRef);
-        } else {
-            NodeRef journalKey = new NodeRef(req.getParameter("journalKey"));
-            result = caseService.journalize(caseNodeRef, journalKey);
-        }
-
-        if (!result) {
+        boolean result = true;
+        try {
+            if (unjournalize != null && unjournalize) {
+                caseService.unJournalize(caseNodeRef);
+            } else {
+                NodeRef journalKey = new NodeRef(req.getParameter("journalKey"));
+                caseService.journalize(caseNodeRef, journalKey);
+            }
+        } catch (AccessDeniedException e) {
             res.setStatus(409);
             return;
         }
