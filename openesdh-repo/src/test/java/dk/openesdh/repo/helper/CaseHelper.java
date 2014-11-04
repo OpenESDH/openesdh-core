@@ -132,7 +132,7 @@ public class CaseHelper {
                                      final List<NodeRef> owners,
                                      boolean disableBehaviour) {
 
-        AuthenticationUtil.setFullyAuthenticatedUser(ADMIN_USER_NAME);
+        AuthenticationUtil.setFullyAuthenticatedUser(username);
         // We have to do in a transaction because we must set the case:owner
         // association before commit, to avoid an integrity error.
         BehaviourFilter behaviourFilter = null;

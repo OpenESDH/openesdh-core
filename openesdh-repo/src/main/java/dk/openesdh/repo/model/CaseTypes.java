@@ -48,6 +48,8 @@ public class CaseTypes extends AbstractWebScript {
                     c.put("NamespaceURI", caseType.getNamespaceURI());
                     c.put("Prefix", caseType.getPrefixString());
                     c.put("Name", caseType.getLocalName());
+                    c.put("Title", dictionaryService.getType(caseType)
+                            .getTitle(dictionaryService));
 
                     arr.put(c);
                 } catch (JSONException e) {

@@ -8,30 +8,13 @@ model.jsonModel = {
                 widgetWidth: 50,
                 widgets: [
                     {
-                        name: "openesdh/common/widgets/dashlets/CaseInfoDashlet",
-                        config: {
-                            title: "Hej"
-                        }
+                        name: "openesdh/common/widgets/dashlets/CaseInfoDashlet"
                     },
                     {
-                        name: "openesdh/common/widgets/dashlets/CaseInfoDashlet",
-                        config: {
-                            title: "Hej 2"
-                        }
+                        name: "openesdh/common/widgets/dashlets/CaseInfoDashlet"
                     }
-
                 ]
             }
         }
-    ],
-    services: [
-        {
-            name: "openesdh/pages/case/services/Dashboard",
-            config: {
-                caseNodeRef: page.url.args.nodeRef
-
-            }
-        }
-
     ]
 };

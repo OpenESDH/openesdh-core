@@ -1,8 +1,10 @@
 package dk.openesdh.repo.webscripts.cases;
 
+import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.NodeInfoService;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.json.JSONException;
@@ -41,7 +43,7 @@ public class CaseInfo extends AbstractWebScript {
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
         NodeRef caseNodeRef = new NodeRef(req.getParameter("nodeRef"));
-        Map<QName, Serializable> nodeInfo = nodeInfoService.getNodeInfo(caseNodeRef);
+        NodeInfoService.NodeInfo nodeInfo = nodeInfoService.getNodeInfo(caseNodeRef);
         JSONObject json = nodeInfoService.buildJSON(nodeInfo, this);
 
         try {

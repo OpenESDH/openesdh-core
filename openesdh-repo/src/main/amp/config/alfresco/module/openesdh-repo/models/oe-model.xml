@@ -43,7 +43,7 @@
                 </property>
                 <property name="oe:journalKey">
                     <type>d:category</type>
-                    <mandatory>false</mandatory>
+                    <mandatory>true</mandatory>
                     <multiple>false</multiple>
                     <index enabled="true">
                         <atomic>true</atomic>

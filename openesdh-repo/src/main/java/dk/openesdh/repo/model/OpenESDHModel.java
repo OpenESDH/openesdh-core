@@ -36,7 +36,6 @@ public interface OpenESDHModel {
     /**
      * Aspects
      */
-    public static final QName ASPECT_OE_READONLY = QName.createQName(OE_URI, "readOnly");
     public static final QName ASPECT_OE_JOURNALIZED = QName.createQName(OE_URI, "journalized");
 
     public static final QName ASPECT_CASE_COUNTER = QName.createQName(CASE_URI, "counter");
