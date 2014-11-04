@@ -54,8 +54,7 @@ define(["dojo/_base/declare",
             templateString: template,
 
             i18nRequirements: [
-                {i18nFile: "./i18n/MyCasesWidget.properties"},
-                {i18nFile: "./i18n/GridActions.properties"}
+                {i18nFile: "./i18n/MyCasesWidget.properties"}
             ],
 
             // Override default Dijit theme to look like Alfresco's.
@@ -158,16 +157,15 @@ define(["dojo/_base/declare",
 
                 this.currentSearch = {};
                 var OptionsArray = new Array();
-                alert(_this.message("mycases.select.userinvolvedsearch"));
+
                 OptionsArray.push({"label" : _this.message("mycases.select.userinvolvedsearch"), "value" : "userinvolvedsearch"});
                 OptionsArray.push({"label" : _this.message("mycases.select.userinvolvedsearch"), "value" : "userinvolvedsearch"});
 
                 OptionsObject = {options : OptionsArray};
 
-
-
                 this.selectField = new DojoSelect(OptionsObject);
                 this.selectField.placeAt(this.bodyNode);
+
                 on(this.selectField.wrappedWidget, "change", lang.hitch(this, "handleDropdownSelect"));
             },
 
@@ -275,8 +273,9 @@ define(["dojo/_base/declare",
 
                 // Load columns from model
                 var columns = [
-                    { field: "cm:modified", label: "First" },
-                    { field: "cm:owner", label: "Last" }
+                    { field: "esdh:id", label: this.message("mycases.column.id")  },
+                    { field: "esdh:state", label: this.message("mycases.column.state")},
+                    { field: "esdh:modified", label: this.message("mycases.column.modified") }
                 ]
 
 

@@ -1,5 +1,7 @@
 package dk.openesdh.repo.webscripts.xsearch;
 
+import dk.openesdh.repo.model.OpenESDHModel;
+import org.alfresco.model.ContentModel;
 import dk.openesdh.repo.services.xsearch.UserInvolvedSearchService;
 import dk.openesdh.repo.services.xsearch.XResultSet;
 import dk.openesdh.repo.services.xsearch.XSearchService;
@@ -24,6 +26,7 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -92,25 +95,40 @@ public class UserInvolvedSearch extends AbstractWebScript {
         JSONObject json = new JSONObject();
         // TODO: Don't include ALL properties
         Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
-        for (Map.Entry<QName, Serializable> entry : properties.entrySet()) {
-            json.put(entry.getKey().toPrefixString(namespaceService), entry.getValue());
-        }
-        List<AssociationRef> associations = nodeService.getTargetAssocs
-                (nodeRef, RegexQNamePattern.MATCH_ALL);
-        for (AssociationRef association : associations) {
-            String assocName = association.getTypeQName().toPrefixString
-                    (namespaceService);
-            if (!json.has(assocName)) {
-                JSONArray refs = new JSONArray();
-                refs.put(association.getTargetRef());
-                json.put(assocName, refs);
-            } else {
-                JSONArray refs = (JSONArray) json.get(assocName);
-                refs.put(association.getTargetRef());
-                json.put(association.getTypeQName().toPrefixString
-                        (namespaceService), refs);
-            }
-        }
+
+        String id = (String)nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_ID);
+        String state = (String)nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS);
+        Date last_modified = (Date)nodeService.getProperty(nodeRef, ContentModel.PROP_MODIFIED);
+
+
+
+        json.put ("esdh:id", id);
+        json.put ("esdh:state", state);
+        json.put ("esdh:modified", last_modified);
+
+
+
+//        for (Map.Entry<QName, Serializable> entry : properties.entrySet()) {
+//            json.put(entry.getKey().toPrefixString(namespaceService), entry.getValue());
+//        }
+//
+//        List<AssociationRef> associations = nodeService.getTargetAssocs
+//                (nodeRef, RegexQNamePattern.MATCH_ALL);
+//        for (AssociationRef association : associations) {
+//            String assocName = association.getTypeQName().toPrefixString
+//                    (namespaceService);
+//            if (!json.has(assocName)) {
+//                JSONArray refs = new JSONArray();
+//                refs.put(association.getTargetRef());
+//                json.put(assocName, refs);
+//            } else {
+//                JSONArray refs = (JSONArray) json.get(assocName);
+//                refs.put(association.getTargetRef());
+//                json.put(association.getTypeQName().toPrefixString
+//                        (namespaceService), refs);
+//            }
+//        }
+
         json.put("TYPE", nodeService.getType(nodeRef).toPrefixString(namespaceService));
         json.put("nodeRef", nodeRef.toString());
         return json;
