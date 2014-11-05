@@ -36,11 +36,20 @@ function getActionList(configElement) {
     var iter = configElement.getChildren().iterator();
     while(iter.hasNext()) {
         var action = iter.next();
-        list.push({
+        var obj = {
             id: action.getAttribute(new String('id')),
             label: action.getAttribute(new String('label')),
-            href: action.getAttribute(new String('href'))
-        });
+            href: action.getAttribute(new String('href')),
+        };
+        var key = action.getAttribute(new String('key'));
+        var shift = action.getAttribute(new String('shift'));
+        if (key) {
+            obj.key = key;
+        }
+        if (shift) {
+            obj.shift = shift;
+        }
+        list.push(obj);
     }
     return list;
 }

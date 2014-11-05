@@ -48,10 +48,12 @@
                 <actions>
                     <action id="case-dashboard"
                             href="hdp/ws/dk-openesdh-pages-case-dashboard?nodeRef={nodeRef}"
-                            label="xsearch.grid.actions.goto_case"/>
+                            label="xsearch.grid.actions.goto_case"
+                            key="13"/>
                     <action id="case-edit"
                             href="edit-metadata?nodeRef={nodeRef}"
-                            label="xsearch.grid.actions.edit_case"/>
+                            label="xsearch.grid.actions.edit_case"
+                            key="69" shift="true"/>
                     <action id="case-documents"
                             href="folder-details?nodeRef={nodeRef}"
                             label="xsearch.grid.actions.case_documents"/>
