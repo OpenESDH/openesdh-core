@@ -110,7 +110,7 @@ public class CaseServiceImpl implements CaseService {
         // Add cm:ownable aspect and set the cm:owner to admin
         // so that the node creator does not have full control.
         Map<QName, Serializable> aspectProperties = new HashMap<>();
-        aspectProperties.put(ContentModel.PROP_OWNER, "admin");
+        aspectProperties.put(ContentModel.PROP_OWNER, AuthenticationUtil.getSystemUserName());
         nodeService.addAspect(caseNodeRef, ContentModel.ASPECT_OWNABLE,
                 aspectProperties);
 
@@ -118,10 +118,10 @@ public class CaseServiceImpl implements CaseService {
         // GROUP_EVERYONE set to Consumer, which we do not want)
         permissionService.setInheritParentPermissions(caseNodeRef, false);
 
-        String ownersPermissionGroupName = setupPermissionGroup(caseNodeRef,
-                caseId, "CaseOwners");
-        addOwnersToPermissionGroup(caseNodeRef, ownersPermissionGroupName);
         setupPermissionGroups(caseNodeRef, caseId);
+        String ownersPermissionGroupName = getCaseRoleGroupName(caseId,
+                "CaseOwners");
+        addOwnersToPermissionGroup(caseNodeRef, ownersPermissionGroupName);
     }
 
     void addOwnersToPermissionGroup(NodeRef caseNodeRef, String groupName) {
@@ -145,13 +145,6 @@ public class CaseServiceImpl implements CaseService {
     @Override
     public Set<String> getRoles(NodeRef caseNodeRef) {
         return permissionService.getSettablePermissions(caseNodeRef);
-    }
-
-    @Override
-    public Set<String> getAllRoles(NodeRef caseNodeRef) {
-        Set<String> roles = getRoles(caseNodeRef);
-        roles.add("CaseOwners");
-        return roles;
     }
 
     public String getCaseId(NodeRef caseNodeRef) {
@@ -502,7 +495,7 @@ public class CaseServiceImpl implements CaseService {
             @Override
             public Void doWork() {
                 List<ChildAssociationRef> childAssociationRefs = nodeService.getChildAssocs(caseNodeRef);
-                Set<String> roles = getAllRoles(caseNodeRef);
+                Set<String> roles = getRoles(caseNodeRef);
                 for (String role : roles) {
                     NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef(
                             getCaseRoleGroupName(getCaseId(caseNodeRef), role));
@@ -552,7 +545,7 @@ public class CaseServiceImpl implements CaseService {
             @Override
             public Void doWork() {
                 List<ChildAssociationRef> childAssociationRefs = nodeService.getChildAssocs(caseNodeRef);
-                Set<String> roles = getAllRoles(caseNodeRef);
+                Set<String> roles = getRoles(caseNodeRef);
                 for (String role : roles) {
                     NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef(
                             getCaseRoleGroupName(getCaseId(caseNodeRef), role));

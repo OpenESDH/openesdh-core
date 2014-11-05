@@ -52,7 +52,17 @@ caseConfig.config.widgets.push({
         id: "HEADER_CASE_EDIT",
         label: "header.case.edit" ,
         iconClass: "alf-cog-icon",
-        targetUrl: "edit-metadata?nodeRef=" + args.nodeRef
+        targetUrl: "edit-metadata?nodeRef=" + args.nodeRef,
+        visibilityConfig: {
+            initialValue: false,
+            rules: [
+                {
+                    topic: "CASE_INFO",
+                    attribute: "isJournalized",
+                    isNot: [true]
+                }
+            ]
+        }
     }
 });
 
