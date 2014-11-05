@@ -12,6 +12,9 @@
                     <show id="case:endDate" />
                 </field-visibility>
                 <appearance>
+                    <field id="cm:title">
+                        <control template="/org/alfresco/components/form/controls/textfield.ftl" />
+                    </field>
                     <field id="cm:description">
                         <control>
                             <control-param name="activateLinks">true</control-param>
@@ -34,6 +37,9 @@
                     <show id="case:endDate" />
                 </field-visibility>
                 <appearance>
+                    <field id="cm:title" mandatory="true">
+                        <control template="/org/alfresco/components/form/controls/textfield.ftl" />
+                    </field>
                     <field id="cm:description">
                         <control>
                             <control-param name="activateLinks">true</control-param>
