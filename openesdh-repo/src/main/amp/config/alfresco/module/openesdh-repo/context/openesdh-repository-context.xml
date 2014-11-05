@@ -29,6 +29,16 @@
         <property name="authenticationService" ref="authenticationService" />
     </bean>
 
+    <bean id="webscript.dk.openesdh.caseownersearch.get"
+          class="dk.openesdh.repo.webscripts.xsearch.CaseOwnerSearch"
+          parent="webscript">
+        <property name="nodeService" ref="nodeService"/>
+        <property name="repository" ref="repositoryHelper"/>
+        <property name="namespaceService" ref="namespaceService"/>
+        <property name="caseOwnerSearchService" ref="CaseOwnerSearchService"/>
+        <property name="authenticationService" ref="authenticationService" />
+    </bean>
+
     <bean id="webscript.dk.openesdh.caseinfo.get"
           class="dk.openesdh.repo.webscripts.cases.CaseInfo"
           parent="webscript">
