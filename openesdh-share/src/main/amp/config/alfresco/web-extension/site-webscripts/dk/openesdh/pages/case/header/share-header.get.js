@@ -1,10 +1,21 @@
-//var title = widgetUtils.findObject(model.jsonModel, "id", "HEADER_TITLE");
-//title.config.label = "header.title";
+<import resource="classpath:/alfresco/web-extension/utils/oe.js">//</import>
 
 var args = page.url.args;
 
 var navMenu = widgetUtils.findObject(model.jsonModel, "id", "HEADER_NAVIGATION_MENU_BAR");
 
+
+navMenu.config.widgets.push({
+    id: "HEADER_CASE_DASHBOARD",
+    name: "alfresco/menus/AlfMenuBarItem",
+    config: {
+        id: "HEADER_CASE_DASHBOARD",
+        label: "header.document.case.dashboard" ,
+        title: "header.document.case.dashboard.altText",
+        targetUrl: "hdp/ws/dk-openesdh-pages-case-dashboard?nodeRef=" + args.nodeRef,
+        selected: isCurrentUri("dk-openesdh-pages-case-dashboard")
+    }
+});
 
 navMenu.config.widgets.push({
     id: "HEADER_CASE_DOCUMENTS",
@@ -13,7 +24,8 @@ navMenu.config.widgets.push({
         id: "HEADER_CASE_DOCUMENTS",
         label: "header.case.documents" ,
         title: "header.case.documents.altText",
-        targetUrl: "hdp/ws/dk-openesdh-pages-documents?nodeRef=" + args.nodeRef
+        targetUrl: "hdp/ws/dk-openesdh-pages-documents?nodeRef=" + args.nodeRef,
+        selected: isCurrentUri("dk-openesdh-pages-documents")
     }
 });
 
@@ -26,7 +38,8 @@ navMenu.config.widgets.push({
         iconClass: "alf-user-icon",
         iconAltText: "header.case.members.altText",
 //        title: "header.case.members.title",
-        targetUrl: "hdp/ws/dk-openesdh-pages-case-dashboard-members?nodeRef=" + args.nodeRef
+        targetUrl: "hdp/ws/dk-openesdh-pages-case-dashboard-members?nodeRef=" + args.nodeRef,
+        selected: isCurrentUri("dk-openesdh-pages-case-dashboard-members")
     }
 });
 
