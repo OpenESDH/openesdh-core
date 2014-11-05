@@ -79,11 +79,19 @@
         <property name="authorityService">
             <ref bean="authorityService"/>
         </property>
-
-
     </bean>
 
-
+    <bean id="CaseOwnerSearchService" class="dk.openesdh.repo.services.xsearch.CaseOwnerSearchServiceImpl">
+        <property name="searchService">
+            <ref bean="SearchService"/>
+        </property>
+        <property name="repositoryHelper">
+            <ref bean="repositoryHelper"/>
+        </property>
+        <property name="authorityService">
+            <ref bean="authorityService"/>
+        </property>
+    </bean>
 
 
 </beans>

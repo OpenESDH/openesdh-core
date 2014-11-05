@@ -143,11 +143,7 @@ define(["dojo/_base/declare",
             DEFAULT_SEARCH_NAME: '__default__',
 
             bodyNode: null,
-            widgetsForBody: [],
             selectField : null,
-
-
-
 
 
 
@@ -229,12 +225,6 @@ define(["dojo/_base/declare",
 
 
 
-
-
-
-
-
-
             getStoreQuery: function () {
                 return {
                     "baseType": this.baseType,
@@ -271,7 +261,7 @@ define(["dojo/_base/declare",
                 // Note: We mixin _Widget because otherwise we can't call grid.placeAt
                 var CustomGrid = declare([_Widget, Grid, DijitRegistry, Keyboard, Selection, MyPagination, ColumnResizer, ColumnHider, ColumnReorder]);
 
-                // Load columns from model
+
                 var columns = [
                     { field: "esdh:id", label: this.message("mycases.column.id")  },
                     { field: "esdh:state", label: this.message("mycases.column.state")},

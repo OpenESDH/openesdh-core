@@ -1,16 +1,13 @@
 package dk.openesdh.repo.webscripts.xsearch;
 
-import dk.openesdh.repo.model.OpenESDHModel;
-import org.alfresco.model.ContentModel;
-import dk.openesdh.repo.services.xsearch.UserInvolvedSearchService;
+import dk.openesdh.repo.services.xsearch.CaseOwnerSearchService;
 import dk.openesdh.repo.services.xsearch.XResultSet;
-import dk.openesdh.repo.services.xsearch.XSearchService;
 import dk.openesdh.repo.utils.Utils;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.search.*;
+import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AuthenticationService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
@@ -26,19 +23,18 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class UserInvolvedSearch extends AbstractWebScript {
-    static Logger log = Logger.getLogger(UserInvolvedSearch.class);
+public class CaseOwnerSearch extends AbstractWebScript {
+    static Logger log = Logger.getLogger(CaseOwnerSearch.class);
 
     protected SearchService searchService;
     protected NodeService nodeService;
     protected NamespaceService namespaceService;
     protected Repository repository;
     protected AuthenticationService authenticationService;
-    protected UserInvolvedSearchService userInvolvedSearchService;
+    protected CaseOwnerSearchService caseOwnerSearchService;
 
     public static int DEFAULT_PAGE_SIZE = 25;
 
@@ -72,7 +68,7 @@ public class UserInvolvedSearch extends AbstractWebScript {
                 sortField = sortBy.substring(1);
             }
 
-            XResultSet results = userInvolvedSearchService.getNodes(params, startIndex, pageSize, sortField, ascending);
+            XResultSet results = caseOwnerSearchService.getNodes(params, startIndex, pageSize, sortField, ascending);
             List<NodeRef> nodeRefs = results.getNodeRefs();
             JSONArray nodes = new JSONArray();
             for (NodeRef nodeRef : nodeRefs) {
@@ -96,14 +92,40 @@ public class UserInvolvedSearch extends AbstractWebScript {
         // TODO: Don't include ALL properties
         Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
 
-        String id = (String)nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_ID);
-        String state = (String)nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS);
-        Date last_modified = (Date)nodeService.getProperty(nodeRef, ContentModel.PROP_MODIFIED);
+//        String id = (String)nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_ID);
+//        String state = (String)nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS);
+//        Date last_modified = (Date)nodeService.getProperty(nodeRef, ContentModel.PROP_MODIFIED);
+//
+//
+//
+//        json.put ("esdh:id", id);
+//        json.put ("esdh:state", state);
+//        json.put ("esdh:modified", last_modified);
 
 
-        json.put ("esdh:id", id);
-        json.put ("esdh:state", state);
-        json.put ("esdh:modified", last_modified);
+
+        for (Map.Entry<QName, Serializable> entry : properties.entrySet()) {
+            json.put(entry.getKey().toPrefixString(namespaceService), entry.getValue());
+        }
+
+
+        List<AssociationRef> associations = nodeService.getTargetAssocs
+                (nodeRef, RegexQNamePattern.MATCH_ALL);
+        for (AssociationRef association : associations) {
+            String assocName = association.getTypeQName().toPrefixString
+                    (namespaceService);
+            if (!json.has(assocName)) {
+                JSONArray refs = new JSONArray();
+                refs.put(association.getTargetRef());
+                json.put(assocName, refs);
+            } else {
+                JSONArray refs = (JSONArray) json.get(assocName);
+                refs.put(association.getTargetRef());
+                json.put(association.getTypeQName().toPrefixString
+                        (namespaceService), refs);
+            }
+        }
+
         json.put("TYPE", nodeService.getType(nodeRef).toPrefixString(namespaceService));
         json.put("nodeRef", nodeRef.toString());
         return json;
@@ -148,8 +170,8 @@ public class UserInvolvedSearch extends AbstractWebScript {
         this.repository = repository;
     }
 
-    public void setUserInvolvedSearchService(UserInvolvedSearchService userInvolvedSearchService) {
-        this.userInvolvedSearchService = userInvolvedSearchService;
+    public void setCaseOwnerSearchService(CaseOwnerSearchService caseOwnerSearchService) {
+        this.caseOwnerSearchService = caseOwnerSearchService;
     }
     public void setAuthenticationService(AuthenticationService authenticationService) {
         this.authenticationService = authenticationService;

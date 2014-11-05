@@ -1,0 +1,8 @@
+<webscript>
+    <shortname>Search</shortname>
+    <description>Performs a caseowner search</description>
+    <url>/api/openesdh/caseownersearch</url>
+    <format default="json"></format>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+</webscript>

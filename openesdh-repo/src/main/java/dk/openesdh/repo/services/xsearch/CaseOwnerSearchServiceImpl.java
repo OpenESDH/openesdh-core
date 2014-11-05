@@ -2,21 +2,10 @@ package dk.openesdh.repo.services.xsearch;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 import org.alfresco.error.AlfrescoRuntimeException;
-import org.alfresco.model.ContentModel;
-import org.alfresco.repo.domain.permissions.Authority;
-import org.alfresco.repo.node.SystemNodeUtils;
-import org.alfresco.repo.security.authority.AuthorityDAO;
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.security.*;
-import org.alfresco.service.namespace.QName;
-import org.apache.solr.common.util.Hash;
-import org.json.JSONException;
-import org.omg.CORBA.RepositoryIdHelper;
+import org.alfresco.service.cmr.security.AuthorityService;
+import org.alfresco.service.cmr.security.AuthorityType;
 
-import javax.xml.soap.Node;
-import java.io.Serializable;
-import java.security.Permission;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -24,7 +13,7 @@ import java.util.regex.Pattern;
 /**
  * Created by flemmingheidepedersen on 12/09/14.
  */
-public class UserInvolvedSearchServiceImpl extends AbstractXSearchService implements UserInvolvedSearchService {
+public class CaseOwnerSearchServiceImpl extends AbstractXSearchService implements CaseOwnerSearchService {
 
     protected AuthorityService authorityService;
 
@@ -43,8 +32,8 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService implem
 
         HashMap<String, String> caseGroupsNodedbid = getCaseGroupsNodedbid(user);
 
-        if (caseGroupsNodedbid.size() == 0) {
-            String query = "TYPE:\"" + OpenESDHModel.CASE_PREFIX + ":" + OpenESDHModel.TYPE_BASE_NAME + "\" AND NOT ASPECT:\"" + OpenESDHModel.ASPECT_OE_JOURNALIZED + "\"" + "   AND @sys\\:node-dbid:( \"-1\" )";
+        if (true) {
+            String query = "TYPE:\"" + OpenESDHModel.TYPE_CASE_BASE + "\" AND NOT ASPECT:\"" + OpenESDHModel.ASPECT_OE_JOURNALIZED + "\" ";
             return executeQuery(query);
         } else {
             int collected = 0;
@@ -104,8 +93,4 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService implem
         }
         return caseGroupsNodedbid;
     }
-
-
-
-
 }
