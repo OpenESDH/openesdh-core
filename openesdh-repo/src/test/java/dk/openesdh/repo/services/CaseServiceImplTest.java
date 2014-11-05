@@ -290,6 +290,7 @@ public class CaseServiceImplTest {
         String caseId = caseService.getCaseId(uniqueNumber);
         caseService.setupPermissionGroups(temporaryCaseNodeRef, caseId);
         Set<String> permissionGroups = caseService.getRoles(temporaryCaseNodeRef);
+        assertTrue(permissionGroups.contains("CaseOwners"));
         assertTrue(permissionGroups.contains("CaseSimpleReader"));
         assertTrue(permissionGroups.contains("CaseSimpleWriter"));
     }
@@ -401,7 +402,7 @@ public class CaseServiceImplTest {
                 "case", caseService.isJournalized(behaviourOnCaseNodeRef));
 
         final String originalTitle = (String) nodeService.getProperty(behaviourOnCaseNodeRef,
-                OpenESDHModel.PROP_OE_TITLE);
+                ContentModel.PROP_TITLE);
 
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
 
@@ -435,7 +436,7 @@ public class CaseServiceImplTest {
         // Test that the owner cannot write to a journalized case
         try {
             nodeService.setProperty(behaviourOnCaseNodeRef,
-                    OpenESDHModel.PROP_OE_TITLE, "new title");
+                    ContentModel.PROP_TITLE, "new title");
             assertTrue("A property could be updated on a " +
                     "journalized case", false);
             // TODO: Test the same for case documents
@@ -462,7 +463,7 @@ public class CaseServiceImplTest {
 
         // Test that a user can still read from the journalized case
         assertEquals(nodeService.getProperty(behaviourOnCaseNodeRef,
-                OpenESDHModel.PROP_OE_TITLE), originalTitle);
+                ContentModel.PROP_TITLE), originalTitle);
 
         assertTrue(caseService.isJournalized(behaviourOnCaseNodeRef));
 
@@ -481,9 +482,9 @@ public class CaseServiceImplTest {
         // Test that a user can write again: these would throw exceptions if
         // they failed.
         nodeService.setProperty(behaviourOnCaseNodeRef,
-                OpenESDHModel.PROP_OE_TITLE, "new title");
+                ContentModel.PROP_TITLE, "new title");
         nodeService.setProperty(behaviourOnCaseNodeRef,
-                OpenESDHModel.PROP_OE_TITLE, originalTitle);
+                ContentModel.PROP_TITLE, originalTitle);
 
         assertFalse("Case node has journalized aspect after being " +
                 "unjournalized", nodeService.hasAspect(behaviourOnCaseNodeRef,

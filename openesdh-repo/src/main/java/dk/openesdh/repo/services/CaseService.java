@@ -33,14 +33,6 @@ public interface CaseService {
     public Set<String> getRoles(NodeRef caseNodeRef);
 
     /**
-     * Get all roles for the given case (including owners role).
-     *
-     * @param caseNodeRef
-     * @return Set containing the role names
-     */
-    public Set<String> getAllRoles(NodeRef caseNodeRef);
-
-    /**
      * Get the members on the case grouped by role.
      * Includes groups and users.
      *

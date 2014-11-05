@@ -62,13 +62,10 @@ public interface OpenESDHModel {
      * Properties
      */
     public static final QName PROP_OE_ID = QName.createQName(OE_URI, "id");
-    public static final QName PROP_OE_TITLE = QName.createQName(OE_URI, "title");
-    public static final QName PROP_OE_DESCRIPTION = QName.createQName(OE_URI, "description");
     public static final QName PROP_OE_STATUS = QName.createQName(OE_URI, "status");
     public static final QName PROP_OE_JOURNALIZED_BY = QName.createQName(OE_URI, "journalizedBy");
     public static final QName PROP_OE_JOURNALIZED_DATE = QName.createQName(OE_URI, "journalizedDate");
     public static final QName PROP_OE_JOURNALKEY = QName.createQName(OE_URI, "journalKey");
-    public static final QName PROP_OE_IS_JOURNALIZED = QName.createQName(OE_URI, "isJournalized");
 
     public static final QName PROP_CASE_STARTDATE = QName.createQName(CASE_URI, "startDate");
     public static final QName PROP_CASE_ENDDATE = QName.createQName(CASE_URI, "endDate");

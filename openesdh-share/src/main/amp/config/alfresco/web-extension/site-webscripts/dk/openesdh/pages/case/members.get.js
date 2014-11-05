@@ -1,6 +1,8 @@
-// TODO: Load
-var roleTypes = ["CaseSimpleReader", "CaseSimpleWriter"];
+<import resource="classpath:/alfresco/web-extension/utils/case.js">//</import>
 
+var args = page.url.args;
+
+var roleTypes = getCaseRoleTypes(args.nodeRef);
 var addAuthorityToRoleDropdownItems = [];
 for (var i = 0; i < roleTypes.length; i++) {
     var roleType = roleTypes[i];
@@ -51,7 +53,17 @@ model.jsonModel = {
                                                 id: "CASE_MEMBERS_ADD_AUTHORITIES",
                                                 config: {
                                                     label: msg.get("case-members.invite-people"),
-                                                    widgets: addAuthorityToRoleDropdownItems
+                                                    widgets: addAuthorityToRoleDropdownItems,
+                                                    visibilityConfig: {
+                                                        initialValue: false,
+                                                        rules: [
+                                                            {
+                                                                topic: "CASE_INFO",
+                                                                attribute: "isJournalized",
+                                                                isNot: [true]
+                                                            }
+                                                        ]
+                                                    }
                                                 }
                                             }
 

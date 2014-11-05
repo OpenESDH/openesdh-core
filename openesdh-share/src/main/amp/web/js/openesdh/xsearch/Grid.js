@@ -582,25 +582,23 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
                 }
             };
 
-            // TODO: Make keyboard shortcuts configurable
-            // ENTER
-            this.grid.addKeyHandler(keys.ENTER, function (event) {
-                var nodeRef = getSelectedNodeRef(this);
-                if (nodeRef) {    
-                    // Navigate to the node details
-                    window.location = Alfresco.constants.URL_PAGECONTEXT + "folder-details?nodeRef=" + nodeRef;
+            var _this = this;
+
+            array.forEach(this.actions, function (action, i) {
+                var key = action.key;
+                if (!key) {
+                    return;
                 }
-            });
-            
-            // Shift+E
-            this.grid.addKeyHandler(69, function (event) {
-                if (event.shiftKey) {
-                    var nodeRef = getSelectedNodeRef(this);
-                    if (nodeRef) {    
-                        // Navigate to the node edit page
-                        window.location = Alfresco.constants.URL_PAGECONTEXT + "edit-metadata?nodeRef=" + nodeRef;
+                var shift = action.shift;
+                _this.grid.addKeyHandler(key, function (event) {
+                    if (shift && !event.shiftKey) {
+                        return;
                     }
-                }
+                    var nodeRef = getSelectedNodeRef(this);
+                    if (nodeRef) {
+                        window.location = Alfresco.constants.URL_PAGECONTEXT + action.href.replace("{nodeRef}", nodeRef);
+                    }
+                });
             });
         },
         

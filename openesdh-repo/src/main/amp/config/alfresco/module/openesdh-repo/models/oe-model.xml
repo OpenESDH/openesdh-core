@@ -24,13 +24,21 @@
                 </property>
             </properties>
             <mandatory-aspects>
-                <aspect>cm:titled</aspect>
+                <aspect>oe:titled</aspect>
             </mandatory-aspects>
         </type>
     </types>
 
     <aspects>
-                <aspect name="oe:journalized">
+        <aspect name="oe:titled">
+            <parent>cm:titled</parent>
+            <overrides>
+                <property name="cm:title">
+                    <mandatory>true</mandatory>
+                </property>
+            </overrides>
+        </aspect>
+        <aspect name="oe:journalized">
             <parent>cm:classifiable</parent>
             <properties>
                 <property name="oe:journalizedBy">
