@@ -290,7 +290,6 @@ public class CaseServiceImplTest {
         String caseId = caseService.getCaseId(uniqueNumber);
         caseService.setupPermissionGroups(temporaryCaseNodeRef, caseId);
         Set<String> permissionGroups = caseService.getRoles(temporaryCaseNodeRef);
-        assertTrue(permissionGroups.contains("CaseOwners"));
         assertTrue(permissionGroups.contains("CaseSimpleReader"));
         assertTrue(permissionGroups.contains("CaseSimpleWriter"));
     }

@@ -40,8 +40,6 @@
             <includePermissionGroup permissionGroup="Collaborator"
                                     type="cm:cmobject" />
         </permissionGroup>
-        <permissionGroup name="CaseOwners" extends="true" type="case:base"
-                         expose="true" requiresType="true"/>
         <!--
         <permission name="_SimpleReader" expose="false" >
             <grantedToGroup permissionGroup="SimpleReader" />
@@ -74,7 +72,7 @@
     </permissionSet>
 
     <permissionSet type="case:base" expose="selected">
-        <permissionGroup name="CaseOwners" expose="true" requiresType="true">
+        <permissionGroup name="CaseOwners" expose="false" requiresType="true">
             <includePermissionGroup permissionGroup="Coordinator"
                                     type="cm:cmobject"/>
         </permissionGroup>
