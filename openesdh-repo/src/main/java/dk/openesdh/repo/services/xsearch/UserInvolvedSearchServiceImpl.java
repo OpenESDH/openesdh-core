@@ -84,7 +84,6 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService implem
         HashMap<String, String> caseGroupsNodedbid = new HashMap<>();
 
         Set<String> allGroups = authorityService.getContainingAuthorities(AuthorityType.GROUP, user, true);
-
         Iterator iterator = allGroups.iterator();
 
         while (iterator.hasNext()) {
@@ -92,14 +91,8 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService implem
             Pattern pattern = Pattern.compile("GROUP_case_(\\d+)-(\\d+)_(\\D+)");
             Matcher matcher = pattern.matcher(groupName);
 
-
             if (matcher.matches()) {
-                pattern = Pattern.compile("GROUP_case_(\\d+)-(\\d+)");
-                matcher = pattern.matcher(groupName);
-
-                matcher.find();
                 caseGroupsNodedbid.put(matcher.group(2), matcher.group(2));
-
             }
         }
         return caseGroupsNodedbid;
