@@ -28,12 +28,9 @@ public class LoginTest {
     public void testCanLoginWithAdminUser() {
         Pages.Login.loginWith(User.ADMIN);
         assertTrue(Pages.Dashboard.isAt(User.ADMIN));
-    }
-
-    @After
-    public void tearDown() {
         Pages.Login.logout();
     }
+
 
     @AfterClass
     public static void tearDownAfterClass() {

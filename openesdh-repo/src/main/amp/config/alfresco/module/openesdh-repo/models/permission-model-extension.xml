@@ -67,7 +67,6 @@
             <includePermissionGroup permissionGroup="DeleteAssociations" type="sys:base"/>
             <includePermissionGroup permissionGroup="CreateAssociations" type="sys:base"/>
             <includePermissionGroup permissionGroup="ChangePermissions" type="sys:base"/>
-            <includePermissionGroup permissionGroup="Flatten" type="sys:base"/>
         </permissionGroup>
     </permissionSet>
 

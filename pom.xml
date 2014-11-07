@@ -6,14 +6,14 @@
     <version>1.0-SNAPSHOT</version>
     <name>Parent pom for OpenESDH</name>
     <description>Parent</description>
-    <packaging>pom</packaging>    
+    <packaging>pom</packaging>
 
     <parent>
         <groupId>org.alfresco.maven</groupId>
         <artifactId>alfresco-sdk-parent</artifactId>
-        <version>2.0.0-beta-2</version>
+        <version>2.0.0-beta-4</version>
     </parent>
-    
+
     <!-- 
        | SDK properties have sensible defaults in the SDK parent, but you can override the properties below to use another version. 
        | For more available properties see the alfresco-sdk-parent POM. 
@@ -27,7 +27,7 @@
         <!-- Defines the Alfresco version to work against.
              Community versions are typically identified by major.minor.character (4.2.a) while Enterprise versions are identified by major.minor.digit (4.2.0) 
         -->
-        <alfresco.version>5.0.a</alfresco.version>
+        <alfresco.version>5.0.b</alfresco.version>
         <!-- This control the root logging level for all apps -->
         <app.log.root.level>WARN</app.log.root.level>
         <!-- This controls the default data location for dir.root -->
@@ -36,24 +36,24 @@
         <env>local</env>
     </properties>
 
-   <!-- Here we realize the connection with the Alfresco selected platform (e.g.version and edition) -->
-   <dependencyManagement>
-     <dependencies>
-          <!-- This will import the dependencyManagement for all artifacts in the selected Alfresco plaftorm
-               (see http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Importing_Dependencies)
-               NOTE: You still need to define dependencies in your POM, but you can omit version as it's enforced by this dependencyManagement.
-               NOTE: It defaults to the latest version this SDK pom has been tested with, but alfresco version can/should be overridden in your project's pom   
-           -->
-          <dependency>
-              <groupId>${alfresco.groupId}</groupId>
-              <artifactId>alfresco-platform-distribution</artifactId>
-              <version>${alfresco.version}</version>
-              <type>pom</type>
-              <scope>import</scope>
-          </dependency>
-     </dependencies>
-  </dependencyManagement>
-  
+    <!-- Here we realize the connection with the Alfresco selected platform (e.g.version and edition) -->
+    <dependencyManagement>
+        <dependencies>
+            <!-- This will import the dependencyManagement for all artifacts in the selected Alfresco plaftorm
+                 (see http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Importing_Dependencies)
+                 NOTE: You still need to define dependencies in your POM, but you can omit version as it's enforced by this dependencyManagement.
+                 NOTE: It defaults to the latest version this SDK pom has been tested with, but alfresco version can/should be overridden in your project's pom
+             -->
+            <dependency>
+                <groupId>${alfresco.groupId}</groupId>
+                <artifactId>alfresco-platform-distribution</artifactId>
+                <version>${alfresco.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+
     <!-- This repository is only needed to retrieve Alfresco parent POM. 
         NOTE: This can be removed when/if Alfresco will be on Maven Central 
         
@@ -62,20 +62,69 @@
         with Alfresco Support to get credentials to add to your ~/.m2/settings.xml
         if you are a Enterprise customer or Partner  
         -->
-<!--
     <repositories>
         <repository>
-            <id>alfresco-public</id>
-            <url>https://artifacts.alfresco.com/nexus/content/groups/public</url>
+            <id>magenta-public</id>
+            <url>http://nexus.magenta-aps.dk/nexus/content/repositories/Alfresco-RELEASES</url>
         </repository>
         <repository>
-            <id>alfresco-public-snapshots</id>
-            <url>https://artifacts.alfresco.com/nexus/content/groups/public-snapshots</url>
+            <id>magenta-public-snapshots</id>
+            <url>http://nexus.magenta-aps.dk/nexus/content/repositories/Alfresco-SNAPSHOTS</url>
+            <snapshots>
+                <enabled>true</enabled>
+                <updatePolicy>daily</updatePolicy>
+            </snapshots>
         </repository>
+
+
     </repositories>
--->
-  <modules>
-    <module>openesdh-repo</module>
-    <module>openesdh-share</module>
-  </modules>
+
+    <modules>
+        <module>openesdh-repo</module>
+        <module>openesdh-share</module>
+    </modules>
+
+
+
+    <profiles>
+
+        <profile>
+            <id>unpack-deps</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+
+                        <executions>
+                            <execution>
+                                <id>unpack-amps</id>
+                                <phase>prepare-package</phase>
+                                <goals>
+                                    <goal>unpack-dependencies</goal>
+                                </goals>
+                                <configuration>
+                                    <includeTypes>amp</includeTypes>
+                                    <outputDirectory>${alfresco.client.war.folder}</outputDirectory>
+                                </configuration>
+                            </execution>
+                        </executions>
+                        <dependencies>
+                            <dependency>
+                                <groupId>org.alfresco.maven.plugin</groupId>
+                                <artifactId>maven-amp-plugin</artifactId>
+                                <version>3.0.2</version>
+                            </dependency>
+
+                        </dependencies>
+                    </plugin>
+
+                </plugins>
+            </build>
+        </profile>
+
+    </profiles>
+
+
+
 </project>

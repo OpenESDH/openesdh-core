@@ -54,7 +54,28 @@
             <version>15.0</version>
             <scope>test</scope>
         </dependency>
+
+        <dependency>
+            <groupId>share-extras</groupId>
+            <artifactId>javascript-console-share</artifactId>
+            <version>0.5.1</version>
+            <classifier>community</classifier>
+            <type>amp</type>
+        </dependency>
+
+        <!-- This needs to go away when upgrading to beta-5 -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>1.7.5</version>
+        </dependency>
         
     </dependencies>
+
 
 </project>

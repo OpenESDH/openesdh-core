@@ -18,7 +18,6 @@ import org.openqa.selenium.support.ui.WebDriverWait;
 public class LoginPage extends BasePage {
 
     private static final String URL = BASE_URL + "/page/type/login";
-    private static final String URL_LOGOUT = BASE_URL + "/page/dologout";
     private static final String URL_ERROR = URL + "?error=true";
 
     @FindBy(how = How.NAME, using = "username")
@@ -59,7 +58,21 @@ public class LoginPage extends BasePage {
     }
 
     public void logout() {
-        Browser.open(URL_LOGOUT);
+        WebElement userMenuPopup = Browser.Driver.findElement(By.id("HEADER_USER_MENU_POPUP"));
+        userMenuPopup.click();
+
+        WebElement userMenuPopup1 = Browser.Driver.findElement(By.id("HEADER_USER_MENU_POPUP_text"));
+        userMenuPopup1.click();
+
+
+        WebElement userMenuLogout = (new WebDriverWait(Browser.Driver, 10))
+                .until(ExpectedConditions.presenceOfElementLocated(By.id("HEADER_USER_MENU_LOGOUT_text")));
+        userMenuLogout.click();
+
+
+        //WebElement userMenuLogout = Browser.Driver.findElement();
+
+        //Browser.open(URL_LOGOUT);
     }
 
 }
