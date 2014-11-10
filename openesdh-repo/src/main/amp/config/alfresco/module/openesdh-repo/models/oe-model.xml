@@ -61,6 +61,14 @@
                 </property>
             </properties>
         </aspect>
+        <aspect name="oe:caseId">
+            <properties>
+                <property name="oe:caseId">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
+            </properties>
+        </aspect>
     </aspects>
 
 </model>

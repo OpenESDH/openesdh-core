@@ -8,5 +8,6 @@
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-repository-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-model-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-policy-context.xml" />
+    <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-action-context.xml" />
 
 </beans>

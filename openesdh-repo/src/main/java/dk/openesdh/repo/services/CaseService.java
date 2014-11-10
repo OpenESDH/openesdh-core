@@ -150,4 +150,11 @@ public interface CaseService {
      */
     public void unJournalize(NodeRef nodeRef);
 
+    /**
+     * Get the parent case of the given node, or null if the node does not
+     * have a parent which is a case.
+     * @param nodeRef
+     * @return
+     */
+    public NodeRef getParentCase(NodeRef nodeRef);
 }

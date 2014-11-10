@@ -1,15 +1,21 @@
 package dk.openesdh.repo.services;
 
+import dk.openesdh.repo.actions.AssignCaseIdActionExecuter;
 import dk.openesdh.repo.model.OpenESDHModel;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
+import org.alfresco.service.cmr.action.Action;
+import org.alfresco.service.cmr.action.ActionService;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.rule.Rule;
+import org.alfresco.service.cmr.rule.RuleService;
+import org.alfresco.service.cmr.rule.RuleType;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
@@ -42,6 +48,8 @@ public class CaseServiceImpl implements CaseService {
     private PermissionService permissionService;
     private TransactionService transactionService;
     private DictionaryService dictionaryService;
+    private RuleService ruleService;
+    private ActionService actionService;
 
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
@@ -69,6 +77,14 @@ public class CaseServiceImpl implements CaseService {
 
     public void setDictionaryService(DictionaryService dictionaryService) {
         this.dictionaryService = dictionaryService;
+    }
+
+    public void setRuleService(RuleService ruleService) {
+        this.ruleService = ruleService;
+    }
+
+    public void setActionService(ActionService actionService) {
+        this.actionService = actionService;
     }
 
     @Override
@@ -384,6 +400,21 @@ public class CaseServiceImpl implements CaseService {
         // TODO: Test
         NodeRef documentsNodeRef = createNode(caseNodeRef, "documents");
         nodeService.addAspect(documentsNodeRef, OpenESDHModel.ASPECT_DOCUMENT_CONTAINER, null);
+
+        // Setup assign case Id to documents rule
+        setupAssignCaseIdRule(documentsNodeRef);
+    }
+
+    protected void setupAssignCaseIdRule(NodeRef folderNodeRef) {
+        Rule rule = new Rule();
+        rule.setRuleType(RuleType.INBOUND);
+        rule.setTitle("Assign caseId to documents");
+        rule.applyToChildren(true);
+        Action action = actionService.createAction(AssignCaseIdActionExecuter.NAME);
+        action.setTitle("Assign caseId");
+        action.setExecuteAsynchronously(true);
+        rule.setAction(action);
+        ruleService.saveRule(folderNodeRef, rule);
     }
 
     String getCaseId(long uniqueNumber) {
@@ -478,21 +509,20 @@ public class CaseServiceImpl implements CaseService {
 
     private void journalizeImpl(final NodeRef nodeRef, final NodeRef journalKey) {
         AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Void>() {
-                @Override
-                public Void doWork() {
-                    Map<QName, Serializable> props = new HashMap<>();
-                    props.put(OpenESDHModel.PROP_OE_JOURNALKEY, journalKey);
-                    props.put(OpenESDHModel.PROP_OE_JOURNALIZED_BY, AuthenticationUtil.getFullyAuthenticatedUser());
-                    props.put(OpenESDHModel.PROP_OE_JOURNALIZED_DATE, new Date());
-                    nodeService.addAspect(nodeRef, OpenESDHModel.ASPECT_OE_JOURNALIZED, props);
-                    permissionService.setPermission(nodeRef, PermissionService.ALL_AUTHORITIES, "Journalized", false);
-                    return null;
-                }
-            }, AuthenticationUtil.getAdminUserName());
+            @Override
+            public Void doWork() {
+                Map<QName, Serializable> props = new HashMap<>();
+                props.put(OpenESDHModel.PROP_OE_JOURNALKEY, journalKey);
+                props.put(OpenESDHModel.PROP_OE_JOURNALIZED_BY, AuthenticationUtil.getFullyAuthenticatedUser());
+                props.put(OpenESDHModel.PROP_OE_JOURNALIZED_DATE, new Date());
+                nodeService.addAspect(nodeRef, OpenESDHModel.ASPECT_OE_JOURNALIZED, props);
+                permissionService.setPermission(nodeRef, PermissionService.ALL_AUTHORITIES, "Journalized", false);
+                return null;
+            }
+        }, AuthenticationUtil.getAdminUserName());
 
         List<ChildAssociationRef> childAssociationRefs = nodeService.getChildAssocs(nodeRef);
-        for(ChildAssociationRef childAssociationRef : childAssociationRefs)
-        {
+        for (ChildAssociationRef childAssociationRef : childAssociationRefs) {
             journalizeImpl(childAssociationRef.getChildRef(), journalKey);
         }
     }
@@ -580,5 +610,32 @@ public class CaseServiceImpl implements CaseService {
             casePathNodeRef = createNode(parent, casePathName);
         }
         return casePathNodeRef;
+    }
+
+    /**
+     * Find the parent of the nodeRef which is a subtype of the baseType,
+     * recursively.
+     *
+     * @param nodeRef
+     * @param baseType
+     * @return NodeRef or null if none found
+     */
+    protected NodeRef lookupParentOfType(NodeRef nodeRef, QName baseType) {
+        QName type = nodeService.getType(nodeRef);
+        if (dictionaryService.isSubClass(type, baseType)) {
+            return nodeRef;
+        } else {
+            NodeRef parent = nodeService.getPrimaryParent(nodeRef).getParentRef();
+            if (parent == null) {
+                return null;
+            } else {
+                return lookupParentOfType(parent, baseType);
+            }
+        }
+    }
+
+    @Override
+    public NodeRef getParentCase(NodeRef nodeRef) {
+        return lookupParentOfType(nodeRef, OpenESDHModel.TYPE_CASE_BASE);
     }
 }
