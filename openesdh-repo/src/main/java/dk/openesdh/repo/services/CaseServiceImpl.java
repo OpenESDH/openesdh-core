@@ -89,8 +89,8 @@ public class CaseServiceImpl implements CaseService {
 
     @Override
     public NodeRef getCasesRootNodeRef() {
+
         NodeRef companyHomeNodeRef = repositoryHelper.getCompanyHome();
-        LOGGER.info("companyHomeNodeRef" + companyHomeNodeRef);
         NodeRef casesRootNodeRef = nodeService.getChildByName(companyHomeNodeRef, ContentModel.ASSOC_CONTAINS, CASES);
 
         if (casesRootNodeRef == null) {
@@ -111,6 +111,7 @@ public class CaseServiceImpl implements CaseService {
         Map<QName, Serializable> properties = new HashMap<QName, Serializable>();
         properties.put(ContentModel.PROP_NAME, CASES);
         NodeRef casesRootNodeRef = nodeService.createNode(companyHomeNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, CASES), ContentModel.TYPE_FOLDER, properties).getChildRef();
+        setupAssignCaseIdRule(casesRootNodeRef);
         return casesRootNodeRef;
 
     }
@@ -400,15 +401,12 @@ public class CaseServiceImpl implements CaseService {
         // TODO: Test
         NodeRef documentsNodeRef = createNode(caseNodeRef, "documents");
         nodeService.addAspect(documentsNodeRef, OpenESDHModel.ASPECT_DOCUMENT_CONTAINER, null);
-
-        // Setup assign case Id to documents rule
-        setupAssignCaseIdRule(documentsNodeRef);
     }
 
     protected void setupAssignCaseIdRule(NodeRef folderNodeRef) {
         Rule rule = new Rule();
         rule.setRuleType(RuleType.INBOUND);
-        rule.setTitle("Assign caseId to documents");
+        rule.setTitle("Assign caseId to case documents");
         rule.applyToChildren(true);
         Action action = actionService.createAction(AssignCaseIdActionExecuter.NAME);
         action.setTitle("Assign caseId");
@@ -621,6 +619,10 @@ public class CaseServiceImpl implements CaseService {
      * @return NodeRef or null if none found
      */
     protected NodeRef lookupParentOfType(NodeRef nodeRef, QName baseType) {
+        if (nodeRef.equals(getCasesRootNodeRef())) {
+            // We reached the cases root node
+            return null;
+        }
         QName type = nodeService.getType(nodeRef);
         if (dictionaryService.isSubClass(type, baseType)) {
             return nodeRef;
@@ -637,5 +639,10 @@ public class CaseServiceImpl implements CaseService {
     @Override
     public NodeRef getParentCase(NodeRef nodeRef) {
         return lookupParentOfType(nodeRef, OpenESDHModel.TYPE_CASE_BASE);
+    }
+
+    @Override
+    public NodeRef getDocumentsFolder(NodeRef caseNodeRef) {
+        return nodeService.getChildByName(caseNodeRef, ContentModel.ASSOC_CONTAINS, "documents");
     }
 }

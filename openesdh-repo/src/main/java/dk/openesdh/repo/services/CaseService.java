@@ -152,9 +152,16 @@ public interface CaseService {
 
     /**
      * Get the parent case of the given node, or null if the node does not
-     * have a parent which is a case.
+     * have a parent which is a case. The parent does not have to be immediate.
      * @param nodeRef
      * @return
      */
     public NodeRef getParentCase(NodeRef nodeRef);
+
+    /**
+     * Get the documents folder of the given case.
+     * @param caseNodeRef
+     * @return
+     */
+    public NodeRef getDocumentsFolder(NodeRef caseNodeRef);
 }

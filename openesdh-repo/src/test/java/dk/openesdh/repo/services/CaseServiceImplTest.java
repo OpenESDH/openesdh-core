@@ -4,6 +4,7 @@ import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.documents.DocumentService;
 import net.sf.acegisecurity.AccessDeniedException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -148,13 +149,52 @@ public class CaseServiceImplTest {
             public Boolean execute() throws Throwable {
                 caseHelper.deleteDummyUser();
 
-                // Remove temporary node, and all its content, also removes testcase
-                nodeService.deleteNode(temporaryRepoNodeRef);
-
-                nodeService.deleteNode(behaviourOnCaseNodeRef);
+                // Remove temporary node, and all its content,
+                // also removes test cases
+                if (temporaryRepoNodeRef != null) {
+                    nodeService.deleteNode(temporaryRepoNodeRef);
+                }
+                if (behaviourOnCaseNodeRef != null) {
+                    nodeService.deleteNode(behaviourOnCaseNodeRef);
+                }
                 return true;
             }
         });
+    }
+
+    @Test
+    public void testGetParentCase() throws Exception {
+        NodeRef documentsFolder = caseService.getDocumentsFolder
+                (behaviourOnCaseNodeRef);
+
+        assertEquals("Get parent case of case documents folder is correct",
+                behaviourOnCaseNodeRef, caseService.getParentCase(documentsFolder));
+
+        assertNull("Get parent case of non-case node is null",
+                caseService.getParentCase(caseService.getCasesRootNodeRef()));
+    }
+
+    @Test
+    public void testAssignCaseIDRule() throws Exception {
+        NodeRef documentsFolder = caseService.getDocumentsFolder
+                (behaviourOnCaseNodeRef);
+
+        // Create a test document
+        String name = "test.doc";
+        Map<QName, Serializable> properties = new HashMap<QName, Serializable>();
+        properties.put(ContentModel.PROP_NAME, name);
+        NodeRef documentNodeRef = nodeService.createNode(documentsFolder,
+                ContentModel.ASSOC_CONTAINS,
+                QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, name),
+                ContentModel.TYPE_CONTENT,
+                properties).getChildRef();
+
+        assertTrue("oe:caseId aspect is set on case documents",
+                nodeService.hasAspect(documentNodeRef,
+                        OpenESDHModel.ASPECT_OE_CASE_ID));
+        assertEquals("caseId is assigned correctly",
+                caseService.getCaseId(behaviourOnCaseNodeRef),
+                nodeService.getProperty(documentNodeRef, OpenESDHModel.PROP_OE_CASE_ID));
     }
 
     @Test
