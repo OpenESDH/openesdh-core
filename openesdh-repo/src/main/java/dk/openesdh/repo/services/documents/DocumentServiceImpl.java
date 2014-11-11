@@ -2,6 +2,7 @@ package dk.openesdh.repo.services.documents;
 
 import com.google.gdata.data.Person;
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.CaseService;
 import dk.openesdh.repo.webscripts.documents.Documents;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.node.SystemNodeUtils;
@@ -32,6 +33,7 @@ public class DocumentServiceImpl implements DocumentService {
     private DictionaryService dictionaryService;
     private PersonService personService;
     private TransactionService transactionService;
+    private CaseService caseService;
 
     public void setDictionaryService(DictionaryService dictionaryService) {
         this.dictionaryService = dictionaryService;
@@ -51,15 +53,11 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public List<ChildAssociationRef> getDocumentsForCase(NodeRef nodeRef) {
-        NodeRef documentsFolder = getDocumentsFolder(nodeRef);
+        NodeRef documentsFolder = caseService.getDocumentsFolder(nodeRef);
         Set<QName> types = new HashSet<>();
         types.add(OpenESDHModel.TYPE_DOC_BASE);
         List<ChildAssociationRef> childAssociationRefs = nodeService.getChildAssocs(documentsFolder, types);
         return childAssociationRefs;
-    }
-
-    private NodeRef getDocumentsFolder(NodeRef caseNodeRef) {
-        return nodeService.getChildByName(caseNodeRef, ContentModel.ASSOC_CONTAINS, "documents");
     }
 
     @Override
@@ -68,7 +66,8 @@ public class DocumentServiceImpl implements DocumentService {
         JSONArray documentsJSON = new JSONArray();
         try {
             result.put("documents", documentsJSON);
-            result.put("documentsNodeRef", getDocumentsFolder(caseNodeRef));
+            result.put("documentsNodeRef", caseService.getDocumentsFolder
+                    (caseNodeRef));
             for (int i = 0; i < childAssociationRefs.size(); i++) {
                 ChildAssociationRef childAssociationRef = childAssociationRefs.get(i);
                 NodeRef childNodeRef = childAssociationRef.getChildRef();
@@ -121,5 +120,9 @@ public class DocumentServiceImpl implements DocumentService {
                 return null;
             }
         }, "admin");
+    }
+
+    public void setCaseService(CaseService caseService) {
+        this.caseService = caseService;
     }
 }

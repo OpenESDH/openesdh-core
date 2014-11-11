@@ -16,13 +16,12 @@ define(["dojo/_base/declare",
 "openesdh/xsearch/FilterTextWidget",
 "openesdh/xsearch/FilterAuthorityWidget",
 "openesdh/xsearch/FilterAssociationWidget",
-"openesdh/xsearch/FilterSingleUserSelectWidget",
 "openesdh/xsearch/FilterDateRangeWidget",
 
 "openesdh/xsearch/_TopicsMixin"
 ],
 function(declare, _Widget, _Templated, template, Core, CoreXhr, dom, domConstruct, domClass, array, lang, on, AlfButton,
-FilterSelectWidget, FilterTextWidget, FilterAuthorityWidget, FilterAssociationWidget, FilterSingleUserSelectWidget, FilterDateRangeWidget,
+FilterSelectWidget, FilterTextWidget, FilterAuthorityWidget, FilterAssociationWidget, FilterDateRangeWidget,
 _TopicsMixin) {
     return declare([_Widget, _Templated, Core, CoreXhr, _TopicsMixin], {
         
