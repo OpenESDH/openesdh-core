@@ -610,35 +610,28 @@ public class CaseServiceImpl implements CaseService {
         return casePathNodeRef;
     }
 
-    /**
-     * Find the parent of the nodeRef which is a subtype of the baseType,
-     * recursively.
-     *
-     * @param nodeRef
-     * @param baseType
-     * @return NodeRef or null if none found
-     */
-    protected NodeRef lookupParentOfType(NodeRef nodeRef, QName baseType) {
+    @Override
+    public boolean isCaseNode(NodeRef nodeRef) {
+        QName type = nodeService.getType(nodeRef);
+        return dictionaryService.isSubClass(type, OpenESDHModel.TYPE_CASE_BASE);
+    }
+
+    @Override
+    public NodeRef getParentCase(NodeRef nodeRef) {
         if (nodeRef.equals(getCasesRootNodeRef())) {
             // We reached the cases root node
             return null;
         }
-        QName type = nodeService.getType(nodeRef);
-        if (dictionaryService.isSubClass(type, baseType)) {
+        if (isCaseNode(nodeRef)) {
             return nodeRef;
         } else {
             NodeRef parent = nodeService.getPrimaryParent(nodeRef).getParentRef();
             if (parent == null) {
                 return null;
             } else {
-                return lookupParentOfType(parent, baseType);
+                return getParentCase(parent);
             }
         }
-    }
-
-    @Override
-    public NodeRef getParentCase(NodeRef nodeRef) {
-        return lookupParentOfType(nodeRef, OpenESDHModel.TYPE_CASE_BASE);
     }
 
     @Override

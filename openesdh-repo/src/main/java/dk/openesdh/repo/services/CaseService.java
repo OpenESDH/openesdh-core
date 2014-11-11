@@ -151,6 +151,13 @@ public interface CaseService {
     public void unJournalize(NodeRef nodeRef);
 
     /**
+     * Return whether or not the node is a case node.
+     * @param nodeRef
+     * @return
+     */
+    public boolean isCaseNode(NodeRef nodeRef);
+
+    /**
      * Get the parent case of the given node, or null if the node does not
      * have a parent which is a case. The parent does not have to be immediate.
      * @param nodeRef

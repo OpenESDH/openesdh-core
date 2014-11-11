@@ -20,6 +20,25 @@
         </module>
 
         <module>
+            <id>OpenESDH Case Edit Metadata Extension</id>
+            <version>1.0</version>
+            <auto-deploy>true</auto-deploy>
+            <evaluator type="dk.openesdh.evaluator.casenode">
+                <params>
+                    <uriPrefix>/share/page/edit-metadata</uriPrefix>
+                    <apply>true</apply>
+                </params>
+            </evaluator>
+
+            <customizations>
+                <customization>
+                    <targetPackageRoot>org.alfresco.share.header</targetPackageRoot>
+                    <sourcePackageRoot>dk.openesdh.pages.case.header</sourcePackageRoot>
+                </customization>
+            </customizations>
+        </module>
+
+        <module>
             <id>OpenESDH Document Extensions</id>
             <version>1.0</version>
             <auto-deploy>true</auto-deploy>

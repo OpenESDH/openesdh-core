@@ -1,0 +1,8 @@
+<webscript>
+    <shortname>Is Case Node</shortname>
+    <description>Retrieve whether the nodeRef is a case or not</description>
+    <url>/api/openesdh/iscasenode?nodeRef={nodeRef}</url>
+    <format default="json"></format>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+</webscript>

@@ -57,6 +57,12 @@
         <property name="dictionaryService" ref="dictionaryService"/>
     </bean>
 
+    <bean id="webscript.dk.openesdh.iscasenode.get"
+          class="dk.openesdh.repo.webscripts.cases.IsCaseNode"
+          parent="webscript">
+        <property name="caseService" ref="CaseService"/>
+    </bean>
+
     <bean id="webscript.dk.openesdh.caseroles.get"
           class="dk.openesdh.repo.webscripts.cases.CaseRoles"
           parent="webscript">
