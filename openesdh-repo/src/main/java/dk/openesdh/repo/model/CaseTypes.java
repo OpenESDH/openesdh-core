@@ -42,7 +42,7 @@ public class CaseTypes extends AbstractWebScript {
 
             // skip the basetype - getSubTypes returns it together with the subtypes
             if (!caseType.getLocalName().equals(OpenESDHModel.TYPE_BASE_NAME)) {
-                System.out.println(caseType.getLocalName());
+                //System.out.println(caseType.getLocalName());
                 JSONObject c = new JSONObject();
                 try {
                     c.put("NamespaceURI", caseType.getNamespaceURI());

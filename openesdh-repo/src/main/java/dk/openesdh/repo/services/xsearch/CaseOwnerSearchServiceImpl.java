@@ -31,7 +31,7 @@ public class CaseOwnerSearchServiceImpl extends AbstractXSearchService implement
         String user = params.get("user");
 
         HashMap<String, String> caseGroupsNodedbid = getCaseGroupsNodedbid(user);
-
+        // todo modify to check only for the caseowner groups
         if (true) {
             String query = "TYPE:\"" + OpenESDHModel.TYPE_CASE_BASE + "\" AND NOT ASPECT:\"" + OpenESDHModel.ASPECT_OE_JOURNALIZED + "\" ";
             return executeQuery(query);

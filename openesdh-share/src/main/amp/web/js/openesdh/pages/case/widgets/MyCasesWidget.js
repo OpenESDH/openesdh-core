@@ -154,8 +154,9 @@ define(["dojo/_base/declare",
                 this.currentSearch = {};
                 var OptionsArray = new Array();
 
+
                 OptionsArray.push({"label" : _this.message("mycases.select.userinvolvedsearch"), "value" : "userinvolvedsearch"});
-                OptionsArray.push({"label" : _this.message("mycases.select.userinvolvedsearch"), "value" : "userinvolvedsearch"});
+                OptionsArray.push({"label" : _this.message("mycases.select.lastmodifiedcases"), "value" : "lastmodifiedbymesearch"});
 
                 OptionsObject = {options : OptionsArray};
 
@@ -176,12 +177,12 @@ define(["dojo/_base/declare",
 
                 var CustomRest = JsonRest;
 
-                if (this.selectField.getValue() == "userinvolvedsearch") {
+
                     this.grid.store = new CustomRest({
-                        target: Alfresco.constants.PROXY_URI + "api/openesdh/userinvolvedsearch"
+                        target: Alfresco.constants.PROXY_URI + "api/openesdh/" + this.selectField.getValue()
                     });
                     this.grid.refresh();
-                }
+
             },
 
 

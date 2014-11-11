@@ -81,6 +81,27 @@
         </property>
     </bean>
 
+    <bean id="LastModifiedByMeSearchService" class="dk.openesdh.repo.services.xsearch.LastModifiedByMeSearchServiceImpl">
+        <property name="searchService">
+            <ref bean="SearchService"/>
+        </property>
+        <property name="repositoryHelper">
+            <ref bean="repositoryHelper"/>
+        </property>
+        <property name="authorityService">
+            <ref bean="authorityService"/>
+        </property>
+        <property name="auditService">
+            <ref bean="auditService"/>
+        </property>
+        <property name="dictionaryService">
+            <ref bean="dictionaryService"/>
+        </property>
+        <property name="nodeService">
+            <ref bean="nodeService"/>
+        </property>
+    </bean>
+
     <bean id="CaseOwnerSearchService" class="dk.openesdh.repo.services.xsearch.CaseOwnerSearchServiceImpl">
         <property name="searchService">
             <ref bean="SearchService"/>

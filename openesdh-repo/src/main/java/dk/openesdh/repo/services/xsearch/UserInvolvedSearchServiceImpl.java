@@ -6,6 +6,8 @@ import org.alfresco.model.ContentModel;
 import org.alfresco.repo.domain.permissions.Authority;
 import org.alfresco.repo.node.SystemNodeUtils;
 import org.alfresco.repo.security.authority.AuthorityDAO;
+import org.alfresco.service.cmr.audit.AuditQueryParameters;
+import org.alfresco.service.cmr.audit.AuditService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.*;
@@ -29,6 +31,8 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService implem
     protected AuthorityService authorityService;
 
 
+
+
     public void setAuthorityService(AuthorityService authorityService) {
         this.authorityService = authorityService;
     }
@@ -38,6 +42,13 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService implem
         if (baseType == null) {
             throw new AlfrescoRuntimeException("Must specify a baseType parameter");
         }
+
+
+
+
+
+
+
 
         String user = params.get("user");
 
@@ -53,6 +64,7 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService implem
 
             XResultSet combinedResult = new XResultSet(new LinkedList<NodeRef>(), 0);
             String baseQuery = "TYPE:\"" + OpenESDHModel.CASE_PREFIX + ":" + OpenESDHModel.TYPE_BASE_NAME + "\"" + " AND NOT ASPECT:\"" + OpenESDHModel.ASPECT_OE_JOURNALIZED  + "\"";
+            String modifiedQuery = "";
 
             Iterator iterator = caseGroupsNodedbid.keySet().iterator();
 
@@ -62,9 +74,9 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService implem
                 nodedbidsQuery += " \"" + element + "\"";
 
                 collected++;
-
+                // no need to check if the user has been involved in the case - just check to see if the lasted modifier property is equal to the user
                 if (collected == limit) {
-                    XResultSet result = executeQuery(baseQuery + " AND " + "@sys\\:node-dbid:(" + nodedbidsQuery + ")");
+                    XResultSet result = executeQuery(baseQuery + " AND " + "@sys\\:node-dbid:(" + nodedbidsQuery + ")" );
                     combinedResult.getNodeRefs().addAll(result.getNodeRefs());
                     collected = 0;
                     nodedbidsQuery = "";

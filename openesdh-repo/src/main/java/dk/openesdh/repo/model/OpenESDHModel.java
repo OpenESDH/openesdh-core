@@ -84,4 +84,12 @@ public interface OpenESDHModel {
     public static final QName CONSTRAINT_CASE_SIMPLE_STATUS = QName.createQName(CASE_URI, "simpleStatusConstraint");
     public static final QName CONSTRAINT_DOC_STATUS = QName.createQName(DOC_URI, "statusConstraint");
     public static final QName CONSTRAINT_DOC_CATEGORY = QName.createQName(DOC_URI, "categoryConstraint");
+
+
+    /**
+     * Various constants
+     */
+
+    // currently 7 days in miliseconds
+    public static final String MYCASES_DAYS_IN_THE_PAST = "604800000";
 }
