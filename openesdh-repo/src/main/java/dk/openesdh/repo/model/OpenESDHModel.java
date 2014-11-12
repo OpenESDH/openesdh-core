@@ -38,6 +38,7 @@ public interface OpenESDHModel {
      */
     public static final QName ASPECT_OE_JOURNALIZED = QName.createQName(OE_URI, "journalized");
 
+    public static final QName ASPECT_CASE_MAIN_DOC = QName.createQName(DOC_URI, "main");
     public static final QName ASPECT_CASE_COUNTER = QName.createQName(CASE_URI, "counter");
     public static final QName ASPECT_DOCUMENT_CONTAINER = QName.createQName(DOC_URI, "documentContainer");
 
