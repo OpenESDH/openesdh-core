@@ -1,7 +1,7 @@
 package dk.openesdh.repo.actions;
 
 import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.CaseService;
+import dk.openesdh.repo.services.cases.CaseService;
 import org.alfresco.repo.action.executer.ActionExecuterAbstractBase;
 import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.action.ParameterDefinition;
