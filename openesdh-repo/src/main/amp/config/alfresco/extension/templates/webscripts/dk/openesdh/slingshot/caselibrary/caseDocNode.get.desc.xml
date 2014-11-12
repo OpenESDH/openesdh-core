@@ -1,0 +1,8 @@
+<webscript>
+    <shortname>Get/Search cases</shortname>
+    <description>Retrieve cases</description>
+    <url>/api/openesdh/caselib/docNode/{store_type}/{store_id}/{id}</url>
+    <format default="json"></format>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+</webscript>
