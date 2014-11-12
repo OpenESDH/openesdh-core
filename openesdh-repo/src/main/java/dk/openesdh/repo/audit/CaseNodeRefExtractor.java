@@ -145,7 +145,12 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
 
   private String getNodeRefFromCaseID(String caseID) {
     System.out.println( "EXTRACT DATA: getNodeRefFromCaseID:" + caseID + "\n\n" );
-    NodeRef nodeRef = nodeService.getNodeRef(Long.parseLong(caseID.substring(caseID.length() - 3)));
-    return nodeRef.toString();
+    int dashIndex = caseID.lastIndexOf('-');
+    if (dashIndex != -1) {
+        NodeRef nodeRef = nodeService.getNodeRef(Long.parseLong(caseID.substring(dashIndex+1)));
+        return nodeRef.toString();
+    } else {
+        return null;
+    }
   }
 }

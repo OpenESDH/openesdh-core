@@ -37,9 +37,6 @@ public class AssignCaseIdActionExecuter extends ActionExecuterAbstractBase {
             properties.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
             nodeService.addAspect(actionedUponNodeRef,
                     OpenESDHModel.ASPECT_OE_CASE_ID, properties);
-        } else {
-            LOGGER.warning("Could not find the parent case for node " +
-                    actionedUponNodeRef);
         }
     }
 
