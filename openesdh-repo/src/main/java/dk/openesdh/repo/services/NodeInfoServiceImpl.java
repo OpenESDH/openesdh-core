@@ -78,14 +78,13 @@ public class NodeInfoServiceImpl implements NodeInfoService {
                     }
 
                     valueObj.put("label", dictionaryService.getProperty(key).getTitle(dictionaryService));
-                    properties.put(entry.getKey().toPrefixString(caseInfo.getNamespaceService()), valueObj);
+                    properties.put(entry.getKey().toPrefixString(namespaceService), valueObj);
                 }
             }
             result.put("properties", properties);
             JSONObject aspectsObj = new JSONObject();
             for (QName aspect : nodeInfo.aspects) {
-                aspectsObj.put(aspect.toPrefixString(caseInfo
-                        .getNamespaceService()), true);
+                aspectsObj.put(aspect.toPrefixString(namespaceService), true);
             }
             result.put("aspects", aspectsObj);
             result.put("isJournalized", nodeInfo.aspects.contains(OpenESDHModel.ASPECT_OE_JOURNALIZED));

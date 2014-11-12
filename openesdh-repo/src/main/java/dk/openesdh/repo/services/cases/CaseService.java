@@ -126,8 +126,21 @@ public interface CaseService {
      */
     public NodeRef getCaseFolderNodeRef(NodeRef casesFolderNodeRef);
 
-    public boolean canJournalize(String user, NodeRef caseNodeRef,
-                          boolean unJournalize);
+    /**
+     * Return whether or not the user can journalize the case.
+     * @param user
+     * @param caseNodeRef
+     * @return
+     */
+    public boolean canJournalize(String user, NodeRef caseNodeRef);
+
+    /**
+     * Return whether or not the user can unjournalize the case.
+     * @param user
+     * @param caseNodeRef
+     * @return
+     */
+    public boolean canUnJournalize(String user, NodeRef caseNodeRef);
 
     /**
      * Return whether a node is journalized or not.

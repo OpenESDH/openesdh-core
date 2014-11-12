@@ -511,7 +511,17 @@ public class CaseServiceImplTest {
         } catch (Exception e) {
         }
 
+        try {
+            caseService.unJournalize(behaviourOnCaseNodeRef);
+            assertFalse("Cannot unjournalize a case as a regular user", true);
+        } catch (Exception e) {
+        }
+
+
+        AuthenticationUtil.setFullyAuthenticatedUser(ADMIN_USER_NAME);
         caseService.unJournalize(behaviourOnCaseNodeRef);
+
+        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
 
         assertFalse("Case isJournalized returns true for an unjournalized " +
                 "case", caseService.isJournalized(behaviourOnCaseNodeRef));

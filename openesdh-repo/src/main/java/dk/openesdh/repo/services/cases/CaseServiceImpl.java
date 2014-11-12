@@ -464,24 +464,40 @@ public class CaseServiceImpl implements CaseService {
         return getCasePathNodeRef(casesMonthNodeRef, Calendar.DATE);
     }
 
-    public void checkCanJournalize(NodeRef caseNodeRef,
-                                   boolean unJournalize) throws
+    public void checkCanJournalize(NodeRef caseNodeRef) throws
             AccessDeniedException {
         String user = AuthenticationUtil.getFullyAuthenticatedUser();
-        if (!canJournalize(user, caseNodeRef, unJournalize)) {
+        if (!canJournalize(user, caseNodeRef)) {
             throw new AccessDeniedException(user + " is not allowed to " +
                     "journalize the case " + caseNodeRef);
         }
     }
 
+    public void checkCanUnJournalize(NodeRef caseNodeRef) throws
+            AccessDeniedException {
+        String user = AuthenticationUtil.getFullyAuthenticatedUser();
+        if (!canUnJournalize(user, caseNodeRef)) {
+            throw new AccessDeniedException(user + " is not allowed to " +
+                    "unjournalize the case " + caseNodeRef);
+        }
+    }
+
     @Override
-    public boolean canJournalize(String user, NodeRef caseNodeRef,
-                                 boolean unJournalize) {
-        if (isJournalized(caseNodeRef) != unJournalize) {
+    public boolean canJournalize(String user, NodeRef caseNodeRef) {
+        if (isJournalized(caseNodeRef)) {
             return false;
         }
         return authorityService.isAdminAuthority(user) ||
                 isCaseOwner(user, caseNodeRef);
+    }
+
+    @Override
+    public boolean canUnJournalize(String user, NodeRef caseNodeRef) {
+        if (!isJournalized(caseNodeRef)) {
+            return false;
+        }
+        // Only admins can unjournalize, not case owners
+        return authorityService.isAdminAuthority(user);
     }
 
     @Override
@@ -493,7 +509,7 @@ public class CaseServiceImpl implements CaseService {
     @Override
     public void journalize(final NodeRef nodeRef,
                            final NodeRef journalKey) {
-        checkCanJournalize(nodeRef, false);
+        checkCanJournalize(nodeRef);
         // Run it in a transaction
         transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
             @Override
@@ -544,7 +560,7 @@ public class CaseServiceImpl implements CaseService {
 
     @Override
     public void unJournalize(final NodeRef nodeRef) {
-        checkCanJournalize(nodeRef, true);
+        checkCanUnJournalize(nodeRef);
         // Run it in a transaction
         transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
             @Override
