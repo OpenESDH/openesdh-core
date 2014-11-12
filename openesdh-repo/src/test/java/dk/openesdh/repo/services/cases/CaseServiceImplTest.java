@@ -17,6 +17,7 @@ import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.PermissionService;
+import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.DynamicNamespacePrefixResolver;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
@@ -57,6 +58,10 @@ public class CaseServiceImplTest {
     @Autowired
     @Qualifier("AuthorityService")
     protected AuthorityService authorityService;
+
+    @Autowired
+    @Qualifier("PersonService")
+    protected PersonService personService;
 
     @Autowired
     @Qualifier("PermissionService")
@@ -145,8 +150,6 @@ public class CaseServiceImplTest {
 
         transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Boolean>() {
             public Boolean execute() throws Throwable {
-                caseHelper.deleteDummyUser();
-
                 // Remove temporary node, and all its content,
                 // also removes test cases
                 if (temporaryRepoNodeRef != null) {
@@ -155,6 +158,7 @@ public class CaseServiceImplTest {
                 if (behaviourOnCaseNodeRef != null) {
                     nodeService.deleteNode(behaviourOnCaseNodeRef);
                 }
+                caseHelper.deleteDummyUser();
                 return true;
             }
         });
@@ -249,45 +253,43 @@ public class CaseServiceImplTest {
     }
 
     @Test
-    public void testSetupCaseOwners() throws Exception {
-        long uniqueNumber = 1231L;
-        String caseId = caseService.getCaseId(uniqueNumber);
-        caseService.setupPermissionGroup(temporaryCaseNodeRef, caseId,
-                "CaseOwners");
+    public void testBehaviourOnAddOwnersToPermissionGroup() throws Exception {
+        String groupName = caseService.getCaseRoleGroupName(caseService.getCaseId(behaviourOnCaseNodeRef), "CaseOwners");
 
-        String groupSuffix = "case_" + caseId + "_CaseOwners";
-        String groupName = authorityService.getName(AuthorityType.GROUP, groupSuffix);
-        assertNotNull("No reader group created", groupName);
-
-        if (groupName != null) {
-            authorityService.deleteAuthority(groupName);
-        }
+        assertTrue("Creating a case should add the users in case owners " +
+                "association to the CaseOwners group", authorityService
+                .getContainedAuthorities(
+                AuthorityType.USER,
+                groupName,
+                false).contains(CaseHelper.DEFAULT_USERNAME));
     }
 
-
     @Test
-    public void testAddOwnersToPermissionGroup() throws Exception {
-        long uniqueNumber = 1231L;
-        String caseId = caseService.getCaseId(uniqueNumber);
-        String ownersPermissionGroupName = caseService.setupPermissionGroup(temporaryCaseNodeRef, caseId, "CaseOwners");
+    public void testBehaviourOnAddRemoveOwner() throws Exception {
+        String groupName = caseService.getCaseRoleGroupName(caseService.getCaseId(behaviourOnCaseNodeRef), "CaseOwners");
+        NodeRef adminNodeRef = personService.getPerson(ADMIN_USER_NAME);
 
-        caseService.addOwnersToPermissionGroup(temporaryCaseNodeRef, ownersPermissionGroupName);
+        // Add admin to owners
+        nodeService.createAssociation(behaviourOnCaseNodeRef,
+                adminNodeRef,
+                OpenESDHModel.ASSOC_CASE_OWNERS);
 
-        String groupName = authorityService.getName(AuthorityType.GROUP, "case_" + caseId + "_CaseOwners");
+        assertTrue("Adding case owner should add them to CaseOwners group",
+                authorityService.getContainedAuthorities(
+                        AuthorityType.USER,
+                        groupName,
+                        false).contains(ADMIN_USER_NAME));
 
-        // Hack to see if owner was added to the ownergroup. The exception
-        // means it already exists, and all is well
-        try {
-            authorityService.addAuthority(groupName, CaseHelper.DEFAULT_USERNAME);
-            assertNotNull("Owner was not added to correct owner group", null);
-        } catch (Exception e) {
-        }
+        // Remove admin from owners
+        nodeService.removeAssociation(behaviourOnCaseNodeRef,
+                adminNodeRef, OpenESDHModel.ASSOC_CASE_OWNERS);
 
-        if (groupName != null) {
-            authorityService.deleteAuthority(groupName);
-        }
-
-
+        assertFalse("Removing case owner should remove them from CaseOwners " +
+                "group", authorityService
+                .getContainedAuthorities(
+                AuthorityType.USER,
+                groupName,
+                false).contains(ADMIN_USER_NAME));
     }
 
     @Test

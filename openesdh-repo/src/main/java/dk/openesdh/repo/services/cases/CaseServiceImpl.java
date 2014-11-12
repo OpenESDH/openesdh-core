@@ -137,26 +137,9 @@ public class CaseServiceImpl implements CaseService {
 
         String ownersPermissionGroupName = setupPermissionGroup(caseNodeRef,
                 caseId, "CaseOwners");
-        addOwnersToPermissionGroup(caseNodeRef, ownersPermissionGroupName);
         setupPermissionGroups(caseNodeRef, caseId);
-    }
-
-    void addOwnersToPermissionGroup(NodeRef caseNodeRef, String groupName) {
-        // Add the owners
-        List<AssociationRef> owners = nodeService.getTargetAssocs(caseNodeRef, OpenESDHModel.ASSOC_CASE_OWNERS);
-        for (Iterator<AssociationRef> iterator = owners.iterator(); iterator.hasNext(); ) {
-            AssociationRef next = iterator.next();
-            NodeRef owner = next.getTargetRef();
-
-            // authorityName, userName
-            String ownerName = "";
-            if (nodeService.getType(owner).equals(ContentModel.TYPE_AUTHORITY_CONTAINER)) {
-                ownerName = (String) nodeService.getProperty(owner, ContentModel.PROP_AUTHORITY_NAME);
-            } else {
-                ownerName = (String) nodeService.getProperty(owner, ContentModel.PROP_USERNAME);
-            }
-            authorityService.addAuthority(groupName, ownerName);
-        }
+        // The CaseOwnersBehaviour takes care of adding the owners to the
+        // CaseOwners group
     }
 
     @Override
@@ -219,10 +202,20 @@ public class CaseServiceImpl implements CaseService {
             public Object doWork() throws Exception {
                 String caseId = getCaseId(caseNodeRef);
                 String groupName = getCaseRoleGroupName(caseId, role);
-                authorityService.removeAuthority(groupName, authorityName);
+                if (authorityService.authorityExists(groupName) &&
+                        authorityService.authorityExists(authorityName)) {
+                    authorityService.removeAuthority(groupName, authorityName);
+                }
                 return null;
             }
         }, "admin");
+    }
+
+    @Override
+    public void removeAuthorityFromRole(final NodeRef authorityNodeRef,
+                                        final String role,
+                                        final NodeRef caseNodeRef) {
+        removeAuthorityFromRole(getAuthorityName(authorityNodeRef), role, caseNodeRef);
     }
 
     @Override
@@ -243,6 +236,14 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
+    public void addAuthorityToRole(final NodeRef authorityNodeRef,
+                                   final String role,
+                                   final NodeRef caseNodeRef) {
+        addAuthorityToRole(getAuthorityName(authorityNodeRef), role,
+                caseNodeRef);
+    }
+
+    @Override
     public void addAuthoritiesToRole(final List<NodeRef> authorities,
                                      final String role,
                                      final NodeRef caseNodeRef) {
@@ -253,13 +254,18 @@ public class CaseServiceImpl implements CaseService {
             public Object doWork() throws Exception {
                 String caseId = getCaseId(caseNodeRef);
                 final String groupName = getCaseRoleGroupName(caseId, role);
+                if (!authorityService.authorityExists(groupName)) {
+                    return null;
+                }
                 transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper
                         .RetryingTransactionCallback<Object>() {
                     @Override
                     public Object execute() throws Throwable {
                         for (NodeRef authorityNodeRef : authorities) {
                             String authority = getAuthorityName(authorityNodeRef);
-                            authorityService.addAuthority(groupName, authority);
+                            if (authority != null) {
+                                authorityService.addAuthority(groupName, authority);
+                            }
                         }
                         return null;
                     }

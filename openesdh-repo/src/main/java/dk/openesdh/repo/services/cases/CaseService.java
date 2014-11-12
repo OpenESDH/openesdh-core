@@ -68,6 +68,10 @@ public interface CaseService {
                                         String role,
                                         NodeRef caseNodeRef);
 
+    public void removeAuthorityFromRole(NodeRef authorityNodeRef,
+                                 String role,
+                                 NodeRef caseNodeRef);
+
     /**
      * Add the authority to the given role group on the case.
      *
@@ -78,6 +82,10 @@ public interface CaseService {
     public void addAuthorityToRole(String authorityName,
                                    String role,
                                    NodeRef caseNodeRef);
+
+    public void addAuthorityToRole(NodeRef authorityNodeRef,
+                            String role,
+                            NodeRef caseNodeRef);
 
     /**
      * Add the list of authorities to the given role group on the case.
