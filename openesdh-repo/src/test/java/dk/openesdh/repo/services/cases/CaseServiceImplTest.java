@@ -174,6 +174,9 @@ public class CaseServiceImplTest {
 
         assertNull("Get parent case of non-case node is null",
                 caseService.getParentCase(caseService.getCasesRootNodeRef()));
+
+        assertNull("Get parent case of case node is null",
+                caseService.getParentCase(behaviourOnCaseNodeRef));
     }
 
     @Test

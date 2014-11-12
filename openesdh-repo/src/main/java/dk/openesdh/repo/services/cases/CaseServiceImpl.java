@@ -640,19 +640,19 @@ public class CaseServiceImpl implements CaseService {
 
     @Override
     public NodeRef getParentCase(NodeRef nodeRef) {
-        if (nodeRef.equals(getCasesRootNodeRef())) {
-            // We reached the cases root node
+        if (nodeRef.equals(getCasesRootNodeRef()) || isCaseNode(nodeRef)) {
+            // Case nodes and cases root don't have cases as ancestors
             return null;
         }
-        if (isCaseNode(nodeRef)) {
-            return nodeRef;
+
+        NodeRef parent = nodeService.getPrimaryParent(nodeRef).getParentRef();
+        if (parent == null) {
+            return null;
         } else {
-            NodeRef parent = nodeService.getPrimaryParent(nodeRef).getParentRef();
-            if (parent == null) {
-                return null;
-            } else {
-                return getParentCase(parent);
+            if (isCaseNode(parent)) {
+                return parent;
             }
+            return getParentCase(parent);
         }
     }
 
