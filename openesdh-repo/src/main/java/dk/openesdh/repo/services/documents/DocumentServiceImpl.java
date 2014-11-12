@@ -139,6 +139,9 @@ public class DocumentServiceImpl implements DocumentService {
 
                         nodeService.moveNode(fileNodeRef, documentNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.DOC_URI, "content_" + documentName));
 
+                        //Tag the case document as the main document for the case
+                        nodeService.addAspect(fileNodeRef, OpenESDHModel.ASPECT_CASE_MAIN_DOC, null);
+
                         nodeService.setType(fileNodeRef, OpenESDHModel.TYPE_DOC_DIGITAL_FILE);
                         // TODO Get start value, localize
                         nodeService.setProperty(fileNodeRef, OpenESDHModel.PROP_DOC_VARIANT, "Produktion");
