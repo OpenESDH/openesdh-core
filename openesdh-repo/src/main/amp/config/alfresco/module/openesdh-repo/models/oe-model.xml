@@ -8,6 +8,7 @@
         <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>
         <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>
         <import uri="http://www.alfresco.org/model/system/1.0" prefix="sys"/>
+        <import uri="http://openesdh.dk/model/party/1.0/" prefix="party" />
     </imports>
     <namespaces>
         <namespace uri="http://openesdh.dk/model/openesdh/1.0/" prefix="oe"/>
@@ -25,11 +26,27 @@
             </properties>
             <mandatory-aspects>
                 <aspect>oe:titled</aspect>
+                <aspect>oe:partied</aspect>
             </mandatory-aspects>
         </type>
     </types>
 
     <aspects>
+        <aspect name="oe:partied">
+            <associations>
+                <association name="oe:parties">
+                    <source>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </source>
+                    <target>
+                        <class>party:base</class>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </target>
+                </association>
+            </associations>
+        </aspect>
         <aspect name="oe:titled">
             <parent>cm:titled</parent>
             <overrides>

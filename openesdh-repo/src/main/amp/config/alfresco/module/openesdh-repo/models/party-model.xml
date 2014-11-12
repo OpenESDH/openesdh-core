@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model name="party:partyModel"
+       xmlns="http://www.alfresco.org/model/dictionary/1.0">
+    <description>OpenESDH Party Model</description>
+    <author>Seth Yastrov, Flemming Heide Pedersern, Ole Hejlskov,
+        Torben Lauritzen
+    </author>
+    <version>1.0</version>
+    <imports>
+        <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>
+        <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>
+        <import uri="http://www.alfresco.org/model/system/1.0" prefix="sys"/>
+    </imports>
+    <namespaces>
+        <namespace uri="http://openesdh.dk/model/party/1.0/" prefix="party"/>
+    </namespaces>
+    <types>
+        <type name="party:base">
+            <properties>
+                <property name="party:email">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
+            </properties>
+            <associations>
+                <association name="party:address">
+                    <source>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </source>
+                    <target>
+                        <class>party:address</class>
+                        <mandatory>true</mandatory>
+                        <many>true</many>
+                    </target>
+                </association>
+            </associations>
+        </type>
+        <type name="party:person">
+            <parent>party:base</parent>
+            <properties>
+                <property name="party:firstName">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
+                <property name="party:lastName">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
+                <property name="party:middleName">
+                    <type>d:text</type>
+                </property>
+                <property name="party:cprNumber">
+                    <type>d:int</type>
+                </property>
+            </properties>
+        </type>
+        <type name="party:company">
+            <parent>party:base</parent>
+            <properties>
+                <property name="party:companyName">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
+                <property name="party:cvrNumber">
+                    <type>d:int</type>
+                </property>
+            </properties>
+            <associations>
+                <association name="party:companyPeople">
+                    <source>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </source>
+                    <target>
+                        <class>party:person</class>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </target>
+                </association>
+            </associations>
+        </type>
+        <type name="party:address">
+            <properties>
+                <property name="party:address1">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
+                <property name="party:address2">
+                    <type>d:text</type>
+                </property>
+                <property name="party:floor">
+                    <type>d:text</type>
+                </property>
+                <property name="party:suiteIdentifier">
+                    <type>d:text</type>
+                </property>
+                <property name="party:postCode">
+                    <type>d:int</type>
+                    <mandatory>true</mandatory>
+                </property>
+                <property name="party:countryCode">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
+            </properties>
+        </type>
+    </types>
+</model>
