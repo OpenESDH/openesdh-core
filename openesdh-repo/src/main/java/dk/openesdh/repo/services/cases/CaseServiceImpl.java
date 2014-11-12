@@ -1,4 +1,4 @@
-package dk.openesdh.repo.services;
+package dk.openesdh.repo.services.cases;
 
 import dk.openesdh.repo.actions.AssignCaseIdActionExecuter;
 import dk.openesdh.repo.model.OpenESDHModel;

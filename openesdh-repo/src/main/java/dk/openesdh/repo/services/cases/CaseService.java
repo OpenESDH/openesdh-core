@@ -1,4 +1,4 @@
-package dk.openesdh.repo.services;
+package dk.openesdh.repo.services.cases;
 
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;

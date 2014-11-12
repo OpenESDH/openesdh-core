@@ -53,7 +53,6 @@
           class="dk.openesdh.repo.webscripts.cases.CaseInfo"
           parent="webscript">
         <property name="nodeInfoService" ref="NodeInfoService"/>
-        <property name="namespaceService" ref="namespaceService"/>
         <property name="dictionaryService" ref="dictionaryService"/>
     </bean>
 

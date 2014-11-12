@@ -7,18 +7,11 @@ model.jsonModel = {
                 widgetMarginRight: 10,
                 widgets: [
                     {
-                        name: "openesdh/pages/documents/widgets/Documents",
+                        name: "openesdh/pages/documents/widgets/DocumentList",
                         config: {
                             title: "Hej"
                         }
-                    },
-                    {
-                        name: "openesdh/pages/documents/widgets/Documents",
-                        config: {
-                            title: "Hej 2"
-                        }
                     }
-
                 ]
             }
         }

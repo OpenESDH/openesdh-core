@@ -23,18 +23,40 @@ define(["dojo/_base/declare",
                 this.alfSubscribe("ALF_CONTENT_SERVICE_UPLOAD_REQUEST_RECEIVED", lang.hitch(this, this._onFileUploadRequest));
 
                 lang.mixin(this, args);
-                this._documents();
+                this._documents(true);
             },
 
-            _documents: function () {
+            _documents: function (domSafe) {
                 console.log("GET documents");
+
+                var successCallback = domSafe ? this._onSuccessCallbackDomSafe : this._onSuccessCallback;
+
                 // Get documents from webscript
                 var url = Alfresco.constants.PROXY_URI + "api/openesdh/documents?nodeRef=" + this.caseNodeRef;
                 this.serviceXhr({
                     url: url,
                     method: "GET",
-                    successCallback: this._onSuccessCallback,
+                    successCallback: successCallback,
                     callbackScope: this});
+            },
+
+            _onSuccessCallbackDomSafe: function (response, config) {
+                console.log("CALLBACK documents domsafe");
+
+                this.documentsNodeRef = response.documentsNodeRef;
+
+                var domReadyFunction = (function (scope) {
+                    return function () {
+                        console.log("PUBLISH documents " + response.documents);
+                        scope.alfPublish(scope.DocumentsTopic, response.documents);
+                        scope.alfPublish("ALF_UPDATE_PAGE_TITLE", {title: response["caseTitle"]});
+                    }
+                })(this);
+
+                require(["dojo/ready"], function (ready) {
+                    // will not be called until DOM is ready
+                    ready(domReadyFunction);
+                });
             },
 
             _onSuccessCallback: function (response, config) {
@@ -42,20 +64,10 @@ define(["dojo/_base/declare",
 
                 this.documentsNodeRef = response.documentsNodeRef;
 
-                var domReadyFunction = (function (scope) {
-                    return function () {
-                        console.log("PUBLISH documents");
-                        scope.alfPublish(scope.DocumentsTopic, response.documents);
-                        scope.alfPublish("ALF_UPDATE_PAGE_TITLE", {title: response["caseTitle"]});
-                    }
-                })(this);
-
-                require(["dojo/ready"], function(ready) {
-                    // will not be called until DOM is ready
-                    ready(domReadyFunction);
-                });
+                console.log("PUBLISH documents " + response.documents);
+                this.alfPublish(this.DocumentsTopic, response.documents);
+                this.alfPublish("ALF_UPDATE_PAGE_TITLE", {title: response["caseTitle"]});
             },
-
 
             /**
              * This function will open a [AlfFormDialog]{@link module:alfresco/forms/AlfFormDialog} containing a
@@ -111,8 +123,7 @@ define(["dojo/_base/declare",
              * @param {object} payload The file upload data payload to pass on
              */
             _onFileUploadRequest: function alfresco_services_ContentService__onFileUploadRequest(payload) {
-                if (this.uploadDialog != null)
-                {
+                if (this.uploadDialog != null) {
                     this.uploadDialog.destroyRecursive();
                 }
                 var responseTopic = this.generateUuid();
@@ -130,7 +141,8 @@ define(["dojo/_base/declare",
             _onFileUploadComplete: function alfresco_services_ContentService__onFileUploadComplete() {
                 this.alfLog("log", "Upload complete");
                 this.alfUnsubscribe(this._uploadSubHandle);
-              //  this.alfPublish(this.reloadDataTopic, {});
+                //this.alfPublish(this.reloadDataTopic, {});
+                this._documents(false);
             }
         });
     });

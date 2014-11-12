@@ -1,19 +1,17 @@
 package dk.openesdh.repo.services.documents;
 
-import com.google.gdata.data.Person;
 import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.CaseService;
+import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.webscripts.documents.Documents;
 import org.alfresco.model.ContentModel;
-import org.alfresco.repo.node.SystemNodeUtils;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
-import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.PersonService;
+import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
 import org.apache.commons.io.FilenameUtils;
@@ -34,6 +32,11 @@ public class DocumentServiceImpl implements DocumentService {
     private PersonService personService;
     private TransactionService transactionService;
     private CaseService caseService;
+    private NamespaceService namespaceService;
+
+    public void setNamespaceService(NamespaceService namespaceService) {
+        this.namespaceService = namespaceService;
+    }
 
     public void setDictionaryService(DictionaryService dictionaryService) {
         this.dictionaryService = dictionaryService;
@@ -55,7 +58,7 @@ public class DocumentServiceImpl implements DocumentService {
     public List<ChildAssociationRef> getDocumentsForCase(NodeRef nodeRef) {
         NodeRef documentsFolder = caseService.getDocumentsFolder(nodeRef);
         Set<QName> types = new HashSet<>();
-        types.add(OpenESDHModel.TYPE_DOC_BASE);
+        types.add(OpenESDHModel.TYPE_DOC_SIMPLE);
         List<ChildAssociationRef> childAssociationRefs = nodeService.getChildAssocs(documentsFolder, types);
         return childAssociationRefs;
     }
@@ -64,6 +67,7 @@ public class DocumentServiceImpl implements DocumentService {
     public JSONObject buildJSON(List<ChildAssociationRef> childAssociationRefs, Documents documents, NodeRef caseNodeRef) {
         JSONObject result = new JSONObject();
         JSONArray documentsJSON = new JSONArray();
+
         try {
             result.put("documents", documentsJSON);
             result.put("documentsNodeRef", caseService.getDocumentsFolder
@@ -73,7 +77,37 @@ public class DocumentServiceImpl implements DocumentService {
                 NodeRef childNodeRef = childAssociationRef.getChildRef();
 
                 JSONObject documentJSON = new JSONObject();
-                documentJSON.put((String) nodeService.getProperty(childNodeRef, ContentModel.PROP_NAME), nodeService.getProperty(childNodeRef, ContentModel.PROP_UPDATED));
+
+                Map<QName, Serializable> props = nodeService.getProperties(childNodeRef);
+
+                for (Map.Entry<QName, Serializable> entry : props.entrySet()) {
+                    Serializable value = entry.getValue();
+                    QName key = entry.getKey();
+                    JSONObject valueObj = new JSONObject();
+                    if (value != null) {
+                        if (Date.class.equals(value.getClass())) {
+                            valueObj.put("type", "Date");
+                            valueObj.put("value", ((Date) value).getTime());
+                        }
+                        else if(key.getPrefixString().equals("modifier") || key.getPrefixString().equals("creator")) {
+                            valueObj.put("type", "UserName");
+                            valueObj.put("value", value);
+                            NodeRef personNodeRef = personService.getPerson((String) value);
+                            String firstName = (String) nodeService.getProperty(personNodeRef, ContentModel.PROP_FIRSTNAME);
+                            String lastName = (String) nodeService.getProperty(personNodeRef, ContentModel.PROP_LASTNAME);
+                            valueObj.put("fullname", firstName + " " + lastName);
+                        } else {
+                            valueObj.put("value", value);
+                            valueObj.put("type", "String");
+                        }
+
+                        valueObj.put("label", dictionaryService.getProperty(key).getTitle(dictionaryService));
+
+                        documentJSON.put(entry.getKey().toPrefixString(this.namespaceService), valueObj);
+                    }
+                }
+
+//                JSONObject documentJSON = new JSONObject(props);
                 documentsJSON.put(documentJSON);
             }
         } catch (JSONException e) {
