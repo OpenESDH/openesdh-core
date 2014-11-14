@@ -24,15 +24,11 @@ define(["dojo/_base/declare",
         "dojo/on",
         "dojo/dom-attr",
         "openesdh/xsearch/_TopicsMixin",
-
         "alfresco/dialogs/AlfDialog",
-
         "dojo/json",
-
         "dojo/store/Memory",
         "dojo/store/JsonRest",
         "dojo/store/util/QueryResults",
-
         "dgrid/extensions/DijitRegistry",
         "dgrid/Grid",
         "dgrid/Keyboard",
@@ -63,6 +59,7 @@ define(["dojo/_base/declare",
                 {cssFile:"./css/AlfrescoStyle.css"},
                 {cssFile:"./css/Grid.css"},
                 {cssFile:"./css/GridActions.css"},
+                {cssFile:"./css/Icons.css"},
                 {cssFile:"./css/GridColumns.css"}
             ],
 
@@ -120,7 +117,17 @@ define(["dojo/_base/declare",
              * @instance
              * @type {object[]}
              */
-            actions: null,
+            actions: [ {"href" : "hdp/ws/dk-openesdh-pages-case-dashboard?nodeRef=nr" ,
+                        "id" : "case-dashboard",
+                        "label" : "mycases.grid.actions.goto_case",
+                        "key" : "13"},
+
+                       {"href" : "edit-metadata?nodeRef=nr" ,
+                        "id" : "case-edit",
+                        "label" : "mycases.grid.actions.edit_case",
+                        "key" : "13"}],
+
+
 
             /**
              * An array holding the property names of the currently visible columns.
@@ -164,6 +171,11 @@ define(["dojo/_base/declare",
                 this.selectField.placeAt(this.bodyNode);
 
                 on(this.selectField.wrappedWidget, "change", lang.hitch(this, "handleDropdownSelect"));
+
+
+
+
+
             },
 
             startup: function () {
@@ -272,10 +284,10 @@ define(["dojo/_base/declare",
 
                 this.alfLog("debug", "Columns " + columns);
 
-                // Add Actions column
+                //Add Actions column
                 columns.push({
                     field: "nodeRef",
-                    label: this.message("xsearch.grid.actions"),
+                    label: this.message("mycases.grid.actions"),
                     renderCell: lang.hitch(this, '_renderActionsCell'),
                     sortable: false,
                     unhidable: true
@@ -307,9 +319,12 @@ define(["dojo/_base/declare",
             _renderActionsCell: function (item, value, node, options) {
                 var _this = this;
                 var actionElems = [];
+
                 array.forEach(this.actions, function (action, i) {
+
+
                     var label = _this.message(action.label);
-                    var href = Alfresco.constants.URL_PAGECONTEXT + action.href.replace("{nodeRef}", item.nodeRef);
+                    var href = Alfresco.constants.URL_PAGECONTEXT + action.href.replace("nr", item.nodeRef);
                     actionElems.push("<span><a class='magenta ui-icon grid-action action-" + action.id + "' href='" + href + "' title='" + label + "'>" + label + "</a></span>");
                 });
 

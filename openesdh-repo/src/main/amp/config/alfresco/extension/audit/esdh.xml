@@ -6,9 +6,9 @@
     <DataExtractors>
        <DataExtractor name="simpleValue" registeredName="auditModel.extractor.simpleValue"/>
        <DataExtractor name="nullValue" registeredName="auditModel.extractor.nullValue"/>
-       <DataExtractor name="caseIDValue" registeredName="dk_magenta_audit_CaseIDExtractor" />
+       <DataExtractor name="caseIDValue" registeredName="webscript.dk.openesdh.CaseIDExtractor" />
     </DataExtractors>
-    
+
     <DataGenerators>
        <DataGenerator name="currentUser" registeredName="auditModel.generator.user"/>
     </DataGenerators>

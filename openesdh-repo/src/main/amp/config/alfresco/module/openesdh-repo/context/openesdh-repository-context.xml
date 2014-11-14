@@ -117,7 +117,7 @@
         <property name="caseService" ref="CaseService"/>
     </bean>
 
-    <bean id="dk_magenta_audit_CaseIDExtractor" class="dk.openesdh.repo.audit.CaseNodeRefExtractor">
+    <bean id="webscript.dk.openesdh.CaseIDExtractor" class="dk.openesdh.repo.audit.CaseNodeRefExtractor">
         <property name="registry" ref="auditModel.extractorRegistry" />
         <property name="nodeService" ref="nodeService" />
         <property name="searchService" ref="searchService" />

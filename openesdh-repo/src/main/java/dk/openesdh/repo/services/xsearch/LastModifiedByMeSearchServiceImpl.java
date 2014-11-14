@@ -65,22 +65,16 @@ public class LastModifiedByMeSearchServiceImpl extends AbstractXSearchService im
             @Override
             public boolean handleAuditEntry(Long entryId, String applicationName, String user, long time, Map<String, Serializable> values) {
 
-                System.out.println("time: " + time);
 
-
-                System.out.println("debug: " + (String)values.get("/esdh/case/value"));
+                //System.out.println("debug: " + (String)values.get("/esdh/case/value"));
                 NodeRef nodeRef = new NodeRef((String)values.get("/esdh/case/value"));
-                System.out.println("test" + nodeRef);
-                System.out.println("lastmodified: " + nodeRef);
-
-                System.out.println("noderefs" + nodeRefs);
 
                 // avoid getting the same case twice as there could be more than one audit entry for a case
                 if (!nodeRefs.contains(nodeRef)) {
                     nodeRefs.add(nodeRef);
                 }
 
-//                System.out.println(entryId  + applicationName + user + " " +  new Date(time) + values.get("/esdh/transaction/properties/add"));
+//               System.out.println(entryId  + applicationName + user + " " +  new Date(time) + values.get("/esdh/transaction/properties/add"));
                 return true;
             }
 
@@ -99,6 +93,7 @@ public class LastModifiedByMeSearchServiceImpl extends AbstractXSearchService im
         Long fromTime = today - new Long(OpenESDHModel.MYCASES_DAYS_IN_THE_PAST);
 
         for (QName caseType : caseTypes) {
+
             // skip the basetype - getSubTypes returns it together with the subtypes
             if (!caseType.getLocalName().equals(OpenESDHModel.TYPE_BASE_NAME)) {
 
@@ -106,6 +101,7 @@ public class LastModifiedByMeSearchServiceImpl extends AbstractXSearchService im
                 AuditQueryParameters auditQueryParameters = new AuditQueryParameters();
                 auditQueryParameters.setForward(false);
                 auditQueryParameters.setApplicationName("esdh");
+
                 auditQueryParameters.setFromTime(fromTime);
                 auditQueryParameters.addSearchKey(null, caseType.getPrefixString());
 

@@ -38,10 +38,12 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
   public Serializable extractData(Serializable value) throws Throwable {
     String result = null;
 
-    //System.out.println( "WE'RE INSIDE EXTRACT DATA!\n\n" );
-    //System.out.println( "VALUE CLASS IN EXTRACT DATA: " + value.getClass() + "\n\n");
-    //System.out.println( "VALUE IN EXTRACT DATA: " + value.toString() + "\n\n");
+//    System.out.println( "WE'RE INSIDE EXTRACT DATA!\n\n" );
+//    System.out.println( "VALUE CLASS IN EXTRACT DATA: " + value.getClass() + "\n\n");
+//    System.out.println( "VALUE IN EXTRACT DATA: " + value.toString() + "\n\n");
 
+
+    // TODO Ole,do we every get an instance of a nodeRef?
     if (value instanceof NodeRef) {
       // received a NodeRef object, we know this is a permission change
       // therefore we always have a path
@@ -51,16 +53,16 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
       result = getNodeRefFromFullPath(path);
     } else if (value instanceof String) {
       String str = (String) value;
-      System.out.println( "EXTRACT DATA: STRING:" + str + "\n\n" );
+      //System.out.println( "EXTRACT DATA: STRING:" + str + "\n\n" );
       if (str.startsWith("GROUP_case_")) {
-          System.out.println("this is a group thingie");
+          //System.out.println("this is a group thingie");
         String[] parts = str.split("_");
         if (parts.length < 3) {
           return null;
         }
         result = getNodeRefFromCaseID(parts[2]);
       } else {
-          System.out.println("this is a path thingie");
+          //System.out.println("this is a path thingie");
         result = getNodeRefFromPath(str);
       }
     }
@@ -73,18 +75,12 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
 
     System.out.println( "EXTRACT DATA: getNodeRefFromPath.path: " + path + "\n\n" );
     String prefix = "/app:company_home/case:openesdh_cases/";
-    //String prefixEncoded = "/app:company_home/esdh:Sager/cm:Alle_x0020_sager/";
     if (path.startsWith(prefix)) {
       String[] parts = path.split("/");
-      System.out.println("parts.length:" + parts.length);
-
-//
-//      System.out.println("5" + parts[5]);
+//      System.out.println("parts.length:" + parts.length);
         if (parts.length >= 7) {
             String node_db_id = parts[6].substring(parts[6].length() - 3);
-
             NodeRef nodeRef = nodeService.getNodeRef(Long.parseLong(node_db_id));
-            System.out.println("nodeRef: " + nodeRef);
             return nodeRef.toString();
         }
 

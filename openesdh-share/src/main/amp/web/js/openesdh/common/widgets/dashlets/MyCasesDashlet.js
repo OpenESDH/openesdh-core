@@ -36,7 +36,7 @@ define(["dojo/_base/declare",
              *
              * @instance
              */
-            //i18nScope: "openesdh.case.CaseInfoDashlet",
+            i18nScope: "openesdh.case.MyCasesDashlet",
 
             /**
              * An array of the i18n files to use with this widget.
@@ -45,7 +45,7 @@ define(["dojo/_base/declare",
              * @type {object[]}
              * @default [{i18nFile: "./i18n/CaseInfoDashlet.properties"}]
              */
-            //i18nRequirements: [{i18nFile: "./i18n/CaseInfoDashlet.properties"}],
+            i18nRequirements: [{i18nFile: "./i18n/MyCasesDashlet.properties"}],
 
             /**
              * The widgets to be processed to generate each item in the rendered view.
@@ -62,3 +62,4 @@ define(["dojo/_base/declare",
 
         });
     });
+
