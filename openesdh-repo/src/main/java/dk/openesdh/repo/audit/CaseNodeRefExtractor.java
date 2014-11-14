@@ -48,7 +48,7 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
       // received a NodeRef object, we know this is a permission change
       // therefore we always have a path
       NodeRef nodeRef = (NodeRef) value;
-      System.out.println( "NODEREF IN EXTRACT DATA: " + nodeRef.getId() + "\n\n" );
+//      System.out.println( "NODEREF IN EXTRACT DATA: " + nodeRef.getId() + "\n\n" );
       Path path = nodeService.getPath(nodeRef);
       result = getNodeRefFromFullPath(path);
     } else if (value instanceof String) {
@@ -67,13 +67,13 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
       }
     }
     // TODO: check that what is returned is actually a case, return null otherwise
-    System.out.println( "THE GREAT RESULT FROM EXTRACT DATA: " + result + "\n\n");
+//    System.out.println( "THE GREAT RESULT FROM EXTRACT DATA: " + result + "\n\n");
     return result;
   }
 
   private String getNodeRefFromPath(String path) {
 
-    System.out.println( "EXTRACT DATA: getNodeRefFromPath.path: " + path + "\n\n" );
+//    System.out.println( "EXTRACT DATA: getNodeRefFromPath.path: " + path + "\n\n" );
     String prefix = "/app:company_home/case:openesdh_cases/";
     if (path.startsWith(prefix)) {
       String[] parts = path.split("/");
@@ -103,7 +103,7 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
 
   private String search(String prefixEncoded, String namespace, String name) {
     String searchStr = prefixEncoded + namespace + ":" + name;
-    System.out.println( "EXTRACT DATA: getNodeRefFromFullPath.searchStr: " + searchStr + "\n\n" );
+//    System.out.println( "EXTRACT DATA: getNodeRefFromFullPath.searchStr: " + searchStr + "\n\n" );
     String resultStr = null;
     ResultSet res = null;
     try {
@@ -140,7 +140,7 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
   }
 
   private String getNodeRefFromCaseID(String caseID) {
-    System.out.println( "EXTRACT DATA: getNodeRefFromCaseID:" + caseID + "\n\n" );
+//    System.out.println( "EXTRACT DATA: getNodeRefFromCaseID:" + caseID + "\n\n" );
     int dashIndex = caseID.lastIndexOf('-');
     if (dashIndex != -1) {
         NodeRef nodeRef = nodeService.getNodeRef(Long.parseLong(caseID.substring(dashIndex+1)));
