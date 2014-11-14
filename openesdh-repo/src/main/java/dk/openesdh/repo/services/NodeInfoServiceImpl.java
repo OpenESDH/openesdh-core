@@ -7,6 +7,7 @@ import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.PersonService;
+import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -23,6 +24,11 @@ public class NodeInfoServiceImpl implements NodeInfoService {
     private NodeService nodeService;
     private DictionaryService dictionaryService;
     private PersonService personService;
+
+    private NamespaceService namespaceService;
+    public void setNamespaceService(NamespaceService namespaceService) {
+        this.namespaceService = namespaceService;
+    }
 
     public void setDictionaryService(DictionaryService dictionaryService) {
         this.dictionaryService = dictionaryService;
@@ -72,14 +78,13 @@ public class NodeInfoServiceImpl implements NodeInfoService {
                     }
 
                     valueObj.put("label", dictionaryService.getProperty(key).getTitle(dictionaryService));
-                    properties.put(entry.getKey().toPrefixString(caseInfo.getNamespaceService()), valueObj);
+                    properties.put(entry.getKey().toPrefixString(namespaceService), valueObj);
                 }
             }
             result.put("properties", properties);
             JSONObject aspectsObj = new JSONObject();
             for (QName aspect : nodeInfo.aspects) {
-                aspectsObj.put(aspect.toPrefixString(caseInfo
-                        .getNamespaceService()), true);
+                aspectsObj.put(aspect.toPrefixString(namespaceService), true);
             }
             result.put("aspects", aspectsObj);
             result.put("isJournalized", nodeInfo.aspects.contains(OpenESDHModel.ASPECT_OE_JOURNALIZED));

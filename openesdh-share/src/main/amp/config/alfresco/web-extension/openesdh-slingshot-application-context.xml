@@ -65,6 +65,10 @@
     <bean id="dk.openesdh.evaluator.uriprefix"
           class="dk.openesdh.share.evaluator.URIPrefixEvaluator"/>
 
+    <!-- Custom evaluator which tests if the nodeRef URL parameter points to a case -->
+    <bean id="dk.openesdh.evaluator.casenode"
+          class="dk.openesdh.share.evaluator.CaseNodeEvaluator"/>
+
 
     <!-- Override WebScript Messages - add slingshot application messages -->
 <!--

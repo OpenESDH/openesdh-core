@@ -40,9 +40,16 @@ define(["dojo/_base/declare",
             postMixInProperties: function alfresco_renderers_DocumentField__postMixInProperties() {
 
                 var property = lang.getObject(this.propertyToRender, false, this.currentItem);
-//                var userName = property.value;
-//                var displayName = property.fullname;
-                this.renderedValue = "Document";
+
+                var valuePairText = function(key) {
+                    return property[key].label + ": " + property[key].value
+                }
+
+                var documentName = valuePairText("cm:name");
+                var creator = valuePairText("cm:creator");
+                var modifier = valuePairText("cm:modifier");
+
+                this.renderedValue = documentName + " " + creator + " " + modifier + "<br />";
 
                 this.renderedValueClass = this.renderedValueClass + " " + this.renderSize + " block";
             }

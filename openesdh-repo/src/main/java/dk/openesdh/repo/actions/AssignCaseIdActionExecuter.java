@@ -1,7 +1,7 @@
 package dk.openesdh.repo.actions;
 
 import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.CaseService;
+import dk.openesdh.repo.services.cases.CaseService;
 import org.alfresco.repo.action.executer.ActionExecuterAbstractBase;
 import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.action.ParameterDefinition;
@@ -37,9 +37,6 @@ public class AssignCaseIdActionExecuter extends ActionExecuterAbstractBase {
             properties.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
             nodeService.addAspect(actionedUponNodeRef,
                     OpenESDHModel.ASPECT_OE_CASE_ID, properties);
-        } else {
-            LOGGER.warning("Could not find the parent case for node " +
-                    actionedUponNodeRef);
         }
     }
 

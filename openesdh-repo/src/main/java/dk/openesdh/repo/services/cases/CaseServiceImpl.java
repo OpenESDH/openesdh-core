@@ -1,4 +1,4 @@
-package dk.openesdh.repo.services;
+package dk.openesdh.repo.services.cases;
 
 import dk.openesdh.repo.actions.AssignCaseIdActionExecuter;
 import dk.openesdh.repo.model.OpenESDHModel;
@@ -137,26 +137,9 @@ public class CaseServiceImpl implements CaseService {
 
         String ownersPermissionGroupName = setupPermissionGroup(caseNodeRef,
                 caseId, "CaseOwners");
-        addOwnersToPermissionGroup(caseNodeRef, ownersPermissionGroupName);
         setupPermissionGroups(caseNodeRef, caseId);
-    }
-
-    void addOwnersToPermissionGroup(NodeRef caseNodeRef, String groupName) {
-        // Add the owners
-        List<AssociationRef> owners = nodeService.getTargetAssocs(caseNodeRef, OpenESDHModel.ASSOC_CASE_OWNERS);
-        for (Iterator<AssociationRef> iterator = owners.iterator(); iterator.hasNext(); ) {
-            AssociationRef next = iterator.next();
-            NodeRef owner = next.getTargetRef();
-
-            // authorityName, userName
-            String ownerName = "";
-            if (nodeService.getType(owner).equals(ContentModel.TYPE_AUTHORITY_CONTAINER)) {
-                ownerName = (String) nodeService.getProperty(owner, ContentModel.PROP_AUTHORITY_NAME);
-            } else {
-                ownerName = (String) nodeService.getProperty(owner, ContentModel.PROP_USERNAME);
-            }
-            authorityService.addAuthority(groupName, ownerName);
-        }
+        // The CaseOwnersBehaviour takes care of adding the owners to the
+        // CaseOwners group
     }
 
     @Override
@@ -219,10 +202,20 @@ public class CaseServiceImpl implements CaseService {
             public Object doWork() throws Exception {
                 String caseId = getCaseId(caseNodeRef);
                 String groupName = getCaseRoleGroupName(caseId, role);
-                authorityService.removeAuthority(groupName, authorityName);
+                if (authorityService.authorityExists(groupName) &&
+                        authorityService.authorityExists(authorityName)) {
+                    authorityService.removeAuthority(groupName, authorityName);
+                }
                 return null;
             }
         }, "admin");
+    }
+
+    @Override
+    public void removeAuthorityFromRole(final NodeRef authorityNodeRef,
+                                        final String role,
+                                        final NodeRef caseNodeRef) {
+        removeAuthorityFromRole(getAuthorityName(authorityNodeRef), role, caseNodeRef);
     }
 
     @Override
@@ -243,6 +236,14 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
+    public void addAuthorityToRole(final NodeRef authorityNodeRef,
+                                   final String role,
+                                   final NodeRef caseNodeRef) {
+        addAuthorityToRole(getAuthorityName(authorityNodeRef), role,
+                caseNodeRef);
+    }
+
+    @Override
     public void addAuthoritiesToRole(final List<NodeRef> authorities,
                                      final String role,
                                      final NodeRef caseNodeRef) {
@@ -253,13 +254,18 @@ public class CaseServiceImpl implements CaseService {
             public Object doWork() throws Exception {
                 String caseId = getCaseId(caseNodeRef);
                 final String groupName = getCaseRoleGroupName(caseId, role);
+                if (!authorityService.authorityExists(groupName)) {
+                    return null;
+                }
                 transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper
                         .RetryingTransactionCallback<Object>() {
                     @Override
                     public Object execute() throws Throwable {
                         for (NodeRef authorityNodeRef : authorities) {
                             String authority = getAuthorityName(authorityNodeRef);
-                            authorityService.addAuthority(groupName, authority);
+                            if (authority != null) {
+                                authorityService.addAuthority(groupName, authority);
+                            }
                         }
                         return null;
                     }
@@ -464,24 +470,40 @@ public class CaseServiceImpl implements CaseService {
         return getCasePathNodeRef(casesMonthNodeRef, Calendar.DATE);
     }
 
-    public void checkCanJournalize(NodeRef caseNodeRef,
-                                   boolean unJournalize) throws
+    public void checkCanJournalize(NodeRef caseNodeRef) throws
             AccessDeniedException {
         String user = AuthenticationUtil.getFullyAuthenticatedUser();
-        if (!canJournalize(user, caseNodeRef, unJournalize)) {
+        if (!canJournalize(user, caseNodeRef)) {
             throw new AccessDeniedException(user + " is not allowed to " +
                     "journalize the case " + caseNodeRef);
         }
     }
 
+    public void checkCanUnJournalize(NodeRef caseNodeRef) throws
+            AccessDeniedException {
+        String user = AuthenticationUtil.getFullyAuthenticatedUser();
+        if (!canUnJournalize(user, caseNodeRef)) {
+            throw new AccessDeniedException(user + " is not allowed to " +
+                    "unjournalize the case " + caseNodeRef);
+        }
+    }
+
     @Override
-    public boolean canJournalize(String user, NodeRef caseNodeRef,
-                                 boolean unJournalize) {
-        if (isJournalized(caseNodeRef) != unJournalize) {
+    public boolean canJournalize(String user, NodeRef caseNodeRef) {
+        if (isJournalized(caseNodeRef)) {
             return false;
         }
         return authorityService.isAdminAuthority(user) ||
                 isCaseOwner(user, caseNodeRef);
+    }
+
+    @Override
+    public boolean canUnJournalize(String user, NodeRef caseNodeRef) {
+        if (!isJournalized(caseNodeRef)) {
+            return false;
+        }
+        // Only admins can unjournalize, not case owners
+        return authorityService.isAdminAuthority(user);
     }
 
     @Override
@@ -493,7 +515,7 @@ public class CaseServiceImpl implements CaseService {
     @Override
     public void journalize(final NodeRef nodeRef,
                            final NodeRef journalKey) {
-        checkCanJournalize(nodeRef, false);
+        checkCanJournalize(nodeRef);
         // Run it in a transaction
         transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
             @Override
@@ -544,7 +566,7 @@ public class CaseServiceImpl implements CaseService {
 
     @Override
     public void unJournalize(final NodeRef nodeRef) {
-        checkCanJournalize(nodeRef, true);
+        checkCanUnJournalize(nodeRef);
         // Run it in a transaction
         transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
             @Override
@@ -610,35 +632,28 @@ public class CaseServiceImpl implements CaseService {
         return casePathNodeRef;
     }
 
-    /**
-     * Find the parent of the nodeRef which is a subtype of the baseType,
-     * recursively.
-     *
-     * @param nodeRef
-     * @param baseType
-     * @return NodeRef or null if none found
-     */
-    protected NodeRef lookupParentOfType(NodeRef nodeRef, QName baseType) {
-        if (nodeRef.equals(getCasesRootNodeRef())) {
-            // We reached the cases root node
-            return null;
-        }
+    @Override
+    public boolean isCaseNode(NodeRef nodeRef) {
         QName type = nodeService.getType(nodeRef);
-        if (dictionaryService.isSubClass(type, baseType)) {
-            return nodeRef;
-        } else {
-            NodeRef parent = nodeService.getPrimaryParent(nodeRef).getParentRef();
-            if (parent == null) {
-                return null;
-            } else {
-                return lookupParentOfType(parent, baseType);
-            }
-        }
+        return dictionaryService.isSubClass(type, OpenESDHModel.TYPE_CASE_BASE);
     }
 
     @Override
     public NodeRef getParentCase(NodeRef nodeRef) {
-        return lookupParentOfType(nodeRef, OpenESDHModel.TYPE_CASE_BASE);
+        if (nodeRef.equals(getCasesRootNodeRef()) || isCaseNode(nodeRef)) {
+            // Case nodes and cases root don't have cases as ancestors
+            return null;
+        }
+
+        NodeRef parent = nodeService.getPrimaryParent(nodeRef).getParentRef();
+        if (parent == null) {
+            return null;
+        } else {
+            if (isCaseNode(parent)) {
+                return parent;
+            }
+            return getParentCase(parent);
+        }
     }
 
     @Override

@@ -1,4 +1,4 @@
-<import resource="classpath:/alfresco/web-extension/utils/oe.js">//</import>
+<import resource="classpath:/alfresco/web-extension/utils/oe.js">
 
 var args = page.url.args;
 
@@ -93,8 +93,8 @@ caseConfig.config.widgets.push({
             rules: [
                 {
                     topic: "CASE_INFO",
-                    attribute: "isJournalized",
-                    isNot: [true]
+                    attribute: "canJournalize",
+                    is: [true]
                 }
             ]
         }
@@ -114,7 +114,7 @@ caseConfig.config.widgets.push({
             rules: [
                 {
                     topic: "CASE_INFO",
-                    attribute: "isJournalized",
+                    attribute: "canUnJournalize",
                     is: [true]
                 }
             ]

@@ -1,7 +1,7 @@
 package dk.openesdh.repo.policy;
 
 import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.CaseService;
+import dk.openesdh.repo.services.cases.CaseService;
 import org.alfresco.repo.node.NodeServicePolicies;
 import org.alfresco.repo.policy.Behaviour;
 import org.alfresco.repo.policy.JavaBehaviour;

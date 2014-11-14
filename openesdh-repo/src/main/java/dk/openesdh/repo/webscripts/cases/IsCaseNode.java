@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-public class CaseRoles extends AbstractWebScript {
+public class IsCaseNode extends AbstractWebScript {
 
     private CaseService caseService;
 
@@ -32,12 +32,17 @@ public class CaseRoles extends AbstractWebScript {
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
         NodeRef caseNodeRef = new NodeRef(req.getParameter("nodeRef"));
-        Set<String> roles = caseService.getRoles(caseNodeRef);
-        try {
-            JSONArray json = buildJSON(roles);
-            json.write(res.getWriter());
-        } catch (JSONException e) {
-            e.printStackTrace();
+        boolean isCaseNode = caseService.isCaseNode(caseNodeRef);
+        if (!isCaseNode) {
+            res.setStatus(409);
+        } else {
+            try {
+                JSONObject json = new JSONObject();
+                json.put("isCaseNode", isCaseNode);
+                json.write(res.getWriter());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 

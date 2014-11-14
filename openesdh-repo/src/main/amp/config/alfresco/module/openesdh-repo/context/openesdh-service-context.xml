@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
 <beans>
-    <bean id="CaseService" class="dk.openesdh.repo.services.CaseServiceImpl">
+    <bean id="CaseService" class="dk.openesdh.repo.services.cases.CaseServiceImpl">
         <property name="nodeService">
             <ref bean="NodeService"/>
         </property>
@@ -49,6 +49,7 @@
         <property name="personService">
             <ref bean="PersonService"/>
         </property>
+        <property name="namespaceService" ref="namespaceService"/>
     </bean>
 
 
@@ -66,6 +67,7 @@
         <property name="transactionService">
             <ref bean="TransactionService"/>
         </property>
+        <property name="namespaceService" ref="namespaceService"/>
     </bean>
 
     <bean id="XSearchService" class="dk.openesdh.repo.services.xsearch.XSearchServiceImpl">

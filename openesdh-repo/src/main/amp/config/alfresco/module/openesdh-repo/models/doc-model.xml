@@ -281,7 +281,6 @@
                 </property>
             </properties>
         </type>
-
     </types>
 
     <aspects>
@@ -299,6 +298,10 @@
 
         <aspect name="doc:documentContainer">
             <description>If aspect is applied, the folder may contain documents</description>
+        </aspect>
+
+        <aspect name="doc:main">
+            <description>Used to tag the case's main document on case creation only</description>
         </aspect>
     </aspects>
 
