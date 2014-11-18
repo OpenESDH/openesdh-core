@@ -45,7 +45,7 @@ import static org.junit.Assert.assertEquals;
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = {"classpath:alfresco/application-context.xml", "classpath:alfresco/extension/openesdh-test-context.xml"})
-public class LastSearchServiceImplTest {
+public class LastModifiedByMeSearchServiceImplTest {
 
     @Autowired
     @Qualifier("authorityService")
