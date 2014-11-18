@@ -95,4 +95,5 @@ public interface OpenESDHModel {
 
     // currently 7 days in miliseconds - one day is 86400000
     public static final String MYCASES_DAYS_IN_THE_PAST = "604800000";
+    public static final String MYCASES_8_DAYS = "691200000";
 }

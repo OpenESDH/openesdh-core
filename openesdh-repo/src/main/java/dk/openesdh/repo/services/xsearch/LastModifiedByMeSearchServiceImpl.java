@@ -10,6 +10,7 @@ import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.namespace.QName;
+import org.joda.time.DateTime;
 import org.json.JSONArray;
 
 import java.io.Serializable;
@@ -34,8 +35,6 @@ public class LastModifiedByMeSearchServiceImpl extends AbstractXSearchService im
     public void setDictionaryService(DictionaryService dictionaryService) {
         this.dictionaryService = dictionaryService;
     }
-
-
 
     public void setAuditService(AuditService auditService) {
         this.auditService = auditService;
@@ -66,12 +65,22 @@ public class LastModifiedByMeSearchServiceImpl extends AbstractXSearchService im
             public boolean handleAuditEntry(Long entryId, String applicationName, String user, long time, Map<String, Serializable> values) {
 
 
-                //System.out.println("debug: " + (String)values.get("/esdh/case/value"));
-                NodeRef nodeRef = new NodeRef((String)values.get("/esdh/case/value"));
+//                System.out.println("debug: " + (String)values.get("/esdh/case/value"));
 
-                // avoid getting the same case twice as there could be more than one audit entry for a case
-                if (!nodeRefs.contains(nodeRef)) {
-                    nodeRefs.add(nodeRef);
+                if (values.get("/esdh/case/value") != null) {
+                    NodeRef nodeRef = new NodeRef((String) values.get("/esdh/case/value"));
+
+                    // avoid getting the same case twice as there could be more than one audit entry for a case
+                    if (!nodeRefs.contains(nodeRef)) {
+
+                        NodeRef.Status status = nodeService.getNodeStatus(nodeRef);
+
+                        if (!status.isDeleted()) {
+                            nodeRefs.add(nodeRef);
+                        }
+
+
+                    }
                 }
 
 //               System.out.println(entryId  + applicationName + user + " " +  new Date(time) + values.get("/esdh/transaction/properties/add"));
@@ -86,11 +95,12 @@ public class LastModifiedByMeSearchServiceImpl extends AbstractXSearchService im
 
 
 
+
+
         // get the different casetypes from the dictionary
         Collection<QName> caseTypes = dictionaryService.getSubTypes(OpenESDHModel.TYPE_CASE_BASE, true);
 
-        Long today = new Date().getTime();
-        Long fromTime = today - new Long(OpenESDHModel.MYCASES_DAYS_IN_THE_PAST);
+        Long fromTime = new DateTime().toDate().getTime() - new Long(OpenESDHModel.MYCASES_DAYS_IN_THE_PAST);
 
         for (QName caseType : caseTypes) {
 
@@ -109,18 +119,7 @@ public class LastModifiedByMeSearchServiceImpl extends AbstractXSearchService im
                 auditService.auditQuery(auditQueryCallback, auditQueryParameters,1000);
             }
         }
-
-
-
-
-
-
-
-
-        System.out.println("size:" + nodeRefs.size());
-
         return new XResultSet(nodeRefs, nodeRefs.size());
-
     }
 
 
