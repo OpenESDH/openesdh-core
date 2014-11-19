@@ -405,7 +405,7 @@ public class CaseServiceImpl implements CaseService {
 
         // Create folder for documents
         // TODO: Test
-        NodeRef documentsNodeRef = createNode(caseNodeRef, "documents");
+        NodeRef documentsNodeRef = createNode(caseNodeRef, OpenESDHModel.DOCUMENTS_FOLDER_NAME);
         nodeService.addAspect(documentsNodeRef, OpenESDHModel.ASPECT_DOCUMENT_CONTAINER, null);
     }
 
@@ -658,6 +658,6 @@ public class CaseServiceImpl implements CaseService {
 
     @Override
     public NodeRef getDocumentsFolder(NodeRef caseNodeRef) {
-        return nodeService.getChildByName(caseNodeRef, ContentModel.ASSOC_CONTAINS, "documents");
+        return nodeService.getChildByName(caseNodeRef, ContentModel.ASSOC_CONTAINS, OpenESDHModel.DOCUMENTS_FOLDER_NAME);
     }
 }
