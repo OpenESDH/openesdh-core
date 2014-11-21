@@ -1,4 +1,4 @@
-package dk.openesdh.repo.services.Audit;
+package dk.openesdh.repo.services.audit;
 
 import org.alfresco.service.cmr.audit.AuditQueryParameters;
 import org.alfresco.service.cmr.audit.AuditService.AuditQueryCallback;
@@ -10,6 +10,7 @@ import org.json.JSONObject;
  */
 public interface AuditSearchService {
 
+    public JSONObject getAuditLogByCaseNodeRef(NodeRef nodeRef, Long timespan);
 
 
 }
