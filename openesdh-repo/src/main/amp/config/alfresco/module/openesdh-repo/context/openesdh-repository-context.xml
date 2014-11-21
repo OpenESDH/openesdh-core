@@ -19,6 +19,12 @@
         <property name="xSearchService" ref="XSearchService"/>
     </bean>
 
+    <bean id="webscript.dk.openesdh.casehistory.get"
+          class="dk.openesdh.repo.webscripts.cases.CaseHistory"
+          parent="webscript">
+        <property name="auditSearchService" ref="AuditSearchService"/>
+    </bean>
+
     <bean id="webscript.dk.openesdh.userinvolvedsearch.get"
           class="dk.openesdh.repo.webscripts.xsearch.UserInvolvedSearch"
           parent="webscript">

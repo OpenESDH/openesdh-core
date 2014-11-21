@@ -88,6 +88,10 @@ public interface OpenESDHModel {
     public static final QName CONSTRAINT_DOC_STATUS = QName.createQName(DOC_URI, "statusConstraint");
     public static final QName CONSTRAINT_DOC_CATEGORY = QName.createQName(DOC_URI, "categoryConstraint");
 
+    /**
+     * Documents
+     */
+    public static final String DOCUMENTS_FOLDER_NAME = "documents";
 
     /**
      * Various constants
@@ -95,5 +99,8 @@ public interface OpenESDHModel {
 
     // currently 7 days in miliseconds - one day is 86400000
     public static final String MYCASES_DAYS_IN_THE_PAST = "604800000";
-    public static final String MYCASES_8_DAYS = "691200000";
+
+
+
+    public static final int auditlog_max = 1000;
 }

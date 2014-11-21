@@ -79,6 +79,12 @@
         </property>
     </bean>
 
+    <bean id="AuditSearchService" class="dk.openesdh.repo.services.audit.AuditSearchServiceImpl">
+        <property name="auditService">
+            <ref bean="AuditService"/>
+        </property>
+    </bean>
+
     <bean id="UserInvolvedSearchService" class="dk.openesdh.repo.services.xsearch.UserInvolvedSearchServiceImpl">
         <property name="searchService">
             <ref bean="SearchService"/>

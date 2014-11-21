@@ -1,0 +1,8 @@
+<webscript>
+    <shortname>Case History</shortname>
+    <description>Retrieve history about a case</description>
+    <url>/api/openesdh/casehistory</url>
+    <format default="json"></format>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+</webscript>

@@ -63,10 +63,6 @@ public class LastModifiedByMeSearchServiceImpl extends AbstractXSearchService im
 
             @Override
             public boolean handleAuditEntry(Long entryId, String applicationName, String user, long time, Map<String, Serializable> values) {
-
-
-//                System.out.println("debug: " + (String)values.get("/esdh/case/value"));
-
                 if (values.get("/esdh/case/value") != null) {
                     NodeRef nodeRef = new NodeRef((String) values.get("/esdh/case/value"));
 
@@ -78,11 +74,8 @@ public class LastModifiedByMeSearchServiceImpl extends AbstractXSearchService im
                         if (!status.isDeleted()) {
                             nodeRefs.add(nodeRef);
                         }
-
-
                     }
                 }
-
 //               System.out.println(entryId  + applicationName + user + " " +  new Date(time) + values.get("/esdh/transaction/properties/add"));
                 return true;
             }
@@ -116,7 +109,7 @@ public class LastModifiedByMeSearchServiceImpl extends AbstractXSearchService im
                 auditQueryParameters.addSearchKey(null, caseType.getPrefixString());
 
                 // we need to call the auditQuery for every casetype, as auditQueryParameters currently only supports one searchKey at a time
-                auditService.auditQuery(auditQueryCallback, auditQueryParameters,1000);
+                auditService.auditQuery(auditQueryCallback, auditQueryParameters,OpenESDHModel.auditlog_max);
             }
         }
         return new XResultSet(nodeRefs, nodeRefs.size());
