@@ -15,12 +15,8 @@ define(["dojo/_base/declare",
             i18nRequirements: [
                 {i18nFile: "./i18n/InfoWidget.properties"}
             ],
-
             bodyNode: null,
-
             widgetsForBody: [],
-
-
 
             buildRendering: function dk_openesdh_pages_case_widgets_InfoWidget__buildRendering() {
                 this.alfSubscribe(this.CaseInfoTopic, lang.hitch(this, "_onPayloadReceive"));
@@ -38,10 +34,10 @@ define(["dojo/_base/declare",
                 for (var i in properties) {
                     if (i == "alfTopic") continue;
                     var widget = "";
-                    if(properties[i].type == "Date") {
+                    if (properties[i].type == "Date") {
                         widget = "openesdh/common/widgets/renderers/DateField";
                     }
-                    else if(properties[i].type == "UserName") {
+                    else if (properties[i].type == "UserName") {
                         widget = "openesdh/common/widgets/renderers/UserNameField";
                     }
                     else {
@@ -62,7 +58,6 @@ define(["dojo/_base/declare",
                 }
                 this.processWidgets(this.widgetsForBody, this.bodyNode);
             }
-
 
 
         });

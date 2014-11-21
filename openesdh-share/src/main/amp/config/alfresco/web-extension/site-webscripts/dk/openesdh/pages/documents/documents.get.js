@@ -1,5 +1,4 @@
 <import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/pages/documents/lib/case-library.lib.js">
-//<import resource="classpath:/alfresco/web-extension/utils/case.js">
 
 /**
  * Get the role types for a case

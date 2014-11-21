@@ -1,4 +1,4 @@
-<import resource="classpath:/alfresco/web-extension/utils/case.js">//</import>
+<import resource="classpath:/alfresco/web-extension/utils/case.js">
 
 var args = page.url.args;
 

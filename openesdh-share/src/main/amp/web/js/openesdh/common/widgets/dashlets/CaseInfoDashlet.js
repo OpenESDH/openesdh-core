@@ -24,9 +24,7 @@
  * @extends alfresco/dashlet/Dashlet
  * @author Torben Lauritzen
  */
-define(["dojo/_base/declare",
-   "alfresco/core/Core",
-   "alfresco/dashlets/Dashlet"],
+define(["dojo/_base/declare", "alfresco/core/Core", "alfresco/dashlets/Dashlet"],
       function(declare, AlfCore, Dashlet) {
 
          return declare([Dashlet], {

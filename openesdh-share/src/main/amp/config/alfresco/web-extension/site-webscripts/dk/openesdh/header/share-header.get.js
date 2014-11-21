@@ -1,4 +1,4 @@
-<import resource="classpath:/alfresco/web-extension/utils/case.js">//</import>
+<import resource="classpath:/alfresco/web-extension/utils/case.js">
 
 /**
  * Return an array of create case menu items.
@@ -22,7 +22,7 @@ function getCreateCaseWidgets (caseTypes) {
         );
     });
     return widgets;
-}
+};
 
 var caseTypes = getCaseTypes();
 var createCasesWidgets = getCreateCaseWidgets(caseTypes);
@@ -46,14 +46,6 @@ if (headerMenu != null) {
                                     id: "CASE_MENU_SEARCH_LINK",
                                     label: "Search",
                                     targetUrl: "hdp/ws/search"
-                                }
-                            },
-                            {
-                                name: "alfresco/menus/AlfMenuBarItem",
-                                config: {
-                                    id: "CASE_LIBRARY_MENU",
-                                    label: "Case Library",
-                                    targetUrl: "hdp/ws/dk-openesdh-pages-case-dashboard-collection"
                                 }
                             },
                             {

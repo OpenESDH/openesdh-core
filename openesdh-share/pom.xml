@@ -32,7 +32,7 @@
     <dependencies>
         <dependency>
             <groupId>${alfresco.groupId}</groupId>
-            <artifactId>alfresco-repository</artifactId>
+            <artifactId>alfresco-remote-api</artifactId>
         </dependency>
 
         <dependency>

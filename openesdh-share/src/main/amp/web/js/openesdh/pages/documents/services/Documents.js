@@ -10,7 +10,6 @@ define(["dojo/_base/declare",
         return declare([AlfCore, CoreXhr, _TopicsMixin], {
 
             destinationNodeRef: null,
-
             caseNodeRef: "",
             documentsNodeRef: "",
 
