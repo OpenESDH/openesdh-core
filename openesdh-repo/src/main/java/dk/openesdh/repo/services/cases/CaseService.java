@@ -42,12 +42,17 @@ public interface CaseService {
 
     /**
      * Get the members on the case grouped by role.
-     * Includes groups and users.
+     * Includes groups and users. If noExpandGroups,
+     * then only all authorities within the immediate
+     * group is returned else include users of subgroups
+     * instead of just immediate groups.
      *
      * @param caseNodeRef
+     * @param noExpandGroups expand subgroups
+     * @param includeOwner inculde case owner
      * @return
      */
-    public Map<String, Set<String>> getMembersByRole(NodeRef caseNodeRef);
+    public Map<String, Set<String>> getMembersByRole(NodeRef caseNodeRef, boolean noExpandGroups, boolean includeOwner);
 
     /**
      * Get the ID number of the case.

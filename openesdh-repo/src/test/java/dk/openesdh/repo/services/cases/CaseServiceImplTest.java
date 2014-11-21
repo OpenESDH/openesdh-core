@@ -47,6 +47,9 @@ public class CaseServiceImplTest {
 //    private static final ApplicationContext APPLICATION_CONTEXT = ApplicationContextHelper.getApplicationContext(new String[]{"classpath:alfresco/application-context.xml"});
 
     private static final String ADMIN_USER_NAME = "admin";
+    private static final String USER_NAME_1 = "abeecher";
+    private static final String USER_NAME_2 = "mjackson";
+
     @Autowired
     @Qualifier("NodeService")
     protected NodeService nodeService;
@@ -346,12 +349,12 @@ public class CaseServiceImplTest {
                 temporaryCaseNodeRef);
         caseService.addAuthorityToRole(ADMIN_USER_NAME, "CaseSimpleReader",
                 temporaryCaseNodeRef);
-        Map<String, Set<String>> membersByRoles = caseService.getMembersByRole(temporaryCaseNodeRef);
+        Map<String, Set<String>> membersByRoles = caseService.getMembersByRole(temporaryCaseNodeRef, true, false);
         assertTrue(membersByRoles.get("CaseSimpleReader").contains(ADMIN_USER_NAME));
 
         caseService.removeAuthorityFromRole(ADMIN_USER_NAME, "CaseSimpleReader",
                 temporaryCaseNodeRef);
-        membersByRoles = caseService.getMembersByRole(temporaryCaseNodeRef);
+        membersByRoles = caseService.getMembersByRole(temporaryCaseNodeRef,true, false);
         assertFalse(membersByRoles.get("CaseSimpleReader").contains
                 (ADMIN_USER_NAME));
     }
@@ -370,7 +373,7 @@ public class CaseServiceImplTest {
         authorities.add(authorityNodeRef);
         caseService.addAuthoritiesToRole(authorities, "CaseSimpleReader",
                 temporaryCaseNodeRef);
-        Map<String, Set<String>> membersByRoles = caseService.getMembersByRole(temporaryCaseNodeRef);
+        Map<String, Set<String>> membersByRoles = caseService.getMembersByRole(temporaryCaseNodeRef, true, false);
         assertTrue(membersByRoles.get("CaseSimpleReader").contains
                 (ADMIN_USER_NAME));
         caseService.removeAuthorityFromRole(ADMIN_USER_NAME, "CaseSimpleReader",
@@ -390,7 +393,7 @@ public class CaseServiceImplTest {
                 "CaseSimpleReader", temporaryCaseNodeRef);
         caseService.changeAuthorityRole(ADMIN_USER_NAME,
                 "CaseSimpleReader", "CaseSimpleWriter", temporaryCaseNodeRef);
-        Map<String, Set<String>> membersByRoles = caseService.getMembersByRole(temporaryCaseNodeRef);
+        Map<String, Set<String>> membersByRoles = caseService.getMembersByRole(temporaryCaseNodeRef, true, false);
         assertFalse(membersByRoles.get("CaseSimpleReader").contains(ADMIN_USER_NAME));
         assertTrue(membersByRoles.get("CaseSimpleWriter").contains(ADMIN_USER_NAME));
         caseService.removeAuthorityFromRole(ADMIN_USER_NAME,
@@ -405,12 +408,36 @@ public class CaseServiceImplTest {
                 "CaseSimpleReader", temporaryCaseNodeRef);
         caseService.addAuthorityToRole(ADMIN_USER_NAME,
                 "CaseSimpleReader", temporaryCaseNodeRef);
-        Map<String, Set<String>> membersByRole = caseService.getMembersByRole(temporaryCaseNodeRef);
+        Map<String, Set<String>> membersByRole = caseService.getMembersByRole(temporaryCaseNodeRef, true, false);
         assertTrue(membersByRole.get("CaseSimpleReader").contains(ADMIN_USER_NAME));
         caseService.removeAuthorityFromRole(ADMIN_USER_NAME,
                 "CaseSimpleReader", temporaryCaseNodeRef);
-        membersByRole = caseService.getMembersByRole(temporaryCaseNodeRef);
+        membersByRole = caseService.getMembersByRole(temporaryCaseNodeRef, true, false);
         assertFalse(membersByRole.get("CaseSimpleReader").contains(ADMIN_USER_NAME));
+    }
+
+    @Test
+    public void testGetAllMembersByRole() throws Exception {
+        caseService.setupPermissionGroups(temporaryCaseNodeRef, caseService.getCaseId(temporaryCaseNodeRef));
+        caseService.removeAuthorityFromRole(ADMIN_USER_NAME, "CaseSimpleReader", temporaryCaseNodeRef);
+        caseService.addAuthorityToRole(ADMIN_USER_NAME, "CaseSimpleReader", temporaryCaseNodeRef);
+        caseService.addAuthorityToRole(USER_NAME_1, "CaseOwners", temporaryCaseNodeRef);
+        caseService.addAuthorityToRole(USER_NAME_2, "CaseSimpleWriter", temporaryCaseNodeRef);
+
+        Map<String, Set<String>> membersByRole = caseService.getMembersByRole(temporaryCaseNodeRef, false, false);
+        //check everyone's permissions
+        assertTrue(membersByRole.get("CaseSimpleReader").contains(ADMIN_USER_NAME));
+        assertTrue(membersByRole.get("CaseOwners").contains(USER_NAME_1));
+        assertTrue(membersByRole.get("CaseSimpleWriter").contains(USER_NAME_2));
+        //remove 2 out of 3 from groups
+        caseService.removeAuthorityFromRole(ADMIN_USER_NAME, "CaseSimpleReader", temporaryCaseNodeRef);
+        caseService.removeAuthorityFromRole(USER_NAME_2, "CaseSimpleWriter", temporaryCaseNodeRef);
+
+        //retrieve and test role memeberships
+        membersByRole = caseService.getMembersByRole(temporaryCaseNodeRef, false, false);
+        assertFalse(membersByRole.get("CaseSimpleReader").contains(ADMIN_USER_NAME));
+        assertFalse(membersByRole.get("CaseSimpleWriter").contains(USER_NAME_2));
+        assertTrue(membersByRole.get("CaseOwners").contains(USER_NAME_1));
     }
 
     @Test
@@ -421,11 +448,10 @@ public class CaseServiceImplTest {
         // Create a test journal key category
         String categoryName = "Test Journal Key";
         String rootCategoryName = "journalKeys";
-        Collection<ChildAssociationRef> rootCategories = categoryService
-                .getRootCategories
-                        (repositoryHelper.getCompanyHome().getStoreRef(),
-                                ContentModel.ASPECT_GEN_CLASSIFIABLE,
-                                rootCategoryName, true);
+        Collection<ChildAssociationRef> rootCategories = categoryService.getRootCategories(
+                repositoryHelper.getCompanyHome().getStoreRef(),
+                ContentModel.ASPECT_GEN_CLASSIFIABLE,
+                rootCategoryName, true);
         NodeRef rootCategory = rootCategories.iterator().next().getChildRef();
         NodeRef journalKey = rootCategory;
 //        ChildAssociationRef categoryAssoc = categoryService.getCategory(rootCategory,
