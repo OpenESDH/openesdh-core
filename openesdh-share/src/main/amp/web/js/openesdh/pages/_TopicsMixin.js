@@ -3,6 +3,9 @@ define(["dojo/_base/declare"],
 
         return declare(null, {
             CaseInfoTopic: "CASE_INFO",
-            DocumentsTopic: "DOCUMENT_LIST"
+            DocumentsTopic: "DOCUMENT_LIST",
+            MainDocument: "MAIN_DOCUMENT_SUCCESS",
+            CaseMembersList: "CASE_MEMBERS_LIST",
+            CaseMembersListSuccess: "CASE_MEMBERS_LIST_SUCCESS"
         });
     });

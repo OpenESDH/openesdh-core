@@ -24,8 +24,8 @@ navMenu.config.widgets.push({
         id: "HEADER_CASE_DOCUMENTS",
         label: "header.case.documents" ,
         title: "header.case.documents.altText",
-        targetUrl: "hdp/ws/dk-openesdh-pages-documents?nodeRef=" + args.nodeRef,
-        selected: isCurrentUri("dk-openesdh-pages-documents")
+        targetUrl: "hdp/ws/dk-openesdh-pages-case-dashboard-documents?nodeRef=" + args.nodeRef,
+        selected: isCurrentUri("dk-openesdh-pages-case-dashboard-documents")
     }
 });
 

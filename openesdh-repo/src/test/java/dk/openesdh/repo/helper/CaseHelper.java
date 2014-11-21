@@ -184,42 +184,25 @@ public class CaseHelper {
      * @param owners
      * @return
      */
-    public NodeRef createCase(
-                                     String username,
-                                     NodeRef parent,
-                                     String cmName,
-                                     QName caseType,
-                                     Map<QName, Serializable> properties,
-                                     List<NodeRef> owners) {
-        return createCase(username,
-                parent, cmName, caseType, properties, owners, false);
+    public NodeRef createCase(String username, NodeRef parent, String cmName,
+                              QName caseType, Map<QName, Serializable> properties,
+                              List<NodeRef> owners) {
+        return createCase(username, parent, cmName, caseType, properties, owners, false);
     }
 
-    public NodeRef createSimpleCase(String title,
-
-                                           String userName,
-                                           NodeRef owner) {
-
+    public NodeRef createSimpleCase(String title, String userName, NodeRef owner) {
         NodeRef caseNode;
-
         NodeRef companyHome = nodeLocatorService.getNode(CompanyHomeNodeLocator.NAME, null, null);
         Map<QName, Serializable> properties = new HashMap<QName, Serializable>();
         properties.put(ContentModel.PROP_TITLE, title);
         List<NodeRef> owners = new LinkedList<>();
         owners.add(owner);
-        caseNode = this.createCase(userName,
-                companyHome,
-                title, OpenESDHModel.TYPE_CASE_SIMPLE, properties, owners);
+        caseNode = this.createCase(userName, companyHome, title, OpenESDHModel.TYPE_CASE_SIMPLE, properties, owners);
 
         return caseNode;
-
     }
 
-    public NodeRef createDummyUser(String userName,
-                                          String firstName,
-                                          String lastName,
-                                          String email,
-                                          String company) {
+    public NodeRef createDummyUser(String userName, String firstName, String lastName, String email, String company) {
 
         if (personService.personExists(userName)) {
             personService.deletePerson(userName);
@@ -249,7 +232,6 @@ public class CaseHelper {
         NodeRef result = transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<NodeRef>(){
 
             public NodeRef execute() throws Throwable {
-
                return createDummyUser(CaseHelper.DEFAULT_USERNAME,
                         "firstname",
                         "lastname",

@@ -67,7 +67,12 @@
         <property name="transactionService">
             <ref bean="TransactionService"/>
         </property>
+
         <property name="namespaceService" ref="namespaceService"/>
+
+        <property name="behaviourFilter">
+            <ref bean="policyBehaviourFilter"/>
+        </property>
     </bean>
 
     <bean id="XSearchService" class="dk.openesdh.repo.services.xsearch.XSearchServiceImpl">

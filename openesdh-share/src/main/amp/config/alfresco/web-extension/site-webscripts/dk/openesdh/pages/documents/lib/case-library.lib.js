@@ -144,7 +144,7 @@ for (var i = 0; i < multiSelectActions.size(); i++)
             return url.context + "/res/components/documentlibrary/actions/" + attr["type"] + "-16.png";
          }
       };
-      
+
       // Multi-Select Actions
       // Note that we're using an AlfDocumentActionMenuItem widget here...
       // This particular widget extends the AlfFilteringMenuItem (which in turn
@@ -186,11 +186,9 @@ var createContent = [];
 
 // Create content config items
 var createContentConfig = config.scoped["DocumentLibrary"]["create-content"];
-if (createContentConfig !== null)
-{
+if (createContentConfig !== null) {
    var contentConfigs = createContentConfig.getChildren("content");
-   if (contentConfigs)
-   {
+   if (contentConfigs){
       var attr, content, contentConfig, paramConfigs, paramConfig, permissionsConfigs, permissionConfigs, permissionConfig;
       for (var i = 0; i < contentConfigs.size(); i++)
       {
@@ -214,7 +212,7 @@ if (createContentConfig !== null)
             imageUrl += "-file-16.png";
             return imageUrl;
          };
-         
+
          var content = {
             name: "alfresco/documentlibrary/AlfCreateContentMenuItem",
             config: {
@@ -475,7 +473,7 @@ function addCreateContentMenuItem(menuLabel, menuIcon, dialogTitle, editMode, mi
 
 /**
  * Helper function to retrieve configuration values.
- * 
+ *
  * @method getConfigValue
  * @param {string} configFamily
  * @param {string} configName
@@ -500,7 +498,7 @@ function getReplicationUrlMappingJSON()
    var mapping = {};
    try
    {
-      var urlConfig, 
+      var urlConfig,
           repositoryId,
           configs = config.scoped["Replication"]["share-urls"].getChildren("share-url");
 
@@ -564,7 +562,7 @@ getRepositoryUrl: function getRepositoryUrl()
 function getDocumentLibraryServices() {
    return [
       "alfresco/services/ContentService",
-      "alfresco/services/DocumentService",
+      "openesdh/common/services/CaseDocumentService",
       "alfresco/dialogs/AlfDialogService",
       "alfresco/services/ActionService",
       "alfresco/services/RatingsService",
@@ -743,8 +741,22 @@ function getSortOptions() {
 }
 
 /**
- * Builds the JSON model for rendering a DocumentLibrary. 
- * 
+ * The visibility config we use toggle the display of widgets in the presence/absence of case
+ * card view
+ * @type {{initialValue: boolean, rules: {topic: string, attribute: string, isNot: *[]}[]}}
+ */
+var isMainDocumentView =  {
+   initialValue: false,
+       rules: [{
+         topic: "RETRIEVE_MAIN_DOCUMENT_REQUEST_SUCCESS",
+         attribute: "response.items",
+         isNot: [[]]
+   }]
+};
+
+/**
+ * Builds the JSON model for rendering a DocumentLibrary.
+ *
  * @param {string} siteId The id of the site to render the document library for (if applicable)
  * @param {string} containerId The id of the container to render (if applicable - sites only)
  * @param {string} rootNode The node that is the root of the DocumentLibrary to render
@@ -773,10 +785,62 @@ function getDocumentLibraryModel(siteId, containerId, rootNode) {
             {
                id: "DOCLIB_SIDEBAR_MAIN",
                name: "alfresco/layout/FullScreenWidgets",
-               config: 
+               config:
                {
-                  widgets: 
+                  widgets:
                   [
+                     {
+                        "name" : "alfresco/html/Heading",
+                        config : {
+                           level: "2",
+                           label: "Main",
+                           visibilityConfig: isMainDocumentView
+                        }
+                     },
+                     {
+                        id: "DOCLIB_MAIN_DOCUMENT",
+                        name: "alfresco/documentlibrary/AlfDocumentList",
+                        config: {
+                           useHash: true,
+                           hashVarsForUpdate: [
+                              "path",
+                              "filter"
+                           ],
+                           //siteId: siteId,
+                           containerId: containerId,
+                           rootNode: rootNode,
+                           loadDataPublishTopic: "RETRIEVE_MAIN_DOCUMENT_REQUEST",
+                           view: viewRendererName,
+                           widgets: [
+                              {
+                                 name: "openesdh/pages/documents/views/MainDocument"
+                              }
+                           ],
+                           visibilityConfig: isMainDocumentView
+                        }
+                     },
+                     {
+                        "name" : "alfresco/html/Spacer",
+                        config : {
+                           additionalCssClasses: "top-border-beyond-gutters",
+                           visibilityConfig: isMainDocumentView
+                        }
+                     },
+                     {
+                     name: "alfresco/html/Spacer",
+                        config: {
+                           height: "14px",
+                           visibilityConfig: isMainDocumentView
+                        }
+                     },
+                     {
+                        "name" : "alfresco/html/Heading",
+                        config : {
+                           level: "2",
+                           label: "Attachments",
+                           visibilityConfig: isMainDocumentView
+                        }
+                     },
                      {
                         id: "DOCLIB_TOOLBAR",
                         name: "alfresco/documentlibrary/AlfToolbar",
@@ -960,9 +1024,7 @@ function getDocumentLibraryModel(siteId, containerId, rootNode) {
                            useHash: true,
                            hashVarsForUpdate: [
                               "path",
-                              "filter",
-                              "tag",
-                              "category"
+                              "filter"
                            ],
                            siteId: siteId,
                            containerId: containerId,

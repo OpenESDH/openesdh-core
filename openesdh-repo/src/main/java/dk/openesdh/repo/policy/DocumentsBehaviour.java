@@ -59,11 +59,6 @@ public class DocumentsBehaviour implements NodeServicePolicies.OnCreateChildAsso
         */
     }
 
-//    @Override
-    public void onCreateNode(ChildAssociationRef childAssociationRef) {
-        documentService.createDocument(childAssociationRef);
-    }
-
     @Override
     public void onCreateChildAssociation(ChildAssociationRef childAssocRef, boolean isNewNode) {
         QName childType = nodeService.getType(childAssocRef.getChildRef());

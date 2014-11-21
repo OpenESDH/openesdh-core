@@ -4,6 +4,7 @@ import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.webscripts.documents.Documents;
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
@@ -38,6 +39,8 @@ public class DocumentServiceImpl implements DocumentService {
         this.namespaceService = namespaceService;
     }
 
+    private BehaviourFilter behaviourFilter;
+
     public void setDictionaryService(DictionaryService dictionaryService) {
         this.dictionaryService = dictionaryService;
     }
@@ -52,6 +55,10 @@ public class DocumentServiceImpl implements DocumentService {
 
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    public void setBehaviourFilter(BehaviourFilter behaviourFilter) {
+        this.behaviourFilter = behaviourFilter;
     }
 
     @Override
@@ -116,7 +123,6 @@ public class DocumentServiceImpl implements DocumentService {
         return result;
     }
 
-
     @Override
     public void createDocument(final ChildAssociationRef childAssociationRef) {
 
@@ -133,22 +139,25 @@ public class DocumentServiceImpl implements DocumentService {
                         String fileName = (String) nodeService.getProperty(fileNodeRef, ContentModel.PROP_NAME);
                         String documentName = FilenameUtils.removeExtension(fileName);
 
-                        // Create document
-                        ChildAssociationRef documentAssociationRef = nodeService.createNode(folderNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.DOC_URI, documentName), OpenESDHModel.TYPE_DOC_SIMPLE, Collections.<QName, Serializable>singletonMap(ContentModel.PROP_NAME, documentName));
-                        NodeRef documentNodeRef = documentAssociationRef.getChildRef();
+                        //TODO Check if disabling behaviour is needed
+                        behaviourFilter.disableBehaviour();
+                        try {
+                            // Create document
+                            ChildAssociationRef documentAssociationRef = nodeService.createNode(folderNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.DOC_URI, documentName), OpenESDHModel.TYPE_DOC_SIMPLE, Collections.<QName, Serializable>singletonMap(ContentModel.PROP_NAME, documentName));
+                            NodeRef documentNodeRef = documentAssociationRef.getChildRef();
+                            nodeService.moveNode(fileNodeRef, documentNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.DOC_URI, "content_" + documentName));
+                            //Tag the case document as the main document for the case
+                            nodeService.addAspect(fileNodeRef, OpenESDHModel.ASPECT_CASE_MAIN_DOC, null);
+                            nodeService.setType(fileNodeRef, OpenESDHModel.TYPE_DOC_DIGITAL_FILE);
+                            // TODO Get start value, localize
+                            nodeService.setProperty(fileNodeRef, OpenESDHModel.PROP_DOC_VARIANT, "Produktion");
 
-                        nodeService.moveNode(fileNodeRef, documentNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.DOC_URI, "content_" + documentName));
-
-                        //Tag the case document as the main document for the case
-                        nodeService.addAspect(fileNodeRef, OpenESDHModel.ASPECT_CASE_MAIN_DOC, null);
-
-                        nodeService.setType(fileNodeRef, OpenESDHModel.TYPE_DOC_DIGITAL_FILE);
-                        // TODO Get start value, localize
-                        nodeService.setProperty(fileNodeRef, OpenESDHModel.PROP_DOC_VARIANT, "Produktion");
-
-                        NodeRef person = personService.getPerson(AuthenticationUtil.getFullyAuthenticatedUser());
-                        nodeService.createAssociation(documentNodeRef, person, OpenESDHModel.ASSOC_DOC_RESPONSIBLE_PERSON);
-                        nodeService.createAssociation(documentNodeRef, person, OpenESDHModel.ASSOC_DOC_OWNER);
+                            NodeRef person = personService.getPerson(AuthenticationUtil.getFullyAuthenticatedUser());
+                            nodeService.createAssociation(documentNodeRef, person, OpenESDHModel.ASSOC_DOC_RESPONSIBLE_PERSON);
+                            nodeService.createAssociation(documentNodeRef, person, OpenESDHModel.ASSOC_DOC_OWNER);
+                        }finally {
+                            behaviourFilter.enableBehaviour();
+                        }
 
                         return null;
                     }

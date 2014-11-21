@@ -90,4 +90,10 @@
             </list>
         </property>
     </bean>
+
+
+    <!-- Case specific Document List Data URL Resolver -->
+    <bean id="openesdh.doclib.resolver.doclistDataUrl" class="org.alfresco.web.resolver.doclib.DefaultDoclistDataUrlResolver">
+        <property name="basePath" value="/api/openesdh/caselist"/>
+    </bean>
 </beans>

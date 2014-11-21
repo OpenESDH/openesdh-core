@@ -1,11 +1,3 @@
-/**
- * Created by lanre on 10/11/2014.
- */
-
-/**
- * Returns the nodeRef of the document folder for a case
- */
-
 function main(){
     var storeType = url.templateArgs.store_type,
         storeId = url.templateArgs.store_id,
