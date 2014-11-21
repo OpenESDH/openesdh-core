@@ -98,17 +98,16 @@ public class UserInvolvedSearchServiceImplTest {
     public void setUp() throws Exception {
 
 
-
         userInvolvedSearchService = new UserInvolvedSearchServiceImpl();
         userInvolvedSearchService.setAuthorityService(authorityService);
         userInvolvedSearchService.setRepositoryHelper(repositoryHelper);
         userInvolvedSearchService.setSearchService(searchService);
-
         owner = caseHelper.createDummyUser();
 
         caseA = caseHelper.createSimpleCase(caseATitle,
-                CaseHelper.DEFAULT_USERNAME,
+                CaseHelper.ADMIN_USER_NAME,
                 owner);
+
 
 
         String DATE_FORMAT = "yyyyMMdd";
@@ -129,7 +128,9 @@ public class UserInvolvedSearchServiceImplTest {
             }
         });
 
-        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
+
+
+        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ADMIN_USER_NAME);
 
     }
 

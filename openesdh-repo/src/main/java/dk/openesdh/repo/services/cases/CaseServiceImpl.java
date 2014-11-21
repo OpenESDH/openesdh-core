@@ -1,15 +1,21 @@
-package dk.openesdh.repo.services;
+package dk.openesdh.repo.services.cases;
 
+import dk.openesdh.repo.actions.AssignCaseIdActionExecuter;
 import dk.openesdh.repo.model.OpenESDHModel;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
+import org.alfresco.service.cmr.action.Action;
+import org.alfresco.service.cmr.action.ActionService;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.rule.Rule;
+import org.alfresco.service.cmr.rule.RuleService;
+import org.alfresco.service.cmr.rule.RuleType;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
@@ -42,6 +48,8 @@ public class CaseServiceImpl implements CaseService {
     private PermissionService permissionService;
     private TransactionService transactionService;
     private DictionaryService dictionaryService;
+    private RuleService ruleService;
+    private ActionService actionService;
 
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
@@ -71,10 +79,18 @@ public class CaseServiceImpl implements CaseService {
         this.dictionaryService = dictionaryService;
     }
 
+    public void setRuleService(RuleService ruleService) {
+        this.ruleService = ruleService;
+    }
+
+    public void setActionService(ActionService actionService) {
+        this.actionService = actionService;
+    }
+
     @Override
     public NodeRef getCasesRootNodeRef() {
+
         NodeRef companyHomeNodeRef = repositoryHelper.getCompanyHome();
-        LOGGER.info("companyHomeNodeRef" + companyHomeNodeRef);
         NodeRef casesRootNodeRef = nodeService.getChildByName(companyHomeNodeRef, ContentModel.ASSOC_CONTAINS, CASES);
 
         if (casesRootNodeRef == null) {
@@ -95,6 +111,7 @@ public class CaseServiceImpl implements CaseService {
         Map<QName, Serializable> properties = new HashMap<QName, Serializable>();
         properties.put(ContentModel.PROP_NAME, CASES);
         NodeRef casesRootNodeRef = nodeService.createNode(companyHomeNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, CASES), ContentModel.TYPE_FOLDER, properties).getChildRef();
+        setupAssignCaseIdRule(casesRootNodeRef);
         return casesRootNodeRef;
 
     }
@@ -120,26 +137,9 @@ public class CaseServiceImpl implements CaseService {
 
         String ownersPermissionGroupName = setupPermissionGroup(caseNodeRef,
                 caseId, "CaseOwners");
-        addOwnersToPermissionGroup(caseNodeRef, ownersPermissionGroupName);
         setupPermissionGroups(caseNodeRef, caseId);
-    }
-
-    void addOwnersToPermissionGroup(NodeRef caseNodeRef, String groupName) {
-        // Add the owners
-        List<AssociationRef> owners = nodeService.getTargetAssocs(caseNodeRef, OpenESDHModel.ASSOC_CASE_OWNERS);
-        for (Iterator<AssociationRef> iterator = owners.iterator(); iterator.hasNext(); ) {
-            AssociationRef next = iterator.next();
-            NodeRef owner = next.getTargetRef();
-
-            // authorityName, userName
-            String ownerName = "";
-            if (nodeService.getType(owner).equals(ContentModel.TYPE_AUTHORITY_CONTAINER)) {
-                ownerName = (String) nodeService.getProperty(owner, ContentModel.PROP_AUTHORITY_NAME);
-            } else {
-                ownerName = (String) nodeService.getProperty(owner, ContentModel.PROP_USERNAME);
-            }
-            authorityService.addAuthority(groupName, ownerName);
-        }
+        // The CaseOwnersBehaviour takes care of adding the owners to the
+        // CaseOwners group
     }
 
     @Override
@@ -202,10 +202,20 @@ public class CaseServiceImpl implements CaseService {
             public Object doWork() throws Exception {
                 String caseId = getCaseId(caseNodeRef);
                 String groupName = getCaseRoleGroupName(caseId, role);
-                authorityService.removeAuthority(groupName, authorityName);
+                if (authorityService.authorityExists(groupName) &&
+                        authorityService.authorityExists(authorityName)) {
+                    authorityService.removeAuthority(groupName, authorityName);
+                }
                 return null;
             }
         }, "admin");
+    }
+
+    @Override
+    public void removeAuthorityFromRole(final NodeRef authorityNodeRef,
+                                        final String role,
+                                        final NodeRef caseNodeRef) {
+        removeAuthorityFromRole(getAuthorityName(authorityNodeRef), role, caseNodeRef);
     }
 
     @Override
@@ -226,6 +236,14 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
+    public void addAuthorityToRole(final NodeRef authorityNodeRef,
+                                   final String role,
+                                   final NodeRef caseNodeRef) {
+        addAuthorityToRole(getAuthorityName(authorityNodeRef), role,
+                caseNodeRef);
+    }
+
+    @Override
     public void addAuthoritiesToRole(final List<NodeRef> authorities,
                                      final String role,
                                      final NodeRef caseNodeRef) {
@@ -236,13 +254,18 @@ public class CaseServiceImpl implements CaseService {
             public Object doWork() throws Exception {
                 String caseId = getCaseId(caseNodeRef);
                 final String groupName = getCaseRoleGroupName(caseId, role);
+                if (!authorityService.authorityExists(groupName)) {
+                    return null;
+                }
                 transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper
                         .RetryingTransactionCallback<Object>() {
                     @Override
                     public Object execute() throws Throwable {
                         for (NodeRef authorityNodeRef : authorities) {
                             String authority = getAuthorityName(authorityNodeRef);
-                            authorityService.addAuthority(groupName, authority);
+                            if (authority != null) {
+                                authorityService.addAuthority(groupName, authority);
+                            }
                         }
                         return null;
                     }
@@ -382,8 +405,20 @@ public class CaseServiceImpl implements CaseService {
 
         // Create folder for documents
         // TODO: Test
-        NodeRef documentsNodeRef = createNode(caseNodeRef, "documents");
+        NodeRef documentsNodeRef = createNode(caseNodeRef, OpenESDHModel.DOCUMENTS_FOLDER_NAME);
         nodeService.addAspect(documentsNodeRef, OpenESDHModel.ASPECT_DOCUMENT_CONTAINER, null);
+    }
+
+    protected void setupAssignCaseIdRule(NodeRef folderNodeRef) {
+        Rule rule = new Rule();
+        rule.setRuleType(RuleType.INBOUND);
+        rule.setTitle("Assign caseId to case documents");
+        rule.applyToChildren(true);
+        Action action = actionService.createAction(AssignCaseIdActionExecuter.NAME);
+        action.setTitle("Assign caseId");
+        action.setExecuteAsynchronously(true);
+        rule.setAction(action);
+        ruleService.saveRule(folderNodeRef, rule);
     }
 
     String getCaseId(long uniqueNumber) {
@@ -435,24 +470,40 @@ public class CaseServiceImpl implements CaseService {
         return getCasePathNodeRef(casesMonthNodeRef, Calendar.DATE);
     }
 
-    public void checkCanJournalize(NodeRef caseNodeRef,
-                                   boolean unJournalize) throws
+    public void checkCanJournalize(NodeRef caseNodeRef) throws
             AccessDeniedException {
         String user = AuthenticationUtil.getFullyAuthenticatedUser();
-        if (!canJournalize(user, caseNodeRef, unJournalize)) {
+        if (!canJournalize(user, caseNodeRef)) {
             throw new AccessDeniedException(user + " is not allowed to " +
                     "journalize the case " + caseNodeRef);
         }
     }
 
+    public void checkCanUnJournalize(NodeRef caseNodeRef) throws
+            AccessDeniedException {
+        String user = AuthenticationUtil.getFullyAuthenticatedUser();
+        if (!canUnJournalize(user, caseNodeRef)) {
+            throw new AccessDeniedException(user + " is not allowed to " +
+                    "unjournalize the case " + caseNodeRef);
+        }
+    }
+
     @Override
-    public boolean canJournalize(String user, NodeRef caseNodeRef,
-                                 boolean unJournalize) {
-        if (isJournalized(caseNodeRef) != unJournalize) {
+    public boolean canJournalize(String user, NodeRef caseNodeRef) {
+        if (isJournalized(caseNodeRef)) {
             return false;
         }
         return authorityService.isAdminAuthority(user) ||
                 isCaseOwner(user, caseNodeRef);
+    }
+
+    @Override
+    public boolean canUnJournalize(String user, NodeRef caseNodeRef) {
+        if (!isJournalized(caseNodeRef)) {
+            return false;
+        }
+        // Only admins can unjournalize, not case owners
+        return authorityService.isAdminAuthority(user);
     }
 
     @Override
@@ -464,7 +515,7 @@ public class CaseServiceImpl implements CaseService {
     @Override
     public void journalize(final NodeRef nodeRef,
                            final NodeRef journalKey) {
-        checkCanJournalize(nodeRef, false);
+        checkCanJournalize(nodeRef);
         // Run it in a transaction
         transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
             @Override
@@ -478,21 +529,20 @@ public class CaseServiceImpl implements CaseService {
 
     private void journalizeImpl(final NodeRef nodeRef, final NodeRef journalKey) {
         AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Void>() {
-                @Override
-                public Void doWork() {
-                    Map<QName, Serializable> props = new HashMap<>();
-                    props.put(OpenESDHModel.PROP_OE_JOURNALKEY, journalKey);
-                    props.put(OpenESDHModel.PROP_OE_JOURNALIZED_BY, AuthenticationUtil.getFullyAuthenticatedUser());
-                    props.put(OpenESDHModel.PROP_OE_JOURNALIZED_DATE, new Date());
-                    nodeService.addAspect(nodeRef, OpenESDHModel.ASPECT_OE_JOURNALIZED, props);
-                    permissionService.setPermission(nodeRef, PermissionService.ALL_AUTHORITIES, "Journalized", false);
-                    return null;
-                }
-            }, AuthenticationUtil.getAdminUserName());
+            @Override
+            public Void doWork() {
+                Map<QName, Serializable> props = new HashMap<>();
+                props.put(OpenESDHModel.PROP_OE_JOURNALKEY, journalKey);
+                props.put(OpenESDHModel.PROP_OE_JOURNALIZED_BY, AuthenticationUtil.getFullyAuthenticatedUser());
+                props.put(OpenESDHModel.PROP_OE_JOURNALIZED_DATE, new Date());
+                nodeService.addAspect(nodeRef, OpenESDHModel.ASPECT_OE_JOURNALIZED, props);
+                permissionService.setPermission(nodeRef, PermissionService.ALL_AUTHORITIES, "Journalized", false);
+                return null;
+            }
+        }, AuthenticationUtil.getAdminUserName());
 
         List<ChildAssociationRef> childAssociationRefs = nodeService.getChildAssocs(nodeRef);
-        for(ChildAssociationRef childAssociationRef : childAssociationRefs)
-        {
+        for (ChildAssociationRef childAssociationRef : childAssociationRefs) {
             journalizeImpl(childAssociationRef.getChildRef(), journalKey);
         }
     }
@@ -516,7 +566,7 @@ public class CaseServiceImpl implements CaseService {
 
     @Override
     public void unJournalize(final NodeRef nodeRef) {
-        checkCanJournalize(nodeRef, true);
+        checkCanUnJournalize(nodeRef);
         // Run it in a transaction
         transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
             @Override
@@ -580,5 +630,34 @@ public class CaseServiceImpl implements CaseService {
             casePathNodeRef = createNode(parent, casePathName);
         }
         return casePathNodeRef;
+    }
+
+    @Override
+    public boolean isCaseNode(NodeRef nodeRef) {
+        QName type = nodeService.getType(nodeRef);
+        return dictionaryService.isSubClass(type, OpenESDHModel.TYPE_CASE_BASE);
+    }
+
+    @Override
+    public NodeRef getParentCase(NodeRef nodeRef) {
+        if (nodeRef.equals(getCasesRootNodeRef()) || isCaseNode(nodeRef)) {
+            // Case nodes and cases root don't have cases as ancestors
+            return null;
+        }
+
+        NodeRef parent = nodeService.getPrimaryParent(nodeRef).getParentRef();
+        if (parent == null) {
+            return null;
+        } else {
+            if (isCaseNode(parent)) {
+                return parent;
+            }
+            return getParentCase(parent);
+        }
+    }
+
+    @Override
+    public NodeRef getDocumentsFolder(NodeRef caseNodeRef) {
+        return nodeService.getChildByName(caseNodeRef, ContentModel.ASSOC_CONTAINS, OpenESDHModel.DOCUMENTS_FOLDER_NAME);
     }
 }

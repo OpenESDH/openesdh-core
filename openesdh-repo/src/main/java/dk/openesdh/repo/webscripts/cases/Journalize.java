@@ -1,6 +1,6 @@
 package dk.openesdh.repo.webscripts.cases;
 
-import dk.openesdh.repo.services.CaseService;
+import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.NodeInfoService;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.NodeRef;

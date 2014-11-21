@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
 <beans>
-    <bean id="CaseService" class="dk.openesdh.repo.services.CaseServiceImpl">
+    <bean id="CaseService" class="dk.openesdh.repo.services.cases.CaseServiceImpl">
         <property name="nodeService">
             <ref bean="NodeService"/>
         </property>
@@ -29,6 +29,14 @@
         <property name="dictionaryService">
             <ref bean="DictionaryService"/>
         </property>
+
+        <property name="ruleService">
+            <ref bean="RuleService"/>
+        </property>
+
+        <property name="actionService">
+            <ref bean="ActionService"/>
+        </property>
     </bean>
 
     <bean id="NodeInfoService" class="dk.openesdh.repo.services.NodeInfoServiceImpl">
@@ -41,6 +49,7 @@
         <property name="personService">
             <ref bean="PersonService"/>
         </property>
+        <property name="namespaceService" ref="namespaceService"/>
     </bean>
 
 
@@ -58,6 +67,7 @@
         <property name="transactionService">
             <ref bean="TransactionService"/>
         </property>
+        <property name="namespaceService" ref="namespaceService"/>
     </bean>
 
     <bean id="XSearchService" class="dk.openesdh.repo.services.xsearch.XSearchServiceImpl">
@@ -66,6 +76,12 @@
         </property>
         <property name="repositoryHelper">
             <ref bean="repositoryHelper"/>
+        </property>
+    </bean>
+
+    <bean id="AuditSearchService" class="dk.openesdh.repo.services.audit.AuditSearchServiceImpl">
+        <property name="auditService">
+            <ref bean="AuditService"/>
         </property>
     </bean>
 
@@ -78,6 +94,27 @@
         </property>
         <property name="authorityService">
             <ref bean="authorityService"/>
+        </property>
+    </bean>
+
+    <bean id="LastModifiedByMeSearchService" class="dk.openesdh.repo.services.xsearch.LastModifiedByMeSearchServiceImpl">
+        <property name="searchService">
+            <ref bean="SearchService"/>
+        </property>
+        <property name="repositoryHelper">
+            <ref bean="repositoryHelper"/>
+        </property>
+        <property name="authorityService">
+            <ref bean="authorityService"/>
+        </property>
+        <property name="auditService">
+            <ref bean="auditService"/>
+        </property>
+        <property name="dictionaryService">
+            <ref bean="dictionaryService"/>
+        </property>
+        <property name="nodeService">
+            <ref bean="nodeService"/>
         </property>
     </bean>
 

@@ -61,6 +61,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
             {cssFile:"./css/AlfrescoStyle.css"},
             {cssFile:"./css/Grid.css"},
             {cssFile:"./css/GridActions.css"},
+            {cssFile:"./css/Icons.css"},
             {cssFile:"./css/GridColumns.css"}
         ],
 

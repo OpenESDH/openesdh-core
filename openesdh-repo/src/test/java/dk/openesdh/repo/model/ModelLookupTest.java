@@ -78,9 +78,10 @@ public class ModelLookupTest {
 
 
         Map associations = modelLookup.getAssociations(modelType);
-        System.out.println(associations);
 
-        JSONObject association = (JSONObject)associations.get("doc:main");
+
+        JSONObject association = (JSONObject)associations.get("doc:owner");
+
 
         try {
             assertEquals(association.get("isTargetMany"),false);

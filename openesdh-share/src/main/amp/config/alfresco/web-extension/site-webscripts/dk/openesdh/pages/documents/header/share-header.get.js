@@ -38,7 +38,7 @@ createDocument.config.widgets.push({
         id: "HEADER_DOCUMENT_CREATE_DIGITAL",
         label: "header.document.create.digital" ,
         publishTopic: "OE_SHOW_UPLOADER",
-        publishPayload: "{}"
+        publishPayload: {}
 //        targetUrl: "create-content?destination=" + encodeURIComponent(args.nodeRef) + "&itemId=" + encodeURIComponent("doc:simple")
     }
 });

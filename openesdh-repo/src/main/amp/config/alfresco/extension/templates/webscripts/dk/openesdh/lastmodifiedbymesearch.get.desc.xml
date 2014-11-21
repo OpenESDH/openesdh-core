@@ -1,0 +1,8 @@
+<webscript>
+    <shortname>Search</shortname>
+    <description>Performs a last modified by me search</description>
+    <url>/api/openesdh/lastmodifiedbymesearch</url>
+    <format default="json"></format>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+</webscript>

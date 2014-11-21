@@ -159,7 +159,6 @@ public class CaseHelper {
                         caseType,
                         properties
                 );
-
                 nodeService.setAssociations(childAssoc.getChildRef(),
                         OpenESDHModel.ASSOC_CASE_OWNERS, owners);
 
@@ -167,6 +166,7 @@ public class CaseHelper {
                     // Re-enable behaviour
                     finalBehaviourFilter.enableBehaviour();
                 }
+
                 return childAssoc.getChildRef();
             }
         });
@@ -203,16 +203,13 @@ public class CaseHelper {
         NodeRef caseNode;
 
         NodeRef companyHome = nodeLocatorService.getNode(CompanyHomeNodeLocator.NAME, null, null);
-
         Map<QName, Serializable> properties = new HashMap<QName, Serializable>();
         properties.put(ContentModel.PROP_TITLE, title);
         List<NodeRef> owners = new LinkedList<>();
         owners.add(owner);
-
         caseNode = this.createCase(userName,
                 companyHome,
                 title, OpenESDHModel.TYPE_CASE_SIMPLE, properties, owners);
-
 
         return caseNode;
 

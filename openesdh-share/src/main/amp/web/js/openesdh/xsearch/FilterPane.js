@@ -26,7 +26,8 @@ function(declare, _Widget, _Templated, template, Core, CoreXhr, domConstruct, do
         
         i18nRequirements: [{i18nFile: "./i18n/FilterPane.properties"}],
         
-        cssRequirements: [{cssFile:"./css/FilterPane.css"}],
+        cssRequirements: [{cssFile:"./css/FilterPane.css"},
+            {cssFile:"./css/Icons.css"}],
         
         widgets: [],
 

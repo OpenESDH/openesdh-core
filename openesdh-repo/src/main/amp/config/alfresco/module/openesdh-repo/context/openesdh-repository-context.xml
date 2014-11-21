@@ -19,6 +19,12 @@
         <property name="xSearchService" ref="XSearchService"/>
     </bean>
 
+    <bean id="webscript.dk.openesdh.casehistory.get"
+          class="dk.openesdh.repo.webscripts.cases.CaseHistory"
+          parent="webscript">
+        <property name="auditSearchService" ref="AuditSearchService"/>
+    </bean>
+
     <bean id="webscript.dk.openesdh.userinvolvedsearch.get"
           class="dk.openesdh.repo.webscripts.xsearch.UserInvolvedSearch"
           parent="webscript">
@@ -39,12 +45,28 @@
         <property name="authenticationService" ref="authenticationService" />
     </bean>
 
+    <bean id="webscript.dk.openesdh.lastmodifiedbymesearch.get"
+          class="dk.openesdh.repo.webscripts.xsearch.LastModifiedByMeSearch"
+          parent="webscript">
+        <property name="nodeService" ref="nodeService"/>
+        <property name="repository" ref="repositoryHelper"/>
+        <property name="namespaceService" ref="namespaceService"/>
+        <property name="lastModifiedByMeSearchService" ref="LastModifiedByMeSearchService"/>
+        <property name="authenticationService" ref="authenticationService" />
+    </bean>
+
     <bean id="webscript.dk.openesdh.caseinfo.get"
           class="dk.openesdh.repo.webscripts.cases.CaseInfo"
           parent="webscript">
         <property name="nodeInfoService" ref="NodeInfoService"/>
-        <property name="namespaceService" ref="namespaceService"/>
         <property name="dictionaryService" ref="dictionaryService"/>
+        <property name="caseService" ref="CaseService"/>
+    </bean>
+
+    <bean id="webscript.dk.openesdh.iscasenode.get"
+          class="dk.openesdh.repo.webscripts.cases.IsCaseNode"
+          parent="webscript">
+        <property name="caseService" ref="CaseService"/>
     </bean>
 
     <bean id="webscript.dk.openesdh.caseroles.get"
@@ -105,6 +127,12 @@
           class="dk.openesdh.repo.webscripts.cases.Journalize"
           parent="webscript">
         <property name="caseService" ref="CaseService"/>
+    </bean>
+
+    <bean id="webscript.dk.openesdh.CaseIDExtractor" class="dk.openesdh.repo.audit.CaseNodeRefExtractor">
+        <property name="registry" ref="auditModel.extractorRegistry" />
+        <property name="nodeService" ref="nodeService" />
+        <property name="searchService" ref="searchService" />
     </bean>
 
 

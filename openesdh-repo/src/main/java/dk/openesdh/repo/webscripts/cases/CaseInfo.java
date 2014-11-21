@@ -2,6 +2,8 @@ package dk.openesdh.repo.webscripts.cases;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.NodeInfoService;
+import dk.openesdh.repo.services.cases.CaseService;
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.AuthorityService;
@@ -23,21 +25,19 @@ import java.util.Map;
 public class CaseInfo extends AbstractWebScript {
 
     private NodeInfoService nodeInfoService;
-
-    private NamespaceService namespaceService;
     private DictionaryService dictionaryService;
+    private CaseService caseService;
 
     public void setNodeInfoService(NodeInfoService nodeInfoService) {
         this.nodeInfoService = nodeInfoService;
     }
 
-    public NamespaceService getNamespaceService() { return namespaceService; }
-    public void setNamespaceService(NamespaceService namespaceService) {
-        this.namespaceService = namespaceService;
-    }
-
     public void setDictionaryService(DictionaryService dictionaryService) {
         this.dictionaryService = dictionaryService;
+    }
+
+    public void setCaseService(CaseService caseService) {
+        this.caseService = caseService;
     }
 
     @Override
@@ -45,8 +45,11 @@ public class CaseInfo extends AbstractWebScript {
         NodeRef caseNodeRef = new NodeRef(req.getParameter("nodeRef"));
         NodeInfoService.NodeInfo nodeInfo = nodeInfoService.getNodeInfo(caseNodeRef);
         JSONObject json = nodeInfoService.buildJSON(nodeInfo, this);
+        String user = AuthenticationUtil.getFullyAuthenticatedUser();
 
         try {
+            json.put("canJournalize", caseService.canJournalize(user, caseNodeRef));
+            json.put("canUnJournalize", caseService.canUnJournalize(user, caseNodeRef));
             json.write(res.getWriter());
         } catch (JSONException e) {
             e.printStackTrace();

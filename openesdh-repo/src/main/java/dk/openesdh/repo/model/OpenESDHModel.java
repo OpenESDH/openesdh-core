@@ -37,6 +37,7 @@ public interface OpenESDHModel {
      * Aspects
      */
     public static final QName ASPECT_OE_JOURNALIZED = QName.createQName(OE_URI, "journalized");
+    public static final QName ASPECT_OE_CASE_ID = QName.createQName(OE_URI, "caseId");
 
     public static final QName ASPECT_CASE_MAIN_DOC = QName.createQName(DOC_URI, "main");
     public static final QName ASPECT_CASE_COUNTER = QName.createQName(CASE_URI, "counter");
@@ -67,6 +68,7 @@ public interface OpenESDHModel {
     public static final QName PROP_OE_JOURNALIZED_BY = QName.createQName(OE_URI, "journalizedBy");
     public static final QName PROP_OE_JOURNALIZED_DATE = QName.createQName(OE_URI, "journalizedDate");
     public static final QName PROP_OE_JOURNALKEY = QName.createQName(OE_URI, "journalKey");
+    public static final QName PROP_OE_CASE_ID = QName.createQName(OE_URI, "caseId");
 
     public static final QName PROP_CASE_STARTDATE = QName.createQName(CASE_URI, "startDate");
     public static final QName PROP_CASE_ENDDATE = QName.createQName(CASE_URI, "endDate");
@@ -85,4 +87,20 @@ public interface OpenESDHModel {
     public static final QName CONSTRAINT_CASE_SIMPLE_STATUS = QName.createQName(CASE_URI, "simpleStatusConstraint");
     public static final QName CONSTRAINT_DOC_STATUS = QName.createQName(DOC_URI, "statusConstraint");
     public static final QName CONSTRAINT_DOC_CATEGORY = QName.createQName(DOC_URI, "categoryConstraint");
+
+    /**
+     * Documents
+     */
+    public static final String DOCUMENTS_FOLDER_NAME = "documents";
+
+    /**
+     * Various constants
+     */
+
+    // currently 7 days in miliseconds - one day is 86400000
+    public static final String MYCASES_DAYS_IN_THE_PAST = "604800000";
+
+
+
+    public static final int auditlog_max = 1000;
 }

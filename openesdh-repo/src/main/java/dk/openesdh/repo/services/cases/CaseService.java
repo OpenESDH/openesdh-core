@@ -1,4 +1,4 @@
-package dk.openesdh.repo.services;
+package dk.openesdh.repo.services.cases;
 
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -68,6 +68,10 @@ public interface CaseService {
                                         String role,
                                         NodeRef caseNodeRef);
 
+    public void removeAuthorityFromRole(NodeRef authorityNodeRef,
+                                 String role,
+                                 NodeRef caseNodeRef);
+
     /**
      * Add the authority to the given role group on the case.
      *
@@ -78,6 +82,10 @@ public interface CaseService {
     public void addAuthorityToRole(String authorityName,
                                    String role,
                                    NodeRef caseNodeRef);
+
+    public void addAuthorityToRole(NodeRef authorityNodeRef,
+                            String role,
+                            NodeRef caseNodeRef);
 
     /**
      * Add the list of authorities to the given role group on the case.
@@ -126,8 +134,21 @@ public interface CaseService {
      */
     public NodeRef getCaseFolderNodeRef(NodeRef casesFolderNodeRef);
 
-    public boolean canJournalize(String user, NodeRef caseNodeRef,
-                          boolean unJournalize);
+    /**
+     * Return whether or not the user can journalize the case.
+     * @param user
+     * @param caseNodeRef
+     * @return
+     */
+    public boolean canJournalize(String user, NodeRef caseNodeRef);
+
+    /**
+     * Return whether or not the user can unjournalize the case.
+     * @param user
+     * @param caseNodeRef
+     * @return
+     */
+    public boolean canUnJournalize(String user, NodeRef caseNodeRef);
 
     /**
      * Return whether a node is journalized or not.
@@ -150,4 +171,25 @@ public interface CaseService {
      */
     public void unJournalize(NodeRef nodeRef);
 
+    /**
+     * Return whether or not the node is a case node.
+     * @param nodeRef
+     * @return
+     */
+    public boolean isCaseNode(NodeRef nodeRef);
+
+    /**
+     * Get the parent case of the given node, or null if the node does not
+     * have a parent which is a case. The parent does not have to be immediate.
+     * @param nodeRef
+     * @return
+     */
+    public NodeRef getParentCase(NodeRef nodeRef);
+
+    /**
+     * Get the documents folder of the given case.
+     * @param caseNodeRef
+     * @return
+     */
+    public NodeRef getDocumentsFolder(NodeRef caseNodeRef);
 }
