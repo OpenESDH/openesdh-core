@@ -73,6 +73,7 @@ public class MembersList extends DeclarativeWebScript {
                 NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef(authority);
                 String displayName;
                 if(!isGroup) {
+                    memberObj.put("isGroup", false);
                     PersonService.PersonInfo personInfo = personService.getPerson(authorityNodeRef);
                     displayName = personInfo.getFirstName() + " " + personInfo.getLastName();
                     try {
@@ -89,6 +90,7 @@ public class MembersList extends DeclarativeWebScript {
                 else{
                     displayName = authorityService.getAuthorityDisplayName(authority);
                     memberObj.put("avatar", "components/images/group-16.png");
+                    memberObj.put("isGroup", true);
 
                 }
                 memberObj.put("displayName", displayName);

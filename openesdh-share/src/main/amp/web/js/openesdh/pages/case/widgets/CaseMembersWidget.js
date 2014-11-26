@@ -28,11 +28,9 @@ define(["dojo/_base/declare",
 
             loadDataPublishTopic: "ALF_CRUD_GET_ALL",
 
-            //documentSubscriptionTopic: "ALF_CRUD_GET_ALL_SUCCESS",
-
-            constructor: function (args) {
+            postMixInProperties : function () {
                 this.inherited(arguments);
-                this.caseNodeRef = args.caseNodeRef ;
+                //this.caseNodeRef = args.caseNodeRef ;
                 var nodeRefUri =  NodeUtils.processNodeRef(this.caseNodeRef).uri;
 
                 this.loadDataPublishPayload = { url: "api/openesdh/case/members/"+nodeRefUri };
