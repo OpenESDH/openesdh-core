@@ -140,8 +140,10 @@ public class CaseServiceImplTest {
         LinkedList<NodeRef> owners = new LinkedList<>();
         owners.add(dummyUser);
         behaviourOnCaseNodeRef = caseHelper.createCase(
-                ADMIN_USER_NAME, temporaryRepoNodeRef, name,
+                CaseHelper.DEFAULT_USERNAME, repositoryHelper.getUserHome(dummyUser), name,
                 OpenESDHModel.TYPE_CASE_SIMPLE, properties, owners);
+
+        AuthenticationUtil.setFullyAuthenticatedUser(ADMIN_USER_NAME);
     }
 
     @After
@@ -269,6 +271,8 @@ public class CaseServiceImplTest {
 
     @Test
     public void testBehaviourOnAddRemoveOwner() throws Exception {
+        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
+
         String groupName = caseService.getCaseRoleGroupName(caseService.getCaseId(behaviourOnCaseNodeRef), "CaseOwners");
         NodeRef adminNodeRef = personService.getPerson(ADMIN_USER_NAME);
 
