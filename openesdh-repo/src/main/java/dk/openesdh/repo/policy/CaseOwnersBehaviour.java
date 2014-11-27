@@ -6,6 +6,7 @@ import org.alfresco.repo.node.NodeServicePolicies;
 import org.alfresco.repo.policy.Behaviour;
 import org.alfresco.repo.policy.JavaBehaviour;
 import org.alfresco.repo.policy.PolicyComponent;
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -68,10 +69,17 @@ public class CaseOwnersBehaviour implements NodeServicePolicies.OnCreateAssociat
     }
 
     @Override
-    public void onCreateAssociation(AssociationRef nodeAssocRef) {
+    public void onCreateAssociation(final AssociationRef nodeAssocRef) {
         if (nodeAssocRef.getSourceRef() != null) {
-            caseService.addAuthorityToRole(nodeAssocRef.getTargetRef(),
-                    "CaseOwners", nodeAssocRef.getSourceRef());
+            AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Object>
+                    () {
+                @Override
+                public Object doWork() throws Exception {
+                    caseService.addAuthorityToRole(nodeAssocRef.getTargetRef(),
+                            "CaseOwners", nodeAssocRef.getSourceRef());
+                    return null;
+                }
+            }, AuthenticationUtil.getAdminUserName());
         }
     }
 

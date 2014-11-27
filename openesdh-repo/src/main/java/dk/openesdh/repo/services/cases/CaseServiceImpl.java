@@ -302,7 +302,7 @@ public class CaseServiceImpl implements CaseService {
 
     public void checkCanUpdateCaseRoles(NodeRef caseNodeRef) throws
             AccessDeniedException {
-        String user = AuthenticationUtil.getFullyAuthenticatedUser();
+        String user = AuthenticationUtil.getRunAsUser();
         if (!canUpdateCaseRoles(user, caseNodeRef)) {
             throw new AccessDeniedException(user + " is not allowed to " +
                     "update case roles for case " + caseNodeRef);
@@ -472,7 +472,7 @@ public class CaseServiceImpl implements CaseService {
 
     public void checkCanJournalize(NodeRef caseNodeRef) throws
             AccessDeniedException {
-        String user = AuthenticationUtil.getFullyAuthenticatedUser();
+        String user = AuthenticationUtil.getRunAsUser();
         if (!canJournalize(user, caseNodeRef)) {
             throw new AccessDeniedException(user + " is not allowed to " +
                     "journalize the case " + caseNodeRef);
@@ -481,7 +481,7 @@ public class CaseServiceImpl implements CaseService {
 
     public void checkCanUnJournalize(NodeRef caseNodeRef) throws
             AccessDeniedException {
-        String user = AuthenticationUtil.getFullyAuthenticatedUser();
+        String user = AuthenticationUtil.getRunAsUser();
         if (!canUnJournalize(user, caseNodeRef)) {
             throw new AccessDeniedException(user + " is not allowed to " +
                     "unjournalize the case " + caseNodeRef);
