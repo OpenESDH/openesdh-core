@@ -1,7 +1,7 @@
 <webscript>
   <shortname>Admin Console Manage Parties</shortname>
   <description>Administration Console - Manage Parties</description>
-  <url>/components/console/parties</url>
+  <url>/components/console/parties-people</url>
   <authentication>admin</authentication>
   <family>admin-console</family>
 </webscript>

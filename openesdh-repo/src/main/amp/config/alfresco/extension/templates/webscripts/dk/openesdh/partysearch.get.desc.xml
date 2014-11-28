@@ -1,0 +1,8 @@
+<webscript>
+    <shortname>Party Search</shortname>
+    <description>Performs a party search</description>
+    <url>/api/openesdh/partysearch</url>
+    <format default="json"></format>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+</webscript>

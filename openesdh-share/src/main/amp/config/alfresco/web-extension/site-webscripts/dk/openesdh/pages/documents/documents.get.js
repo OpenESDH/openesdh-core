@@ -39,7 +39,6 @@ model.jsonModel = {
             id: "SET_PAGE_TITLE",
             name: "alfresco/header/SetTitle",
             config: {
-<<<<<<< HEAD
                 widgetMarginLeft: 10,
                 widgetMarginRight: 10,
                 widgets: [
@@ -50,9 +49,7 @@ model.jsonModel = {
                         }
                     }
                 ]
-=======
-                title: "My Files"
->>>>>>> 2c6a3ea... Implementation of document list for cases.
+
             }
         },
         {

@@ -2,7 +2,7 @@
 <model name="party:partyModel"
        xmlns="http://www.alfresco.org/model/dictionary/1.0">
     <description>OpenESDH Party Model</description>
-    <author>Seth Yastrov, Flemming Heide Pedersern, Ole Hejlskov,
+    <author>Seth Yastrov, Flemming Heide Pedersen, Ole Hejlskov,
         Torben Lauritzen
     </author>
     <version>1.0</version>
@@ -25,20 +25,9 @@
                     <mandatory>true</mandatory>
                 </property>
             </properties>
-            <associations>
-                <association name="party:address">
-                    <description></description>
-                    <source>
-                        <mandatory>false</mandatory>
-                        <many>true</many>
-                    </source>
-                    <target>
-                        <class>party:address</class>
-                        <mandatory>true</mandatory>
-                        <many>true</many>
-                    </target>
-                </association>
-            </associations>
+            <mandatory-aspects>
+                <aspect>party:address</aspect>
+            </mandatory-aspects>
         </type>
         <type name="party:person">
             <title>Person</title>
@@ -87,9 +76,10 @@
                 </child-association>
             </associations>
         </type>
-        <type name="party:address">
+    </types>
+    <aspects>
+        <aspect name="party:address">
             <title>Address</title>
-            <parent>dl:dataListItem</parent>
             <properties>
                 <property name="party:address1">
                     <type>d:text</type>
@@ -113,6 +103,6 @@
                     <mandatory>true</mandatory>
                 </property>
             </properties>
-        </type>
-    </types>
+        </aspect>
+    </aspects>
 </model>

@@ -2,7 +2,7 @@
 <model name="oe:openesdhModel"
        xmlns="http://www.alfresco.org/model/dictionary/1.0">
     <description>OpenESDH Model</description>
-    <author>Seth Yastrov, Flemming Heide Pedersern, Ole Hejlskov, Torben Lauritzen</author>
+    <author>Seth Yastrov, Flemming Heide Pedersen, Ole Hejlskov, Torben Lauritzen</author>
     <version>1.0</version>
     <imports>
         <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>

@@ -16,6 +16,8 @@ public interface OpenESDHModel {
     public static final String TYPE_SIMPLE_NAME = "simple";
     public static final String TYPE_BASE_NAME = "base";
 
+    public static final String PARTY_PREFIX = "party";
+    public static final String PARTY_URI = "http://openesdh.dk/model/party/1.0/";
 
 
     /**
@@ -33,6 +35,14 @@ public interface OpenESDHModel {
     public static final QName TYPE_DOC_DIGITAL_FILE = QName.createQName(DOC_URI, "digitalFile");
     public static final QName TYPE_DOC_PHYSICAL_FILE = QName.createQName(DOC_URI, "physicalFile");
 
+    public static final QName TYPE_PARTY_BASE = QName.createQName(PARTY_URI,
+            "base");
+    public static final QName TYPE_PARTY_PERSON = QName.createQName(PARTY_URI,
+            "person");
+    public static final QName TYPE_PARTY_ORGANIZATION = QName.createQName
+            (PARTY_URI, "organization");
+
+
     /**
      * Aspects
      */
@@ -42,6 +52,9 @@ public interface OpenESDHModel {
     public static final QName ASPECT_CASE_MAIN_DOC = QName.createQName(DOC_URI, "main");
     public static final QName ASPECT_CASE_COUNTER = QName.createQName(CASE_URI, "counter");
     public static final QName ASPECT_DOCUMENT_CONTAINER = QName.createQName(DOC_URI, "documentContainer");
+
+    public static final QName ASPECT_PARTY_ADDRESS = QName.createQName
+            (PARTY_URI, "address");
 
     /**
      * Associations
@@ -59,6 +72,8 @@ public interface OpenESDHModel {
 
     public static final QName ASSOC_DOC_FILE_CONTENT = QName.createQName(DOC_URI, "fileContent");
     public static final QName ASSOC_DOC_FILE_POSITION = QName.createQName(DOC_URI, "filePosition");
+
+    public static final QName ASSOC_PARTY_MEMBER = QName.createQName(PARTY_URI, "member");
 
     /**
      * Properties
@@ -80,6 +95,39 @@ public interface OpenESDHModel {
     public static final QName PROP_DOC_CATEGORY = QName.createQName(DOC_URI, "category");
     public static final QName PROP_DOC_IS_MAIN_ENTRY = QName.createQName(DOC_URI, "isMainEntry");
     public static final QName PROP_DOC_VARIANT = QName.createQName(DOC_URI, "variant");
+
+
+    public static final QName PROP_PARTY_EMAIL = QName.createQName(PARTY_URI,
+            "email");
+
+    public static final QName PROP_PARTY_FIRST_NAME = QName.createQName
+            (PARTY_URI, "firstName");
+    public static final QName PROP_PARTY_LAST_NAME = QName.createQName
+            (PARTY_URI, "lastName");
+    public static final QName PROP_PARTY_MIDDLE_NAME = QName.createQName
+            (PARTY_URI, "middleName");
+    public static final QName PROP_PARTY_CPR_NUMBER = QName.createQName
+            (PARTY_URI, "cprNumber");
+
+    public static final QName PROP_PARTY_ORGANIZATION_NAME = QName.createQName
+            (PARTY_URI, "organizationName");
+    public static final QName PROP_PARTY_CVR_NUMBER = QName.createQName
+            (PARTY_URI, "cvrNumber");
+
+    public static final QName PROP_PARTY_ADDRESS1 = QName.createQName
+            (PARTY_URI, "address1");
+    public static final QName PROP_PARTY_ADDRESS2 = QName.createQName
+            (PARTY_URI, "address2");
+    public static final QName PROP_PARTY_FLOOR = QName.createQName
+            (PARTY_URI, "floor");
+    public static final QName PROP_PARTY_SUITE_IDENTIFIER = QName.createQName
+            (PARTY_URI, "suiteIdentifier");
+    public static final QName PROP_PARTY_POST_CODE = QName.createQName
+            (PARTY_URI, "postCode");
+    public static final QName PROP_PARTY_COUNTRY_CODE = QName.createQName
+            (PARTY_URI, "countryCode");
+
+
 
     /**
      * Constraints
