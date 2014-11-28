@@ -46,7 +46,7 @@ function generateDataListWidgets(views, buttons) {
                         dialogCancellationButtonTitle: "Cancel",
                         formSubmissionTopic: "ALF_CRUD_CREATE",
                         formSubmissionPayloadMixin: {
-                            url: "api/type/" + dataListTypes[i].name + "/formprocessor"
+                            url: "api/type/" + dataListTypes[i].name.replace(":", "_") + "/formprocessor"
                         },
                         fixedWidth: true,
                         widgets: []
