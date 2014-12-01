@@ -1,0 +1,22 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+
+<beans>
+    <bean id="${project.artifactId}_partyBootstrap"
+          parent="spacesStoreImporter" >
+        <property name="log"> <value>true</value> </property>
+        <property name="useExistingStore"> <value>true</value> </property>
+        <property name="transactionService" ref="transactionService"/>
+
+        <property name="bootstrapViews">
+            <list>
+                <props>
+                    <prop key="path">app:company_home/app:dictionary</prop>
+                    <prop key="uuidBinding">UPDATE_EXISTING</prop>
+                    <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/parties.xml</prop>
+                </props>
+            </list>
+        </property>
+    </bean>
+
+</beans>

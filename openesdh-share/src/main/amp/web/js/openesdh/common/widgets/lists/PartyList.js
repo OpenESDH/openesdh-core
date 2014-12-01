@@ -3,10 +3,8 @@ define(["dojo/_base/declare",
         "dojo/_base/lang"],
     function (declare, AlfSortablePaginatedList, lang) {
         return declare([AlfSortablePaginatedList], {
-            postMixInProperties: function () {
-                this.inherited(arguments);
-                this.alfSubscribe("PARTY_LIST_SEARCH", lang.hitch(this, this.loadPartyList))
-            },
+
+            i18nRequirements: [{i18nFile: "./i18n/PartyList.properties"}],
 
             /**
              * What party type should be searched?
@@ -17,15 +15,31 @@ define(["dojo/_base/declare",
              * @default ""
              */
             partyType: "",
-
             searchTerm: "",
+
+            postMixInProperties: function () {
+                this.inherited(arguments);
+                this.alfSubscribe("PARTY_LIST_SEARCH", lang.hitch(this, this.loadPartyList));
+                this.alfSubscribe("PARTY_LIST_RELOAD", lang.hitch(this, this.loadData));
+                this.alfSubscribe("PARTY_LIST_SHOW_ALL", lang.hitch(this, this.showAll));
+                // TODO: Not necessarily a good idea to load all parties on widgets ready
+                this.alfSubscribe("ALF_WIDGETS_READY", lang.hitch(this, this.showAll))
+            },
+
+            postCreate: function () {
+                this.inherited(arguments);
+                this.onViewSelected({
+                    value: "table"
+                });
+            },
 
             loadPartyList: function (payload) {
                 this.searchTerm = payload.term;
-                this.onViewSelected({
-//                    value: payload.view
-                    value: "table"
-                });
+                this.loadData();
+            },
+
+            showAll: function () {
+                this.searchTerm = '*';
                 this.loadData();
             },
 
@@ -33,6 +47,18 @@ define(["dojo/_base/declare",
                 if (this.searchTerm != "") {
                     this.inherited(arguments);
                 }
+            },
+
+            setDisplayMessages: function () {
+                this.inherited(arguments);
+
+                // Override the default messages
+                this.noDataMessage = this.message("partylist.no.data.message");
+                // TODO as needed:
+//                this.fetchingDataMessage = this.message("alflist.loading.data.message");
+//                this.renderingViewMessage = this.message("alflist.rendering.data.message");
+//                this.fetchingMoreDataMessage = this.message("alflist.loading.data.message");
+//                this.dataFailureMessage = this.message("alflist.data.failure.message");
             },
 
             updateLoadDataPayload: function (payload) {

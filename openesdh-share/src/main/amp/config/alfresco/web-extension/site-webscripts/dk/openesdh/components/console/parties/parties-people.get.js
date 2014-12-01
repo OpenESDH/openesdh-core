@@ -1,3 +1,7 @@
+<import resource="classpath:/alfresco/web-extension/utils/parties.js">//</import>
+
+var partiesFolderNodeRef = getPartiesFolderNodeRef();
+
 // This function is used to build the views for the main DataList view...
 function generateDataListWidgets(views, buttons) {
     // Get all the data list types...
@@ -37,19 +41,14 @@ function generateDataListWidgets(views, buttons) {
                 config: {
                     label: "New Person",
                     additionalCssClasses: "call-to-action",
-                    publishTopic: "ALF_CREATE_FORM_DIALOG_REQUEST",
+                    publishTopic: "LEGACY_CREATE_FORM_DIALOG",
                     publishPayloadType: "PROCESS",
                     publishPayloadModifiers: ["processDataBindings"],
                     publishPayload: {
+                        nodeRef: partiesFolderNodeRef,
+                        itemType: "party:person",
                         dialogTitle: "New Person",
-                        dialogConfirmationButtonTitle: "Create",
-                        dialogCancellationButtonTitle: "Cancel",
-                        formSubmissionTopic: "ALF_CRUD_CREATE",
-                        formSubmissionPayloadMixin: {
-                            url: "api/type/" + dataListTypes[i].name.replace(":", "_") + "/formprocessor"
-                        },
-                        fixedWidth: true,
-                        widgets: []
+                        successResponseTopic: "PARTY_LIST_SHOW_ALL"
                     }
                 }
             };
@@ -84,19 +83,6 @@ function generateDataListWidgets(views, buttons) {
                             ]
                         }
                     });
-
-                    newItemButton.config.publishPayload.widgets.push({
-                        name: "alfresco/forms/controls/DojoValidationTextBox",
-                        config: {
-                            name: "prop_" + property.name.replace("party:", "party_"),
-                            label: property.title || property.name,
-                            description: property.description,
-                            value: property.defaultValue,
-                            requirementConfig: {
-                                initialValue: property.mandatory
-                            }
-                        }
-                    });
                 }
             }
 
@@ -116,6 +102,21 @@ function generateDataListWidgets(views, buttons) {
                         {
                             name: "alfresco/renderers/PublishAction",
                             config: {
+                                iconClass: "edit-16",
+                                publishTopic: "LEGACY_EDIT_FORM_DIALOG",
+                                publishPayloadType: "PROCESS",
+                                publishPayload: {
+                                    dialogTitle: 'Edit Person "{cm_name}"',
+                                    nodeRef: "{nodeRef}",
+                                    successResponseTopic: "PARTY_LIST_RELOAD"
+                                },
+                                publishGlobal: true,
+                                publishPayloadModifiers: ["processCurrentItemTokens"]
+                            }
+                        },
+                        {
+                            name: "alfresco/renderers/PublishAction",
+                            config: {
                                 iconClass: "delete-16",
                                 publishTopic: "ALF_CRUD_CREATE",
                                 publishPayloadType: "PROCESS",
@@ -125,6 +126,7 @@ function generateDataListWidgets(views, buttons) {
                                     nodeRefs: ["{nodeRef}"],
                                     confirmationTitle: "Delete Data List Item",
                                     confirmationPrompt: "Are you sure you want to delete the item'?",
+                                    requiresConfirmation: true,
                                     successMessage: "Successfully deleted"
                                 },
                                 publishGlobal: true,
@@ -161,7 +163,9 @@ var services = [],
 services.push("alfresco/services/CrudService",
     "alfresco/services/OptionsService",
     "alfresco/dialogs/AlfDialogService",
-    "alfresco/services/NotificationService");
+    "alfresco/services/NotificationService",
+    "openesdh/common/services/LegacyFormService"
+);
 
 var main = {
     name: "alfresco/layout/VerticalWidgets",
@@ -230,7 +234,7 @@ var main = {
                 config: {
                     widgets: [
                         {
-                            id: "DOCLIB_PAGINATION_MENU",
+                            id: "PARTIES_PAGINATION_MENU",
                             name: "alfresco/documentlibrary/AlfDocumentListPaginator",
                             widthCalc: 430
                         }
