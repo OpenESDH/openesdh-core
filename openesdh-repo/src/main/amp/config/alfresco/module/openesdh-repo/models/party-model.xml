@@ -32,14 +32,6 @@
                 <value><![CDATA[^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$]]></value>
             </parameter>
         </constraint>
-        <constraint name="party:partyTypeConstraint" type="LIST">
-            <parameter name="allowedValues">
-                <list>
-                    <value>SENDER</value>
-                    <value>RECEIVER</value>
-                </list>
-            </parameter>
-        </constraint>
         <constraint name="party:contactTypeConstraint" type="LIST">
             <parameter name="allowedValues">
                 <list>
@@ -103,14 +95,6 @@
                     <mandatory>true</mandatory>
                     <constraints>
                         <constraint ref="party:emailConstraint"/>
-                    </constraints>
-                </property>
-                <!-- FASD: partType -->
-                <property name="party:partyType">
-                    <type>d:text</type>
-                    <mandatory>true</mandatory>
-                    <constraints>
-                        <constraint ref="party:partyTypeConstraint"/>
                     </constraints>
                 </property>
                 <!-- FASD: kontaktType -->
