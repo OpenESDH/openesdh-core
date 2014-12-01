@@ -73,7 +73,7 @@ public interface OpenESDHModel {
     public static final QName ASSOC_DOC_FILE_CONTENT = QName.createQName(DOC_URI, "fileContent");
     public static final QName ASSOC_DOC_FILE_POSITION = QName.createQName(DOC_URI, "filePosition");
 
-    public static final QName ASSOC_PARTY_MEMBER = QName.createQName(PARTY_URI, "member");
+    public static final QName ASSOC_PARTY_MEMBERS = QName.createQName(PARTY_URI, "members");
 
     /**
      * Properties
@@ -99,6 +99,10 @@ public interface OpenESDHModel {
 
     public static final QName PROP_PARTY_EMAIL = QName.createQName(PARTY_URI,
             "email");
+    public static final QName PROP_PARTY_PARTY_TYPE = QName.createQName
+            (PARTY_URI, "partyType");
+    public static final QName PROP_PARTY_CONTACT_TYPE = QName.createQName
+            (PARTY_URI, "contactType");
 
     public static final QName PROP_PARTY_FIRST_NAME = QName.createQName
             (PARTY_URI, "firstName");
@@ -114,12 +118,10 @@ public interface OpenESDHModel {
     public static final QName PROP_PARTY_CVR_NUMBER = QName.createQName
             (PARTY_URI, "cvrNumber");
 
-    public static final QName PROP_PARTY_ADDRESS1 = QName.createQName
-            (PARTY_URI, "address1");
-    public static final QName PROP_PARTY_ADDRESS2 = QName.createQName
-            (PARTY_URI, "address2");
-    public static final QName PROP_PARTY_FLOOR = QName.createQName
-            (PARTY_URI, "floor");
+    public static final QName PROP_PARTY_ADDRESS = QName.createQName
+            (PARTY_URI, "address");
+    public static final QName PROP_PARTY_FLOOR_IDENTIFIER = QName.createQName
+            (PARTY_URI, "floorIdentifier");
     public static final QName PROP_PARTY_SUITE_IDENTIFIER = QName.createQName
             (PARTY_URI, "suiteIdentifier");
     public static final QName PROP_PARTY_POST_CODE = QName.createQName
