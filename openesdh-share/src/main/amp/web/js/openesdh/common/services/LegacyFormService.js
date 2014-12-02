@@ -13,6 +13,11 @@ define(["dojo/_base/declare",
                 "/js/alfresco.js",
                 "/modules/simple-dialog.js",
                 "/components/form/form.js",
+                "/components/object-finder/object-finder.js"
+            ],
+
+            cssRequirements: [
+                {cssFile: "/components/object-finder/object-finder.css"}
             ],
 
             constructor: function (args) {

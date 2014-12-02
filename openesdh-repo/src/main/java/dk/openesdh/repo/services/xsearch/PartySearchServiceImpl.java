@@ -88,6 +88,9 @@ public class PartySearchServiceImpl extends AbstractXSearchService
                 OpenESDHModel.PROP_PARTY_ORGANIZATION_NAME,
                 OpenESDHModel.PROP_PARTY_CVR_NUMBER
         };
+
+        term += "*";
+
         for (QName field : fields) {
             searchTerms.add(buildField(field, term));
         }

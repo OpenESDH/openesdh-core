@@ -1,6 +1,6 @@
 <webscript>
-  <shortname>Admin Console Manage Parties</shortname>
-  <description>Administration Console - Manage Parties</description>
+  <shortname>Admin Console Manage People Parties</shortname>
+  <description>Administration Console - Manage People Parties</description>
   <url>/components/console/parties-people</url>
   <authentication>admin</authentication>
   <family>admin-console</family>

@@ -1,6 +1,6 @@
 <import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/components/console/parties/parties.lib.js">//</import>
 
-var partyType = "party:person";
+var partyType = "party:organization";
 
 var services = [],
     widgets = [];
