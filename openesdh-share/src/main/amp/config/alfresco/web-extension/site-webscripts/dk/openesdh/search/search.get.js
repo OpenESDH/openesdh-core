@@ -1,4 +1,4 @@
-<import resource="classpath:/alfresco/web-extension/utils/case.js">//</import>
+<import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/utils/case.js">//</import>
 
 function getListFromConfigElement(configElement, type) {
     var String = java.lang.String;
