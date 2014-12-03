@@ -3,6 +3,8 @@ package dk.openesdh.repo.services.xsearch;
 import dk.openesdh.repo.model.OpenESDHModel;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
+import org.alfresco.service.cmr.search.SearchParameters;
+import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang.StringUtils;
@@ -15,6 +17,7 @@ public class PartySearchServiceImpl extends AbstractXSearchService
 
     protected DictionaryService dictionaryService;
     protected NamespaceService namespaceService;
+    private boolean personSearch;
 
     public XResultSet getNodes(Map<String, String> params, int startIndex, int pageSize, String sortField, boolean ascending) {
         String baseType = params.get("baseType");
@@ -36,6 +39,11 @@ public class PartySearchServiceImpl extends AbstractXSearchService
                     "subtype of " + OpenESDHModel.TYPE_PARTY_BASE);
         }
 
+        // Trim / remove double-quotes
+        term = term.trim().replace("\"", "");
+
+        personSearch = false;
+
         String query;
         if (dictionaryService.isSubClass(baseTypeQName,
                 OpenESDHModel.TYPE_PARTY_PERSON)) {
@@ -49,10 +57,21 @@ public class PartySearchServiceImpl extends AbstractXSearchService
                     + baseTypeQName);
         }
 
-        query = "TYPE:\"" + baseTypeQName + "\" AND (" + buildBaseQuery
-                (baseTypeQName, term) + " OR " + query + ")";
+        query = "TYPE:\"" + baseTypeQName + "\" AND (" + query + ")";
         System.out.println(query);
         return executeQuery(query);
+    }
+
+    @Override
+    protected void setSearchParameters(SearchParameters sp) {
+        sp.setLanguage(SearchService.LANGUAGE_FTS_ALFRESCO);
+        sp.setNamespace(OpenESDHModel.PARTY_URI);
+        if (this.personSearch) {
+            sp.addQueryTemplate("_PERSON", "|%firstName OR |%middleName OR " +
+                    "|%lastName");
+            sp.setDefaultFieldName("_PERSON");
+            sp.setDefaultOperator(SearchParameters.Operator.AND);
+        }
     }
 
     protected String buildPersonQuery(String term) {
@@ -61,32 +80,61 @@ public class PartySearchServiceImpl extends AbstractXSearchService
                 OpenESDHModel.PROP_PARTY_FIRST_NAME,
                 OpenESDHModel.PROP_PARTY_MIDDLE_NAME,
                 OpenESDHModel.PROP_PARTY_LAST_NAME,
+                OpenESDHModel.PROP_PARTY_EMAIL,
                 OpenESDHModel.PROP_PARTY_CPR_NUMBER
         };
 
-        term += "*";
+        String[] tokens = term.split("(?<!\\\\) ");
 
-        // TODO: Better searching of names (splitting of multi-part names)
-        // See Alfresco's org.alfresco.repo.jscript.People#getPeopleImplSearch
-        for (QName field : fields) {
-            searchTerms.add(buildField(field, term));
+        this.personSearch = true;
+
+        if (tokens.length == 1) {
+            if (term.endsWith("*")) {
+                term = term.substring(0, term.lastIndexOf("*"));
+            }
+
+            term += "*";
+
+            for (QName field : fields) {
+                searchTerms.add(buildField(field, term));
+            }
+        } else {
+            StringBuilder multiPartNames = new StringBuilder(tokens.length);
+            boolean firstToken = true;
+            for (String token : tokens) {
+                if (token.endsWith("*")) {
+                    token = token.substring(0, token.lastIndexOf("*"));
+                }
+                multiPartNames.append("\"");
+                multiPartNames.append(token);
+                multiPartNames.append("*\"");
+                if (firstToken) {
+                    multiPartNames.append(' ');
+                }
+                firstToken = false;
+            }
+
+            searchTerms.add(OpenESDHModel.PROP_PARTY_FIRST_NAME.toString() + ":" +
+                    multiPartNames.toString());
+            searchTerms.add(OpenESDHModel.PROP_PARTY_MIDDLE_NAME.toString() +
+                    ":" +
+                    multiPartNames.toString());
+            searchTerms.add(OpenESDHModel.PROP_PARTY_LAST_NAME.toString() + ":" +
+                    multiPartNames.toString());
         }
         return StringUtils.join(searchTerms, " OR ");
     }
 
     private String buildField(QName field, String value) {
-        return "@" + QueryParser.escape(field.toString()) + ":" + quote(value);
-    }
-
-    protected String buildBaseQuery(QName baseTypeQName, String term) {
-        return buildField(OpenESDHModel.PROP_PARTY_EMAIL, term + "*");
+        return field.toString() + ":" + quote(value);
     }
 
     protected String buildOrganizationQuery(String term) {
         List<String> searchTerms = new ArrayList<>();
         QName[] fields = new QName[]{
                 OpenESDHModel.PROP_PARTY_ORGANIZATION_NAME,
-                OpenESDHModel.PROP_PARTY_CVR_NUMBER
+                OpenESDHModel.PROP_PARTY_CVR_NUMBER,
+                OpenESDHModel.PROP_PARTY_EMAIL
         };
 
         term += "*";
