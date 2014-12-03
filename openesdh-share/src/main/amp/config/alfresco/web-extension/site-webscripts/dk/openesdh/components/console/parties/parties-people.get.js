@@ -6,7 +6,7 @@ var services = [],
     widgets = [];
 
 // Append required services...
-services.push("alfresco/services/CrudService",
+services.push("openesdh/common/services/CrudService",
     "alfresco/services/OptionsService",
     "alfresco/dialogs/AlfDialogService",
     "alfresco/services/NotificationService",

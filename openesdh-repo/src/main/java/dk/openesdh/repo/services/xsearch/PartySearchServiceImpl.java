@@ -49,9 +49,15 @@ public class PartySearchServiceImpl extends AbstractXSearchService
                 OpenESDHModel.TYPE_PARTY_PERSON)) {
             // Person
             query = buildPersonQuery(term);
+            if (sortField.equals("")) {
+                sortField = "party:lastName";
+            }
         } else if (dictionaryService.isSubClass(baseTypeQName, OpenESDHModel.TYPE_PARTY_ORGANIZATION)) {
             // Organization
             query = buildOrganizationQuery(term);
+            if (sortField.equals("")) {
+                sortField = "party:organizationName";
+            }
         } else {
             throw new AlfrescoRuntimeException("Unsupported party subtype: "
                     + baseTypeQName);
@@ -59,7 +65,7 @@ public class PartySearchServiceImpl extends AbstractXSearchService
 
         query = "TYPE:\"" + baseTypeQName + "\" AND (" + query + ")";
         System.out.println(query);
-        return executeQuery(query);
+        return executeQuery(query, startIndex, pageSize, sortField, ascending);
     }
 
     @Override

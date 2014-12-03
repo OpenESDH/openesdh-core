@@ -19,6 +19,8 @@ define(["dojo/_base/declare",
             partyType: "",
             searchTerm: "",
 
+            sortField: "",
+
             postMixInProperties: function () {
                 this.inherited(arguments);
                 this.alfSubscribe("PARTY_LIST_SEARCH", lang.hitch(this, this.loadPartyList));
@@ -43,6 +45,7 @@ define(["dojo/_base/declare",
 
             showAll: function () {
                 this.searchTerm = '';
+                this._readyToLoad = true;
                 this.loadData();
             },
 
@@ -50,10 +53,6 @@ define(["dojo/_base/declare",
 //                if (this.searchTerm != "") {
                     this.inherited(arguments);
 //                }
-            },
-
-            processLoadedData: function () {
-                this.inherited(arguments);
             },
 
             setDisplayMessages: function () {
@@ -69,13 +68,11 @@ define(["dojo/_base/declare",
             },
 
             updateLoadDataPayload: function (payload) {
+                this.inherited(arguments);
 //                if (this.searchTerm != "") {
-                    payload.url = "api/openesdh/partysearch?baseType=" +
-                        encodeURIComponent(this.partyType) + "&term=" +
-                        encodeURIComponent(this.searchTerm);
-                    // Not working:
-//                    payload.baseType = this.partyType;
-//                    payload.term = this.searchTerm;
+                    payload.url = "api/openesdh/partysearch";
+                    payload.baseType = this.partyType;
+                    payload.term = this.searchTerm;
 //                }
             }
         });

@@ -81,7 +81,7 @@ function generatePartyPageWidgets(partyType) {
             partyType: partyType,
 
             loadDataPublishTopic: "ALF_CRUD_GET_ALL",
-            itemsProperty: "",
+            itemsProperty: "items",
             widgets: partyListViews
         }
     };
@@ -164,19 +164,19 @@ function generatePartyPageWidgets(partyType) {
                         textBoxCssClasses: "long"
                     }
                 },
-                partyList
-//            ,{
-//                name: "alfresco/layout/CenteredWidgets",
-//                config: {
-//                    widgets: [
-//                        {
-//                            id: "PARTIES_PAGINATION_MENU",
-//                            name: "alfresco/documentlibrary/AlfDocumentListPaginator",
-//                            widthCalc: 430
-//                        }
-//                    ]
-//                }
-//            }
+                partyList,
+                {
+                    name: "alfresco/layout/CenteredWidgets",
+                    config: {
+                        widgets: [
+                            {
+                                id: "PARTIES_PAGINATION_MENU",
+                                name: "alfresco/documentlibrary/AlfDocumentListPaginator",
+                                widthCalc: 430
+                            }
+                        ]
+                    }
+                }
             ]
         }
     }

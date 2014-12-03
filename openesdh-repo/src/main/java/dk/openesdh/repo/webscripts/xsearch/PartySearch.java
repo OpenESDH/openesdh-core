@@ -44,8 +44,18 @@ public class PartySearch extends AbstractWebScript {
             int startIndex = 0;
             int pageSize = DEFAULT_PAGE_SIZE;
 
-            String sortField = null;
-            boolean ascending = false;
+            String paramPageSize = params.get("pageSize");
+            if (paramPageSize != null) {
+                pageSize = Integer.parseInt(paramPageSize);
+            }
+            String paramPage = params.get("page");
+            if (paramPage != null) {
+                startIndex = pageSize * (Integer.parseInt(paramPage) - 1);
+            }
+
+            String sortField = params.get("sortField");
+            boolean ascending = Boolean.parseBoolean(params.get
+                    ("sortAscending"));
 
             XResultSet results = partySearchService.getNodes(params, startIndex, pageSize, sortField, ascending);
             List<NodeRef> nodeRefs = results.getNodeRefs();
@@ -55,9 +65,11 @@ public class PartySearch extends AbstractWebScript {
                 nodes.put(node);
             }
 
-            int resultsEnd = results.getLength() - startIndex;
-            String jsonString = nodes.toString();
-            res.getWriter().write(jsonString);
+            JSONObject response = new JSONObject();
+            response.put("totalRecords", results.getNumberFound());
+            response.put("startIndex", startIndex);
+            response.put("items", nodes);
+            res.getWriter().write(response.toString());
         } catch (JSONException e) {
             throw new WebScriptException("Unable to serialize JSON");
         }
