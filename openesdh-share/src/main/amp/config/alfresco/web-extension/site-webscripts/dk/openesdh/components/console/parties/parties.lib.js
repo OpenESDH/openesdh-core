@@ -9,6 +9,13 @@ function generatePartyTableView(partyType) {
             columnsReadyTopic: "PARTY_LIST_SHOW_ALL",
 
             additionalCssClasses: "bordered",
+
+            widgets: [
+                {
+                    name: "alfresco/documentlibrary/views/layouts/Row",
+                    config: {}
+                }
+            ],
             extraWidgetsForHeader: [
                 {
                     name: "alfresco/documentlibrary/views/layouts/HeaderCell",

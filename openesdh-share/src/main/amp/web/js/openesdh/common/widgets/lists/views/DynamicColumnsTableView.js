@@ -20,11 +20,18 @@ define(["dojo/_base/declare",
 
             /**
              * Topic to publish to when the columns have loaded.
-             * This can be used to refresh the list so the data shows.
+             * This can be used to load data for the list, so the data shows
+             * when the columns have loaded (instead of loading data on page
+             * load, when the columns might not have been loaded).
              */
             columnsReadyTopic: "",
 
             widgetsForHeader: [],
+
+            /**
+             * Provide a row widget here. Cells will be filled in
+             * automatically.
+             */
             widgets: [],
 
             /**
@@ -60,27 +67,24 @@ define(["dojo/_base/declare",
                 var columns = response.columns;
 
                 var rowWidgets = [];
-                this.widgets = [
-                    {
-                        name: "alfresco/documentlibrary/views/layouts/Row",
-                        config: {
-                            widgets: rowWidgets
-                        }
-                    }
-                ];
+
+                this.widgets[0].config.widgets = rowWidgets;
 
                 var widgetsForHeader = [];
 
                 for (var i = 0; i < columns.length; i++) {
                     var property = columns[i];
+                    // Add a header cell for each column
                     widgetsForHeader.push({
                         name: "alfresco/documentlibrary/views/layouts/HeaderCell",
                         config: {
                             label: property.label || property.name,
+                            sortValue: property.name,
                             sortable: true
                         }
                     });
 
+                    // Add a cell to the row for each column
                     rowWidgets.push({
                         name: "alfresco/documentlibrary/views/layouts/Cell",
                         config: {
@@ -97,6 +101,7 @@ define(["dojo/_base/declare",
                     });
                 }
 
+                // Append the extra widgets for the header
                 this.widgetsForHeader = widgetsForHeader.concat(this.extraWidgetsForHeader);
 
                 // Add actions
