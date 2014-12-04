@@ -157,7 +157,7 @@ function generatePartyPageWidgets(partyType) {
                     }
                 },
                 {
-                    name: "alfresco/forms/SingleTextFieldForm",
+                    name: "openesdh/common/widgets/forms/SingleTextFieldForm",
                     config: {
                         useHash: false,
                         showOkButton: true,
@@ -170,7 +170,10 @@ function generatePartyPageWidgets(partyType) {
                         okButtonIconClass: "alf-white-search-icon",
                         okButtonClass: "call-to-action",
                         textBoxIconClass: "alf-search-icon",
-                        textBoxCssClasses: "long"
+                        textBoxCssClasses: "long",
+                        textBoxRequirementConfig: {
+                            initialValue: false
+                        }
                     }
                 },
                 partyList,
