@@ -6,6 +6,9 @@ define(["dojo/_base/declare",
         "dojo/_base/lang"],
     function (declare, AlfDocumentListView, CoreXhr, AlfConstants, Row, lang) {
         return declare([AlfDocumentListView, CoreXhr], {
+
+            cssRequirements: [{cssFile:"../../../css/Common.css"}],
+
             /**
              * Widgets to be appended to the header after the columns are loaded.
              * Could be useful for adding an "Actions" header column.
@@ -80,6 +83,7 @@ define(["dojo/_base/declare",
                         config: {
                             label: property.label || property.name,
                             sortValue: property.name,
+                            additionalCssClasses: "cursor-pointer",
                             sortable: true
                         }
                     });

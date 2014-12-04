@@ -69,6 +69,7 @@ public class PartySearch extends AbstractWebScript {
             response.put("totalRecords", results.getNumberFound());
             response.put("startIndex", startIndex);
             response.put("items", nodes);
+            res.setContentEncoding("UTF-8");
             res.getWriter().write(response.toString());
         } catch (JSONException e) {
             throw new WebScriptException("Unable to serialize JSON");

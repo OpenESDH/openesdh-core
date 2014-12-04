@@ -32,9 +32,10 @@ function generatePartyTableView(partyType) {
                         additionalCssClasses: "mediumpad",
                         widgets: [
                             {
-                                name: "alfresco/renderers/PublishAction",
+                                name: "openesdh/common/widgets/renderers/PublishAction",
                                 config: {
                                     iconClass: "edit-16",
+                                    altText: msg.get("parties.tool.edit." + partyTypeId + ".action"),
                                     publishTopic: "LEGACY_EDIT_FORM_DIALOG",
                                     publishPayloadType: "PROCESS",
                                     publishPayload: {
@@ -47,22 +48,23 @@ function generatePartyTableView(partyType) {
                                 }
                             },
                             {
-                                name: "alfresco/renderers/PublishAction",
+                                name: "openesdh/common/widgets/renderers/PublishAction",
                                 config: {
                                     iconClass: "delete-16",
-                                    publishTopic: "ALF_CRUD_CREATE",
+                                    altText: msg.get("parties.tool.delete." + partyTypeId + ".action"),
+                                    publishTopic: "ALF_CRUD_DELETE",
                                     publishPayloadType: "PROCESS",
                                     publishPayload: {
-                                        // TODO: confirmation; use different URL so we can use ALF_CRUD_DELETE
-                                        url: "slingshot/datalists/action/items?alf_method=delete",
-                                        nodeRefs: ["{nodeRef}"],
+                                        // TODO: We are abusing this URL a bit.
+                                        // It is intended for deleting data lists, but we are deleting individual nodes
+                                        url: "slingshot/datalists/list/node/{nodeRef}",
                                         confirmationTitle: msg.get("parties.tool.delete." + partyTypeId + ".confirmation.title"),
                                         confirmationPrompt: msg.get("parties.tool.delete." + partyTypeId + ".confirmation.message"),
                                         requiresConfirmation: true,
                                         successMessage: msg.get("parties.tool.delete." + partyTypeId + ".success")
                                     },
                                     publishGlobal: true,
-                                    publishPayloadModifiers: ["processCurrentItemTokens"]
+                                    publishPayloadModifiers: ["processCurrentItemTokens", "convertNodeRefToUrl"]
                                 }
                             }
                         ]
