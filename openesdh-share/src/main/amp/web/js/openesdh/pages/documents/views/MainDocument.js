@@ -40,7 +40,6 @@ define(["dojo/_base/declare",
             postCreate: function openesdh_caseCard_mainDoc_constructor() {
                 this.inherited(arguments);
                 this.dndUploadCapable = false;
-                console.log("MainDocuments.js 41) postCreate");
             },
 
             /**
@@ -51,7 +50,6 @@ define(["dojo/_base/declare",
             onDocumentsLoaded: function alfresco_documentlibrary_views_AlfDocumentListView__onDocumentsLoaded(payload) {
                 var item = lang.getObject(this.itemsProperty, false, payload);
                 var items = [];
-                console.log("MainDocuments.js 64) loaded");
 
                 if (item != null) {
                     items.push(item); //push the single object into an array.
