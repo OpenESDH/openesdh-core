@@ -8,9 +8,11 @@ import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
+import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.security.NoSuchPersonException;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
@@ -35,11 +37,16 @@ public class DocumentServiceImpl implements DocumentService {
     private CaseService caseService;
     private NamespaceService namespaceService;
 
+    private BehaviourFilter behaviourFilter;
+
+    //<editor-fold desc="Setters">
+    public void setCaseService(CaseService caseService) {
+        this.caseService = caseService;
+    }
+
     public void setNamespaceService(NamespaceService namespaceService) {
         this.namespaceService = namespaceService;
     }
-
-    private BehaviourFilter behaviourFilter;
 
     public void setDictionaryService(DictionaryService dictionaryService) {
         this.dictionaryService = dictionaryService;
@@ -60,6 +67,7 @@ public class DocumentServiceImpl implements DocumentService {
     public void setBehaviourFilter(BehaviourFilter behaviourFilter) {
         this.behaviourFilter = behaviourFilter;
     }
+    //</editor-fold>
 
     @Override
     public List<ChildAssociationRef> getDocumentsForCase(NodeRef nodeRef) {
@@ -168,7 +176,45 @@ public class DocumentServiceImpl implements DocumentService {
         }, "admin");
     }
 
-    public void setCaseService(CaseService caseService) {
-        this.caseService = caseService;
+    @Override
+    public NodeRef getMainDocument(NodeRef caseDocNodeRef){
+        NodeRef mainDoc = null;
+        try {
+            List<ChildAssociationRef> children = this.nodeService.getChildAssocs(caseDocNodeRef);
+            for(ChildAssociationRef child : children){
+                NodeRef doc = child.getChildRef();
+                if(this.nodeService.hasAspect(doc, OpenESDHModel.ASPECT_CASE_MAIN_DOC)) {
+                    mainDoc = doc;
+                    break;
+                }
+            }
+        }
+        finally {
+            return mainDoc;
+        }
+    }
+
+    @Override
+    public PersonService.PersonInfo getDocumentOwner(NodeRef caseDocNodeRef) {
+        List <AssociationRef> ownerList = this.nodeService.getTargetAssocs(caseDocNodeRef, OpenESDHModel.ASSOC_DOC_OWNER);
+        PersonService.PersonInfo owner =null ;
+
+        if(ownerList.size() >= 1) //should always = 1 but just in case
+            owner = this.personService.getPerson(ownerList.get(0).getTargetRef()); //return the first one in the list
+
+        return owner;
+    }
+
+    @Override
+    public List<PersonService.PersonInfo> getDocResponsibles(NodeRef caseDocNodeRef) {
+        //TODO could it be the case that in the future there could be more than one person responsible for a document
+        //Should
+        List <AssociationRef> responsibleList = this.nodeService.getTargetAssocs(caseDocNodeRef, OpenESDHModel.ASSOC_DOC_RESPONSIBLE_PERSON);
+        List <PersonService.PersonInfo> responsibles = new ArrayList<PersonService.PersonInfo>();
+
+        for(AssociationRef person : responsibleList)
+            responsibles.add(this.personService.getPerson(person.getTargetRef()));
+
+        return responsibles;
     }
 }

@@ -89,6 +89,10 @@ function doclist_getAllNodes(parsedArgs, filterParams, query, totalItemCount) {
  * @method doclist_main
  */
 function doclist_main() {
+    //We use this to know when we're in the case card folder view
+    //i.e to know whether we return a main document or not.
+    var isCaseCardFolderView = false;
+
     // Use helper function to get the arguments
     var parsedArgs = ParseArgs.getParsedArgs();
     if (parsedArgs === null) {
@@ -104,10 +108,7 @@ function doclist_main() {
         requestTotalCountMax = 0,
         paged = false,
         favourites = Common.getFavourites(),
-        filterParams = Filters.getFilterParams(filter, parsedArgs,
-            {
-                favourites: favourites
-            }),
+        filterParams = Filters.getFilterParams(filter, parsedArgs, { favourites: favourites }),
         query = filterParams.query,
         allSites = (parsedArgs.nodeRef == "alfresco://sites/home");
 
@@ -127,7 +128,6 @@ function doclist_main() {
     paged = allNodesResult.paged;
     query = allNodesResult.query;
 
-
     if (logger.isLoggingEnabled())
         logger.log("doclist.lib.js - query results: " + allNodes.length);
     // Generate the qname path match regex required for all sites 'documentLibrary' results match
@@ -142,21 +142,23 @@ function doclist_main() {
     }
 
     // Ensure folders and folderlinks appear at the top of the list
-    var folderNodes = [],
+    var folderNodes = [], mainDocumentNode ={},
         documentNodes = [];
 
-    for each(node in allNodes)
-    {
-        var hasMainAspect = node.hasAspect("doc:main");
+    for each(node in allNodes) {
         if (totalItemCount !== 0) {
             try {
+                if(node.hasAspect("doc:main"))
+                    isCaseCardFolderView = true;
                 if (!allSites || node.qnamePath.match(pathRegex)) {
                     totalItemCount--;
-                    if ((node.isContainer || node.isLinkToContainer)  && parsedArgs.type != "main" ) {
+                    if (node.isContainer || node.isLinkToContainer) {
                         folderNodes.push(node);
                     }
                     else {
-                        if((parsedArgs.type == "main" && node.hasAspect("doc:main")) || (parsedArgs.type != "main" && !hasMainAspect) )
+                        if(node.hasAspect("doc:main"))
+                            mainDocumentNode = node;
+                        else
                             documentNodes.push(node);
                     }
                 }
@@ -169,11 +171,10 @@ function doclist_main() {
 
     // Node type counts
     var folderNodesCount = folderNodes.length,
-        documentNodesCount = documentNodes.length,
+        documentNodesCount = isCaseCardFolderView ? documentNodes.length+1 : documentNodes.length,
         nodes;
 
     if (parsedArgs.type === "documents") {
-
         nodes = documentNodes;
         totalRecords -= folderNodesCount;
     }
@@ -187,7 +188,7 @@ function doclist_main() {
     }
 
     if (logger.isLoggingEnabled())
-        logger.log("doclist.lib.js - totalRecords: " + totalRecords);
+        logger.log("\n\n-----> doclist.lib.js - totalRecords: " + totalRecords);
 
     // Pagination
     var pageSize = args.size || nodes.length,
@@ -209,11 +210,10 @@ function doclist_main() {
 
     var thumbnail = null,
         locationNode,
-        item;
+        item, mainDocItem;
 
     // Loop through and evaluate each node in this result set
-    for each(node in nodes)
-    {
+    for each(node in nodes){
         // Get evaluated properties.
         item = Evaluator.run(node);
         if (item !== null && (filter !== "editingMe" && filter !== "editingOthers" || node.getIsLocked() || item.workingCopy.isWorkingCopy )) {
@@ -268,6 +268,46 @@ function doclist_main() {
             --totalRecords;
         }
     }
+    //If We have a main document we would like to evaluate this also
+    if(isCaseCardFolderView){//This should mean we have a main document
+        try{
+            mainDocItem = Evaluator.run(mainDocumentNode);
+            if (mainDocItem !== null && (filter !== "editingMe" && filter !== "editingOthers" || mainDocumentNode.getIsLocked() || mainDocItem.workingCopy.isWorkingCopy )) {
+                mainDocItem.isFavourite = (favourites[mainDocItem.node.nodeRef] === true);
+                mainDocItem.likes = Common.getLikes(mainDocumentNode);
+
+                // Does this collection of nodes have potentially differering paths?
+                if (filterParams.variablePath || mainDocItem.isLink) {
+                    locationNode = mainDocItem.isLink ? mainDocItem.linkedNode : mainDocItem.node;
+
+                    // Ensure we have Read permissions on the destination on the link object
+                    location = Common.getLocation(locationNode, parsedArgs.libraryRoot);
+
+                    // Parent node
+                    if (mainDocumentNode.parent != null && mainDocumentNode.parent.isContainer && mainDocumentNode.parent.hasPermission("Read")) {
+                        mainDocItem.parent = Evaluator.run(mainDocumentNode.parent, true);
+                    }
+                }
+                else {
+                    location = {
+                        site: parsedArgs.location.site,
+                        siteTitle: parsedArgs.location.siteTitle,
+                        sitePreset: parsedArgs.location.sitePreset,
+                        container: parsedArgs.location.container,
+                        containerType: parsedArgs.location.containerType,
+                        path: parsedArgs.location.path,
+                        file: mainDocumentNode.name
+                    };
+                }
+
+                // Resolved location
+                mainDocItem.location = location;
+            }
+        }
+        catch (e){
+            logger.warn("\n\t\t---=> Error processing main document: "+e+"\n\n");
+        }
+    }
 
     // Array Remove - By John Resig (MIT Licensed)
     var fnArrayRemove = function fnArrayRemove(array, from, to) {
@@ -295,8 +335,7 @@ function doclist_main() {
         }
     }
 
-    var paging =
-    {
+    var paging = {
         totalRecords: totalRecords,
         startIndex: startIndex
     };
@@ -304,6 +343,22 @@ function doclist_main() {
     if (paged && (totalRecords == requestTotalCountMax)) {
         paging.totalRecordsUpper = requestTotalCountMax;
     }
+
+    function getCaseDetails() {
+        var caseDetails = {};
+        var caseCard = mainDocumentNode.parent;
+
+        caseDetails.owner = caseCard.assocs["doc:owner"][0].properties.firstName;
+        caseDetails.responsible = caseCard.assocs["doc:responsible"][0].properties.firstName;
+        caseDetails.createdOn = mainDocumentNode.properties.created;
+        caseDetails.caseDocType = mainDocumentNode.properties["doc:variant"];
+        caseDetails.attachements = caseCard.children.length - 1;
+
+        return caseDetails;
+    }
+
+    var details;
+    (isCaseCardFolderView) ? details = getCaseDetails() : "";
 
     return (
     {
@@ -317,8 +372,9 @@ function doclist_main() {
             documents: documentNodesCount
         },
         items: items,
-        main: (args.type === "main"),
+        caseCardView: isCaseCardFolderView,
+        caseDetails: isCaseCardFolderView ? details : "",
+        mainDocument: isCaseCardFolderView ? mainDocItem: "",
         customJSON: slingshotDocLib.getJSON()
-
     });
 }
