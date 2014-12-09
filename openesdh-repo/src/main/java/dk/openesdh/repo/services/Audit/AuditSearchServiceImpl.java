@@ -40,7 +40,7 @@ public class AuditSearchServiceImpl implements AuditSearchService {
         OpenESDHAuditQueryCallBack auditQueryCallback = new OpenESDHAuditQueryCallBack();
         auditService.auditQuery(auditQueryCallback, auditQueryParameters, OpenESDHModel.auditlog_max);
 
-
+        // test comment
 
         return auditQueryCallback.getResult();
 
