@@ -1,5 +1,5 @@
 <import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/pages/documents/lib/case-library.lib.js">
-//<import resource="classpath:/alfresco/web-extension/utils/case.js">
+//<import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/utils/case.js">
 
 /**
  * Get the role types for a case
@@ -39,7 +39,6 @@ model.jsonModel = {
             id: "SET_PAGE_TITLE",
             name: "alfresco/header/SetTitle",
             config: {
-<<<<<<< HEAD
                 widgetMarginLeft: 10,
                 widgetMarginRight: 10,
                 widgets: [
@@ -50,9 +49,7 @@ model.jsonModel = {
                         }
                     }
                 ]
-=======
-                title: "My Files"
->>>>>>> 2c6a3ea... Implementation of document list for cases.
+
             }
         },
         {

@@ -1,0 +1,8 @@
+<webscript>
+  <shortname>Admin Console Manage Organization Parties</shortname>
+  <description>Administration Console - Manage Organization
+      Parties</description>
+  <url>/components/console/parties-organizations</url>
+  <authentication>admin</authentication>
+  <family>admin-console</family>
+</webscript>
