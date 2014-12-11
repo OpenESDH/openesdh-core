@@ -1,9 +1,10 @@
 define(["dojo/_base/declare",
-        "openesdh/common/widgets/dashlets/views/UserInfoTableView",
-        "alfresco/lists/AlfSortablePaginatedList",
-        "alfresco/core/NodeUtils" ],
-    function(declare, UserInfoTableView, list, NodeUtils) {
-        return declare([list], {
+        "alfresco/lists/AlfList",
+        "dojo/_base/lang",
+        "alfresco/documentlibrary/views/AlfTableView",
+        "openesdh/common/services/_CaseMembersServiceTopicsMixin" ],
+    function(declare, list, tableView, lang, CaseMembersServiceTopics) {
+        return declare([list, CaseMembersServiceTopics], {
 
             /**
              * The size (or number of items) to be shown on each page.
@@ -12,7 +13,7 @@ define(["dojo/_base/declare",
              * @type {number}
              * @default 25
              */
-            currentPageSize: 25,
+            currentPageSize: 10,
 
             /**
              * The initial field to sort results on. For historical reasons the default is the "cm:name"
@@ -22,28 +23,25 @@ define(["dojo/_base/declare",
              * @type {string}
              * @default "cm:name"
              */
-            sortField: "",
+            sortField: "displayName",
 
-            caseNodeRef: null,
+            groupShortName: "",
 
             loadDataPublishTopic: "ALF_CRUD_GET_ALL",
 
-            postMixInProperties : function () {
-                this.inherited(arguments);
-                //this.caseNodeRef = args.caseNodeRef ;
-                var nodeRefUri =  NodeUtils.processNodeRef(this.caseNodeRef).uri;
+            itemsProperty: "data",
 
-                this.loadDataPublishPayload = {url: "api/openesdh/case/members/"+nodeRefUri };
+            postMixInProperties: function openesdh_case_renderers__postMixInProperties() {
+                this.loadDataPublishPayload = {
+                    url: "api/groups/"+this.groupShortName+"/children?authorityType=USER&maxItems=10&&sortBy=authority"
+                };
 
                 //Inject the view widgets required by the list widget inherited from
                 //alfresco/lists/AlfList#postCreate ~(270)
                 this.widgets = [];
                 this.widgets.push({name: "openesdh/common/widgets/dashlets/views/UserInfoTableView"} );
-            },
+            }
 
-            itemsProperty: "members"
-
-
-    });
+        });
 });
             

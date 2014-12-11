@@ -6,7 +6,7 @@
  */
 define(["dojo/_base/declare",
        "alfresco/documentlibrary/views/AlfTableView"],
-    function(declare, AlfTableView, template) {
+    function(declare, AlfTableView) {
 
        return declare([AlfTableView], {
 
@@ -16,6 +16,10 @@ define(["dojo/_base/declare",
             * @instance
             */
            i18nScope: "openesdh.case.CaseMembersDashlet",
+
+           showRoles : true,
+
+           currentData: null,
 
            /**
             * An array of the i18n files to use with this widget.
@@ -36,28 +40,45 @@ define(["dojo/_base/declare",
              return "userinfo_table";
           },
 
+          postCreate: function opendedsh_case_members_listview(){
+              this.inherited(arguments);
+              if (this.showRoles)
+                this.alfPublish("SHOW_ROLES_COLUMN",{showRole : true});
+          },
+
+          //Table Headers
+          //TODO fix : visibility config for table headers do not work,
           widgetsForHeader: [
-                          {
+              {
                 name: "alfresco/documentlibrary/views/layouts/HeaderCell",
                 config: {
                    label: "",
                    sortable: false
                 }
-             },
-                          {
-                            name: "alfresco/documentlibrary/views/layouts/HeaderCell",
-                            config: {
-                               label: "label.name",
-                               sortable: true
-                            }
-                          },
-                          {
-                            name: "alfresco/documentlibrary/views/layouts/HeaderCell",
-                            config: {
-                               label: "label.role",
-                               sortable: true
-                            }
-                          }
+              },
+              {
+                name: "alfresco/documentlibrary/views/layouts/HeaderCell",
+                config: {
+                   label: "label.name",
+                   sortable: true
+                }
+              },
+              {
+                name: "alfresco/documentlibrary/views/layouts/HeaderCell",
+                config: {
+                    label: "label.role",
+                    sortable: true,
+                    visibilityConfig: {
+                        initialValue: false,
+                        rules: [{
+                            topic: "SHOW_ROLES_COLUMN",
+                            attribute: "showRole",
+                            is:[true],
+                            isNot: [false]
+                        }]
+                    }
+                }
+              }
           ],
 
           /**
@@ -74,37 +95,42 @@ define(["dojo/_base/declare",
                          name: "alfresco/documentlibrary/views/layouts/Cell",
                          config: {
                             additionalCssClasses: "mediumpad",
-                            widgets: [{ name: "openesdh/common/widgets/renderers/personThumbnail" }]
+                            widgets: [{ name: "openesdh/common/widgets/renderers/PersonThumbnail" }]
                          }
                       },
                       {
                          name: "alfresco/documentlibrary/views/layouts/Cell",
                          config: {
                             additionalCssClasses: "mediumpad",
-                            widgets: [
-                               {
-                                  name: "alfresco/renderers/PropertyLink",
+                            widgets: [{
+                                  name: "openesdh/common/widgets/renderers/CaseMemberName",
                                   config: {
-                                     propertyToRender: "displayName",
-                                     postParam: "prop_cm_name",
-                                     renderAsLink: true
+                                     propertyToRender: "displayName"
                                   }
-                               }
-                            ]
+                           }]
                          }
                       },
                       {
                          name: "alfresco/documentlibrary/views/layouts/Cell",
                          config: {
-                            additionalCssClasses: "mediumpad",
-                            widgets: [
+                             additionalCssClasses: "mediumpad",
+                             widgets: [
                                {
                                   name: "alfresco/renderers/Property",
                                   config: {
                                      propertyToRender: "role"
                                   }
                                }
-                            ]
+                            ],
+                             visibilityConfig: {
+                                 initialValue: false,
+                                 rules: [{
+                                     topic: "SHOW_ROLES_COLUMN",
+                                     attribute: "showRole",
+                                     is:[true],
+                                     isNot: [false]
+                                 }]
+                             }
                          }
                       }
                    ]

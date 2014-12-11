@@ -66,13 +66,13 @@ public class MembersList extends DeclarativeWebScript {
             for (String authority : value) {
                 JSONObject memberObj = new JSONObject();
                 boolean isGroup = authority.startsWith("GROUP_");
-                memberObj.put("authorityType", isGroup ? "group" : "user");
-                memberObj.put("authorityType", "user");
+                memberObj.put("authorityType", isGroup ? "GROUP" : "USER");
                 memberObj.put("authority", authority);
 
                 NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef(authority);
                 String displayName;
                 if(!isGroup) {
+                    memberObj.put("isGroup", false);
                     PersonService.PersonInfo personInfo = personService.getPerson(authorityNodeRef);
                     displayName = personInfo.getFirstName() + " " + personInfo.getLastName();
                     try {
@@ -89,6 +89,7 @@ public class MembersList extends DeclarativeWebScript {
                 else{
                     displayName = authorityService.getAuthorityDisplayName(authority);
                     memberObj.put("avatar", "components/images/group-16.png");
+                    memberObj.put("isGroup", true);
 
                 }
                 memberObj.put("displayName", displayName);
