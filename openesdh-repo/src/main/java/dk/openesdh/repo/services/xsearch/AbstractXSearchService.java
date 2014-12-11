@@ -32,19 +32,28 @@ public abstract class AbstractXSearchService implements XSearchService {
         return new SearchParameters.SortDefinition(SearchParameters.SortDefinition.SortType.FIELD, "@" + sortField, ascending);
     }
 
+    /**
+     * Empty. Provided to allow overriding of search parameters.
+     * @param sp
+     */
+    protected void setSearchParameters(SearchParameters sp) {
+
+    }
+
     protected XResultSet executeQuery(String query, int startIndex, int pageSize, String sortField, boolean ascending) {
         SearchParameters.SortDefinition sortDefinition =
                 getSortDefinition(sortField, ascending);
 
         SearchParameters sp = new SearchParameters();
         sp.addStore(repositoryHelper.getCompanyHome().getStoreRef());
-        sp.setLanguage(SearchService.LANGUAGE_LUCENE);
         sp.setSkipCount(startIndex);
         sp.setLimit(pageSize);
         sp.setQuery(query);
         if (sortDefinition != null) {
             sp.addSort(sortDefinition);
         }
+        sp.setLanguage(SearchService.LANGUAGE_LUCENE);
+        setSearchParameters(sp);
 
         ResultSet results;
         List<NodeRef> nodeRefs = new LinkedList<>();
@@ -52,10 +61,10 @@ public abstract class AbstractXSearchService implements XSearchService {
         if (results != null) {
             nodeRefs = results.getNodeRefs();
             results.close();
-            return new XResultSet(nodeRefs, results.length());
+            return new XResultSet(nodeRefs, results.length(), results.getNumberFound());
         } else {
             results.close();
-            return new XResultSet(nodeRefs, 0);
+            return new XResultSet(nodeRefs, 0, 0);
         }
     }
 

@@ -2,7 +2,7 @@
 <model name="doc:documentModel"
        xmlns="http://www.alfresco.org/model/dictionary/1.0">
     <description>openESDH Document Model</description>
-    <author>Seth Yastrov, Flemming Heide Pedersern, Ole Hejlskov, Torben Lauritzen</author>
+    <author>Seth Yastrov, Flemming Heide Pedersen, Ole Hejlskov, Torben Lauritzen</author>
     <version>1.0</version>
     <imports>
         <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d" />
@@ -101,6 +101,16 @@
                     <value>Offentliggørelse</value>
                     <value>Arkivering</value>
                     <value>Signeret</value>
+                </list>
+            </parameter>
+        </constraint>
+
+        <!-- FASD: JournalPostPartType -->
+        <constraint name="doc:partyTypeConstraint" type="LIST">
+            <parameter name="allowedValues">
+                <list>
+                    <value>SENDER</value>
+                    <value>RECEIVER</value>
                 </list>
             </parameter>
         </constraint>
@@ -302,6 +312,20 @@
 
         <aspect name="doc:main">
             <description>Used to tag the case's main document on case creation only</description>
+        </aspect>
+
+        <aspect name="doc:partied">
+            <parent>oe:partied</parent>
+            <properties>
+                <!-- FASD: JournalPostPart#partType -->
+                <property name="doc:partyType">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                    <constraints>
+                        <constraint ref="doc:partyTypeConstraint"/>
+                    </constraints>
+                </property>
+            </properties>
         </aspect>
     </aspects>
 

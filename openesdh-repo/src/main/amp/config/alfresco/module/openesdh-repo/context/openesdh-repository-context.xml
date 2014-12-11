@@ -55,6 +55,16 @@
         <property name="authenticationService" ref="authenticationService" />
     </bean>
 
+    <bean id="webscript.dk.openesdh.partysearch.get"
+          class="dk.openesdh.repo.webscripts.xsearch.PartySearch"
+          parent="webscript">
+        <property name="nodeService" ref="nodeService"/>
+        <property name="repository" ref="repositoryHelper"/>
+        <property name="namespaceService" ref="namespaceService"/>
+        <property name="partySearchService" ref="PartySearchService"/>
+    </bean>
+
+
     <bean id="webscript.dk.openesdh.caseinfo.get"
           class="dk.openesdh.repo.webscripts.cases.CaseInfo"
           parent="webscript">

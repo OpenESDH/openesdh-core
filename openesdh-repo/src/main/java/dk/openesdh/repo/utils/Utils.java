@@ -5,6 +5,7 @@ import org.apache.http.client.utils.URLEncodedUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -20,18 +21,20 @@ public class Utils {
      * @return
      */
     public static Map<String, String> parseParameters(String url) {
-        try {
-            List<NameValuePair> params = URLEncodedUtils.parse(new URI(url),
-                    "UTF-8");
-            Map<String, String> parameters = new HashMap<>();
-            for (NameValuePair param : params) {
-                parameters.put(param.getName(), param.getValue());
-            }
-            return parameters;
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            return null;
+        // Do our own parsing to get the query string since java.net.URI can't
+        // handle some URIs
+        int queryStringStart = url.indexOf('?');
+        String queryString = "";
+        if (queryStringStart != -1) {
+            queryString = url.substring(queryStringStart+1);
         }
+        List<NameValuePair> params = URLEncodedUtils.parse(queryString,
+                Charset.forName("UTF-8"));
+        Map<String, String> parameters = new HashMap<>();
+        for (NameValuePair param : params) {
+            parameters.put(param.getName(), param.getValue());
+        }
+        return parameters;
     }
 
 }

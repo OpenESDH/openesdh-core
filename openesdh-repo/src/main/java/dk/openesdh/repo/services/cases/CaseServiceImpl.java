@@ -51,7 +51,6 @@ public class CaseServiceImpl implements CaseService {
     private RuleService ruleService;
     private ActionService actionService;
 
-    //<editor-fold desc="Service setters">
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
     }
@@ -79,7 +78,6 @@ public class CaseServiceImpl implements CaseService {
     public void setDictionaryService(DictionaryService dictionaryService) {
         this.dictionaryService = dictionaryService;
     }
-    //</editor-fold>
 
     public void setRuleService(RuleService ruleService) {
         this.ruleService = ruleService;
@@ -102,6 +100,7 @@ public class CaseServiceImpl implements CaseService {
         return casesRootNodeRef;
     }
 
+
     /**
      * Creating Case Folder Ref
      *
@@ -116,6 +115,7 @@ public class CaseServiceImpl implements CaseService {
         return casesRootNodeRef;
 
     }
+
 
     /**
      * Creating Groups and assigning permission on New case folder
@@ -177,14 +177,14 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public Map<String, Set<String>> getMembersByRole(NodeRef caseNodeRef, boolean noExpandGroups, boolean includeOwner) {
+    public Map<String, Set<String>> getMembersByRole(NodeRef caseNodeRef) {
         String caseId = getCaseId(caseNodeRef);
-        Set<String> roles = includeOwner ? getAllRoles(caseNodeRef) : getRoles(caseNodeRef);
+        Set<String> roles = getRoles(caseNodeRef);
         Map<String, Set<String>> membersByRole = new HashMap<>();
         for (String role : roles) {
             String groupName = getCaseRoleGroupName(caseId, role);
             Set<String> authorities = authorityService.getContainedAuthorities
-                    (null, groupName, noExpandGroups);
+                    (null, groupName, true);
             membersByRole.put(role, authorities);
 
         }
@@ -300,8 +300,9 @@ public class CaseServiceImpl implements CaseService {
         }, "admin");
     }
 
-    public void checkCanUpdateCaseRoles(NodeRef caseNodeRef) throws AccessDeniedException {
-        String user = AuthenticationUtil.getFullyAuthenticatedUser();
+    public void checkCanUpdateCaseRoles(NodeRef caseNodeRef) throws
+            AccessDeniedException {
+        String user = AuthenticationUtil.getRunAsUser();
         if (!canUpdateCaseRoles(user, caseNodeRef)) {
             throw new AccessDeniedException(user + " is not allowed to " +
                     "update case roles for case " + caseNodeRef);
@@ -350,7 +351,8 @@ public class CaseServiceImpl implements CaseService {
         }
     }
 
-    String setupPermissionGroup(NodeRef caseNodeRef, String caseId, String permission) {
+    String setupPermissionGroup(NodeRef caseNodeRef, String caseId,
+                                String permission) {
         String groupSuffix = getCaseRoleGroupAuthorityName(caseId, permission);
         String groupName = getCaseRoleGroupName(caseId, permission);
 
@@ -387,6 +389,7 @@ public class CaseServiceImpl implements CaseService {
 
     void setupCase(NodeRef caseNodeRef, NodeRef caseFolderNodeRef, long caseUniqueNumber) {
         String caseId = getCaseId(caseUniqueNumber);
+
 
         //Move Case to new location
         nodeService.moveNode(caseNodeRef, caseFolderNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, caseId));
@@ -430,6 +433,7 @@ public class CaseServiceImpl implements CaseService {
         return caseId.toString();
     }
 
+
     @Override
     public void createCase(final ChildAssociationRef childAssocRef) {
         AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Void>() {
@@ -468,7 +472,7 @@ public class CaseServiceImpl implements CaseService {
 
     public void checkCanJournalize(NodeRef caseNodeRef) throws
             AccessDeniedException {
-        String user = AuthenticationUtil.getFullyAuthenticatedUser();
+        String user = AuthenticationUtil.getRunAsUser();
         if (!canJournalize(user, caseNodeRef)) {
             throw new AccessDeniedException(user + " is not allowed to " +
                     "journalize the case " + caseNodeRef);
@@ -477,7 +481,7 @@ public class CaseServiceImpl implements CaseService {
 
     public void checkCanUnJournalize(NodeRef caseNodeRef) throws
             AccessDeniedException {
-        String user = AuthenticationUtil.getFullyAuthenticatedUser();
+        String user = AuthenticationUtil.getRunAsUser();
         if (!canUnJournalize(user, caseNodeRef)) {
             throw new AccessDeniedException(user + " is not allowed to " +
                     "unjournalize the case " + caseNodeRef);
@@ -609,6 +613,7 @@ public class CaseServiceImpl implements CaseService {
             }
         }, AuthenticationUtil.getAdminUserName());
     }
+
 
     /**
      * Get a node in the calendarbased path of the casefolders

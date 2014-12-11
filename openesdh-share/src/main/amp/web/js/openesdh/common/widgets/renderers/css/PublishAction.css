@@ -1,0 +1,4 @@
+/* Set a hand cursor on the PublishAction */
+.alfresco-renderers-PublishAction {
+    cursor: pointer;
+}

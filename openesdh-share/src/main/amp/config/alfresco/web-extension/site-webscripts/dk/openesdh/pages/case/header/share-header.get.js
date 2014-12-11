@@ -1,4 +1,4 @@
-<import resource="classpath:/alfresco/web-extension/utils/oe.js">
+<import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/utils/oe.js">
 
 var args = page.url.args;
 

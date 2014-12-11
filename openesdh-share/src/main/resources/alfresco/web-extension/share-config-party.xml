@@ -1,0 +1,131 @@
+<alfresco-config>
+    <config evaluator="model-type" condition="party:person">
+        <forms>
+            <!-- Default create content form configuration for a person party -->
+            <form>
+                <field-visibility>
+                    <hide id="cm:name"/>
+
+                    <!-- TODO: Group name fields -->
+                    <show id="party:firstName" />
+                    <show id="party:middleName" />
+                    <show id="party:lastName" />
+
+                    <show id="party:email" />
+
+                    <show id="party:cprNumber" />
+                    <show id="party:partyType" />
+                    <show id="party:personInformationProtection" />
+
+                    <!-- TODO: Better appearance of address fields -->
+                    <show id="party:address" />
+                    <show id="party:houseNumber" />
+                    <show id="party:streetName" />
+                    <show id="party:postBox" />
+                    <show id="party:cityName" />
+                    <show id="party:floorIdentifier" />
+                    <show id="party:suiteIdentifier" />
+                    <show id="party:postCode" />
+                    <show id="party:countryCode" />
+                </field-visibility>
+                <appearance>
+                </appearance>
+            </form>
+        </forms>
+    </config>
+    <config evaluator="node-type" condition="party:person">
+        <forms>
+            <!-- Default edit properties form configuration for a person party -->
+            <form>
+                <field-visibility>
+                    <hide id="cm:name"/>
+
+                    <!-- TODO: Group name fields -->
+                    <show id="party:firstName" />
+                    <show id="party:middleName" />
+                    <show id="party:lastName" />
+
+                    <show id="party:email" />
+
+                    <show id="party:cprNumber" />
+                    <show id="party:partyType" />
+                    <show id="party:personInformationProtection" />
+
+                    <!-- TODO: Better appearance of address fields -->
+                    <show id="party:address" />
+                    <show id="party:houseNumber" />
+                    <show id="party:streetName" />
+                    <show id="party:postBox" />
+                    <show id="party:cityName" />
+                    <show id="party:floorIdentifier" />
+                    <show id="party:suiteIdentifier" />
+                    <show id="party:postCode" />
+                    <show id="party:countryCode" />
+                </field-visibility>
+                <appearance>
+                </appearance>
+            </form>
+        </forms>
+    </config>
+
+
+    <config evaluator="model-type" condition="party:organization">
+        <forms>
+            <!-- Default create content form configuration for an organization party -->
+            <form>
+                <field-visibility>
+                    <hide id="cm:name"/>
+                    <show id="party:organizationName" />
+                    <show id="party:email" />
+
+                    <show id="party:cvrNumber" />
+
+                    <show id="party:members" />
+
+                    <!-- TODO: Better appearance of address fields -->
+                    <show id="party:address" />
+                    <show id="party:houseNumber" />
+                    <show id="party:streetName" />
+                    <show id="party:postBox" />
+                    <show id="party:cityName" />
+                    <show id="party:floorIdentifier" />
+                    <show id="party:suiteIdentifier" />
+                    <show id="party:postCode" />
+                    <show id="party:countryCode" />
+                </field-visibility>
+                <appearance>
+                </appearance>
+            </form>
+        </forms>
+    </config>
+    <config evaluator="node-type" condition="party:organization">
+        <forms>
+            <!-- Default edit properties form configuration for an organization party -->
+            <form>
+                <field-visibility>
+                    <hide id="cm:name"/>
+
+                    <show id="party:organizationName" />
+                    <show id="party:email" />
+
+                    <show id="party:cvrNumber" />
+
+                    <show id="party:members" />
+
+                    <!-- TODO: Better appearance of address fields -->
+                    <show id="party:address" />
+                    <show id="party:houseNumber" />
+                    <show id="party:streetName" />
+                    <show id="party:postBox" />
+                    <show id="party:cityName" />
+                    <show id="party:floorIdentifier" />
+                    <show id="party:suiteIdentifier" />
+                    <show id="party:postCode" />
+                    <show id="party:countryCode" />
+                </field-visibility>
+                <appearance>
+                </appearance>
+            </form>
+        </forms>
+    </config>
+</alfresco-config>
