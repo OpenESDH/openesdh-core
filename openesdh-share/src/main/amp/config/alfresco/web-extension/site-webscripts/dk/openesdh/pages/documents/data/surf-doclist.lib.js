@@ -361,6 +361,10 @@ var DocList =
                 fnProcessItem(item);
             }
         }
+        //Proces the main document if it exists. Required for the actions to appear
+        if (doclist.mainDocument) {
+            fnProcessItem(doclist.mainDocument);
+        }
     },
 
     /**

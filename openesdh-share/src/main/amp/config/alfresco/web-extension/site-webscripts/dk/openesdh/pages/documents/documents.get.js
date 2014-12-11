@@ -19,11 +19,11 @@
 // as non-AMD dependencies in the widgets referenced on the page. In the meantime this page will be rendered as a hybrid.
 // var widgets = getHeaderModel().concat([getDocumentLibraryModel("", "", user.properties['userHome'])]);
 
-var tmp = url.args.nodeRef;
+var caseNode = url.args.nodeRef;
 
-var documentNode = getCaseDocumentNodeRef(tmp);
+var documentNode = getCaseDocumentNodeRef(caseNode);
 var services = getDocumentLibraryServices(null, null, documentNode);
-var widgets = [getDocumentLibraryModel(null, null, documentNode)];
+var widgets = [getDocumentLibraryModel(null, null, documentNode, caseNode)];
 
 // Change the root label of the tree to be "My Files" rather than "Documents"
 var tree = widgetUtils.findObject(widgets, "id", "DOCLIB_TREE");
@@ -38,7 +38,7 @@ model.jsonModel = {
             id: "SET_PAGE_TITLE",
             name: "alfresco/header/SetTitle",
             config: {
-                title: "My Files"
+                title: "Case Library"
             }
         },
         {

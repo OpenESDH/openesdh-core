@@ -66,6 +66,7 @@ var Filters =
             language: "lucene",
             templates: null,
             variablePath: true,
+            caseCard: "",
             ignoreTypes: Filters.IGNORED_TYPES,
             ignoreAspects: Filters.IGNORED_ASPECTS
         };
@@ -198,12 +199,6 @@ var Filters =
             case "syncedErrors":
                 filterQuery = this.constructPathQuery(parsedArgs);
                 filterQuery += " +ASPECT:\"sync:failed\"";
-                filterParams.query = filterQuery;
-                break;
-
-            case "main":
-                filterQuery = this.constructPathQuery(parsedArgs);
-                filterQuery += " +ASPECT:\"doc:main\"";
                 filterParams.query = filterQuery;
                 break;
 
