@@ -19,6 +19,8 @@ define(["dojo/_base/declare",
 
            showRoles : true,
 
+           currentData: null,
+
            /**
             * An array of the i18n files to use with this widget.
             *
@@ -45,7 +47,7 @@ define(["dojo/_base/declare",
           },
 
           //Table Headers
-          //TODO to fix : visibility config for table headers do not work,
+          //TODO fix : visibility config for table headers do not work,
           widgetsForHeader: [
               {
                 name: "alfresco/documentlibrary/views/layouts/HeaderCell",
@@ -71,7 +73,8 @@ define(["dojo/_base/declare",
                         rules: [{
                             topic: "SHOW_ROLES_COLUMN",
                             attribute: "showRole",
-                            isNot: false
+                            is:[true],
+                            isNot: [false]
                         }]
                     }
                 }
@@ -92,21 +95,19 @@ define(["dojo/_base/declare",
                          name: "alfresco/documentlibrary/views/layouts/Cell",
                          config: {
                             additionalCssClasses: "mediumpad",
-                            widgets: [{ name: "openesdh/common/widgets/renderers/personThumbnail" }]
+                            widgets: [{ name: "openesdh/common/widgets/renderers/PersonThumbnail" }]
                          }
                       },
                       {
                          name: "alfresco/documentlibrary/views/layouts/Cell",
                          config: {
                             additionalCssClasses: "mediumpad",
-                            widgets: [
-                               {
+                            widgets: [{
                                   name: "openesdh/common/widgets/renderers/CaseMemberName",
                                   config: {
                                      propertyToRender: "displayName"
                                   }
-                               }
-                            ]
+                           }]
                          }
                       },
                       {
@@ -126,7 +127,8 @@ define(["dojo/_base/declare",
                                  rules: [{
                                      topic: "SHOW_ROLES_COLUMN",
                                      attribute: "showRole",
-                                     isNot: false
+                                     is:[true],
+                                     isNot: [false]
                                  }]
                              }
                          }

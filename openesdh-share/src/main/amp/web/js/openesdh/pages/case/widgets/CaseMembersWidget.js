@@ -33,7 +33,7 @@ define(["dojo/_base/declare",
                 //this.caseNodeRef = args.caseNodeRef ;
                 var nodeRefUri =  NodeUtils.processNodeRef(this.caseNodeRef).uri;
 
-                this.loadDataPublishPayload = { url: "api/openesdh/case/members/"+nodeRefUri };
+                this.loadDataPublishPayload = {url: "api/openesdh/case/members/"+nodeRefUri };
 
                 //Inject the view widgets required by the list widget inherited from
                 //alfresco/lists/AlfList#postCreate ~(270)

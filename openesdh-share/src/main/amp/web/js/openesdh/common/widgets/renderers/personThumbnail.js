@@ -20,7 +20,7 @@
 /**
  * Renders a standard large thumbnail for a node.
  *
- * @module openesdh/common/widgets/renderers/personThumbnail
+ * @module openesdh/common/widgets/renderers/PersonThumbnail
  * @extends alfresco/renderers/Thumbnail
  * @author Lanre Abiwon
  */

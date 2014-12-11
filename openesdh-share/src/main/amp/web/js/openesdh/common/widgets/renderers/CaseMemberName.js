@@ -31,14 +31,13 @@ define(["dojo/_base/declare",
         "alfresco/renderers/Property",
         "alfresco/core/ObjectTypeUtils",
         "alfresco/core/UrlUtils",
-        "alfresco/dialogs/AlfDialog",
-        "alfresco/buttons/AlfButton",
-        "dojo/on",
-        "dojo/_base/lang"],
-    function (declare, Property, ObjectTypeUtils, UrlUtils, AlfDialog, AlfButton, on, lang) {
+        "dojo/_base/lang",
+        "dijit/_OnDijitClickMixin",
+        "alfresco/navigation/Link","dojo/dom-construct",
+        "openesdh/common/services/_CaseMembersServiceTopicsMixin"],
+    function (declare, Property, ObjectTypeUtils, UrlUtils, lang, _OnDijitClickMixin, Link, domConstruct, CaseMembersServiceTopics) {
 
-        return declare([Property, UrlUtils], {
-
+        return declare([Property, UrlUtils, CaseMembersServiceTopics], {
 
             statusDialog: null,
 
@@ -48,150 +47,73 @@ define(["dojo/_base/declare",
              * @instance
              */
             postMixInProperties: function openesdh_case_dashlet_name_renderers__postMixInProperties() {
-                if (this.label != null) {
-                    this.label = this.message(this.label) + ": ";
-                }
-                else {
-                    this.label = "";
-                }
-
-                if (ObjectTypeUtils.isString(this.propertyToRender) &&
-                    ObjectTypeUtils.isObject(this.currentItem) &&
-                    lang.exists(this.propertyToRender, this.currentItem)) {
-                    this.renderPropertyNotFound = false;
-                    this.originalRenderedValue = this.getRenderedProperty(this.currentItem);
-                    this.renderedValue = this.mapValueToDisplayValue(this.originalRenderedValue);
-                }
-                else {
-                    this.alfLog("log", "Property does not exist:", this);
-                }
-
-                this.renderedValueClass = this.renderedValueClass + " " + this.renderSize;
-
-                if (this.renderOnNewLine == true) {
-                    this.renderedValueClass = this.renderedValueClass + " block";
-                }
-
-                // If the renderedValue is not set then display a warning message if requested...
-                if ((this.renderedValue == null || this.renderedValue == "") && this.warnIfNotAvailable) {
-                    // Get appropriate message
-                    // Check message based on propertyToRender otherwise default to sensible alternative
-                    var warningKey = this.warnIfNoteAvailableMessage,
-                        warningMessage = "";
-                    if (warningKey == null) {
-                        warningKey = "no." + this.propertyToRender + ".message";
-                        warningMessage = this.message(warningKey);
-                        if (warningMessage == warningKey) {
-                            warningMessage = this.message("no.property.message", {0: this.propertyToRender});
-                        }
-                    }
-                    else {
-                        warningMessage = this.message(warningKey);
-                    }
-                    this.renderedValue = warningMessage;
-                    this.renderedValueClass += " faded";
-                }
-                else if ((this.renderedValue == null || this.renderedValue == "") && !this.warnIfNotAvailable) {
-                    // Reset the prefix and suffix if there's no data to display
-                    this.requestedValuePrefix = this.renderedValuePrefix;
-                    this.requestedValueSuffix = this.renderedValueSuffix;
-                    this.renderedValuePrefix = "";
-                    this.renderedValueSuffix = "";
-                }
+               //Intentionally do nothing
             },
 
             postCreate: function alfresco_header_CurrentUserStatus__postCreate() {
                 this.inherited(arguments);
-                //this.alfSubscribe("OPENESDH_SHOW_CASE_GROUP_MEMBERS", lang.hitch(this, "showGroupMembersDialog"));
-                if(this.currentItem.isGroup)
-                    on(this.renderedValueNode, "click", lang.hitch(this, "showGroupMembersDialog"));
+                if(this.currentItem.isGroup || this.currentItem.authorityType == "GROUP") {
+                    var groupShortName = this.currentItem.isGroup ? this._getGroupShortName(this.currentItem.authority) : this.currentItem.shortName; //strip the "GROUP_" from the auth name
+                    var groupLink = this.groupMembersLink(groupShortName, this.currentItem.displayName);
+                    groupLink.placeAt(this.renderedValueNode);
+                }
+                else{
+                    var userName = this.currentItem.authority ? this.currentItem.authority : this.currentItem.shortName ;
+                    var profileLink = this.getUserProfileLink(userName, this.currentItem.displayName);
+                    profileLink.placeAt(this.renderedValueNode);
+                }
             },
-
 
             /**
              * @instance
              * @param {string} property The name of the property to render
              */
             getRenderedProperty: function alfresco_renderers_Property__getRenderedProperty(property) {
-                var value = "";
-                if (property == null) {
-                    // No action required if a property isn't supplied
-                    console.log("=====> Property is NULL <=====");
-                }
-
-                else if (ObjectTypeUtils.isObject(property)) {
-                    if ( !property.isGroup)
-                        value = Alfresco.util.userProfileLink(property.authority, property.displayName);
-                    else
-                        value = this.groupMembersLink(property.displayName);
-
-                }
-                /*
-                else if (property.hasOwnProperty("displayName")) {
-                    value = this.encodeHTML(property.displayName || "");
-                }
-                else if (property.hasOwnProperty("title")) {
-                    value = this.encodeHTML(property.title || "");
-                }
-                else if (property.hasOwnProperty("name")) {
-                        value = this.encodeHTML(property.name || "");
-                }
-                */
-
-                return value;
+                //Intentionally do nothing to prevent double posting of displayed property
             },
 
-            showGroupMembersDialog : function  openesdh_generate_group_members_link(payload) {
-                if (this.statusDialog == null) {
-
-                    var gShortName = this.currentItem.authority.substring(6, this.currentItem.authority.length);
-
-                    //TODO perhaps hitch this to a topic that provides a function to teardown the dialog and remove it on close
-                    //this.alfSubscribe(this.postNewUserStatusTopic, lang.hitch(this, "postStatus"));
-                    this.statusDialog = new AlfDialog({
-                        title: this.message("Group Members"),
-                        widgetsContent: [ {
-                                name: "openesdh/pages/case/widgets/CaseGroupMembers",
-                                config: {
-                                    groupShortName: gShortName
-                                }
-                            } ],
-                        widgetsButtons: [
-                            {
-                                name: "alfresco/buttons/AlfButton",
-                                config: {
-                                    label: this.message("Ok")
-                                }
-                            }
-                            /*{
-                                name: "alfresco/buttons/AlfButton",
-                                config: {
-                                    label: this.message("cancel.button.label"),
-                                    publishTopic: this.cancelUserStatusUpdateTopic,
-                                    publishPayload: payload
-                                }
-                            }*/
-                        ]
-                    });
-                }
-                this.statusDialog.show();
-            },
-
-            groupMembersLink: function openesdh_generate_group_members_link(groupName) {
-                var topSpan, enclosingSpan, link;
-                topSpan = '<span>';
-                enclosingSpan = '</span>';
-                link = '<a>' + groupName + '</a>';
-
-                return topSpan+link+enclosingSpan;
-                /*return {
-                    name: "alfresco/navigation/Link",
-                    config: {
-                        label: groupName,
-                        publishTopic: "OPENESDH_SHOW_CASE_GROUP_MEMBERS",
-                        publishPayload: gShortName
+            /**
+             * create an ink object for the group dialog
+             * @param groupName {String}
+             * @param displayName {String}
+             * @returns {alfresco/navigation/Link}
+             */
+            groupMembersLink: function openesdh_generate_group_members_link(groupName, displayName) {
+                return new Link({
+                    label: displayName,
+                    title: displayName,
+                    publishTopic: this.CaseMembersGroupGet,
+                    publishPayload: {
+                        groupShortName: groupName
                     }
-                }*/
+                });
+            },
+
+            /**
+             * create a link object for the userprofile link
+             * @param userName {String}
+             * @param displayName {String}
+             * @returns {alfresco/navigation/Link}
+             */
+            getUserProfileLink: function openesdh_generate_group_members_link(userName, displayName) {
+                return new Link({
+                    label: displayName,
+                    title: displayName,
+                    publishTopic: this.CaseNavigateToUserProfilePage,
+                    publishPayload: {
+                        userName: userName
+                    }
+                });
+            },
+
+            /**
+             * trim "GROUP_" from the fullAuthorityName to return the group short name
+             * @param fullAuthorityName {String}
+             * @returns {string}
+             */
+            _getGroupShortName: function openesdh_extract_group_shortName(fullAuthorityName){
+                return fullAuthorityName.substring(6, fullAuthorityName.length);
             }
+
         });
     });

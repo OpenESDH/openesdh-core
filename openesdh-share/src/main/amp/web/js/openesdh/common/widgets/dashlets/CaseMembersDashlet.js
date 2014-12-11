@@ -26,10 +26,13 @@
  */
 define(["dojo/_base/declare",
         "alfresco/core/Core",
-        "alfresco/dashlets/Dashlet"],
-    function(declare, AlfCore, Dashlet) {
+        "alfresco/dialogs/AlfDialog",
+        "dojo/_base/lang",
+        "alfresco/dashlets/Dashlet" ,
+        "openesdh/common/services/_CaseMembersServiceTopicsMixin"],
+    function(declare, AlfCore, AlfDialog, lang, Dashlet, CaseMembersServiceTopicsMixin) {
 
-        return declare([Dashlet], {
+        return declare([Dashlet, CaseMembersServiceTopicsMixin], {
 
             /**
              * The i18n scope to use for this widget.
@@ -49,10 +52,42 @@ define(["dojo/_base/declare",
 
             caseNodeRef: null,
 
+            statusDialog: null,
+
             constructor: function(args) {
                 this.inherited(arguments);
                 this.caseNodeRef = args.caseNodeRef;
                 this.widgetsForBody[0].config.caseNodeRef = this.caseNodeRef;
+
+                this.alfSubscribe(this.CaseMembersGroupRetrieved , lang.hitch(this, "showGroupMembersDialog"));
+            },
+
+            showGroupMembersDialog : function  openesdh_generate_group_members_link(payload) {
+                //Seeing as the tableview is pased the data as opposed to subscribing to a data return topic,
+                //we push the payload into the expected data structure that AlfList#processLoadedData requires
+                var data = { items: payload.members};
+                if (this.statusDialog == null) {
+                    //TODO perhaps hitch this to a topic that provides a function to teardown the dialog and remove it on close
+                    //this.alfSubscribe(this.postNewUserStatusTopic, lang.hitch(this, "postStatus"));
+                    this.statusDialog = new AlfDialog({
+                        title: this.message("Group Members"),
+                        widgetsContent: [ {
+                            name: "openesdh/common/widgets/dashlets/views/UserInfoTableView",
+                            config: {
+                                subscribeToDocRequests: false,
+                                showRoles: false,
+                                currentData: data
+                            }
+                        } ],
+                        widgetsButtons: [{
+                            name: "alfresco/buttons/AlfButton",
+                            config: {
+                                label: this.message("Ok")
+                            }
+                        }]
+                    });
+                }
+                this.statusDialog.show();
             },
 
             /**

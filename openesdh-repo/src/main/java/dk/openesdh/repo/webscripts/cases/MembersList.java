@@ -66,8 +66,7 @@ public class MembersList extends DeclarativeWebScript {
             for (String authority : value) {
                 JSONObject memberObj = new JSONObject();
                 boolean isGroup = authority.startsWith("GROUP_");
-                memberObj.put("authorityType", isGroup ? "group" : "user");
-                memberObj.put("authorityType", "user");
+                memberObj.put("authorityType", isGroup ? "GROUP" : "USER");
                 memberObj.put("authority", authority);
 
                 NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef(authority);

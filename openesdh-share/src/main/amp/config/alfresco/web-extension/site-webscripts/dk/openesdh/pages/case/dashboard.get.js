@@ -1,7 +1,7 @@
 var caseNodeRef = url.args.nodeRef;
 
 model.jsonModel = {
-    services: [ "alfresco/services/CrudService" ],
+    services: [ "alfresco/services/CrudService", "openesdh/common/services/CaseMembersService" ],
     widgets: [{
             name: "alfresco/layout/HorizontalWidgets",
             config: {
