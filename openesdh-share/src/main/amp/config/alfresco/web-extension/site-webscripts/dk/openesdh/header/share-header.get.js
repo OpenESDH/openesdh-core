@@ -51,14 +51,6 @@ if (headerMenu != null) {
                             {
                                 name: "alfresco/menus/AlfMenuBarItem",
                                 config: {
-                                    id: "CASE_LIBRARY_MENU",
-                                    label: "Case Library",
-                                    targetUrl: "hdp/ws/dk-openesdh-pages-case-dashboard-collection"
-                                }
-                            },
-                            {
-                                name: "alfresco/menus/AlfMenuBarItem",
-                                config: {
                                     label: "Saved Searches",
                                     targetUrl: "/"
                                 }

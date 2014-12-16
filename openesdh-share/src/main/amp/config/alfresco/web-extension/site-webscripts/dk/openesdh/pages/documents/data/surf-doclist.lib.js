@@ -69,7 +69,15 @@ var DocList_Custom = (function () {
         calculateRemoteDataURL: function calculateRemoteDataURL() {
             var finalArgs =  getArgsAsParameters(args);
                 finalArgs = replaceAll("%25", "%2525", finalArgs);
-            return "/api/openesdh/caselist/"+url.templateArgs.params+"?"+finalArgs;
+            //Split the param into two to encode the file name then rejoin with the encoded filename
+            //this takes care of spaces in file name which bugs the view.
+            //Question: Should this be handled server side instead??
+            var caseDocName = url.templateArgs.params;
+            var path = caseDocName.substring(0, caseDocName.lastIndexOf("/")+1);
+            var filename = caseDocName.substring(caseDocName.lastIndexOf("/")+1, caseDocName.length);
+            var encodedFilename = encodeURIComponent(filename);
+
+            return "/api/openesdh/caselist/"+path+encodedFilename+"?"+finalArgs;
         }
     };
 })();

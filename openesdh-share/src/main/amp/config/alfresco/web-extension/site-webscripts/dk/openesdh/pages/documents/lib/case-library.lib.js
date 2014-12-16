@@ -748,7 +748,7 @@ var isMainDocumentView = {
  * @param {string} rootNode The node that is the root of the DocumentLibrary to render
  * @returns {object} An object containing the JSON model for a DocumentLibrary
  */
-function getDocumentLibraryModel(siteId, containerId, rootNode, caseNodeRef) {
+function getDocumentLibraryModel(siteId, containerId, rootNode) {
 
     var docLibModel = {
 

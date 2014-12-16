@@ -8,16 +8,17 @@ import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
-import org.alfresco.service.cmr.repository.AssociationRef;
-import org.alfresco.service.cmr.repository.ChildAssociationRef;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.security.NoSuchPersonException;
+import org.alfresco.service.cmr.repository.*;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
 import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.tika.mime.MimeType;
+import org.apache.tika.mime.MimeTypes;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,6 +31,8 @@ import java.util.*;
  */
 public class DocumentServiceImpl implements DocumentService {
 
+    private static Log LOGGER = LogFactory.getLog(DocumentServiceImpl.class);
+
     private NodeService nodeService;
     private DictionaryService dictionaryService;
     private PersonService personService;
@@ -38,6 +41,9 @@ public class DocumentServiceImpl implements DocumentService {
     private NamespaceService namespaceService;
 
     private BehaviourFilter behaviourFilter;
+
+    private MimeTypes allMimeTypes = MimeTypes.getDefaultMimeTypes();
+    private MimeTypes types;
 
     //<editor-fold desc="Setters">
     public void setCaseService(CaseService caseService) {
@@ -146,6 +152,15 @@ public class DocumentServiceImpl implements DocumentService {
 
                         String fileName = (String) nodeService.getProperty(fileNodeRef, ContentModel.PROP_NAME);
                         String documentName = FilenameUtils.removeExtension(fileName);
+                        //It is common that users create a file without adding an extension to the file name
+                        //so originally we decided to add a .txt by default but instead it is better to attempt
+                        //Mimetype detection and add the extension
+                        if (!DocumentServiceImpl.hasFileExtentsion(fileName)){
+                            ContentData fileDataType = (ContentData) nodeService.getProperty(fileNodeRef, ContentModel.PROP_CONTENT);
+                            MimeType contentMimeType = allMimeTypes.forName(fileDataType.getMimetype());
+                            fileName += contentMimeType.getExtension();
+                            nodeService.setProperty(fileNodeRef, ContentModel.PROP_NAME, fileName);
+                        }
 
                         //TODO Check if disabling behaviour is needed
                         behaviourFilter.disableBehaviour();
@@ -216,5 +231,15 @@ public class DocumentServiceImpl implements DocumentService {
             responsibles.add(this.personService.getPerson(person.getTargetRef()));
 
         return responsibles;
+    }
+
+    /**
+     * Returns true if the file name has an extension
+     * @param filename the string representation of the filename in question
+     * @return {boolean}
+     */
+    public static boolean hasFileExtentsion(String filename){
+        String fileNameExt =  FilenameUtils.getExtension(filename);
+        return StringUtils.isNotEmpty(fileNameExt);
     }
 }

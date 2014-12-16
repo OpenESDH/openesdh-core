@@ -28,8 +28,6 @@ public class MembersList extends DeclarativeWebScript {
     private PersonService personService;
     private NodeService nodeService;
 
-
-
     @Override
     protected Map<String, Object> executeImpl(WebScriptRequest req, Status status, Cache cache){
 //        NodeRef caseNodeRef = new NodeRef(req.getParameter("nodeRef"));
