@@ -1,6 +1,7 @@
 package dk.openesdh.repo.webscripts.cases;
 
 import dk.openesdh.repo.services.cases.CaseService;
+import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthorityService;
@@ -12,7 +13,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.extensions.webscripts.*;
 
-import javax.swing.text.html.parser.ContentModel;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -74,7 +74,7 @@ public class MembersList extends DeclarativeWebScript {
                     PersonService.PersonInfo personInfo = personService.getPerson(authorityNodeRef);
                     displayName = personInfo.getFirstName() + " " + personInfo.getLastName();
                     try {
-                        NodeRef avatarNodeRef = this.nodeService.getTargetAssocs(personInfo.getNodeRef(), org.alfresco.model.ContentModel.ASSOC_AVATAR).get(0).getTargetRef();
+                        NodeRef avatarNodeRef = this.nodeService.getTargetAssocs(personInfo.getNodeRef(), ContentModel.ASSOC_AVATAR).get(0).getTargetRef();
                         //Inject avatar node if it exists.
                         if (avatarNodeRef != null) {
                             memberObj.put("avatarNodeRef", avatarNodeRef);
