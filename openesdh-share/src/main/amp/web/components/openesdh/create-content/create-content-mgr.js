@@ -17,7 +17,6 @@
  * along with Alfresco. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 var OpenESDH = OpenESDH || {};
 
 /**
@@ -26,8 +25,7 @@ var OpenESDH = OpenESDH || {};
  * @namespace OpenESDH
  * @class OpenESDH.CreateContentMgr
  */
-(function()
-{
+(function () {
 
     /**
      * Alfresco Slingshot aliases
@@ -41,14 +39,12 @@ var OpenESDH = OpenESDH || {};
      * @return {OpenESDH.CreateContentMgr} The new CreateContentMgr instance
      * @constructor
      */
-    OpenESDH.CreateContentMgr = function CreateContentMgr_constructor(htmlId)
-    {
+    OpenESDH.CreateContentMgr = function CreateContentMgr_constructor(htmlId) {
         OpenESDH.CreateContentMgr.superclass.constructor.call(this, "OpenESDH.CreateContentMgr", htmlId);
         return this;
     };
 
-    YAHOO.extend(OpenESDH.CreateContentMgr, Alfresco.CreateContentMgr,
-        {
+    YAHOO.extend(OpenESDH.CreateContentMgr, Alfresco.CreateContentMgr, {
             /**
              * Displays the corresponding details page for the current node
              *
@@ -56,35 +52,29 @@ var OpenESDH = OpenESDH || {};
              * @private
              * @param nodeRef {Alfresco.util.NodeRef} Optional: NodeRef of just-created content item
              */
-            _navigateForward: function CreateContentMgr__navigateForward(nodeRef)
-            {
+            _navigateForward: function CreateContentMgr__navigateForward(nodeRef) {
                 /* Have we been given a nodeRef from the Forms Service? */
-                if (YAHOO.lang.isObject(nodeRef))
-                {
-                    window.location.href = $siteURL("hdp/ws/dk-openesdh-pages-case-dashboard?nodeRef=" + nodeRef.toString());
+                if (YAHOO.lang.isObject(nodeRef)) {
+                    this.options.siteId ? window.location.href = $siteURL((this.options.isContainer ? "folder" : "document") + "-details?nodeRef=" + nodeRef.toString())
+                        : window.location.href = $siteURL("hdp/ws/dk-openesdh-pages-case-dashboard?nodeRef=" + nodeRef.toString());
                 }
-                else if (document.referrer)
-                {
+                else if (document.referrer) {
                     /* Did we come from the document library? If so, then direct the user back there */
-                    if (document.referrer.match(/documentlibrary([?]|$)/) || document.referrer.match(/repository([?]|$)/))
-                    {
+                    if (document.referrer.match(/documentlibrary([?]|$)/) || document.referrer.match(/repository([?]|$)/)) {
                         // go back to the referrer page
                         history.go(-1);
                     }
-                    else
-                    {
+                    else {
                         document.location.href = document.referrer;
                     }
                 }
-                else if (this.options.siteId && this.options.siteId !== "")
-                {
+                else if (this.options.siteId && this.options.siteId !== "") {
                     // In a Site, so go back to the document library root
                     window.location.href = $siteURL("documentlibrary");
                 }
-                else
-                {
+                else {
                     window.location.href = Alfresco.constants.URL_CONTEXT;
                 }
             }
-        });
+    });
 })();

@@ -233,6 +233,22 @@ public class DocumentServiceImpl implements DocumentService {
         return responsibles;
     }
 
+    @Override
+    public NodeRef getCaseNodeRef(NodeRef nodeRef) {
+        NodeRef caseNodeRef = null;
+        QName nodeRefType = this.nodeService.getType(nodeRef);
+        if (dictionaryService.isSubClass(nodeRefType, OpenESDHModel.TYPE_CASE_SIMPLE) ) {
+            caseNodeRef = nodeRef;
+        }
+        else {
+            ChildAssociationRef primaryParent = this.nodeService.getPrimaryParent(nodeRef);
+            if (primaryParent != null && primaryParent.getParentRef() != null) {
+                caseNodeRef = getCaseNodeRef(primaryParent.getParentRef());
+            }
+        }
+        return caseNodeRef;
+    }
+
     /**
      * Returns true if the file name has an extension
      * @param filename the string representation of the filename in question

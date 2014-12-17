@@ -75,16 +75,12 @@
                 <updatePolicy>daily</updatePolicy>
             </snapshots>
         </repository>
-
-
     </repositories>
 
     <modules>
         <module>openesdh-repo</module>
         <module>openesdh-share</module>
     </modules>
-
-
 
     <profiles>
 
@@ -119,6 +115,26 @@
                         </dependencies>
                     </plugin>
 
+                </plugins>
+            </build>
+        </profile>
+
+        <!--Scala profile-->
+        <profile>
+            <id>include-scala</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.scala-tools</groupId>
+                        <artifactId>maven-scala-plugin</artifactId>
+                        <version>2.15.2</version>
+                        <configuration>
+                            <charset>UTF-8</charset>
+                            <jvmArgs>
+                                <jvmArg>-Xmx1024m</jvmArg>
+                            </jvmArgs>
+                        </configuration>
+                    </plugin>
                 </plugins>
             </build>
         </profile>
