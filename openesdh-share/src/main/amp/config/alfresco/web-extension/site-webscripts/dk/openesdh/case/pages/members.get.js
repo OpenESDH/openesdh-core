@@ -1,4 +1,4 @@
-<import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/utils/case.js">//</import>
+<import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/utils/case.js">
 
 var args = page.url.args;
 

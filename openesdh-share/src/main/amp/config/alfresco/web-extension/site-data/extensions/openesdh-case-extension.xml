@@ -14,7 +14,7 @@
             <customizations>
                 <customization>
                     <targetPackageRoot>org.alfresco.share.header</targetPackageRoot>
-                    <sourcePackageRoot>dk.openesdh.pages.case.header</sourcePackageRoot>
+                    <sourcePackageRoot>dk.openesdh.case.pages.navigation.header</sourcePackageRoot>
                 </customization>
             </customizations>
         </module>

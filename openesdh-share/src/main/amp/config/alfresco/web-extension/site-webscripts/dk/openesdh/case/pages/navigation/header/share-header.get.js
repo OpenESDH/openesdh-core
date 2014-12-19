@@ -29,7 +29,7 @@ navMenu.config.widgets.push({
     }
 });
 
-
+//TODO The link to this page does not work. The service call for the data is not correct. Why is this so?
 navMenu.config.widgets.push({
     id: "HEADER_CASE_MEMBERS",
     name: "alfresco/menus/AlfMenuBarItem",

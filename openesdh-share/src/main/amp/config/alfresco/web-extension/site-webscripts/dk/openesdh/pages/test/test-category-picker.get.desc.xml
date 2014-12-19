@@ -1,6 +1,0 @@
-<webscript>
-    <shortname>Test category picker</shortname>
-    <description>Test category picker</description>
-    <family>Share</family>
-    <url>/test-category-picker?nodeRef={nodeRef}</url>
-</webscript>

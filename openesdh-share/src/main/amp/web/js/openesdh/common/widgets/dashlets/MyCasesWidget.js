@@ -10,7 +10,7 @@
 define(["dojo/_base/declare",
         "dijit/_WidgetBase",
         "dijit/_TemplatedMixin",
-        "dojo/text!./templates/Grid.html",
+        "dojo/text!./../../../pages/case/widgets/templates/Grid.html",
         "alfresco/core/Core",
         "alfresco/core/CoreXhr",
         "dojo/dom",
@@ -208,7 +208,7 @@ define(["dojo/_base/declare",
                 // The proper workaround would be to figure out why the test is failing to detect the correct size in certain circumstances
                 var defaultSize = 16;
                 var _this = this;
-                require(["dojo/has", "put-selector/put"], function (has, put) {
+                require(["dojo/has", "../../../../dgrid-deps/put-selector/put"], function (has, put) {
                     function cleanupTestElement(element) {
                         element.className = "";
                         document.body.removeChild(element);
