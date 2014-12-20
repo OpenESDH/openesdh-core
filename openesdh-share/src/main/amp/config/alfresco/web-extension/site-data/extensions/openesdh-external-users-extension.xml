@@ -1,0 +1,25 @@
+<extension>
+
+    <modules>
+
+        <module>
+            <id>OPENESDH external user config</id>
+            <description>Changes for external users. People invited by mail to join a case</description>
+            <auto-deploy>true</auto-deploy>
+            <evaluator type="group.module.evaluator">
+                <params>
+                    <groups>GROUP_OPENESDH_external_users</groups>
+                </params>
+            </evaluator>
+
+            <customizations>
+                <customization>
+                    <targetPackageRoot>org.alfresco</targetPackageRoot>
+                    <sourcePackageRoot>dk.openesdh.users.external</sourcePackageRoot>
+                </customization>
+            </customizations>
+
+        </module>
+    </modules>
+
+</extension>
