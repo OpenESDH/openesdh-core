@@ -1,5 +1,46 @@
 <import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/utils/parties.js">//</import>
 
+function getSelectedItemActions(partyType) {
+    var actionsMenu = {
+        id: "CONTACTS_SELECTED_ITEMS_MENU",
+        name: "alfresco/documentlibrary/AlfSelectedItemsMenuBarPopup",
+        config: {
+            label: msg.get("parties.tool.actions"),
+            widgets: [
+                {
+                    id: "DOCLIB_SELECTED_ITEMS_MENU_GROUP1",
+                    name: "alfresco/menus/AlfMenuGroup",
+
+                    config: {
+                        widgets: getMultiSelectActions(partyType)
+                    }
+                }
+            ]
+        }
+    };
+    return actionsMenu;
+}
+
+function getMultiSelectActions(partyType) {
+    var partyTypeId = partyType.replace(":", "_");
+    var actionSet = [];
+
+    var action = {
+        name: "alfresco/menus/AlfMenuItem",
+        config: {
+            iconImage: url.context + "/res/components/images/delete-16.png",
+            label: msg.get("parties.tool.delete-multiple." + partyTypeId + ".action"),
+            publishTopic: "CONTACTS_DELETE_MULTIPLE",
+            publishPayload: {
+                contactType: partyType
+            },
+            publishGlobal: true
+        }
+    };
+    actionSet.push(action);
+    return actionSet;
+}
+
 function generatePartyTableView(partyType) {
     var partyTypeId = partyType.replace(":", "_");
     return {
@@ -16,12 +57,34 @@ function generatePartyTableView(partyType) {
                     config: {}
                 }
             ],
+            extraWidgetsForHeaderBefore: [
+                {
+                    name: "alfresco/documentlibrary/views/layouts/HeaderCell",
+                    config: {
+                        label: '',
+                        sortable: false
+                    }
+                }
+            ],
             extraWidgetsForHeader: [
                 {
                     name: "alfresco/documentlibrary/views/layouts/HeaderCell",
                     config: {
                         label: msg.get("parties.tool.actions"),
                         sortable: false
+                    }
+                }
+            ],
+            extraRowWidgetsBefore: [
+                {
+                    name: "alfresco/documentlibrary/views/layouts/Cell",
+                    config: {
+                        additionalCssClasses: "mediumpad",
+                        widgets: [
+                            {
+                                name: "alfresco/renderers/Selector"
+                            }
+                        ]
                     }
                 }
             ],
@@ -174,6 +237,63 @@ function generatePartyPageWidgets(partyType) {
                         textBoxRequirementConfig: {
                             initialValue: false
                         }
+                    }
+                },
+                {
+                    id: "PARTY_LIST_TOOLBAR",
+                    name: "alfresco/menus/AlfMenuBar",
+                    align: "left",
+                    config: {
+                        widgets: [
+                            {
+                                name: "alfresco/documentlibrary/AlfSelectDocumentListItems",
+                                config: {
+                                    widgets: [
+                                        {
+                                            name: "alfresco/menus/AlfMenuGroup",
+                                            config: {
+                                                widgets: [
+                                                    {
+                                                        name: "alfresco/menus/AlfMenuItem",
+                                                        config: {
+                                                            label: "All",
+                                                            publishTopic: "ALF_DOCLIST_FILE_SELECTION",
+                                                            publishPayload: {
+                                                                label: "select.all.label",
+                                                                value: "selectAll"
+                                                            }
+                                                        }
+                                                    },
+                                                    {
+                                                        name: "alfresco/menus/AlfMenuItem",
+                                                        config: {
+                                                            label: "None",
+                                                            publishTopic: "ALF_DOCLIST_FILE_SELECTION",
+                                                            publishPayload: {
+                                                                label: "select.none.label",
+                                                                value: "selectNone"
+                                                            }
+                                                        }
+                                                    },
+                                                    {
+                                                        name: "alfresco/menus/AlfMenuItem",
+                                                        config: {
+                                                            label: "Invert",
+                                                            publishTopic: "ALF_DOCLIST_FILE_SELECTION",
+                                                            publishPayload: {
+                                                                label: "invert.selection.label",
+                                                                value: "selectInvert"
+                                                            }
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            getSelectedItemActions(partyType)
+                        ]
                     }
                 },
                 partyList,

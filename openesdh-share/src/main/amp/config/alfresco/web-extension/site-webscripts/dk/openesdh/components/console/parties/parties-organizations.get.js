@@ -7,6 +7,7 @@ var services = [],
 
 // Append required services...
 services.push("openesdh/common/services/CrudService",
+    "openesdh/common/services/ContactsActionService",
     "alfresco/services/OptionsService",
     "alfresco/dialogs/AlfDialogService",
     "alfresco/services/NotificationService",
