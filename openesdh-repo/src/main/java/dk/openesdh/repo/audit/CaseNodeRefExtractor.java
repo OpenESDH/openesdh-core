@@ -48,14 +48,14 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
       // received a NodeRef object, we know this is a permission change
       // therefore we always have a path
       NodeRef nodeRef = (NodeRef) value;
-      System.out.println( "NODEREF IN EXTRACT DATA: " + nodeRef.getId() + "\n\n" );
+      System.out.println("("+ getClass().getCanonicalName() + ") NODEREF IN EXTRACT DATA: " + nodeRef.getId() + "\n\n" );
       Path path = nodeService.getPath(nodeRef);
       result = nodeRef.toString();
     } else if (value instanceof String) {
       String str = (String) value;
       //System.out.println( "EXTRACT DATA: STRING:" + str + "\n\n" );
-      if (str.startsWith("GROUP_case_")) {
-          System.out.println("this is a group thingie");
+      if (str.startsWith("("+ getClass().getCanonicalName() + ") GROUP_case_")) {
+          System.out.println("this is a group thing");
         String[] parts = str.split("_");
         if (parts.length < 3) {
             System.out.println(("null"));
@@ -70,13 +70,13 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
       }
     }
     // TODO: check that what is returned is actually a case, return null otherwise
-    System.out.println( "THE GREAT RESULT FROM EXTRACT DATA: " + result + "\n\n");
+    System.out.println("("+ getClass().getCanonicalName() + ") THE GREAT RESULT FROM EXTRACT DATA: " + result + "\n\n");
     return result;
   }
 
   private String getNodeRefFromPath(String path) {
 
-    System.out.println( "EXTRACT DATA: getNodeRefFromPath.path: " + path + "\n\n" );
+    System.out.println("("+ getClass().getCanonicalName() + ") EXTRACT DATA: getNodeRefFromPath.path: " + path + "\n\n" );
     String prefix = "/app:company_home/case:openesdh_cases/";
     if (path.startsWith(prefix)) {
       String[] parts = path.split("/");
@@ -110,7 +110,6 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
 
   private String search(String prefixEncoded, String namespace, String name) {
     String searchStr = prefixEncoded + namespace + ":" + name;
-//    System.out.println( "EXTRACT DATA: getNodeRefFromFullPath.searchStr: " + searchStr + "\n\n" );
     String resultStr = null;
     ResultSet res = null;
     try {

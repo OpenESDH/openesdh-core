@@ -16,10 +16,22 @@ define(["dojo/_base/declare",
             extraWidgetsForHeader: [],
 
             /**
+             * Widgets to be prepended to the header after the columns are loaded.
+             * Could be useful for adding an "Selector" header column.
+             */
+            extraWidgetsForHeaderBefore: [],
+
+            /**
              * Widgets to be appended to the row after the columns are loaded.
              * This could be useful for adding "Actions" cells.
              */
             extraRowWidgets: [],
+
+            /**
+             * Widgets to be prepended to the row.
+             * This could be useful for adding a "Selector" cell.
+             */
+            extraRowWidgetsBefore: [],
 
             /**
              * Topic to publish to when the columns have loaded.
@@ -71,9 +83,15 @@ define(["dojo/_base/declare",
 
                 var rowWidgets = [];
 
+                // Prepend extra row widgets
+                rowWidgets = rowWidgets.concat(this.extraRowWidgetsBefore);
+
                 this.widgets[0].config.widgets = rowWidgets;
 
                 var widgetsForHeader = [];
+
+                // Prepend the extra widgets for the header
+                widgetsForHeader = widgetsForHeader.concat(this.extraWidgetsForHeaderBefore);
 
                 for (var i = 0; i < columns.length; i++) {
                     var property = columns[i];
@@ -92,7 +110,7 @@ define(["dojo/_base/declare",
                     rowWidgets.push({
                         name: "alfresco/documentlibrary/views/layouts/Cell",
                         config: {
-                            additionalCssClasses: "siteName mediumpad",
+                            additionalCssClasses: "mediumpad",
                             widgets: [
                                 {
                                     name: "alfresco/renderers/Property",
@@ -108,7 +126,7 @@ define(["dojo/_base/declare",
                 // Append the extra widgets for the header
                 this.widgetsForHeader = widgetsForHeader.concat(this.extraWidgetsForHeader);
 
-                // Add actions
+                // Add extra row widgets
                 for (var j = 0; j < this.extraRowWidgets.length; j++) {
                     rowWidgets.push(this.extraRowWidgets[j]);
                 }

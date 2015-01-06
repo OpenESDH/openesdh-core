@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<model name="party:partyModel"
+<model name="contact:contactModel"
        xmlns="http://www.alfresco.org/model/dictionary/1.0">
-    <description>OpenESDH Party Model</description>
+    <description>OpenESDH Contact Model</description>
     <author>Seth Yastrov, Flemming Heide Pedersen, Ole Hejlskov,
         Torben Lauritzen
     </author>
@@ -13,26 +13,26 @@
         <import uri="http://www.alfresco.org/model/datalist/1.0" prefix="dl"/>
     </imports>
     <namespaces>
-        <namespace uri="http://openesdh.dk/model/party/1.0/" prefix="party"/>
+        <namespace uri="http://openesdh.dk/model/contact/1.0/" prefix="contact"/>
     </namespaces>
     <constraints>
-        <constraint name="party:cprConstraint" type="REGEX">
+        <constraint name="contact:cprConstraint" type="REGEX">
             <parameter name="expression">
                 <value>^\d{10}$</value>
             </parameter>
         </constraint>
-        <constraint name="party:cvrConstraint" type="REGEX">
+        <constraint name="contact:cvrConstraint" type="REGEX">
             <parameter name="expression">
                 <value>^\d{8}$</value>
             </parameter>
         </constraint>
-        <constraint name="party:emailConstraint" type="REGEX">
+        <constraint name="contact:emailConstraint" type="REGEX">
             <parameter name="expression">
                 <!-- From http://www.w3.org/TR/2012/CR-html5-20121217/forms.html#valid-e-mail-address -->
                 <value><![CDATA[^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$]]></value>
             </parameter>
         </constraint>
-        <constraint name="party:contactTypeConstraint" type="LIST">
+        <constraint name="contact:contactTypeConstraint" type="LIST">
             <parameter name="allowedValues">
                 <list>
                     <value>PERSON</value>
@@ -43,149 +43,150 @@
 
         <!-- FASD-defined data-types -->
         <!-- TODO: move these into separate model -->
-        <constraint name="party:codeConstraint" type="LENGTH">
+        <constraint name="contact:codeConstraint" type="LENGTH">
             <parameter name="maxLength">
                 <value>2</value>
             </parameter>
         </constraint>
-        <constraint name="party:int4" type="MINMAX">
+        <constraint name="contact:int4" type="MINMAX">
             <parameter name="maxValue">
                 <value>9999</value>
             </parameter>
         </constraint>
-        <constraint name="party:char4" type="LENGTH">
+        <constraint name="contact:char4" type="LENGTH">
             <parameter name="maxLength">
                 <value>4</value>
             </parameter>
         </constraint>
-        <constraint name="party:char20" type="LENGTH">
+        <constraint name="contact:char20" type="LENGTH">
             <parameter name="maxLength">
                 <value>20</value>
             </parameter>
         </constraint>
-        <constraint name="party:char34" type="LENGTH">
+        <constraint name="contact:char34" type="LENGTH">
             <parameter name="maxLength">
                 <value>34</value>
             </parameter>
         </constraint>
-        <constraint name="party:char40" type="LENGTH">
+        <constraint name="contact:char40" type="LENGTH">
             <parameter name="maxLength">
                 <value>40</value>
             </parameter>
         </constraint>
-        <constraint name="party:char50" type="LENGTH">
+        <constraint name="contact:char50" type="LENGTH">
             <parameter name="maxLength">
                 <value>50</value>
             </parameter>
         </constraint>
-        <constraint name="party:char70" type="LENGTH">
+        <constraint name="contact:char70" type="LENGTH">
             <parameter name="maxLength">
                 <value>70</value>
             </parameter>
         </constraint>
     </constraints>
     <types>
-        <type name="party:base">
-            <title>Party</title>
+        <type name="contact:base">
+            <title>Contact</title>
             <parent>dl:dataListItem</parent>
             <properties>
                 <!-- FASD: ePostAddresse -->
-                <property name="party:email">
+                <property name="contact:email">
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <constraints>
-                        <constraint ref="party:emailConstraint"/>
+                        <constraint ref="contact:emailConstraint"/>
                     </constraints>
                 </property>
                 <!-- FASD: kontaktType -->
-                <property name="party:contactType">
+                <property name="contact:contactType">
                     <type>d:text</type>
                     <protected>true</protected>
                     <mandatory>true</mandatory>
                     <constraints>
-                        <constraint ref="party:contactTypeConstraint"/>
+                        <constraint ref="contact:contactTypeConstraint"/>
                     </constraints>
                 </property>
             </properties>
             <mandatory-aspects>
-                <aspect>party:address</aspect>
+                <aspect>contact:address</aspect>
             </mandatory-aspects>
         </type>
-        <type name="party:person">
+
+        <type name="contact:person">
             <title>Person</title>
-            <parent>party:base</parent>
+            <parent>contact:base</parent>
             <properties>
                 <!-- FASD: forNavn -->
-                <property name="party:firstName">
+                <property name="contact:firstName">
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <constraints>
-                        <constraint ref="party:char50"/>
+                        <constraint ref="contact:char50"/>
                     </constraints>
                 </property>
                 <!-- FASD: efterNavn -->
-                <property name="party:lastName">
+                <property name="contact:lastName">
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <constraints>
-                        <constraint ref="party:char40"/>
+                        <constraint ref="contact:char40"/>
                     </constraints>
                 </property>
                 <!-- FASD: mellemNavn -->
-                <property name="party:middleName">
+                <property name="contact:middleName">
                     <type>d:text</type>
                     <constraints>
-                        <constraint ref="party:char50"/>
+                        <constraint ref="contact:char50"/>
                     </constraints>
                 </property>
 
                 <!-- FASD: cprNr -->
-                <property name="party:cprNumber">
+                <property name="contact:cprNumber">
                     <type>d:text</type>
                     <constraints>
-                        <constraint ref="party:cprConstraint"/>
+                        <constraint ref="contact:cprConstraint"/>
                     </constraints>
                 </property>
 
                 <!-- FASD: reklameBeskyttelse -->
-                <property name="party:personInformationProtection">
+                <property name="contact:personInformationProtection">
                     <type>d:boolean</type>
                 </property>
             </properties>
             <overrides>
-                <property name="party:contactType">
+                <property name="contact:contactType">
                     <default>PERSON</default>
                 </property>
             </overrides>
         </type>
-        <type name="party:organization">
+        <type name="contact:organization">
             <title>Organization</title>
-            <parent>party:base</parent>
+            <parent>contact:base</parent>
             <properties>
                 <!-- FASD: organisationsNavn -->
-                <property name="party:organizationName">
+                <property name="contact:organizationName">
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <constraints>
-                        <constraint ref="party:char50"/>
+                        <constraint ref="contact:char50"/>
                     </constraints>
                 </property>
                 <!-- FASD: cvrNr -->
-                <property name="party:cvrNumber">
+                <property name="contact:cvrNumber">
                     <type>d:text</type>
                     <constraints>
-                        <constraint ref="party:cvrConstraint"/>
+                        <constraint ref="contact:cvrConstraint"/>
                     </constraints>
                 </property>
             </properties>
             <associations>
-                <child-association name="party:members">
+                <child-association name="contact:members">
                     <source>
                         <mandatory>false</mandatory>
                         <many>true</many>
                     </source>
                     <target>
-                        <class>party:base</class>
+                        <class>contact:base</class>
                         <mandatory>false</mandatory>
                         <many>true</many>
                     </target>
@@ -193,103 +194,103 @@
                 </child-association>
             </associations>
             <overrides>
-                <property name="party:contactType">
+                <property name="contact:contactType">
                     <default>ORGANIZATION</default>
                 </property>
             </overrides>
         </type>
     </types>
     <aspects>
-        <aspect name="party:address">
+        <aspect name="contact:address">
             <title>Address</title>
             <properties>
                 <!-- FASD: adresse -->
                 <!-- The whole address in one field -->
-                <property name="party:address">
+                <property name="contact:address">
                     <type>d:text</type>
                     <!-- TODO: Make this a system-maintained property: -->
                     <!--<protected>true</protected>-->
                     <mandatory>true</mandatory>
                     <constraints>
-                        <constraint ref="party:char70"/>
+                        <constraint ref="contact:char70"/>
                     </constraints>
                 </property>
                 
                 <!-- FASD: adresseLinie1 -->
                 <!-- First line in address description for a foreign address -->
-                <property name="party:addressLine1">
+                <property name="contact:addressLine1">
                     <type>d:text</type>
                     <constraints>
-                        <constraint ref="party:char34"/>
+                        <constraint ref="contact:char34"/>
                     </constraints>
                 </property>
                 <!-- FASD: adresseLinie2 -->
-                <property name="party:addressLine2">
+                <property name="contact:addressLine2">
                     <type>d:text</type>
                     <constraints>
-                        <constraint ref="party:char34"/>
+                        <constraint ref="contact:char34"/>
                     </constraints>
                 </property>
                 <!-- FASD: adresseLinie3 -->
-                <property name="party:addressLine3">
+                <property name="contact:addressLine3">
                     <type>d:text</type>
                     <constraints>
-                        <constraint ref="party:char34"/>
+                        <constraint ref="contact:char34"/>
                     </constraints>
                 </property>
                 <!-- FASD: adresseLinie4 -->
-                <property name="party:addressLine4">
+                <property name="contact:addressLine4">
                     <type>d:text</type>
                     <constraints>
-                        <constraint ref="party:char34"/>
+                        <constraint ref="contact:char34"/>
                     </constraints>
                 </property>
                 <!-- FASD: adresseLinie5 -->
-                <property name="party:addressLine5">
+                <property name="contact:addressLine5">
                     <type>d:text</type>
                     <constraints>
-                        <constraint ref="party:char34"/>
+                        <constraint ref="contact:char34"/>
                     </constraints>
                 </property>
                 <!-- FASD: adresseLinie6 -->
-                <property name="party:addressLine6">
+                <property name="contact:addressLine6">
                     <type>d:text</type>
                     <constraints>
-                        <constraint ref="party:char34"/>
+                        <constraint ref="contact:char34"/>
                     </constraints>
                 </property>
 
                 <!-- FASD: byNavn -->
-                <property name="party:cityName">
+                <property name="contact:cityName">
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <constraints>
-                        <constraint ref="party:char34"/>
+                        <constraint ref="contact:char34"/>
                     </constraints>
                 </property>
 
                 <!-- FASD: postNr -->
-                <property name="party:postCode">
+                <property name="contact:postCode">
                     <type>d:int</type>
                     <mandatory>true</mandatory>
                     <constraints>
-                        <constraint ref="party:int4"/>
+                        <constraint ref="contact:int4"/>
                     </constraints>
                 </property>
 
                 <!-- FASD: landKode -->
-                <property name="party:countryCode">
+                <property name="contact:countryCode">
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <default>DK</default>
                     <constraints>
-                        <constraint ref="party:codeConstraint"/>
+                        <constraint ref="contact:codeConstraint"/>
                     </constraints>
                 </property>
 
 
                 <!-- FASD: etage -->
-                <property name="party:floorIdentifier">
+                <property name="contact:floorIdentifier">
                     <type>d:text</type>
                     <constraints>
                         <constraint type="LENGTH">
@@ -301,66 +302,66 @@
                 </property>
 
                 <!-- FASD: vejNavn -->
-                <property name="party:streetName">
+                <property name="contact:streetName">
                     <type>d:text</type>
                     <constraints>
-                        <constraint ref="party:char40"/>
+                        <constraint ref="contact:char40"/>
                     </constraints>
                 </property>
 
                 <!-- FASD: vejKode -->
-                <property name="party:streetCode">
+                <property name="contact:streetCode">
                     <type>d:text</type>
                     <constraints>
-                        <constraint ref="party:char4"/>
+                        <constraint ref="contact:char4"/>
                     </constraints>
                 </property>
 
                 <!-- FASD: doerBetegnelse -->
-                <property name="party:suiteIdentifier">
+                <property name="contact:suiteIdentifier">
                     <type>d:text</type>
                     <constraints>
-                        <constraint ref="party:char4"/>
+                        <constraint ref="contact:char4"/>
                     </constraints>
                 </property>
 
                 <!-- FASD: postBoks -->
-                <property name="party:postBox">
+                <property name="contact:postBox">
                     <type>d:text</type>
                     <constraints>
-                        <constraint ref="party:char4"/>
+                        <constraint ref="contact:char4"/>
                     </constraints>
                 </property>
 
                 <!-- FASD: postDistrikt -->
-                <property name="party:postDistrict">
+                <property name="contact:postDistrict">
                     <type>d:text</type>
                     <constraints>
-                        <constraint ref="party:char20"/>
+                        <constraint ref="contact:char20"/>
                     </constraints>
                 </property>
 
                 <!-- FASD: husNr -->
-                <property name="party:houseNumber">
+                <property name="contact:houseNumber">
                     <type>d:text</type>
                     <constraints>
-                        <constraint ref="party:char4"/>
+                        <constraint ref="contact:char4"/>
                     </constraints>
                 </property>
 
                 <!-- FASD: kommuneNr -->
-                <property name="party:municipalityCode">
+                <property name="contact:municipalityCode">
                     <type>d:int</type>
                     <constraints>
-                        <constraint ref="party:int4"/>
+                        <constraint ref="contact:int4"/>
                     </constraints>
                 </property>
 
                 <!-- FASD: lokalitetsNavn -->
-                <property name="party:mailDeliverySublocationIdentifier">
+                <property name="contact:mailDeliverySublocationIdentifier">
                     <type>d:text</type>
                     <constraints>
-                        <constraint ref="party:char34"/>
+                        <constraint ref="contact:char34"/>
                     </constraints>
                 </property>
             </properties>

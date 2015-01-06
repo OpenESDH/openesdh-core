@@ -21,6 +21,8 @@
 
 var tmp = url.args.nodeRef;
 
+try {null.ex;} catch(e) {logger.log("Linenumber: " + e.lineNumber);}
+
 var documentNode = getCaseDocumentNodeRef(tmp);
 var services = getDocumentLibraryServices(null, null, documentNode);
 var widgets = [getDocumentLibraryModel(null, null, documentNode)];
