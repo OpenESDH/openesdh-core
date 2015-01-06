@@ -12,8 +12,8 @@ import org.apache.lucene.queryParser.QueryParser;
 
 import java.util.*;
 
-public class PartySearchServiceImpl extends AbstractXSearchService
-        implements PartySearchService {
+public class ContactSearchServiceImpl extends AbstractXSearchService
+        implements ContactSearchService {
 
     protected DictionaryService dictionaryService;
     protected NamespaceService namespaceService;
@@ -32,11 +32,11 @@ public class PartySearchServiceImpl extends AbstractXSearchService
 
         QName baseTypeQName = QName.resolveToQName(namespaceService, baseType);
 
-        // Make sure the base type is a Party
+        // Make sure the base type is a Contact
         if (!dictionaryService.isSubClass(baseTypeQName,
-                OpenESDHModel.TYPE_PARTY_BASE)) {
+                OpenESDHModel.TYPE_CONTACT_BASE)) {
             throw new AlfrescoRuntimeException(baseTypeQName + " is not a " +
-                    "subtype of " + OpenESDHModel.TYPE_PARTY_BASE);
+                    "subtype of " + OpenESDHModel.TYPE_CONTACT_BASE);
         }
 
         // Trim / remove double-quotes
@@ -46,20 +46,20 @@ public class PartySearchServiceImpl extends AbstractXSearchService
 
         String query;
         if (dictionaryService.isSubClass(baseTypeQName,
-                OpenESDHModel.TYPE_PARTY_PERSON)) {
+                OpenESDHModel.TYPE_CONTACT_PERSON)) {
             // Person
             query = buildPersonQuery(term);
             if (sortField.equals("")) {
-                sortField = "party:lastName";
+                sortField = "contact:lastName";
             }
-        } else if (dictionaryService.isSubClass(baseTypeQName, OpenESDHModel.TYPE_PARTY_ORGANIZATION)) {
+        } else if (dictionaryService.isSubClass(baseTypeQName, OpenESDHModel.TYPE_CONTACT_ORGANIZATION)) {
             // Organization
             query = buildOrganizationQuery(term);
             if (sortField.equals("")) {
-                sortField = "party:organizationName";
+                sortField = "contact:organizationName";
             }
         } else {
-            throw new AlfrescoRuntimeException("Unsupported party subtype: "
+            throw new AlfrescoRuntimeException("Unsupported contact subtype: "
                     + baseTypeQName);
         }
 
@@ -71,7 +71,7 @@ public class PartySearchServiceImpl extends AbstractXSearchService
     @Override
     protected void setSearchParameters(SearchParameters sp) {
         sp.setLanguage(SearchService.LANGUAGE_FTS_ALFRESCO);
-        sp.setNamespace(OpenESDHModel.PARTY_URI);
+        sp.setNamespace(OpenESDHModel.CONTACT_URI);
         if (this.personSearch) {
             sp.addQueryTemplate("_PERSON", "|%firstName OR |%middleName OR " +
                     "|%lastName");
@@ -83,11 +83,11 @@ public class PartySearchServiceImpl extends AbstractXSearchService
     protected String buildPersonQuery(String term) {
         List<String> searchTerms = new ArrayList<>();
         QName[] fields = new QName[]{
-                OpenESDHModel.PROP_PARTY_FIRST_NAME,
-                OpenESDHModel.PROP_PARTY_MIDDLE_NAME,
-                OpenESDHModel.PROP_PARTY_LAST_NAME,
-                OpenESDHModel.PROP_PARTY_EMAIL,
-                OpenESDHModel.PROP_PARTY_CPR_NUMBER
+                OpenESDHModel.PROP_CONTACT_FIRST_NAME,
+                OpenESDHModel.PROP_CONTACT_MIDDLE_NAME,
+                OpenESDHModel.PROP_CONTACT_LAST_NAME,
+                OpenESDHModel.PROP_CONTACT_EMAIL,
+                OpenESDHModel.PROP_CONTACT_CPR_NUMBER
         };
 
         String[] tokens = term.split("(?<!\\\\) ");
@@ -120,12 +120,12 @@ public class PartySearchServiceImpl extends AbstractXSearchService
                 firstToken = false;
             }
 
-            searchTerms.add(OpenESDHModel.PROP_PARTY_FIRST_NAME.toString() + ":" +
+            searchTerms.add(OpenESDHModel.PROP_CONTACT_FIRST_NAME.toString() + ":" +
                     multiPartNames.toString());
-            searchTerms.add(OpenESDHModel.PROP_PARTY_MIDDLE_NAME.toString() +
+            searchTerms.add(OpenESDHModel.PROP_CONTACT_MIDDLE_NAME.toString() +
                     ":" +
                     multiPartNames.toString());
-            searchTerms.add(OpenESDHModel.PROP_PARTY_LAST_NAME.toString() + ":" +
+            searchTerms.add(OpenESDHModel.PROP_CONTACT_LAST_NAME.toString() + ":" +
                     multiPartNames.toString());
         }
         return StringUtils.join(searchTerms, " OR ");
@@ -138,9 +138,9 @@ public class PartySearchServiceImpl extends AbstractXSearchService
     protected String buildOrganizationQuery(String term) {
         List<String> searchTerms = new ArrayList<>();
         QName[] fields = new QName[]{
-                OpenESDHModel.PROP_PARTY_ORGANIZATION_NAME,
-                OpenESDHModel.PROP_PARTY_CVR_NUMBER,
-                OpenESDHModel.PROP_PARTY_EMAIL
+                OpenESDHModel.PROP_CONTACT_ORGANIZATION_NAME,
+                OpenESDHModel.PROP_CONTACT_CVR_NUMBER,
+                OpenESDHModel.PROP_CONTACT_EMAIL
         };
 
         term += "*";

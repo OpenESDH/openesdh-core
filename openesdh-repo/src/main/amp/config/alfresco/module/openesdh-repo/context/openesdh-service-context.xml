@@ -130,8 +130,8 @@
         </property>
     </bean>
 
-    <bean id="PartySearchService"
-          class="dk.openesdh.repo.services.xsearch.PartySearchServiceImpl"
+    <bean id="ContactSearchService"
+          class="dk.openesdh.repo.services.xsearch.ContactSearchServiceImpl"
           parent="XSearchService">
         <property name="dictionaryService">
             <ref bean="dictionaryService"/>

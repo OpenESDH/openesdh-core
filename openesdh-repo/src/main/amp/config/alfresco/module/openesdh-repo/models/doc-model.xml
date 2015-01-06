@@ -106,7 +106,7 @@
         </constraint>
 
         <!-- FASD: JournalPostPartType -->
-        <constraint name="doc:partyTypeConstraint" type="LIST">
+        <constraint name="doc:contactTypeConstraint" type="LIST">
             <parameter name="allowedValues">
                 <list>
                     <value>SENDER</value>
@@ -318,11 +318,11 @@
             <parent>oe:partied</parent>
             <properties>
                 <!-- FASD: JournalPostPart#partType -->
-                <property name="doc:partyType">
+                <property name="doc:contactType">
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <constraints>
-                        <constraint ref="doc:partyTypeConstraint"/>
+                        <constraint ref="doc:contactTypeConstraint"/>
                     </constraints>
                 </property>
             </properties>

@@ -1,6 +1,6 @@
-<import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/components/console/parties/parties.lib.js">//</import>
+<import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/global-customisations/components/console/contacts/contacts.lib.js">
 
-var partyType = "party:organization";
+var contactType = "contact:organization";
 
 var services = [],
     widgets = [];
@@ -14,7 +14,7 @@ services.push("openesdh/common/services/CrudService",
     "openesdh/common/services/LegacyFormService"
 );
 
-widgets.push(generatePartyPageWidgets(partyType));
+widgets.push(generateContactPageWidgets(contactType));
 
 model.jsonModel = {
     rootNodeId: args.htmlid,

@@ -1,18 +1,18 @@
-<import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/utils/parties.js">//</import>
+<import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/utils/contacts.js">//</import>
 
-function getSelectedItemActions(partyType) {
+function getSelectedItemActions(contactType) {
     var actionsMenu = {
         id: "CONTACTS_SELECTED_ITEMS_MENU",
         name: "alfresco/documentlibrary/AlfSelectedItemsMenuBarPopup",
         config: {
-            label: msg.get("parties.tool.actions"),
+            label: msg.get("contacts.tool.actions"),
             widgets: [
                 {
                     id: "DOCLIB_SELECTED_ITEMS_MENU_GROUP1",
                     name: "alfresco/menus/AlfMenuGroup",
 
                     config: {
-                        widgets: getMultiSelectActions(partyType)
+                        widgets: getMultiSelectActions(contactType)
                     }
                 }
             ]
@@ -21,18 +21,18 @@ function getSelectedItemActions(partyType) {
     return actionsMenu;
 }
 
-function getMultiSelectActions(partyType) {
-    var partyTypeId = partyType.replace(":", "_");
+function getMultiSelectActions(contactType) {
+    var contactTypeId = contactType.replace(":", "_");
     var actionSet = [];
 
     var action = {
         name: "alfresco/menus/AlfMenuItem",
         config: {
             iconImage: url.context + "/res/components/images/delete-16.png",
-            label: msg.get("parties.tool.delete-multiple." + partyTypeId + ".action"),
+            label: msg.get("contacts.tool.delete-multiple." + contactTypeId + ".action"),
             publishTopic: "CONTACTS_DELETE_MULTIPLE",
             publishPayload: {
-                contactType: partyType
+                contactType: contactType
             },
             publishGlobal: true
         }
@@ -41,13 +41,13 @@ function getMultiSelectActions(partyType) {
     return actionSet;
 }
 
-function generatePartyTableView(partyType) {
-    var partyTypeId = partyType.replace(":", "_");
+function generateContactTableView(contactType) {
+    var contactTypeId = contactType.replace(":", "_");
     return {
         name: "openesdh/common/widgets/lists/views/DynamicColumnsTableView",
         config: {
-            itemType: partyType,
-            columnsReadyTopic: "PARTY_LIST_SHOW_ALL",
+            itemType: contactType,
+            columnsReadyTopic: "CONTACT_LIST_SHOW_ALL",
 
             additionalCssClasses: "bordered",
 
@@ -70,7 +70,7 @@ function generatePartyTableView(partyType) {
                 {
                     name: "alfresco/documentlibrary/views/layouts/HeaderCell",
                     config: {
-                        label: msg.get("parties.tool.actions"),
+                        label: msg.get("contacts.tool.actions"),
                         sortable: false
                     }
                 }
@@ -98,13 +98,13 @@ function generatePartyTableView(partyType) {
                                 name: "openesdh/common/widgets/renderers/PublishAction",
                                 config: {
                                     iconClass: "edit-16",
-                                    altText: msg.get("parties.tool.edit." + partyTypeId + ".action"),
+                                    altText: msg.get("contacts.tool.edit." + contactTypeId + ".action"),
                                     publishTopic: "LEGACY_EDIT_FORM_DIALOG",
                                     publishPayloadType: "PROCESS",
                                     publishPayload: {
-                                        dialogTitle: msg.get("parties.tool.edit." + partyTypeId),
+                                        dialogTitle: msg.get("contacts.tool.edit." + contactTypeId),
                                         nodeRef: "{nodeRef}",
-                                        successResponseTopic: "PARTY_LIST_RELOAD"
+                                        successResponseTopic: "CONTACT_LIST_RELOAD"
                                     },
                                     publishGlobal: true,
                                     publishPayloadModifiers: ["processCurrentItemTokens"]
@@ -114,17 +114,17 @@ function generatePartyTableView(partyType) {
                                 name: "openesdh/common/widgets/renderers/PublishAction",
                                 config: {
                                     iconClass: "delete-16",
-                                    altText: msg.get("parties.tool.delete." + partyTypeId + ".action"),
+                                    altText: msg.get("contacts.tool.delete." + contactTypeId + ".action"),
                                     publishTopic: "ALF_CRUD_DELETE",
                                     publishPayloadType: "PROCESS",
                                     publishPayload: {
                                         // TODO: We are abusing this URL a bit.
                                         // It is intended for deleting data lists, but we are deleting individual nodes
                                         url: "slingshot/datalists/list/node/{nodeRef}",
-                                        confirmationTitle: msg.get("parties.tool.delete." + partyTypeId + ".confirmation.title"),
-                                        confirmationPrompt: msg.get("parties.tool.delete." + partyTypeId + ".confirmation.message"),
+                                        confirmationTitle: msg.get("contacts.tool.delete." + contactTypeId + ".confirmation.title"),
+                                        confirmationPrompt: msg.get("contacts.tool.delete." + contactTypeId + ".confirmation.message"),
                                         requiresConfirmation: true,
-                                        successMessage: msg.get("parties.tool.delete." + partyTypeId + ".success")
+                                        successMessage: msg.get("contacts.tool.delete." + contactTypeId + ".success")
                                     },
                                     publishGlobal: true,
                                     publishPayloadModifiers: ["processCurrentItemTokens", "convertNodeRefToUrl"]
@@ -138,23 +138,23 @@ function generatePartyTableView(partyType) {
     };
 }
 
-function generatePartyPageWidgets(partyType) {
-    var partyTypeId = partyType.replace(":", "_");
+function generateContactPageWidgets(contactType) {
+    var contactTypeId = contactType.replace(":", "_");
 
-    var partiesFolderNodeRef = getPartiesFolderNodeRef();
+    var contactsFolderNodeRef = getContactsFolderNodeRef();
 
-    var partyListViews = [generatePartyTableView(partyType)];
+    var contactListViews = [generateContactTableView(contactType)];
 
-    // TODO: Add browse hierarchy view for Organizations parties
+    // TODO: Add browse hierarchy view for Organizations contacts
 
-    var partyList = {
-        name: "openesdh/common/widgets/lists/PartyList",
+    var contactList = {
+        name: "openesdh/common/widgets/lists/ContactList",
         config: {
-            partyType: partyType,
+            contactType: contactType,
 
             loadDataPublishTopic: "ALF_CRUD_GET_ALL",
             itemsProperty: "items",
-            widgets: partyListViews
+            widgets: contactListViews
         }
     };
 
@@ -180,7 +180,7 @@ function generatePartyPageWidgets(partyType) {
                                         {
                                             name: "alfresco/html/Heading",
                                             config: {
-                                                label: msg.get("parties.tool.heading." + partyTypeId),
+                                                label: msg.get("contacts.tool.heading." + contactTypeId),
                                                 level: 2
                                             }
                                         },
@@ -200,16 +200,16 @@ function generatePartyPageWidgets(partyType) {
                                         {
                                             name: "alfresco/buttons/AlfDynamicPayloadButton",
                                             config: {
-                                                label: msg.get("parties.tool.create." + partyTypeId),
+                                                label: msg.get("contacts.tool.create." + contactTypeId),
                                                 additionalCssClasses: "call-to-action",
                                                 publishTopic: "LEGACY_CREATE_FORM_DIALOG",
                                                 publishPayloadType: "PROCESS",
                                                 publishPayloadModifiers: ["processDataBindings"],
                                                 publishPayload: {
-                                                    nodeRef: partiesFolderNodeRef,
-                                                    itemType: partyType,
-                                                    dialogTitle: msg.get("parties.tool.create." + partyTypeId),
-                                                    successResponseTopic: "PARTY_LIST_SHOW_ALL"
+                                                    nodeRef: contactsFolderNodeRef,
+                                                    itemType: contactType,
+                                                    dialogTitle: msg.get("contacts.tool.create." + contactTypeId),
+                                                    successResponseTopic: "CONTACT_LIST_SHOW_ALL"
                                                 }
                                             }
                                         }
@@ -224,11 +224,11 @@ function generatePartyPageWidgets(partyType) {
                     config: {
                         useHash: false,
                         showOkButton: true,
-                        okButtonLabel: msg.get("parties.tool.search.button"),
+                        okButtonLabel: msg.get("contacts.tool.search.button"),
                         showCancelButton: false,
-                        okButtonPublishTopic: "PARTY_LIST_SEARCH",
+                        okButtonPublishTopic: "CONTACT_LIST_SEARCH",
                         okButtonPublishGlobal: true,
-                        textBoxLabel: msg.get("parties.tool.search.button"),
+                        textBoxLabel: msg.get("contacts.tool.search.button"),
                         textFieldName: "term",
                         okButtonIconClass: "alf-white-search-icon",
                         okButtonClass: "call-to-action",
@@ -240,7 +240,7 @@ function generatePartyPageWidgets(partyType) {
                     }
                 },
                 {
-                    id: "PARTY_LIST_TOOLBAR",
+                    id: "CONTACT_LIST_TOOLBAR",
                     name: "alfresco/menus/AlfMenuBar",
                     align: "left",
                     config: {
@@ -292,17 +292,17 @@ function generatePartyPageWidgets(partyType) {
                                     ]
                                 }
                             },
-                            getSelectedItemActions(partyType)
+                            getSelectedItemActions(contactType)
                         ]
                     }
                 },
-                partyList,
+                contactList,
                 {
                     name: "alfresco/layout/CenteredWidgets",
                     config: {
                         widgets: [
                             {
-                                id: "PARTIES_PAGINATION_MENU",
+                                id: "CONTACTS_PAGINATION_MENU",
                                 name: "alfresco/documentlibrary/AlfDocumentListPaginator",
                                 widthCalc: 430
                             }

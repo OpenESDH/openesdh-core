@@ -38,9 +38,9 @@ define(["dojo/_base/declare",
 
                 var contactTypeId = payload.contactType.replace(":", "_");
 
-                var confirmationTitle = this.message("parties.tool.delete-multiple." + contactTypeId + ".confirmation.title", [items.length]),
-                    confirmationPrompt = this.message("parties.tool.delete-multiple." + contactTypeId + ".confirmation.message", [items.length]),
-                    successMessage = this.message("parties.tool.delete-multiple." + contactTypeId + ".success", [items.length]),
+                var confirmationTitle = this.message("contacts.tool.delete-multiple." + contactTypeId + ".confirmation.title", [items.length]),
+                    confirmationPrompt = this.message("contacts.tool.delete-multiple." + contactTypeId + ".confirmation.message", [items.length]),
+                    successMessage = this.message("contacts.tool.delete-multiple." + contactTypeId + ".success", [items.length]),
                     requiresConfirmation = true;
 
                 if (items.length > 0) {
