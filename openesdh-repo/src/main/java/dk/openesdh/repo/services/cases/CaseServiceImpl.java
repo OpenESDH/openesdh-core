@@ -468,6 +468,53 @@ public class CaseServiceImpl implements CaseService {
         return getCasePathNodeRef(casesMonthNodeRef, Calendar.DATE);
     }
 
+    /**
+     * Get a node in the calendarbased path of the casefolders
+     *
+     * @param parent       The nodeRef to start from
+     * @param calendarType The type of calendar info to look up, i.e. Calendar.YEAR, Calendar.MONTH, or Calendar.DATE
+     * @return
+     */
+    NodeRef getCasePathNodeRef(NodeRef parent, int calendarType) {
+        // Add 1 for months, as they are indexed form 0
+        String casePathName = Integer.toString(Calendar.getInstance().get(calendarType) + (calendarType == Calendar.MONTH ? 1 : 0));
+        NodeRef casePathNodeRef = nodeService.getChildByName(parent, ContentModel.ASSOC_CONTAINS, casePathName);
+        if (casePathNodeRef == null) {
+            casePathNodeRef = createNode(parent, casePathName);
+        }
+        return casePathNodeRef;
+    }
+
+    @Override
+    public boolean isCaseNode(NodeRef nodeRef) {
+        QName type = nodeService.getType(nodeRef);
+        return dictionaryService.isSubClass(type, OpenESDHModel.TYPE_CASE_BASE);
+    }
+
+    @Override
+    public NodeRef getParentCase(NodeRef nodeRef) {
+        if (nodeRef.equals(getCasesRootNodeRef()) || isCaseNode(nodeRef)) {
+            // Case nodes and cases root don't have cases as ancestors
+            return null;
+        }
+
+        NodeRef parent = nodeService.getPrimaryParent(nodeRef).getParentRef();
+        if (parent == null) {
+            return null;
+        } else {
+            if (isCaseNode(parent)) {
+                return parent;
+            }
+            return getParentCase(parent);
+        }
+    }
+
+    @Override
+    public NodeRef getDocumentsFolder(NodeRef caseNodeRef) {
+        return nodeService.getChildByName(caseNodeRef, ContentModel.ASSOC_CONTAINS, OpenESDHModel.DOCUMENTS_FOLDER_NAME);
+    }
+
+    //<editor-fold desc="Journalization methods">
     public void checkCanJournalize(NodeRef caseNodeRef) throws
             AccessDeniedException {
         String user = AuthenticationUtil.getRunAsUser();
@@ -611,50 +658,6 @@ public class CaseServiceImpl implements CaseService {
             }
         }, AuthenticationUtil.getAdminUserName());
     }
+    //</editor-fold>
 
-    /**
-     * Get a node in the calendarbased path of the casefolders
-     *
-     * @param parent       The nodeRef to start from
-     * @param calendarType The type of calendar info to look up, i.e. Calendar.YEAR, Calendar.MONTH, or Calendar.DATE
-     * @return
-     */
-    NodeRef getCasePathNodeRef(NodeRef parent, int calendarType) {
-        // Add 1 for months, as they are indexed form 0
-        String casePathName = Integer.toString(Calendar.getInstance().get(calendarType) + (calendarType == Calendar.MONTH ? 1 : 0));
-        NodeRef casePathNodeRef = nodeService.getChildByName(parent, ContentModel.ASSOC_CONTAINS, casePathName);
-        if (casePathNodeRef == null) {
-            casePathNodeRef = createNode(parent, casePathName);
-        }
-        return casePathNodeRef;
-    }
-
-    @Override
-    public boolean isCaseNode(NodeRef nodeRef) {
-        QName type = nodeService.getType(nodeRef);
-        return dictionaryService.isSubClass(type, OpenESDHModel.TYPE_CASE_BASE);
-    }
-
-    @Override
-    public NodeRef getParentCase(NodeRef nodeRef) {
-        if (nodeRef.equals(getCasesRootNodeRef()) || isCaseNode(nodeRef)) {
-            // Case nodes and cases root don't have cases as ancestors
-            return null;
-        }
-
-        NodeRef parent = nodeService.getPrimaryParent(nodeRef).getParentRef();
-        if (parent == null) {
-            return null;
-        } else {
-            if (isCaseNode(parent)) {
-                return parent;
-            }
-            return getParentCase(parent);
-        }
-    }
-
-    @Override
-    public NodeRef getDocumentsFolder(NodeRef caseNodeRef) {
-        return nodeService.getChildByName(caseNodeRef, ContentModel.ASSOC_CONTAINS, OpenESDHModel.DOCUMENTS_FOLDER_NAME);
-    }
 }

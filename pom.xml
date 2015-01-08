@@ -75,16 +75,12 @@
                 <updatePolicy>daily</updatePolicy>
             </snapshots>
         </repository>
-
-
     </repositories>
 
     <modules>
         <module>openesdh-repo</module>
         <module>openesdh-share</module>
     </modules>
-
-
 
     <profiles>
 

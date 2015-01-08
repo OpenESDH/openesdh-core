@@ -7,9 +7,10 @@ define(["dojo/_base/declare",
         "alfresco/core/Core",
         "alfresco/core/CoreWidgetProcessing",
         "dijit/_TemplatedMixin",
+        "dojo/dom-construct",
         "dojo/text!./templates/OpenESDHDocDetailsWidget.html",
         "dojo/_base/lang"],
-    function (declare, _WidgetBase, Core, CoreWidgetProcessing, _TemplatedMixin, template, lang ) {
+    function (declare, _WidgetBase, Core, CoreWidgetProcessing, _TemplatedMixin, domConstruct, template, lang ) {
         return declare([_WidgetBase, Core, CoreWidgetProcessing, _TemplatedMixin], {
 
             /**
@@ -66,6 +67,9 @@ define(["dojo/_base/declare",
             },
 
             onMainDocumentsLoaded : function openesdh_caselibrary_CaseDetails(payload) {
+
+                domConstruct.empty(this.bodyNode);
+
                 var details = lang.getObject(this.detailObject, false, payload);
 
                 this.widgets = [];
