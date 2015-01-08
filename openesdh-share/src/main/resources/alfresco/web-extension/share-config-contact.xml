@@ -4,6 +4,7 @@
             <!-- Default create content form configuration for a person contact -->
             <form>
                 <field-visibility>
+                    <show id="contact:hasLogin"/>
                     <hide id="cm:name"/>
 
                     <!-- TODO: Group name fields -->
@@ -29,6 +30,9 @@
                     <show id="contact:countryCode" />
                 </field-visibility>
                 <appearance>
+                    <field id="contact:hasLogin" label="Create Login" description="Tick this to create a login for the created user">
+                        <control template="/org/alfresco/components/form/controls/checkbox.ftl" />
+                    </field>
                 </appearance>
             </form>
         </forms>
