@@ -3,8 +3,8 @@
 <beans>
 
     <bean id="webscript.dk.openesdh.documents.containerNodes.get" class="dk.openesdh.repo.webscripts.documents.DocumentCaseContainers" parent="webscript">
-        <constructor-arg ref="caseService" />
-        <constructor-arg ref="documentService" />
+        <constructor-arg ref="CaseService" />
+        <constructor-arg ref="DocumentService" />
     </bean>
 
 </beans>

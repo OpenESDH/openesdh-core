@@ -1,19 +1,20 @@
 package dk.openesdh.repo.webscripts.documents
 
-import org.slf4j.LoggerFactory
-import com.typesafe.scalalogging.slf4j.Logger
+import com.typesafe.scalalogging.slf4j.StrictLogging
 import dk.openesdh.repo.services.cases.CaseService
 import dk.openesdh.repo.services.documents.DocumentService
 import org.alfresco.service.cmr.repository.{InvalidNodeRefException, NodeRef}
 import org.springframework.extensions.webscripts.{Cache, DeclarativeWebScript, Status, WebScriptRequest}
+import scala.collection.JavaConversions._
+import scala.collection.mutable._
+
 /**
  * @author lanre
  */
-class DocumentCaseContainers(val caseService: CaseService, val documentService:DocumentService) extends DeclarativeWebScript{
+class DocumentCaseContainers(val caseService: CaseService, val documentService: DocumentService) extends DeclarativeWebScript with StrictLogging{
    protected override def executeImpl(req: WebScriptRequest, status: Status, cache: Cache) :  java.util.Map[String, Object] = {
 
      val templateArgs = req.getServiceMatch.getTemplateVars
-     val logger = Logger(LoggerFactory.getLogger(classOf[DocumentCaseContainers]))
 
      try {
        val storeType: String = templateArgs.get ("store_type")
@@ -22,11 +23,13 @@ class DocumentCaseContainers(val caseService: CaseService, val documentService:D
        val docNodeRefStr = s"$storeType://$storeId/$id"
        val documentNode: NodeRef = new NodeRef (docNodeRefStr)
        val caseNodeRef = documentService.getCaseNodeRef(documentNode)
-       val caseDocumentNodeRef = caseService.getDocumentsFolder(caseNodeRef)
-       val model = Map ("caseNodeRef" -> caseNodeRef, "caseDocumentNodeRef" -> caseDocumentNodeRef).asInstanceOf[java.util.Map[java.lang.String, Object]]
+       val caseDocumentNodeRef: Object = caseService.getDocumentsFolder(caseNodeRef)
+
+       val model: Map[java.lang.String, java.lang.Object] = new HashMap[java.lang.String, java.lang.Object] ()
+       model.put("caseNodeRef", caseNodeRef)
+       model.put("caseDocumentNodeRef", caseDocumentNodeRef)
 
        logger.debug(s"*** The caseNodeRef: $caseNodeRef  ***")
-
        model
      }
      catch {
