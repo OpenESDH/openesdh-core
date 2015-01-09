@@ -8,3 +8,4 @@ alf_data_dev
 .classpath
 .settings
 alfresco.log
+*.log*
