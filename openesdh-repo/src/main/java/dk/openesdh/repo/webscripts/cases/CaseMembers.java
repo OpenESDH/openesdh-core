@@ -41,8 +41,7 @@ public class CaseMembers extends AbstractWebScript {
 
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
-        String method = req.getServiceMatch().getWebScript().getDescription()
-                .getMethod();
+        String method = req.getServiceMatch().getWebScript().getDescription().getMethod();
         try {
             if (method.equals("GET")) {
                 get(req, res);
