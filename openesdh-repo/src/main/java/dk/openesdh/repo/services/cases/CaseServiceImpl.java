@@ -9,13 +9,12 @@ import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.action.ActionService;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
-import org.alfresco.service.cmr.repository.AssociationRef;
-import org.alfresco.service.cmr.repository.ChildAssociationRef;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.repository.*;
 import org.alfresco.service.cmr.rule.Rule;
 import org.alfresco.service.cmr.rule.RuleService;
 import org.alfresco.service.cmr.rule.RuleType;
+import org.alfresco.service.cmr.search.ResultSet;
+import org.alfresco.service.cmr.search.SearchParameters;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
@@ -152,6 +151,28 @@ public class CaseServiceImpl implements CaseService {
         Set<String> roles = getRoles(caseNodeRef);
         roles.add("CaseOwners");
         return roles;
+    }
+
+    @Override
+    public NodeRef getCaseById(String caseId) {
+        SearchParameters sp = new SearchParameters();
+        sp.addStore(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE);
+        sp.setLanguage(SearchService.LANGUAGE_FTS_ALFRESCO);
+        sp.setQuery("TYPE:\""+OpenESDHModel.TYPE_CASE_SIMPLE+"\"AND @oe\\:id:\""+ caseId+"\"");
+        ResultSet results = null;
+        NodeRef caseNodeRef = null;
+        try {
+            results = this.searchService.query(sp);
+            if(results.length() == 1) //Because "There there can be only one"
+                caseNodeRef = results.getRow(0).getNodeRef();
+        }
+        finally {
+            if(results != null) {
+                results.close();
+            }
+            return caseNodeRef;
+        }
+
     }
 
     public String getCaseId(NodeRef caseNodeRef) {

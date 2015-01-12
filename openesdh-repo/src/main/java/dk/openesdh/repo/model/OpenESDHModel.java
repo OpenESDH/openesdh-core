@@ -35,12 +35,9 @@ public interface OpenESDHModel {
     public static final QName TYPE_DOC_DIGITAL_FILE = QName.createQName(DOC_URI, "digitalFile");
     public static final QName TYPE_DOC_PHYSICAL_FILE = QName.createQName(DOC_URI, "physicalFile");
 
-    public static final QName TYPE_CONTACT_BASE = QName.createQName(CONTACT_URI,
-            "base");
-    public static final QName TYPE_CONTACT_PERSON = QName.createQName(CONTACT_URI,
-            "person");
-    public static final QName TYPE_CONTACT_ORGANIZATION = QName.createQName
-            (CONTACT_URI, "organization");
+    public static final QName TYPE_CONTACT_BASE = QName.createQName(CONTACT_URI, "base");
+    public static final QName TYPE_CONTACT_PERSON = QName.createQName(CONTACT_URI, "person");
+    public static final QName TYPE_CONTACT_ORGANIZATION = QName.createQName (CONTACT_URI, "organization");
 
 
     /**

@@ -1,6 +1,6 @@
 <webscript>
     <shortname>Search</shortname>
     <description>Search page</description>
-    <family>Share</family>
+    <family>OpenESDH case</family>
     <url>/search</url>
 </webscript>

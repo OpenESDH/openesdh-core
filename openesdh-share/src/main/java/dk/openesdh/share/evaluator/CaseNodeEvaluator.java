@@ -1,20 +1,14 @@
 package dk.openesdh.share.evaluator;
 
-import org.apache.ibatis.annotations.Case;
-import org.json.simple.parser.ParseException;
 import org.springframework.extensions.surf.RequestContext;
 import org.springframework.extensions.surf.ServletUtil;
-import org.springframework.extensions.surf.UserFactory;
 import org.springframework.extensions.surf.exception.ConnectorServiceException;
-import org.springframework.extensions.surf.extensibility.ExtensionModuleEvaluator;
-import org.springframework.extensions.surf.support.AlfrescoUserFactory;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.connector.Connector;
 import org.springframework.extensions.webscripts.connector.CredentialVault;
 import org.springframework.extensions.webscripts.connector.Credentials;
 import org.springframework.extensions.webscripts.connector.Response;
 
-import javax.servlet.http.HttpSession;
 import java.util.Map;
 
 /**

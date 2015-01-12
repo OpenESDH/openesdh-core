@@ -83,6 +83,47 @@
     </modules>
 
     <profiles>
+        <!--Scala profile-->
+        <profile>
+            <id>include-scala</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.scala-tools</groupId>
+                        <artifactId>maven-scala-plugin</artifactId>
+                        <version>2.14.3</version>
+                        <configuration>
+                            <charset>UTF-8</charset>
+                            <jvmArgs>
+                                <jvmArg>-Xmx1024m</jvmArg>
+                            </jvmArgs>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>compile</id>
+                                <goals>
+                                    <goal>compile</goal>
+                                </goals>
+                                <phase>compile</phase>
+                            </execution>
+                            <execution>
+                                <id>test-compile</id>
+                                <goals>
+                                    <goal>testCompile</goal>
+                                </goals>
+                                <phase>test-compile</phase>
+                            </execution>
+                            <execution>
+                                <phase>process-resources</phase>
+                                <goals>
+                                    <goal>compile</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
 
         <profile>
             <id>unpack-deps</id>
@@ -118,9 +159,6 @@
                 </plugins>
             </build>
         </profile>
-
     </profiles>
-
-
 
 </project>

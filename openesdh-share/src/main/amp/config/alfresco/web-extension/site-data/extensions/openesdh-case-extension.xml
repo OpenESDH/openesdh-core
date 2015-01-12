@@ -6,7 +6,7 @@
             <auto-deploy>true</auto-deploy>
             <evaluator type="dk.openesdh.evaluator.uriprefix">
                 <params>
-                    <uriPrefix>/share/page/hdp/ws/dk-openesdh-pages-case-dashboard</uriPrefix>
+                    <uriPrefix>/share/page/oe/case</uriPrefix>
                     <apply>true</apply>
                 </params>
             </evaluator>

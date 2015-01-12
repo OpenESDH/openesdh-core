@@ -1,0 +1,11 @@
+<webscript>
+  <shortname>Case Page Template</shortname>
+  <description>
+    This WebScript is based on the hybrid-page that's ootb. We duplicate the whole path of the hdp page type to arrive here
+    in order to clean up the ugly url. It wasn't necessary to duplicate the whole path, but just in case we need to seperate
+    certain logic for future development and also as our knowledge of surf gets better and the new UI framework improves we
+    may end up cleaning this up for something much better.
+  </description>
+  <family>Share</family>
+  <url>/oe/case/page/template</url>
+</webscript>

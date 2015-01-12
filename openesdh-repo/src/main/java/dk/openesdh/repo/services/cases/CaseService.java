@@ -63,6 +63,14 @@ public interface CaseService {
     public String getCaseId(NodeRef caseNodeRef);
 
     /**
+     * Returns a case given the ID number of the case.
+     *
+     * @param caseId
+     * @return the nodeRef for a case corresponding with the ID supplied or null
+     */
+    public NodeRef getCaseById(String caseId);
+
+    /**
      * Remove the authority from the given role group on the case.
      *
      * @param authorityName

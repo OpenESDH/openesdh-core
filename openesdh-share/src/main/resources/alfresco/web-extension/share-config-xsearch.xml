@@ -47,7 +47,7 @@
                 </filters-availability>
                 <actions>
                     <action id="case-dashboard"
-                            href="hdp/ws/dk-openesdh-pages-case-dashboard?nodeRef={nodeRef}"
+                            href="oe/case/dashboard?nodeRef={nodeRef}"
                             label="xsearch.grid.actions.goto_case"
                             key="13"/>
                     <action id="case-edit"
