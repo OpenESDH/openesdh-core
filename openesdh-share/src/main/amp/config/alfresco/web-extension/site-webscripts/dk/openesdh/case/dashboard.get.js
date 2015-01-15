@@ -1,4 +1,5 @@
 var caseNodeRef = url.args.nodeRef;
+var caseId = url.templateArgs.caseId;
 
 model.jsonModel = {
     services: [ "alfresco/services/CrudService", "openesdh/common/services/CaseMembersService" ],
@@ -16,8 +17,11 @@ model.jsonModel = {
                       config: {
                             widgetWidth: 50,
                             widgets: [{
-                                name: "openesdh/common/widgets/dashlets/CaseMembersDashlet" ,
-                                config:{caseNodeRef: caseNodeRef }
+                                name: "openesdh/common/widgets/dashlets/CaseMembersDashlet",
+                                config:{
+                                    caseNodeRef: caseNodeRef,
+                                    caseId : caseId
+                                }
                             }]
                       }
                     }

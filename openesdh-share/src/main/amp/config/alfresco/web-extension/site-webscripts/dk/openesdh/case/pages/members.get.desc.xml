@@ -2,5 +2,6 @@
     <shortname>Page for editing case members</shortname>
     <description>Page for editing case members, showing users and groups with roles on the case.</description>
     <family>OpenESDH case</family>
-    <url>/members?nodeRef={nodeRef}</url>
+    <url>/members/{caseId}</url>
+    <url>/members</url>
 </webscript>

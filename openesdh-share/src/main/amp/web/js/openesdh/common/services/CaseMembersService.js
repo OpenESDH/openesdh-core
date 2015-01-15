@@ -10,6 +10,8 @@ define(["dojo/_base/declare",
 
             nodeRef: "",
 
+            caseId: "",
+
             constructor: function (args) {
                 lang.mixin(this, args);
                 this.alfSubscribe(this.CaseMembersAddToRoleTopic, lang.hitch(this, "_onCaseMemberAddToRole"));
@@ -19,7 +21,7 @@ define(["dojo/_base/declare",
                 this.alfSubscribe(this.CaseMembersGroupGet, lang.hitch(this, "_getCaseMembersGroup"));
                 this.alfSubscribe(this.CaseNavigateToUserProfilePage, lang.hitch(this, "_navigateToUserProfile"));
             },
-
+            //TODO Is this still in use?
             _loadCaseMembers: function () {
                 // Get members from webscript
                 this.serviceXhr({

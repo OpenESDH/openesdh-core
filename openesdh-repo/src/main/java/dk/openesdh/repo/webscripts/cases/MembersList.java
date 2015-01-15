@@ -6,6 +6,7 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PersonService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
@@ -39,9 +40,16 @@ public class MembersList extends DeclarativeWebScript {
             String storeType = templateArgs.get("store_type");
             String storeId = templateArgs.get("store_id");
             String id = templateArgs.get("id");
+            String caseId = templateArgs.get("caseId");
+            String caseNodeRefStr;
             //reconstruct the nodeRef
-            String caseNodeRefStr = storeType+"://"+storeId+"/"+id;
-            NodeRef caseNode = new NodeRef(caseNodeRefStr);
+            NodeRef caseNode;
+            if(StringUtils.isNotEmpty(storeType)&&StringUtils.isNotEmpty(storeId)&&StringUtils.isNotEmpty(id)) {
+                caseNodeRefStr = storeType + "://" + storeId + "/" + id;
+                caseNode = new NodeRef(caseNodeRefStr);
+            }
+            else
+                caseNode = this.caseService.getCaseById(caseId);
 
             Map<String, Set<String>> membersByRole = caseService.getMembersByRole(caseNode, true, true);
             JSONArray json = buildJSON(membersByRole);

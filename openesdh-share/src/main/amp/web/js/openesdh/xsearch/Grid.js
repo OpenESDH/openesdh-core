@@ -416,12 +416,6 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
             // Custom JsonRest store hacked to look for ETag header in the response instead of Content-Range header
             var CustomRest = JsonRest;
 
-//            var data = [
-//                { id: 1, first: "Bob", last: "Barker", age: 89 },
-//                { id: 2, first: "Vanna", last: "White", age: 55 },
-//                { id: 3, first: "Pat", last: "Sajak", age: 65 }
-//            ];
-            
 //            var store = new Memory({ data: data });
             var store = new CustomRest({
                 target: Alfresco.constants.PROXY_URI + "api/openesdh/search",
@@ -611,7 +605,7 @@ DijitRegistry, Grid, Keyboard, Selection, Pagination, i18nPagination, ColumnResi
             var actionElems = [];
             array.forEach(this.actions, function (action, i) {
                 var label = _this.message(action.label);
-                var href = Alfresco.constants.URL_PAGECONTEXT + action.href.replace("{nodeRef}", item.nodeRef);
+                var href = Alfresco.constants.URL_PAGECONTEXT + action.href.replace("{caseId}", item["oe:id"]);
                 actionElems.push("<span><a class='magenta ui-icon grid-action action-" + action.id + "' href='" + href + "' title='" + label + "'>" + label + "</a></span>");
             });
             

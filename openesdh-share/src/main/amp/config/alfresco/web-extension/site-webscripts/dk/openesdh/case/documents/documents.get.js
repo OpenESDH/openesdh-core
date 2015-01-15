@@ -1,9 +1,25 @@
 <import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/case/documents/lib/case-library.lib.js">
 
 /**
- * Get the role types for a case
+ * Get the case nodeRef from the case Id
+ * @param caseId
+ * @returns {case nodeRef}
  */
-    function getCaseDocumentNodeRef(nodeRef) {
+function getCaseNodeRef(caseId) {
+    var connector = remote.connect("alfresco");
+    var caseNode = connector.get("/api/openesdh/case/noderef/" +caseId);
+    var caseNodeRef = eval('(' + caseNode + ')');
+
+    return caseNodeRef.caseNodeRef;
+}
+
+/**
+ * Gets the nodeRef of the documents library for the case
+ * (Allows us to use the doclib widget)
+ * @param nodeRef
+ * @returns {*}
+ */
+function getCaseDocumentNodeRef(nodeRef) {
 
     var caseDocNode = nodeRef.replace("://", "/");
     var connector = remote.connect("alfresco");
@@ -13,13 +29,8 @@
     return caseDocNodeRef.node;
 }
 
-// Ideally we'd build the array of widgets to go in the main vertical stack starting with the header widgets
-// and then adding in the document library widgets. However, this won't be possible until either the full-page.get.html.ftl
-// template has been updated to include all of the "legacy" resources (e.g. YAHOO), or they have been explicitly requested
-// as non-AMD dependencies in the widgets referenced on the page. In the meantime this page will be rendered as a hybrid.
-// var widgets = getHeaderModel().concat([getDocumentLibraryModel("", "", user.properties['userHome'])]);
-
-var tmp = url.args.nodeRef;
+var caseId = url.templateArgs.caseId;
+var tmp = getCaseNodeRef(caseId);
 
 try {null.ex;} catch(e) {logger.log("Linenumber: " + e.lineNumber);}
 

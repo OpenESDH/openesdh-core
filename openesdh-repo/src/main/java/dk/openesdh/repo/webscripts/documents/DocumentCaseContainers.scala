@@ -29,12 +29,11 @@ class DocumentCaseContainers(val caseService: CaseService, val documentService: 
        model.put("caseNodeRef", caseNodeRef)
        model.put("caseDocumentNodeRef", caseDocumentNodeRef)
 
-       logger.debug(s"*** The caseNodeRef: $caseNodeRef  ***")
        model
      }
      catch {
        case inre: InvalidNodeRefException => {
-         logger.error(inre.getMessage)
+         //logger.error("", inre)
          null
        }
      }

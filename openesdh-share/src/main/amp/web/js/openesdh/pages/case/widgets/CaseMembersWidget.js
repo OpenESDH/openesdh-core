@@ -23,17 +23,13 @@ define(["dojo/_base/declare",
              * @default "cm:name"
              */
             sortField: "",
-
             caseNodeRef: null,
-
+            caseId: null,
             loadDataPublishTopic: "ALF_CRUD_GET_ALL",
 
             postMixInProperties : function () {
                 this.inherited(arguments);
-                //this.caseNodeRef = args.caseNodeRef ;
-                var nodeRefUri =  NodeUtils.processNodeRef(this.caseNodeRef).uri;
-
-                this.loadDataPublishPayload = {url: "api/openesdh/case/members/"+nodeRefUri };
+                this.loadDataPublishPayload = {url: "api/openesdh/case/members/"+this.caseId };
 
                 //Inject the view widgets required by the list widget inherited from
                 //alfresco/lists/AlfList#postCreate ~(270)

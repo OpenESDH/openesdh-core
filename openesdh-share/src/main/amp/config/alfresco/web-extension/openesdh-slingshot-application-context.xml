@@ -67,9 +67,16 @@
           class="dk.openesdh.share.evaluator.URIPrefixEvaluator"/>
 
     <!-- Custom evaluator which tests if the nodeRef URL parameter points to a case -->
-    <bean id="dk.openesdh.evaluator.casenode"
-          class="dk.openesdh.share.evaluator.CaseNodeEvaluator"/>
+    <bean id="dk.openesdh.evaluator.casenode" class="dk.openesdh.share.evaluator.CaseNodeEvaluator"/>
 
+    <!--Custom evaluator that should allow us to evaluate case by type and status-->
+    <bean id="openesdh.caseModuleEvaluator" class="dk.openesdh.share.evaluator.OpenESDHCaseModuleEvaluator" >
+        <constructor-arg type="dk.openesdh.share.evaluator.CaseEvaluatorUtil" ref="CaseEvaluatorUtil"/>
+    </bean>
+    <!--utility class for the case evaluator-->
+    <bean id="CaseEvaluatorUtil" class="dk.openesdh.share.evaluator.CaseEvaluatorUtil" >
+        <constructor-arg type="org.springframework.extensions.surf.WebFrameworkServiceRegistry" ref="webframework.service.registry"/>
+    </bean>
 
     <!-- Override WebScript Messages - add slingshot application messages -->
 <!--

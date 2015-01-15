@@ -1,6 +1,5 @@
 <alfresco-config>
 
-
     <config evaluator="string-compare" condition="DocumentLibrary">
         <aspects>
             <!-- Aspects that a user can see -->
@@ -9,37 +8,6 @@
             </visible>
         </aspects>
 
-    </config>
-
-    <config evaluator="string-compare" condition="UriTemplate" replace="true">
-        <!-- list of URI based page Id templates used by Share -->
-        <!-- when pages are requested from the framework, matches are attempted
-             against each uri-template, and the token values returned if matched -->
-        <uri-templates>
-
-            <!--  This is intended for use with remotely created pages -->
-            <uri-template id="remote-node-page">/{pageid}/p/{pagename}/{store_type}/{store_id}/{id}</uri-template>
-            <uri-template id="remote-site-page">/site/{site}/{pageid}/p/{pagename}</uri-template>
-            <uri-template id="remote-page">/{pageid}/p/{pagename}</uri-template>
-
-            <!-- This needs to go BEFORE "sitepage" -->
-            <uri-template id="share-site-page">/{pageid}/ws/{webscript}/{store_type}/{store_id}/{id}</uri-template>
-            <uri-template id="share-site-page">/site/{site}/{pageid}/ws/{webscript}</uri-template>
-
-            <uri-template id="sitedashboardpage">/site/{site}/dashboard</uri-template>
-            <uri-template id="contextpage">/context/{pagecontext}/{pageid}</uri-template>
-            <uri-template id="sitepage">/site/{site}/{pageid}</uri-template>
-            <uri-template id="userdashboardpage">/user/{userid}/dashboard</uri-template>
-            <uri-template id="userpage">/user/{userid}/{pageid}</uri-template>
-            <uri-template id="userprofilepage">/user/{userid}/profile</uri-template>
-            <uri-template id="userdefaultpage">/user/{pageid}</uri-template>
-            <uri-template id="consoletoolpage">/console/{pageid}/{toolid}</uri-template>
-            <uri-template id="consolepage">/console/{pageid}</uri-template>
-            <uri-template id="share-page">/{pageid}/ws/{webscript}</uri-template>
-
-            <uri-template id="casepage">/oe/{pageid}/{webscript}</uri-template>
-
-        </uri-templates>
     </config>
 
     <!-- Global config section -->
@@ -61,6 +29,39 @@
     <!-- It seems Share has issues on 4.2.x with the embedded tomcat and CSRFPolicy -->
     <config evaluator="string-compare" condition="CSRFPolicy" replace="true">
 	<filter/>
+    </config>
+
+    <config evaluator="string-compare" condition="UriTemplate" replace="true">
+        <!-- list of URI based page Id templates used by Share -->
+        <!-- when pages are requested from the framework, matches are attempted
+             against each uri-template, and the token values returned if matched -->
+        <uri-templates>
+
+            <!--  This is intended for use with remotely created pages -->
+            <uri-template id="remote-node-page">/{pageid}/p/{pagename}/{store_type}/{store_id}/{id}</uri-template>
+            <uri-template id="remote-site-page">/site/{site}/{pageid}/p/{pagename}</uri-template>
+            <uri-template id="remote-page">/{pageid}/p/{pagename}</uri-template>
+
+            <!--openesdh uri template(s)-->
+            <uri-template id="casepage">/oe/{pageid}/{caseId}/{webscript}</uri-template>
+            <uri-template id="casepage">/oe/{pageid}/{webscript}</uri-template>
+
+            <!-- This needs to go BEFORE "sitepage" -->
+            <uri-template id="share-site-page">/{pageid}/ws/{webscript}/{store_type}/{store_id}/{id}</uri-template>
+            <uri-template id="share-site-page">/site/{site}/{pageid}/ws/{webscript}</uri-template>
+
+            <uri-template id="sitedashboardpage">/site/{site}/dashboard</uri-template>
+            <uri-template id="contextpage">/context/{pagecontext}/{pageid}</uri-template>
+            <uri-template id="sitepage">/site/{site}/{pageid}</uri-template>
+            <uri-template id="userdashboardpage">/user/{userid}/dashboard</uri-template>
+            <uri-template id="userpage">/user/{userid}/{pageid}</uri-template>
+            <uri-template id="userprofilepage">/user/{userid}/profile</uri-template>
+            <uri-template id="userdefaultpage">/user/{pageid}</uri-template>
+            <uri-template id="consoletoolpage">/console/{pageid}/{toolid}</uri-template>
+            <uri-template id="consolepage">/console/{pageid}</uri-template>
+            <uri-template id="share-page">/{pageid}/ws/{webscript}</uri-template>
+
+        </uri-templates>
     </config>
 </alfresco-config>
 

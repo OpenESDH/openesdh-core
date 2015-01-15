@@ -16,23 +16,23 @@ define(["dojo/_base/declare",
             ],
 
             destinationNodeRef: null,
-
             caseNodeRef: "",
+            caseId: "",
 
             constructor: function (args) {
                 lang.mixin(this, args);
-                this.caseNodeRef = args.caseNodeRef;
+                this.caseId = args.caseId;
 
                 this.alfSubscribe(this.CaseInfoTopic, lang.hitch(this, "_onCaseInfo"));
-                this._caseInfo(this.caseNodeRef);
+                this._caseInfo(this.caseNodeRef, this.caseId);
 
                 this.alfSubscribe("JOURNALIZE", lang.hitch(this, "_onJournalize"));
                 this.alfSubscribe("UNJOURNALIZE", lang.hitch(this, "_onUnJournalize"));
             },
 
-            _caseInfo: function (nodeRef) {
+            _caseInfo: function (nodeRef, caseId) {
                 // Get caseInfo from webscript
-                var url = Alfresco.constants.PROXY_URI + "api/openesdh/caseinfo?nodeRef=" + nodeRef;
+                var url = Alfresco.constants.PROXY_URI + "api/openesdh/caseinfo/"+caseId;
                 this.serviceXhr({
                     url: url,
                     method: "GET",
@@ -100,7 +100,7 @@ define(["dojo/_base/declare",
                     journalKey = property;
                 }
 
-                var url = Alfresco.constants.PROXY_URI + "api/openesdh/journalize?nodeRef=" + this.caseNodeRef + "&journalKey=" + journalKey;
+                var url = Alfresco.constants.PROXY_URI + "api/openesdh/journalize/"+this.caseId+"?journalKey=" + journalKey;
                 this.serviceXhr({
                     url: url,
                     method: "PUT",
@@ -119,7 +119,7 @@ define(["dojo/_base/declare",
 
             _onUnJournalize: function (payload) {
                 if (confirm(this.message("unjournalize.confirm"))) {
-                    var url = Alfresco.constants.PROXY_URI + "api/openesdh/journalize?nodeRef=" + this.caseNodeRef + "&unjournalize=true";
+                    var url = Alfresco.constants.PROXY_URI + "api/openesdh/journalize/"+this.caseId+"?unjournalize=true";
                     this.serviceXhr({
                         url: url,
                         method: "PUT",

@@ -2,6 +2,27 @@
     <modules>
         <module>
             <id>OpenESDH Case Extensions</id>
+            <version>1.1</version>
+            <auto-deploy>true</auto-deploy>
+            <evaluator type="openesdh.caseModuleEvaluator">
+                <params>
+                    <caseType>.*</caseType>
+                    <!--<caseStatus>.*</caseStatus>-->
+                    <apply>true</apply>
+                </params>
+            </evaluator>
+
+            <customizations>
+                <customization>
+                    <targetPackageRoot>org.alfresco.share.header</targetPackageRoot>
+                    <sourcePackageRoot>dk.openesdh.case.pages.navigation.header</sourcePackageRoot>
+                </customization>
+            </customizations>
+        </module>
+
+<!--
+        <module>
+            <id>OpenESDH Case Extensions</id>
             <version>1.0</version>
             <auto-deploy>true</auto-deploy>
             <evaluator type="dk.openesdh.evaluator.uriprefix">
@@ -18,6 +39,7 @@
                 </customization>
             </customizations>
         </module>
+-->
 
     </modules>
 </extension>

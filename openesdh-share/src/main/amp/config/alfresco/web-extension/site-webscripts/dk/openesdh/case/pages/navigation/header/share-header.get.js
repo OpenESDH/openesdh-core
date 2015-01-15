@@ -1,9 +1,9 @@
 <import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/utils/oe.js">
 
 var args = page.url.args;
+var caseId = url.templateArgs.caseId;
 
 var navMenu = widgetUtils.findObject(model.jsonModel, "id", "HEADER_NAVIGATION_MENU_BAR");
-
 
 navMenu.config.widgets.push({
     id: "HEADER_CASE_DASHBOARD",
@@ -12,7 +12,7 @@ navMenu.config.widgets.push({
         id: "HEADER_CASE_DASHBOARD",
         label: "header.document.case.dashboard" ,
         title: "header.document.case.dashboard.altText",
-        targetUrl: "oe/case/dashboard?nodeRef=" + args.nodeRef,
+        targetUrl: "oe/case/"+caseId+"/dashboard",
         selected: isCurrentUri("dashboard")
     }
 });
@@ -24,7 +24,7 @@ navMenu.config.widgets.push({
         id: "HEADER_CASE_DOCUMENTS",
         label: "header.case.documents" ,
         title: "header.case.documents.altText",
-        targetUrl: "oe/case/documents?nodeRef=" + args.nodeRef,
+        targetUrl: "oe/case/"+caseId+"/documents",
         selected: isCurrentUri("documents")
     }
 });
@@ -38,7 +38,7 @@ navMenu.config.widgets.push({
         iconClass: "alf-user-icon",
         iconAltText: "header.case.members.altText",
 //        title: "header.case.members.title",
-        targetUrl: "oe/case/members?nodeRef=" + args.nodeRef,
+        targetUrl: "oe/case/"+caseId+"/members",
         selected: isCurrentUri("members")
     }
 });
@@ -147,7 +147,7 @@ verticalLayout.config.widgets.push({
 model.jsonModel.services.push({
     name: "openesdh/pages/case/services/Dashboard",
     config: {
-        caseNodeRef: args.nodeRef
+        caseId: caseId
     }
 });
 

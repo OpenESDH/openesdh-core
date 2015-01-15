@@ -1,7 +1,7 @@
 <webscript>
     <shortname>Journalize</shortname>
     <description>Journalize case and all children</description>
-    <url>/api/openesdh/journalize</url>
+    <url>/api/openesdh/journalize/{caseId}</url>
     <format default="json"></format>
     <authentication>user</authentication>
     <transaction>required</transaction>

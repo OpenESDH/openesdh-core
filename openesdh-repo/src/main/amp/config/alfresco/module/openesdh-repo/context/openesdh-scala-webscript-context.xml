@@ -14,6 +14,7 @@
 
     <bean id="webscript.dk.openesdh.case.caseNoderefById.get" class="dk.openesdh.repo.webscripts.cases.getCaseNodeRefById" parent="webscript">
         <constructor-arg ref="CaseService" />
+        <constructor-arg ref="NodeService" />
     </bean>
 
 </beans>

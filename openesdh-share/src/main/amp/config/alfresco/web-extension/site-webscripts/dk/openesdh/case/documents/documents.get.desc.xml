@@ -2,5 +2,6 @@
     <shortname>Documents on a case</shortname>
     <description>Show documents on a case</description>
     <family>OpenESDH case</family>
-    <url>/documents?nodeRef={nodeRef}</url>
+    <url>/documents/{caseId}</url>
+    <url>/documents</url>
 </webscript>

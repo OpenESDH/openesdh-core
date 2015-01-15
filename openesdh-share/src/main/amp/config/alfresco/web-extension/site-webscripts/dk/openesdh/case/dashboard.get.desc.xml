@@ -2,5 +2,6 @@
     <shortname>Dashboard for simple case</shortname>
     <description>Dashboard for simple case, showing information related to the case</description>
     <family>OpenESDH case</family>
-    <url>/dashboard?nodeRef={nodeRef}</url>
+    <url>/dashboard/{caseId}</url>
+    <url>/dashboard</url>
 </webscript>

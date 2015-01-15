@@ -52,12 +52,16 @@ define(["dojo/_base/declare",
 
             caseNodeRef: null,
 
+            caseId: null,
+
             statusDialog: null,
 
             constructor: function(args) {
                 this.inherited(arguments);
                 this.caseNodeRef = args.caseNodeRef;
+                this.caseId = args.caseId;
                 this.widgetsForBody[0].config.caseNodeRef = this.caseNodeRef;
+                this.widgetsForBody[0].config.caseId = this.caseId;
 
                 this.alfSubscribe(this.CaseMembersGroupRetrieved , lang.hitch(this, "showGroupMembersDialog"));
             },
@@ -101,7 +105,8 @@ define(["dojo/_base/declare",
                     name: "openesdh/pages/case/widgets/CaseMembersWidget",
                     config:{
                         sortField : "role",
-                        caseNodeRef : this.caseNodeRef
+                        caseNodeRef : this.caseNodeRef,
+                        caseId : this.caseId
                     }
             }]
 

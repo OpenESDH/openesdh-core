@@ -45,7 +45,7 @@ if (headerMenu != null) {
                                 config: {
                                     id: "CASE_MENU_SEARCH_LINK",
                                     label: "Search",
-                                    targetUrl: "hdp/ws/search"
+                                    targetUrl: "oe/case/search"
                                 }
                             },
                             {
