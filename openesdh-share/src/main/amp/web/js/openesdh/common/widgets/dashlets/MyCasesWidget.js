@@ -117,7 +117,7 @@ define(["dojo/_base/declare",
              * @instance
              * @type {object[]}
              */
-            actions: [ {"href" : "hdp/ws/dk-openesdh-pages-case-dashboard?nodeRef=nr" ,
+            actions: [ {"href" : "oe/case/{caseId}/dashboard" ,
                         "id" : "case-dashboard",
                         "label" : "mycases.grid.actions.goto_case",
                         "key" : "13"},
@@ -126,8 +126,6 @@ define(["dojo/_base/declare",
                         "id" : "case-edit",
                         "label" : "mycases.grid.actions.edit_case",
                         "key" : "13"}],
-
-
 
             /**
              * An array holding the property names of the currently visible columns.
@@ -152,15 +150,12 @@ define(["dojo/_base/declare",
             bodyNode: null,
             selectField : null,
 
-
-
             postCreate: function () {
                 this.inherited(arguments);
                 var _this = this;
 
                 this.currentSearch = {};
                 var OptionsArray = new Array();
-
 
                 OptionsArray.push({"label" : _this.message("mycases.select.userinvolvedsearch"), "value" : "userinvolvedsearch"});
                 OptionsArray.push({"label" : _this.message("mycases.select.lastmodifiedcases"), "value" : "lastmodifiedbymesearch"});
@@ -171,11 +166,6 @@ define(["dojo/_base/declare",
                 this.selectField.placeAt(this.bodyNode);
 
                 on(this.selectField.wrappedWidget, "change", lang.hitch(this, "handleDropdownSelect"));
-
-
-
-
-
             },
 
             startup: function () {
@@ -185,19 +175,14 @@ define(["dojo/_base/declare",
             },
 
             handleDropdownSelect: function () {
-                 var test = this.selectField.getValue();
-
+                var test = this.selectField.getValue();
                 var CustomRest = JsonRest;
 
-
-                    this.grid.store = new CustomRest({
-                        target: Alfresco.constants.PROXY_URI + "api/openesdh/" + this.selectField.getValue()
-                    });
-                    this.grid.refresh();
-
+                this.grid.store = new CustomRest({
+                    target: Alfresco.constants.PROXY_URI + "api/openesdh/" + this.selectField.getValue()
+                });
+                this.grid.refresh();
             },
-
-
 
             overrideScrollbarSizeTests: function () {
                 // We override these tests for scrollbar width and height, to provide a default scrollbar size,
@@ -236,8 +221,6 @@ define(["dojo/_base/declare",
                 });
             },
 
-
-
             getStoreQuery: function () {
                 return {
                     "baseType": this.baseType,
@@ -245,15 +228,11 @@ define(["dojo/_base/declare",
                 };
             },
 
-
-
             createGrid: function() {
                 var _this = this;
 
                 // Custom JsonRest store hacked to look for ETag header in the response instead of Content-Range header
                 var CustomRest = JsonRest;
-
-
 
                 var store = new CustomRest({
                     target: Alfresco.constants.PROXY_URI + "api/openesdh/userinvolvedsearch"
@@ -274,13 +253,11 @@ define(["dojo/_base/declare",
                 // Note: We mixin _Widget because otherwise we can't call grid.placeAt
                 var CustomGrid = declare([_Widget, Grid, DijitRegistry, Keyboard, Selection, MyPagination, ColumnResizer, ColumnHider, ColumnReorder]);
 
-
                 var columns = [
                     { field: "esdh:id", label: this.message("mycases.column.id")  },
                     { field: "esdh:state", label: this.message("mycases.column.state")},
                     { field: "esdh:modified", label: this.message("mycases.column.modified") }
                 ]
-
 
                 this.alfLog("debug", "Columns " + columns);
 
@@ -294,7 +271,6 @@ define(["dojo/_base/declare",
                 });
 
                 var initialQuery = this.getStoreQuery();
-
 
                 this.grid = new CustomGrid({
                     store: store,
@@ -312,7 +288,6 @@ define(["dojo/_base/declare",
                 this.grid.startup();
             },
 
-
             /**
              * Renders a list of actions given the case item
              */
@@ -321,17 +296,14 @@ define(["dojo/_base/declare",
                 var actionElems = [];
 
                 array.forEach(this.actions, function (action, i) {
-
-
                     var label = _this.message(action.label);
-                    var href = Alfresco.constants.URL_PAGECONTEXT + action.href.replace("nr", item.nodeRef);
+                    var href = Alfresco.constants.URL_PAGECONTEXT + action.href.replace("{caseId}", item["esdh:id"]);
                     actionElems.push("<span><a class='magenta ui-icon grid-action action-" + action.id + "' href='" + href + "' title='" + label + "'>" + label + "</a></span>");
                 });
 
                 var div = '<div style="white-space: nowrap;">' + actionElems.join('') + "</div>";
                 domConstruct.place(div, node);
             },
-
 
             setColumns: function (columns) {
                 this.columns = columns;

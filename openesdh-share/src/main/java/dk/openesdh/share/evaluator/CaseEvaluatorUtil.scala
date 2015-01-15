@@ -51,20 +51,22 @@ class CaseEvaluatorUtil(val serviceRegistry: WebFrameworkServiceRegistry) extend
     if(StringUtils.isEmpty(caseId)) {
       caseId = context.getParameter(CaseEvaluatorUtil.CASE_ID)
     }
+    if(StringUtils.isNotEmpty(caseId)) {
       try {
         val caseDetails: JSONObject = jsonGet("/api/openesdh/case/noderef/" + caseId)
-        if (caseDetails != null && StringUtils.isNotEmpty(caseDetails.getString("caseNodeRef")) ){
+        if (caseDetails != null && StringUtils.isNotEmpty(caseDetails.getString("caseNodeRef"))) {
           return caseDetails
         }
         null
       }
-    catch{
-      case npe: NullPointerException => {
-//        logger.warn(s"======>Error in determining if nodeRef is case: ($npe)\n\n")
-        return null
+      catch {
+        case npe: NullPointerException => {
+          //        logger.warn(s"======>Error in determining if nodeRef is case: ($npe)\n\n")
+          return null
+        }
       }
     }
-
+    null
   }
 
   /**
