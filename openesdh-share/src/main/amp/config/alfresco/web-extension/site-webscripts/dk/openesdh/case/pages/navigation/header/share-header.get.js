@@ -147,7 +147,8 @@ verticalLayout.config.widgets.push({
 model.jsonModel.services.push({
     name: "openesdh/pages/case/services/Dashboard",
     config: {
-        caseId: caseId
+        caseId: caseId,
+        nodeRef: (args.nodeRef != null) ? args.nodeRef : args.destination
     }
 });
 

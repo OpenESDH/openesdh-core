@@ -22,6 +22,7 @@ define(["dojo/_base/declare",
             constructor: function (args) {
                 lang.mixin(this, args);
                 this.caseId = args.caseId;
+                this.caseNodeRef = args.nodeRef;
 
                 this.alfSubscribe(this.CaseInfoTopic, lang.hitch(this, "_onCaseInfo"));
                 this._caseInfo(this.caseNodeRef, this.caseId);
@@ -33,6 +34,9 @@ define(["dojo/_base/declare",
             _caseInfo: function (nodeRef, caseId) {
                 // Get caseInfo from webscript
                 var url = Alfresco.constants.PROXY_URI + "api/openesdh/caseinfo/"+caseId;
+                if(this.caseId == null)
+                var url = Alfresco.constants.PROXY_URI + "api/openesdh/caseinfo?nodeRef="+nodeRef;
+
                 this.serviceXhr({
                     url: url,
                     method: "GET",

@@ -44,7 +44,7 @@
 
             <!--openesdh uri template(s)-->
             <uri-template id="casepage">/oe/{pageid}/{caseId}/{webscript}</uri-template>
-            <uri-template id="casepage">/oe/{pageid}/{webscript}</uri-template>
+            <uri-template id="openESDHpage">/oe/{pageid}/{webscript}</uri-template>
 
             <!-- This needs to go BEFORE "sitepage" -->
             <uri-template id="share-site-page">/{pageid}/ws/{webscript}/{store_type}/{store_id}/{id}</uri-template>
@@ -63,5 +63,32 @@
 
         </uri-templates>
     </config>
+
+    <!-- Document Library config section -->
+<!--
+
+    <config evaluator="string-compare" condition="DocumentLibrary">
+
+        <create-content>
+            <content id="plain-text" label="create-content.text" type="pagelink" index="10" icon="text">
+                <param name="page">create-content?destination={nodeRef}&amp;itemId=cm:content&amp;mimeType=text/plain</param>
+            </content>
+            <content id="html" label="create-content.html" type="pagelink" index="20">
+                <param name="page">create-content?destination={nodeRef}&amp;itemId=cm:content&amp;mimeType=text/html</param>
+            </content>
+            <content id="xml" label="create-content.xml" type="pagelink" index="30">
+                <param name="page">create-content?destination={nodeRef}&amp;itemId=cm:content&amp;mimeType=text/xml</param>
+            </content>
+            <content id="folder" label="create-content.folder" icon="folder" index="5" type="javascript">
+                <param name="function">onNewFolder</param>
+            </content>
+        </create-content>
+
+        <create-content-by-template>true</create-content-by-template>
+
+    </config>
+-->
+
+
 </alfresco-config>
 
