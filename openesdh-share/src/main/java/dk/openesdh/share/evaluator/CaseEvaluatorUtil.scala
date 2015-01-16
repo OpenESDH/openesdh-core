@@ -93,7 +93,7 @@ class CaseEvaluatorUtil(val serviceRegistry: WebFrameworkServiceRegistry) extend
         return Tuple2(false, null)
 
       val isCaseDocResult: JSONObject = jsonGet("/api/openesdh/documents/isCaseDoc/" + node.replace("://", "/"))
-      if (StringUtils.isEmpty(isCaseDocResult.getString("caseId")) )
+      if (isCaseDocResult == null || StringUtils.isEmpty(isCaseDocResult.getString("caseId")) )
         return Tuple2(false, null)
       val result = retPair(isCaseDocResult.getString("caseId"))
 

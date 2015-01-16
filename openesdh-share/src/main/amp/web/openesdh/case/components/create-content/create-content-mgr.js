@@ -3,7 +3,7 @@
  * Alfresco Slingshot aliases
  */
 var $siteURL = Alfresco.util.siteURL;
-
+Alfresco.CreateContentMgr.prototype.caseId = "";
 //Attempt to duplicate the above
 var caseURL = function(pageURI, id ,webscript, obj, absolute) {
     return Alfresco.util.uriTemplate("casepage", YAHOO.lang.merge(obj || {},
@@ -13,8 +13,27 @@ var caseURL = function(pageURI, id ,webscript, obj, absolute) {
             webscript: webscript
         }), absolute);
 };
+/*
+Alfresco.CreateContentMgr.prototype.onCreateContentSuccess= function CreateContentMgr_onCreateContentSuccess(response)
+{
+    var nodeRef = null;
+    if (response.json && response.json.persistedObject)
+    {
+        // Grab the new nodeRef and pass it on to _navigateForward() to optionally use
+        nodeRef = new Alfresco.util.NodeRef(response.json.persistedObject);
+        this._getCaseId(nodeRef);
 
-
+        // Activity post - documents only
+        if (!this.options.isContainer)
+        {
+            Alfresco.Share.postActivity(this.options.siteId, "org.alfresco.documentlibrary.file-created", "{cm:name}", "document-details?nodeRef=" + nodeRef.toString(),
+                {
+                    appTool: "documentlibrary",
+                    nodeRef: nodeRef.toString()
+                }, this.bind(function() { this._navigateForward(nodeRef); }));
+        }
+    }
+};*/
 
 Alfresco.CreateContentMgr.prototype._getCaseId = function CreateContentMgr_getCaseId(nodeRef){
         // construct the url to call
@@ -23,7 +42,8 @@ Alfresco.CreateContentMgr.prototype._getCaseId = function CreateContentMgr_getCa
         var caseIdRetrievedSuccess = function(response){
             console.log("about to return");
             var responseObject= eval('('+response.serverResponse.responseText+')');
-            return responseObject.caseId;
+            window.location.href = caseURL("case", responseObject.caseId, "documents");
+            //return responseObject.caseId;
         };
 
         // execute ajax request
@@ -39,6 +59,7 @@ Alfresco.CreateContentMgr.prototype._getCaseId = function CreateContentMgr_getCa
     console.log("Exiting");
 };
 
+//TODO for now all content creation redirects to the case dashboard. Is this to be the final behaviour
 /**
  * Displays the corresponding details page for the current node
  *
@@ -50,24 +71,9 @@ Alfresco.CreateContentMgr.prototype._navigateForward = function CreateContentMgr
     console.log("Creating content")
     /* Have we been given a nodeRef from the Forms Service? */
     if (YAHOO.lang.isObject(nodeRef)) {
+        this._getCaseId(nodeRef);
         //window.location.href = $siteURL((this.options.isContainer ? "folder" : "document") + "-details?nodeRef=" + nodeRef.toString());
-        window.location.href = caseURL("case",this._getCaseId(nodeRef), "dashboard");
+
     }
-    else if (document.referrer) {
-        /* Did we come from the document library? If so, then direct the user back there */
-        if (document.referrer.match(/documentlibrary([?]|$)/) || document.referrer.match(/repository([?]|$)/)) {
-            // go back to the referrer page
-            history.go(-1);
-        }
-        else {
-            document.location.href = document.referrer;
-        }
-    }
-    else if (this.options.siteId && this.options.siteId !== "") {
-        // In a Site, so go back to the document library root
-        window.location.href = $siteURL("documentlibrary");
-    }
-    else {
-        window.location.href = Alfresco.constants.URL_CONTEXT;
-    }
+
 };
