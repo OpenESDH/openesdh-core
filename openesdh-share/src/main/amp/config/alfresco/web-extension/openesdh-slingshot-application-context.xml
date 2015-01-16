@@ -61,13 +61,14 @@
             </list>
         </constructor-arg>
     </bean>
-
-    <!-- Custom evaluator which can test the uri prefix -->
+<!--
+    &lt;!&ndash; Custom evaluator which can test the uri prefix &ndash;&gt;
     <bean id="dk.openesdh.evaluator.uriprefix"
           class="dk.openesdh.share.evaluator.URIPrefixEvaluator"/>
 
-    <!-- Custom evaluator which tests if the nodeRef URL parameter points to a case -->
+    &lt;!&ndash; Custom evaluator which tests if the nodeRef URL parameter points to a case &ndash;&gt;
     <bean id="dk.openesdh.evaluator.casenode" class="dk.openesdh.share.evaluator.CaseNodeEvaluator"/>
+-->
 
     <!--Custom evaluator that should allow us to evaluate case by type and status-->
     <bean id="openesdh.caseModuleEvaluator" class="dk.openesdh.share.evaluator.OpenESDHCaseModuleEvaluator" >
@@ -78,19 +79,6 @@
         <constructor-arg type="org.springframework.extensions.surf.WebFrameworkServiceRegistry" ref="webframework.service.registry"/>
     </bean>
 
-    <!-- Override WebScript Messages - add slingshot application messages -->
-<!--
-    <bean id="webscripts.resources" class="org.springframework.extensions.surf.util.ResourceBundleBootstrapComponent">
-        <property name="resourceBundles">
-            <list>
-                <value>alfresco.web-extension.messages.openesdh</value>
-                <value>alfresco.messages.common</value>
-                <value>alfresco.messages.slingshot</value>
-            </list>
-        </property>
-    </bean>
--->
-
     <bean id="openesdh.webscripts.resources" class="org.springframework.extensions.surf.util.ResourceBundleBootstrapComponent">
         <property name="resourceBundles">
             <list>
@@ -98,7 +86,6 @@
             </list>
         </property>
     </bean>
-
 
     <!-- Case specific Document List Data URL Resolver -->
     <bean id="openesdh.doclib.resolver.doclistDataUrl" class="org.alfresco.web.resolver.doclib.DefaultDoclistDataUrlResolver">

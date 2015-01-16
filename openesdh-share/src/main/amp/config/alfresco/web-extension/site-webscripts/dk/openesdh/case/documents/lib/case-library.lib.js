@@ -213,6 +213,7 @@ if (createContentConfig !== null) {
             contentConfig = contentConfigs.get(i);
             attr = contentConfig.attributes;
 
+            //Get the icon image
             var getCreateContentImage = function (attr) {
                 var imageUrl = url.context + "/res/components/images/filetypes/";
                 if (attr["icon"]) {

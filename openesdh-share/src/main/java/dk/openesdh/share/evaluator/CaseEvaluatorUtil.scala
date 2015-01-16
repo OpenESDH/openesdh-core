@@ -18,8 +18,11 @@ import org.springframework.extensions.webscripts.connector.Response
  */
 object CaseEvaluatorUtil{
   val CASE_STATUS: String = "caseStatus"
-  val CASE_NODEREF = "nodeRef"
   val CASE_ID = "caseId"
+  //Added this to catch nodeRefs in the pages where caseIDs aren't possible
+  //e.g when we need to create content(create-content page) or view document details
+  val CASE_NODEREF = "nodeRef"
+  val DESTINATION = "destination"
 }
 
 class CaseEvaluatorUtil(val serviceRegistry: WebFrameworkServiceRegistry) extends StrictLogging{
@@ -48,9 +51,16 @@ class CaseEvaluatorUtil(val serviceRegistry: WebFrameworkServiceRegistry) extend
    */
   def getCaseDetails(context: RequestContext): JSONObject = {
     var caseId: String = context.getUriTokens().get(CaseEvaluatorUtil.CASE_ID)
+
+    val nodeRefexists: Boolean = nodeRefExists(context)._1
+
     if(StringUtils.isEmpty(caseId)) {
       caseId = context.getParameter(CaseEvaluatorUtil.CASE_ID)
+
+      if(StringUtils.isEmpty(caseId) && nodeRefexists)
+        caseId = nodeRefExists(context)._2
     }
+
     if(StringUtils.isNotEmpty(caseId)) {
       try {
         val caseDetails: JSONObject = jsonGet("/api/openesdh/case/noderef/" + caseId)
@@ -67,6 +77,27 @@ class CaseEvaluatorUtil(val serviceRegistry: WebFrameworkServiceRegistry) extend
       }
     }
     null
+  }
+
+  def nodeRefExists(context: RequestContext): (Boolean, String) ={
+      val destination: String = context.getParameter(CaseEvaluatorUtil.DESTINATION)
+      val urlNodeRef : String = context.getParameter(CaseEvaluatorUtil.CASE_NODEREF)
+
+      val findNodeInUrl = (dst: String, nde: String) => if(StringUtils.isNotEmpty(dst) ) dst
+                                                        else if(StringUtils.isNotEmpty(nde) ) nde
+                                                        else null
+
+      val retPair = (nodeStr: String) => if(StringUtils.isNotEmpty(nodeStr) ) new Tuple2(true, nodeStr) else new Tuple2(false, null)
+      val node = findNodeInUrl(destination, urlNodeRef)
+      if(StringUtils.isEmpty(node))
+        return Tuple2(false, null)
+
+      val isCaseDocResult: JSONObject = jsonGet("/api/openesdh/documents/isCaseDoc/" + node.replace("://", "/"))
+      if (StringUtils.isEmpty(isCaseDocResult.getString("caseId")) )
+        return Tuple2(false, null)
+      val result = retPair(isCaseDocResult.getString("caseId"))
+
+      result
   }
 
   /**

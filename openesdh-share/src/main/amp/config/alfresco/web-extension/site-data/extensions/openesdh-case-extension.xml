@@ -17,6 +17,10 @@
                     <targetPackageRoot>org.alfresco.share.header</targetPackageRoot>
                     <sourcePackageRoot>dk.openesdh.case.pages.navigation.header</sourcePackageRoot>
                 </customization>
+                <customization>
+                    <targetPackageRoot>org.alfresco.components.create-content</targetPackageRoot>
+                    <sourcePackageRoot>dk.openesdh.case.components.create-content</sourcePackageRoot>
+                </customization>
             </customizations>
         </module>
 
