@@ -27,6 +27,12 @@
          for more info, please refer to alfresco-platform-distribution POM -->
     <dependencies>
         <dependency>
+        <groupId>${alfresco.groupId}</groupId>
+        <artifactId>alfresco-remote-api</artifactId>
+        <version>${alfresco.version}</version>
+    </dependency>
+
+        <dependency>
             <groupId>${alfresco.groupId}</groupId>
             <artifactId>alfresco-repository</artifactId>
         </dependency>
