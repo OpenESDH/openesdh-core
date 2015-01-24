@@ -1,4 +1,5 @@
 <import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/utils/oe.js">
+<import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/global-customisations/components/console/users/contact-users.lib.js">
 
 var args = page.url.args;
 var caseId = url.templateArgs.caseId;
@@ -151,5 +152,9 @@ model.jsonModel.services.push({
         nodeRef: (args.nodeRef != null) ? args.nodeRef : args.destination
     }
 });
+
+//The next two lines are just for testing the dialog form for contact and user creation. (Think checkbox visibility)
+//model.jsonModel.services.push({name: "alfresco/dialogs/AlfDialogService"});
+//navMenu.config.widgets.push(generateContactPageWidgets());
 
 navMenu.config.widgets.push(caseConfig);
