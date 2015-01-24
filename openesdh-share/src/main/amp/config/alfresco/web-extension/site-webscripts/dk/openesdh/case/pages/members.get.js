@@ -4,7 +4,7 @@ var args = page.url.args;
 
 var caseId = url.templateArgs.caseId;
 
-var roleTypes = getCaseRoleTypes(args.nodeRef);
+var roleTypes = getCaseRoleTypes(args.nodeRef, caseId);
 var addAuthorityToRoleDropdownItems = [];
 for (var i = 0; i < roleTypes.length; i++) {
     var roleType = roleTypes[i];
@@ -40,6 +40,7 @@ model.jsonModel = {
                             widgets: [
                                 {
                                     name: "alfresco/html/Label",
+                                    id:"CASE_GROUP_MEMBERS_MENU_LABEL",
                                     align: "left",
                                     config: {
                                         label: msg.get("case-members.heading")
@@ -47,6 +48,7 @@ model.jsonModel = {
                                 },
                                 {
                                     name: "alfresco/menus/AlfMenuBar",
+                                    id: "ADD_USERS_GROUPS_BUTTON",
                                     align: "right",
                                     config: {
                                         widgets: [

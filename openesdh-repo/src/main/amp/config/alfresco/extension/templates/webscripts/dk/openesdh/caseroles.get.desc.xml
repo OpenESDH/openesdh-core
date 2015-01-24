@@ -1,7 +1,7 @@
 <webscript>
     <shortname>Case Roles</shortname>
     <description>Retrieve settable roles for a case</description>
-    <url>/api/openesdh/caseroles</url>
+    <url>/api/openesdh/{caseId}/caseroles</url>
     <format default="json"></format>
     <authentication>user</authentication>
     <transaction>required</transaction>
