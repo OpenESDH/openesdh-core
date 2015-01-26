@@ -1,17 +1,4 @@
-<@markup id="css" >
-   <#-- CSS Dependencies -->
-   <@link href="${url.context}/res/components/console/tools.css" group="console"/>
-</@>
-
-<@markup id="js">
-   <#-- No JavaScript Dependencies -->
-</@>
-
-<@markup id="widgets">
-   <@createWidgets group="console"/>
-</@>
-
-<@markup id="html">
+<@markup target="html" action="replace" id="openesdh-console-tools-override">
    <@uniqueIdDiv>
       <div id="${args.htmlid?html}-body" class="tool tools-link">
          <#assign listType = args.listType!"grouped"/>

@@ -1,66 +1,66 @@
 <alfresco-config>
-    <config evaluator="model-type" condition="party:person">
+    <config evaluator="model-type" condition="contact:person">
         <forms>
-            <!-- Default create content form configuration for a person party -->
+            <!-- Default create content form configuration for a person contact -->
             <form>
                 <field-visibility>
                     <hide id="cm:name"/>
 
                     <!-- TODO: Group name fields -->
-                    <show id="party:firstName" />
-                    <show id="party:middleName" />
-                    <show id="party:lastName" />
+                    <show id="contact:firstName" />
+                    <show id="contact:middleName" />
+                    <show id="contact:lastName" />
 
-                    <show id="party:email" />
+                    <show id="contact:email" />
 
-                    <show id="party:cprNumber" />
-                    <show id="party:partyType" />
-                    <show id="party:personInformationProtection" />
+                    <show id="contact:cprNumber" />
+                    <show id="contact:contactType" />
+                    <show id="contact:personInformationProtection" />
 
                     <!-- TODO: Better appearance of address fields -->
-                    <show id="party:address" />
-                    <show id="party:houseNumber" />
-                    <show id="party:streetName" />
-                    <show id="party:postBox" />
-                    <show id="party:cityName" />
-                    <show id="party:floorIdentifier" />
-                    <show id="party:suiteIdentifier" />
-                    <show id="party:postCode" />
-                    <show id="party:countryCode" />
+                    <show id="contact:address" />
+                    <show id="contact:houseNumber" />
+                    <show id="contact:streetName" />
+                    <show id="contact:postBox" />
+                    <show id="contact:cityName" />
+                    <show id="contact:floorIdentifier" />
+                    <show id="contact:suiteIdentifier" />
+                    <show id="contact:postCode" />
+                    <show id="contact:countryCode" />
                 </field-visibility>
                 <appearance>
                 </appearance>
             </form>
         </forms>
     </config>
-    <config evaluator="node-type" condition="party:person">
+    <config evaluator="node-type" condition="contact:person">
         <forms>
-            <!-- Default edit properties form configuration for a person party -->
+            <!-- Default edit properties form configuration for a person contact -->
             <form>
                 <field-visibility>
                     <hide id="cm:name"/>
 
                     <!-- TODO: Group name fields -->
-                    <show id="party:firstName" />
-                    <show id="party:middleName" />
-                    <show id="party:lastName" />
+                    <show id="contact:firstName" />
+                    <show id="contact:middleName" />
+                    <show id="contact:lastName" />
 
-                    <show id="party:email" />
+                    <show id="contact:email" />
 
-                    <show id="party:cprNumber" />
-                    <show id="party:partyType" />
-                    <show id="party:personInformationProtection" />
+                    <show id="contact:cprNumber" />
+                    <show id="contact:contactType" />
+                    <show id="contact:personInformationProtection" />
 
                     <!-- TODO: Better appearance of address fields -->
-                    <show id="party:address" />
-                    <show id="party:houseNumber" />
-                    <show id="party:streetName" />
-                    <show id="party:postBox" />
-                    <show id="party:cityName" />
-                    <show id="party:floorIdentifier" />
-                    <show id="party:suiteIdentifier" />
-                    <show id="party:postCode" />
-                    <show id="party:countryCode" />
+                    <show id="contact:address" />
+                    <show id="contact:houseNumber" />
+                    <show id="contact:streetName" />
+                    <show id="contact:postBox" />
+                    <show id="contact:cityName" />
+                    <show id="contact:floorIdentifier" />
+                    <show id="contact:suiteIdentifier" />
+                    <show id="contact:postCode" />
+                    <show id="contact:countryCode" />
                 </field-visibility>
                 <appearance>
                 </appearance>
@@ -69,59 +69,59 @@
     </config>
 
 
-    <config evaluator="model-type" condition="party:organization">
+    <config evaluator="model-type" condition="contact:organization">
         <forms>
-            <!-- Default create content form configuration for an organization party -->
+            <!-- Default create content form configuration for an organization contact -->
             <form>
                 <field-visibility>
                     <hide id="cm:name"/>
-                    <show id="party:organizationName" />
-                    <show id="party:email" />
+                    <show id="contact:organizationName" />
+                    <show id="contact:email" />
 
-                    <show id="party:cvrNumber" />
+                    <show id="contact:cvrNumber" />
 
-                    <show id="party:members" />
+                    <show id="contact:members" />
 
                     <!-- TODO: Better appearance of address fields -->
-                    <show id="party:address" />
-                    <show id="party:houseNumber" />
-                    <show id="party:streetName" />
-                    <show id="party:postBox" />
-                    <show id="party:cityName" />
-                    <show id="party:floorIdentifier" />
-                    <show id="party:suiteIdentifier" />
-                    <show id="party:postCode" />
-                    <show id="party:countryCode" />
+                    <show id="contact:address" />
+                    <show id="contact:houseNumber" />
+                    <show id="contact:streetName" />
+                    <show id="contact:postBox" />
+                    <show id="contact:cityName" />
+                    <show id="contact:floorIdentifier" />
+                    <show id="contact:suiteIdentifier" />
+                    <show id="contact:postCode" />
+                    <show id="contact:countryCode" />
                 </field-visibility>
                 <appearance>
                 </appearance>
             </form>
         </forms>
     </config>
-    <config evaluator="node-type" condition="party:organization">
+    <config evaluator="node-type" condition="contact:organization">
         <forms>
-            <!-- Default edit properties form configuration for an organization party -->
+            <!-- Default edit properties form configuration for an organization contact -->
             <form>
                 <field-visibility>
                     <hide id="cm:name"/>
 
-                    <show id="party:organizationName" />
-                    <show id="party:email" />
+                    <show id="contact:organizationName" />
+                    <show id="contact:email" />
 
-                    <show id="party:cvrNumber" />
+                    <show id="contact:cvrNumber" />
 
-                    <show id="party:members" />
+                    <show id="contact:members" />
 
                     <!-- TODO: Better appearance of address fields -->
-                    <show id="party:address" />
-                    <show id="party:houseNumber" />
-                    <show id="party:streetName" />
-                    <show id="party:postBox" />
-                    <show id="party:cityName" />
-                    <show id="party:floorIdentifier" />
-                    <show id="party:suiteIdentifier" />
-                    <show id="party:postCode" />
-                    <show id="party:countryCode" />
+                    <show id="contact:address" />
+                    <show id="contact:houseNumber" />
+                    <show id="contact:streetName" />
+                    <show id="contact:postBox" />
+                    <show id="contact:cityName" />
+                    <show id="contact:floorIdentifier" />
+                    <show id="contact:suiteIdentifier" />
+                    <show id="contact:postCode" />
+                    <show id="contact:countryCode" />
                 </field-visibility>
                 <appearance>
                 </appearance>

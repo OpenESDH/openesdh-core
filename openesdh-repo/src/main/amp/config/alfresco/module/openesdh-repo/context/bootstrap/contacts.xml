@@ -7,8 +7,8 @@
                xmlns:view="http://www.alfresco.org/view/repository/1.0"
                xmlns:sys="http://www.alfresco.org/model/system/1.0"
                xmlns:app="http://www.alfresco.org/model/application/1.0"
-               xmlns:party="http://openesdh.dk/model/party/1.0"
-               view:childName="party:parties"
+               xmlns:contact="http://openesdh.dk/model/contact/1.0"
+               view:childName="contact:contacts"
             >
         <view:aspects>
             <app:uifacets></app:uifacets>
@@ -34,12 +34,12 @@
         <view:properties>
             <app:icon>space-icon-default</app:icon>
             <imap:maxUid>0</imap:maxUid>
-            <cm:name>Parties</cm:name>
+            <cm:name>Contacts</cm:name>
             <sys:store-identifier>SpacesStore</sys:store-identifier>
-            <cm:title>Parties</cm:title>
+            <cm:title>Contacts</cm:title>
             <sys:node-uuid>ae9b584d-7ae3-3554-4dce-06107b89e061</sys:node-uuid>
             <sys:store-protocol>workspace</sys:store-protocol>
-            <cm:description>Parties</cm:description>
+            <cm:description>Contacts</cm:description>
             <imap:changeToken>ae9b584d-7ae3-3554-4dce-06107b89e061</imap:changeToken>
         </view:properties>
     </cm:folder>

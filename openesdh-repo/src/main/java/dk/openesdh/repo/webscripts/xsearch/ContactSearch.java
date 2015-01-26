@@ -1,14 +1,12 @@
 package dk.openesdh.repo.webscripts.xsearch;
 
-import dk.openesdh.repo.services.xsearch.PartySearchService;
+import dk.openesdh.repo.services.xsearch.ContactSearchService;
 import dk.openesdh.repo.services.xsearch.XResultSet;
-import dk.openesdh.repo.services.xsearch.XSearchService;
 import dk.openesdh.repo.utils.Utils;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.namespace.RegexQNamePattern;
@@ -26,13 +24,13 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-public class PartySearch extends AbstractWebScript {
-    static Logger log = Logger.getLogger(PartySearch.class);
+public class ContactSearch extends AbstractWebScript {
+    static Logger log = Logger.getLogger(ContactSearch.class);
 
     protected NodeService nodeService;
     protected NamespaceService namespaceService;
     protected Repository repository;
-    protected PartySearchService partySearchService;
+    protected ContactSearchService contactSearchService;
 
     public static int DEFAULT_PAGE_SIZE = 25;
 
@@ -57,7 +55,7 @@ public class PartySearch extends AbstractWebScript {
             boolean ascending = Boolean.parseBoolean(params.get
                     ("sortAscending"));
 
-            XResultSet results = partySearchService.getNodes(params, startIndex, pageSize, sortField, ascending);
+            XResultSet results = contactSearchService.getNodes(params, startIndex, pageSize, sortField, ascending);
             List<NodeRef> nodeRefs = results.getNodeRefs();
             JSONArray nodes = new JSONArray();
             for (NodeRef nodeRef : nodeRefs) {
@@ -116,8 +114,8 @@ public class PartySearch extends AbstractWebScript {
         this.repository = repository;
     }
 
-    public void setPartySearchService(PartySearchService partySearchService) {
-        this.partySearchService = partySearchService;
+    public void setContactSearchService(ContactSearchService contactSearchService) {
+        this.contactSearchService = contactSearchService;
     }
 }
 

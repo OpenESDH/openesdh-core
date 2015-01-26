@@ -5,27 +5,27 @@ define(["dojo/_base/declare",
         return declare([AlfSortablePaginatedList], {
 
             i18nRequirements: [
-                {i18nFile: "./i18n/PartyList.properties"}
+                {i18nFile: "./i18n/ContactList.properties"}
             ],
 
             /**
-             * What party type should be searched?
-             * Good choices are "party:person" or "party:organization".
+             * What contact type should be searched?
+             * Good choices are "contact:person" or "contact:organization".
              *
              * @instance
              * @type string
              * @default ""
              */
-            partyType: "",
+            contactType: "",
             searchTerm: "",
 
             sortField: "",
 
             postMixInProperties: function () {
                 this.inherited(arguments);
-                this.alfSubscribe("PARTY_LIST_SEARCH", lang.hitch(this, this.loadPartyList));
-                this.alfSubscribe("PARTY_LIST_RELOAD", lang.hitch(this, this.loadData));
-                this.alfSubscribe("PARTY_LIST_SHOW_ALL", lang.hitch(this, this.showAll));
+                this.alfSubscribe("CONTACT_LIST_SEARCH", lang.hitch(this, this.loadContactList));
+                this.alfSubscribe("CONTACT_LIST_RELOAD", lang.hitch(this, this.loadData));
+                this.alfSubscribe("CONTACT_LIST_SHOW_ALL", lang.hitch(this, this.showAll));
             },
 
             // Don't load data on page ready
@@ -33,12 +33,9 @@ define(["dojo/_base/declare",
 
             postCreate: function () {
                 this.inherited(arguments);
-//                this.onViewSelected({
-//                    value: "table"
-//                });
             },
 
-            loadPartyList: function (payload) {
+            loadContactList: function (payload) {
                 this.searchTerm = payload.term;
                 this.loadData();
             },
@@ -59,7 +56,7 @@ define(["dojo/_base/declare",
                 this.inherited(arguments);
 
                 // Override the default messages
-                this.noDataMessage = this.message("partylist.no.data.message");
+                this.noDataMessage = this.message("contactlist.no.data.message");
                 // TODO: override as needed:
 //                this.fetchingDataMessage = this.message("alflist.loading.data.message");
 //                this.renderingViewMessage = this.message("alflist.rendering.data.message");
@@ -70,8 +67,9 @@ define(["dojo/_base/declare",
             updateLoadDataPayload: function (payload) {
                 this.inherited(arguments);
 //                if (this.searchTerm != "") {
-                    payload.url = "api/openesdh/partysearch";
-                    payload.baseType = this.partyType;
+                console.log("--> Here");
+                    payload.url = "api/openesdh/contactsearch";
+                    payload.baseType = this.contactType;
                     payload.term = this.searchTerm;
 //                }
             }

@@ -5,7 +5,7 @@
           parent="dictionaryModelBootstrap" depends-on="dictionaryBootstrap">
         <property name="models">
             <list>
-                <value>alfresco/module/${project.artifactId}/models/party-model.xml</value>
+                <value>alfresco/module/${project.artifactId}/models/contact-model.xml</value>
                 <value>alfresco/module/${project.artifactId}/models/oe-model.xml</value>
                 <value>alfresco/module/${project.artifactId}/models/case-model.xml</value>
                 <value>alfresco/module/${project.artifactId}/models/doc-model.xml</value>
@@ -16,7 +16,7 @@
                 <value>alfresco/module/${project.artifactId}/messages/oe-model</value>
                 <value>alfresco/module/${project.artifactId}/messages/case-model</value>
                 <value>alfresco/module/${project.artifactId}/messages/doc-model</value>
-                <value>alfresco/module/${project.artifactId}/messages/party-model</value>
+                <value>alfresco/module/${project.artifactId}/messages/contact-model</value>
             </list>
         </property>
     </bean>
