@@ -4,16 +4,15 @@ import dk.openesdh.repo.model.OpenESDHModel;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.service.cmr.audit.*;
 import org.alfresco.service.cmr.audit.AuditService;
+import org.alfresco.service.namespace.QName;
+import org.apache.solr.common.util.Hash;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.simple.JSONArray;
 import org.springframework.extensions.surf.util.I18NUtil;
 
 import java.io.Serializable;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Created by flemmingheidepedersen on 18/11/14.
@@ -33,8 +32,9 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
 
         validKeys = new HashMap<String, Boolean>();
 
-        validKeys.put("/esdh/transaction/action=CREATE", true);
-        validKeys.put("/esdh/transaction/action=DELETE", true);
+        validKeys.put("/esdh/transaction/action=CREATE", false);
+        validKeys.put("/esdh/transaction/action=DELETE", false);
+        validKeys.put("/esdh/transaction/action=UPDATE CONTENT", true);
     }
 
     public OpenESDHAuditQueryCallBack(Map<String, Boolean> validKeys)  {
@@ -87,7 +87,7 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
         }
 
 
-        breakableloop:
+
         for (Map.Entry<String, Serializable> entry : values.entrySet()) {
 
             String key = entry.getKey();
@@ -105,14 +105,22 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
                                     String path = (String)values.get("/esdh/transaction/path");
                                     String[] pArray = path.split("/");
 
+
+
                                     if (path.indexOf(OpenESDHModel.DOCUMENTS_FOLDER_NAME) != -1) {
+
+                                        HashMap<String, String> properties = (HashMap)values.get("/esdh/transaction/properties/add");
+                                        QName name = QName.createQName("http://www.alfresco.org/model/content/1.0", "name");
+
                                         try {
-                                            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.document.added") + " " + pArray[7].split(":")[1]);
+
+                                            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.file.added") + " " + properties.get(name));
                                             result.append("entries", auditEntry);
+
+
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
-                                        break breakableloop;
                                     } else {
                                         try {
                                             auditEntry.put("action", I18NUtil.getMessage("auditlog.label.case.created") + " " + pArray[6].split(":")[1]);
@@ -120,35 +128,65 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
-                                        break breakableloop;
                                     }
                                 }
                             }
                             else if (values.get("/esdh/transaction/action").equals("DELETE")) {
                                 if (validKeys.get("/esdh/transaction/action=DELETE")) {
+
+                                    HashSet<String> aspects = (HashSet)values.get("/esdh/transaction/aspects/delete");
+                                    QName name = QName.createQName("http://www.alfresco.org/model/content/1.0", "copiedfrom");
+
                                     String path = (String)values.get("/esdh/transaction/path");
                                     String[] pArray = path.split("/");
-                                    //TODO check at which index the name of the file is located - 7 is wrong...
 
-                                    if (path.indexOf(OpenESDHModel.DOCUMENTS_FOLDER_NAME) != -1) {
+                                    if (aspects != null && aspects.contains(name)) {
                                         try {
-                                            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.document.added") + " " + pArray[7].split(":")[1]);
+                                            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.finished.editing") + " " + pArray[pArray.length-1].split(":")[1]);
                                             result.append("entries", auditEntry);
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
-                                        break breakableloop;
-                                    } else {
+                                    }
+                                    else {
                                         try {
-                                            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.case.created") + " " + pArray[6].split(":")[1]);
+                                            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.deleted.document") + " " + pArray[pArray.length-1].split(":")[1]);
                                             result.append("entries", auditEntry);
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
-                                        break breakableloop;
                                     }
                                 }
                             }
+                            else if (values.get("/esdh/transaction/action").equals("UPDATE CONTENT")) {
+                                if (validKeys.get("/esdh/transaction/action=UPDATE CONTENT")) {
+
+                                    HashSet<String> aspects = (HashSet)values.get("/esdh/transaction/aspects/delete");
+                                    QName name = QName.createQName("http://www.alfresco.org/model/content/1.0", "copiedfrom");
+
+                                    String path = (String)values.get("/esdh/transaction/path");
+                                    String[] pArray = path.split("/");
+
+                                    if (aspects != null && aspects.contains(name)) {
+                                        try {
+                                            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.finished.editing") + " " + pArray[pArray.length-1].split(":")[1]);
+                                            result.append("entries", auditEntry);
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                    else {
+                                        try {
+                                            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.deleted.document") + " " + pArray[pArray.length-1].split(":")[1]);
+                                            result.append("entries", auditEntry);
+                                        } catch (JSONException e) {
+                                            e.printStackTrace();
+                                        }
+                                    }
+                                }
+                            }
+
+
 
 
 

@@ -49,7 +49,7 @@
 
 	<AuditPath key="case">
 	    <RecordValue key="value" dataExtractor="caseIDValue"  />
-        </AuditPath>
+    </AuditPath>
 
 
 
@@ -113,6 +113,7 @@
             <RecordValue key="path" dataExtractor="simpleValue" dataSource="/esdh/transaction/path" dataTrigger="/esdh/transaction/path" />
             <RecordValue key="type" dataExtractor="simpleValue" dataSource="/esdh/transaction/type" dataTrigger="/esdh/transaction/type" />
             <RecordValue key="version" dataExtractor="simpleValue" dataSource="/esdh/transaction/cm:versionLabel" dataTrigger="/esdh/transaction/cm:versionLabel" />
+            <RecordValue key="workingcopy" dataExtractor="simpleValue" dataSource="/esdh/transaction/cm:workingCopyMode" dataTrigger="/esdh/transaction/cm:workingCopyMode" />
 
             <AuditPath key="copy">
                 <AuditPath key="from">
