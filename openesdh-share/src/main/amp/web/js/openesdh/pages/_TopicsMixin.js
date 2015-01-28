@@ -3,6 +3,7 @@ define(["dojo/_base/declare"],
 
         return declare(null, {
             CaseInfoTopic: "CASE_INFO",
+            CaseHistoryTopic: "CASE_HISTORY",
             DocumentsTopic: "DOCUMENT_LIST"
         });
     });

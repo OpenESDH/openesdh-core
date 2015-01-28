@@ -6,6 +6,7 @@ import org.alfresco.service.cmr.audit.AuditService;
 import org.alfresco.service.cmr.i18n.MessageLookup;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.json.JSONObject;
+import org.json.simple.JSONArray;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -26,7 +27,7 @@ public class AuditSearchServiceImpl implements AuditSearchService {
 
 
     @Override
-    public JSONObject getAuditLogByCaseNodeRef(NodeRef nodeRef, Long timespan) {
+    public JSONArray getAuditLogByCaseNodeRef(NodeRef nodeRef, Long timespan) {
 
         AuditQueryParameters auditQueryParameters = new AuditQueryParameters();
         auditQueryParameters.setForward(false);

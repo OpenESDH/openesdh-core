@@ -57,7 +57,14 @@ define(["dojo/_base/declare",
             widgetsForBody: [
                {
                   name: "openesdh/pages/case/widgets/InfoWidget"
+
+               },
+               {
+                   name: "openesdh/pages/case/widgets/CaseHistoryWidget"
+
                }
+
+
             ]
 
          });

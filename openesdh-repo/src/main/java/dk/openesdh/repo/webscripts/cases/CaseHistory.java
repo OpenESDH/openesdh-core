@@ -8,6 +8,7 @@ import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.json.simple.JSONArray;
 import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
@@ -33,7 +34,7 @@ public class CaseHistory extends AbstractWebScript {
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
         NodeRef caseNodeRef = new NodeRef(req.getParameter("nodeRef"));
 
-        JSONObject result = auditSearchService.getAuditLogByCaseNodeRef(caseNodeRef, new Long(1000));
+        JSONArray result = auditSearchService.getAuditLogByCaseNodeRef(caseNodeRef, new Long(1000));
 
         JSONObject json = new JSONObject();
         JSONObject json1 = new JSONObject();
@@ -42,7 +43,8 @@ public class CaseHistory extends AbstractWebScript {
             json1.append("test", json);
             json1.append("test", json);
 
-            result.write(res.getWriter());
+            result.writeJSONString(res.getWriter());
+//            result.write(res.getWriter());
         } catch (JSONException e) {
             e.printStackTrace();
         }

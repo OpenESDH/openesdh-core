@@ -21,30 +21,30 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
 
     private Map<String, Boolean> validKeys;
 
-    public JSONObject getResult() {
+    private JSONArray result = new JSONArray();
+
+    public JSONArray getResult() {
         return result;
     }
-
-    private JSONObject result = new JSONObject();
 
 
     private void DefaultValidKeysSetup() {
 
         validKeys = new HashMap<String, Boolean>();
 
-        validKeys.put("/esdh/transaction/action=CREATE", false);
-        validKeys.put("/esdh/transaction/action=DELETE", false);
-        validKeys.put("/esdh/transaction/action=UPDATE CONTENT", true);
+        validKeys.put("/esdh/transaction/action=CREATE", true);
+        validKeys.put("/esdh/transaction/action=DELETE", true);
+        validKeys.put("/esdh/transaction/action=CHECK IN", true);
     }
 
     public OpenESDHAuditQueryCallBack(Map<String, Boolean> validKeys)  {
         super();
 
-        try {
-            result.put("entries", new JSONArray());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+//        try {
+////            result.put("entries", new JSONArray());
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
 
         if (validKeys != null) {
             this.validKeys = validKeys;
@@ -56,11 +56,11 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
 
     public OpenESDHAuditQueryCallBack() {
         super();
-        try {
-            result.put("entries", new JSONArray());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            result.put("entries", new JSONArray());
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
         this.DefaultValidKeysSetup();
     }
 
@@ -92,6 +92,8 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
 
             String key = entry.getKey();
             Serializable value = entry.getValue();
+            System.out.println("what is key" + key);
+//            System.out.println("values: " + values.get("/esdh/transaction/action"));
 
             if (key != null && value != null) {
 
@@ -115,7 +117,7 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
                                         try {
 
                                             auditEntry.put("action", I18NUtil.getMessage("auditlog.label.file.added") + " " + properties.get(name));
-                                            result.append("entries", auditEntry);
+                                            result.add(auditEntry);
 
 
                                         } catch (JSONException e) {
@@ -124,7 +126,7 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
                                     } else {
                                         try {
                                             auditEntry.put("action", I18NUtil.getMessage("auditlog.label.case.created") + " " + pArray[6].split(":")[1]);
-                                            result.append("entries", auditEntry);
+                                            result.add(auditEntry);
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
@@ -140,10 +142,11 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
                                     String path = (String)values.get("/esdh/transaction/path");
                                     String[] pArray = path.split("/");
 
+
                                     if (aspects != null && aspects.contains(name)) {
                                         try {
                                             auditEntry.put("action", I18NUtil.getMessage("auditlog.label.finished.editing") + " " + pArray[pArray.length-1].split(":")[1]);
-                                            result.append("entries", auditEntry);
+                                            result.add(auditEntry);
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
@@ -151,46 +154,27 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
                                     else {
                                         try {
                                             auditEntry.put("action", I18NUtil.getMessage("auditlog.label.deleted.document") + " " + pArray[pArray.length-1].split(":")[1]);
-                                            result.append("entries", auditEntry);
+                                            result.add(auditEntry);
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
                                     }
                                 }
                             }
-                            else if (values.get("/esdh/transaction/action").equals("UPDATE CONTENT")) {
-                                if (validKeys.get("/esdh/transaction/action=UPDATE CONTENT")) {
-
-                                    HashSet<String> aspects = (HashSet)values.get("/esdh/transaction/aspects/delete");
-                                    QName name = QName.createQName("http://www.alfresco.org/model/content/1.0", "copiedfrom");
+                            else if (values.get("/esdh/transaction/action").equals("CHECK IN")) {
+                                if (validKeys.get("/esdh/transaction/action=CHECK IN")) {
 
                                     String path = (String)values.get("/esdh/transaction/path");
                                     String[] pArray = path.split("/");
 
-                                    if (aspects != null && aspects.contains(name)) {
                                         try {
-                                            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.finished.editing") + " " + pArray[pArray.length-1].split(":")[1]);
-                                            result.append("entries", auditEntry);
+                                            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.checkedin") + " " + pArray[pArray.length-1].split(":")[1]);
+                                            result.add(auditEntry);
                                         } catch (JSONException e) {
                                             e.printStackTrace();
                                         }
-                                    }
-                                    else {
-                                        try {
-                                            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.deleted.document") + " " + pArray[pArray.length-1].split(":")[1]);
-                                            result.append("entries", auditEntry);
-                                        } catch (JSONException e) {
-                                            e.printStackTrace();
-                                        }
-                                    }
                                 }
                             }
-
-
-
-
-
-
                         }
                 }
 

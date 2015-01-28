@@ -30,7 +30,7 @@ define(["dojo/_base/declare",
             },
 
             _onPayloadReceive: function (payload) {
-                console.log(payload);
+//                console.log(payload);
 
                 this.widgetsForBody = [];
 //                var currentItem = this.unmarshal(payload);
