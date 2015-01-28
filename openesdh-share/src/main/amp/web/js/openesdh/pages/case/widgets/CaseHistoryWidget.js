@@ -288,25 +288,13 @@ define(["dojo/_base/declare",
 
 
                 var columns = [
-                    { field: "time", label: this.message("mycases.column.id")  },
+                    { field: "time", label: this.message("mycases.column.id"),renderCell: lang.hitch(this, '_renderActionsCell')  },
                     { field: "user", label: this.message("mycases.column.state")},
                     { field: "action", label: this.message("mycases.column.modified") }
                 ]
 
 
                 this.alfLog("debug", "Columns " + columns);
-
-                //Add Actions column
-                columns.push({
-                    field: "nodeRef",
-                    label: this.message("mycases.grid.actions"),
-                    renderCell: lang.hitch(this, '_renderActionsCell'),
-                    sortable: false,
-                    unhidable: true
-                });
-
-//                var initialQuery = this.getStoreQuery();
-
 
                 this.grid = new CustomGrid({
                     store: store,
@@ -330,17 +318,11 @@ define(["dojo/_base/declare",
              */
             _renderActionsCell: function (item, value, node, options) {
                 var _this = this;
-                var actionElems = [];
 
-                array.forEach(this.actions, function (action, i) {
+                var auditTime = new Date(value);
+                auditTime = auditTime.toLocaleDateString() + " - " + auditTime.toLocaleTimeString();
 
-
-                    var label = _this.message(action.label);
-                    var href = Alfresco.constants.URL_PAGECONTEXT + action.href.replace("nr", item.nodeRef);
-                    actionElems.push("<span><a class='magenta ui-icon grid-action action-" + action.id + "' href='" + href + "' title='" + label + "'>" + label + "</a></span>");
-                });
-
-                var div = '<div style="white-space: nowrap;">' + actionElems.join('') + "</div>";
+                var div = '<div style="white-space: nowrap;">' + auditTime + "</div>";
                 domConstruct.place(div, node);
             },
 
