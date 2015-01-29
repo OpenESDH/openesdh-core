@@ -50,7 +50,7 @@ define(["dojo/_base/declare",
             templateString: template,
 
             i18nRequirements: [
-                {i18nFile: "./i18n/MyCasesWidget.properties"}
+                {i18nFile: "./i18n/CaseHistoryWidget.properties"}
             ],
 
             // Override default Dijit theme to look like Alfresco's.
@@ -111,25 +111,6 @@ define(["dojo/_base/declare",
             availableColumns: null,
 
             /**
-             * An array containing the actions which should be available on all
-             * result rows.
-             *
-             * @instance
-             * @type {object[]}
-             */
-            actions: [ {"href" : "hdp/ws/dk-openesdh-pages-case-dashboard?nodeRef=nr" ,
-                        "id" : "case-dashboard",
-                        "label" : "mycases.grid.actions.goto_case",
-                        "key" : "13"},
-
-                       {"href" : "edit-metadata?nodeRef=nr" ,
-                        "id" : "case-edit",
-                        "label" : "mycases.grid.actions.edit_case",
-                        "key" : "13"}],
-
-
-
-            /**
              * An array holding the property names of the currently visible columns.
              *
              * @instance
@@ -146,8 +127,6 @@ define(["dojo/_base/declare",
              * @default null
              */
             grid: null,
-
-            DEFAULT_SEARCH_NAME: '__default__',
 
             bodyNode: null,
 
@@ -275,7 +254,7 @@ define(["dojo/_base/declare",
                 // In this case, we're overriding just one value, so we're
                 // loading the original one to serve as a basis
                 var i18nCustomized = lang.mixin({}, i18nPagination, {
-                    status: "${start} - ${end} af ${total} sager"
+                    status: "${start} - ${end} af ${total} " + this.message("casehistory.label.actions")
                 });
                 var MyPagination = declare(Pagination, {
                     i18nPagination: i18nCustomized
@@ -288,9 +267,9 @@ define(["dojo/_base/declare",
 
 
                 var columns = [
-                    { field: "time", label: this.message("mycases.column.id"),renderCell: lang.hitch(this, '_renderActionsCell')  },
-                    { field: "user", label: this.message("mycases.column.state")},
-                    { field: "action", label: this.message("mycases.column.modified") }
+                    { field: "time", label: this.message("casehistory.column.time"),renderCell: lang.hitch(this, '_renderActionsCell')  },
+                    { field: "user", label: this.message("casehistory.column.user")},
+                    { field: "action", label: this.message("casehistory.column.action") }
                 ]
 
 

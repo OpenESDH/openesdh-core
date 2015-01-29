@@ -12,6 +12,9 @@ model.jsonModel = {
                     },
                     {
                         name: "openesdh/common/widgets/dashlets/CaseInfoDashlet"
+                    },
+                    {
+                        name: "openesdh/common/widgets/dashlets/CaseHistoryDashlet"
                     }
                 ]
             }

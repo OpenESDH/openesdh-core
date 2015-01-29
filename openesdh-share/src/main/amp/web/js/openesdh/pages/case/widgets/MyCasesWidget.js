@@ -1,7 +1,7 @@
 /**
  * A grid to show search results in.
  * @module openesdh/xsearch/Grid
- * @extends dijit/_WidgetBaseƒ
+ * @extends dijit/_WidgetBase
  * @mixes dijit/_TemplatedMixin
  * @mixes alfresco/core/Core
  * @mixes alfresco/core/CoreXhr
