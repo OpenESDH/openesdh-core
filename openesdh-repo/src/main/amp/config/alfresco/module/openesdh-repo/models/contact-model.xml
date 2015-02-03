@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<model name="contact:contactModel"
-       xmlns="http://www.alfresco.org/model/dictionary/1.0">
+<model name="contact:contactModel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
     <description>OpenESDH Contact Model</description>
     <author>Seth Yastrov, Flemming Heide Pedersen, Ole Hejlskov,
         Torben Lauritzen, Lanre Abiwon
@@ -87,7 +86,7 @@
     <types>
         <type name="contact:base">
             <title>Contact</title>
-            <parent>cm:authority</parent>
+            <parent>cm:authorityContainer</parent>
             <properties>
                 <!-- FASD: ePostAddresse -->
                 <property name="contact:email">
@@ -97,6 +96,7 @@
                         <constraint ref="contact:emailConstraint"/>
                     </constraints>
                 </property>
+
                 <!-- FASD: kontaktType -->
                 <property name="contact:contactType">
                     <type>d:text</type>
@@ -107,25 +107,11 @@
                     </constraints>
                 </property>
             </properties>
-            <associations>
-                <child-association name="cm:member">
-                    <source>
-                        <mandatory>false</mandatory>
-                        <many>false</many>
-                    </source>
-                    <target>
-                        <class>cm:authority</class>
-                        <mandatory>false</mandatory>
-                        <many>false</many>
-                    </target>
-                    <duplicate>false</duplicate>
-                </child-association>
-            </associations>
+
             <mandatory-aspects>
                 <aspect>contact:address</aspect>
             </mandatory-aspects>
         </type>
-
     </types>
 
     <aspects>
