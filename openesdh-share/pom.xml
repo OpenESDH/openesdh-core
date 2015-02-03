@@ -32,12 +32,15 @@
     <dependencies>
         <dependency>
             <groupId>${alfresco.groupId}</groupId>
-            <artifactId>alfresco-repository</artifactId>
+            <artifactId>share</artifactId>
+            <version>${alfresco.version}</version>
+            <type>war</type>
         </dependency>
 
         <dependency>
           <groupId>org.springframework.extensions.surf</groupId>
-          <artifactId>spring-surf-api</artifactId>
+          <artifactId>spring-surf</artifactId>
+            <version>${alfresco.version}</version>
           <scope>provided</scope>
         </dependency>
 
@@ -74,7 +77,34 @@
             <artifactId>jcl-over-slf4j</artifactId>
             <version>1.7.5</version>
         </dependency>
-        
+
+        <!--scala dependencies -->
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-compiler</artifactId>
+            <version>LATEST</version>
+            <scope>compile</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.scala-lang</groupId>
+            <artifactId>scala-library</artifactId>
+            <version>LATEST</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.typesafe.scala-logging</groupId>
+            <artifactId>scala-logging-slf4j_2.11</artifactId>
+            <version>2.1.2</version>
+        </dependency>
+
+        <!--        <dependency>
+                    <groupId>org.scalaj</groupId>
+                    <artifactId>scalaj-http_2.11</artifactId>
+                    <version>0.3.16</version>
+                </dependency>
+        -->
+
     </dependencies>
 
 

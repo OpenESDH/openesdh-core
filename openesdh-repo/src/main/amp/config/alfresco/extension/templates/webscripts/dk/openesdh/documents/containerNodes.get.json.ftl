@@ -1,0 +1,4 @@
+{
+"caseNodeRef" : ${caseNodeRef!""}
+"caseDocumentNodeRef" : ${caseDocumentNodeRef!""}
+}

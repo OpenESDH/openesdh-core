@@ -25,7 +25,6 @@ public class CaseMembers extends AbstractWebScript {
 
     private CaseService caseService;
     private AuthorityService authorityService;
-
     private PersonService personService;
 
     public void setCaseService(CaseService caseService) {
@@ -42,8 +41,7 @@ public class CaseMembers extends AbstractWebScript {
 
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
-        String method = req.getServiceMatch().getWebScript().getDescription()
-                .getMethod();
+        String method = req.getServiceMatch().getWebScript().getDescription().getMethod();
         try {
             if (method.equals("GET")) {
                 get(req, res);
@@ -60,7 +58,7 @@ public class CaseMembers extends AbstractWebScript {
     private void get(WebScriptRequest req, WebScriptResponse res) throws
             IOException, JSONException {
         NodeRef caseNodeRef = new NodeRef(req.getParameter("nodeRef"));
-        Map<String, Set<String>> membersByRole = caseService.getMembersByRole(caseNodeRef);
+        Map<String, Set<String>> membersByRole = caseService.getMembersByRole(caseNodeRef, true, false);
         JSONArray json = buildJSON(membersByRole);
         json.write(res.getWriter());
     }
@@ -108,8 +106,7 @@ public class CaseMembers extends AbstractWebScript {
         json.write(res.getWriter());
     }
 
-    JSONArray buildJSON(Map<String, Set<String>> membersByRole) throws
-            JSONException {
+    JSONArray buildJSON(Map<String, Set<String>> membersByRole) throws JSONException {
         JSONArray result = new JSONArray();
 
         for (Map.Entry<String, Set<String>> entry : membersByRole.entrySet()) {
@@ -128,8 +125,7 @@ public class CaseMembers extends AbstractWebScript {
                     displayName = authorityService.getAuthorityDisplayName(authority);
                 } else {
                     PersonService.PersonInfo personInfo = personService.getPerson(authorityNodeRef);
-                    displayName = personInfo.getFirstName() + " " +
-                            personInfo.getLastName();
+                    displayName = personInfo.getFirstName() + " " + personInfo.getLastName();
                 }
                 memberObj.put("displayName", displayName);
                 memberObj.put("role", entry.getKey());

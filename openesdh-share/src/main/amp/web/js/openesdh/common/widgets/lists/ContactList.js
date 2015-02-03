@@ -67,7 +67,6 @@ define(["dojo/_base/declare",
             updateLoadDataPayload: function (payload) {
                 this.inherited(arguments);
 //                if (this.searchTerm != "") {
-                console.log("--> Here");
                     payload.url = "api/openesdh/contactsearch";
                     payload.baseType = this.contactType;
                     payload.term = this.searchTerm;

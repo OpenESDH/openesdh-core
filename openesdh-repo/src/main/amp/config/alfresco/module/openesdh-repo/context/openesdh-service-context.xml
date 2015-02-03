@@ -67,7 +67,12 @@
         <property name="transactionService">
             <ref bean="TransactionService"/>
         </property>
+
         <property name="namespaceService" ref="namespaceService"/>
+
+        <property name="behaviourFilter">
+            <ref bean="policyBehaviourFilter"/>
+        </property>
     </bean>
 
     <bean id="XSearchService" class="dk.openesdh.repo.services.xsearch.XSearchServiceImpl">
@@ -144,6 +149,27 @@
         </property>
         <property name="repositoryHelper">
             <ref bean="repositoryHelper"/>
+        </property>
+    </bean>
+
+    <bean id="ContactInvitationService" class="dk.openesdh.repo.services.contacts.ContactInvitationServiceImpl">
+        <property name="sysAdminParams">
+            <ref bean="sysAdminParams"/>
+        </property>
+        <property name="contactService">
+            <ref bean="ContactService"/>
+        </property>
+        <property name="authenticationService">
+            <ref bean="AuthenticationService"/>
+        </property>
+    </bean>
+
+    <bean id="ContactService" class="dk.openesdh.repo.services.contacts.ContactServiceImpl">
+        <property name="nodeService">
+            <ref bean="nodeService"/>
+        </property>
+        <property name="searchService">
+            <ref bean="searchService"/>
         </property>
     </bean>
 

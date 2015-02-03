@@ -110,6 +110,13 @@
           parent="caseMemberWebscript">
     </bean>
 
+    <bean id="webscript.dk.openesdh.case.memberslist.get" class="dk.openesdh.repo.webscripts.cases.MembersList" parent="webscript">
+        <property name="authorityService" ref="AuthorityService" />
+        <property name="caseService" ref="CaseService" />
+        <property name="personService" ref="PersonService" />
+        <property name="nodeService" ref="nodeService" />
+    </bean>
+
 
     <bean id="webscript.dk.openesdh.model.get"
           class="dk.openesdh.repo.model.ModelLookup"

@@ -35,10 +35,9 @@ define(["dojo/_base/declare",
                 var failureResponseTopic = lang.getObject("failureResponseTopic", "LEGACY_CREATE_FORM_FAILURE", payload);
 
                 // Intercept before dialog show
-                var doBeforeDialogShow = function (p_form, p_dialog)
-                {
+                var doBeforeDialogShow = function (p_form, p_dialog) {
                     Alfresco.util.populateHTML(
-                        [ p_dialog.id + "-form-container_h", dialogTitle ]
+                        [p_dialog.id + "-form-container_h", dialogTitle]
                     );
                 };
 
@@ -54,38 +53,32 @@ define(["dojo/_base/declare",
                 // Using Forms Service, so always create new instance
                 var createRow = new Alfresco.module.SimpleDialog(Alfresco.util.generateDomId() + "-create");
 
-                createRow.setOptions(
-                    {
+                createRow.setOptions( {
                         width: dialogWidth,
                         templateUrl: templateUrl,
                         actionUrl: null,
                         destroyOnHide: true,
-                        doBeforeDialogShow:
-                        {
+                        doBeforeDialogShow: {
                             fn: doBeforeDialogShow,
                             scope: this
                         },
-                        onSuccess:
-                        {
-                            fn: function (response)
-                            {
+                        onSuccess: {
+                            fn: function (response) {
                                 this.alfPublish(successResponseTopic, {
                                     nodeRef: response.json.persistedObject
                                 });
                             },
                             scope: this
                         },
-                        onFailure:
-                        {
-                            fn: function (response)
-                            {
+                        onFailure: {
+                            fn: function (response) {
                                 this.alfPublish(failureResponseTopic, {
                                     "response": response
                                 });
                             },
                             scope: this
                         }
-                    }).show();
+                }).show();
             },
 
             onEditFormDialog: function (payload) {
@@ -98,7 +91,7 @@ define(["dojo/_base/declare",
                 // Intercept before dialog show
                 var doBeforeDialogShow = function (p_form, p_dialog) {
                     Alfresco.util.populateHTML(
-                        [ p_dialog.id + "-form-container_h", dialogTitle ]
+                        [p_dialog.id + "-form-container_h", dialogTitle]
                     );
                 };
 

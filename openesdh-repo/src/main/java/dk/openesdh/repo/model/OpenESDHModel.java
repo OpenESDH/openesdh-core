@@ -35,12 +35,9 @@ public interface OpenESDHModel {
     public static final QName TYPE_DOC_DIGITAL_FILE = QName.createQName(DOC_URI, "digitalFile");
     public static final QName TYPE_DOC_PHYSICAL_FILE = QName.createQName(DOC_URI, "physicalFile");
 
-    public static final QName TYPE_CONTACT_BASE = QName.createQName(CONTACT_URI,
-            "base");
-    public static final QName TYPE_CONTACT_PERSON = QName.createQName(CONTACT_URI,
-            "person");
-    public static final QName TYPE_CONTACT_ORGANIZATION = QName.createQName
-            (CONTACT_URI, "organization");
+    public static final QName TYPE_CONTACT_BASE = QName.createQName(CONTACT_URI, "base");
+    public static final QName TYPE_CONTACT_PERSON = QName.createQName(CONTACT_URI, "person");
+    public static final QName TYPE_CONTACT_ORGANIZATION = QName.createQName (CONTACT_URI, "organization");
 
 
     /**
@@ -53,8 +50,7 @@ public interface OpenESDHModel {
     public static final QName ASPECT_CASE_COUNTER = QName.createQName(CASE_URI, "counter");
     public static final QName ASPECT_DOCUMENT_CONTAINER = QName.createQName(DOC_URI, "documentContainer");
 
-    public static final QName ASPECT_CONTACT_ADDRESS = QName.createQName
-            (CONTACT_URI, "address");
+    public static final QName ASPECT_CONTACT_ADDRESS = QName.createQName(CONTACT_URI, "address");
 
     /**
      * Associations
@@ -74,6 +70,8 @@ public interface OpenESDHModel {
     public static final QName ASSOC_DOC_FILE_POSITION = QName.createQName(DOC_URI, "filePosition");
 
     public static final QName ASSOC_CONTACT_MEMBERS = QName.createQName(CONTACT_URI, "members");
+
+    public static final QName ASSOC_CONTACT_LOGIN = QName.createQName(CONTACT_URI, "userLogin");
 
     /**
      * Properties
@@ -97,37 +95,44 @@ public interface OpenESDHModel {
     public static final QName PROP_DOC_VARIANT = QName.createQName(DOC_URI, "variant");
 
 
-    public static final QName PROP_CONTACT_EMAIL = QName.createQName(CONTACT_URI,
-            "email");
-    public static final QName PROP_CONTACT_CONTACT_TYPE = QName.createQName
-            (CONTACT_URI, "contactType");
+    public static final QName PROP_CONTACT_EMAIL = QName.createQName(CONTACT_URI, "email");
+    public static final QName PROP_CONTACT_TYPE = QName.createQName (CONTACT_URI, "contactType");
 
-    public static final QName PROP_CONTACT_FIRST_NAME = QName.createQName
-            (CONTACT_URI, "firstName");
-    public static final QName PROP_CONTACT_LAST_NAME = QName.createQName
-            (CONTACT_URI, "lastName");
-    public static final QName PROP_CONTACT_MIDDLE_NAME = QName.createQName
-            (CONTACT_URI, "middleName");
-    public static final QName PROP_CONTACT_CPR_NUMBER = QName.createQName
-            (CONTACT_URI, "cprNumber");
+    public static final QName PROP_CONTACT_FIRST_NAME = QName.createQName (CONTACT_URI, "firstName");
+    public static final QName PROP_CONTACT_LAST_NAME = QName.createQName (CONTACT_URI, "lastName");
+    public static final QName PROP_CONTACT_MIDDLE_NAME = QName.createQName (CONTACT_URI, "middleName");
+    public static final QName PROP_CONTACT_CPR_NUMBER = QName.createQName (CONTACT_URI, "cprNumber");
 
-    public static final QName PROP_CONTACT_ORGANIZATION_NAME = QName.createQName
-            (CONTACT_URI, "organizationName");
-    public static final QName PROP_CONTACT_CVR_NUMBER = QName.createQName
-            (CONTACT_URI, "cvrNumber");
+    public static final QName PROP_CONTACT_ORGANIZATION_NAME = QName.createQName (CONTACT_URI, "organizationName");
+    public static final QName PROP_CONTACT_CVR_NUMBER = QName.createQName (CONTACT_URI, "cvrNumber");
 
-    public static final QName PROP_CONTACT_ADDRESS = QName.createQName
-            (CONTACT_URI, "address");
-    public static final QName PROP_CONTACT_FLOOR_IDENTIFIER = QName.createQName
-            (CONTACT_URI, "floorIdentifier");
-    public static final QName PROP_CONTACT_SUITE_IDENTIFIER = QName.createQName
-            (CONTACT_URI, "suiteIdentifier");
-    public static final QName PROP_CONTACT_POST_CODE = QName.createQName
-            (CONTACT_URI, "postCode");
-    public static final QName PROP_CONTACT_COUNTRY_CODE = QName.createQName
-            (CONTACT_URI, "countryCode");
+    public static final QName PROP_CONTACT_ADDRESS = QName.createQName (CONTACT_URI, "address");
+    public static final QName PROP_CONTACT_ADDRESS_LINE1 = QName.createQName (CONTACT_URI, "addressLine1");
+    public static final QName PROP_CONTACT_ADDRESS_LINE2 = QName.createQName (CONTACT_URI, "addressLine2");
+    public static final QName PROP_CONTACT_ADDRESS_LINE3 = QName.createQName (CONTACT_URI, "addressLine3");
+    public static final QName PROP_CONTACT_ADDRESS_LINE4 = QName.createQName (CONTACT_URI, "addressLine4");
+    public static final QName PROP_CONTACT_ADDRESS_LINE5 = QName.createQName (CONTACT_URI, "addressLine5");
+    public static final QName PROP_CONTACT_ADDRESS_LINE6 = QName.createQName (CONTACT_URI, "addressLine6");
+    public static final QName PROP_CONTACT_FLOOR_IDENTIFIER = QName.createQName (CONTACT_URI, "floorIdentifier");
+    public static final QName PROP_CONTACT_SUITE_IDENTIFIER = QName.createQName (CONTACT_URI, "suiteIdentifier");
+    public static final QName PROP_CONTACT_POST_BOX = QName.createQName (CONTACT_URI, "postBox");
+    public static final QName PROP_CONTACT_POST_CODE = QName.createQName (CONTACT_URI, "postCode");
+    public static final QName PROP_CONTACT_POST_DISTRICT = QName.createQName (CONTACT_URI, "postDistrict");
+    public static final QName PROP_CONTACT_COUNTRY_CODE = QName.createQName (CONTACT_URI, "countryCode");
+    public static final QName PROP_CONTACT_CITY_NAME = QName.createQName (CONTACT_URI, "cityName");
+    public static final QName PROP_CONTACT_STREET_NAME = QName.createQName (CONTACT_URI, "streetName");
+    public static final QName PROP_CONTACT_STREET_CODE = QName.createQName (CONTACT_URI, "streetCode");
+    public static final QName PROP_CONTACT_HOUSE_NUMBER = QName.createQName (CONTACT_URI, "houseNumber");
+    public static final QName PROP_CONTACT_MUNICIPALITY_CODE = QName.createQName (CONTACT_URI, "municipalityCode");
 
+    public static final QName PROP_CONTACT_REGISTERED = QName.createQName (CONTACT_URI, "registered");
+    public static final QName PROP_CONTACT_INTERNAL = QName.createQName (CONTACT_URI, "internal");
 
+    /**
+     * Association Names
+     */
+
+    public static final QName PROP_CONTACT_LOGIN_ASSOC = QName.createQName (CONTACT_URI, "contactLogin");
 
     /**
      * Constraints

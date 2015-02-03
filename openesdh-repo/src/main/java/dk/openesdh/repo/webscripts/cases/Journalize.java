@@ -30,7 +30,11 @@ public class Journalize extends AbstractWebScript {
 
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
-        NodeRef caseNodeRef = new NodeRef(req.getParameter("nodeRef"));
+        Map<String, String> templateArgs = req.getServiceMatch().getTemplateVars();
+        String caseId = templateArgs.get ("caseId");
+
+//        NodeRef caseNodeRef = new NodeRef(req.getParameter("nodeRef"));
+        NodeRef caseNodeRef = this.caseService.getCaseById(caseId);
         Boolean unjournalize = Boolean.valueOf(req.getParameter("unjournalize"));
 
         boolean result = true;

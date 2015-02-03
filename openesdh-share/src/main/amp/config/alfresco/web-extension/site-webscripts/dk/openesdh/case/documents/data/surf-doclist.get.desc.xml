@@ -1,0 +1,7 @@
+<webscript>
+  <shortname>openEsdh case list</shortname>
+  <description>Web Tier Case List Component - doclist data webscript endpoint</description>
+  <url>/components/caselibrary/data/{webscript}/{params}</url>
+  <url>/components/caselibrary/data/site/{site}/{webscript}/{params}</url>
+  <format default="json">argument</format>
+</webscript>

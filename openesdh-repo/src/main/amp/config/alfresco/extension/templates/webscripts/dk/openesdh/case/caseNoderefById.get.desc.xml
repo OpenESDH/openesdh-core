@@ -1,0 +1,9 @@
+<webscript>
+    <shortname>Get case by ID</shortname>
+    <description>Returns a case nodeRef given a case Id</description>
+    <url>/api/openesdh/case/noderef/{caseId}</url>
+    <format default="json"></format>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+    <family>Case Tools</family>
+</webscript>

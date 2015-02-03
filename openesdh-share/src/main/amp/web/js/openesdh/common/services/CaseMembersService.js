@@ -10,25 +10,31 @@ define(["dojo/_base/declare",
 
             nodeRef: "",
 
+            caseId: "",
+
             constructor: function (args) {
                 lang.mixin(this, args);
                 this.alfSubscribe(this.CaseMembersAddToRoleTopic, lang.hitch(this, "_onCaseMemberAddToRole"));
                 this.alfSubscribe(this.CaseMembersChangeRoleTopic, lang.hitch(this, "_onCaseMemberChangeRole"));
                 this.alfSubscribe(this.CaseMembersRemoveRoleTopic, lang.hitch(this, "_onCaseMemberRemoveRole"));
-                this.alfSubscribe(this.CaseMembersGet, lang.hitch(this, "_loadCaseMembers"));
+                this.alfSubscribe(this.CaseMembersGroupGet, lang.hitch(this, "_getCaseMembersGroup"));
+                this.alfSubscribe(this.CaseNavigateToUserProfilePage, lang.hitch(this, "_navigateToUserProfile"));
             },
 
-            _loadCaseMembers: function () {
-                // Get members from webscript
+            _navigateToUserProfile: function (payload) {
+                window.location = Alfresco.util.uriTemplate("userprofilepage", {userid: payload.userName});
+            },
+
+            _getCaseMembersGroup: function (payload) {
+                // Get members of a group that is the member of a case
+                var groupShortName = payload.groupShortName;
                 this.serviceXhr({
-                    url: Alfresco.constants.PROXY_URI + "api/openesdh/casemembers",
-                    query: {
-                        nodeRef: this.nodeRef
-                    },
+                    url: Alfresco.constants.PROXY_URI + "api/groups/"+groupShortName+"/children?maxItems=10&&sortBy=authority" ,
+                    query: {},
                     method: "GET",
                     handleAs: "json",
                     successCallback: function (response, config) {
-                        this.alfPublish(this.CaseMembersTopic, {members: response});
+                        this.alfPublish(this.CaseMembersGroupRetrieved, {members: response.data});
                     },
                     callbackScope: this
                 });

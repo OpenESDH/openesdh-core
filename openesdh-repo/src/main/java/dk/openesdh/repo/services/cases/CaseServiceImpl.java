@@ -9,13 +9,12 @@ import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.action.ActionService;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
-import org.alfresco.service.cmr.repository.AssociationRef;
-import org.alfresco.service.cmr.repository.ChildAssociationRef;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.repository.*;
 import org.alfresco.service.cmr.rule.Rule;
 import org.alfresco.service.cmr.rule.RuleService;
 import org.alfresco.service.cmr.rule.RuleType;
+import org.alfresco.service.cmr.search.ResultSet;
+import org.alfresco.service.cmr.search.SearchParameters;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
@@ -51,6 +50,7 @@ public class CaseServiceImpl implements CaseService {
     private RuleService ruleService;
     private ActionService actionService;
 
+    //<editor-fold desc="Service setters">
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
     }
@@ -78,6 +78,7 @@ public class CaseServiceImpl implements CaseService {
     public void setDictionaryService(DictionaryService dictionaryService) {
         this.dictionaryService = dictionaryService;
     }
+    //</editor-fold>
 
     public void setRuleService(RuleService ruleService) {
         this.ruleService = ruleService;
@@ -100,7 +101,6 @@ public class CaseServiceImpl implements CaseService {
         return casesRootNodeRef;
     }
 
-
     /**
      * Creating Case Folder Ref
      *
@@ -115,7 +115,6 @@ public class CaseServiceImpl implements CaseService {
         return casesRootNodeRef;
 
     }
-
 
     /**
      * Creating Groups and assigning permission on New case folder
@@ -154,6 +153,28 @@ public class CaseServiceImpl implements CaseService {
         return roles;
     }
 
+    @Override
+    public NodeRef getCaseById(String caseId) {
+        SearchParameters sp = new SearchParameters();
+        sp.addStore(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE);
+        sp.setLanguage(SearchService.LANGUAGE_FTS_ALFRESCO);
+        sp.setQuery("TYPE:\""+OpenESDHModel.TYPE_CASE_SIMPLE+"\"AND @oe\\:id:\""+ caseId+"\"");
+        ResultSet results = null;
+        NodeRef caseNodeRef = null;
+        try {
+            results = this.searchService.query(sp);
+            if(results.length() == 1) //Because "There there can be only one"
+                caseNodeRef = results.getRow(0).getNodeRef();
+        }
+        finally {
+            if(results != null) {
+                results.close();
+            }
+            return caseNodeRef;
+        }
+
+    }
+
     public String getCaseId(NodeRef caseNodeRef) {
         return (String) nodeService.getProperty(caseNodeRef,
                 OpenESDHModel.PROP_OE_ID);
@@ -177,14 +198,14 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public Map<String, Set<String>> getMembersByRole(NodeRef caseNodeRef) {
+    public Map<String, Set<String>> getMembersByRole(NodeRef caseNodeRef, boolean noExpandGroups, boolean includeOwner) {
         String caseId = getCaseId(caseNodeRef);
-        Set<String> roles = getRoles(caseNodeRef);
+        Set<String> roles = includeOwner ? getAllRoles(caseNodeRef) : getRoles(caseNodeRef);
         Map<String, Set<String>> membersByRole = new HashMap<>();
         for (String role : roles) {
             String groupName = getCaseRoleGroupName(caseId, role);
             Set<String> authorities = authorityService.getContainedAuthorities
-                    (null, groupName, true);
+                    (null, groupName, noExpandGroups);
             membersByRole.put(role, authorities);
 
         }
@@ -390,7 +411,6 @@ public class CaseServiceImpl implements CaseService {
     void setupCase(NodeRef caseNodeRef, NodeRef caseFolderNodeRef, long caseUniqueNumber) {
         String caseId = getCaseId(caseUniqueNumber);
 
-
         //Move Case to new location
         nodeService.moveNode(caseNodeRef, caseFolderNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, caseId));
 
@@ -433,7 +453,6 @@ public class CaseServiceImpl implements CaseService {
         return caseId.toString();
     }
 
-
     @Override
     public void createCase(final ChildAssociationRef childAssocRef) {
         AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Void>() {
@@ -470,6 +489,53 @@ public class CaseServiceImpl implements CaseService {
         return getCasePathNodeRef(casesMonthNodeRef, Calendar.DATE);
     }
 
+    /**
+     * Get a node in the calendarbased path of the casefolders
+     *
+     * @param parent       The nodeRef to start from
+     * @param calendarType The type of calendar info to look up, i.e. Calendar.YEAR, Calendar.MONTH, or Calendar.DATE
+     * @return
+     */
+    NodeRef getCasePathNodeRef(NodeRef parent, int calendarType) {
+        // Add 1 for months, as they are indexed form 0
+        String casePathName = Integer.toString(Calendar.getInstance().get(calendarType) + (calendarType == Calendar.MONTH ? 1 : 0));
+        NodeRef casePathNodeRef = nodeService.getChildByName(parent, ContentModel.ASSOC_CONTAINS, casePathName);
+        if (casePathNodeRef == null) {
+            casePathNodeRef = createNode(parent, casePathName);
+        }
+        return casePathNodeRef;
+    }
+
+    @Override
+    public boolean isCaseNode(NodeRef nodeRef) {
+        QName type = nodeService.getType(nodeRef);
+        return dictionaryService.isSubClass(type, OpenESDHModel.TYPE_CASE_BASE);
+    }
+
+    @Override
+    public NodeRef getParentCase(NodeRef nodeRef) {
+        if (nodeRef.equals(getCasesRootNodeRef()) || isCaseNode(nodeRef)) {
+            // Case nodes and cases root don't have cases as ancestors
+            return null;
+        }
+
+        NodeRef parent = nodeService.getPrimaryParent(nodeRef).getParentRef();
+        if (parent == null) {
+            return null;
+        } else {
+            if (isCaseNode(parent)) {
+                return parent;
+            }
+            return getParentCase(parent);
+        }
+    }
+
+    @Override
+    public NodeRef getDocumentsFolder(NodeRef caseNodeRef) {
+        return nodeService.getChildByName(caseNodeRef, ContentModel.ASSOC_CONTAINS, OpenESDHModel.DOCUMENTS_FOLDER_NAME);
+    }
+
+    //<editor-fold desc="Journalization methods">
     public void checkCanJournalize(NodeRef caseNodeRef) throws
             AccessDeniedException {
         String user = AuthenticationUtil.getRunAsUser();
@@ -613,51 +679,6 @@ public class CaseServiceImpl implements CaseService {
             }
         }, AuthenticationUtil.getAdminUserName());
     }
+    //</editor-fold>
 
-
-    /**
-     * Get a node in the calendarbased path of the casefolders
-     *
-     * @param parent       The nodeRef to start from
-     * @param calendarType The type of calendar info to look up, i.e. Calendar.YEAR, Calendar.MONTH, or Calendar.DATE
-     * @return
-     */
-    NodeRef getCasePathNodeRef(NodeRef parent, int calendarType) {
-        // Add 1 for months, as they are indexed form 0
-        String casePathName = Integer.toString(Calendar.getInstance().get(calendarType) + (calendarType == Calendar.MONTH ? 1 : 0));
-        NodeRef casePathNodeRef = nodeService.getChildByName(parent, ContentModel.ASSOC_CONTAINS, casePathName);
-        if (casePathNodeRef == null) {
-            casePathNodeRef = createNode(parent, casePathName);
-        }
-        return casePathNodeRef;
-    }
-
-    @Override
-    public boolean isCaseNode(NodeRef nodeRef) {
-        QName type = nodeService.getType(nodeRef);
-        return dictionaryService.isSubClass(type, OpenESDHModel.TYPE_CASE_BASE);
-    }
-
-    @Override
-    public NodeRef getParentCase(NodeRef nodeRef) {
-        if (nodeRef.equals(getCasesRootNodeRef()) || isCaseNode(nodeRef)) {
-            // Case nodes and cases root don't have cases as ancestors
-            return null;
-        }
-
-        NodeRef parent = nodeService.getPrimaryParent(nodeRef).getParentRef();
-        if (parent == null) {
-            return null;
-        } else {
-            if (isCaseNode(parent)) {
-                return parent;
-            }
-            return getParentCase(parent);
-        }
-    }
-
-    @Override
-    public NodeRef getDocumentsFolder(NodeRef caseNodeRef) {
-        return nodeService.getChildByName(caseNodeRef, ContentModel.ASSOC_CONTAINS, OpenESDHModel.DOCUMENTS_FOLDER_NAME);
-    }
 }

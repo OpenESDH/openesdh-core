@@ -38,9 +38,6 @@ define(["dojo/_base/declare",
              * @instance
              */
             postMixInProperties: function alfresco_renderers_UserNameField__postMixInProperties() {
-
-
-                console.log(this.userProfileLink);
                 var property = lang.getObject(this.propertyToRender, false, this.currentItem);
                 var userName = property.value;
                 var displayName = property.fullname;

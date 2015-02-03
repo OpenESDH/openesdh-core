@@ -42,7 +42,15 @@ public class CaseInfo extends AbstractWebScript {
 
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
-        NodeRef caseNodeRef = new NodeRef(req.getParameter("nodeRef"));
+        Map<String, String> templateArgs = req.getServiceMatch().getTemplateVars();
+        String caseId = templateArgs.get ("caseId");
+        NodeRef caseNodeRef;
+        
+        if(caseId == null)
+            caseNodeRef = new NodeRef(req.getParameter("nodeRef"));
+        else
+            caseNodeRef = caseService.getCaseById(caseId);
+
         NodeInfoService.NodeInfo nodeInfo = nodeInfoService.getNodeInfo(caseNodeRef);
         JSONObject json = nodeInfoService.buildJSON(nodeInfo, this);
         String user = AuthenticationUtil.getFullyAuthenticatedUser();

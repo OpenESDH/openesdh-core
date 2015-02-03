@@ -41,7 +41,6 @@ define(["dojo/_base/declare",
             },
 
             _onAddCaseMembers: function (payload) {
-                console.log(payload);
                 var role = payload.role;
                 var _this = this;
 

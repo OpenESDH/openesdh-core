@@ -38,10 +38,10 @@ function getCaseTypes () {
 /**
  * Get the role types for a case
  */
-function getCaseRoleTypes (nodeRef) {
+function getCaseRoleTypes (nodeRef, caseId) {
 
     var connector = remote.connect("alfresco");
-    var roleTypes = connector.get("/api/openesdh/caseroles?nodeRef=" + encodeURIComponent(nodeRef));
+    var roleTypes = connector.get("/api/openesdh/"+caseId+"/caseroles?nodeRef=" + encodeURIComponent(nodeRef));
     roleTypes = eval('(' + roleTypes + ')');
     return roleTypes;
 }

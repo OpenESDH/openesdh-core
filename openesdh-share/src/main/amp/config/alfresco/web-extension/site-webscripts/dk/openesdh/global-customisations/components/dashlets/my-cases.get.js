@@ -5,7 +5,7 @@ model.jsonModel = {
     widgets: [
         {
             id: "DASHLET",
-            name: "alfresco/dashlets/MyCases"
+            name: "openesdh/common/widgets/dashlets/MyCasesWidget"
         }
     ]
 };

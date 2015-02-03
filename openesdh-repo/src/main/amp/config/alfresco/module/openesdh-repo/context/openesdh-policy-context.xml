@@ -23,7 +23,6 @@
         </property>
     </bean>
 
-
     <bean id="documentsBehaviour" class="dk.openesdh.repo.policy.DocumentsBehaviour" init-method="init">
         <property name="documentService">
             <ref bean="DocumentService"/>
@@ -33,6 +32,25 @@
         </property>
         <property name="policyComponent">
             <ref bean="policyComponent"/>
+        </property>
+    </bean>
+
+    <bean id="contact.group.policies" class="dk.openesdh.repo.policy.ContactsGroupPolicy"
+          init-method="init">
+        <property name="contactsGroup">
+            <value>GROUP_CONTACTS</value>
+        </property>
+        <property name="authorityService">
+            <ref bean="AuthorityService" />
+        </property>
+        <property name="contactService">
+            <ref bean="ContactService" />
+        </property>
+        <property name="policyComponent">
+            <ref bean="policyComponent" />
+        </property>
+        <property name="nodeService">
+            <ref bean="NodeService" />
         </property>
     </bean>
 </beans>
