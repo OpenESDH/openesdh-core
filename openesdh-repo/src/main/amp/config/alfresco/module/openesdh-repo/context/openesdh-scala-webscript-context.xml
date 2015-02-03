@@ -18,4 +18,9 @@
         <constructor-arg ref="NodeService" />
     </bean>
 
+    <bean id="webscript.dk.openesdh.contact.createContact.get" class="dk.openesdh.repo.webscripts.contacts.CreateContact" parent="webscript">
+        <constructor-arg ref="ContactService" />
+        <constructor-arg ref="NodeService" />
+    </bean>
+
 </beans>

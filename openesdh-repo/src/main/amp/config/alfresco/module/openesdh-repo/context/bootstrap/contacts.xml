@@ -1,14 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <view:view xmlns:view="http://www.alfresco.org/view/repository/1.0">
-    <cm:folder xmlns=""
-               xmlns:imap="http://www.alfresco.org/model/imap/1.0"
+    <cm:folder xmlns:imap="http://www.alfresco.org/model/imap/1.0"
                xmlns:st="http://www.alfresco.org/model/site/1.0"
                xmlns:cm="http://www.alfresco.org/model/content/1.0"
                xmlns:view="http://www.alfresco.org/view/repository/1.0"
                xmlns:sys="http://www.alfresco.org/model/system/1.0"
                xmlns:app="http://www.alfresco.org/model/application/1.0"
                xmlns:contact="http://openesdh.dk/model/contact/1.0"
-               view:childName="contact:contacts"
+               view:childName="sys:contacts"
             >
         <view:aspects>
             <app:uifacets></app:uifacets>
@@ -37,10 +36,10 @@
             <cm:name>Contacts</cm:name>
             <sys:store-identifier>SpacesStore</sys:store-identifier>
             <cm:title>Contacts</cm:title>
-            <sys:node-uuid>ae9b584d-7ae3-3554-4dce-06107b89e061</sys:node-uuid>
+            <sys:node-uuid>ae9b584d-7ae3-3554-4dce-06107b8f4061</sys:node-uuid>
             <sys:store-protocol>workspace</sys:store-protocol>
             <cm:description>Contacts</cm:description>
-            <imap:changeToken>ae9b584d-7ae3-3554-4dce-06107b89e061</imap:changeToken>
+            <imap:changeToken>ae9b584d-7ae3-3554-4dce-06107b8f4061</imap:changeToken>
         </view:properties>
     </cm:folder>
 </view:view>

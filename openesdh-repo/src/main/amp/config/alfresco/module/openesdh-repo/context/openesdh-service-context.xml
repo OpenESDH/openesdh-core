@@ -152,25 +152,37 @@
         </property>
     </bean>
 
-    <bean id="ContactInvitationService" class="dk.openesdh.repo.services.contacts.ContactInvitationServiceImpl">
-        <property name="sysAdminParams">
-            <ref bean="sysAdminParams"/>
-        </property>
-        <property name="contactService">
-            <ref bean="ContactService"/>
-        </property>
-        <property name="authenticationService">
-            <ref bean="AuthenticationService"/>
-        </property>
+<!--
+        <bean id="ContactInvitationService" class="dk.openesdh.repo.services.contacts.ContactInvitationServiceImpl">
+            <property name="sysAdminParams">
+                <ref bean="sysAdminParams"/>
+            </property>
+            <property name="contactService">
+                <ref bean="ContactService"/>
+            </property>
+            <property name="authenticationService">
+                <ref bean="AuthenticationService"/>
+            </property>
+        </bean>
+-->
+
+    <!--Scala service(s) section (No you're not l337 for knowing scala. Just -->
+    <bean id="ContactService" class="dk.openesdh.repo.services.contacts.ContactServiceImpl">
+        <constructor-arg ref="NodeService" />
+        <constructor-arg ref="SearchService" />
+        <constructor-arg ref="ContactDAO" />
+        <constructor-arg ref="AuthorityService" />
     </bean>
 
-    <bean id="ContactService" class="dk.openesdh.repo.services.contacts.ContactServiceImpl">
-        <property name="nodeService">
-            <ref bean="nodeService"/>
-        </property>
-        <property name="searchService">
-            <ref bean="searchService"/>
-        </property>
+    <bean id="ContactDAO" class="dk.openesdh.repo.services.contacts.ContactDAOImpl" parent="authorityDAO">
+        <constructor-arg ref="NodeService"/>
+        <constructor-arg ref="tenantService"/>
+        <constructor-arg ref="namespaceService" />
+        <constructor-arg ref="repositoryHelper"/>
+        <constructor-arg ref="authorityLookupCache"/>
+        <constructor-arg ref="zoneToAuthorityCache"/>
+        <constructor-arg ref="immutableSingletonCache"/>
+        <constructor-arg ref="namespaceService" />
     </bean>
 
 
