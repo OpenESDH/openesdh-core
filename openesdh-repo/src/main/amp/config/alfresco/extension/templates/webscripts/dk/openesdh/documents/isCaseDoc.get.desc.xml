@@ -2,7 +2,7 @@
     <shortname>Is case document</shortname>
     <description>
         Returns true if the document is part of a case and script is accessed via a nodeRef.
-        When accessed with a caseId returns soe additional case details if true.(Used for the module Evaluator)
+        When accessed with a caseId returns some additional case details if true.(Used for the module Evaluator)
         Otherwise returns false.
     </description>
     <url>/api/openesdh/documents/isCaseDoc/{caseId}</url>
