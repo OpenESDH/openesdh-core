@@ -9,6 +9,8 @@ import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.action.ActionService;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
+import org.alfresco.service.cmr.lock.LockService;
+import org.alfresco.service.cmr.lock.LockType;
 import org.alfresco.service.cmr.repository.*;
 import org.alfresco.service.cmr.repository.datatype.DefaultTypeConverter;
 import org.alfresco.service.cmr.rule.Rule;
@@ -45,14 +47,16 @@ public class CaseServiceImpl implements CaseService {
     private Repository repositoryHelper;
     private NodeService nodeService;
     private SearchService searchService;
+    private LockService lockService;
+
     private AuthorityService authorityService;
+
     private PermissionService permissionService;
     private TransactionService transactionService;
     private DictionaryService dictionaryService;
     private RuleService ruleService;
     private ActionService actionService;
     private OwnableService ownableService;
-
     //<editor-fold desc="Service setters">
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
@@ -60,6 +64,10 @@ public class CaseServiceImpl implements CaseService {
 
     public void setSearchService(SearchService searchService) {
         this.searchService = searchService;
+    }
+
+    public void setLockService(LockService lockService) {
+        this.lockService = lockService;
     }
 
     public void setAuthorityService(AuthorityService authorityService) {
@@ -619,6 +627,15 @@ public class CaseServiceImpl implements CaseService {
 
                 // Add the Journalized permission set to deny everyone
                 permissionService.setPermission(nodeRef, PermissionService.ALL_AUTHORITIES, "Journalized", false);
+
+                // Add a never-expiring lock as the system user
+                String authenticatedUser = AuthenticationUtil.getFullyAuthenticatedUser();
+                try {
+                    AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getSystemUserName());
+                    lockService.lock(nodeRef, LockType.READ_ONLY_LOCK, 0);
+                } finally {
+                    AuthenticationUtil.setFullyAuthenticatedUser(authenticatedUser);
+                }
                 return null;
             }
         });
@@ -664,9 +681,7 @@ public class CaseServiceImpl implements CaseService {
         AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Void>() {
             @Override
             public Void doWork() {
-                // Deleting the Journalized permission must be run as system
-                // because the case is journalized and therefore the user
-                // is currently denied the ChangePermissions permission
+                lockService.unlock(nodeRef);
 
                 // Only delete the permission if permissions are not
                 // inherited (shared)

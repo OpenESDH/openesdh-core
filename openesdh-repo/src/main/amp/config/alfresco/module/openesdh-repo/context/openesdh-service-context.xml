@@ -18,6 +18,10 @@
             <ref bean="OwnableService"/>
         </property>
 
+        <property name="lockService">
+            <ref bean="LockService"/>
+        </property>
+
         <property name="permissionService">
             <ref bean="PermissionService"/>
         </property>

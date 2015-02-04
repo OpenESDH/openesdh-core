@@ -9,6 +9,7 @@ import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
+import org.alfresco.service.cmr.lock.LockService;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -72,6 +73,10 @@ public class CaseServiceImplTest {
     protected OwnableService ownableService;
 
     @Autowired
+    @Qualifier("LockService")
+    protected LockService lockService;
+
+    @Autowired
     @Qualifier("repositoryHelper")
     protected Repository repositoryHelper;
 
@@ -117,6 +122,7 @@ public class CaseServiceImplTest {
         caseService.setRepositoryHelper(repositoryHelper);
         caseService.setTransactionService(transactionService);
         caseService.setDictionaryService(dictionaryService);
+        caseService.setLockService(lockService);
 
         namespacePrefixResolver.registerNamespace(NamespaceService.APP_MODEL_PREFIX, NamespaceService.APP_MODEL_1_0_URI);
         namespacePrefixResolver.registerNamespace(OpenESDHModel.CASE_PREFIX, OpenESDHModel.CASE_URI);
