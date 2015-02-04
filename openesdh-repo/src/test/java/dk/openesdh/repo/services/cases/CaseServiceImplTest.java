@@ -14,10 +14,7 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.search.CategoryService;
 import org.alfresco.service.cmr.search.SearchService;
-import org.alfresco.service.cmr.security.AuthorityService;
-import org.alfresco.service.cmr.security.AuthorityType;
-import org.alfresco.service.cmr.security.PermissionService;
-import org.alfresco.service.cmr.security.PersonService;
+import org.alfresco.service.cmr.security.*;
 import org.alfresco.service.namespace.DynamicNamespacePrefixResolver;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
@@ -71,6 +68,10 @@ public class CaseServiceImplTest {
     protected PermissionService permissionService;
 
     @Autowired
+    @Qualifier("OwnableService")
+    protected OwnableService ownableService;
+
+    @Autowired
     @Qualifier("repositoryHelper")
     protected Repository repositoryHelper;
 
@@ -111,6 +112,7 @@ public class CaseServiceImplTest {
         caseService.setNodeService(nodeService);
         caseService.setSearchService(searchService);
         caseService.setAuthorityService(authorityService);
+        caseService.setOwnableService(ownableService);
         caseService.setPermissionService(permissionService);
         caseService.setRepositoryHelper(repositoryHelper);
         caseService.setTransactionService(transactionService);
@@ -297,9 +299,9 @@ public class CaseServiceImplTest {
         assertFalse("Removing case owner should remove them from CaseOwners " +
                 "group", authorityService
                 .getContainedAuthorities(
-                AuthorityType.USER,
-                groupName,
-                false).contains(ADMIN_USER_NAME));
+                        AuthorityType.USER,
+                        groupName,
+                        false).contains(ADMIN_USER_NAME));
     }
 
     @Test
@@ -483,7 +485,7 @@ public class CaseServiceImplTest {
 
         try {
             caseService.unJournalize(behaviourOnCaseNodeRef);
-            assertFalse("Cannot unjournalize an unjournalized case", true);
+            fail("Should not be able to unjournalize an unjournalized case");
         } catch (Exception e) {
         }
 
@@ -509,9 +511,15 @@ public class CaseServiceImplTest {
         try {
             nodeService.setProperty(behaviourOnCaseNodeRef,
                     ContentModel.PROP_TITLE, "new title");
-            assertTrue("A property could be updated on a " +
-                    "journalized case", false);
-            // TODO: Test the same for case documents
+            fail("A property could be updated on a journalized case");
+        } catch (Exception e) {
+        }
+
+        try {
+            // Test that a document cannot be added to a journalized case
+            NodeRef doc = createDocument(caseService.getDocumentsFolder
+                    (behaviourOnCaseNodeRef), "testdoc");
+            fail("A document could be added to a journalized case");
         } catch (Exception e) {
         }
 
@@ -519,8 +527,7 @@ public class CaseServiceImplTest {
         try {
             caseService.removeAuthorityFromRole(CaseHelper.DEFAULT_USERNAME,
                     "CaseOwners", behaviourOnCaseNodeRef);
-            assertTrue("An authority could be removed from a role on a " +
-                    "journalized case", false);
+            fail("An authority could be removed from a role on a journalized case");
         } catch (Exception e) {
         }
 
@@ -528,8 +535,7 @@ public class CaseServiceImplTest {
         try {
             caseService.addAuthorityToRole("admin",
                     "CaseSimpleReader", behaviourOnCaseNodeRef);
-            assertTrue("An authority could be added to a role on a " +
-                    "journalized case", false);
+            fail("An authority could be added to a role on a journalized case");
         } catch (Exception e) {
         }
 
@@ -542,13 +548,14 @@ public class CaseServiceImplTest {
         // Test that a case cannot be journalized twice
         try {
             caseService.journalize(behaviourOnCaseNodeRef, journalKey);
-            assertFalse("Cannot journalize a journalized case", true);
+            fail("Should not be able to journalize a journalized case");
         } catch (Exception e) {
         }
 
         try {
             caseService.unJournalize(behaviourOnCaseNodeRef);
-            assertFalse("Cannot unjournalize a case as a regular user", true);
+            fail("Should not be able to unjournalizea case as a regular " +
+                    "user");
         } catch (Exception e) {
         }
 
@@ -577,6 +584,16 @@ public class CaseServiceImplTest {
         // Delete test journal key categories
 //        categoryService.deleteCategory(journalKey);
         categoryService.deleteCategory(rootCategory);
+    }
+
+    private NodeRef createDocument(NodeRef parent, String name) {
+        Map<QName, Serializable> properties = new HashMap<>();
+        properties.put(ContentModel.PROP_NAME, name);
+        return nodeService.createNode(
+                caseService.getDocumentsFolder(behaviourOnCaseNodeRef),
+                ContentModel.ASSOC_CONTAINS, QName.createQName
+                        (OpenESDHModel.CASE_URI, name),
+                ContentModel.TYPE_CONTENT, properties).getChildRef();
     }
 
     @Test

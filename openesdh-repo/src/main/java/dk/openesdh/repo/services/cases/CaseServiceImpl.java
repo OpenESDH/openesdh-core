@@ -10,6 +10,7 @@ import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.action.ActionService;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.*;
+import org.alfresco.service.cmr.repository.datatype.DefaultTypeConverter;
 import org.alfresco.service.cmr.rule.Rule;
 import org.alfresco.service.cmr.rule.RuleService;
 import org.alfresco.service.cmr.rule.RuleType;
@@ -18,6 +19,7 @@ import org.alfresco.service.cmr.search.SearchParameters;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
+import org.alfresco.service.cmr.security.OwnableService;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
@@ -49,6 +51,7 @@ public class CaseServiceImpl implements CaseService {
     private DictionaryService dictionaryService;
     private RuleService ruleService;
     private ActionService actionService;
+    private OwnableService ownableService;
 
     //<editor-fold desc="Service setters">
     public void setNodeService(NodeService nodeService) {
@@ -73,6 +76,10 @@ public class CaseServiceImpl implements CaseService {
 
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    public void setOwnableService(OwnableService ownableService) {
+        this.ownableService = ownableService;
     }
 
     public void setDictionaryService(DictionaryService dictionaryService) {
@@ -125,10 +132,7 @@ public class CaseServiceImpl implements CaseService {
     void managePermissions(NodeRef caseNodeRef, String caseId) {
         // Add cm:ownable aspect and set the cm:owner to admin
         // so that the node creator does not have full control.
-        Map<QName, Serializable> aspectProperties = new HashMap<>();
-        aspectProperties.put(ContentModel.PROP_OWNER, AuthenticationUtil.getSystemUserName());
-        nodeService.addAspect(caseNodeRef, ContentModel.ASPECT_OWNABLE,
-                aspectProperties);
+        ownableService.setOwner(caseNodeRef, AuthenticationUtil.getSystemUserName());
 
         // Do not inherit parent permissions (which probably has
         // GROUP_EVERYONE set to Consumer, which we do not want)
@@ -568,8 +572,8 @@ public class CaseServiceImpl implements CaseService {
         if (!isJournalized(caseNodeRef)) {
             return false;
         }
-        // Only admins can unjournalize, not case owners
-        return authorityService.isAdminAuthority(user);
+        return authorityService.isAdminAuthority(user) ||
+                isCaseOwner(user, caseNodeRef);
     }
 
     @Override
@@ -594,18 +598,31 @@ public class CaseServiceImpl implements CaseService {
     }
 
     private void journalizeImpl(final NodeRef nodeRef, final NodeRef journalKey) {
-        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Void>() {
+        AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Void>() {
             @Override
             public Void doWork() {
+                // Set the owner to be the System user to prevent the
+                // original owner from modifying the node
+                String originalOwner = null;
+                if (nodeService.hasAspect(nodeRef, ContentModel.ASPECT_OWNABLE)) {
+                    originalOwner = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_OWNER);
+                }
+                ownableService.setOwner(nodeRef, AuthenticationUtil.getSystemUserName());
+
+                // Add journalized aspect
                 Map<QName, Serializable> props = new HashMap<>();
                 props.put(OpenESDHModel.PROP_OE_JOURNALKEY, journalKey);
                 props.put(OpenESDHModel.PROP_OE_JOURNALIZED_BY, AuthenticationUtil.getFullyAuthenticatedUser());
                 props.put(OpenESDHModel.PROP_OE_JOURNALIZED_DATE, new Date());
+                // Save the original owner, or null if there wasn't any
+                props.put(OpenESDHModel.PROP_OE_ORIGINAL_OWNER, originalOwner);
                 nodeService.addAspect(nodeRef, OpenESDHModel.ASPECT_OE_JOURNALIZED, props);
+
+                // Add the Journalized permission set to deny everyone
                 permissionService.setPermission(nodeRef, PermissionService.ALL_AUTHORITIES, "Journalized", false);
                 return null;
             }
-        }, AuthenticationUtil.getAdminUserName());
+        });
 
         List<ChildAssociationRef> childAssociationRefs = nodeService.getChildAssocs(nodeRef);
         for (ChildAssociationRef childAssociationRef : childAssociationRefs) {
@@ -614,7 +631,7 @@ public class CaseServiceImpl implements CaseService {
     }
 
     private void journalizeCaseGroups(final NodeRef caseNodeRef) {
-        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Void>() {
+        AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Void>() {
             @Override
             public Void doWork() {
                 List<ChildAssociationRef> childAssociationRefs = nodeService.getChildAssocs(caseNodeRef);
@@ -627,7 +644,7 @@ public class CaseServiceImpl implements CaseService {
                 }
                 return null;
             }
-        }, AuthenticationUtil.getAdminUserName());
+        });
     }
 
     @Override
@@ -645,17 +662,32 @@ public class CaseServiceImpl implements CaseService {
     }
 
     private void unJournalizeImpl(final NodeRef nodeRef) {
-        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Void>() {
+        AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Void>() {
             @Override
             public Void doWork() {
-                // Deleting the Journalized permission must be run as admin
+                // Deleting the Journalized permission must be run as system
                 // because the case is journalized and therefore the user
                 // is currently denied the ChangePermissions permission
-                permissionService.deletePermission(nodeRef, PermissionService.ALL_AUTHORITIES, "Journalized");
+
+                // Only delete the permission if permissions are not
+                // inherited (shared)
+                if (!permissionService.getInheritParentPermissions(nodeRef)) {
+                    permissionService.deletePermission(nodeRef, PermissionService.ALL_AUTHORITIES, "Journalized");
+                }
+
+                String originalOwner = (String) nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_ORIGINAL_OWNER);
+                if (originalOwner != null) {
+                    // Restore the node's original owner
+                    ownableService.setOwner(nodeRef, originalOwner);
+                } else {
+                    // Remove the ownable aspect, since it wasn't there to
+                    // begin with
+                    nodeService.removeAspect(nodeRef, ContentModel.ASPECT_OWNABLE);
+                }
                 nodeService.removeAspect(nodeRef, OpenESDHModel.ASPECT_OE_JOURNALIZED);
                 return null;
             }
-        }, AuthenticationUtil.getAdminUserName());
+        });
 
         List<ChildAssociationRef> childAssociationRefs = nodeService.getChildAssocs(nodeRef);
         for (ChildAssociationRef childAssociationRef : childAssociationRefs) {
@@ -664,7 +696,7 @@ public class CaseServiceImpl implements CaseService {
     }
 
     private void unJournalizeCaseGroups(final NodeRef caseNodeRef) {
-        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Void>() {
+        AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Void>() {
             @Override
             public Void doWork() {
                 List<ChildAssociationRef> childAssociationRefs = nodeService.getChildAssocs(caseNodeRef);
@@ -677,7 +709,7 @@ public class CaseServiceImpl implements CaseService {
                 }
                 return null;
             }
-        }, AuthenticationUtil.getAdminUserName());
+        });
     }
     //</editor-fold>
 
