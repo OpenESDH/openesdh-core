@@ -66,6 +66,42 @@ define(["dojo/_base/declare",
                 var isJournalized = false;
             },
 
+            _caseHistory: function (nodeRef) {
+                // Get caseHistory from webscript
+
+//                var url = Alfresco.constants.PROXY_URI + "api/openesdh/casehistory?nodeRef=" + nodeRef;
+//                this.serviceXhr({
+//                    url: url,
+//                    method: "GET",
+//                    successCallback: this._onCaseHistorySuccessCallback,
+//                    callbackScope: this});
+
+                var domReadyFunction = (function (scope) {
+                    return function () {
+                        scope.alfPublish(scope.CaseHistoryTopic, nodeRef);
+//                        scope.alfPublish("ALF_UPDATE_PAGE_TITLE", {title: response.properties["cm:title"].value});
+                    }
+                })(this);
+
+                require(["dojo/ready"], function (ready) {
+                    // will not be called until DOM is ready
+                    ready(domReadyFunction);
+                });
+            },
+
+            _onCaseHistorySuccessCallback: function (response, config) {
+
+
+            },
+
+            _onCaseHistory: function (payload) {
+                // Update menu
+                // TODO: Check if case is journalized or not.
+//                this.alfPublish("CASE_JOURNALIZED", {isJournalized: "oe:journalized" in payload.aspects});
+                var isJournalized = false;
+            },
+
+
             _onJournalize: function () {
                 var dialog = new AlfFormDialog({
                     pubSubScope: this.pubSubScope,

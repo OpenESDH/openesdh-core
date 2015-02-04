@@ -19,11 +19,13 @@ model.jsonModel = {
                             widgets: [{
                                 name: "openesdh/common/widgets/dashlets/CaseMembersDashlet",
                                 config:{
-                                    caseNodeRef: caseNodeRef,
                                     caseId : caseId
                                 }
                             }]
                       }
+                    },
+                    {
+                        name: "openesdh/common/widgets/dashlets/CaseHistoryDashlet"
                     }
                 ]
             }
