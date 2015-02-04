@@ -17,7 +17,6 @@ import org.apache.commons.logging.LogFactory;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 
 /**

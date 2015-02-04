@@ -61,8 +61,8 @@ public class ContactServiceImpl implements ContactService {
         HashMap<QName, Serializable> props = new HashMap<QName, Serializable>();
         props.put(OpenESDHModel.PROP_CONTACT_EMAIL, email);
         //Next two are for testing purposes only
-        props.put(OpenESDHModel.PROP_CONTACT_FIRST_NAME, "Morgan");
-        props.put(OpenESDHModel.PROP_CONTACT_LAST_NAME, "Freeman");
+//        props.put(OpenESDHModel.PROP_CONTACT_FIRST_NAME, "Morgan");
+//        props.put(OpenESDHModel.PROP_CONTACT_LAST_NAME, "Freeman");
         return this.contactDAO.createContact(email, StringUtils.capitalize(type), DEFAULT_ZONES, props);
     }
 
