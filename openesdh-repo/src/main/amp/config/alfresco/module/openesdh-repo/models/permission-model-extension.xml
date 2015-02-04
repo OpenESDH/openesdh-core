@@ -54,9 +54,9 @@
 -->
     </permissionSet>
 
-    <permissionSet type="oe:journalizable">
+    <permissionSet type="oe:journalized" expose="selected">
         <!-- Groups used in denying, when journalizing -->
-        <permissionGroup name="Journalized" requiresType="true">
+        <permissionGroup name="Journalized" requiresType="true" expose="false">
             <includePermissionGroup permissionGroup="WriteProperties" type="sys:base"/>
             <includePermissionGroup permissionGroup="WriteContent" type="sys:base"/>
             <includePermissionGroup permissionGroup="ExecuteContent" type="sys:base"/>
