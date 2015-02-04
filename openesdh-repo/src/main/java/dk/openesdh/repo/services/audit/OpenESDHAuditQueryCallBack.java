@@ -93,7 +93,7 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
 
             String key = entry.getKey();
             Serializable value = entry.getValue();
-            System.out.println("what is key" + key);
+//            System.out.println("what is key" + key);
 //            System.out.println("values: " + values.get("/esdh/transaction/action"));
 
             if (key != null && value != null) {

@@ -8,12 +8,17 @@ import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang.StringUtils;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 import org.apache.lucene.queryParser.QueryParser;
 
 import java.util.*;
 
 public class ContactSearchServiceImpl extends AbstractXSearchService
         implements ContactSearchService {
+
+    private static Logger LOGGER = Logger.getLogger(ContactSearchService.class.toString());
+
 
     protected DictionaryService dictionaryService;
     protected NamespaceService namespaceService;
@@ -64,7 +69,9 @@ public class ContactSearchServiceImpl extends AbstractXSearchService
         }
 
         query = "TYPE:\"" + baseTypeQName + "\" AND (" + query + ")";
-        System.out.println(query);
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug(query);
+        }
         return executeQuery(query, startIndex, pageSize, sortField, ascending);
     }
 

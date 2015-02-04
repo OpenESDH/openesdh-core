@@ -38,31 +38,21 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
   public Serializable extractData(Serializable value) throws Throwable {
     String result = null;
 
-    System.out.println( "WE'RE INSIDE EXTRACT DATA!\n\n" );
-    System.out.println( "VALUE CLASS IN EXTRACT DATA: " + value.getClass() + "\n\n");
-    System.out.println( "VALUE IN EXTRACT DATA: " + value.toString() + "\n\n");
-
-
     // TODO Ole,do we ever get an instance of a nodeRef?
     if (value instanceof NodeRef) {
       // received a NodeRef object, we know this is a permission change
       // therefore we always have a path
       NodeRef nodeRef = (NodeRef) value;
-      System.out.println("("+ getClass().getCanonicalName() + ") NODEREF IN EXTRACT DATA: " + nodeRef.getId() + "\n\n" );
       Path path = nodeService.getPath(nodeRef);
       result = nodeRef.toString();
     } else if (value instanceof String) {
       String str = (String) value;
       //System.out.println( "EXTRACT DATA: STRING:" + str + "\n\n" );
       if (str.startsWith("("+ getClass().getCanonicalName() + ") GROUP_case_")) {
-          System.out.println("this is a group thing");
         String[] parts = str.split("_");
         if (parts.length < 3) {
-            System.out.println(("null"));
-
           return null;
         }
-          System.out.println("fromcaseid");
         result = getNodeRefFromCaseID(parts[2]);
       } else {
           //System.out.println("this is a path thingie");
@@ -70,23 +60,16 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
       }
     }
     // TODO: check that what is returned is actually a case, return null otherwise
-    System.out.println("("+ getClass().getCanonicalName() + ") THE GREAT RESULT FROM EXTRACT DATA: " + result + "\n\n");
     return result;
   }
 
   private String getNodeRefFromPath(String path) {
-
-    System.out.println("("+ getClass().getCanonicalName() + ") EXTRACT DATA: getNodeRefFromPath.path: " + path + "\n\n" );
     String prefix = "/app:company_home/case:openesdh_cases/";
     if (path.startsWith(prefix)) {
       String[] parts = path.split("/");
-      System.out.println("parts.length:" + parts.length);
         if (parts.length >= 7) {
             String node_db_id = parts[6].substring(parts[6].length() - 4);
-            System.out.println(("nodedbid: " + node_db_id));
             NodeRef nodeRef = nodeService.getNodeRef(Long.parseLong(node_db_id));
-
-            System.out.println("" + nodeRef.toString());
 
             return nodeRef.toString();
         }

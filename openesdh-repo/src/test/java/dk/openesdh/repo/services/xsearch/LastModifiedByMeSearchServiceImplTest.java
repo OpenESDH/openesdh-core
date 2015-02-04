@@ -158,8 +158,6 @@ public class LastModifiedByMeSearchServiceImplTest {
         params.put("filter", "");
         params.put("baseType", "");
 
-        System.out.println(lastModifiedByMeSearchService);
-
         XResultSet nodes = lastModifiedByMeSearchService.getNodes(params, 0, 100, "", true);
 
         // we expect there to be only one - caseA
