@@ -572,8 +572,7 @@ public class CaseServiceImpl implements CaseService {
         if (!isJournalized(caseNodeRef)) {
             return false;
         }
-        return authorityService.isAdminAuthority(user) ||
-                isCaseOwner(user, caseNodeRef);
+        return authorityService.isAdminAuthority(user);
     }
 
     @Override
