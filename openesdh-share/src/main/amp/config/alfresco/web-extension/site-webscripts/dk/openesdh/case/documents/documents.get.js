@@ -46,13 +46,6 @@ model.jsonModel = {
     services: services,
     widgets: [
         {
-            id: "SET_PAGE_TITLE",
-            name: "alfresco/header/SetTitle",
-            config: {
-                title: "Case Library"
-            }
-        },
-        {
             id: "SHARE_VERTICAL_LAYOUT",
             name: "alfresco/layout/VerticalWidgets",
             config:
