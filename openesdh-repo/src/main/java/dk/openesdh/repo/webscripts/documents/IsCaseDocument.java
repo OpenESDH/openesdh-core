@@ -31,13 +31,12 @@ public class IsCaseDocument extends AbstractWebScript {
         String storeType = templateArgs.get("store_type");
         String storeId = templateArgs.get("store_id");
         String id = templateArgs.get("id");
-        String docNodeRefStr = storeType +"://"+storeId+"/"+id;
-        NodeRef documentNode = new NodeRef (docNodeRefStr);
+        NodeRef documentNode = new NodeRef(storeType, storeId, id);
 
         JSONObject json = new JSONObject();
         try{
 
-            NodeRef caseNodeRef = documentService.getCaseNodeRef(documentNode);
+            NodeRef caseNodeRef = caseService.getParentCase(documentNode);
             String caseId =  caseService.getCaseId(caseNodeRef);
 
             if (caseNodeRef != null ){
