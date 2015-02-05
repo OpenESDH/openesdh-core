@@ -40,10 +40,11 @@ define(["dojo/_base/declare",
              return "userinfo_table";
           },
 
-          postCreate: function opendedsh_case_members_listview(){
+          onViewShown: function () {
               this.inherited(arguments);
-              if (this.showRoles)
-                this.alfPublish("SHOW_ROLES_COLUMN",{showRole : true});
+              if (this.showRoles) {
+                  this.alfPublish("SHOW_ROLES_COLUMN", {showRole: true});
+              }
           },
 
           //Table Headers
