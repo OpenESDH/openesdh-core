@@ -13,27 +13,6 @@ var caseURL = function(pageURI, id ,webscript, obj, absolute) {
             webscript: webscript
         }), absolute);
 };
-/*
-Alfresco.CreateContentMgr.prototype.onCreateContentSuccess= function CreateContentMgr_onCreateContentSuccess(response)
-{
-    var nodeRef = null;
-    if (response.json && response.json.persistedObject)
-    {
-        // Grab the new nodeRef and pass it on to _navigateForward() to optionally use
-        nodeRef = new Alfresco.util.NodeRef(response.json.persistedObject);
-        this._getCaseId(nodeRef);
-
-        // Activity post - documents only
-        if (!this.options.isContainer)
-        {
-            Alfresco.Share.postActivity(this.options.siteId, "org.alfresco.documentlibrary.file-created", "{cm:name}", "document-details?nodeRef=" + nodeRef.toString(),
-                {
-                    appTool: "documentlibrary",
-                    nodeRef: nodeRef.toString()
-                }, this.bind(function() { this._navigateForward(nodeRef); }));
-        }
-    }
-};*/
 
 Alfresco.CreateContentMgr.prototype._getCaseId = function CreateContentMgr_getCaseId(nodeRef){
         // construct the url to call
@@ -43,7 +22,6 @@ Alfresco.CreateContentMgr.prototype._getCaseId = function CreateContentMgr_getCa
             console.log("about to return");
             var responseObject= eval('('+response.serverResponse.responseText+')');
             window.location.href = caseURL("case", responseObject.caseId, "documents");
-            //return responseObject.caseId;
         };
 
         // execute ajax request
@@ -72,7 +50,6 @@ Alfresco.CreateContentMgr.prototype._navigateForward = function CreateContentMgr
     /* Have we been given a nodeRef from the Forms Service? */
     if (YAHOO.lang.isObject(nodeRef)) {
         this._getCaseId(nodeRef);
-        //window.location.href = $siteURL((this.options.isContainer ? "folder" : "document") + "-details?nodeRef=" + nodeRef.toString());
 
     }
 

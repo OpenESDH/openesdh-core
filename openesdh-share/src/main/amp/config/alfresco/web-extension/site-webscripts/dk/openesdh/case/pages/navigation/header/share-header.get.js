@@ -1,8 +1,9 @@
 <import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/utils/oe.js">
+<import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/utils/case.js">
 
 var args = page.url.args;
 var caseId = url.templateArgs.caseId;
-
+var nodeRef = getCaseNodeRefFromId(caseId);
 var navMenu = widgetUtils.findObject(model.jsonModel, "id", "HEADER_NAVIGATION_MENU_BAR");
 
 navMenu.config.widgets.push({
@@ -65,7 +66,7 @@ caseConfig.config.widgets.push({
         id: "HEADER_CASE_EDIT",
         label: "header.case.edit" ,
         iconClass: "alf-cog-icon",
-        targetUrl: "edit-metadata?nodeRef=" + args.nodeRef,
+        targetUrl: "edit-metadata?nodeRef=" + nodeRef,
         visibilityConfig: {
             initialValue: false,
             rules: [
@@ -148,8 +149,9 @@ model.jsonModel.services.push({
     name: "openesdh/pages/case/services/Dashboard",
     config: {
         caseId: caseId,
-        nodeRef: (args.nodeRef != null) ? args.nodeRef : args.destination
+        nodeRef: (nodeRef != null) ? nodeRef : args.destination
     }
 });
+
 
 navMenu.config.widgets.push(caseConfig);
