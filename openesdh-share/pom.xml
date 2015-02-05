@@ -22,6 +22,10 @@
         | Allowed values: alfresco | share. In this case it's configured to use OOTB share -->
         <alfresco.client.war>share</alfresco.client.war>
 
+        <alfresco.client.contextPath>/share</alfresco.client.contextPath>
+
+        <alfresco.repo.url>http://localhost:8080/alfresco</alfresco.repo.url>
+
         <!-- Since Alfresco is already running on port 8080, we run Share on port 8081 -->
         <maven.tomcat.port>8081</maven.tomcat.port>        
     </properties>
@@ -66,44 +70,7 @@
             <type>amp</type>
         </dependency>
 
-        <!-- This needs to go away when upgrading to beta-5 -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <version>1.7.5</version>
-        </dependency>
 
-        <!--scala dependencies -->
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-compiler</artifactId>
-            <version>LATEST</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-            <version>LATEST</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.typesafe.scala-logging</groupId>
-            <artifactId>scala-logging-slf4j_2.11</artifactId>
-            <version>2.1.2</version>
-        </dependency>
-
-        <!--        <dependency>
-                    <groupId>org.scalaj</groupId>
-                    <artifactId>scalaj-http_2.11</artifactId>
-                    <version>0.3.16</version>
-                </dependency>
-        -->
 
     </dependencies>
 

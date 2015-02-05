@@ -20,6 +20,7 @@
     <properties>
         <alfresco.data.location>alf_data_dev</alfresco.data.location>
         <alfresco.client.war>alfresco</alfresco.client.war>
+        <alfresco.client.contextPath>/alfresco</alfresco.client.contextPath>
     </properties>
 
     <!-- Following dependencies are needed for compiling Java code in src/main/java; 
@@ -51,128 +52,8 @@
             <type>amp</type>
         </dependency>
 
-        <!-- This needs to go away when upgrading to beta-5 -->
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>slf4j-log4j12</artifactId>
-            <version>1.7.5</version>
-        </dependency>
-        <dependency>
-            <groupId>org.slf4j</groupId>
-            <artifactId>jcl-over-slf4j</artifactId>
-            <version>1.7.5</version>
-        </dependency>
-
-        <!--scala dependencies -->
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-compiler</artifactId>
-            <version>LATEST</version>
-            <scope>compile</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.scala-lang</groupId>
-            <artifactId>scala-library</artifactId>
-            <version>LATEST</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.typesafe.scala-logging</groupId>
-            <artifactId>scala-logging-slf4j_2.11</artifactId>
-            <version>2.1.2</version>
-        </dependency>
-
-        <!--        <dependency>
-                    <groupId>org.scalaj</groupId>
-                    <artifactId>scalaj-http_2.11</artifactId>
-                    <version>0.3.16</version>
-                </dependency>
-        -->
 
     </dependencies>
 
-<profiles>
-
-    <!-- Configures automatic embedded H2 database support for repository amps (if a test    alfresco-global.properties is found) -->
-    <profile>
-        <id>config-h2-support</id>
-        <activation>
-            <file>
-                <exists>src/test/properties/local/alfresco-global.properties</exists>
-            </file>
-        </activation>
-        <build>
-            <plugins>
-                <!-- Copied PostgreSQL dialect files to generate H2 dialect files on-the-fly -->
-                <plugin>
-                    <artifactId>maven-dependency-plugin</artifactId>
-                    <executions>
-                        <execution>
-                            <id>extract-postgres-dialect</id>
-                            <phase>generate-test-resources</phase>
-                            <goals>
-                                <goal>unpack</goal>
-                            </goals>
-                            <configuration>
-                                <artifactItems>
-                                    <artifactItem>
-                                        <groupId>${alfresco.groupId}</groupId>
-                                        <artifactId>alfresco-repository</artifactId>
-                                        <version>${alfresco.version}</version>
-                                        <includes>alfresco/dbscripts/create/org.hibernate.dialect.PostgreSQLDialect/*,alfresco/ibatis/org.hibernate.dialect.PostgreSQLDialect/*</includes>
-                                        <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
-                                    </artifactItem>
-                                </artifactItems>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-
-                <plugin>
-                    <artifactId>maven-resources-plugin</artifactId>
-                    <executions>
-                        <execution>
-                            <id>generate-h2-dialect</id>
-                            <phase>generate-test-resources</phase>
-                            <goals>
-                                <goal>copy-resources</goal>
-                            </goals>
-                            <configuration>
-                                <outputDirectory>${project.build.testOutputDirectory}</outputDirectory>
-                                <resources>
-                                    <resource>
-                                        <directory>${project.build.testOutputDirectory}/alfresco/dbscripts/create/org.hibernate.dialect.PostgreSQLDialect</directory>
-                                        <includes>
-                                            <include>*</include>
-                                        </includes>
-                                        <targetPath>alfresco/dbscripts/create/org.hibernate.dialect.H2Dialect</targetPath>
-                                    </resource>
-                                    <resource>
-                                        <directory>${project.build.testOutputDirectory}/alfresco/ibatis/org.hibernate.dialect.PostgreSQLDialect</directory>
-                                        <includes>
-                                            <include>*</include>
-                                        </includes>
-                                        <targetPath>alfresco/ibatis//org.hibernate.dialect.H2Dialect</targetPath>
-                                    </resource>
-                                </resources>
-                            </configuration>
-                        </execution>
-                    </executions>
-                </plugin>
-
-            </plugins>
-        </build>
-        <dependencies>
-            <!-- h2 Dependency -->
-            <dependency>
-                <groupId>com.h2database</groupId>
-                <artifactId>h2</artifactId>
-                <version>${h2.version}</version>
-                <scope>test</scope>
-            </dependency>
-        </dependencies>
-    </profile>
-</profiles>
 
 </project>
