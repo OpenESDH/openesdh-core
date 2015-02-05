@@ -36,9 +36,7 @@ navMenu.config.widgets.push({
     name: "alfresco/menus/AlfMenuBarItem",
     config: {
         id: "HEADER_CASE_MEMBERS",
-        iconClass: "alf-user-icon",
-        iconAltText: "header.case.members.altText",
-//        title: "header.case.members.title",
+        title: "header.case.members.title",
         targetUrl: "oe/case/"+caseId+"/members",
         selected: isCurrentUri("members")
     }

@@ -9,5 +9,5 @@ function escapeRegExp(string){
  * Check if the current page is the given URI, assuming it is an Aikau page.
  */
 function isCurrentUri(uri) {
-    return page.url.uri.match(new RegExp("^.+/page/oe/case/" + escapeRegExp(uri) + "$"));
+    return page.url.uri.match(new RegExp("^.+/page/oe/case/" + escapeRegExp(uri)));
 }
