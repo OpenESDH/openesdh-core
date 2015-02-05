@@ -10,11 +10,10 @@ navMenu.config.widgets.push({
     id: "HEADER_CASE_DASHBOARD",
     name: "alfresco/menus/AlfMenuBarItem",
     config: {
-        id: "HEADER_CASE_DASHBOARD",
         label: "header.document.case.dashboard" ,
         title: "header.document.case.dashboard.altText",
         targetUrl: "oe/case/"+caseId+"/dashboard",
-        selected: isCurrentUri("dashboard")
+        selected: isOnCasePage("dashboard")
     }
 });
 
@@ -22,11 +21,10 @@ navMenu.config.widgets.push({
     id: "HEADER_CASE_DOCUMENTS",
     name: "alfresco/menus/AlfMenuBarItem",
     config: {
-        id: "HEADER_CASE_DOCUMENTS",
         label: "header.case.documents" ,
         title: "header.case.documents.altText",
         targetUrl: "oe/case/"+caseId+"/documents",
-        selected: isCurrentUri("documents")
+        selected: isOnCasePage("documents")
     }
 });
 
@@ -35,10 +33,10 @@ navMenu.config.widgets.push({
     id: "HEADER_CASE_MEMBERS",
     name: "alfresco/menus/AlfMenuBarItem",
     config: {
-        id: "HEADER_CASE_MEMBERS",
-        title: "header.case.members.title",
+        label: "header.case.members.title",
+        title: "header.case.members.altText",
         targetUrl: "oe/case/"+caseId+"/members",
-        selected: isCurrentUri("members")
+        selected: isOnCasePage("members")
     }
 });
 
@@ -48,7 +46,6 @@ var caseConfig = {
     id: "HEADER_CASE_CONFIGURATION_DROPDOWN",
     name: "alfresco/menus/AlfMenuBarPopup",
     config: {
-        id: "HEADER_CASE_CONFIGURATION_DROPDOWN",
         label: "",
         iconClass: "alf-configure-icon",
         iconAltText: "header.case.config.altText",
@@ -61,7 +58,6 @@ caseConfig.config.widgets.push({
     id: "HEADER_CASE_EDIT",
     name: "alfresco/menus/AlfMenuBarItem",
     config: {
-        id: "HEADER_CASE_EDIT",
         label: "header.case.edit" ,
         iconClass: "alf-cog-icon",
         targetUrl: "edit-metadata?nodeRef=" + nodeRef,
