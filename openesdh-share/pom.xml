@@ -31,6 +31,13 @@
          for more info, please refer to alfresco-platform-distribution POM -->
     <dependencies>
         <dependency>
+            <groupId>dk.openesdh.aoi</groupId>
+            <artifactId>aoi-share</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>amp</type>
+        </dependency>
+
+        <dependency>
             <groupId>${alfresco.groupId}</groupId>
             <artifactId>share</artifactId>
             <version>${alfresco.version}</version>
