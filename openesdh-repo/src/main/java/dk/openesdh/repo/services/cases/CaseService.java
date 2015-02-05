@@ -2,7 +2,6 @@ package dk.openesdh.repo.services.cases;
 
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.springframework.security.access.AccessDeniedException;
 
 import java.util.List;
 import java.util.Map;
@@ -148,20 +147,20 @@ public interface CaseService {
     public NodeRef getCaseFolderNodeRef(NodeRef casesFolderNodeRef);
 
     /**
-     * Return whether or not the user can journalize the case.
+     * Return whether or not the user can journalize the node.
      * @param user
-     * @param caseNodeRef
+     * @param nodeRef
      * @return
      */
-    public boolean canJournalize(String user, NodeRef caseNodeRef);
+    public boolean canJournalize(String user, NodeRef nodeRef);
 
     /**
-     * Return whether or not the user can unjournalize the case.
+     * Return whether or not the user can unjournalize the node.
      * @param user
-     * @param caseNodeRef
+     * @param nodeRef
      * @return
      */
-    public boolean canUnJournalize(String user, NodeRef caseNodeRef);
+    public boolean canUnJournalize(String user, NodeRef nodeRef);
 
     /**
      * Return whether a node is journalized or not.
@@ -171,16 +170,16 @@ public interface CaseService {
     public boolean isJournalized(NodeRef nodeRef);
 
     /**
-     * Journalize case and all childnodes
-     * @param caseNodeRef Noderef of the case to journalize
+     * Journalize node and all child nodes
+     * @param nodeRef NodeRef of the node to journalize
      * @param journalKey
      */
-    public void journalize(NodeRef caseNodeRef, NodeRef journalKey);
+    public void journalize(NodeRef nodeRef, NodeRef journalKey);
 
     /**
-     * Unjournalize case and all childnodes
+     * Unjournalize node and all child nodes
      *
-     * @param nodeRef Noderef of the case to unjournalize
+     * @param nodeRef NodeRef of the node to unjournalize
      */
     public void unJournalize(NodeRef nodeRef);
 
@@ -190,6 +189,14 @@ public interface CaseService {
      * @return
      */
     public boolean isCaseNode(NodeRef nodeRef);
+
+
+    /**
+     * Return whether or not the node is a doc which exists within a case.
+     * @param nodeRef
+     * @return
+     */
+    public boolean isCaseDocNode(NodeRef nodeRef);
 
     /**
      * Get the parent case of the given node, or null if the node does not

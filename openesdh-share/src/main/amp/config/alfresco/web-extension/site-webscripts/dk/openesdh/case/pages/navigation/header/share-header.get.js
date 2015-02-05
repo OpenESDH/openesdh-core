@@ -87,7 +87,7 @@ caseConfig.config.widgets.push({
         label: "header.case.journalize",
         iconClass: "alf-cog-icon",
 
-        publishTopic: "JOURNALIZE",
+        publishTopic: "OPENESDH_JOURNALIZE",
         publishPayload: {},
         visibilityConfig: {
             initialValue: false,
@@ -108,7 +108,7 @@ caseConfig.config.widgets.push({
         label: "header.case.unjournalize",
         iconClass: "alf-cog-icon",
 
-        publishTopic: "UNJOURNALIZE",
+        publishTopic: "OPENESDH_UNJOURNALIZE",
         publishPayload: {},
         visibilityConfig: {
             initialValue: false,
@@ -146,7 +146,7 @@ verticalLayout.config.widgets.push({
 });
 
 model.jsonModel.services.push({
-    name: "openesdh/pages/case/services/Dashboard",
+    name: "openesdh/common/services/CaseService",
     config: {
         caseId: caseId,
         nodeRef: (nodeRef != null) ? nodeRef : args.destination

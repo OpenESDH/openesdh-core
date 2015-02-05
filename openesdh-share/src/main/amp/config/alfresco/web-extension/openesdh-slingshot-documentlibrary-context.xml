@@ -1,0 +1,70 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+    <!-- has aspect oe:caseId -->
+    <bean id="openesdh.evaluator.doclib.metadata.hasCaseID"
+          parent="evaluator.doclib.metadata.hasAspect">
+        <property name="aspects">
+            <list>
+                <value>oe:caseId</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- has aspect oe:journalized -->
+    <bean id="openesdh.evaluator.doclib.metadata.isJournalized"
+          parent="evaluator.doclib.metadata.hasAspect">
+        <property name="aspects">
+            <list>
+                <value>oe:journalized</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- has type case:base -->
+    <bean id="openesdh.evaluator.doclib.metadata.isCase"
+          parent="evaluator.doclib.action.nodeType">
+        <property name="types">
+            <list>
+                <value>case:base</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- has type doc:base -->
+    <bean id="openesdh.evaluator.doclib.metadata.isDoc"
+          parent="evaluator.doclib.action.nodeType">
+        <property name="types">
+            <list>
+                <value>doc:base</value>
+            </list>
+        </property>
+    </bean>
+
+    <!-- A case doc is a doc within a case (e.g. it has a oe:caseId aspect) -->
+    <bean id="openesdh.evaluator.doclib.metadata.isCaseDoc"
+          parent="evaluator.doclib.action.chainedMatchAll">
+        <property name="evaluators">
+            <list>
+                <ref bean="openesdh.evaluator.doclib.metadata.isDoc"/>
+                <ref bean="openesdh.evaluator.doclib.metadata.hasCaseID"/>
+            </list>
+        </property>
+    </bean>
+
+
+    <!-- Is either a case or a case doc -->
+    <bean id="openesdh.evaluator.doclib.action.isJournalizable"
+          parent="evaluator.doclib.action.chainedMatchOne">
+        <property name="evaluators">
+            <list>
+                <ref bean="openesdh.evaluator.doclib.metadata.isCase"/>
+                <ref bean="openesdh.evaluator.doclib.metadata.isCaseDoc"/>
+            </list>
+        </property>
+    </bean>
+</beans>
