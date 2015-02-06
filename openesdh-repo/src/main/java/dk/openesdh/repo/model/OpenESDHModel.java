@@ -20,6 +20,10 @@ public interface OpenESDHModel {
     public static final String CONTACT_URI = "http://openesdh.dk/model/contact/1.0/";
 
 
+    public static final String NOTE_PREFIX = "note";
+    public static final String NOTE_URI = "http://openesdh.dk/model/note/1.0/";
+
+
     /**
      * Types
      */
@@ -39,6 +43,8 @@ public interface OpenESDHModel {
     public static final QName TYPE_CONTACT_PERSON = QName.createQName(CONTACT_URI, "person");
     public static final QName TYPE_CONTACT_ORGANIZATION = QName.createQName (CONTACT_URI, "organization");
 
+    public static final QName TYPE_NOTE_NOTE = QName.createQName(NOTE_URI, "note");
+
 
     /**
      * Aspects
@@ -51,6 +57,8 @@ public interface OpenESDHModel {
     public static final QName ASPECT_DOCUMENT_CONTAINER = QName.createQName(DOC_URI, "documentContainer");
 
     public static final QName ASPECT_CONTACT_ADDRESS = QName.createQName(CONTACT_URI, "address");
+
+    public static final QName ASPECT_NOTE_NOTABLE = QName.createQName(NOTE_URI, "notable");
 
     /**
      * Associations
@@ -72,6 +80,8 @@ public interface OpenESDHModel {
     public static final QName ASSOC_CONTACT_MEMBERS = QName.createQName(CONTACT_URI, "members");
 
     public static final QName ASSOC_CONTACT_LOGIN = QName.createQName(CONTACT_URI, "userLogin");
+
+    public static final QName ASSOC_NOTE_NOTES = QName.createQName(NOTE_URI, "notes");
 
     /**
      * Properties
@@ -128,6 +138,8 @@ public interface OpenESDHModel {
 
     public static final QName PROP_CONTACT_REGISTERED = QName.createQName (CONTACT_URI, "registered");
     public static final QName PROP_CONTACT_INTERNAL = QName.createQName (CONTACT_URI, "internal");
+
+    public static final QName PROP_NOTE_CONTENT = QName.createQName(NOTE_URI, "content");
 
     /**
      * Association Names
