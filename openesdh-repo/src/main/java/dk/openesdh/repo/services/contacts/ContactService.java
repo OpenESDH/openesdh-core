@@ -2,6 +2,7 @@ package dk.openesdh.repo.services.contacts;
 
 import dk.openesdh.repo.model.ContactInfo;
 import dk.openesdh.repo.model.ContactType;
+import dk.openesdh.exceptions.contacts.NoSuchContactException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
 
