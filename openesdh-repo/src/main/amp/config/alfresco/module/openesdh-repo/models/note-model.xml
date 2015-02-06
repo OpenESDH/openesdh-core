@@ -26,6 +26,9 @@
                     </index>
                 </property>
             </properties>
+            <mandatory-aspects>
+                <aspect>cm:author</aspect>
+            </mandatory-aspects>
         </type>
     </types>
 

@@ -72,6 +72,8 @@ public class Notes extends AbstractRESTWebscript {
 
             obj.put("content", nodeService.getProperty(nodeRef, OpenESDHModel.PROP_NOTE_CONTENT));
 
+            obj.put("author", nodeService.getProperty(nodeRef, ContentModel.PROP_AUTHOR));
+
             obj.put("creator", nodeService.getProperty(nodeRef, ContentModel.PROP_CREATOR));
             obj.put("created", nodeService.getProperty(nodeRef, ContentModel.PROP_CREATED));
             obj.put("modified", nodeService.getProperty(nodeRef, ContentModel.PROP_MODIFIED));
