@@ -42,8 +42,8 @@
                     </source>
                     <target>
                         <class>note:note</class>
-                        <mandatory enforced="true">true</mandatory>
-                        <many>false</many>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
                     </target>
                     <duplicate>false</duplicate>
                 </child-association>

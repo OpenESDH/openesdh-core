@@ -181,5 +181,10 @@
         </property>
     </bean>
 
-
+    <bean id="NoteService"
+          class="dk.openesdh.repo.services.notes.NoteServiceImpl">
+        <property name="nodeService">
+            <ref bean="NodeService"/>
+        </property>
+    </bean>
 </beans>

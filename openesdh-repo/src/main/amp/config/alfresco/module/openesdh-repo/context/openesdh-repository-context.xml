@@ -168,14 +168,23 @@
         <property name="nodeService" ref="NodeService" />
     </bean>
 
-    <bean id="webscript.dk.openesdh.note.notes.get"
+    <bean id="openesdhNotesWebscript"
           class="dk.openesdh.repo.webscripts.notes.Notes"
           parent="webscript">
         <property name="nodeService" ref="NodeService"/>
+        <property name="noteService" ref="NoteService"/>
     </bean>
 
-    <!--<bean id="webscript.dk.openesdh.note.notes.post"-->
-          <!--class="dk.openesdh.repo.webscripts.notes.Notes"-->
-          <!--parent="webscript">-->
-    <!--</bean>-->
+    <bean id="webscript.dk.openesdh.notes.notes.get"
+          parent="openesdhNotesWebscript">
+    </bean>
+    <bean id="webscript.dk.openesdh.notes.notes.post"
+          parent="openesdhNotesWebscript">
+    </bean>
+    <bean id="webscript.dk.openesdh.notes.note.put"
+          parent="openesdhNotesWebscript">
+    </bean>
+    <bean id="webscript.dk.openesdh.notes.note.delete"
+          parent="openesdhNotesWebscript">
+    </bean>
 </beans>
