@@ -64,7 +64,6 @@
         <property name="contactSearchService" ref="ContactSearchService"/>
     </bean>
 
-
     <bean id="webscript.dk.openesdh.caseinfo.get"
           class="dk.openesdh.repo.webscripts.cases.CaseInfo"
           parent="webscript">
@@ -167,7 +166,5 @@
         <property name="caseService" ref="CaseService" />
         <property name="nodeService" ref="NodeService" />
     </bean>
-
-
 
 </beans>
