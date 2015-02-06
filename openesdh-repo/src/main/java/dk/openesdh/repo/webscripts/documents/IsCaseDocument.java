@@ -37,14 +37,13 @@ public class IsCaseDocument extends AbstractWebScript {
         try{
 
             NodeRef caseNodeRef = caseService.getParentCase(documentNode);
-            String caseId =  caseService.getCaseId(caseNodeRef);
 
-            if (caseNodeRef != null ){
+            if (caseNodeRef != null) {
+                String caseId =  caseService.getCaseId(caseNodeRef);
                 json.put("isCaseDoc", true);
                 json.put("caseId", caseId);
                 json.write(res.getWriter());
-            }
-            else {
+            } else {
                 json.put("isCaseDoc", false);
                 json.write(res.getWriter());
             }
