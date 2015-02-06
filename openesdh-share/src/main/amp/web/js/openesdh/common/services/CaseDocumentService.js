@@ -46,22 +46,7 @@ define(["dojo/_base/declare",
                     site: encodeURIComponent(payload.site),
                     container: encodeURIComponent(payload.container)
                 });
-/*
-                if (payload.filter) {
-                    if (payload.filter.filter != null) {
-                        params += "?filter=" + payload.filter.filter;
-                    }
-                    else if (payload.filter.tag != null) {
-                        params += "?filter=tag&filterData=" + payload.filter.tag;
-                    }
-                    else if (payload.filter.category  != null) {
-                        params += "?filter=category&filterData=" + payload.filter.category;
-                    }
-                    else {
-                        params += "?filter=path";
-                    }
-                }
-*/
+
                 params +="?filter=main";
 
                 if (payload.pageSize != null && payload.page != null) {

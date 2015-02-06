@@ -160,26 +160,29 @@
         </property>
     </bean>
 
-    <bean id="ContactInvitationService" class="dk.openesdh.repo.services.contacts.ContactInvitationServiceImpl">
-        <property name="sysAdminParams">
-            <ref bean="sysAdminParams"/>
-        </property>
-        <property name="contactService">
-            <ref bean="ContactService"/>
-        </property>
-        <property name="authenticationService">
-            <ref bean="AuthenticationService"/>
-        </property>
+<!--
+        <bean id="ContactInvitationService" class="dk.openesdh.repo.services.contacts.ContactInvitationServiceImpl">
+            <property name="sysAdminParams">
+                <ref bean="sysAdminParams"/>
+            </property>
+            <property name="contactService">
+                <ref bean="ContactService"/>
+            </property>
+            <property name="authenticationService">
+                <ref bean="AuthenticationService"/>
+            </property>
+        </bean>
+-->
+
+    <bean id="ContactDAO" class="dk.openesdh.repo.services.contacts.ContactDAOImpl">
+        <property name="nodeService" ref="nodeService"/>
+        <property name="namespacePrefixResolver" ref="namespaceService" />
+        <property name="repositoryHelper" ref="repositoryHelper"/>
     </bean>
 
     <bean id="ContactService" class="dk.openesdh.repo.services.contacts.ContactServiceImpl">
-        <property name="nodeService">
-            <ref bean="nodeService"/>
-        </property>
-        <property name="searchService">
-            <ref bean="searchService"/>
-        </property>
+        <property name="nodeService" ref="nodeService" />
+        <property name="contactDAO" ref="ContactDAO" />
     </bean>
-
 
 </beans>

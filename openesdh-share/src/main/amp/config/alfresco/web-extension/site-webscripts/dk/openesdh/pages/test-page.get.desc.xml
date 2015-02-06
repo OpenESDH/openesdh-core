@@ -1,0 +1,6 @@
+<webscript>
+    <shortname>Page test</shortname>
+    <description>Test page</description>
+    <family>OpenESDH test pages</family>
+    <url>/formTest</url>
+</webscript>

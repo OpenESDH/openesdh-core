@@ -1,0 +1,7 @@
+<webscript>
+  <shortname>Admin Console Create User/Contacts</shortname>
+  <description>Administration Console - Create Contacts/Users</description>
+  <url>/components/console/contact-users</url>
+  <authentication>admin</authentication>
+  <family>admin-console</family>
+</webscript>

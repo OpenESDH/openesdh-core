@@ -10,7 +10,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * @author by lanre.
+ * @author by Lanre Abiwon.
  */
 
 public class ContactInfo implements PermissionCheckValue {
@@ -30,7 +30,7 @@ public class ContactInfo implements PermissionCheckValue {
     public ContactInfo(NodeRef nodeRef, String email, String type) {
         this.nodeRef = nodeRef;
         this.email = email;
-        this.type = type.equalsIgnoreCase(ContactType.PERSON.name())?ContactType.PERSON:ContactType.ORGANIZATION;
+        this.type = type.equalsIgnoreCase(ContactType.PERSON.name()) ? ContactType.PERSON : ContactType.ORGANIZATION;
         allProps = this.nodeService.getProperties(this.nodeRef);
     }
 

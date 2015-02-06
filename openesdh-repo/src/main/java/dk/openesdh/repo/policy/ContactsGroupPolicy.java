@@ -66,7 +66,7 @@ public class ContactsGroupPolicy implements BeforeDeleteChildAssociationPolicy, 
 
         if( groupName.equals(contactsGroup) ){
             //create a contact for the person
-            this.contactService.createContact(personNodeRef);
+            //this.contactService.createContact(personNodeRef);
         }
 
     }

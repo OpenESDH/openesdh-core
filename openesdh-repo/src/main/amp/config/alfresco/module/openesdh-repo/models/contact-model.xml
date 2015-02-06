@@ -1,16 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<model name="contact:contactModel"
-       xmlns="http://www.alfresco.org/model/dictionary/1.0">
+<model name="contact:contactModel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
     <description>OpenESDH Contact Model</description>
     <author>Seth Yastrov, Flemming Heide Pedersen, Ole Hejlskov,
-        Torben Lauritzen
+        Torben Lauritzen, Lanre Abiwon
     </author>
     <version>1.0</version>
     <imports>
         <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>
         <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>
         <import uri="http://www.alfresco.org/model/system/1.0" prefix="sys"/>
-        <import uri="http://www.alfresco.org/model/datalist/1.0" prefix="dl"/>
     </imports>
     <namespaces>
         <namespace uri="http://openesdh.dk/model/contact/1.0/" prefix="contact"/>
@@ -87,9 +85,9 @@
     <types>
         <type name="contact:base">
             <title>Contact</title>
-            <parent>dl:dataListItem</parent>
+            <parent>cm:authority</parent>
             <properties>
-                <!-- FASD: ePostAddresse -->
+                <!-- FASD: used as a UID within the system -->
                 <property name="contact:email">
                     <type>d:text</type>
                     <mandatory>true</mandatory>
@@ -97,23 +95,15 @@
                         <constraint ref="contact:emailConstraint"/>
                     </constraints>
                 </property>
-                <!-- FASD: kontaktType -->
-                <property name="contact:contactType">
-                    <type>d:text</type>
-                    <protected>true</protected>
-                    <mandatory>true</mandatory>
-                    <constraints>
-                        <constraint ref="contact:contactTypeConstraint"/>
-                    </constraints>
-                </property>
             </properties>
+
             <mandatory-aspects>
                 <aspect>contact:address</aspect>
             </mandatory-aspects>
         </type>
 
         <type name="contact:person">
-            <title>Person</title>
+            <title>Contact Person</title>
             <parent>contact:base</parent>
             <properties>
                 <!-- FASD: forNavn -->
@@ -164,30 +154,10 @@
                     <type>d:boolean</type>
                     <default>false</default>
                 </property>
-
             </properties>
 
-            <associations>
-                <association name="contact:userLogin">
-                    <source>
-                        <mandatory>false</mandatory>
-                        <many>false</many>
-                    </source>
-                    <target>
-                        <class>cm:person</class>
-                        <mandatory>false</mandatory>
-                        <many>false</many>
-                    </target>
-                </association>
-            </associations>
-
-            <overrides>
-                <property name="contact:contactType">
-                    <default>PERSON</default>
-                </property>
-            </overrides>
-
         </type>
+
         <type name="contact:organization">
             <title>Organization</title>
             <parent>contact:base</parent>
@@ -208,27 +178,9 @@
                     </constraints>
                 </property>
             </properties>
-            <associations>
-                <child-association name="contact:members">
-                    <source>
-                        <mandatory>false</mandatory>
-                        <many>true</many>
-                    </source>
-                    <target>
-                        <class>contact:base</class>
-                        <mandatory>false</mandatory>
-                        <many>true</many>
-                    </target>
-                    <duplicate>false</duplicate>
-                </child-association>
-            </associations>
-            <overrides>
-                <property name="contact:contactType">
-                    <default>ORGANIZATION</default>
-                </property>
-            </overrides>
         </type>
     </types>
+
     <aspects>
         <aspect name="contact:address">
             <title>Address</title>

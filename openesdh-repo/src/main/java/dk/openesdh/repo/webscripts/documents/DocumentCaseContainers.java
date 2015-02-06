@@ -32,12 +32,13 @@ public class DocumentCaseContainers extends DeclarativeWebScript {
         String storeType = templateArgs.get("store_type");
         String storeId = templateArgs.get("store_id");
         String id = templateArgs.get("id");
-        NodeRef documentNode = new NodeRef(storeType, storeId, id);
         String caseId = templateArgs.get("caseId");
+        String docNodeRefStr = storeType +"://"+storeId+"/"+id;
 
         Map<String, Object> model = new HashMap<String, Object>();
+        NodeRef documentNode = new NodeRef (docNodeRefStr);
         try{
-            NodeRef caseNodeRef = caseService.getParentCase(documentNode);
+            NodeRef caseNodeRef = documentService.getCaseNodeRef(documentNode);
             NodeRef caseDocumentNodeRef  = caseService.getDocumentsFolder(caseNodeRef);
 
             model.put("caseNodeRef", caseNodeRef);

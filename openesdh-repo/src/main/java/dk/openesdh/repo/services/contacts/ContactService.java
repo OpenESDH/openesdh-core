@@ -1,14 +1,31 @@
 package dk.openesdh.repo.services.contacts;
 
 import dk.openesdh.exceptions.contacts.NoSuchContactException;
-import dk.openesdh.repo.model.ContactInfo;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang3.tuple.Pair;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Lanre Abiwon.
  */
 public interface ContactService {
+
+    /**
+     * Prefix used for authorities of type contact.
+     */
+    public static final String CONTACT_PREFIX = "CONTACT_";
+
+
+    /**
+     * The CONTACTs zone.
+     */
+    public static String ZONE_CONTACT = "CONTACT.STORE";
+
 
     //TODO create a new workspaces store for contacts or perhaps store them in the same store as users?
     /**
@@ -19,35 +36,41 @@ public interface ContactService {
     public NodeRef getContactsStorageRoot();
 
     /**
-     * Retrieve the person info for an existing {@code person NodeRef}
-     *
-     * @param contactRef
-     * @return ContactInfo (firstname, lastname, email)
-     * @throws dk.openesdh.exceptions.contacts.NoSuchContactException if the contact doesn't exist
-     */
-    public ContactInfo getContact(NodeRef contactRef) throws NoSuchContactException;
-
-    /**
-     * Create a contact from a alfresco cm:person
-     * @param personRef person nodeRef
-     * @return ContactInfo
-     */
-    public ContactInfo createContact(NodeRef personRef);
-
-    /**
-     * Create a contact from the mandatory information
-     * @param firstName
-     * @param lastName
-     * @param email
-     * @return ContactInfo
-     */
-    public NodeRef createContact(String firstName, String lastName, String email);
-
-    /**
      * Returns a tuple containing a boolean and nodeRef if the contact has a
      * @param contactRef
      * @return org.apache.commons.lang3.tuple.Pair<Boolean, NodeRef>
      */
+/*
     public Pair<Boolean, NodeRef> hasAssociatedLogin(NodeRef contactRef);
+*/
+
+    /**
+     *
+     * @param email
+     * @param type - Constrained to PERSON or ORGANIZATION.
+     * @return the NodeRef of the newly created contact.
+     */
+    public NodeRef createContact(String email, String type);
+
+    /**
+     *
+     * @param email
+     * @param type - Constrained to PERSON or ORGANIZATION.
+     * @param properties - The map of additional properties that are mapped to the aspect properties to be applied.
+     * @return the NodeRef of the newly created contact.
+     */
+    public NodeRef createContact(String email, String type, HashMap<QName, Serializable> properties);
+
+    /**
+     * A property map specifying at least first name is required for this method so as to
+     * satisfy the alfresco ootb requirements.
+     *
+     * @param email
+     * @param type - Constrained to PERSON or ORGANIZATION.
+     * @param properties - The map of additional properties that are mapped to the aspect properties to be applied.
+     * @param authorityZones - the zones of the contact. (For future use)
+     * @return the NodeRef of the newly created contact
+     */
+    public NodeRef createContact(String email, String type, HashMap<QName, Serializable> properties, Set<String> authorityZones);
 
 }
