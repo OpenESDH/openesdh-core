@@ -20,6 +20,9 @@ import java.util.HashMap;
 import java.util.Set;
 
 /**
+ * Some of these methods will come  from the org.alfresco.repo.security.authority.AuthorityDAOImpl class
+ * as this is the bean which inspires this one as we attempt to model contacts as an authority.
+ *
  * @author Lanre Abiwon
  */
 public class ContactDAOImpl {
@@ -40,23 +43,15 @@ public class ContactDAOImpl {
         NodeRef authorityContainerRef = getAuthorityContainerRef();
         childRef = nodeService.createNode(authorityContainerRef, ContentModel.ASSOC_CHILDREN, QName.createQName("cm", email, namespacePrefixResolver),
                 OpenESDHModel.TYPE_CONTACT_PERSON, typeProps).getChildRef();
-      /*  if (authorityZones != null)
-        {
-            Set<NodeRef> zoneRefs = new HashSet<NodeRef>(authorityZones.size() * 2);
-            String currentUserDomain = tenantService.getCurrentUserDomain();
-            for (String authorityZone : authorityZones)
-            {
-                zoneRefs.add(getOrCreateZone(authorityZone));
-                zoneAuthorityCache.remove(new Pair<String, String>(currentUserDomain, authorityZone));
-            }
-            zoneAuthorityCache.remove(new Pair<String, String>(currentUserDomain, null));
-            nodeService.addChild(zoneRefs, childRef, ContentModel.ASSOC_IN_ZONE, QName.createQName("contact", email, namespacePrefixResolver));
-        }*/
-        //authorityLookupCache.put(cacheKey(email), childRef);
+        //TODO NOTE - Look at org.alfresco.repo.security.authority.AuthorityDAOImpl lines 379 - 391 to add the authority to zones. (Currently an issue)
 
         return childRef;
     }
 
+    /**
+     * Get the system container root node where contact are to be stored
+     * @return
+     */
     public NodeRef getAuthorityContainerRef() {
         NodeRef contactsRootNode;
         QName container = QName.createQName(contactsRoot, namespacePrefixResolver);
