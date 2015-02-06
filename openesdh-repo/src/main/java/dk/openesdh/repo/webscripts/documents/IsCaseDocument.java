@@ -52,7 +52,7 @@ public class IsCaseDocument extends AbstractWebScript {
             logger.error("The invalid nodeRef exception: "+ inre.getMessage());
         }
         catch (JSONException jse){
-            logger.error("Unable to build teh json model because of the following exception: "+ jse.getMessage());
+            logger.error("Unable to build the json model because of the following exception: "+ jse.getMessage());
         }
 
 
