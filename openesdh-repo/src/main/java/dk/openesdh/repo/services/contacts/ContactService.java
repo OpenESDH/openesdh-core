@@ -6,6 +6,7 @@ import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -58,7 +59,7 @@ public interface ContactService {
      * @param properties - The map of additional properties that are mapped to the aspect properties to be applied.
      * @return the NodeRef of the newly created contact.
      */
-    public NodeRef createContact(String email, String type, Map<QName, Serializable> properties);
+    public NodeRef createContact(String email, String type, HashMap<QName, Serializable> properties);
 
     /**
      * A property map specifying at least first name is required for this method so as to
@@ -70,6 +71,6 @@ public interface ContactService {
      * @param authorityZones - the zones of the contact. (For future use)
      * @return the NodeRef of the newly created contact
      */
-    public NodeRef createContact(String email, String type, Map<QName, Serializable> properties, Set<String> authorityZones) ;
+    public NodeRef createContact(String email, String type, HashMap<QName, Serializable> properties, Set<String> authorityZones);
 
 }

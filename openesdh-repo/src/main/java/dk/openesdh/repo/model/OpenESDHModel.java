@@ -124,6 +124,7 @@ public interface OpenESDHModel {
     public static final QName PROP_CONTACT_STREET_CODE = QName.createQName (CONTACT_URI, "streetCode");
     public static final QName PROP_CONTACT_HOUSE_NUMBER = QName.createQName (CONTACT_URI, "houseNumber");
     public static final QName PROP_CONTACT_MUNICIPALITY_CODE = QName.createQName (CONTACT_URI, "municipalityCode");
+    public static final QName PROP_CONTACT_MAIL_SUBLOCATION_ID = QName.createQName (CONTACT_URI, "mailDeliverySublocationIdentifier");
 
     public static final QName PROP_CONTACT_REGISTERED = QName.createQName (CONTACT_URI, "registered");
     public static final QName PROP_CONTACT_INTERNAL = QName.createQName (CONTACT_URI, "internal");

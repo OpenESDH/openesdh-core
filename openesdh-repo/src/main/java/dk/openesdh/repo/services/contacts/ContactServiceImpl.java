@@ -15,7 +15,6 @@ import org.apache.commons.logging.LogFactory;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 /**
@@ -45,12 +44,12 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public NodeRef createContact(String email, String type, Map<QName, Serializable> properties) {
+    public NodeRef createContact(String email, String type, HashMap<QName, Serializable> properties) {
         return createContact(email, type, properties, DEFAULT_ZONES);
     }
 
     @Override
-    public NodeRef createContact(String email, String type, Map<QName, Serializable> properties, Set<String> authorityZones) {
+    public NodeRef createContact(String email, String type, HashMap<QName, Serializable> properties, Set<String> authorityZones) {
 //        if (!type.equalsIgnoreCase(ContactInfo.ContactType.PERSON.name()) || !type.equalsIgnoreCase(ContactInfo.ContactType.ORGANIZATION.name()) )
         if (!type.equalsIgnoreCase(ContactInfo.ContactType.valueOf(StringUtils.capitalize(type)).toString()) )
             throw new InvalidContactTypeException("The type of contact is not recognised. Can only create types PERSON/ORGANIZATION");
@@ -58,12 +57,7 @@ public class ContactServiceImpl implements ContactService {
         if(StringUtils.isEmpty(email))
             throw new NullPointerException("Email is mandatory for contact creation");
 
-        HashMap<QName, Serializable> props = new HashMap<QName, Serializable>();
-        props.put(OpenESDHModel.PROP_CONTACT_EMAIL, email);
-        //Next two are for testing purposes only
-//        props.put(OpenESDHModel.PROP_CONTACT_FIRST_NAME, "Morgan");
-//        props.put(OpenESDHModel.PROP_CONTACT_LAST_NAME, "Freeman");
-        return this.contactDAO.createContact(email, StringUtils.capitalize(type), DEFAULT_ZONES, props);
+        return this.contactDAO.createContact(email, StringUtils.capitalize(type), properties, DEFAULT_ZONES);
     }
 
     //<editor-fold desc="Injected service bean setters">

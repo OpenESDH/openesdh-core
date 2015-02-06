@@ -35,7 +35,7 @@ public class ContactDAOImpl {
 
     private static final String contactsRoot = "sys:contacts";
 
-    NodeRef createContact(String email, String contactType, Set<String>  authorityZones,  HashMap<QName, Serializable> typeProps) {
+    NodeRef createContact(String email, String contactType, HashMap<QName, Serializable> typeProps,  Set<String>  authorityZones) {
 
         typeProps.put(ContentModel.PROP_NAME, DigestUtils.md5Hex(email));
 
