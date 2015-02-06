@@ -3,8 +3,9 @@
 var args = page.url.args;
 
 var caseId = url.templateArgs.caseId;
+var caseNodeRef = getCaseNodeRefFromId(caseId);
 
-var roleTypes = getCaseRoleTypes(args.nodeRef, caseId);
+var roleTypes = getCaseRoleTypes(caseNodeRef, caseId);
 var addAuthorityToRoleDropdownItems = [];
 for (var i = 0; i < roleTypes.length; i++) {
     var roleType = roleTypes[i];
@@ -90,7 +91,7 @@ model.jsonModel = {
         {
             name: "openesdh/common/services/CaseMembersService",
             config: {
-                nodeRef: page.url.args.nodeRef,
+                nodeRef: caseNodeRef,
                 caseId: caseId
             }
         }
