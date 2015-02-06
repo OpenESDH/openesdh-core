@@ -2,10 +2,8 @@ package dk.openesdh.repo.webscripts.contacts
 
 import com.typesafe.scalalogging.slf4j.StrictLogging
 import dk.openesdh.repo.model.OpenESDHModel
-import dk.openesdh.repo.services.cases.CaseService
 import dk.openesdh.repo.services.contacts.ContactService
-import dk.openesdh.repo.services.documents.DocumentService
-import org.alfresco.service.cmr.repository.{InvalidNodeRefException, NodeRef, NodeService}
+import org.alfresco.service.cmr.repository.{InvalidNodeRefException, NodeService}
 import org.json.JSONObject
 import org.springframework.extensions.webscripts._
 

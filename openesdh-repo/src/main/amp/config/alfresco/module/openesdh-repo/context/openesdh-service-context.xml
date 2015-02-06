@@ -166,24 +166,15 @@
         </bean>
 -->
 
-    <!--Scala service(s) section (No you're not l337 for knowing scala. Just -->
+    <bean id="ContactDAO" class="dk.openesdh.repo.services.contacts.ContactDAOImpl">
+        <property name="nodeService" ref="nodeService"/>
+        <property name="namespacePrefixResolver" ref="namespaceService" />
+        <property name="repositoryHelper" ref="repositoryHelper"/>
+    </bean>
+
     <bean id="ContactService" class="dk.openesdh.repo.services.contacts.ContactServiceImpl">
-        <constructor-arg ref="NodeService" />
-        <constructor-arg ref="SearchService" />
-        <constructor-arg ref="ContactDAO" />
-        <constructor-arg ref="AuthorityService" />
+        <property name="nodeService" ref="nodeService" />
+        <property name="contactDAO" ref="ContactDAO" />
     </bean>
-
-    <bean id="ContactDAO" class="dk.openesdh.repo.services.contacts.ContactDAOImpl" parent="authorityDAO">
-        <constructor-arg ref="NodeService"/>
-        <constructor-arg ref="tenantService"/>
-        <constructor-arg ref="namespaceService" />
-        <constructor-arg ref="repositoryHelper"/>
-        <constructor-arg ref="authorityLookupCache"/>
-        <constructor-arg ref="zoneToAuthorityCache"/>
-        <constructor-arg ref="immutableSingletonCache"/>
-        <constructor-arg ref="namespaceService" />
-    </bean>
-
 
 </beans>

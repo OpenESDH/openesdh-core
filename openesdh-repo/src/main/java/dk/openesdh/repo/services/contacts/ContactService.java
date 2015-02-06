@@ -7,6 +7,7 @@ import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author Lanre Abiwon.
@@ -17,6 +18,13 @@ public interface ContactService {
      * Prefix used for authorities of type contact.
      */
     public static final String CONTACT_PREFIX = "CONTACT_";
+
+
+    /**
+     * The CONTACTs zone.
+     */
+    public static String ZONE_CONTACT = "CONTACT.STORE";
+
 
     //TODO create a new workspaces store for contacts or perhaps store them in the same store as users?
     /**
@@ -59,9 +67,9 @@ public interface ContactService {
      * @param email
      * @param type - Constrained to PERSON or ORGANIZATION.
      * @param properties - The map of additional properties that are mapped to the aspect properties to be applied.
-     * @param createAssociatedLogin - Boolean variable to indicate whether to create an associated account or not.
+     * @param authorityZones - the zones of the contact. (For future use)
      * @return the NodeRef of the newly created contact
      */
-    public NodeRef createContact(String email, String type, Map<QName, Serializable> properties, boolean createAssociatedLogin);
+    public NodeRef createContact(String email, String type, Map<QName, Serializable> properties, Set<String> authorityZones) ;
 
 }

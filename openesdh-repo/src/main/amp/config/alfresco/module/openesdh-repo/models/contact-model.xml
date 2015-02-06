@@ -9,7 +9,6 @@
         <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>
         <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>
         <import uri="http://www.alfresco.org/model/system/1.0" prefix="sys"/>
-        <import uri="http://www.alfresco.org/model/datalist/1.0" prefix="dl"/>
     </imports>
     <namespaces>
         <namespace uri="http://openesdh.dk/model/contact/1.0/" prefix="contact"/>
@@ -86,24 +85,14 @@
     <types>
         <type name="contact:base">
             <title>Contact</title>
-            <parent>cm:authorityContainer</parent>
+            <parent>cm:authority</parent>
             <properties>
-                <!-- FASD: ePostAddresse -->
+                <!-- FASD: used as a UID within the system -->
                 <property name="contact:email">
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <constraints>
                         <constraint ref="contact:emailConstraint"/>
-                    </constraints>
-                </property>
-
-                <!-- FASD: kontaktType -->
-                <property name="contact:contactType">
-                    <type>d:text</type>
-                    <protected>true</protected>
-                    <mandatory>true</mandatory>
-                    <constraints>
-                        <constraint ref="contact:contactTypeConstraint"/>
                     </constraints>
                 </property>
             </properties>
@@ -112,11 +101,10 @@
                 <aspect>contact:address</aspect>
             </mandatory-aspects>
         </type>
-    </types>
 
-    <aspects>
-        <aspect name="contact:person">
-            <title>Person</title>
+        <type name="contact:person">
+            <title>Contact Person</title>
+            <parent>contact:base</parent>
             <properties>
                 <!-- FASD: forNavn -->
                 <property name="contact:firstName">
@@ -168,16 +156,11 @@
                 </property>
             </properties>
 
-            <overrides>
-                <property name="contact:contactType">
-                    <default>PERSON</default>
-                </property>
-            </overrides>
+        </type>
 
-        </aspect>
-
-        <aspect name="contact:organization">
-            <title>Organization aspect</title>
+        <type name="contact:organization">
+            <title>Organization</title>
+            <parent>contact:base</parent>
             <properties>
                 <!-- FASD: organisationsNavn -->
                 <property name="contact:organizationName">
@@ -195,14 +178,10 @@
                     </constraints>
                 </property>
             </properties>
+        </type>
+    </types>
 
-            <overrides>
-                <property name="contact:contactType">
-                    <default>ORGANIZATION</default>
-                </property>
-            </overrides>
-        </aspect>
-
+    <aspects>
         <aspect name="contact:address">
             <title>Address</title>
             <properties>
