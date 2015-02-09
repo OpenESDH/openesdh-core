@@ -87,7 +87,7 @@ public class Notes extends AbstractRESTWebscript {
 
     @Override
     protected void delete(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
-        nodeService.deleteNode(nodeRef);
+        noteService.deleteNote(nodeRef);
     }
 
     @Override

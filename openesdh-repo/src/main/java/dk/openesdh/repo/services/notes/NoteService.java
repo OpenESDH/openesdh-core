@@ -19,5 +19,7 @@ public interface NoteService {
 
     public void updateNote(NodeRef nodeRef, String content, String author);
 
-    List<NodeRef> getNotes(NodeRef nodeRef);
+    public List<NodeRef> getNotes(NodeRef nodeRef);
+
+    public void deleteNote(NodeRef nodeRef);
 }

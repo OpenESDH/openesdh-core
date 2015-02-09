@@ -56,6 +56,11 @@ public class NoteServiceImpl implements NoteService {
         return nodeRefs;
     }
 
+    @Override
+    public void deleteNote(NodeRef nodeRef) {
+        nodeService.deleteNode(nodeRef);
+    }
+
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
     }
