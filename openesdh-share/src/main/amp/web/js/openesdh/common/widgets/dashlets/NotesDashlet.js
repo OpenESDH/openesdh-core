@@ -17,8 +17,9 @@
  * along with Alfresco. If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(["dojo/_base/declare", "alfresco/core/Core", "alfresco/dashlets/Dashlet", "dojo/_base/lang"],
-      function(declare, AlfCore, Dashlet, lang) {
+define(["dojo/_base/declare", "alfresco/core/Core", "alfresco/dashlets/Dashlet", "dojo/_base/lang",
+        "alfresco/core/NodeUtils"],
+      function(declare, AlfCore, Dashlet, lang, NodeUtils) {
 
          return declare([Dashlet], {
 
@@ -41,6 +42,40 @@ define(["dojo/_base/declare", "alfresco/core/Core", "alfresco/dashlets/Dashlet",
             constructor: function (args) {
                 lang.mixin(this, args);
                 this.widgetsForBody = [
+                    {
+                        name: "alfresco/buttons/AlfDynamicPayloadButton",
+                        config: {
+                            label: this.message("notes.add"),
+                            publishTopic: "ALF_CREATE_FORM_DIALOG_REQUEST",
+                            publishPayload: {
+                                dialogTitle: this.message("notes.add.dialog.title"),
+                                dialogConfirmationButtonTitle: this.message("notes.form.add.label"),
+                                dialogCancellationButtonTitle: this.message("notes.form.cancel.label"),
+                                formSubmissionTopic: "ALF_CRUD_CREATE",
+                                formSubmissionPayloadMixin: {
+                                    url: "api/openesdh/node/" + NodeUtils.processNodeRef(this.nodeRef).uri + "/notes",
+                                    // Refresh the notes list
+                                    pubSubScope: "OPENESDH_NOTES_DASHLET"
+                                },
+                                widgets: [
+                                    {
+                                        name: "alfresco/forms/controls/DojoValidationTextBox",
+                                        config: {
+                                            label: "Author",
+                                            name: "author"
+                                        }
+                                    },
+                                    {
+                                        name: "alfresco/forms/controls/DojoTextarea",
+                                        config: {
+                                            label: "Content",
+                                            name: "content"
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    },
                     {
                         name: "openesdh/common/widgets/lists/NoteList",
                         config: {

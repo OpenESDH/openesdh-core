@@ -46,7 +46,7 @@ public class Notes extends AbstractRESTWebscript {
             res) throws IOException {
         // process additional parameters
         boolean reverse = req.getParameter("reverse") != null ?
-                Boolean.valueOf(req.getParameter("reverse")) : false;
+                Boolean.valueOf(req.getParameter("reverse")) : true;
 
         // TODO: Paging?
 //        int startIndex = req.getParameter("startIndex") != null ?

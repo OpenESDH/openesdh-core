@@ -4,7 +4,11 @@ var caseId = url.templateArgs.caseId;
 var caseNodeRef = getCaseNodeRefFromId(caseId);
 
 model.jsonModel = {
-    services: [ "alfresco/services/CrudService", "openesdh/common/services/CaseMembersService" ],
+    services: [
+        "alfresco/services/CrudService",
+        "openesdh/common/services/CaseMembersService",
+        "alfresco/dialogs/AlfDialogService"
+    ],
     widgets: [{
             name: "alfresco/layout/HorizontalWidgets",
             config: {
