@@ -1,5 +1,7 @@
-var caseNodeRef = url.args.nodeRef;
+<import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/utils/case.js">
+
 var caseId = url.templateArgs.caseId;
+var caseNodeRef = getCaseNodeRefFromId(caseId);
 
 model.jsonModel = {
     services: [ "alfresco/services/CrudService", "openesdh/common/services/CaseMembersService" ],
@@ -26,6 +28,12 @@ model.jsonModel = {
                     },
                     {
                         name: "openesdh/common/widgets/dashlets/CaseHistoryDashlet"
+                    },
+                    {
+                        name: "openesdh/common/widgets/dashlets/NotesDashlet",
+                        config: {
+                            nodeRef: caseNodeRef
+                        }
                     }
                 ]
             }

@@ -105,8 +105,7 @@ define(["dojo/_base/declare",
                     name: "openesdh/pages/case/widgets/CaseMembersWidget",
                     config:{
                         sortField : "role",
-                        caseNodeRef : this.caseNodeRef,
-                        caseId : this.caseId
+                        pubSubScope: "OPENESDH_CASE_MEMBERS_DASHLET"
                     }
             }]
 
