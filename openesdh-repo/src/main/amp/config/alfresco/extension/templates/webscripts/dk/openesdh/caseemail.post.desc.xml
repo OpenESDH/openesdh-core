@@ -1,0 +1,9 @@
+<webscript>
+    <shortname>Create Email Document</shortname>
+    <description>Create Email Document</description>
+    <family>OpenESDH</family>
+    <format default="json" />
+    <transaction>required</transaction>
+    <url>/dk-openesdh-case-email</url>
+    <authentication>user</authentication>
+</webscript>

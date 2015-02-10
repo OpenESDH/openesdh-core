@@ -138,6 +138,18 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
+    public ChildAssociationRef createDocumentFolder(final NodeRef caseFolder, final String name) {
+        NodeRef documentsFolder = caseService.getDocumentsFolder(caseFolder);
+        ChildAssociationRef documentAssociationRef = nodeService.createNode(documentsFolder, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.DOC_URI, name), OpenESDHModel.TYPE_DOC_SIMPLE, Collections.<QName, Serializable>singletonMap(ContentModel.PROP_NAME, name));
+        NodeRef documentNodeRef = documentAssociationRef.getChildRef();
+
+        NodeRef person = personService.getPerson(AuthenticationUtil.getFullyAuthenticatedUser());
+        nodeService.createAssociation(documentNodeRef, person, OpenESDHModel.ASSOC_DOC_RESPONSIBLE_PERSON);
+        nodeService.createAssociation(documentNodeRef, person, OpenESDHModel.ASSOC_DOC_OWNER);
+        return documentAssociationRef;
+    }
+
+    @Override
     public void createDocument(final ChildAssociationRef childAssociationRef) {
 
         AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Void>() {
@@ -166,7 +178,7 @@ public class DocumentServiceImpl implements DocumentService {
                         behaviourFilter.disableBehaviour();
                         try {
                             // Create document
-                            ChildAssociationRef documentAssociationRef = nodeService.createNode(folderNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.DOC_URI, documentName), OpenESDHModel.TYPE_DOC_SIMPLE, Collections.<QName, Serializable>singletonMap(ContentModel.PROP_NAME, documentName));
+                            ChildAssociationRef documentAssociationRef = createDocumentFolder(folderNodeRef, documentName);
                             NodeRef documentNodeRef = documentAssociationRef.getChildRef();
                             nodeService.moveNode(fileNodeRef, documentNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.DOC_URI, "content_" + documentName));
                             //Tag the case document as the main document for the case
@@ -174,11 +186,7 @@ public class DocumentServiceImpl implements DocumentService {
                             nodeService.setType(fileNodeRef, OpenESDHModel.TYPE_DOC_DIGITAL_FILE);
                             // TODO Get start value, localize
                             nodeService.setProperty(fileNodeRef, OpenESDHModel.PROP_DOC_VARIANT, "Produktion");
-
-                            NodeRef person = personService.getPerson(AuthenticationUtil.getFullyAuthenticatedUser());
-                            nodeService.createAssociation(documentNodeRef, person, OpenESDHModel.ASSOC_DOC_RESPONSIBLE_PERSON);
-                            nodeService.createAssociation(documentNodeRef, person, OpenESDHModel.ASSOC_DOC_OWNER);
-                        }finally {
+                        } finally {
                             behaviourFilter.enableBehaviour();
                         }
 
