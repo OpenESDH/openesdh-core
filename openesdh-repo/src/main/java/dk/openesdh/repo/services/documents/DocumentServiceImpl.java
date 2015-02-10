@@ -138,8 +138,7 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public ChildAssociationRef createDocumentFolder(final NodeRef caseFolder, final String name) {
-        NodeRef documentsFolder = caseService.getDocumentsFolder(caseFolder);
+    public ChildAssociationRef createDocumentFolder(final NodeRef documentsFolder, final String name) {
         ChildAssociationRef documentAssociationRef = nodeService.createNode(documentsFolder, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.DOC_URI, name), OpenESDHModel.TYPE_DOC_SIMPLE, Collections.<QName, Serializable>singletonMap(ContentModel.PROP_NAME, name));
         NodeRef documentNodeRef = documentAssociationRef.getChildRef();
 

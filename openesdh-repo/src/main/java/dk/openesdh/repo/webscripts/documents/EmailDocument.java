@@ -50,7 +50,8 @@ public class EmailDocument extends AbstractWebScript {
         String name = (String) json.get("name");
 
         NodeRef nodeRef = caseService.getCaseById(caseId);
-        NodeRef documentFolder = documentService.createDocumentFolder(nodeRef, name).getChildRef();
+        NodeRef documentsFolder = caseService.getDocumentsFolder(nodeRef);
+        NodeRef documentFolder = documentService.createDocumentFolder(documentsFolder, name).getChildRef();
 
         JSONObject result = new JSONObject();
 
