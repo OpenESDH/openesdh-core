@@ -17,8 +17,25 @@ define(["dojo/_base/declare",
                 this.alfSubscribe(this.CaseMembersAddToRoleTopic, lang.hitch(this, "_onCaseMemberAddToRole"));
                 this.alfSubscribe(this.CaseMembersChangeRoleTopic, lang.hitch(this, "_onCaseMemberChangeRole"));
                 this.alfSubscribe(this.CaseMembersRemoveRoleTopic, lang.hitch(this, "_onCaseMemberRemoveRole"));
+                this.alfSubscribe(this.CaseMembersGet, lang.hitch(this, "_loadCaseMembers"));
                 this.alfSubscribe(this.CaseMembersGroupGet, lang.hitch(this, "_getCaseMembersGroup"));
                 this.alfSubscribe(this.CaseNavigateToUserProfilePage, lang.hitch(this, "_navigateToUserProfile"));
+            },
+
+            _loadCaseMembers: function () {
+                // Get members from webscript
+                this.serviceXhr({
+                    url: Alfresco.constants.PROXY_URI + "api/openesdh/casemembers",
+                    query: {
+                        nodeRef: this.nodeRef
+                    },
+                    method: "GET",
+                    handleAs: "json",
+                    successCallback: function (response, config) {
+                        this.alfPublish(this.CaseMembersTopic, {members: response});
+                    },
+                    callbackScope: this
+                });
             },
 
             _navigateToUserProfile: function (payload) {

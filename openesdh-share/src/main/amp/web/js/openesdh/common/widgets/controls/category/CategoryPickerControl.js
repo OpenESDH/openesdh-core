@@ -17,8 +17,7 @@ define(["dojo/_base/declare",
                 return {
                     id : this.generateUuid(),
                     name: this.name,
-                    value: this.value,
-                    control: this
+                    value: this.value
                 };
             },
 

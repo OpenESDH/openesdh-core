@@ -89,40 +89,6 @@ if (socialLinksConfig !== null) {
  *                                                                                 *
  ***********************************************************************************/
 
-//TODO localisation of menu labels
-var createDocument = {
-    id: "HEADER_DOCUMENT_CREATE_DROPDOWN",
-    name: "alfresco/menus/AlfMenuBarPopup",
-    config: {
-        label: "Create Document" ,
-        title: "header.document.create.altText",
-        widgets: [
-            {
-                id: "HEADER_DOCUMENT_CREATE_DIGITAL",
-                name: "alfresco/menus/AlfMenuBarItem",
-                config: {
-                    id: "HEADER_DOCUMENT_CREATE_DIGITAL",
-                    label: "digital" ,
-                    publishTopic: "OE_SHOW_UPLOADER",
-                    publishPayload: {}
-                }
-            },
-            {
-                id: "HEADER_DOCUMENT_CREATE_PHYSICAL",
-                name: "alfresco/menus/AlfMenuBarItem",
-                config: {
-                    id: "HEADER_DOCUMENT_CREATE_PHYSICAL",
-                    label: "physical" ,
-                    targetUrl: "/dashboard"
-                }
-            }
-        ]
-    }
-};
-
-function getCreateDocumentMenuItem(){
-    return createDocument;
-}
 
 /* *********************************************************************************
  *                                                                                 *
@@ -556,7 +522,7 @@ function getDocumentLibraryServices() {
         "alfresco/services/ContentService",
         "openesdh/common/services/CaseDocumentService",
         "alfresco/dialogs/AlfDialogService",
-        "alfresco/services/ActionService",
+        "openesdh/common/services/CaseActionService",
         "alfresco/services/RatingsService",
         "alfresco/services/QuickShareService"
     ];
@@ -858,7 +824,6 @@ function getDocumentLibraryModel(siteId, containerId, rootNode) {
                                                         name: "alfresco/documentlibrary/AlfSelectDocumentListItems"
                                                     },
                                                     getCreateContentMenu(),
-                                                    getCreateDocumentMenuItem(),
                                                     {
                                                         id: "DOCLIB_UPLOAD_BUTTON",
                                                         name: "alfresco/documentlibrary/AlfCreateContentMenuBarItem",

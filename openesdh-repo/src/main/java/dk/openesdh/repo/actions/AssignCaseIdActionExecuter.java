@@ -10,6 +10,8 @@ import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 import java.io.Serializable;
 import java.util.HashMap;
@@ -21,7 +23,7 @@ import java.util.logging.Logger;
  * Created by syastrov on 11/10/14.
  */
 public class AssignCaseIdActionExecuter extends ActionExecuterAbstractBase {
-    private static Logger LOGGER = Logger.getLogger(AssignCaseIdActionExecuter.class.toString());
+    private static Log logger = LogFactory.getLog(AssignCaseIdActionExecuter.class);
 
     public static final String NAME = "assign-case-id";
 

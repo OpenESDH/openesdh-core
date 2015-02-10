@@ -21,6 +21,9 @@ import java.util.Map;
  * Created by torben on 11/09/14.
  */
 public class Journalize extends AbstractWebScript {
+    private static final String NODE_ID = "node_id";
+    private static final String STORE_ID = "store_id";
+    private static final String STORE_TYPE = "store_type";
 
     private CaseService caseService;
 
@@ -30,20 +33,25 @@ public class Journalize extends AbstractWebScript {
 
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
-        Map<String, String> templateArgs = req.getServiceMatch().getTemplateVars();
-        String caseId = templateArgs.get ("caseId");
+        Map<String, String> vars = req.getServiceMatch().getTemplateVars();
+        NodeRef nodeRef = null;
+        String storeType = vars.get(STORE_TYPE);
+        String storeId = vars.get(STORE_ID);
+        String nodeId = vars.get(NODE_ID);
+        if (storeType != null && storeId != null && nodeId != null)
+        {
+            nodeRef = new NodeRef(storeType, storeId, nodeId);
+        }
 
-//        NodeRef caseNodeRef = new NodeRef(req.getParameter("nodeRef"));
-        NodeRef caseNodeRef = this.caseService.getCaseById(caseId);
         Boolean unjournalize = Boolean.valueOf(req.getParameter("unjournalize"));
 
         boolean result = true;
         try {
             if (unjournalize != null && unjournalize) {
-                caseService.unJournalize(caseNodeRef);
+                caseService.unJournalize(nodeRef);
             } else {
                 NodeRef journalKey = new NodeRef(req.getParameter("journalKey"));
-                caseService.journalize(caseNodeRef, journalKey);
+                caseService.journalize(nodeRef, journalKey);
             }
         } catch (AccessDeniedException e) {
             res.setStatus(409);

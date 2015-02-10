@@ -1,0 +1,45 @@
+<alfresco-config>
+    <!-- Document Library Actions config section -->
+    <config evaluator="string-compare" condition="DocLibActions">
+        <!--
+           Action definitions
+        -->
+        <actions>
+            <!-- Journalize -->
+            <action id="oe-journalize" type="javascript"
+                    label="actions.openesdh.journalize"
+                    icon="openesdh-journalize">
+                <param name="function">onActionJournalize</param>
+                <!-- TODO: write evaluator to check if user can journalize -->
+                <evaluator>openesdh.evaluator.doclib.action.isJournalizable</evaluator>
+                <evaluator negate="true">openesdh.evaluator.doclib.metadata.isJournalized</evaluator>
+            </action>
+
+            <!-- Unjournalize -->
+            <action id="oe-unjournalize" type="javascript"
+                    label="actions.openesdh.unjournalize"
+                    icon="openesdh-unjournalize">
+                <param name="function">onActionUnJournalize</param>
+                <!-- TODO: write evaluator to check if user can unjournalize -->
+                <evaluator>openesdh.evaluator.doclib.action.isJournalizable</evaluator>
+                <evaluator>openesdh.evaluator.doclib.metadata.isJournalized</evaluator>
+            </action>
+        </actions>
+
+        <!--
+           Action Group definitions
+        -->
+        <actionGroups>
+            <actionGroup id="folder-browse">
+                <action index="400" id="oe-journalize" />
+                <action index="405" id="oe-unjournalize" />
+            </actionGroup>
+
+            <actionGroup id="folder-details">
+                <action index="400" id="oe-journalize" />
+                <action index="405" id="oe-unjournalize" />
+            </actionGroup>
+        </actionGroups>
+    </config>
+
+</alfresco-config>

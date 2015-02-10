@@ -70,8 +70,9 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
         if (parts.length >= 7) {
             String node_db_id = parts[6].substring(parts[6].length() - 4);
             NodeRef nodeRef = nodeService.getNodeRef(Long.parseLong(node_db_id));
-
-            return nodeRef.toString();
+            if (nodeRef != null) {
+              return nodeRef.toString();
+            }
         }
 
     }

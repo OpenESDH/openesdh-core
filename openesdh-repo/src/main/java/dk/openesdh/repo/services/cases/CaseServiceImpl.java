@@ -12,7 +12,6 @@ import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.lock.LockService;
 import org.alfresco.service.cmr.lock.LockType;
 import org.alfresco.service.cmr.repository.*;
-import org.alfresco.service.cmr.repository.datatype.DefaultTypeConverter;
 import org.alfresco.service.cmr.rule.Rule;
 import org.alfresco.service.cmr.rule.RuleService;
 import org.alfresco.service.cmr.rule.RuleType;
@@ -25,21 +24,20 @@ import org.alfresco.service.cmr.security.OwnableService;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
+import org.apache.log4j.Logger;
 import org.springframework.security.access.AccessDeniedException;
 
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.logging.Logger;
 
 /**
  * Created by torben on 19/08/14.
  */
 public class CaseServiceImpl implements CaseService {
 
-
-    private static Logger LOGGER = Logger.getLogger(CaseServiceImpl.class.toString());
+    private static Logger LOGGER = Logger.getLogger(CaseServiceImpl.class);
 
     /**
      * repositoryHelper cannot be autowired - seemingly
@@ -525,8 +523,17 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
+    public boolean isCaseDocNode(NodeRef nodeRef) {
+        QName type = nodeService.getType(nodeRef);
+        return dictionaryService.isSubClass(type, OpenESDHModel.TYPE_DOC_BASE) && nodeService.hasAspect(nodeRef, OpenESDHModel.ASPECT_OE_CASE_ID);
+    }
+
+    @Override
     public NodeRef getParentCase(NodeRef nodeRef) {
-        if (nodeRef.equals(getCasesRootNodeRef()) || isCaseNode(nodeRef)) {
+        if (isCaseNode(nodeRef)) {
+            return nodeRef;
+        }
+        if (nodeRef.equals(getCasesRootNodeRef())) {
             // Case nodes and cases root don't have cases as ancestors
             return null;
         }
@@ -548,38 +555,59 @@ public class CaseServiceImpl implements CaseService {
     }
 
     //<editor-fold desc="Journalization methods">
-    public void checkCanJournalize(NodeRef caseNodeRef) throws
+    public void checkCanJournalize(NodeRef nodeRef) throws
             AccessDeniedException {
         String user = AuthenticationUtil.getRunAsUser();
-        if (!canJournalize(user, caseNodeRef)) {
+        if (!canJournalize(user, nodeRef)) {
             throw new AccessDeniedException(user + " is not allowed to " +
-                    "journalize the case " + caseNodeRef);
+                    "journalize the node " + nodeRef);
         }
     }
 
-    public void checkCanUnJournalize(NodeRef caseNodeRef) throws
+    public void checkCanUnJournalize(NodeRef nodeRef) throws
             AccessDeniedException {
         String user = AuthenticationUtil.getRunAsUser();
-        if (!canUnJournalize(user, caseNodeRef)) {
+        if (!canUnJournalize(user, nodeRef)) {
             throw new AccessDeniedException(user + " is not allowed to " +
-                    "unjournalize the case " + caseNodeRef);
+                    "unjournalize the node " + nodeRef);
+        }
+    }
+
+    private boolean isJournalizableType(NodeRef nodeRef) {
+        return isCaseNode(nodeRef) || isCaseDocNode(nodeRef);
+    }
+
+    @Override
+    public boolean canJournalize(String user, NodeRef nodeRef) {
+        if (!isJournalizableType(nodeRef) || isJournalized(nodeRef)) {
+            return false;
+        }
+        if (authorityService.isAdminAuthority(user)) {
+            return true;
+        }
+        if (isCaseNode(nodeRef)) {
+            // Type: Case
+            // Only case owners can journalize a case
+            return isCaseOwner(user, nodeRef);
+        } else {
+            // Type: Case doc
+            // Only doc owners and case owners can journalize a case doc
+            return ownableService.getOwner(nodeRef).equals(user) ||
+                    isCaseOwner(user, getParentCase(nodeRef));
         }
     }
 
     @Override
-    public boolean canJournalize(String user, NodeRef caseNodeRef) {
-        if (isJournalized(caseNodeRef)) {
+    public boolean canUnJournalize(String user, NodeRef nodeRef) {
+        if (!isJournalizableType(nodeRef) || !isJournalized(nodeRef)) {
             return false;
         }
-        return authorityService.isAdminAuthority(user) ||
-                isCaseOwner(user, caseNodeRef);
-    }
-
-    @Override
-    public boolean canUnJournalize(String user, NodeRef caseNodeRef) {
-        if (!isJournalized(caseNodeRef)) {
+        if (isCaseDocNode(nodeRef) && isJournalized(getParentCase(nodeRef))) {
+            // Cannot unjournalize documents from a case that is journalized
+            // Must unjournalize the case instead.
             return false;
         }
+        // Only admins can unjournalize anything (for now)
         return authorityService.isAdminAuthority(user);
     }
 
@@ -598,13 +626,22 @@ public class CaseServiceImpl implements CaseService {
             @Override
             public Object execute() throws Throwable {
                 journalizeImpl(nodeRef, journalKey);
-                journalizeCaseGroups(nodeRef);
+                if (isCaseNode(nodeRef)) {
+                    journalizeCaseGroups(nodeRef);
+                }
                 return null;
             }
         });
     }
 
+    // Suppress warning about READ_ONLY_LOCK being deprecated
+    @SuppressWarnings("deprecation")
     private void journalizeImpl(final NodeRef nodeRef, final NodeRef journalKey) {
+        if (nodeService.hasAspect(nodeRef, OpenESDHModel.ASPECT_OE_JOURNALIZED)) {
+            // Don't touch, already journalized
+            LOGGER.warn("Node already has journalized aspect when journalizing: " + nodeRef);
+            return;
+        }
         AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Void>() {
             @Override
             public Void doWork() {
@@ -671,7 +708,9 @@ public class CaseServiceImpl implements CaseService {
             @Override
             public Object execute() throws Throwable {
                 unJournalizeImpl(nodeRef);
-                unJournalizeCaseGroups(nodeRef);
+                if (isCaseNode(nodeRef)) {
+                    unJournalizeCaseGroups(nodeRef);
+                }
                 return null;
             }
         });

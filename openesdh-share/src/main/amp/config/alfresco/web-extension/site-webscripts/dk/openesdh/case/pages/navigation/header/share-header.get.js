@@ -10,11 +10,10 @@ navMenu.config.widgets.push({
     id: "HEADER_CASE_DASHBOARD",
     name: "alfresco/menus/AlfMenuBarItem",
     config: {
-        id: "HEADER_CASE_DASHBOARD",
         label: "header.document.case.dashboard" ,
         title: "header.document.case.dashboard.altText",
         targetUrl: "oe/case/"+caseId+"/dashboard",
-        selected: isCurrentUri("dashboard")
+        selected: isOnCasePage("dashboard")
     }
 });
 
@@ -22,11 +21,10 @@ navMenu.config.widgets.push({
     id: "HEADER_CASE_DOCUMENTS",
     name: "alfresco/menus/AlfMenuBarItem",
     config: {
-        id: "HEADER_CASE_DOCUMENTS",
         label: "header.case.documents" ,
         title: "header.case.documents.altText",
         targetUrl: "oe/case/"+caseId+"/documents",
-        selected: isCurrentUri("documents")
+        selected: isOnCasePage("documents")
     }
 });
 
@@ -35,12 +33,10 @@ navMenu.config.widgets.push({
     id: "HEADER_CASE_MEMBERS",
     name: "alfresco/menus/AlfMenuBarItem",
     config: {
-        id: "HEADER_CASE_MEMBERS",
-        iconClass: "alf-user-icon",
-        iconAltText: "header.case.members.altText",
-//        title: "header.case.members.title",
+        label: "header.case.members.title",
+        title: "header.case.members.altText",
         targetUrl: "oe/case/"+caseId+"/members",
-        selected: isCurrentUri("members")
+        selected: isOnCasePage("members")
     }
 });
 
@@ -50,7 +46,6 @@ var caseConfig = {
     id: "HEADER_CASE_CONFIGURATION_DROPDOWN",
     name: "alfresco/menus/AlfMenuBarPopup",
     config: {
-        id: "HEADER_CASE_CONFIGURATION_DROPDOWN",
         label: "",
         iconClass: "alf-configure-icon",
         iconAltText: "header.case.config.altText",
@@ -63,7 +58,6 @@ caseConfig.config.widgets.push({
     id: "HEADER_CASE_EDIT",
     name: "alfresco/menus/AlfMenuBarItem",
     config: {
-        id: "HEADER_CASE_EDIT",
         label: "header.case.edit" ,
         iconClass: "alf-cog-icon",
         targetUrl: "edit-metadata?nodeRef=" + nodeRef,
@@ -87,7 +81,7 @@ caseConfig.config.widgets.push({
         label: "header.case.journalize",
         iconClass: "alf-cog-icon",
 
-        publishTopic: "JOURNALIZE",
+        publishTopic: "OPENESDH_JOURNALIZE",
         publishPayload: {},
         visibilityConfig: {
             initialValue: false,
@@ -108,7 +102,7 @@ caseConfig.config.widgets.push({
         label: "header.case.unjournalize",
         iconClass: "alf-cog-icon",
 
-        publishTopic: "UNJOURNALIZE",
+        publishTopic: "OPENESDH_UNJOURNALIZE",
         publishPayload: {},
         visibilityConfig: {
             initialValue: false,
@@ -146,7 +140,7 @@ verticalLayout.config.widgets.push({
 });
 
 model.jsonModel.services.push({
-    name: "openesdh/pages/case/services/Dashboard",
+    name: "openesdh/common/services/CaseService",
     config: {
         caseId: caseId,
         nodeRef: (nodeRef != null) ? nodeRef : args.destination

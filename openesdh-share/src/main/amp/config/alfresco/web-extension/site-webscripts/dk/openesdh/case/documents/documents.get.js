@@ -1,17 +1,5 @@
 <import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/case/documents/lib/case-library.lib.js">
-
-/**
- * Get the case nodeRef from the case Id
- * @param caseId
- * @returns {case nodeRef}
- */
-function getCaseNodeRef(caseId) {
-    var connector = remote.connect("alfresco");
-    var caseNode = connector.get("/api/openesdh/case/noderef/" +caseId);
-    var caseNodeRef = eval('(' + caseNode + ')');
-
-    return caseNodeRef.caseNodeRef;
-}
+<import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/utils/case.js">
 
 /**
  * Gets the nodeRef of the documents library for the case
@@ -30,9 +18,9 @@ function getCaseDocumentNodeRef(nodeRef) {
 }
 
 var caseId = url.templateArgs.caseId;
-var tmp = getCaseNodeRef(caseId);
+var caseNodeRef = getCaseNodeRefFromId(caseId);
 
-var documentNode = getCaseDocumentNodeRef(tmp);
+var documentNode = getCaseDocumentNodeRef(caseNodeRef);
 var services = getDocumentLibraryServices(null, null, documentNode);
 var widgets = [getDocumentLibraryModel(null, null, documentNode)];
 
@@ -45,13 +33,6 @@ if (tree != null) {
 model.jsonModel = {
     services: services,
     widgets: [
-        {
-            id: "SET_PAGE_TITLE",
-            name: "alfresco/header/SetTitle",
-            config: {
-                title: "Case Library"
-            }
-        },
         {
             id: "SHARE_VERTICAL_LAYOUT",
             name: "alfresco/layout/VerticalWidgets",

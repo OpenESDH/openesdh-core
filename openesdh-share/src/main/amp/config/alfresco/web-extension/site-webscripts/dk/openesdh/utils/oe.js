@@ -5,9 +5,10 @@ function escapeRegExp(string){
     return string.replace(/([.*+?^${}()|\[\]\/\\])/g, "\\$1");
 }
 
+
 /**
- * Check if the current page is the given URI, assuming it is an Aikau page.
+ * Check if the current page is the given case page.
  */
-function isCurrentUri(uri) {
-    return page.url.uri.match(new RegExp("^.+/page/oe/case/" + escapeRegExp(uri) + "$"));
+function isOnCasePage(uri) {
+    return page.url.uri.match(new RegExp("^.+/page/oe/case/.+?/" + escapeRegExp(uri)));
 }

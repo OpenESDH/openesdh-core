@@ -37,6 +37,11 @@ define(["dojo/_base/declare",
 
                 this.alfSubscribe(this.CaseMembersTopic, lang.hitch(this, "_onCaseMembers"));
                 this.alfSubscribe("CASE_MEMBERS_ADD_TO_ROLE_CLICK", lang.hitch(this, "_onAddCaseMembers"));
+
+                this.alfSubscribe("ALF_WIDGETS_READY", lang.hitch(this, "onAllWidgetsReady"));
+            },
+
+            onAllWidgetsReady: function (payload) {
                 this.alfPublish(this.CaseMembersGet, {});
             },
 
