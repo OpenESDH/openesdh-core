@@ -25,11 +25,12 @@
  * @author Torben Lauritzen
  */
 define(["dojo/_base/declare",
-   "alfresco/core/Core",
-   "alfresco/dashlets/Dashlet"],
-      function(declare, AlfCore, Dashlet) {
+        "alfresco/core/Core",
+        "alfresco/dashlets/Dashlet",
+        "dojo/_base/lang"],
+    function (declare, AlfCore, Dashlet, lang) {
 
-         return declare([Dashlet], {
+        return declare([Dashlet], {
 
             /**
              * The i18n scope to use for this widget.
@@ -47,21 +48,16 @@ define(["dojo/_base/declare",
              */
             i18nRequirements: [{i18nFile: "./i18n/CaseHistoryDashlet.properties"}],
 
-            /**
-             * The widgets to be processed to generate each item in the rendered view.
-             *
-             * @instance
-             * @type {object[]}
-             * @default null
-             */
-            widgetsForBody: [
-               {
-                   name: "openesdh/pages/case/widgets/CaseHistoryWidget"
-
-               }
-
-
-            ]
-
-         });
-      });
+            constructor: function (args) {
+                lang.mixin(this, args);
+                this.widgetsForBody = [
+                    {
+                        name: "openesdh/pages/case/widgets/CaseHistoryWidget",
+                        config: {
+                            nodeRef: this.nodeRef
+                        }
+                    }
+                ];
+            }
+        });
+    });

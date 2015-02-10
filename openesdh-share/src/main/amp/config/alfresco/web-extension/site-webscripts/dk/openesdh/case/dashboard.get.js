@@ -31,12 +31,18 @@ model.jsonModel = {
                       }
                     },
                     {
-                        name: "openesdh/common/widgets/dashlets/CaseHistoryDashlet"
+
+                        name: "openesdh/common/widgets/dashlets/CaseHistoryDashlet",
+                        config: {
+                            nodeRef: caseNodeRef
+                        }
                     },
+
                     {
                         name: "openesdh/common/widgets/dashlets/NotesDashlet",
                         config: {
                             nodeRef: caseNodeRef
+
                         }
                     }
                 ]

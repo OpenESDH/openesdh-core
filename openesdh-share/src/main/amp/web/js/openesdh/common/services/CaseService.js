@@ -38,10 +38,20 @@ define(["dojo/_base/declare",
 
                 this.alfSubscribe("ALF_WIDGETS_READY", lang.hitch(this, "onAllWidgetsReady"));
 
+
+
+
+
+
+
                 // Don't do anything when the widgets are ready
                 // This is overwritten when the case info is loaded
                 this._allWidgetsProcessedFunction = function () {};
             },
+
+
+
+
 
             // TODO: Handle requests for case info and respond
             //onCaseInfo: function (payload) {

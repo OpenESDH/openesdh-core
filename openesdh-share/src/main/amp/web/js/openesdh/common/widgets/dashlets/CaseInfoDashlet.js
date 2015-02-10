@@ -55,7 +55,6 @@ define(["dojo/_base/declare", "alfresco/core/Core", "alfresco/dashlets/Dashlet"]
             widgetsForBody: [
                {
                   name: "openesdh/pages/case/widgets/InfoWidget"
-
                }
             ]
 
