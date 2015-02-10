@@ -56,11 +56,11 @@ define(["dojo/_base/declare",
             // Override default Dijit theme to look like Alfresco's.
             // This applies to the whole page, but I haven't found a better place to put it.
             cssRequirements: [
-                {cssFile:"./css/AlfrescoStyle.css"},
-                {cssFile:"./css/Grid.css"},
-                {cssFile:"./css/GridActions.css"},
-                {cssFile:"./css/Icons.css"},
-                {cssFile:"./css/GridColumns.css"}
+                {cssFile:"../../../common/widgets/dashlets/css/AlfrescoStyle.css"},
+                {cssFile:"../../../common/widgets/dashlets/css/Grid.css"},
+                {cssFile:"../../../common/widgets/dashlets/css/GridActions.css"},
+                {cssFile:"../../../common/widgets/dashlets/css/Icons.css"},
+                {cssFile:"../../../common/widgets/dashlets/css/GridColumns.css"}
             ],
 
             /**
@@ -139,7 +139,6 @@ define(["dojo/_base/declare",
 
 
             _onPayloadReceive: function (payload) {
-                console.log(payload);
                 this.createGrid(payload);
             },
 
@@ -148,27 +147,9 @@ define(["dojo/_base/declare",
             postCreate: function () {
                 this.inherited(arguments);
                 var _this = this;
-//                this.createGrid();
-//                alert(caseNodeRef);
-//                var caseNodeRef = ""
-
-//                var CustomRest = JsonRest;
-//                this.grid.store = new CustomRest({
-//                    target: Alfresco.constants.PROXY_URI + "api/openesdh/casehistory?" + caseNodeRef
-//                });
-//                this.grid.refresh();
-
-
-
-
-
             },
 
             startup: function () {
-//                this.inherited(arguments);
-//                var _this = this;
-//                console.log("inside startup");
-//                this.createGrid();
             },
 
             handleDropdownSelect: function () {
@@ -240,14 +221,9 @@ define(["dojo/_base/declare",
                 // Custom JsonRest store hacked to look for ETag header in the response instead of Content-Range header
                 var CustomRest = JsonRest;
 
-//                var store = new CustomRest({
-//                    target: Alfresco.constants.PROXY_URI + "api/openesdh/userinvolvedsearch"
-//                });
-//
                 var store = new CustomRest({
                     target: Alfresco.constants.PROXY_URI + "api/openesdh/casehistory?nodeRef=" + payload
                 });
-
                 console.log(store);
 
                 // Create a custom Pagination class with a distinct i18n bundle

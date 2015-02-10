@@ -32,6 +32,7 @@ public class CaseHistory extends AbstractWebScript {
 
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
+        System.out.println(req.getParameter("nodeRef"));
         NodeRef caseNodeRef = new NodeRef(req.getParameter("nodeRef"));
 
         JSONArray result = auditSearchService.getAuditLogByCaseNodeRef(caseNodeRef, new Long(1000));

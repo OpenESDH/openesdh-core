@@ -25,7 +25,10 @@ model.jsonModel = {
                       }
                     },
                     {
-                        name: "openesdh/common/widgets/dashlets/CaseHistoryDashlet"
+                        name: "openesdh/common/widgets/dashlets/CaseHistoryDashlet",
+                        config:{
+                            caseId : caseId
+                        }
                     }
                 ]
             }

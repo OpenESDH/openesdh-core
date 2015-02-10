@@ -38,10 +38,20 @@ define(["dojo/_base/declare",
 
                 this.alfSubscribe("ALF_WIDGETS_READY", lang.hitch(this, "onAllWidgetsReady"));
 
+
+
+
+
+
+
                 // Don't do anything when the widgets are ready
                 // This is overwritten when the case info is loaded
                 this._allWidgetsProcessedFunction = function () {};
             },
+
+
+
+
 
             // TODO: Handle requests for case info and respond
             //onCaseInfo: function (payload) {
@@ -71,12 +81,18 @@ define(["dojo/_base/declare",
             onAllWidgetsReady: function (payload) {
                 this._allWidgetsReady = true;
                 this._allWidgetsProcessedFunction();
+
+                // TODO needs to be moved to constructor, when seth finds a way to make sure that the historyWidget subscribes before publishing this
+                this.alfPublish(this.CaseHistoryTopic, this.caseNodeRef);
             },
 
             _onCaseInfoInitialLoadSuccess: function (response, config) {
                 this._allWidgetsProcessedFunction = lang.hitch(this, function () {
                     this.alfPublish(this.CaseInfoTopic, response);
                     this.alfPublish("ALF_UPDATE_PAGE_TITLE", {title: response.properties["cm:title"].value});
+
+
+
                     // Ensure it doesn't get called twice
                     this._allWidgetsProcessedFunction = function () {};
                 });
