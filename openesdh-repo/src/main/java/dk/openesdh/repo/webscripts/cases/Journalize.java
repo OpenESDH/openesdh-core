@@ -33,8 +33,6 @@ public class Journalize extends AbstractWebScript {
 
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
-        Map<String, String> templateArgs = req.getServiceMatch().getTemplateVars();
-
         Map<String, String> vars = req.getServiceMatch().getTemplateVars();
         NodeRef nodeRef = null;
         String storeType = vars.get(STORE_TYPE);

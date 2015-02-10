@@ -1,0 +1,8 @@
+<webscript>
+    <shortname>Update note</shortname>
+    <description>Updates a note</description>
+    <url>/api/openesdh/note/node/{store_type}/{store_id}/{node_id}</url>
+    <format default="json"></format>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+</webscript>

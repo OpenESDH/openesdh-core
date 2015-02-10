@@ -9,6 +9,7 @@
                 <value>alfresco/module/${project.artifactId}/models/oe-model.xml</value>
                 <value>alfresco/module/${project.artifactId}/models/case-model.xml</value>
                 <value>alfresco/module/${project.artifactId}/models/doc-model.xml</value>
+                <value>alfresco/module/${project.artifactId}/models/note-model.xml</value>
             </list>
         </property>
         <property name="labels">
@@ -17,6 +18,7 @@
                 <value>alfresco/module/${project.artifactId}/messages/case-model</value>
                 <value>alfresco/module/${project.artifactId}/messages/doc-model</value>
                 <value>alfresco/module/${project.artifactId}/messages/contact-model</value>
+                <value>alfresco/module/${project.artifactId}/messages/note-model</value>
             </list>
         </property>
     </bean>
