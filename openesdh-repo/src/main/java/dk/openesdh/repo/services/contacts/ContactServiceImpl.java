@@ -26,8 +26,8 @@ public class ContactServiceImpl implements ContactService {
     private NodeService nodeService;
     private ContactDAOImpl contactDAO;
 
+    //for later use
     private static Set<String> DEFAULT_ZONES = new HashSet<String>();
-
     static{
         DEFAULT_ZONES.add(AuthorityService.ZONE_APP_DEFAULT);
         DEFAULT_ZONES.add(ContactService.ZONE_CONTACT);
@@ -50,7 +50,6 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     public NodeRef createContact(String email, String type, HashMap<QName, Serializable> properties, Set<String> authorityZones) {
-//        if (!type.equalsIgnoreCase(ContactInfo.ContactType.PERSON.name()) || !type.equalsIgnoreCase(ContactInfo.ContactType.ORGANIZATION.name()) )
         if (!type.equalsIgnoreCase(ContactInfo.ContactType.valueOf(StringUtils.capitalize(type)).toString()) )
             throw new InvalidContactTypeException("The type of contact is not recognised. Can only create types PERSON/ORGANIZATION");
 

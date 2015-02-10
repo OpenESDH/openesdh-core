@@ -14,18 +14,14 @@
         <artifactId>parent</artifactId>
         <version>1.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
-
     </parent>
 
     <properties>
         <!-- Defines the target WAR artifactId to run this amp, only used with the -Pamp-to-war switch
         | Allowed values: alfresco | share. In this case it's configured to use OOTB share -->
         <alfresco.client.war>share</alfresco.client.war>
-
         <alfresco.client.contextPath>/share</alfresco.client.contextPath>
-
         <alfresco.repo.url>http://localhost:8080/alfresco</alfresco.repo.url>
-
         <!-- Since Alfresco is already running on port 8080, we run Share on port 8081 -->
         <maven.tomcat.port>8081</maven.tomcat.port>        
     </properties>
@@ -69,8 +65,6 @@
             <classifier>community</classifier>
             <type>amp</type>
         </dependency>
-
-
 
     </dependencies>
 

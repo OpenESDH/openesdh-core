@@ -182,28 +182,22 @@ public class CaseServiceImpl implements CaseService {
             }
             return caseNodeRef;
         }
-
     }
 
     public String getCaseId(NodeRef caseNodeRef) {
-        return (String) nodeService.getProperty(caseNodeRef,
-                OpenESDHModel.PROP_OE_ID);
+        return (String) nodeService.getProperty(caseNodeRef, OpenESDHModel.PROP_OE_ID);
     }
 
     long getCaseUniqueId(NodeRef caseNodeRef) {
         // We are using node-dbid, as it is unique across nodes in a cluster
-        return (long) nodeService.getProperty(caseNodeRef,
-                ContentModel.PROP_NODE_DBID);
+        return (long) nodeService.getProperty(caseNodeRef, ContentModel.PROP_NODE_DBID);
     }
 
-    protected String getCaseRoleGroupName(String caseId,
-                                          String role) {
-        return authorityService.getName(AuthorityType.GROUP,
-                getCaseRoleGroupAuthorityName(caseId, role));
+    protected String getCaseRoleGroupName(String caseId, String role) {
+        return authorityService.getName(AuthorityType.GROUP, getCaseRoleGroupAuthorityName(caseId, role));
     }
 
-    protected String getCaseRoleGroupAuthorityName(String caseId,
-                                                   String role) {
+    protected String getCaseRoleGroupAuthorityName(String caseId, String role) {
         return "case_" + caseId + "_" + role;
     }
 
@@ -223,11 +217,8 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public void removeAuthorityFromRole(final String authorityName,
-                                        final String role,
-                                        final NodeRef caseNodeRef) {
+    public void removeAuthorityFromRole(final String authorityName, final String role, final NodeRef caseNodeRef) {
         checkCanUpdateCaseRoles(caseNodeRef);
-
         AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Object>() {
             @Override
             public Object doWork() throws Exception {

@@ -128,7 +128,6 @@ public class DocumentServiceImpl implements DocumentService {
                     }
                 }
 
-//                JSONObject documentJSON = new JSONObject(props);
                 documentsJSON.put(documentJSON);
             }
         } catch (JSONException e) {

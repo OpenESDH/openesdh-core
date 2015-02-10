@@ -152,7 +152,6 @@
         <property name="searchService" ref="searchService" />
     </bean>
 
-
     <bean id="webscript.dk.openesdh.documents.containerNodes.get" class="dk.openesdh.repo.webscripts.documents.DocumentCaseContainers" parent="webscript">
         <property name="caseService" ref="CaseService" />
         <property name="documentService" ref="DocumentService" />
@@ -168,13 +167,13 @@
         <property name="nodeService" ref="NodeService" />
     </bean>
 
+    <!--Notes-->
     <bean id="openesdhNotesWebscript"
           class="dk.openesdh.repo.webscripts.notes.Notes"
           parent="webscript">
         <property name="nodeService" ref="NodeService"/>
         <property name="noteService" ref="NoteService"/>
     </bean>
-
     <bean id="webscript.dk.openesdh.notes.notes.get"
           parent="openesdhNotesWebscript">
     </bean>
@@ -187,4 +186,16 @@
     <bean id="webscript.dk.openesdh.notes.note.delete"
           parent="openesdhNotesWebscript">
     </bean>
+
+    <!--Notes-->
+    <bean id="contactAbstractWebscript"
+          class="dk.openesdh.repo.webscripts.contacts.Contact" parent="webscript">
+        <property name="nodeService" ref="nodeService"/>
+        <property name="contactService" ref="ContactService"/>
+    </bean>
+
+    <bean id="webscript.dk.openesdh.contact.contact.post" parent="contactAbstractWebscript"/>
+
+    <bean id="webscript.dk.openesdh.contact.contact.get" parent="contactAbstractWebscript"/>
+
 </beans>

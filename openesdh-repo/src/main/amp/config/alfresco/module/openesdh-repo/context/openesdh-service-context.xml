@@ -60,7 +60,6 @@
         <property name="namespaceService" ref="namespaceService"/>
     </bean>
 
-
     <bean id="DocumentService" class="dk.openesdh.repo.services.documents.DocumentServiceImpl">
         <property name="nodeService">
             <ref bean="NodeService"/>
@@ -143,8 +142,7 @@
         </property>
     </bean>
 
-    <bean id="ContactSearchService"
-          class="dk.openesdh.repo.services.xsearch.ContactSearchServiceImpl"
+    <bean id="ContactSearchService" class="dk.openesdh.repo.services.xsearch.ContactSearchServiceImpl"
           parent="XSearchService">
         <property name="dictionaryService">
             <ref bean="dictionaryService"/>
@@ -160,25 +158,15 @@
         </property>
     </bean>
 
-    <bean id="ContactInvitationService" class="dk.openesdh.repo.services.contacts.ContactInvitationServiceImpl">
-        <property name="sysAdminParams">
-            <ref bean="sysAdminParams"/>
-        </property>
-        <property name="contactService">
-            <ref bean="ContactService"/>
-        </property>
-        <property name="authenticationService">
-            <ref bean="AuthenticationService"/>
-        </property>
+    <bean id="ContactDAO" class="dk.openesdh.repo.services.contacts.ContactDAOImpl">
+        <property name="nodeService" ref="nodeService"/>
+        <property name="namespacePrefixResolver" ref="namespaceService" />
+        <property name="repositoryHelper" ref="repositoryHelper"/>
     </bean>
 
     <bean id="ContactService" class="dk.openesdh.repo.services.contacts.ContactServiceImpl">
-        <property name="nodeService">
-            <ref bean="nodeService"/>
-        </property>
-        <property name="searchService">
-            <ref bean="searchService"/>
-        </property>
+        <property name="nodeService" ref="nodeService" />
+        <property name="contactDAO" ref="ContactDAO" />
     </bean>
 
     <bean id="NoteService"
