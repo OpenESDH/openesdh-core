@@ -91,17 +91,9 @@ public class DocumentsBehaviour implements NodeServicePolicies.OnCreateChildAsso
                 }
             }
 
-            // Create document
-            ChildAssociationRef documentAssociationRef = documentService.createDocumentFolder(documentsFolderRef, documentName);
-            NodeRef document = documentAssociationRef.getChildRef();
-            nodeService.moveNode(fileRef, document, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.DOC_URI, "content_" + documentName));
-            //Tag the case document as the main document for the case
-            nodeService.addAspect(fileRef, OpenESDHModel.ASPECT_CASE_MAIN_DOC, null);
-            nodeService.setType(fileRef, OpenESDHModel.TYPE_DOC_DIGITAL_FILE);
-            // TODO Get start value, localize
-            nodeService.setProperty(fileRef, OpenESDHModel.PROP_DOC_VARIANT, "Produktion");
-
-//            documentService.createDocument(childAssocRef);
+            // Create document folder
+            NodeRef documentFolderRef = documentService.createDocumentFolder(documentsFolderRef, documentName).getChildRef();
+            nodeService.moveNode(fileRef, documentFolderRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.DOC_URI, "content_" + documentName));
         }
     }
 
@@ -110,4 +102,3 @@ public class DocumentsBehaviour implements NodeServicePolicies.OnCreateChildAsso
         return StringUtils.isNotEmpty(fileNameExt);
     }
 }
-
