@@ -143,8 +143,8 @@ public class DocumentServiceImpl implements DocumentService {
         NodeRef documentNodeRef = documentAssociationRef.getChildRef();
 
         NodeRef person = personService.getPerson(AuthenticationUtil.getFullyAuthenticatedUser());
-        nodeService.createAssociation(documentNodeRef, person, OpenESDHModel.ASSOC_DOC_RESPONSIBLE_PERSON);
         nodeService.createAssociation(documentNodeRef, person, OpenESDHModel.ASSOC_DOC_OWNER);
+        nodeService.createAssociation(documentNodeRef, person, OpenESDHModel.ASSOC_DOC_RESPONSIBLE_PERSON);
         return documentAssociationRef;
     }
 
