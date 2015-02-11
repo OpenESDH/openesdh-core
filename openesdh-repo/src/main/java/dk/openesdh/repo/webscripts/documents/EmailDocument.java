@@ -4,9 +4,9 @@ import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.DocumentService;
 import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.security.PersonService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.json.JSONException;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -22,6 +22,7 @@ public class EmailDocument extends AbstractWebScript {
     private static final Log LOG = LogFactory.getLog(EmailDocument.class);
     private CaseService caseService;
     private DocumentService documentService;
+    private PersonService personService;
 
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse resp) throws IOException {
@@ -48,19 +49,24 @@ public class EmailDocument extends AbstractWebScript {
 
         String caseId = (String) json.get("caseId");
         String name = (String) json.get("name");
+        String responsible = (String) json.get("responsible");
 
         NodeRef nodeRef = caseService.getCaseById(caseId);
         NodeRef documentsFolder = caseService.getDocumentsFolder(nodeRef);
         NodeRef documentFolder = documentService.createDocumentFolder(documentsFolder, name).getChildRef();
 
+        LOG.warn("responsible: " + responsible);
+        if (responsible != null) {
+            NodeRef personRef = personService.getPerson(responsible, false);
+            LOG.warn("personRef: " + personRef);
+            if (personRef == null) {
+                LOG.warn("Person '" + responsible + "' not found.");
+            }
+        }
+        LOG.warn("documentFolder: " + documentFolder.toString());
         JSONObject result = new JSONObject();
-
-//        try {
-//            result.put("nodeRef", documentFolder.toString());
-//            result.write(resp.getWriter());
-//        } catch (JSONException e) {
-//            throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, e.getMessage());
-//        }
+        result.put("nodeRef", documentFolder.toString());
+        result.writeJSONString(resp.getWriter());
     }
 
     public void setDocumentService(DocumentService documentService) {
@@ -69,5 +75,9 @@ public class EmailDocument extends AbstractWebScript {
 
     public void setCaseService(CaseService caseService) {
         this.caseService = caseService;
+    }
+
+    public void setPersonService(PersonService personService) {
+        this.personService = personService;
     }
 }

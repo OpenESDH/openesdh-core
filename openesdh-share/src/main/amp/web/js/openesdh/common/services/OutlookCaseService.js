@@ -21,6 +21,7 @@ define([
                     data: {
                         caseId: value["caseId"],
                         name: value["title"],
+                        responsible: value["responsible"],
                         email: this.emailDesc
                     },
                     successCallback: function(response, originalRequestConfig) {

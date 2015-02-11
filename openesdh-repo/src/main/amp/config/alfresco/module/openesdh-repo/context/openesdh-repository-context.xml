@@ -176,6 +176,7 @@
     <bean id="webscript.dk.openesdh.caseemail.post" class="dk.openesdh.repo.webscripts.documents.EmailDocument" parent="webscript">
         <property name="caseService" ref="CaseService" />
         <property name="documentService" ref="DocumentService" />
+        <property name="personService" ref="PersonService" />
     </bean>
 
     <bean id="openesdhNotesWebscript"
