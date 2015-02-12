@@ -54,7 +54,10 @@ define(["dojo/_base/declare",
                     {
                         name: "openesdh/pages/case/widgets/CaseHistoryWidget",
                         config: {
-                            nodeRef: this.nodeRef
+                            nodeRef: this.nodeRef,
+                            i18nRequirements: [
+                                {i18nFile: "./i18n/CaseHistoryWidget.properties"}
+                            ]
                         }
                     }
                 ];

@@ -12,6 +12,7 @@ define(["dojo/_base/declare",
     function (declare, _Widget, Core, CoreWidgetProcessing, _Templated, template, lang, _TopicsMixin, JSONProcessing, PropertyField) {
         return declare([_Widget, Core, CoreWidgetProcessing, _Templated, _TopicsMixin, JSONProcessing], {
             templateString: template,
+
             i18nRequirements: [
                 {i18nFile: "./i18n/InfoWidget.properties"}
             ],

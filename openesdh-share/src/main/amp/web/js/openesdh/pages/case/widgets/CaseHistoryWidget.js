@@ -49,12 +49,12 @@ define(["dojo/_base/declare",
         return declare([_Widget, _Templated, Core, CoreXhr, _TopicsMixin,CoreWidgetProcessing], {
             templateString: template,
 
-            i18nRequirements: [
-                {i18nFile: "./i18n/CaseHistoryWidget.properties"}
-            ],
+
 
             // Override default Dijit theme to look like Alfresco's.
             // This applies to the whole page, but I haven't found a better place to put it.
+
+
             cssRequirements: [
                 {cssFile:"../../../common/widgets/dashlets/css/AlfrescoStyle.css"},
                 {cssFile:"../../../common/widgets/dashlets/css/Grid.css"},
@@ -62,6 +62,7 @@ define(["dojo/_base/declare",
                 {cssFile:"../../../common/widgets/dashlets/css/Icons.css"},
                 {cssFile:"../../../common/widgets/dashlets/css/GridColumns.css"}
             ],
+
 
             /**
              * An object containing metadata about the properties that we want to show in the grid.
@@ -140,6 +141,11 @@ define(["dojo/_base/declare",
                 this.createGrid(this.nodeRef);
             },
 
+            startUp: function() {
+                alert("hello");
+            },
+
+
             handleDropdownSelect: function () {
                  var test = this.selectField.getValue();
 
@@ -150,7 +156,6 @@ define(["dojo/_base/declare",
                         target: Alfresco.constants.PROXY_URI + "api/openesdh/" + this.selectField.getValue()
                     });
                     this.grid.refresh();
-
             },
 
 
@@ -224,7 +229,7 @@ define(["dojo/_base/declare",
                     i18nPagination: i18nCustomized
                 });
 
-                //this.overrideScrollbarSizeTests();
+                this.overrideScrollbarSizeTests();
 
                 // Note: We mixin _Widget because otherwise we can't call grid.placeAt
                 var CustomGrid = declare([_Widget, Grid, DijitRegistry, Keyboard, Selection, MyPagination, ColumnResizer, ColumnHider, ColumnReorder]);
