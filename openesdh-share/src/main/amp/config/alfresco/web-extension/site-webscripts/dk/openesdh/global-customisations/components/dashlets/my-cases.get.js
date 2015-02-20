@@ -5,7 +5,7 @@ model.jsonModel = {
     widgets: [
         {
             id: "DASHLET",
-            name: "openesdh/common/widgets/dashlets/MyCasesWidget"
+            name: "openesdh/pages/case/widgets/MyCasesWidget"
         }
     ]
 };

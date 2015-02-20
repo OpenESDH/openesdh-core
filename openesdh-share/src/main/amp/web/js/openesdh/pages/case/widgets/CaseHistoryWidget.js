@@ -56,11 +56,11 @@ define(["dojo/_base/declare",
 
 
             cssRequirements: [
-                {cssFile:"../../../common/widgets/dashlets/css/AlfrescoStyle.css"},
-                {cssFile:"../../../common/widgets/dashlets/css/Grid.css"},
-                {cssFile:"../../../common/widgets/dashlets/css/GridActions.css"},
-                {cssFile:"../../../common/widgets/dashlets/css/Icons.css"},
-                {cssFile:"../../../common/widgets/dashlets/css/GridColumns.css"}
+                {cssFile:"./css/AlfrescoStyle.css"},
+                {cssFile:"./css/Grid.css"},
+                {cssFile:"./css/GridActions.css"},
+                {cssFile:"./css/Icons.css"},
+                {cssFile:"./css/GridColumns.css"}
             ],
 
 
