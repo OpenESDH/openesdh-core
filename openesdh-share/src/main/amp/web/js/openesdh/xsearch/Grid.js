@@ -327,7 +327,7 @@ function(declare, array, lang, on, _TopicsMixin, AlfDialog, json, DGrid) {
                 if (dataType === 'd:datetime') {
                     formatter = function (value) {
                         if (typeof value !== 'undefined') {
-                            return Alfresco.util.formatDate(Alfresco.util.fromISO8601(value), "dd/mm/yyyy");
+                            return Alfresco.util.formatDate(new Date(value), "dd/mm/yyyy");
                         } else {
                             return '';
                         }

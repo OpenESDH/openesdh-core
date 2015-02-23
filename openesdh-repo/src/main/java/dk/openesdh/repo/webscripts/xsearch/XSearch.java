@@ -24,6 +24,7 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -88,7 +89,12 @@ public class XSearch extends AbstractWebScript {
         // TODO: Don't include ALL properties
         Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
         for (Map.Entry<QName, Serializable> entry : properties.entrySet()) {
-            json.put(entry.getKey().toPrefixString(namespaceService), entry.getValue());
+            if (entry.getValue() instanceof Date) {
+                json.put(entry.getKey().toPrefixString(namespaceService),
+                        ((Date) entry.getValue()).getTime());
+            } else {
+                json.put(entry.getKey().toPrefixString(namespaceService), entry.getValue());
+            }
         }
         List<AssociationRef> associations = nodeService.getTargetAssocs
                 (nodeRef, RegexQNamePattern.MATCH_ALL);
