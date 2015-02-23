@@ -91,18 +91,10 @@ public class LastModifiedByMeSearch extends AbstractWebScript {
 
     protected JSONObject nodeToJSON(NodeRef nodeRef) throws JSONException {
         JSONObject json = new JSONObject();
-        // TODO: Don't include ALL properties
         Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
-
-        String id = (String)nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_ID);
-        String state = (String)nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS);
-        Date last_modified = (Date)nodeService.getProperty(nodeRef, ContentModel.PROP_MODIFIED);
-
-
-        json.put ("esdh:id", id);
-        json.put ("esdh:state", state);
-        json.put ("esdh:modified", last_modified);
-        json.put("TYPE", nodeService.getType(nodeRef).toPrefixString(namespaceService));
+        json.put ("oe:id", nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_ID));
+        json.put ("oe:status", nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS));
+        json.put ("cm:modified", nodeService.getProperty(nodeRef, ContentModel.PROP_MODIFIED));
         json.put("nodeRef", nodeRef.toString());
         return json;
     }

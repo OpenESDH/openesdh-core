@@ -27,19 +27,18 @@ public class AuditSearchServiceImpl implements AuditSearchService {
 
 
     @Override
-    public JSONArray getAuditLogByCaseNodeRef(NodeRef nodeRef, Long timespan) {
+    public JSONArray getAuditLogByCaseNodeRef(NodeRef nodeRef, int timespan) {
 
         AuditQueryParameters auditQueryParameters = new AuditQueryParameters();
         auditQueryParameters.setForward(false);
         auditQueryParameters.setApplicationName("esdh");
-
 
         //auditQueryParameters.setFromTime((new Date(+1).getTime()));
         auditQueryParameters.addSearchKey(null, nodeRef.toString());
 
         // create auditQueryCallback inside this method, putting it outside, will make it a singleton as the class is a service.
         OpenESDHAuditQueryCallBack auditQueryCallback = new OpenESDHAuditQueryCallBack();
-        auditService.auditQuery(auditQueryCallback, auditQueryParameters, OpenESDHModel.auditlog_max);
+        auditService.auditQuery(auditQueryCallback, auditQueryParameters, OpenESDHModel.AUDIT_LOG_MAX);
 
         // test comment
 

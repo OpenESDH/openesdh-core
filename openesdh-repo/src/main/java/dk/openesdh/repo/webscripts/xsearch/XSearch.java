@@ -72,9 +72,9 @@ public class XSearch extends AbstractWebScript {
                 nodes.put(node);
             }
 
-            int resultsEnd = results.getLength() - startIndex;
+            int resultsEnd = results.getLength() + startIndex;
             res.setHeader("Content-Range", "items " + startIndex +
-                    "-" + resultsEnd + "/" + results.getLength());
+                    "-" + resultsEnd + "/" + results.getNumberFound());
 
             String jsonString = nodes.toString();
             res.getWriter().write(jsonString);

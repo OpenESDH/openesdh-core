@@ -43,20 +43,12 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService implem
             throw new AlfrescoRuntimeException("Must specify a baseType parameter");
         }
 
-
-
-
-
-
-
-
         String user = params.get("user");
 
-        HashMap<String, String> caseGroupsNodedbid = getCaseGroupsNodedbid(user);
+        Set<String> caseGroupsNodedbid = getCaseGroupsNodedbid(user);
 
         if (caseGroupsNodedbid.size() == 0) {
-            String query = "TYPE:\"" + OpenESDHModel.CASE_PREFIX + ":" + OpenESDHModel.TYPE_BASE_NAME + "\" AND NOT ASPECT:\"" + OpenESDHModel.ASPECT_OE_JOURNALIZED + "\"" + "   AND @sys\\:node-dbid:( \"-1\" )";
-            return executeQuery(query);
+            return new XResultSet(new LinkedList<NodeRef>(), 0, 0);
         } else {
             int collected = 0;
             int limit = 200; // execute the query for every 200 groups
@@ -66,7 +58,7 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService implem
             String baseQuery = "TYPE:\"" + OpenESDHModel.CASE_PREFIX + ":" + OpenESDHModel.TYPE_BASE_NAME + "\"" + " AND NOT ASPECT:\"" + OpenESDHModel.ASPECT_OE_JOURNALIZED  + "\"";
             String modifiedQuery = "";
 
-            Iterator iterator = caseGroupsNodedbid.keySet().iterator();
+            Iterator iterator = caseGroupsNodedbid.iterator();
 
             String nodedbidsQuery = "";
             while (iterator.hasNext()) {
@@ -76,7 +68,7 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService implem
                 collected++;
                 // no need to check if the user has been involved in the case - just check to see if the lasted modifier property is equal to the user
                 if (collected == limit) {
-                    XResultSet result = executeQuery(baseQuery + " AND " + "@sys\\:node-dbid:(" + nodedbidsQuery + ")" );
+                    XResultSet result = executeQuery(baseQuery + " AND " + "@sys\\:node-dbid:(" + nodedbidsQuery + ")");
                     combinedResult.getNodeRefs().addAll(result.getNodeRefs());
                     collected = 0;
                     nodedbidsQuery = "";
@@ -85,15 +77,16 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService implem
                     combinedResult.getNodeRefs().addAll(result.getNodeRefs());
                 }
             }
+            combinedResult.length = combinedResult.getNodeRefs().size();
             return combinedResult;
         }
     }
 
 
-    protected HashMap<String, String> getCaseGroupsNodedbid(String user) {
+    protected Set<String> getCaseGroupsNodedbid(String user) {
 
         // put nodedbid in hashmap as the user can be a member of two groups that belong to the same case
-        HashMap<String, String> caseGroupsNodedbid = new HashMap<>();
+        HashSet<String> caseGroupsNodedbid = new HashSet<>();
 
         Set<String> allGroups = authorityService.getContainingAuthorities(AuthorityType.GROUP, user, true);
         Iterator iterator = allGroups.iterator();
@@ -104,7 +97,7 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService implem
             Matcher matcher = pattern.matcher(groupName);
 
             if (matcher.matches()) {
-                caseGroupsNodedbid.put(matcher.group(2), matcher.group(2));
+                caseGroupsNodedbid.add(matcher.group(2));
             }
         }
         return caseGroupsNodedbid;

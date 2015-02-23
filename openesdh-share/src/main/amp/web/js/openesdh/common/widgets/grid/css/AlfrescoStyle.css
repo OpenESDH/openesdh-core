@@ -7,7 +7,9 @@
 .alfresco-share .dojoDndItem,
 .alfresco-share .dojoDndItemAnchor,
 .alfresco-share .dojoDndItemSelected,
-.alfresco-share .dojoDndItemOver {
+.alfresco-share .dojoDndItemOver,
+.alfresco-share th.dgrid-cell
+{
     background-color: inherit;
     background-image: none;
     padding: .5em .25em;

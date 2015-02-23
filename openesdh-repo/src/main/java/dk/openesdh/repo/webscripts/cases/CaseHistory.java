@@ -35,20 +35,11 @@ public class CaseHistory extends AbstractWebScript {
         System.out.println(req.getParameter("nodeRef"));
         NodeRef caseNodeRef = new NodeRef(req.getParameter("nodeRef"));
 
-        JSONArray result = auditSearchService.getAuditLogByCaseNodeRef(caseNodeRef, new Long(1000));
+        JSONArray result = auditSearchService.getAuditLogByCaseNodeRef(caseNodeRef, 1000);
 
-        JSONObject json = new JSONObject();
-        JSONObject json1 = new JSONObject();
-        try {
-            json.put("success", true);
-            json1.append("test", json);
-            json1.append("test", json);
-
-            result.writeJSONString(res.getWriter());
-//            result.write(res.getWriter());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        res.setHeader("Content-Range", "items " + 0 +
+                "-" + result.size() + "/" + result.size());
+        result.writeJSONString(res.getWriter());
     }
 
 

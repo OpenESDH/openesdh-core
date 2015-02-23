@@ -109,7 +109,7 @@ public class LastModifiedByMeSearchServiceImpl extends AbstractXSearchService im
                 auditQueryParameters.addSearchKey(null, caseType.getPrefixString());
 
                 // we need to call the auditQuery for every casetype, as auditQueryParameters currently only supports one searchKey at a time
-                auditService.auditQuery(auditQueryCallback, auditQueryParameters,OpenESDHModel.auditlog_max);
+                auditService.auditQuery(auditQueryCallback, auditQueryParameters,OpenESDHModel.AUDIT_LOG_MAX);
             }
         }
         return new XResultSet(nodeRefs, nodeRefs.size());
