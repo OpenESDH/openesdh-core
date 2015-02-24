@@ -209,6 +209,15 @@ define(["dojo/_base/declare",
                 });
                 this.addKeyHandlers();
 
+                this.grid.on("dgrid-select", lang.hitch(this, function(event){
+                    // Only single-selection is supported, for now
+                    this.alfPublish("GRID_ROW_SELECTED", {row: event.rows[0]});
+                }));
+
+                this.grid.on("dgrid-deselect", lang.hitch(this, function(event){
+                    this.alfPublish("GRID_ROW_DESELECTED", {row: event.rows[0]});
+                }));
+
                 this.grid.placeAt(this.containerNode);
                 this.grid.startup();
             },
