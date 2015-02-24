@@ -21,7 +21,9 @@ model.jsonModel = {
                     },
 
                     {
+//                        name: "alfresco/forms/controls/ContainerPicker",
                         name: "openesdh/common/widgets/controls/CasePicker",
+//                        name: "openesdh/common/widgets/controls/CasePicker2",
                         config: {
                             label: msg.get("page.case.label"),
                             name: "caseId",
@@ -31,7 +33,7 @@ model.jsonModel = {
                     {
                         name: "alfresco/forms/controls/DojoValidationTextBox",
                         config: {
-                            name: "title",
+                            name: "subject",
                             label: msg.get("page.title.label"),
                             validationConfig: {
                                 regex: "^[A-Za-z0-9-]+",
@@ -122,6 +124,8 @@ model.jsonModel = {
             config: {
                 formId: "outlookForm"
             }
-        }
+        },
+        "alfresco/dialogs/AlfDialogService",
+        "alfresco/services/DocumentService"
     ]
 };

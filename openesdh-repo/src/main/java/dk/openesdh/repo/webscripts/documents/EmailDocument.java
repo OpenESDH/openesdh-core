@@ -2,9 +2,15 @@ package dk.openesdh.repo.webscripts.documents;
 
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.DocumentService;
+import org.alfresco.model.ContentModel;
 import org.alfresco.repo.content.MimetypeMap;
+import org.alfresco.service.cmr.repository.ContentService;
+import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.PersonService;
+import org.alfresco.service.namespace.NamespaceService;
+import org.alfresco.service.namespace.QName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
@@ -13,6 +19,9 @@ import org.json.simple.parser.ParseException;
 import org.springframework.extensions.webscripts.*;
 
 import java.io.IOException;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by rasmutor on 2/9/15.
@@ -20,9 +29,12 @@ import java.io.IOException;
 public class EmailDocument extends AbstractWebScript {
 
     private static final Log LOG = LogFactory.getLog(EmailDocument.class);
+//    private EmailBean emailBean;
     private CaseService caseService;
     private DocumentService documentService;
     private PersonService personService;
+    private NodeService nodeService;
+    private ContentService contentService;
 
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse resp) throws IOException {
@@ -50,6 +62,7 @@ public class EmailDocument extends AbstractWebScript {
         String caseId = (String) json.get("caseId");
         String name = (String) json.get("name");
         String responsible = (String) json.get("responsible");
+        JSONObject email = (JSONObject) json.get("email");
 
         NodeRef nodeRef = caseService.getCaseById(caseId);
         NodeRef documentsFolder = caseService.getDocumentsFolder(nodeRef);
@@ -64,6 +77,22 @@ public class EmailDocument extends AbstractWebScript {
             }
         }
         LOG.warn("documentFolder: " + documentFolder.toString());
+
+        String filename = name + ".txt";
+        LOG.warn("Creating mail file: " + filename);
+        String bodyText = (String) email.get("BodyText");
+        Map<QName, Serializable> props = new HashMap<>();
+        props.put(ContentModel.PROP_NAME, filename);
+        NodeRef node = nodeService.createNode(
+                documentFolder,
+                ContentModel.ASSOC_CONTAINS,
+                QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, filename),
+                ContentModel.TYPE_CONTENT,
+                props).getChildRef();
+        ContentWriter writer = contentService.getWriter(node, ContentModel.PROP_CONTENT, true);
+        writer.setMimetype("text/plain");
+        writer.putContent(bodyText);
+
         JSONObject result = new JSONObject();
         result.put("nodeRef", documentFolder.toString());
         result.writeJSONString(resp.getWriter());
@@ -79,5 +108,13 @@ public class EmailDocument extends AbstractWebScript {
 
     public void setPersonService(PersonService personService) {
         this.personService = personService;
+    }
+
+    public void setNodeService(NodeService nodeService) {
+        this.nodeService = nodeService;
+    }
+
+    public void setContentService(ContentService contentService) {
+        this.contentService = contentService;
     }
 }

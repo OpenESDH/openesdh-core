@@ -177,6 +177,8 @@
         <property name="caseService" ref="CaseService" />
         <property name="documentService" ref="DocumentService" />
         <property name="personService" ref="PersonService" />
+        <property name="nodeService" ref="NodeService"/>
+        <property name="contentService" ref="ContentService" />
     </bean>
 
     <bean id="openesdhNotesWebscript"

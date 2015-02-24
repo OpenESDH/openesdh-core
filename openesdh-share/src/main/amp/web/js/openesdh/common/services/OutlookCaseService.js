@@ -14,22 +14,20 @@ define([
 
             _onOK: function() {
                 var value = this._getForm().getValue();
-//                alert("caseId: " + value["caseId"] + ", title: " + value["title"]);
                 this.serviceXhr({
                     url: AlfConstants.PROXY_URI + "dk-openesdh-case-email",
                     method: "POST",
                     data: {
                         caseId: value["caseId"],
-                        name: value["title"],
+                        name: value["subject"],
                         responsible: value["responsible"],
                         email: this.emailDesc
                     },
                     successCallback: function(response, originalRequestConfig) {
-//                        alert("success!");
                         var metadata = {
-                            nodeRef: nodeRef
+                            nodeRef: response["nodeRef"]
                         };
-//                        window.external.SaveAsOpenEsdh(JSON.stringify(metadata), JSON.stringify(value.attachments));
+                        window.external.SaveAsOpenEsdh(JSON.stringify(metadata), JSON.stringify(value.attachments));
                     },
                     failureCallback: function(response, originalRequestConfig) {
 //                        alert("failure!");
@@ -38,8 +36,7 @@ define([
                 });
             },
             _onCancel: function() {
-                alert("Cancel button pressed.");
-//                window.external.SaveAsOpenEsdh("", "");
+                window.external.CancelOpenEsdh();
             }
         });
     }
