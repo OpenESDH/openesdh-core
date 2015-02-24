@@ -33,7 +33,7 @@ public class XSearchServiceImpl extends AbstractXSearchService implements XSearc
         String filtersJSON = params.get("filters");
         try {
             String query = buildQuery(filtersJSON);
-            return executeQuery(query);
+            return executeQuery(query, startIndex, pageSize, sortField, ascending);
         } catch (JSONException e) {
             throw new AlfrescoRuntimeException("Unable to parse filters JSON");
         }

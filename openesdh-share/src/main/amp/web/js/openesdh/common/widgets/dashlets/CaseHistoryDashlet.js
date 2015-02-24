@@ -48,16 +48,19 @@ define(["dojo/_base/declare",
              */
             i18nRequirements: [{i18nFile: "./i18n/CaseHistoryDashlet.properties"}],
 
+            widgetsForBody: [
+                {
+                    name: "openesdh/pages/case/widgets/CaseHistoryWidget",
+                    config: {
+                        showPagination: false
+                    }
+                }
+            ],
+
             constructor: function (args) {
                 lang.mixin(this, args);
-                this.widgetsForBody = [
-                    {
-                        name: "openesdh/pages/case/widgets/CaseHistoryWidget",
-                        config: {
-                            nodeRef: this.nodeRef
-                        }
-                    }
-                ];
+                // Pass in the nodeRef to the widget
+                lang.setObject("config.nodeRef", this.nodeRef, this.widgetsForBody[0]);
             }
         });
     });

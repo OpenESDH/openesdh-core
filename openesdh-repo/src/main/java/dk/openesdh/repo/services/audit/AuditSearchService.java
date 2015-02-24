@@ -11,7 +11,6 @@ import org.json.simple.JSONArray;
  */
 public interface AuditSearchService {
 
-    public JSONArray getAuditLogByCaseNodeRef(NodeRef nodeRef, Long timespan);
-
+    public JSONArray getAuditLogByCaseNodeRef(NodeRef nodeRef, int timespan);
 
 }

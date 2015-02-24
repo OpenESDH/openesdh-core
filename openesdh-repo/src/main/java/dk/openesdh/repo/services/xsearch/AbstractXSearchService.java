@@ -61,10 +61,10 @@ public abstract class AbstractXSearchService implements XSearchService {
         if (results != null) {
             nodeRefs = results.getNodeRefs();
             results.close();
-            return new XResultSet(nodeRefs, results.length(), results.getNumberFound());
+            return new XResultSet(nodeRefs, results.getNumberFound());
         } else {
             results.close();
-            return new XResultSet(nodeRefs, 0, 0);
+            return new XResultSet(nodeRefs);
         }
     }
 

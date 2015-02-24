@@ -1,15 +1,13 @@
 package dk.openesdh.repo.webscripts.xsearch;
 
-import dk.openesdh.repo.services.xsearch.AbstractXSearchService;
 import dk.openesdh.repo.services.xsearch.XResultSet;
 import dk.openesdh.repo.services.xsearch.XSearchService;
-import dk.openesdh.repo.services.xsearch.XSearchServiceImpl;
 import dk.openesdh.repo.utils.Utils;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.search.*;
+import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.namespace.RegexQNamePattern;
@@ -24,6 +22,7 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -72,9 +71,9 @@ public class XSearch extends AbstractWebScript {
                 nodes.put(node);
             }
 
-            int resultsEnd = results.getLength() - startIndex;
+            int resultsEnd = results.getLength() + startIndex;
             res.setHeader("Content-Range", "items " + startIndex +
-                    "-" + resultsEnd + "/" + results.getLength());
+                    "-" + resultsEnd + "/" + results.getNumberFound());
 
             String jsonString = nodes.toString();
             res.getWriter().write(jsonString);
@@ -88,7 +87,12 @@ public class XSearch extends AbstractWebScript {
         // TODO: Don't include ALL properties
         Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
         for (Map.Entry<QName, Serializable> entry : properties.entrySet()) {
-            json.put(entry.getKey().toPrefixString(namespaceService), entry.getValue());
+            if (entry.getValue() instanceof Date) {
+                json.put(entry.getKey().toPrefixString(namespaceService),
+                        ((Date) entry.getValue()).getTime());
+            } else {
+                json.put(entry.getKey().toPrefixString(namespaceService), entry.getValue());
+            }
         }
         List<AssociationRef> associations = nodeService.getTargetAssocs
                 (nodeRef, RegexQNamePattern.MATCH_ALL);
