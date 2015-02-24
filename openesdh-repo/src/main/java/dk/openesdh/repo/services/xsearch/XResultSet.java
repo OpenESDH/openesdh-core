@@ -2,13 +2,12 @@ package dk.openesdh.repo.services.xsearch;
 
 import org.alfresco.service.cmr.repository.NodeRef;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class XResultSet {
 
-
     List<NodeRef> nodeRefs;
-    int length;
     long numberFound;
 
     public void setNodeRefs(List<NodeRef> nodeRefs) {
@@ -24,18 +23,33 @@ public class XResultSet {
     }
 
     public int getLength() {
-        return length;
+        return nodeRefs.size();
     }
 
-    XResultSet(List<NodeRef> nodeRefs, int length) {
-        this.nodeRefs = nodeRefs;
-        this.length = length;
-        this.numberFound = length;
+    /**
+     * Construct an empty result set.
+     */
+    XResultSet() {
+        this.nodeRefs = new LinkedList<NodeRef>();
+        this.numberFound = 0;
     }
 
-    XResultSet(List<NodeRef> nodeRefs, int length, long numberFound) {
+    XResultSet(List<NodeRef> nodeRefs) {
         this.nodeRefs = nodeRefs;
-        this.length = length;
+        this.numberFound = getLength();
+    }
+
+    XResultSet(List<NodeRef> nodeRefs, long numberFound) {
+        this.nodeRefs = nodeRefs;
         this.numberFound = numberFound;
+    }
+
+    /**
+     * Add the result set specified to this result set.
+     * @param r
+     */
+    public void addAll(XResultSet r) {
+        this.getNodeRefs().addAll(r.getNodeRefs());
+        this.numberFound += r.numberFound;
     }
 }

@@ -1,24 +1,10 @@
 package dk.openesdh.repo.services.xsearch;
 
 import dk.openesdh.repo.model.OpenESDHModel;
-import org.alfresco.error.AlfrescoRuntimeException;
-import org.alfresco.model.ContentModel;
-import org.alfresco.repo.domain.permissions.Authority;
-import org.alfresco.repo.node.SystemNodeUtils;
-import org.alfresco.repo.security.authority.AuthorityDAO;
-import org.alfresco.service.cmr.audit.AuditQueryParameters;
-import org.alfresco.service.cmr.audit.AuditService;
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.security.*;
-import org.alfresco.service.namespace.QName;
-import org.apache.solr.common.util.Hash;
-import org.json.JSONException;
-import org.omg.CORBA.RepositoryIdHelper;
+import org.alfresco.service.cmr.security.AuthorityService;
+import org.alfresco.service.cmr.security.AuthorityType;
 
-import javax.xml.soap.Node;
-import java.io.Serializable;
-import java.security.Permission;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -30,33 +16,24 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService implem
 
     protected AuthorityService authorityService;
 
-
-
-
     public void setAuthorityService(AuthorityService authorityService) {
         this.authorityService = authorityService;
     }
 
     public XResultSet getNodes(Map<String, String> params, int startIndex, int pageSize, String sortField, boolean ascending) {
-        baseType = params.get("baseType");
-        if (baseType == null) {
-            throw new AlfrescoRuntimeException("Must specify a baseType parameter");
-        }
-
         String user = params.get("user");
 
         Set<String> caseGroupsNodedbid = getCaseGroupsNodedbid(user);
 
         if (caseGroupsNodedbid.size() == 0) {
-            return new XResultSet(new LinkedList<NodeRef>(), 0, 0);
+            return new XResultSet();
         } else {
             int collected = 0;
             int limit = 200; // execute the query for every 200 groups
 
 
             XResultSet combinedResult = new XResultSet(new LinkedList<NodeRef>(), 0);
-            String baseQuery = "TYPE:\"" + OpenESDHModel.CASE_PREFIX + ":" + OpenESDHModel.TYPE_BASE_NAME + "\"" + " AND NOT ASPECT:\"" + OpenESDHModel.ASPECT_OE_JOURNALIZED  + "\"";
-            String modifiedQuery = "";
+            String baseQuery = "TYPE:\"" + OpenESDHModel.CASE_PREFIX + ":" + OpenESDHModel.TYPE_BASE_NAME + "\"" + " AND NOT ASPECT:\"" + OpenESDHModel.ASPECT_OE_JOURNALIZED + "\"";
 
             Iterator iterator = caseGroupsNodedbid.iterator();
 
@@ -69,15 +46,14 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService implem
                 // no need to check if the user has been involved in the case - just check to see if the lasted modifier property is equal to the user
                 if (collected == limit) {
                     XResultSet result = executeQuery(baseQuery + " AND " + "@sys\\:node-dbid:(" + nodedbidsQuery + ")");
-                    combinedResult.getNodeRefs().addAll(result.getNodeRefs());
+                    combinedResult.addAll(result);
                     collected = 0;
                     nodedbidsQuery = "";
                 } else if (!iterator.hasNext()) {
                     XResultSet result = executeQuery(baseQuery + " AND " + "@sys\\:node-dbid:(" + nodedbidsQuery + ")");
-                    combinedResult.getNodeRefs().addAll(result.getNodeRefs());
+                    combinedResult.addAll(result);
                 }
             }
-            combinedResult.length = combinedResult.getNodeRefs().size();
             return combinedResult;
         }
     }
@@ -102,8 +78,6 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService implem
         }
         return caseGroupsNodedbid;
     }
-
-
 
 
 }

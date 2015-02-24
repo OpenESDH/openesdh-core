@@ -9,15 +9,6 @@
             <ref bean="dictionaryService"/>
         </property>
     </bean>
-    <bean id="webscript.dk.openesdh.search.get"
-          class="dk.openesdh.repo.webscripts.xsearch.XSearch"
-          parent="webscript">
-        <property name="nodeService" ref="nodeService"/>
-        <property name="repository" ref="repositoryHelper"/>
-        <property name="searchService" ref="searchService"/>
-        <property name="namespaceService" ref="namespaceService"/>
-        <property name="xSearchService" ref="XSearchService"/>
-    </bean>
 
     <bean id="webscript.dk.openesdh.casehistory.get"
           class="dk.openesdh.repo.webscripts.cases.CaseHistory"
@@ -25,35 +16,35 @@
         <property name="auditSearchService" ref="AuditSearchService"/>
     </bean>
 
-    <bean id="webscript.dk.openesdh.userinvolvedsearch.get"
-          class="dk.openesdh.repo.webscripts.xsearch.UserInvolvedSearch"
+    <bean id="xsearchWebscript"
+          class="dk.openesdh.repo.webscripts.xsearch.XSearchWebscript"
           parent="webscript">
-        <property name="nodeService" ref="nodeService"/>
-        <property name="repository" ref="repositoryHelper"/>
-        <property name="namespaceService" ref="namespaceService"/>
-        <property name="userInvolvedSearchService" ref="UserInvolvedSearchService"/>
-        <property name="authenticationService" ref="authenticationService" />
+        <property name="nodeService" ref="NodeService"/>
+        <property name="namespaceService" ref="NamespaceService"/>
     </bean>
 
-    <bean id="webscript.dk.openesdh.caseownersearch.get"
-          class="dk.openesdh.repo.webscripts.xsearch.CaseOwnerSearch"
-          parent="webscript">
-        <property name="nodeService" ref="nodeService"/>
-        <property name="repository" ref="repositoryHelper"/>
-        <property name="namespaceService" ref="namespaceService"/>
-        <property name="caseOwnerSearchService" ref="CaseOwnerSearchService"/>
-        <property name="authenticationService" ref="authenticationService" />
+    <bean id="webscript.dk.openesdh.search.get"
+          parent="xsearchWebscript">
+        <property name="xSearchService" ref="XSearchService"/>
+    </bean>
+
+    <bean id="webscript.dk.openesdh.userinvolvedsearch.get"
+          class="dk.openesdh.repo.webscripts.xsearch.UserInvolvedSearch"
+          parent="xsearchWebscript">
+        <property name="xSearchService" ref="UserInvolvedSearchService"/>
     </bean>
 
     <bean id="webscript.dk.openesdh.lastmodifiedbymesearch.get"
-          class="dk.openesdh.repo.webscripts.xsearch.LastModifiedByMeSearch"
-          parent="webscript">
-        <property name="nodeService" ref="nodeService"/>
-        <property name="repository" ref="repositoryHelper"/>
-        <property name="namespaceService" ref="namespaceService"/>
-        <property name="lastModifiedByMeSearchService" ref="LastModifiedByMeSearchService"/>
-        <property name="authenticationService" ref="authenticationService" />
+          class="dk.openesdh.repo.webscripts.xsearch.UserInvolvedSearch"
+          parent="xsearchWebscript">
+        <property name="xSearchService" ref="LastModifiedByMeSearchService"/>
     </bean>
+
+    <!--<bean id="webscript.dk.openesdh.casedocumentsearch.get"-->
+          <!--class="dk.openesdh.repo.webscripts.xsearch.CaseDocumentSearch"-->
+          <!--parent="xsearchWebscript">-->
+        <!--<property name="xSearchService" ref="CaseDocumentSearchService"/>-->
+    <!--</bean>-->
 
     <bean id="webscript.dk.openesdh.contactsearch.get"
           class="dk.openesdh.repo.webscripts.xsearch.ContactSearch"
@@ -63,7 +54,6 @@
         <property name="namespaceService" ref="namespaceService"/>
         <property name="contactSearchService" ref="ContactSearchService"/>
     </bean>
-
 
     <bean id="webscript.dk.openesdh.caseinfo.get"
           class="dk.openesdh.repo.webscripts.cases.CaseInfo"

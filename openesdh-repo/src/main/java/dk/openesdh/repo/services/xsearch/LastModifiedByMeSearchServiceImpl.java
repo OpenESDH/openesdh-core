@@ -8,15 +8,14 @@ import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthorityService;
-import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.namespace.QName;
 import org.joda.time.DateTime;
-import org.json.JSONArray;
 
 import java.io.Serializable;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import java.util.Collection;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * Created by flemmingheidepedersen on 12/09/14.
@@ -48,11 +47,6 @@ public class LastModifiedByMeSearchServiceImpl extends AbstractXSearchService im
     }
 
     public XResultSet getNodes(Map<String, String> params, int startIndex, int pageSize, String sortField, boolean ascending) {
-        baseType = params.get("baseType");
-        if (baseType == null) {
-            throw new AlfrescoRuntimeException("Must specify a baseType parameter");
-        }
-
         final List<NodeRef> nodeRefs = new LinkedList<>();
 
         AuditService.AuditQueryCallback auditQueryCallback = new AuditService.AuditQueryCallback() {

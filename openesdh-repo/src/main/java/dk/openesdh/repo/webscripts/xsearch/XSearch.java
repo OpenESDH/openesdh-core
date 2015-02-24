@@ -1,15 +1,13 @@
 package dk.openesdh.repo.webscripts.xsearch;
 
-import dk.openesdh.repo.services.xsearch.AbstractXSearchService;
 import dk.openesdh.repo.services.xsearch.XResultSet;
 import dk.openesdh.repo.services.xsearch.XSearchService;
-import dk.openesdh.repo.services.xsearch.XSearchServiceImpl;
 import dk.openesdh.repo.utils.Utils;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.search.*;
+import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.namespace.RegexQNamePattern;
