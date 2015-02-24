@@ -85,10 +85,6 @@
         <property name="behaviourFilter">
             <ref bean="policyBehaviourFilter"/>
         </property>
-
-        <property name="caseService">
-            <ref bean="CaseService"/>
-        </property>
     </bean>
 
     <bean id="XSearchService" class="dk.openesdh.repo.services.xsearch.XSearchServiceImpl">
