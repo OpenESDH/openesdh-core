@@ -21,6 +21,7 @@
           parent="webscript">
         <property name="nodeService" ref="NodeService"/>
         <property name="namespaceService" ref="NamespaceService"/>
+        <property name="personService" ref="PersonService"/>
     </bean>
 
     <bean id="webscript.dk.openesdh.search.get"
@@ -38,6 +39,11 @@
           class="dk.openesdh.repo.webscripts.xsearch.UserInvolvedSearch"
           parent="xsearchWebscript">
         <property name="xSearchService" ref="LastModifiedByMeSearchService"/>
+    </bean>
+
+    <bean id="webscript.dk.openesdh.casedocumentssearch.get"
+          parent="xsearchWebscript">
+        <property name="xSearchService" ref="CaseDocumentsSearchService"/>
     </bean>
 
     <!--<bean id="webscript.dk.openesdh.casedocumentsearch.get"-->

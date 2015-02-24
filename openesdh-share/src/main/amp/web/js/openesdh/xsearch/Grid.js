@@ -77,7 +77,7 @@ function(declare, array, lang, on, _TopicsMixin, AlfDialog, json, DGrid) {
         // TODO: Get from URI
         scriptURI: '/page/oe/case/search',
         
-        postCreate: function () {
+        postMixInProperties: function () {
             this.inherited(arguments);
 
             this.currentSearch = {};

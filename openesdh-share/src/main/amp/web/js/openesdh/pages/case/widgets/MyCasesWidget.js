@@ -42,7 +42,9 @@ define(["dojo/_base/declare",
                 return [
                     { field: "oe:id", label: this.message("mycases.column.id")  },
                     { field: "oe:status", label: this.message("mycases.column.state")},
-                    { field: "cm:modified", label: this.message("mycases.column.modified") }
+                    { field: "cm:modified", label: this.message("mycases.column.modified"),
+                        formatter: lang.hitch(this, "_formatDate")
+                    }
                 ];
             }
         });

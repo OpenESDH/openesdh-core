@@ -3,9 +3,11 @@ package dk.openesdh.repo.webscripts.xsearch;
 import dk.openesdh.repo.services.xsearch.XResultSet;
 import dk.openesdh.repo.services.xsearch.XSearchService;
 import dk.openesdh.repo.utils.Utils;
+import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.namespace.RegexQNamePattern;
@@ -30,6 +32,7 @@ public class XSearchWebscript extends AbstractWebScript {
     protected NodeService nodeService;
     protected NamespaceService namespaceService;
     protected XSearchService xSearchService;
+    protected PersonService personService;
 
     /**
      * The page size to use if none is specified in the request.
@@ -123,7 +126,15 @@ public class XSearchWebscript extends AbstractWebScript {
                     (namespaceService);
             if (!json.has(assocName)) {
                 JSONArray refs = new JSONArray();
-                refs.put(association.getTargetRef());
+                if (nodeService.getType(association.getTargetRef()).equals(
+                        ContentModel.TYPE_PERSON)) {
+                    PersonService.PersonInfo info = personService.getPerson
+                            (association.getTargetRef());
+                    refs.put(info.getUserName());
+                } else {
+                    refs.put(association.getTargetRef());
+                }
+
                 json.put(assocName, refs);
             } else {
                 JSONArray refs = (JSONArray) json.get(assocName);
@@ -171,6 +182,11 @@ public class XSearchWebscript extends AbstractWebScript {
     public void setxSearchService(XSearchService xSearchService) {
         this.xSearchService = xSearchService;
     }
+
+    public void setPersonService(PersonService personService) {
+        this.personService = personService;
+    }
+
 }
 
 

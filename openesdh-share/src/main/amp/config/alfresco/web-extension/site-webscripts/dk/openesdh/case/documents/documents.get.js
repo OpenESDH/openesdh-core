@@ -7,7 +7,7 @@
  * @param nodeRef
  * @returns {*}
  */
-function getCaseDocumentNodeRef(nodeRef) {
+    function getCaseDocumentNodeRef(nodeRef) {
 
     var caseDocNode = nodeRef.replace("://", "/");
     var connector = remote.connect("alfresco");
@@ -39,6 +39,14 @@ model.jsonModel = {
             config:
             {
                 widgets: widgets
+                //widgets: [
+                //    {
+                //        name: "openesdh/common/widgets/dashlets/CaseDocumentsDashlet",
+                //        config: {
+                //            nodeRef: caseNodeRef
+                //        }
+                //    }
+                //]
             }
         }
     ]

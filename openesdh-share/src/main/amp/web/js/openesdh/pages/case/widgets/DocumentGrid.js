@@ -18,32 +18,65 @@ define(["dojo/_base/declare",
              * @instance
              * @type {object[]}
              */
-            //actions: [ {"href" : "oe/case/{caseId}/dashboard" ,
-            //            "id" : "case-dashboard",
-            //            "label" : "grid.actions.goto_case",
-            //            "key" : "13"},
-            //
-            //           {"href" : "edit-metadata?nodeRef={nodeRef}" ,
-            //            "id" : "case-edit",
-            //            "label" : "grid.actions.edit_case",
-            //            "key" : "69",
-            //            "shift": true}],
+            actions: [
+                //{"href" : "#TODO",
+                //        "id" : "doc-preview",
+                //        "label" : "grid.actions.preview_doc",
+                //        "key" : "13"},
 
-            postCreate: function () {
+                       {"href" : "edit-metadata?nodeRef={nodeRef}",
+                       "id" : "doc-edit",
+                       "label" : "grid.actions.edit_doc",
+                       "key" : "69",
+                       "shift": true}
+            ],
+
+            postMixInProperties: function () {
                 this.inherited(arguments);
-                this.targetURI = "api/openesdh/documents?nodeRef=" + this.nodeRef;
+                this.targetURI = "api/openesdh/casedocumentssearch?nodeRef=" + this.nodeRef;
             },
 
             getColumns: function () {
                 return [
-                    { field: "TYPE", label: this.message("oe_type")  },
-                    { field: "cm:title", label: this.message("cm_title")  },
-                    { field: "sys:versionLabel", label: this.message("sys_versionLabel") },
-                    { field: "cm:creator", label: this.message("cm_creator")  },
-                    { field: "oe:status", label: this.message("oe_status")},
-                    { field: "cm:created", label: this.message("cm_created") },
-                    { field: "cm:modified", label: this.message("cm_modified") }
+                    { field: "doc:type", label: this.message("doc_type") },
+                    { field: "doc:category", label: this.message("doc_category") },
+                    { field: "doc:state", label: this.message("doc_state") },
+                    { field: "cm:title", label: this.message("cm_title"),
+                        renderCell: lang.hitch(this, '_renderTitleCell')
+                    },
+                    { field: "cm:versionLabel", label: this.message("cm_versionLabel"),
+                        formatter: lang.hitch(this, "_formatVersion")
+                    },
+                    { field: "doc:owner", label: this.message("doc_owner") },
+                    { field: "cm:created", label: this.message("cm_created"),
+                        formatter: lang.hitch(this, "_formatDate")
+                    },
+                    { field: "cm:modified", label: this.message("cm_modified"),
+                        formatter: lang.hitch(this, "_formatDate")
+                    }
                 ];
+            },
+
+            /**
+             * Return the version if it is specified, otherwise "1.0".
+             * @param value
+             * @returns {*}
+             * @private
+             */
+            _formatVersion: function (value) {
+                return value ? value : "1.0";
+            },
+
+            /**
+             * Render the cm:title if set, otherwise, cm:name.
+             * @param item
+             * @param value
+             * @param node
+             * @param options
+             * @private
+             */
+            _renderTitleCell:  function (item, value, node, options) {
+                node.innerHTML = item['cm:title'] ? item['cm:title'] : item['cm:name'];
             }
         });
     });

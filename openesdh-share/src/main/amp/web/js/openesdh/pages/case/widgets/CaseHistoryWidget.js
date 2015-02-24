@@ -15,7 +15,7 @@ define(["dojo/_base/declare",
             allowColumnReorder: false,
             showColumnHider: false,
 
-            postCreate: function () {
+            postMixInProperties: function () {
                 this.inherited(arguments);
                 this.targetURI = "api/openesdh/casehistory?nodeRef=" + this.nodeRef;
             },

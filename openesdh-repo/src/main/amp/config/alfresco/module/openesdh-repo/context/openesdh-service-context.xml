@@ -135,6 +135,14 @@
         </property>
     </bean>
 
+    <bean id="CaseDocumentsSearchService"
+          class="dk.openesdh.repo.services.xsearch.CaseDocumentsSearchServiceImpl"
+          parent="XSearchService">
+        <property name="caseService" ref="CaseService"/>
+        <property name="nodeService" ref="NodeService"/>
+        <property name="namespaceService" ref="NamespaceService"/>
+    </bean>
+
     <bean id="ContactSearchService"
           class="dk.openesdh.repo.services.xsearch.ContactSearchServiceImpl"
           parent="XSearchService">

@@ -89,15 +89,15 @@ define(["dojo/_base/declare",
              */
             grid: null,
 
-            postCreate: function () {
-                this.inherited(arguments);
-                this.addPolyfillObjectKeys();
+            constructor: function (args) {
+                lang.mixin(this, args);
                 this.query = {};
-                this.alfSubscribe("GRID_SET_TARGET_URI", lang.hitch(this, "onSetTargetUri"));
+                this.addPolyfillObjectKeys();
             },
 
-            startup: function () {
+            postCreate: function () {
                 this.inherited(arguments);
+                this.alfSubscribe("GRID_SET_TARGET_URI", lang.hitch(this, "onSetTargetUri"));
 
                 // Add actions column if there are actions
                 var columns = this.getColumns();
@@ -291,7 +291,7 @@ define(["dojo/_base/declare",
 
             /**
              * Formatter function for formatting a date.
-             * @param item
+             * @param value
              * @private
              */
             _formatDate: function (value) {
@@ -355,6 +355,6 @@ define(["dojo/_base/declare",
                         return getScrollbarSize(element, "Height");
                     }, false, true);
                 });
-            },
+            }
         });
     });
