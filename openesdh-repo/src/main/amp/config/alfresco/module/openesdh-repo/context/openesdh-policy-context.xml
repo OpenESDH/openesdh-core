@@ -53,4 +53,9 @@
             <ref bean="NodeService" />
         </property>
     </bean>
+
+    <bean id="documentBehaviour" class="dk.openesdh.repo.policy.DocumentBehaviour" init-method="init">
+        <property name="nodeService" ref="NodeService"/>
+        <property name="policyComponent" ref="policyComponent"/>
+    </bean>
 </beans>

@@ -1,0 +1,9 @@
+<webscript>
+    <shortname>Case Document</shortname>
+    <description>Add a document to a case</description>
+    <family>OpenESDH</family>
+    <url>/api/openesdh/case/{caseId}/document</url>
+    <format default="json"></format>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+</webscript>

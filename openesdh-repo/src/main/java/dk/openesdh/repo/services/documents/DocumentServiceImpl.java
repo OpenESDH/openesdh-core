@@ -6,9 +6,11 @@ import dk.openesdh.repo.webscripts.documents.Documents;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
-import org.alfresco.service.cmr.repository.*;
+import org.alfresco.service.cmr.repository.AssociationRef;
+import org.alfresco.service.cmr.repository.ChildAssociationRef;
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
@@ -17,7 +19,6 @@ import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypes;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -138,75 +139,29 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public void createDocument(final ChildAssociationRef childAssociationRef) {
+    public ChildAssociationRef createDocumentFolder(final NodeRef documentsFolder, final String name) {
+        ChildAssociationRef documentAssociationRef = nodeService.createNode(documentsFolder, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.DOC_URI, name), OpenESDHModel.TYPE_DOC_SIMPLE, Collections.<QName, Serializable>singletonMap(ContentModel.PROP_NAME, name));
+        NodeRef documentNodeRef = documentAssociationRef.getChildRef();
 
-        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Void>() {
-            @Override
-            public Void doWork() {
-
-                transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
-                    @Override
-                    public Object execute() throws Throwable {
-                        NodeRef folderNodeRef = childAssociationRef.getParentRef();
-                        NodeRef fileNodeRef = childAssociationRef.getChildRef();
-
-                        String fileName = (String) nodeService.getProperty(fileNodeRef, ContentModel.PROP_NAME);
-                        String documentName = FilenameUtils.removeExtension(fileName);
-                        //It is common that users create a file without adding an extension to the file name
-                        //so originally we decided to add a .txt by default but instead it is better to attempt
-                        //Mimetype detection and add the extension
-                        if (!DocumentServiceImpl.hasFileExtentsion(fileName)){
-                            ContentData fileDataType = (ContentData) nodeService.getProperty(fileNodeRef, ContentModel.PROP_CONTENT);
-                            MimeType contentMimeType = allMimeTypes.forName(fileDataType.getMimetype());
-                            fileName += contentMimeType.getExtension();
-                            nodeService.setProperty(fileNodeRef, ContentModel.PROP_NAME, fileName);
-                        }
-
-                        //TODO Check if disabling behaviour is needed
-                        behaviourFilter.disableBehaviour();
-                        try {
-                            // Create document
-                            ChildAssociationRef documentAssociationRef = nodeService.createNode(folderNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.DOC_URI, documentName), OpenESDHModel.TYPE_DOC_SIMPLE, Collections.<QName, Serializable>singletonMap(ContentModel.PROP_NAME, documentName));
-                            NodeRef documentNodeRef = documentAssociationRef.getChildRef();
-                            nodeService.moveNode(fileNodeRef, documentNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.DOC_URI, "content_" + documentName));
-                            //Tag the case document as the main document for the case
-                            nodeService.addAspect(fileNodeRef, OpenESDHModel.ASPECT_CASE_MAIN_DOC, null);
-                            nodeService.setType(fileNodeRef, OpenESDHModel.TYPE_DOC_DIGITAL_FILE);
-                            // TODO Get start value, localize
-                            nodeService.setProperty(fileNodeRef, OpenESDHModel.PROP_DOC_VARIANT, "Produktion");
-
-                            NodeRef person = personService.getPerson(AuthenticationUtil.getFullyAuthenticatedUser());
-                            nodeService.createAssociation(documentNodeRef, person, OpenESDHModel.ASSOC_DOC_RESPONSIBLE_PERSON);
-                            nodeService.createAssociation(documentNodeRef, person, OpenESDHModel.ASSOC_DOC_OWNER);
-                        }finally {
-                            behaviourFilter.enableBehaviour();
-                        }
-
-                        return null;
-                    }
-                });
-
-                return null;
-            }
-        }, "admin");
+        NodeRef person = personService.getPerson(AuthenticationUtil.getFullyAuthenticatedUser());
+        nodeService.createAssociation(documentNodeRef, person, OpenESDHModel.ASSOC_DOC_OWNER);
+        nodeService.createAssociation(documentNodeRef, person, OpenESDHModel.ASSOC_DOC_RESPONSIBLE_PERSON);
+        return documentAssociationRef;
     }
 
     @Override
     public NodeRef getMainDocument(NodeRef caseDocNodeRef){
         NodeRef mainDoc = null;
-        try {
-            List<ChildAssociationRef> children = this.nodeService.getChildAssocs(caseDocNodeRef);
-            for(ChildAssociationRef child : children){
-                NodeRef doc = child.getChildRef();
-                if(this.nodeService.hasAspect(doc, OpenESDHModel.ASPECT_CASE_MAIN_DOC)) {
-                    mainDoc = doc;
-                    break;
-                }
+
+        List<ChildAssociationRef> children = this.nodeService.getChildAssocs(caseDocNodeRef);
+        for (ChildAssociationRef child : children){
+            NodeRef doc = child.getChildRef();
+            if (this.nodeService.hasAspect(doc, OpenESDHModel.ASPECT_CASE_MAIN_DOC)) {
+                mainDoc = doc;
+                break;
             }
         }
-        finally {
-            return mainDoc;
-        }
+        return mainDoc;
     }
 
     @Override
@@ -225,7 +180,7 @@ public class DocumentServiceImpl implements DocumentService {
         //TODO could it be the case that in the future there could be more than one person responsible for a document
         //Should
         List <AssociationRef> responsibleList = this.nodeService.getTargetAssocs(caseDocNodeRef, OpenESDHModel.ASSOC_DOC_RESPONSIBLE_PERSON);
-        List <PersonService.PersonInfo> responsibles = new ArrayList<PersonService.PersonInfo>();
+        List <PersonService.PersonInfo> responsibles = new ArrayList<>();
 
         for(AssociationRef person : responsibleList)
             responsibles.add(this.personService.getPerson(person.getTargetRef()));
