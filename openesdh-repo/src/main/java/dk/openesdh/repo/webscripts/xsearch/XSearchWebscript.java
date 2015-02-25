@@ -90,6 +90,7 @@ public class XSearchWebscript extends AbstractWebScript {
                     "-" + resultsEnd + "/" + results.getNumberFound());
 
             String jsonString = nodes.toString();
+            res.setContentEncoding("UTF-8");
             res.getWriter().write(jsonString);
         } catch (JSONException e) {
             throw new WebScriptException("Unable to serialize JSON");

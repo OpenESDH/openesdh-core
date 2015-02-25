@@ -37,6 +37,7 @@ public class CaseHistory extends AbstractWebScript {
 
         JSONArray result = auditSearchService.getAuditLogByCaseNodeRef(caseNodeRef, 1000);
 
+        res.setContentEncoding("UTF-8");
         res.setHeader("Content-Range", "items " + 0 +
                 "-" + result.size() + "/" + result.size());
         result.writeJSONString(res.getWriter());
