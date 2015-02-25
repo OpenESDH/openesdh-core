@@ -32,6 +32,7 @@ import java.util.*;
 public class Notes extends AbstractRESTWebscript {
     private NodeService nodeService;
     private NoteService noteService;
+    private PersonService personService;
 
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
@@ -39,6 +40,10 @@ public class Notes extends AbstractRESTWebscript {
 
     public void setNoteService(NoteService noteService) {
         this.noteService = noteService;
+    }
+
+    public void setPersonService(PersonService personService) {
+        this.personService = personService;
     }
 
     @Override
@@ -74,7 +79,7 @@ public class Notes extends AbstractRESTWebscript {
         JSONObject jsonReq = new JSONObject(new JSONTokener(req.getContent()
                 .getContent()));
         String content = jsonReq.getString("content");
-        String author = jsonReq.getString("author");
+        String author = AuthenticationUtil.getFullyAuthenticatedUser();
 
         NodeRef noteNodeRef = noteService.createNote(nodeRef, content, author);
         try {
@@ -112,7 +117,21 @@ public class Notes extends AbstractRESTWebscript {
 
         obj.put("content", nodeService.getProperty(nodeRef, OpenESDHModel.PROP_NOTE_CONTENT));
 
-        obj.put("author", nodeService.getProperty(nodeRef, ContentModel.PROP_AUTHOR));
+
+        String author = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_AUTHOR);
+
+        NodeRef personNodeRef = personService.getPersonOrNull(author);
+        if (personNodeRef != null) {
+            // If it's a user who authored the note, output the user object
+            JSONObject userObj = new JSONObject();
+            PersonService.PersonInfo info = personService.getPerson(personNodeRef);
+            userObj.put("userName", author);
+            userObj.put("displayName", info.getFirstName() + " " + info.getLastName());
+            obj.put("author", userObj);
+        } else {
+            // If it's not a user, just output the name
+            obj.put("author", author);
+        }
 
         obj.put("creator", nodeService.getProperty(nodeRef, ContentModel.PROP_CREATOR));
         obj.put("created", nodeService.getProperty(nodeRef, ContentModel.PROP_CREATED));

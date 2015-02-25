@@ -182,6 +182,7 @@
           parent="webscript">
         <property name="nodeService" ref="NodeService"/>
         <property name="noteService" ref="NoteService"/>
+        <property name="personService" ref="PersonService"/>
     </bean>
 
     <bean id="webscript.dk.openesdh.notes.notes.get"

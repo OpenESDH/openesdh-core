@@ -59,13 +59,6 @@ define(["dojo/_base/declare", "alfresco/core/Core", "alfresco/dashlets/Dashlet",
                                 },
                                 widgets: [
                                     {
-                                        name: "alfresco/forms/controls/DojoValidationTextBox",
-                                        config: {
-                                            label: "Author",
-                                            name: "author"
-                                        }
-                                    },
-                                    {
                                         name: "alfresco/forms/controls/DojoTextarea",
                                         config: {
                                             label: "Content",
