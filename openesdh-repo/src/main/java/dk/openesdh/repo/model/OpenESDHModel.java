@@ -168,5 +168,5 @@ public interface OpenESDHModel {
 
 
 
-    public static final int auditlog_max = 1000;
+    public static final int AUDIT_LOG_MAX = 1000;
 }

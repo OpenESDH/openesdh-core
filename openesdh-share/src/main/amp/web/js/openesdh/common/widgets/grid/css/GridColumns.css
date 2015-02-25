@@ -1,0 +1,17 @@
+/* Some sensible defaults */
+
+/* Type column */
+.field-type {
+    width: 8em;
+}
+
+/* Actions column */
+.field-nodeRef {
+   width: 6em;
+}
+
+/* Date fields */
+.field-cm-modified,
+.field-cm-created {
+    width: 8em;
+}

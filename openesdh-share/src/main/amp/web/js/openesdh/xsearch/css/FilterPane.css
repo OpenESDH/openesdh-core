@@ -31,3 +31,24 @@
 .update-filters .dijitButtonNode {
   border-color: #6A9F00 !important;
 }
+
+/* Icons */
+.magenta.ui-icon {
+    text-indent: -1000em;
+    display: inline-block;
+    overflow: hidden;
+}
+.cross {
+    background-position: -96px -129px;
+}
+.dijitButtonDisabled .cross {
+    opacity: 0.4;
+    filter: alpha(opacity=40); /* msie */
+}
+.plus {
+    background-position: -32px -129px;
+}
+.update {
+    background-position: -64px -82px;
+}
+

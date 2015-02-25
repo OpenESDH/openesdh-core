@@ -20,15 +20,13 @@ import java.util.Map;
  * Created by flemmingheidepedersen on 12/09/14.
  */
 public abstract class AbstractXSearchService implements XSearchService {
-
-    String baseType;
-    private Repository repositoryHelper;
-    private SearchService searchService;
+    protected Repository repositoryHelper;
+    protected SearchService searchService;
 
     @Override
     public abstract XResultSet getNodes(Map<String, String> params, int startIndex, int pageSize, String sortField, boolean ascending);
 
-    private SearchParameters.SortDefinition getSortDefinition(String sortField, boolean ascending) {
+    protected SearchParameters.SortDefinition getSortDefinition(String sortField, boolean ascending) {
         return new SearchParameters.SortDefinition(SearchParameters.SortDefinition.SortType.FIELD, "@" + sortField, ascending);
     }
 
@@ -61,10 +59,10 @@ public abstract class AbstractXSearchService implements XSearchService {
         if (results != null) {
             nodeRefs = results.getNodeRefs();
             results.close();
-            return new XResultSet(nodeRefs, results.length(), results.getNumberFound());
+            return new XResultSet(nodeRefs, results.getNumberFound());
         } else {
             results.close();
-            return new XResultSet(nodeRefs, 0, 0);
+            return new XResultSet(nodeRefs);
         }
     }
 

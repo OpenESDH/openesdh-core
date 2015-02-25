@@ -43,5 +43,5 @@ public interface DocumentService {
 
     JSONObject buildJSON(List<ChildAssociationRef> childAssociationRefs, Documents documents, NodeRef caseNodeRef);
 
-    void createDocument(ChildAssociationRef childAssociationRef);
+    ChildAssociationRef createDocumentFolder(final NodeRef parent, final String name);
 }

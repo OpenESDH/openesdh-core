@@ -1,14 +1,13 @@
 package dk.openesdh.repo.webscripts.xsearch;
 
-import dk.openesdh.repo.services.xsearch.CaseOwnerSearchService;
 import dk.openesdh.repo.services.xsearch.XResultSet;
+import dk.openesdh.repo.services.xsearch.XSearchService;
 import dk.openesdh.repo.utils.Utils;
-import org.alfresco.repo.model.Repository;
+import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.search.SearchService;
-import org.alfresco.service.cmr.security.AuthenticationService;
+import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.namespace.RegexQNamePattern;
@@ -23,40 +22,50 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
-public class CaseOwnerSearch extends AbstractWebScript {
-    static Logger log = Logger.getLogger(CaseOwnerSearch.class);
+public class XSearchWebscript extends AbstractWebScript {
+    protected static Logger log = Logger.getLogger(XSearchWebscript.class);
 
-    protected SearchService searchService;
     protected NodeService nodeService;
     protected NamespaceService namespaceService;
-    protected Repository repository;
-    protected AuthenticationService authenticationService;
-    protected CaseOwnerSearchService caseOwnerSearchService;
+    protected XSearchService xSearchService;
+    protected PersonService personService;
 
-    public static int DEFAULT_PAGE_SIZE = 25;
+    /**
+     * The page size to use if none is specified in the request.
+     * This is settable from the bean definition.
+     */
+    protected int defaultPageSize = 25;
 
+    /**
+     * Handles a typical request from a dojo/store/JsonRest store.
+     * See http://dojotoolkit.org/reference-guide/1.10/dojo/store/JsonRest.html#implementing-a-rest-server
+     *
+     * Paging and sorting information is passed to the xSearchService, the
+     * result nodes are converted to JSON and returned in the response along
+     * with the number of items found and the start/end index.
+     *
+     * @param req
+     * @param res
+     * @throws IOException
+     */
     public void execute(WebScriptRequest req, WebScriptResponse res)
             throws IOException {
         try {
-            Map<String, String> params = Utils.parseParameters(req.getURL());
+            Map<String, String> params = getParams(req);
 
             int startIndex = 0;
-            int pageSize = DEFAULT_PAGE_SIZE;
-
-            params.put("user", authenticationService.getCurrentUserName());
-            params.put("filter", "");
-            params.put("baseType", "");
-
+            int pageSize = defaultPageSize;
 
             String rangeHeader = req.getHeader("x-range");
-            Range range = parseRangeHeader(rangeHeader);
+            int[] range = parseRangeHeader(rangeHeader);
             if (range != null) {
-                log.debug("Range: " + range.startIndex + " - " + range.endIndex);
-                startIndex = range.startIndex;
-                pageSize = range.endIndex - range.startIndex;
+                log.debug("Range: " + range[0] + " - " + range[1]);
+                startIndex = range[0];
+                pageSize = range[1] - range[0];
             }
 
             String sortField = null;
@@ -64,11 +73,11 @@ public class CaseOwnerSearch extends AbstractWebScript {
             String sortBy = req.getParameter("sortBy");
             if (sortBy != null) {
                 // the 'sort' argument is of the format " column" (originally "+column", but Alfresco converts the + to a space) or "-column"
-                ascending = sortBy.charAt(0) == '-' ? false : true;
+                ascending = sortBy.charAt(0) != '-';
                 sortField = sortBy.substring(1);
             }
 
-            XResultSet results = caseOwnerSearchService.getNodes(params, startIndex, pageSize, sortField, ascending);
+            XResultSet results = xSearchService.getNodes(params, startIndex, pageSize, sortField, ascending);
             List<NodeRef> nodeRefs = results.getNodeRefs();
             JSONArray nodes = new JSONArray();
             for (NodeRef nodeRef : nodeRefs) {
@@ -76,9 +85,9 @@ public class CaseOwnerSearch extends AbstractWebScript {
                 nodes.put(node);
             }
 
-            int resultsEnd = results.getLength() - startIndex;
+            int resultsEnd = results.getLength() + startIndex;
             res.setHeader("Content-Range", "items " + startIndex +
-                    "-" + resultsEnd + "/" + results.getLength());
+                    "-" + resultsEnd + "/" + results.getNumberFound());
 
             String jsonString = nodes.toString();
             res.getWriter().write(jsonString);
@@ -87,28 +96,29 @@ public class CaseOwnerSearch extends AbstractWebScript {
         }
     }
 
+    protected Map<String, String> getParams(WebScriptRequest req) {
+        return Utils.parseParameters(req.getURL());
+    }
+
+    /**
+     * Serializes the node to JSON.
+     * The default implementation outputs all properties and associations.
+     * This can be overridden to output less (or more) information.
+     * @param nodeRef
+     * @return
+     * @throws JSONException
+     */
     protected JSONObject nodeToJSON(NodeRef nodeRef) throws JSONException {
         JSONObject json = new JSONObject();
-        // TODO: Don't include ALL properties
         Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
-
-//        String id = (String)nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_ID);
-//        String state = (String)nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS);
-//        Date last_modified = (Date)nodeService.getProperty(nodeRef, ContentModel.PROP_MODIFIED);
-//
-//
-//
-//        json.put ("esdh:id", id);
-//        json.put ("esdh:state", state);
-//        json.put ("esdh:modified", last_modified);
-
-
-
         for (Map.Entry<QName, Serializable> entry : properties.entrySet()) {
-            json.put(entry.getKey().toPrefixString(namespaceService), entry.getValue());
+            if (entry.getValue() instanceof Date) {
+                json.put(entry.getKey().toPrefixString(namespaceService),
+                        ((Date) entry.getValue()).getTime());
+            } else {
+                json.put(entry.getKey().toPrefixString(namespaceService), entry.getValue());
+            }
         }
-
-
         List<AssociationRef> associations = nodeService.getTargetAssocs
                 (nodeRef, RegexQNamePattern.MATCH_ALL);
         for (AssociationRef association : associations) {
@@ -116,7 +126,15 @@ public class CaseOwnerSearch extends AbstractWebScript {
                     (namespaceService);
             if (!json.has(assocName)) {
                 JSONArray refs = new JSONArray();
-                refs.put(association.getTargetRef());
+                if (nodeService.getType(association.getTargetRef()).equals(
+                        ContentModel.TYPE_PERSON)) {
+                    PersonService.PersonInfo info = personService.getPerson
+                            (association.getTargetRef());
+                    refs.put(info.getUserName());
+                } else {
+                    refs.put(association.getTargetRef());
+                }
+
                 json.put(assocName, refs);
             } else {
                 JSONArray refs = (JSONArray) json.get(assocName);
@@ -125,37 +143,32 @@ public class CaseOwnerSearch extends AbstractWebScript {
                         (namespaceService), refs);
             }
         }
-
         json.put("TYPE", nodeService.getType(nodeRef).toPrefixString(namespaceService));
         json.put("nodeRef", nodeRef.toString());
         return json;
     }
 
-    private class Range {
-
-        public int startIndex;
-        public int endIndex;
-        public Range(int startIndex, int endIndex) {
-            this.startIndex = startIndex;
-            this.endIndex = endIndex;
-        }
-
-    }
-    protected Range parseRangeHeader(String range) {
+    /**
+     * Parse a HTTP Range header and return an array containing 2 elemens: the
+     * start and end index of the range.
+     * @param range
+     * @return
+     */
+    protected int[] parseRangeHeader(String range) {
         final String RANGE_START = "items=";
         if (range != null && range.contains(RANGE_START)) {
             String rest = range.substring(RANGE_START.length());
             int dash = rest.indexOf("-");
             int startIndex = Integer.parseInt(rest.substring(0, dash));
             int endIndex = Integer.parseInt(rest.substring(dash + 1));
-            return new Range(startIndex, endIndex);
+            return new int[]{startIndex, endIndex};
         } else {
             return null;
         }
     }
 
-    public void setSearchService(SearchService searchService) {
-        this.searchService = searchService;
+    public void setDefaultPageSize(int defaultPageSize) {
+        this.defaultPageSize = defaultPageSize;
     }
 
     public void setNodeService(NodeService nodeService) {
@@ -166,16 +179,14 @@ public class CaseOwnerSearch extends AbstractWebScript {
         this.namespaceService = namespaceService;
     }
 
-    public void setRepository(Repository repository) {
-        this.repository = repository;
+    public void setxSearchService(XSearchService xSearchService) {
+        this.xSearchService = xSearchService;
     }
 
-    public void setCaseOwnerSearchService(CaseOwnerSearchService caseOwnerSearchService) {
-        this.caseOwnerSearchService = caseOwnerSearchService;
+    public void setPersonService(PersonService personService) {
+        this.personService = personService;
     }
-    public void setAuthenticationService(AuthenticationService authenticationService) {
-        this.authenticationService = authenticationService;
-    }
+
 }
 
 

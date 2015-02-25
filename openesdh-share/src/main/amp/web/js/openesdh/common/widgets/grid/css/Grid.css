@@ -1,0 +1,39 @@
+/* Grid footer */
+.dgrid-footer {
+  padding: 5px 0;
+}
+.dgrid-pagination {
+  padding: 0 5px;
+}
+
+/* Icons */
+.magenta.ui-icon {
+    text-indent: -1000em;
+    display: inline-block;
+    overflow: hidden;
+}
+
+/* Action buttons */
+.grid-action {
+    background-color: #eee;
+    border-radius: 5px;
+    height: 20px !important;
+    width: 20px !important;
+    margin: 0 5px 0 0;
+}
+
+.grid-action:hover,
+.grid-action:active {
+    background-color: #ddd;
+}
+
+/* TODO: these should be moved */
+.action-case-dashboard {
+    background-position: -30px -78px;
+}
+.action-case-edit {
+    background-position: -62px -111px;
+}
+.action-case-documents {
+    background-position: -14px -95px;
+}

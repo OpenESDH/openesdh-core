@@ -146,15 +146,15 @@ define(["dojo/_base/declare",
             },
 
             handleDropdownSelect: function () {
-                 var test = this.selectField.getValue();
+                var test = this.selectField.getValue();
 
                 var CustomRest = JsonRest;
 
 
-                    this.grid.store = new CustomRest({
-                        target: Alfresco.constants.PROXY_URI + "api/openesdh/" + this.selectField.getValue()
-                    });
-                    this.grid.refresh();
+                this.grid.store = new CustomRest({
+                    target: Alfresco.constants.PROXY_URI + "api/openesdh/" + this.selectField.getValue()
+                });
+                this.grid.refresh();
             },
 
 
