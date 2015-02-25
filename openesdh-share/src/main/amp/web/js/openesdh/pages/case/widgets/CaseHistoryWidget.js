@@ -28,7 +28,8 @@ define(["dojo/_base/declare",
                         sortable: false
                     },
                     { field: "user", label: this.message("casehistory.column.user"), sortable: false},
-                    { field: "action", label: this.message("casehistory.column.action"), sortable: false}
+                    { field: "action", label: this.message("casehistory.column.action"), sortable: false},
+                    { field: "type", label: this.message("casehistory.column.type"), sortable: false}
                 ];
             }
         });

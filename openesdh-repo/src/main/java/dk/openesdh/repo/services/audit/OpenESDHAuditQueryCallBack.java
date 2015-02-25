@@ -41,12 +41,6 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
     public OpenESDHAuditQueryCallBack(Map<String, Boolean> validKeys)  {
         super();
 
-//        try {
-////            result.put("entries", new JSONArray());
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
-
         if (validKeys != null) {
             this.validKeys = validKeys;
         }
@@ -93,7 +87,7 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
 
             String key = entry.getKey();
             Serializable value = entry.getValue();
-            System.out.println("what is key" + key);
+//            System.out.println("what is key" + key);
 //            System.out.println("values: " + values.get("/esdh/transaction/action"));
 
             if (key != null && value != null) {
@@ -105,10 +99,9 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
 
                             if (values.get("/esdh/transaction/action").equals("CREATE")) {
                                 if (validKeys.get("/esdh/transaction/action=CREATE")) {
+                                    String type = (String)values.get("/esdh/transaction/type");
                                     String path = (String)values.get("/esdh/transaction/path");
                                     String[] pArray = path.split("/");
-
-
 
                                     if (path.indexOf(OpenESDHModel.DOCUMENTS_FOLDER_NAME) != -1) {
 
@@ -116,10 +109,22 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
                                         QName name = QName.createQName("http://www.alfresco.org/model/content/1.0", "name");
 
                                         try {
-
-                                            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.file.added") + " " + properties.get(name));
-                                            result.add(auditEntry);
-
+                                            if (type.equals("cm:content")) {
+                                                auditEntry.put("action", I18NUtil.getMessage("auditlog.label.attachment.added") + " " + properties.get(name));
+                                                auditEntry.put("type", I18NUtil.getMessage("auditlog.label.type.attachment"));
+                                                result.add(auditEntry);
+                                            }
+                                            else if (type.contains("doc:")) {
+                                                auditEntry.put("action", I18NUtil.getMessage("auditlog.label.document.added") + " " + properties.get(name));
+                                                System.out.println(("hej"));
+                                                auditEntry.put("type", I18NUtil.getMessage("auditlog.label.type.document"));
+                                                result.add(auditEntry);
+                                            }
+                                            else if (type.contains("cm:folder")) {
+                                                auditEntry.put("action", I18NUtil.getMessage("auditlog.label.folder.added") + " " + properties.get(name));
+                                                auditEntry.put("type", I18NUtil.getMessage("auditlog.label.type.folder"));
+                                                result.add(auditEntry);
+                                            }
 
                                         } catch (JSONException e) {
                                             e.printStackTrace();
