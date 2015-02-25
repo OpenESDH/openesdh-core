@@ -49,6 +49,9 @@ define(["dojo/_base/declare",
         return declare([_Widget, _Templated, Core, CoreXhr, _TopicsMixin,CoreWidgetProcessing], {
             templateString: template,
 
+            i18nRequirements: [
+                {i18nFile: "./i18n/CaseHistoryWidget1.properties"}
+            ],
 
 
             // Override default Dijit theme to look like Alfresco's.
@@ -139,12 +142,8 @@ define(["dojo/_base/declare",
             postCreate: function () {
                 this.inherited(arguments);
                 this.createGrid(this.nodeRef);
+                alert(i18nRequirements);
             },
-
-            startUp: function() {
-                alert("hello");
-            },
-
 
             handleDropdownSelect: function () {
                  var test = this.selectField.getValue();
@@ -210,7 +209,7 @@ define(["dojo/_base/declare",
 
             createGrid: function(payload) {
                 var _this = this;
-
+                alert("this")
                 // Custom JsonRest store hacked to look for ETag header in the response instead of Content-Range header
                 var CustomRest = JsonRest;
 
@@ -238,7 +237,8 @@ define(["dojo/_base/declare",
                 var columns = [
                     { field: "time", label: this.message("casehistory.column.time"),renderCell: lang.hitch(this, '_renderActionsCell')  },
                     { field: "user", label: this.message("casehistory.column.user")},
-                    { field: "action", label: this.message("casehistory.column.action") }
+                    { field: "action", label: this.message("casehistory.column.action") },
+                    { field: "type", label: this.message("casehistory.column.type") }
                 ]
 
 

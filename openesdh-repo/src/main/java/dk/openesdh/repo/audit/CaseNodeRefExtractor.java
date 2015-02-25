@@ -34,6 +34,7 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
   public Serializable extractData(Serializable value) throws Throwable {
     String result = null;
       System.out.println("start to extract....");
+
     // TODO Ole,do we ever get an instance of a nodeRef?
     if (value instanceof NodeRef) {
       // received a NodeRef object, we know this is a permission change
@@ -41,7 +42,8 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
       NodeRef nodeRef = (NodeRef) value;
       Path path = nodeService.getPath(nodeRef);
       result = nodeRef.toString();
-    } else if (value instanceof String) {
+    }
+    else if (value instanceof String) {
       String str = (String) value;
       System.out.println( "EXTRACT DATA: STRING:" + str + "\n\n" );
       if (str.startsWith("("+ getClass().getCanonicalName() + ") GROUP_case_")) {
@@ -51,7 +53,7 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
         }
         result = getNodeRefFromCaseID(parts[2]);
       } else {
-          System.out.println("this is a path thingie");
+          // System.out.println("this is a path thingie");
         result = getNodeRefFromPath(str);
       }
     }
@@ -61,20 +63,17 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
 
   private String getNodeRefFromPath(String path) {
 
-      System.out.println("inside getNodeRefFromPath" + path);
+//      System.out.println("inside getNodeRefFromPath" + path);
     String prefix = "/app:company_home/case:openesdh_cases/";
     if (path.startsWith(prefix)) {
 
 
         String[] parts = path.split("/");
-        System.out.println("parts6:" + parts[6]);
-        System.out.println("split.length" + parts.length);
 
         if (parts.length >= 7) {
             String node_db_id = parts[6].split("-")[1];
-            System.out.println(node_db_id);
             NodeRef nodeRef = nodeService.getNodeRef(Long.parseLong(node_db_id));
-            System.out.println(nodeRef);
+//            System.out.println(nodeRef);
             if (nodeRef != null) {
               return nodeRef.toString();
             }
@@ -84,9 +83,8 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
     return null;
   }
 
-
   private String getNodeRefFromCaseID(String caseID) {
-    System.out.println( "EXTRACT DATA: getNodeRefFromCaseID:" + caseID + "\n\n" );
+//    System.out.println( "EXTRACT DATA: getNodeRefFromCaseID:" + caseID + "\n\n" );
     int dashIndex = caseID.lastIndexOf('-');
     if (dashIndex != -1) {
         NodeRef nodeRef = nodeService.getNodeRef(Long.parseLong(caseID.substring(dashIndex+1)));
