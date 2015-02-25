@@ -1,12 +1,13 @@
 package dk.openesdh.repo.services.contacts;
 
-import dk.openesdh.exceptions.contacts.NoSuchContactException;
+import dk.openesdh.repo.model.ContactInfo;
+import dk.openesdh.repo.model.ContactType;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
-import org.apache.commons.lang3.tuple.Pair;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -27,7 +28,7 @@ public interface ContactService {
     public static String ZONE_CONTACT = "CONTACT.STORE";
 
 
-    //TODO create a new workspaces store for contacts or perhaps store them in the same store as users?
+
     /**
      * Get the noderef for the storage folder.
      *
@@ -36,13 +37,18 @@ public interface ContactService {
     public NodeRef getContactsStorageRoot();
 
     /**
-     * Returns a tuple containing a boolean and nodeRef if the contact has a
-     * @param contactRef
-     * @return org.apache.commons.lang3.tuple.Pair<Boolean, NodeRef>
+     * Returns the type of contact as an enum of the ContactType
+     * @param contact
+     * @return
      */
-/*
-    public Pair<Boolean, NodeRef> hasAssociatedLogin(NodeRef contactRef);
-*/
+    public ContactType getContactType(NodeRef contact);
+
+    /**
+     * Checks if the contact has an address aspec then retrieves the address values
+     * @param contactRef The noderef representing the contact
+     * @return Map of the address props
+     */
+    public Map<QName,Serializable> getAddress(NodeRef contactRef);
 
     /**
      *
@@ -72,5 +78,22 @@ public interface ContactService {
      * @return the NodeRef of the newly created contact
      */
     public NodeRef createContact(String email, String type, HashMap<QName, Serializable> properties, Set<String> authorityZones);
+
+    /**
+     * Gets a contact by id (usuallly the email)
+     * @param id
+     * @return the nodeRef representing the contact
+     */
+    public NodeRef getContactById(String id);
+
+    /**
+     * Returns a list of contacts that match the id and type.
+     * (Will add a filter afterwards)
+     * @param id the id of the contact
+     * @param type the type of Contact
+     * @return List<ContactInfo>
+     */
+    public List<ContactInfo> getContactByFilter(String id, String type);
+
 
 }

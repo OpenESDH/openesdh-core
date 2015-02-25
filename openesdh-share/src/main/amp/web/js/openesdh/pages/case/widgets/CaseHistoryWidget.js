@@ -139,7 +139,7 @@ define(["dojo/_base/declare",
 
 
             _onPayloadReceive: function (payload) {
-                console.log(payload);
+                //console.log(payload);
                 this.createGrid(payload);
             },
 
@@ -248,7 +248,7 @@ define(["dojo/_base/declare",
                     target: Alfresco.constants.PROXY_URI + "api/openesdh/casehistory?nodeRef=" + payload
                 });
 
-                console.log(store);
+                //console.log(store);
 
                 // Create a custom Pagination class with a distinct i18n bundle
                 // In this case, we're overriding just one value, so we're

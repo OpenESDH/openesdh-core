@@ -152,6 +152,7 @@ public interface OpenESDHModel {
      * Constraints
      */
     public static final QName CONSTRAINT_CASE_SIMPLE_STATUS = QName.createQName(CASE_URI, "simpleStatusConstraint");
+    public static final QName CONSTRAINT_CASE_ALLOWED_PARTY_ROLES = QName.createQName(CASE_URI, "allowedPartyRoles");
     public static final QName CONSTRAINT_DOC_STATUS = QName.createQName(DOC_URI, "statusConstraint");
     public static final QName CONSTRAINT_DOC_CATEGORY = QName.createQName(DOC_URI, "categoryConstraint");
 

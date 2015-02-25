@@ -14,6 +14,15 @@
         <namespace uri="http://openesdh.dk/model/case/1.0/" prefix="case" />
     </namespaces>
     <constraints>
+        <constraint name="case:allowedPartyRoles" type="LIST">
+            <parameter name="allowedValues">
+                <list>
+                    <!-- TODO: localize -->
+                    <value>Afsender</value>
+                    <value>Modtager</value>
+                </list>
+            </parameter>
+        </constraint>
         <constraint name="case:simpleStatusConstraint" type="LIST">
             <parameter name="allowedValues">
                 <list>

@@ -232,6 +232,11 @@ public class DocumentServiceImpl implements DocumentService {
         return responsibles;
     }
 
+    /**
+     * Gets the nodeRef of a document or folder within a case by recursively trawling up the tree until the caseType is detected
+     * @param nodeRef the node whose containing case is to be found.
+     * @return the case container noderef
+     */
     @Override
     public NodeRef getCaseNodeRef(NodeRef nodeRef) {
         NodeRef caseNodeRef = null;

@@ -107,13 +107,6 @@ define(["dojo/_base/declare",
                     memberRoleWidget.placeAt(_this.containerNode);
                 });
 
-//                if (members.length == 0) {
-//                    var labelWidget = new Label({
-//                        label: this.message("case-members.none")
-//                    });
-//                    this.widgets.push(labelWidget);
-//                    labelWidget.placeAt(this.containerNode);
-//                }
             }
         });
     });

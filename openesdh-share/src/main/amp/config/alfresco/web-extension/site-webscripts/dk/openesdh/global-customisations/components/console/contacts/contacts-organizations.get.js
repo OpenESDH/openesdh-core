@@ -18,7 +18,6 @@ widgets.push(generateContactPageWidgets(contactType));
 
 model.jsonModel = {
     rootNodeId: args.htmlid,
-
     widgets: widgets,
     services: services
 };

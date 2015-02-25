@@ -167,6 +167,7 @@
     <bean id="ContactService" class="dk.openesdh.repo.services.contacts.ContactServiceImpl">
         <property name="nodeService" ref="nodeService" />
         <property name="contactDAO" ref="ContactDAO" />
+        <property name="searchService" ref="searchService"/>
     </bean>
 
     <bean id="NoteService"
@@ -175,4 +176,14 @@
             <ref bean="NodeService"/>
         </property>
     </bean>
+
+    <bean id="PartyService" class="dk.openesdh.repo.services.cases.PartyServiceImpl">
+        <property name="authorityService" ref="authorityService"/>
+        <property name="caseService" ref="CaseService"/>
+        <property name="contactService" ref="ContactService"/>
+        <property name="nodeService" ref="NodeService"/>
+        <property name="dictionaryService" ref="DictionaryService" />
+        <property name="namespacePrefixResolver" ref="namespaceService"/>
+    </bean>
+
 </beans>

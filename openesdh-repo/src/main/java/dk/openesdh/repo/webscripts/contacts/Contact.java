@@ -1,6 +1,6 @@
 package dk.openesdh.repo.webscripts.contacts;
 
-import dk.openesdh.repo.model.ContactInfo;
+import dk.openesdh.repo.model.ContactType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -42,7 +42,7 @@ public class Contact extends ContactAbstractWebscript {
                 throw new WebScriptException("The email is required to create the contact.");
 
             String contactType = getOrNull(parsedRequest, "contactType");
-            if (StringUtils.isBlank(contactType) || (!contactType.equalsIgnoreCase(ContactInfo.ContactType.valueOf(StringUtils.capitalize(contactType)).toString())) )
+            if (StringUtils.isBlank(contactType) || (!contactType.equalsIgnoreCase(ContactType.valueOf(StringUtils.capitalize(contactType)).toString())) )
                 throw new WebScriptException("No/Incorrect contact type was specified.");
 
             if (contactType.equalsIgnoreCase("person")) {
@@ -79,8 +79,16 @@ public class Contact extends ContactAbstractWebscript {
     @Override
     public void get(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException{
         try{
+            String emailId = req.getParameter("email");
+            if (nodeRef == null && StringUtils.isNotEmpty(emailId)) {
+                nodeRef = contactService.getContactById(emailId);
+
+                if(nodeRef == null)
+                    throw new WebScriptException("Unable to retrieve the contact by email.");
+            }
             QName contactType = this.nodeService.getType(nodeRef);
             String cTypeString = contactType.equals(OpenESDHModel.TYPE_CONTACT_PERSON) ? "PERSON" : "ORGANIZATION";
+
             JSONObject simpleObj = buildJSON(nodeRef);
             simpleObj.put("type", cTypeString);
             simpleObj.writeJSONString(res.getWriter());

@@ -10,7 +10,7 @@ define(["dojo/_base/declare",
 
             nodeRef: "",
 
-            caseId: "",
+            caseId: null,
 
             constructor: function (args) {
                 lang.mixin(this, args);
@@ -20,10 +20,82 @@ define(["dojo/_base/declare",
                 this.alfSubscribe(this.CaseMembersGet, lang.hitch(this, "_loadCaseMembers"));
                 this.alfSubscribe(this.CaseMembersGroupGet, lang.hitch(this, "_getCaseMembersGroup"));
                 this.alfSubscribe(this.CaseNavigateToUserProfilePage, lang.hitch(this, "_navigateToUserProfile"));
+                //Parties
+                this.alfSubscribe(this.AddContactsToPartyRoleTopic, lang.hitch(this, "_onCaseAddContactToRole"));
+                this.alfSubscribe(this.GetCaseParties, lang.hitch(this, "_getCaseParties"));
+                this.alfSubscribe(this.PartyChangeRoleTopic, lang.hitch(this, "_onCasePartyChangeRole"));
+                this.alfSubscribe(this.PartyRemoveRoleTopic, lang.hitch(this, "_onCaseRemovePartyRole"));
             },
+
+            _getCaseParties: function (payload) {
+                // Get members from webscript
+                this.serviceXhr({
+                    url: Alfresco.constants.PROXY_URI + "api/openesdh/case/"+this.caseId+"/parties",
+                    method: "GET",
+                    handleAs: "json",
+                    successCallback: function (response, config) {
+                        this.alfPublish(this.CasePartiesTopic, {parties: response});
+                    },
+                    failureCallback: function(response, config){
+                        alert("Help");
+                    },
+                    callbackScope: this
+                });
+            },
+
+            _onCasePartyChangeRole: function (payload) {
+                this.alfLog("debug", "Change", payload.partyId, "from role", payload.oldRole, "to role", payload.newRole);
+                this.serviceXhr({
+                    url: Alfresco.constants.PROXY_URI + "api/openesdh/case/"+this.caseId+"/party",
+                    method: "PUT",
+                    handleAs: "json",
+                    data: {
+                        fromRole: payload.oldRole,
+                        newRole: payload.newRole,
+                        partyId: payload.partyId
+                    },
+                    successCallback: payload.successCallback,
+                    failureCallback: payload.failureCallback
+                });
+            },
+
+            _onCaseAddContactToRole: function (payload) {
+                this.alfLog("debug", "Add", payload.contactNodeRefs, "to role", payload.role);
+
+                this.serviceXhr({
+                    url: Alfresco.constants.PROXY_URI + "api/openesdh/case/"+payload.caseId+"/party/"+payload.role,
+                    method: "POST",
+                    handleAs: "json",
+                    data: {
+                        contactNodeRefs: payload.contactNodeRefs
+                    },
+                    successCallback: payload.successCallback,
+                    failureCallback: payload.failureCallback
+                });
+            },
+
+            _onCaseRemovePartyRole: function (payload) {
+                this.alfLog("debug", "Remove", payload.partyId, "from role", payload.role);
+                this.serviceXhr({
+                    url: Alfresco.constants.PROXY_URI + "api/openesdh/case/"+this.caseId+"/party/"+payload.role,
+                    method: "DELETE",
+                    handleAs: "json",
+                    data: {
+                        //For some reason repo is not receiving this object even though it's sent.
+                        partyId: payload.partyId
+                    },
+                    query: {
+                        partyId: payload.partyId
+                    },
+                    successCallback: payload.successCallback,
+                    failureCallback: payload.failureCallback
+                });
+            },
+
 
             _loadCaseMembers: function () {
                 // Get members from webscript
+                console.log("openesdhcommon/services/CaseMemberService(46) Here");
                 this.serviceXhr({
                     url: Alfresco.constants.PROXY_URI + "api/openesdh/casemembers",
                     query: {
