@@ -117,7 +117,7 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
                                             else if (type.contains("doc:")) {
                                                 auditEntry.put("action", I18NUtil.getMessage("auditlog.label.document.added") + " " + properties.get(name));
                                                 System.out.println(("hej"));
-                                                auditEntry.put("type", I18NUtil.getMessage("auditlog.label.type.dokument"));
+                                                auditEntry.put("type", I18NUtil.getMessage("auditlog.label.type.document"));
                                                 result.add(auditEntry);
                                             }
                                             else if (type.contains("cm:folder")) {

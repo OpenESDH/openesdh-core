@@ -107,90 +107,90 @@ public class AuditSearchServiceImplTest {
     private Map<String, Boolean> validKeys;
 
 
-    @Before
-    public void setUp() throws Exception {
-
-        validKeys = new HashMap<String, Boolean>();
-        validKeys.put("/esdh/transaction/action=CREATE", true);
-        validKeys.put("/esdh/transaction/action=DELETE", true);
-        validKeys.put("/esdh/transaction/action=CHECK IN", false);
-
-        auditSearchService = new AuditSearchServiceImpl(validKeys);
-        auditSearchService.setAuditService(auditService);
-
-        owner = caseHelper.createDummyUser();
-
-        caseA = caseHelper.createSimpleCase(caseATitle,
-                CaseHelper.ADMIN_USER_NAME,
-                owner);
-
-        String DATE_FORMAT = "yyyyMMdd";
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        Date date = new Date();
-        String d = dateFormat.format(date);
-        Long caseAnodedbid = (Long) nodeService.getProperty(caseA, ContentModel.PROP_NODE_DBID);
-        final String adminGroup = authorityService.getName(AuthorityType.GROUP, "case_" + d + "-" + caseAnodedbid + "_CaseSimpleReader");
-
-
-        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Boolean>() {
-
-            public Boolean execute() throws Throwable {
-
-                authorityService.addAuthority(adminGroup, caseHelper.DEFAULT_USERNAME);
-
-                return true;
-            }
-        });
-
-        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ADMIN_USER_NAME);
-    }
-
-    @Test
-    public void testAuditLog() throws Exception {
-
-//        assertEquals("Get parent case of case documents folder is correct",
-//                behaviourOnCaseNodeRef, caseService.getParentCase(documentsFolder));
+//    @Before
+//    public void setUp() throws Exception {
 //
-//        assertNull("Get parent case of non-case node is null",
-//                caseService.getParentCase(caseService.getCasesRootNodeRef()));
+//        validKeys = new HashMap<String, Boolean>();
+//        validKeys.put("/esdh/transaction/action=CREATE", true);
+//        validKeys.put("/esdh/transaction/action=DELETE", true);
+//        validKeys.put("/esdh/transaction/action=CHECK IN", false);
 //
-//        assertEquals("Get parent case of case node is case node",
-//                behaviourOnCaseNodeRef, caseService.getParentCase(behaviourOnCaseNodeRef));
-    }
+//        auditSearchService = new AuditSearchServiceImpl(validKeys);
+//        auditSearchService.setAuditService(auditService);
+//
+//        owner = caseHelper.createDummyUser();
+//
+//        caseA = caseHelper.createSimpleCase(caseATitle,
+//                CaseHelper.ADMIN_USER_NAME,
+//                owner);
+//
+//        String DATE_FORMAT = "yyyyMMdd";
+//        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+//        Date date = new Date();
+//        String d = dateFormat.format(date);
+//        Long caseAnodedbid = (Long) nodeService.getProperty(caseA, ContentModel.PROP_NODE_DBID);
+//        final String adminGroup = authorityService.getName(AuthorityType.GROUP, "case_" + d + "-" + caseAnodedbid + "_CaseSimpleReader");
+//
+//
+//        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Boolean>() {
+//
+//            public Boolean execute() throws Throwable {
+//
+//                authorityService.addAuthority(adminGroup, caseHelper.DEFAULT_USERNAME);
+//
+//                return true;
+//            }
+//        });
+//
+//        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ADMIN_USER_NAME);
+//    }
+//
+//    @Test
+//    public void testAuditLog() throws Exception {
+//
+////        assertEquals("Get parent case of case documents folder is correct",
+////                behaviourOnCaseNodeRef, caseService.getParentCase(documentsFolder));
+////
+////        assertNull("Get parent case of non-case node is null",
+////                caseService.getParentCase(caseService.getCasesRootNodeRef()));
+////
+////        assertEquals("Get parent case of case node is case node",
+////                behaviourOnCaseNodeRef, caseService.getParentCase(behaviourOnCaseNodeRef));
+//    }
+//
+//    private void getCreatedDateFromAuditLog() {
+//
+//    }
+//
+//    private void getCreatedByFromAuditLog() {
+//
+//    }
+//
+//    private void getDeleteDateFromAuditLog(){
+//
+//    }
 
-    private void getCreatedDateFromAuditLog() {
-
-    }
-
-    private void getCreatedByFromAuditLog() {
-
-    }
-
-    private void getDeleteDateFromAuditLog(){
-
-    }
 
 
 
 
 
 
-
-
-    @After
-    public void tearDown() throws Exception {
-
-        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ADMIN_USER_NAME);
-
-        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Boolean>() {
-
-            public Boolean execute() throws Throwable {
-
-                caseHelper.deleteDummyUser();
-                nodeService.deleteNode(caseA);
-
-                return true;
-            }
-        });
-    }
+//
+//    @After
+//    public void tearDown() throws Exception {
+//
+//        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ADMIN_USER_NAME);
+//
+//        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Boolean>() {
+//
+//            public Boolean execute() throws Throwable {
+//
+//                caseHelper.deleteDummyUser();
+//                nodeService.deleteNode(caseA);
+//
+//                return true;
+//            }
+//        });
+//    }
 }

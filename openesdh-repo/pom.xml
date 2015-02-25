@@ -38,13 +38,13 @@
             <artifactId>alfresco-repository</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>dk.openesdh.aoi</groupId>
-            <artifactId>aoi-repo</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <type>amp</type>
-        </dependency>
-        <!-- Test dependencies -->
+        <!--<dependency>-->
+            <!--<groupId>dk.openesdh.aoi</groupId>-->
+            <!--<artifactId>aoi-repo</artifactId>-->
+            <!--<version>1.0-SNAPSHOT</version>-->
+            <!--<type>amp</type>-->
+        <!--</dependency>-->
+        <!--&lt;!&ndash; Test dependencies &ndash;&gt;-->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>

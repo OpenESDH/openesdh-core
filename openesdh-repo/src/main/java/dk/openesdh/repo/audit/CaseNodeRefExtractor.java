@@ -33,7 +33,7 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
 
   public Serializable extractData(Serializable value) throws Throwable {
     String result = null;
-      System.out.println("start to extract....");
+//      System.out.println("start to extract....");
 
     // TODO Ole,do we ever get an instance of a nodeRef?
     if (value instanceof NodeRef) {
@@ -45,7 +45,7 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
     }
     else if (value instanceof String) {
       String str = (String) value;
-      System.out.println( "EXTRACT DATA: STRING:" + str + "\n\n" );
+//      System.out.println( "EXTRACT DATA: STRING:" + str + "\n\n" );
       if (str.startsWith("("+ getClass().getCanonicalName() + ") GROUP_case_")) {
         String[] parts = str.split("_");
         if (parts.length < 3) {
