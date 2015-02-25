@@ -10,6 +10,7 @@ import org.json.simple.JSONArray;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -25,6 +26,17 @@ public class AuditSearchServiceImpl implements AuditSearchService {
 
     public AuditService auditService;
 
+    // create auditQueryCallback inside this method, putting it outside, will make it a singleton as the class is a service.
+    OpenESDHAuditQueryCallBack auditQueryCallback = new OpenESDHAuditQueryCallBack();
+
+
+    public AuditSearchServiceImpl(Map<String, Boolean> validKeys) {
+        auditQueryCallback = new OpenESDHAuditQueryCallBack(validKeys);
+    }
+
+    public AuditSearchServiceImpl() {
+        auditQueryCallback = new OpenESDHAuditQueryCallBack();
+    }
 
     @Override
     public JSONArray getAuditLogByCaseNodeRef(NodeRef nodeRef, int timespan) {
@@ -36,9 +48,12 @@ public class AuditSearchServiceImpl implements AuditSearchService {
         //auditQueryParameters.setFromTime((new Date(+1).getTime()));
         auditQueryParameters.addSearchKey(null, nodeRef.toString());
 
+
+
         // create auditQueryCallback inside this method, putting it outside, will make it a singleton as the class is a service.
         OpenESDHAuditQueryCallBack auditQueryCallback = new OpenESDHAuditQueryCallBack();
         auditService.auditQuery(auditQueryCallback, auditQueryParameters, OpenESDHModel.AUDIT_LOG_MAX);
+
 
         // test comment
 
