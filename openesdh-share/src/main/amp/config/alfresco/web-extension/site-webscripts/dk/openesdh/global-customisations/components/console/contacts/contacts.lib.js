@@ -48,7 +48,6 @@ function generateContactTableView(contactType) {
         config: {
             itemType: contactType,
             columnsReadyTopic: "CONTACT_LIST_SHOW_ALL",
-
             additionalCssClasses: "bordered",
 
             widgets: [

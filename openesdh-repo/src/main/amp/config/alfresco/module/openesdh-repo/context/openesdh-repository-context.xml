@@ -46,12 +46,6 @@
         <property name="xSearchService" ref="CaseDocumentsSearchService"/>
     </bean>
 
-    <!--<bean id="webscript.dk.openesdh.casedocumentsearch.get"-->
-          <!--class="dk.openesdh.repo.webscripts.xsearch.CaseDocumentSearch"-->
-          <!--parent="xsearchWebscript">-->
-        <!--<property name="xSearchService" ref="CaseDocumentSearchService"/>-->
-    <!--</bean>-->
-
     <bean id="webscript.dk.openesdh.contactsearch.get"
           class="dk.openesdh.repo.webscripts.xsearch.ContactSearch"
           parent="webscript">
@@ -106,11 +100,12 @@
           parent="caseMemberWebscript">
     </bean>
 
-    <bean id="webscript.dk.openesdh.case.memberslist.get" class="dk.openesdh.repo.webscripts.cases.MembersList" parent="webscript">
-        <property name="authorityService" ref="AuthorityService" />
-        <property name="caseService" ref="CaseService" />
-        <property name="personService" ref="PersonService" />
-        <property name="nodeService" ref="nodeService" />
+    <bean id="webscript.dk.openesdh.case.memberslist.get" class="dk.openesdh.repo.webscripts.cases.MembersList"
+          parent="webscript">
+        <property name="authorityService" ref="AuthorityService"/>
+        <property name="caseService" ref="CaseService"/>
+        <property name="personService" ref="PersonService"/>
+        <property name="nodeService" ref="nodeService"/>
     </bean>
 
 
@@ -133,7 +128,7 @@
     </bean>
 
     <bean id="extendPermissionModel" parent="permissionModelBootstrap">
-        <property name="model" value="alfresco/module/openesdh-repo/models/permission-model-extension.xml" />
+        <property name="model" value="alfresco/module/openesdh-repo/models/permission-model-extension.xml"/>
     </bean>
 
     <bean id="webscript.dk.openesdh.journalize.put"
@@ -143,38 +138,43 @@
     </bean>
 
     <bean id="webscript.dk.openesdh.CaseIDExtractor" class="dk.openesdh.repo.audit.CaseNodeRefExtractor">
-        <property name="registry" ref="auditModel.extractorRegistry" />
-        <property name="nodeService" ref="NodeService" />
-        <property name="searchService" ref="searchService" />
-    </bean>
-
-
-    <bean id="webscript.dk.openesdh.documents.containerNodes.get" class="dk.openesdh.repo.webscripts.documents.DocumentCaseContainers" parent="webscript">
-        <property name="caseService" ref="CaseService" />
-        <property name="documentService" ref="DocumentService" />
-    </bean>
-
-    <bean id="webscript.dk.openesdh.documents.isCaseDoc.get" class="dk.openesdh.repo.webscripts.documents.IsCaseDocument" parent="webscript">
-        <property name="caseService" ref="CaseService" />
-        <property name="documentService" ref="DocumentService" />
-    </bean>
-
-    <bean id="webscript.dk.openesdh.case.caseNoderefById.get" class="dk.openesdh.repo.webscripts.cases.CaseNodeRefById" parent="webscript">
-        <property name="caseService" ref="CaseService" />
-        <property name="nodeService" ref="NodeService" />
-    </bean>
-
-    <bean id="webscript.dk.openesdh.casedocument.post" class="dk.openesdh.repo.webscripts.cases.CaseDocument" parent="webscript">
-        <property name="caseService" ref="CaseService" />
-        <property name="documentService" ref="DocumentService" />
-    </bean>
-
-    <bean id="webscript.dk.openesdh.caseemail.post" class="dk.openesdh.repo.webscripts.documents.EmailDocument" parent="webscript">
-        <property name="caseService" ref="CaseService" />
-        <property name="documentService" ref="DocumentService" />
-        <property name="personService" ref="PersonService" />
+        <property name="registry" ref="auditModel.extractorRegistry"/>
         <property name="nodeService" ref="NodeService"/>
-        <property name="contentService" ref="ContentService" />
+        <property name="searchService" ref="searchService"/>
+    </bean>
+
+
+    <bean id="webscript.dk.openesdh.documents.containerNodes.get"
+          class="dk.openesdh.repo.webscripts.documents.DocumentCaseContainers" parent="webscript">
+        <property name="caseService" ref="CaseService"/>
+        <property name="documentService" ref="DocumentService"/>
+    </bean>
+
+    <bean id="webscript.dk.openesdh.documents.isCaseDoc.get"
+          class="dk.openesdh.repo.webscripts.documents.IsCaseDocument" parent="webscript">
+        <property name="caseService" ref="CaseService"/>
+        <property name="documentService" ref="DocumentService"/>
+    </bean>
+
+    <bean id="webscript.dk.openesdh.case.caseNoderefById.get" class="dk.openesdh.repo.webscripts.cases.CaseNodeRefById"
+          parent="webscript">
+        <property name="caseService" ref="CaseService"/>
+        <property name="nodeService" ref="NodeService"/>
+    </bean>
+
+    <bean id="webscript.dk.openesdh.casedocument.post" class="dk.openesdh.repo.webscripts.cases.CaseDocument"
+          parent="webscript">
+        <property name="caseService" ref="CaseService"/>
+        <property name="documentService" ref="DocumentService"/>
+    </bean>
+
+    <bean id="webscript.dk.openesdh.caseemail.post" class="dk.openesdh.repo.webscripts.documents.EmailDocument"
+          parent="webscript">
+        <property name="caseService" ref="CaseService"/>
+        <property name="documentService" ref="DocumentService"/>
+        <property name="personService" ref="PersonService"/>
+        <property name="nodeService" ref="NodeService"/>
+        <property name="contentService" ref="ContentService"/>
     </bean>
 
     <bean id="openesdhNotesWebscript"
@@ -195,5 +195,48 @@
     </bean>
     <bean id="webscript.dk.openesdh.notes.note.delete"
           parent="openesdhNotesWebscript">
+    </bean>
+
+    <!--Contacts-->
+    <bean id="contactAbstractWebscript" class="dk.openesdh.repo.webscripts.contacts.Contact"
+          parent="webscript">
+        <property name="nodeService" ref="nodeService"/>
+        <property name="contactService" ref="ContactService"/>
+    </bean>
+    <bean id="webscript.dk.openesdh.contact.contact.post" parent="contactAbstractWebscript"/>
+    <bean id="webscript.dk.openesdh.contact.contact.get" parent="contactAbstractWebscript"/>
+
+    <!--Parties-->
+    <bean id="webscript.dk.openesdh.case.party.get" parent="webscript"
+          class="dk.openesdh.repo.webscripts.cases.CasePartyRole">
+        <property name="partyService" ref="PartyService"/>
+        <property name="contactService" ref="ContactService"/>
+        <property name="nodeService" ref="NodeService"/>
+    </bean>
+    <bean id="webscript.dk.openesdh.case.party.post" parent="webscript"
+          class="dk.openesdh.repo.webscripts.cases.CasePartyRole">
+        <property name="partyService" ref="PartyService"/>
+        <property name="contactService" ref="ContactService"/>
+        <property name="nodeService" ref="NodeService"/>
+    </bean>
+    <bean id="webscript.dk.openesdh.case.party.put" parent="webscript"
+          class="dk.openesdh.repo.webscripts.cases.CasePartyRole">
+        <property name="partyService" ref="PartyService"/>
+        <property name="contactService" ref="ContactService"/>
+        <property name="nodeService" ref="NodeService"/>
+    </bean>
+    <bean id="webscript.dk.openesdh.case.party.delete" parent="webscript"
+          class="dk.openesdh.repo.webscripts.cases.CasePartyRole">
+        <property name="partyService" ref="PartyService"/>
+        <property name="contactService" ref="ContactService"/>
+        <property name="nodeService" ref="NodeService"/>
+    </bean>
+
+    <!--Rootscope object for contact searching-->
+    <bean id="contactUtils" parent="baseJavaScriptExtension" class="dk.openesdh.repo.rootScopeExt.Contact">
+        <property name="extensionName">
+            <value>contactUtil</value>
+        </property>
+        <property name="contactService" ref="ContactService"/>
     </bean>
 </beans>

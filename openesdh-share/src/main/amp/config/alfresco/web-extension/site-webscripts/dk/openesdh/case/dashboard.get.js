@@ -16,7 +16,10 @@ model.jsonModel = {
                 widgetMarginRight: 10,
                 widgetWidth: 50,
                 widgets: [
-                    { name: "openesdh/common/widgets/dashlets/CaseInfoDashlet" },
+                    {
+                        id:"CASE_INFO_DASHLET",
+                        name: "openesdh/common/widgets/dashlets/CaseInfoDashlet"
+                    },
                     { id: "CASE_MEMBERS_DASHLET",
                       name: "alfresco/layout/HorizontalWidgets",
                       align: "right",
@@ -37,7 +40,6 @@ model.jsonModel = {
                             nodeRef: caseNodeRef
                         }
                     },
-
                     {
                         name: "openesdh/common/widgets/dashlets/NotesDashlet",
                         config: {

@@ -1,0 +1,9 @@
+<webscript>
+    <shortname>Get permitted roles</shortname>
+    <description>Returns the list of permitted roles that can be created for a case</description>
+    <url>/api/openesdh/case/party/permittedRoles</url>
+    <format default="json"></format>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+    <family>Case Tools</family>
+</webscript>

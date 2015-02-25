@@ -40,6 +40,17 @@ navMenu.config.widgets.push({
     }
 });
 
+navMenu.config.widgets.push({
+    id: "HEADER_CASE_PARTIES",
+    name: "alfresco/menus/AlfMenuBarItem",
+    config: {
+        label: "header.case.parties.title",
+        title: "header.case.parties.altText",
+        targetUrl: "oe/case/"+caseId+"/parties",
+        selected: isOnCasePage("parties")
+    }
+});
+
 
 // Create the basic site configuration menu...
 var caseConfig = {

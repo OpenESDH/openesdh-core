@@ -1,0 +1,6 @@
+<webscript>
+    <shortname>Page for editing case parties</shortname>
+    <description>Page for editing Showing the parties of the case.</description>
+    <family>OpenESDH case</family>
+    <url>/parties</url>
+</webscript>
