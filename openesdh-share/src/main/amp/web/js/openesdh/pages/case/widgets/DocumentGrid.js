@@ -24,8 +24,9 @@ define(["dojo/_base/declare",
                 //        "label" : "grid.actions.preview_doc",
                 //        "key" : "13"},
 
+                       // TODO: use widgets!
                        {"href" : "edit-metadata?nodeRef={nodeRef}",
-                       "id" : "doc-edit",
+                       "id" : "case-edit",
                        "label" : "grid.actions.edit_doc",
                        "key" : "69",
                        "shift": true}
@@ -38,16 +39,16 @@ define(["dojo/_base/declare",
 
             getColumns: function () {
                 return [
-                    { field: "doc:type", label: this.message("doc_type") },
-                    { field: "doc:category", label: this.message("doc_category") },
-                    { field: "doc:state", label: this.message("doc_state") },
+                    { field: "doc:type", label: this.message("Type") }, // TODO: i18n!
+                    { field: "doc:category", label: this.message("Kategori") }, // TODO: i18n!
+                    { field: "doc:state", label: this.message("State") }, // TODO: i18n!
                     { field: "cm:title", label: this.message("cm_title"),
                         renderCell: lang.hitch(this, '_renderTitleCell')
                     },
-                    { field: "cm:versionLabel", label: this.message("cm_versionLabel"),
+                    { field: "cm:versionLabel", label: this.message("Version"), // TODO: i18n!
                         formatter: lang.hitch(this, "_formatVersion")
                     },
-                    { field: "doc:owner", label: this.message("doc_owner") },
+                    { field: "doc:owner", label: this.message("Ejer") }, // TODO: i18n!
                     { field: "cm:created", label: this.message("cm_created"),
                         formatter: lang.hitch(this, "_formatDate")
                     },

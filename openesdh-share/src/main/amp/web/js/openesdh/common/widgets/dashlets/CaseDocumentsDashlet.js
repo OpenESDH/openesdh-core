@@ -26,12 +26,15 @@
  */
 define(["dojo/_base/declare",
         "alfresco/core/Core",
-        "alfresco/dashlets/Dashlet",
-        "dojo/_base/lang"
+        "openesdh/common/widgets/dashlets/Dashlet",
+        "dojo/_base/lang",
+        "openesdh/pages/_TopicsMixin"
     ],
-    function (declare, AlfCore, Dashlet, lang) {
+    function (declare, AlfCore, Dashlet, lang, _TopicsMixin) {
 
-        return declare([Dashlet], {
+        return declare([Dashlet, _TopicsMixin], {
+
+            cssRequirements: [{cssFile: "./css/CaseDocumentsDashlet.css"}],
 
             /**
              * The i18n scope to use for this widget.
@@ -49,9 +52,31 @@ define(["dojo/_base/declare",
              */
             i18nRequirements: [{i18nFile: "./i18n/CaseDocumentsDashlet.properties"}],
 
+            widgetsForTitleBarActions: [
+                {
+                    name: "alfresco/buttons/AlfButton",
+                    config: {
+                        // TODO: Add icon class
+                        iconClass: "add-icon-16",
+                        // TODO: i18n
+                        label: "Tilføj Dokument",
+                        publishTopic: "OE_SHOW_UPLOADER"
+                    }
+                }
+            ],
+
             widgetsForBody: [
                 {
-                    name: "openesdh/pages/case/widgets/DocumentGrid"
+                    name: "openesdh/pages/case/widgets/DocumentGrid",
+                    config: {
+                        sort: [
+                            { attribute: 'cm:modified', descending: true }
+                        ]
+                    }
+                },
+                // This widget is required to handle ALF_UPLOAD_REQUEST topics
+                {
+                    name: "alfresco/upload/AlfUpload"
                 }
             ],
 
@@ -59,6 +84,20 @@ define(["dojo/_base/declare",
                 lang.mixin(this, args);
                 // Pass in the nodeRef to the widget
                 lang.setObject("config.nodeRef", this.nodeRef, this.widgetsForBody[0]);
+            },
+
+            postCreate: function () {
+                this.inherited(arguments);
+                this.alfSubscribe(this.ReloadDocumentsTopic, lang.hitch(this, "onReloadDocuments"));
+            },
+
+            onReloadDocuments: function (payload) {
+                this.alfPublish("GRID_SORT", {
+                    sort: [
+                        { attribute: 'cm:modified', descending: true }
+                    ]
+                });
+                this.alfPublish("GRID_REFRESH");
             }
         });
     });

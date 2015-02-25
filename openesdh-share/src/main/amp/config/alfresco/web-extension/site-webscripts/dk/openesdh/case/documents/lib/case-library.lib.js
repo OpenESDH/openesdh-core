@@ -520,7 +520,6 @@ getRepositoryUrl: function getRepositoryUrl() {
 function getDocumentLibraryServices() {
     return [
         "alfresco/services/ContentService",
-        "openesdh/common/services/CaseDocumentService",
         "alfresco/dialogs/AlfDialogService",
         "openesdh/common/services/CaseActionService",
         "alfresco/services/RatingsService",

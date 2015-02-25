@@ -1,0 +1,9 @@
+.alfresco-dashlets-Dashlet.dashlet .titleBarActions {
+    opacity: inherit;
+}
+
+.add-icon-16
+{
+    background: transparent url(../../../../../../components/images/add-icon-16.png) no-repeat center center;
+    padding: 8px;
+}
