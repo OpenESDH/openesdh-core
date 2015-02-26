@@ -1,178 +1,95 @@
 define(["dojo/_base/declare",
+        "alfresco/core/Core",
+        "alfresco/core/CoreXhr",
+        "dojo/_base/array",
         "dojo/_base/lang",
-        "alfresco/core/PathUtils",
-        "alfresco/core/NodeUtils",
-        "service/constants/Default",
-        "alfresco/services/DocumentService"],
-    function (declare, lang, PathUtils, NodeUtils, AlfConstants, DocService) {
+        "openesdh/pages/_TopicsMixin",
+        "alfresco/dialogs/AlfFormDialog"],
+    function (declare, AlfCore, CoreXhr, array, lang, _TopicsMixin, AlfFormDialog) {
 
-        return declare([DocService], {
-            /**
-             * We override the service method to hook it to our share webscript path instead of the ootb defaults
-             * The reason for this is that we customise the returned webscript to include additional objects
-             * (details/main document) which in turn are used to populate other widgets in the view.
-             * @param payload
-             */
-            onRetrieveMainDocumentRequest: function openesdh_services_DocumentService__onRetrieveMainDocumentRequest(payload) {
-                var targetNode = "alfresco://company/home",
-                    targetNodeUri = "alfresco/company/home";
-                if (payload.nodeRef != null && payload.nodeRef !== "") {
-                    var nodeRef = NodeUtils.processNodeRef(payload.nodeRef);
-                    targetNode = payload.nodeRef;
-                    targetNodeUri = nodeRef.uri;
-                }
+        return declare([AlfCore, CoreXhr, _TopicsMixin], {
 
-                // Construct the URI for the request...
-                var uriPart = "{type}/node/" + targetNodeUri;
-                if (payload.filter != null && payload.filter.path != null) {
-                    // If a path has been provided in the filter then it is necessary to perform some special
-                    // encoding. We need to ensure that the data is URI encoded, but we want to preserve the
-                    // forward slashes. We also need to "double encode" all % characters because FireFox has
-                    // a nasty habit of decoding them *before* they've actually been posted back... this
-                    // guarantees that the user will be able to bookmark valid URLs...
-                    var encodedPath = encodeURIComponent(payload.filter.path).replace(/%2F/g, "/").replace(/%25/g, "%2525");
-                    uriPart += this.combinePaths("/", encodedPath);
-                }
+            documentsNodeRef: null,
 
-                // Unbelievably it is necessary to remove any trailing forward slashes otherwise the location
-                // data set for each item will duplicate first element in the path !!!
-                if (uriPart.lastIndexOf("/") === uriPart.length - 1) {
-                    uriPart = uriPart.substring(0, uriPart.length - 1);
-                }
+            constructor: function (args) {
+                lang.mixin(this, args);
 
-                // Build the URI stem
-                var params = lang.replace(uriPart, {
-                    type: encodeURIComponent("main"),
-                    site: encodeURIComponent(payload.site),
-                    container: encodeURIComponent(payload.container)
-                });
-/*
-                if (payload.filter) {
-                    if (payload.filter.filter != null) {
-                        params += "?filter=" + payload.filter.filter;
-                    }
-                    else if (payload.filter.tag != null) {
-                        params += "?filter=tag&filterData=" + payload.filter.tag;
-                    }
-                    else if (payload.filter.category  != null) {
-                        params += "?filter=category&filterData=" + payload.filter.category;
-                    }
-                    else {
-                        params += "?filter=path";
-                    }
-                }
-*/
-                params +="?filter=main";
-
-                if (payload.pageSize != null && payload.page != null) {
-                    params += "&size=" + payload.pageSize + "&pos=" + payload.page;
-                }
-
-                // Sort parameters
-                params += "&sortAsc=" + payload.sortAscending + "&sortField=" + encodeURIComponent(payload.sortField);
-                if (payload.site == null) {
-                    if (payload.libraryRoot != null) {
-                        params += "&libraryRoot=" + encodeURIComponent(payload.libraryRoot);
-                    }
-                    else {
-                        // Repository mode (don't resolve Site-based folders)
-                        params += "&libraryRoot=" + encodeURIComponent(targetNode);
-                    }
-                }
-
-                // View mode and No-cache
-                params += "&view=browse&noCache=" + new Date().getTime();
-
-                var alfTopic = (payload.alfResponseTopic != null) ? payload.alfResponseTopic : "ALF_RETRIEVE_DOCUMENTS_REQUEST";
-                var url = AlfConstants.URL_SERVICECONTEXT + "components/caselibrary/data/doclist/" + params;
-                var config = {
-                    alfTopic: alfTopic,
-                    url: url,
-                    method: "GET",
-                    callbackScope: this
-                };
-                this.serviceXhr(config);
+                this.alfSubscribe("OE_SHOW_UPLOADER", lang.hitch(this, this._showUploader));
+                this.alfSubscribe("OE_CASE_DOCUMENT_SERVICE_UPLOAD_REQUEST_RECEIVED", lang.hitch(this, this._onFileUploadRequest));
             },
 
-            onRetrieveDocumentsRequest: function alfresco_services_DocumentService__onRetrieveDocumentsRequest(payload) {
-
-                var targetNode = "alfresco://company/home",
-                    targetNodeUri = "alfresco/company/home";
-                if (payload.nodeRef != null && payload.nodeRef !== "") {
-                    var nodeRef = NodeUtils.processNodeRef(payload.nodeRef);
-                    targetNode = payload.nodeRef;
-                    targetNodeUri = nodeRef.uri;
-                }
-
-                // Construct the URI for the request...
-                var uriPart = "{type}/node/" + targetNodeUri;
-                if (payload.filter != null && payload.filter.path != null) {
-                    // If a path has been provided in the filter then it is necessary to perform some special
-                    // encoding. We need to ensure that the data is URI encoded, but we want to preserve the
-                    // forward slashes. We also need to "double encode" all % characters because FireFox has
-                    // a nasty habit of decoding them *before* they've actually been posted back... this
-                    // guarantees that the user will be able to bookmark valid URLs...
-                    var encodedPath = encodeURIComponent(payload.filter.path).replace(/%2F/g, "/").replace(/%25/g, "%2525");
-                    uriPart += this.combinePaths("/", encodedPath);
-                }
-
-                // Unbelievably it is necessary to remove any trailing forward slashes otherwise the location
-                // data set for each item will duplicate first element in the path !!!
-                if (uriPart.lastIndexOf("/") === uriPart.length - 1) {
-                    uriPart = uriPart.substring(0, uriPart.length - 1);
-                }
-
-                // Build the URI stem
-                var params = lang.replace(uriPart, {
-                    type: encodeURIComponent(payload.type),
-                    site: encodeURIComponent(payload.site),
-                    container: encodeURIComponent(payload.container)
+            /**
+             * This function will open a [AlfFormDialog]{@link module:alfresco/forms/AlfFormDialog} containing a
+             * [file select form control]{@link module:alfresco/forms/controls/FileSelect} so that the user can
+             * select one or more files to upload. When the dialog is confirmed the
+             * [_onFileUploadRequest]{@link module:alfresco/services/ContentService#_onFileUploadRequest}
+             * function will be called to destroy the dialog and pass the upload request on.
+             *
+             * @instance
+             * @param {object} payload
+             */
+            _showUploader: function alfresco_services_ContentService__showUploader(payload) {
+                this.uploadDialog = new AlfFormDialog({
+                    dialogTitle: "Select files to upload",
+                    dialogConfirmationButtonTitle: "Upload",
+                    dialogCancellationButtonTitle: "Cancel",
+                    formSubmissionTopic: "OE_CASE_DOCUMENT_SERVICE_UPLOAD_REQUEST_RECEIVED",
+                    formSubmissionPayload: {
+                        targetData: {
+                            destination: this.documentsNodeRef,
+                            siteId: null,
+                            containerId: null,
+                            uploadDirectory: null,
+                            updateNodeRef: null,
+                            description: "",
+                            overwrite: false,
+                            thumbnails: "doclib",
+                            username: null
+                        }
+                    },
+                    widgets: [
+                        {
+                            name: "alfresco/forms/controls/FileSelect",
+                            config: {
+                                label: "Select files to upload...",
+                                name: "files"
+                            }
+                        }
+                    ]
                 });
+                this.uploadDialog.show();
+            },
 
-                if (payload.filter) {
-                    if (payload.filter.filter != null) {
-                        params += "?filter=" + payload.filter.filter;
-                    }
-                    else if (payload.filter.tag != null) {
-                        params += "?filter=tag&filterData=" + payload.filter.tag;
-                    }
-                    else if (payload.filter.category != null) {
-                        params += "?filter=category&filterData=" + payload.filter.category;
-                    }
-                    else {
-                        params += "?filter=path";
-                    }
+            /**
+             * This function will be called whenever the [AlfFormDialog]{@link module:alfresco/forms/AlfFormDialog} created
+             * by the [showUploader function]{@link module:alfresco/services/ContentService#showUploader} is confirmed to
+             * trigger a dialog. This will destroy the dialog and pass the supplied payload onto the [AlfUpload]{@link module:alfresco/upload/AlfUpload}
+             * module to actually perform the upload. It is necessary to destroy the dialog to ensure that all the subscriptions
+             * are removed to prevent subsequent upload requests from processing old data.
+             *
+             * @instance
+             * @param {object} payload The file upload data payload to pass on
+             */
+            _onFileUploadRequest: function alfresco_services_ContentService__onFileUploadRequest(payload) {
+                if (this.uploadDialog != null) {
+                    this.uploadDialog.destroyRecursive();
                 }
+                var responseTopic = this.generateUuid();
+                this._uploadSubHandle = this.alfSubscribe(responseTopic, lang.hitch(this, "_onFileUploadComplete"), true);
+                payload.alfResponseTopic = responseTopic;
+                this.alfPublish("ALF_UPLOAD_REQUEST", payload);
+            },
 
-                if (payload.pageSize != null && payload.page != null) {
-                    params += "&size=" + payload.pageSize + "&pos=" + payload.page;
-                }
-
-                // Sort parameters
-                params += "&sortAsc=" + payload.sortAscending + "&sortField=" + encodeURIComponent(payload.sortField);
-                if (payload.site == null) {
-                    if (payload.libraryRoot != null) {
-                        params += "&libraryRoot=" + encodeURIComponent(payload.libraryRoot);
-                    }
-                    else {
-                        // Repository mode (don't resolve Site-based folders)
-                        params += "&libraryRoot=" + encodeURIComponent(targetNode);
-                    }
-                }
-
-                // View mode and No-cache
-                params += "&view=browse&noCache=" + new Date().getTime();
-
-                var alfTopic = (payload.alfResponseTopic != null) ? payload.alfResponseTopic : "ALF_RETRIEVE_DOCUMENTS_REQUEST";
-                var url = AlfConstants.URL_SERVICECONTEXT + "components/caselibrary/data/doclist/" + params;
-                var config = {
-                    alfTopic: alfTopic,
-                    url: url,
-                    method: "GET",
-                    callbackScope: this
-                };
-                this.serviceXhr(config);
+            /**
+             * This function is called once the document upload is complete. It publishes a request to reload the
+             * current document list data.
+             *
+             * @instance
+             */
+            _onFileUploadComplete: function alfresco_services_ContentService__onFileUploadComplete() {
+                this.alfLog("log", "Upload complete");
+                this.alfUnsubscribe(this._uploadSubHandle);
+                this.alfPublish(this.ReloadDocumentsTopic, {});
             }
-
         });
     });

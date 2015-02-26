@@ -62,6 +62,12 @@ define(["dojo/_base/declare",
             query: null,
 
             /**
+             * How to initially sort the grid.
+             * See dgrid docs: https://github.com/SitePen/dgrid/wiki/List
+             */
+            sort: null,
+
+            /**
              * An array containing the actions which should be available on all
              * result rows. If null or empty, there will be no actions column
              *
@@ -98,6 +104,8 @@ define(["dojo/_base/declare",
             postCreate: function () {
                 this.inherited(arguments);
                 this.alfSubscribe("GRID_SET_TARGET_URI", lang.hitch(this, "onSetTargetUri"));
+                this.alfSubscribe("GRID_REFRESH", lang.hitch(this, "onRefresh"));
+                this.alfSubscribe("GRID_SORT", lang.hitch(this, "onSort"));
 
                 // Add actions column if there are actions
                 var columns = this.getColumns();
@@ -105,6 +113,23 @@ define(["dojo/_base/declare",
                     columns.push(this.getActionsColumn());
                 }
                 this.createGrid(columns);
+            },
+
+            /**
+             * Used to programmatically sort the grid.
+             *
+             * Example payload: { sort: [
+             *     { attribute: 'cm:created', descending: true }
+             * ]
+             *
+             * @param payload
+             */
+            onSort: function (payload) {
+                this.grid.set("sort", payload.sort);
+            },
+
+            onRefresh: function () {
+                this.grid.refresh();
             },
 
             /**
@@ -199,6 +224,7 @@ define(["dojo/_base/declare",
                 this.grid = new CustomGrid({
                     store: this.createStore(),
                     query: this.query,
+                    sort: this.sort,
                     columns: columns,
                     noDataMessage: this.message("grid.no_data_message"),
                     loadingMessage: this.message("grid.loading_message"),

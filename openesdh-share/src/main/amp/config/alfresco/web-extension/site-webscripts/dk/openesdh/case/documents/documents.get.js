@@ -7,7 +7,7 @@
  * @param nodeRef
  * @returns {*}
  */
-    function getCaseDocumentNodeRef(nodeRef) {
+function getCaseDocumentNodeRef(nodeRef) {
 
     var caseDocNode = nodeRef.replace("://", "/");
     var connector = remote.connect("alfresco");
@@ -30,6 +30,15 @@ if (tree != null) {
     tree.config.rootLabel = "my-files.root.label";
 }
 
+// We need to add our CaseDocumentService and pass along the nodeRef of the
+// case's documents folder
+services.push({
+    name: "openesdh/common/services/CaseDocumentService",
+    config: {
+        documentsNodeRef: documentNode
+    }
+});
+
 model.jsonModel = {
     services: services,
     widgets: [
@@ -38,15 +47,15 @@ model.jsonModel = {
             name: "alfresco/layout/VerticalWidgets",
             config:
             {
-                widgets: widgets
-                //widgets: [
-                //    {
-                //        name: "openesdh/common/widgets/dashlets/CaseDocumentsDashlet",
-                //        config: {
-                //            nodeRef: caseNodeRef
-                //        }
-                //    }
-                //]
+                //widgets: widgets
+                widgets: [
+                    {
+                        name: "openesdh/common/widgets/dashlets/CaseDocumentsDashlet",
+                        config: {
+                            nodeRef: caseNodeRef
+                        }
+                    }
+                ]
             }
         }
     ]

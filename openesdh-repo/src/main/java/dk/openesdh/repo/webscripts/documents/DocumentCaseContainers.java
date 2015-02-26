@@ -33,15 +33,14 @@ public class DocumentCaseContainers extends DeclarativeWebScript {
         String storeId = templateArgs.get("store_id");
         String id = templateArgs.get("id");
         NodeRef documentNode = new NodeRef(storeType, storeId, id);
-        String caseId = templateArgs.get("caseId");
 
         Map<String, Object> model = new HashMap<String, Object>();
         try{
             NodeRef caseNodeRef = caseService.getParentCase(documentNode);
             NodeRef caseDocumentNodeRef  = caseService.getDocumentsFolder(caseNodeRef);
 
-            model.put("caseNodeRef", caseNodeRef);
-            model.put("caseDocumentNodeRef", caseDocumentNodeRef);
+            model.put("caseNodeRef", caseNodeRef.toString());
+            model.put("caseDocumentNodeRef", caseDocumentNodeRef.toString());
         }
         catch (InvalidNodeRefException inre) {
             logger.error("Unable to get case document containers due to the following error: "+ inre.getMessage());

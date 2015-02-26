@@ -55,6 +55,7 @@ public class CaseInfo extends AbstractWebScript {
         JSONObject json = nodeInfoService.buildJSON(nodeInfo, this);
         String user = AuthenticationUtil.getFullyAuthenticatedUser();
 
+        res.setContentEncoding("UTF-8");
         try {
             json.put("canJournalize", caseService.canJournalize(user, caseNodeRef));
             json.put("canUnJournalize", caseService.canUnJournalize(user, caseNodeRef));

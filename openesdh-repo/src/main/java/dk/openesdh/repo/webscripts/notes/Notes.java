@@ -65,6 +65,7 @@ public class Notes extends AbstractRESTWebscript {
             Collections.reverse(nodeRefs);
         }
 
+        res.setContentEncoding("UTF-8");
         try {
             JSONArray json = buildJSON(nodeRefs);
             json.write(res.getWriter());
@@ -81,6 +82,7 @@ public class Notes extends AbstractRESTWebscript {
         String author = AuthenticationUtil.getFullyAuthenticatedUser();
 
         NodeRef noteNodeRef = noteService.createNote(nodeRef, content, author);
+        res.setContentEncoding("UTF-8");
         try {
             JSONObject json = buildJSON(noteNodeRef);
             json.write(res.getWriter());
@@ -102,6 +104,7 @@ public class Notes extends AbstractRESTWebscript {
 
         noteService.updateNote(nodeRef, content, author);
 
+        res.setContentEncoding("UTF-8");
         try {
             JSONObject json = buildJSON(nodeRef);
             json.write(res.getWriter());

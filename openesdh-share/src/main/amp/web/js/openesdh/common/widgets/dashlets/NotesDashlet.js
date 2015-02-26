@@ -61,7 +61,6 @@ define(["dojo/_base/declare", "alfresco/core/Core", "alfresco/dashlets/Dashlet",
                                     {
                                         name: "alfresco/forms/controls/DojoTextarea",
                                         config: {
-                                            label: "Content",
                                             name: "content"
                                         }
                                     }
