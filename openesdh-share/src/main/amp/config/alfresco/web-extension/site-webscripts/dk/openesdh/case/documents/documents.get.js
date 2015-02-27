@@ -1,4 +1,3 @@
-<import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/case/documents/lib/case-library.lib.js">
 <import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/utils/case.js">
 
 /**
@@ -21,23 +20,21 @@ var caseId = url.templateArgs.caseId;
 var caseNodeRef = getCaseNodeRefFromId(caseId);
 
 var documentNode = getCaseDocumentNodeRef(caseNodeRef);
-var services = getDocumentLibraryServices(null, null, documentNode);
-var widgets = [getDocumentLibraryModel(null, null, documentNode)];
-
-// Change the root label of the tree to be "My Files" rather than "Documents"
-var tree = widgetUtils.findObject(widgets, "id", "DOCLIB_TREE");
-if (tree != null) {
-    tree.config.rootLabel = "my-files.root.label";
-}
-
-// We need to add our CaseDocumentService and pass along the nodeRef of the
-// case's documents folder
-services.push({
-    name: "openesdh/common/services/CaseDocumentService",
-    config: {
-        documentsNodeRef: documentNode
+var services = [
+    "alfresco/services/DocumentService",
+    "alfresco/services/LightboxService",
+    "alfresco/services/ContentService",
+    "alfresco/dialogs/AlfDialogService",
+    "openesdh/common/services/CaseActionService",
+    "alfresco/services/RatingsService",
+    "alfresco/services/QuickShareService",
+    {
+        name: "openesdh/common/services/CaseDocumentService",
+        config: {
+            documentsNodeRef: documentNode
+        }
     }
-});
+];
 
 model.jsonModel = {
     services: services,

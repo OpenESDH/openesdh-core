@@ -4,8 +4,10 @@ define(["dojo/_base/declare",
         "dojo/_base/array",
         "dojo/_base/lang",
         "openesdh/pages/_TopicsMixin",
-        "alfresco/dialogs/AlfFormDialog"],
-    function (declare, AlfCore, CoreXhr, array, lang, _TopicsMixin, AlfFormDialog) {
+        "alfresco/dialogs/AlfFormDialog",
+        "dojo/window"
+    ],
+    function (declare, AlfCore, CoreXhr, array, lang, _TopicsMixin, AlfFormDialog, win) {
 
         return declare([AlfCore, CoreXhr, _TopicsMixin], {
 
@@ -16,6 +18,49 @@ define(["dojo/_base/declare",
 
                 this.alfSubscribe("OE_SHOW_UPLOADER", lang.hitch(this, this._showUploader));
                 this.alfSubscribe("OE_CASE_DOCUMENT_SERVICE_UPLOAD_REQUEST_RECEIVED", lang.hitch(this, this._onFileUploadRequest));
+                this.alfSubscribe("OE_PREVIEW_DOC", lang.hitch(this, this.onPreviewDoc));
+            },
+
+            onPreviewDoc: function (payload) {
+                // Because the content of the previewer will load asynchronously it's important that
+                // we set some dimensions for the dialog body, otherwise it will appear off-center
+                var vs = win.getBox();
+                this.alfPublish("ALF_CREATE_DIALOG_REQUEST", {
+                    contentWidth: (vs.w*0.7) + "px",
+                    contentHeight: (vs.h-64) + "px",
+                    handleOverflow: false,
+                    dialogTitle: payload.displayName,
+                    additionalCssClasses: "no-padding",
+                    widgetsContent: [
+                        {
+                            name: "alfresco/documentlibrary/AlfDocument",
+                            config: {
+                                widgets: [
+                                    {
+                                        name: "alfresco/preview/AlfDocumentPreview"
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    widgetsButtons: [
+                        {
+                            name: "alfresco/buttons/AlfButton",
+                            config: {
+                                label: this.message("button.close"),
+                                publishTopic: "NO_OP"
+                            }
+                        }
+                    ],
+                    publishOnShow: [
+                        {
+                            publishTopic: "ALF_RETRIEVE_SINGLE_DOCUMENT_REQUEST",
+                            publishPayload: {
+                                nodeRef: payload.nodeRef
+                            }
+                        }
+                    ]
+                });
             },
 
             /**

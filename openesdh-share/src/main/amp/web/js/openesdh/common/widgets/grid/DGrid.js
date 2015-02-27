@@ -15,6 +15,7 @@ define(["dojo/_base/declare",
         "dojo/keys",
         "dojo/_base/array",
         "dojo/_base/lang",
+        "dojo/on",
         "dojo/store/JsonRest",
         "dgrid/extensions/DijitRegistry",
         "dgrid/Grid",
@@ -26,7 +27,7 @@ define(["dojo/_base/declare",
         "dgrid/extensions/ColumnResizer",
         "dgrid/extensions/ColumnHider",
         "dgrid/extensions/ColumnReorder"],
-    function(declare, _Widget, _Templated, template, Core, domConstruct, keys, array, lang,
+    function(declare, _Widget, _Templated, template, Core, domConstruct, keys, array, lang, on,
              JsonRest, DijitRegistry, Grid, OnDemandGrid, Keyboard, Selection, Pagination, i18nPagination, ColumnResizer, ColumnHider, ColumnReorder) {
         return declare([_Widget, _Templated, Core], {
             templateString: template,
@@ -177,8 +178,6 @@ define(["dojo/_base/declare",
              * Create the dgrid instance and place it in this widget.
              */
             createGrid: function(columns) {
-                var _this = this;
-
                 this.overrideScrollbarSizeTests();
 
                 // Pagination must be used with Grid, not OnDemandGrid
@@ -262,25 +261,27 @@ define(["dojo/_base/declare",
                     }
                 };
 
-                var _this = this;
-
-                array.forEach(this.actions, function (action, i) {
+                array.forEach(this.actions, lang.hitch(this, function (action, i) {
                     var key = action.key;
                     if (!key) {
                         return;
                     }
                     var shift = action.shift;
-                    _this.grid.addKeyHandler(key, function (event) {
+                    this.grid.addKeyHandler(key, lang.hitch(this, function (event) {
                         if (shift && !event.shiftKey) {
                             return;
                         }
-                        var nodeRef = getSelectedNodeRef(this);
+                        var nodeRef = getSelectedNodeRef(this.grid);
                         if (nodeRef) {
-                            var item = _this.grid.row(nodeRef).data;
-                            window.location = _this.getActionUrl(action, item);
+                            var item = this.grid.row(nodeRef).data;
+                            if (action.href != null) {
+                                window.location = this.getActionUrl(action, item);
+                            } else if (action.callback != null && typeof this[action.callback] === "function") {
+                                this[action.callback].call(this, item);
+                            }
                         }
-                    });
-                });
+                    }));
+                }));
             },
 
             /**
@@ -303,15 +304,22 @@ define(["dojo/_base/declare",
              * Renders a list of actions given the case item
              */
             _renderActionsCell: function (item, value, node, options) {
-                var _this = this;
-                var actionElems = [];
-                array.forEach(this.actions, function (action, i) {
-                    var label = _this.message(action.label);
-                    var href = _this.getActionUrl(action, item);
-                    actionElems.push("<span><a class='magenta ui-icon grid-action action-" + action.id + "' href='" + href + "' title='" + label + "'>" + label + "</a></span>");
-                });
+                var div = domConstruct.toDom('<div style="white-space: nowrap;"></div>');
 
-                var div = '<div style="white-space: nowrap;">' + actionElems.join('') + "</div>";
+                array.forEach(this.actions, lang.hitch(this, function (action, i) {
+                    var actionElem;
+                    var label = this.message(action.label);
+                    if (action.href != null) {
+                        var href = this.getActionUrl(action, item);
+                        actionElem = domConstruct.toDom("<span><a class='magenta ui-icon grid-action action-" + action.id + "' href='" + href + "' title='" + label + "'>" + label + "</a></span>");
+                    } else if (action.callback != null && typeof this[action.callback] === "function") {
+                        actionElem = domConstruct.toDom("<span><a class='magenta ui-icon grid-action action-" + action.id + "' href='#' title='" + label + "'>" + label + "</a></span>");
+                        on(actionElem, "click", lang.hitch(this, function () {
+                            this[action.callback].call(this, item);
+                        }));
+                    }
+                    domConstruct.place(actionElem, div);
+                }));
                 domConstruct.place(div, node);
             },
 

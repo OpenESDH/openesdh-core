@@ -1,5 +1,6 @@
 /**
- * A grid to show the cases related to the user.
+ * A grid to show documents.
+ * Currently, fetches documents related to a case.
  */
 define(["dojo/_base/declare",
         "openesdh/common/widgets/grid/DGrid",
@@ -7,9 +8,13 @@ define(["dojo/_base/declare",
     ],
     function(declare, DGrid, lang) {
         return declare([DGrid], {
-            //i18nRequirements: [
-            //    {i18nFile: "./i18n/DocumentGrid.properties"}
-            //],
+            cssRequirements: [
+                {cssFile: "./css/DocumentGrid.css"}
+            ],
+
+            i18nRequirements: [
+                {i18nFile: "./i18n/DocumentGrid.properties"}
+            ],
 
             /**
              * An array containing the actions which should be available on all
@@ -19,18 +24,26 @@ define(["dojo/_base/declare",
              * @type {object[]}
              */
             actions: [
-                //{"href" : "#TODO",
-                //        "id" : "doc-preview",
-                //        "label" : "grid.actions.preview_doc",
-                //        "key" : "13"},
+                {"callback" : "onPreviewDoc",
+                    "id" : "doc-preview",
+                    "label" : "grid.actions.preview_doc",
+                    "key" : "13"},
 
-                       // TODO: use widgets!
-                       {"href" : "edit-metadata?nodeRef={nodeRef}",
-                       "id" : "case-edit",
-                       "label" : "grid.actions.edit_doc",
-                       "key" : "69",
-                       "shift": true}
+                // TODO: use widgets!
+                {"href" : "edit-metadata?nodeRef={nodeRef}",
+                    "id" : "case-edit",
+                    "label" : "grid.actions.edit_doc",
+                    "key" : "69",
+                    "shift": true}
             ],
+
+            onPreviewDoc: function (item) {
+                // TODO: Use the nodeRef of the main document
+                this.alfPublish("OE_PREVIEW_DOC", {
+                    nodeRef: item.mainDocNodeRef,
+                    displayName: item['cm:title'] ? item['cm:title'] : item['cm:name']
+                });
+            },
 
             postMixInProperties: function () {
                 this.inherited(arguments);
