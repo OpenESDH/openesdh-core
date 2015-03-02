@@ -74,7 +74,6 @@ public class Notes extends AbstractRESTWebscript {
         }
     }
 
-
     @Override
     protected void post(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
         JSONObject jsonReq = new JSONObject(new JSONTokener(req.getContent().getContent()));

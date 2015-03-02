@@ -31,19 +31,21 @@ public class IsCaseDocument extends AbstractWebScript {
         String storeType = templateArgs.get("store_type");
         String storeId = templateArgs.get("store_id");
         String id = templateArgs.get("id");
-        NodeRef documentNode = new NodeRef(storeType, storeId, id);
+        String docNodeRefStr = storeType +"://"+storeId+"/"+id;
+        NodeRef documentNode = new NodeRef (docNodeRefStr);
 
         JSONObject json = new JSONObject();
         try{
 
-            NodeRef caseNodeRef = caseService.getParentCase(documentNode);
+            NodeRef caseNodeRef = documentService.getCaseNodeRef(documentNode);
+            String caseId =  caseService.getCaseId(caseNodeRef);
 
-            if (caseNodeRef != null) {
-                String caseId =  caseService.getCaseId(caseNodeRef);
+            if (caseNodeRef != null ){
                 json.put("isCaseDoc", true);
                 json.put("caseId", caseId);
                 json.write(res.getWriter());
-            } else {
+            }
+            else {
                 json.put("isCaseDoc", false);
                 json.write(res.getWriter());
             }
@@ -52,7 +54,7 @@ public class IsCaseDocument extends AbstractWebScript {
             logger.error("The invalid nodeRef exception: "+ inre.getMessage());
         }
         catch (JSONException jse){
-            logger.error("Unable to build the json model because of the following exception: "+ jse.getMessage());
+            logger.error("Unable to build teh json model because of the following exception: "+ jse.getMessage());
         }
 
 

@@ -129,7 +129,6 @@ public class DocumentServiceImpl implements DocumentService {
                     }
                 }
 
-//                JSONObject documentJSON = new JSONObject(props);
                 documentsJSON.put(documentJSON);
             }
         } catch (JSONException e) {
@@ -186,6 +185,27 @@ public class DocumentServiceImpl implements DocumentService {
             responsibles.add(this.personService.getPerson(person.getTargetRef()));
 
         return responsibles;
+    }
+
+    /**
+     * Gets the nodeRef of a document or folder within a case by recursively trawling up the tree until the caseType is detected
+     * @param nodeRef the node whose containing case is to be found.
+     * @return the case container noderef
+     */
+    @Override
+    public NodeRef getCaseNodeRef(NodeRef nodeRef) {
+        NodeRef caseNodeRef = null;
+        QName nodeRefType = this.nodeService.getType(nodeRef);
+        if (dictionaryService.isSubClass(nodeRefType, OpenESDHModel.TYPE_CASE_SIMPLE) ) {
+            caseNodeRef = nodeRef;
+        }
+        else {
+            ChildAssociationRef primaryParent = this.nodeService.getPrimaryParent(nodeRef);
+            if (primaryParent != null && primaryParent.getParentRef() != null) {
+                caseNodeRef = getCaseNodeRef(primaryParent.getParentRef());
+            }
+        }
+        return caseNodeRef;
     }
 
     /**

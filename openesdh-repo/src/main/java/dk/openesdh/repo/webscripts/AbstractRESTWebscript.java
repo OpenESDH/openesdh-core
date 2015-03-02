@@ -21,11 +21,11 @@ public class AbstractRESTWebscript extends AbstractWebScript {
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res) throws
             IOException {
-        Map<String, String> vars = req.getServiceMatch().getTemplateVars();
+        Map<String, String> templateArgs = req.getServiceMatch().getTemplateVars();
         NodeRef nodeRef = null;
-        String storeType = vars.get(STORE_TYPE);
-        String storeId = vars.get(STORE_ID);
-        String nodeId = vars.get(NODE_ID);
+        String storeType = templateArgs.get(STORE_TYPE);
+        String storeId = templateArgs.get(STORE_ID);
+        String nodeId = templateArgs.get(NODE_ID);
         if (storeType != null && storeId != null && nodeId != null) {
             nodeRef = new NodeRef(storeType, storeId, nodeId);
         }
@@ -46,13 +46,11 @@ public class AbstractRESTWebscript extends AbstractWebScript {
         }
     }
 
-    protected void get(NodeRef nodeRef, WebScriptRequest req,
-                       WebScriptResponse res) throws IOException, JSONException {
+    protected void get(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
         throw new NotImplementedException();
     }
 
-    protected void post(NodeRef nodeRef, WebScriptRequest req,
-                        WebScriptResponse res) throws IOException, JSONException {
+    protected void post(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
         throw new NotImplementedException();
     }
 

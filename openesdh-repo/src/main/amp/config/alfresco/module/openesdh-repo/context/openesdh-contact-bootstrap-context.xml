@@ -3,14 +3,14 @@
 
 <beans>
     <bean id="${project.artifactId}_contactBootstrap" parent="spacesStoreImporter" >
-        <property name="log"> <value>true</value> </property>
+        <property name="log"> <value>false</value> </property>
         <property name="useExistingStore"> <value>true</value> </property>
         <property name="transactionService" ref="transactionService"/>
 
         <property name="bootstrapViews">
             <list>
                 <props>
-                    <prop key="path">app:company_home/app:dictionary</prop>
+                    <prop key="path">sys:system</prop>
                     <prop key="uuidBinding">UPDATE_EXISTING</prop>
                     <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/contacts.xml</prop>
                 </props>

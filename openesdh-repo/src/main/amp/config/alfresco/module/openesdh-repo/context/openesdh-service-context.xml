@@ -60,7 +60,6 @@
         <property name="namespaceService" ref="namespaceService"/>
     </bean>
 
-
     <bean id="DocumentService" class="dk.openesdh.repo.services.documents.DocumentServiceImpl">
         <property name="caseService">
             <ref bean="CaseService"/>
@@ -143,8 +142,7 @@
         <property name="namespaceService" ref="NamespaceService"/>
     </bean>
 
-    <bean id="ContactSearchService"
-          class="dk.openesdh.repo.services.xsearch.ContactSearchServiceImpl"
+    <bean id="ContactSearchService" class="dk.openesdh.repo.services.xsearch.ContactSearchServiceImpl"
           parent="XSearchService">
         <property name="dictionaryService">
             <ref bean="dictionaryService"/>
