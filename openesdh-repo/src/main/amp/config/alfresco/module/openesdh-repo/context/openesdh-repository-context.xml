@@ -213,6 +213,12 @@
     <bean id="webscript.dk.openesdh.contact.contact.get" parent="contactAbstractWebscript"/>
 
     <!--Parties-->
+    <!--Permitted Roles-->
+    <bean id="webscript.dk.openesdh.case.permittedRoles.get" parent="webscript"
+          class="dk.openesdh.repo.webscripts.cases.PermittedRoles">
+        <property name="dictionaryService" ref="dictionaryService"/>
+    </bean>
+
     <bean id="webscript.dk.openesdh.case.party.get" parent="webscript"
           class="dk.openesdh.repo.webscripts.cases.CasePartyRole">
         <property name="partyService" ref="PartyService"/>
@@ -237,6 +243,7 @@
         <property name="contactService" ref="ContactService"/>
         <property name="nodeService" ref="NodeService"/>
     </bean>
+
 
     <!--Rootscope object for contact searching-->
     <bean id="contactUtils" parent="baseJavaScriptExtension" class="dk.openesdh.repo.rootScopeExt.Contact">

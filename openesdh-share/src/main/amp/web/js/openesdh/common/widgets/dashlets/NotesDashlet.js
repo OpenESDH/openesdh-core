@@ -17,7 +17,9 @@
  * along with Alfresco. If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(["dojo/_base/declare", "alfresco/core/Core", "alfresco/dashlets/Dashlet", "dojo/_base/lang",
+define(["dojo/_base/declare", "alfresco/core/Core",
+        "openesdh/common/widgets/dashlets/Dashlet",
+        "dojo/_base/lang",
         "alfresco/core/NodeUtils"],
       function(declare, AlfCore, Dashlet, lang, NodeUtils) {
 
