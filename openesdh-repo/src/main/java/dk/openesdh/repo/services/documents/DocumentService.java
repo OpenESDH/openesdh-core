@@ -43,5 +43,15 @@ public interface DocumentService {
 
     JSONObject buildJSON(List<ChildAssociationRef> childAssociationRefs, Documents documents, NodeRef caseNodeRef);
 
-    ChildAssociationRef createDocumentFolder(final NodeRef parent, final String name);
+
+    public ChildAssociationRef createDocumentFolder(final NodeRef documentsFolder, final String name);
+
+    /**
+     * This method gets the <code>case:simple</code> NodeRef for the case which contains the given NodeRef.
+     * If the given NodeRef is not contained within a case, then <code>null</code> is returned.
+     *
+     * @param nodeRef   the node whose containing case is to be found.
+     * @return NodeRef  case node reference or null if node is not within a case
+     */
+    public NodeRef getCaseNodeRef(NodeRef nodeRef);
 }
