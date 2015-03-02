@@ -54,6 +54,9 @@ model.jsonModel = {
                         config: {
                             nodeRef: caseNodeRef
                         }
+                    },
+                    {
+                        name: "openesdh/common/widgets/dashlets/DocumentAttachmentsDashlet"
                     }
                 ]
             }

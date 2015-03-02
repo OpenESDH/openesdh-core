@@ -35,22 +35,12 @@ define(["dojo/_base/declare",
 
                 this.alfSubscribe("OPENESDH_JOURNALIZE", lang.hitch(this, "onJournalize"));
                 this.alfSubscribe("OPENESDH_UNJOURNALIZE", lang.hitch(this, "onUnJournalize"));
-
                 this.alfSubscribe("ALF_WIDGETS_READY", lang.hitch(this, "onAllWidgetsReady"));
-
-
-
-
-
-
 
                 // Don't do anything when the widgets are ready
                 // This is overwritten when the case info is loaded
                 this._allWidgetsProcessedFunction = function () {};
             },
-
-
-
 
 
             // TODO: Handle requests for case info and respond

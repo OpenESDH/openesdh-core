@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 
 public class XSearchWebscript extends AbstractWebScript {
-    protected static Logger log = Logger.getLogger(XSearchWebscript.class);
+    protected static Logger logger = Logger.getLogger(XSearchWebscript.class);
 
     protected NodeService nodeService;
     protected NamespaceService namespaceService;
@@ -43,7 +43,7 @@ public class XSearchWebscript extends AbstractWebScript {
     /**
      * Handles a typical request from a dojo/store/JsonRest store.
      * See http://dojotoolkit.org/reference-guide/1.10/dojo/store/JsonRest.html#implementing-a-rest-server
-     *
+     * <p/>
      * Paging and sorting information is passed to the xSearchService, the
      * result nodes are converted to JSON and returned in the response along
      * with the number of items found and the start/end index.
@@ -52,8 +52,7 @@ public class XSearchWebscript extends AbstractWebScript {
      * @param res
      * @throws IOException
      */
-    public void execute(WebScriptRequest req, WebScriptResponse res)
-            throws IOException {
+    public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
         try {
             Map<String, String> params = getParams(req);
 
@@ -63,7 +62,7 @@ public class XSearchWebscript extends AbstractWebScript {
             String rangeHeader = req.getHeader("x-range");
             int[] range = parseRangeHeader(rangeHeader);
             if (range != null) {
-                log.debug("Range: " + range[0] + " - " + range[1]);
+                logger.debug("Range: " + range[0] + " - " + range[1]);
                 startIndex = range[0];
                 pageSize = range[1] - range[0];
             }
@@ -81,7 +80,7 @@ public class XSearchWebscript extends AbstractWebScript {
             List<NodeRef> nodeRefs = results.getNodeRefs();
             JSONArray nodes = new JSONArray();
             for (NodeRef nodeRef : nodeRefs) {
-                JSONObject node = nodeToJSON (nodeRef);
+                JSONObject node = nodeToJSON(nodeRef);
                 nodes.put(node);
             }
 
@@ -92,6 +91,7 @@ public class XSearchWebscript extends AbstractWebScript {
             String jsonString = nodes.toString();
             res.setContentEncoding("UTF-8");
             res.getWriter().write(jsonString);
+
         } catch (JSONException e) {
             throw new WebScriptException("Unable to serialize JSON");
         }
@@ -105,6 +105,7 @@ public class XSearchWebscript extends AbstractWebScript {
      * Serializes the node to JSON.
      * The default implementation outputs all properties and associations.
      * This can be overridden to output less (or more) information.
+     *
      * @param nodeRef
      * @return
      * @throws JSONException
@@ -152,6 +153,7 @@ public class XSearchWebscript extends AbstractWebScript {
     /**
      * Parse a HTTP Range header and return an array containing 2 elemens: the
      * start and end index of the range.
+     *
      * @param range
      * @return
      */

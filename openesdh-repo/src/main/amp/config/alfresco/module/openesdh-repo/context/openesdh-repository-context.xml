@@ -46,6 +46,11 @@
         <property name="xSearchService" ref="CaseDocumentsSearchService"/>
     </bean>
 
+    <bean id="webscript.dk.openesdh.case.documentAttachments.get" class="dk.openesdh.repo.webscripts.xsearch.CaseDocumentAttachements"
+          parent="xsearchWebscript">
+        <property name="caseDocumentsSearchService" ref="CaseDocumentsSearchService"/>
+    </bean>
+
     <bean id="webscript.dk.openesdh.contactsearch.get"
           class="dk.openesdh.repo.webscripts.xsearch.ContactSearch"
           parent="webscript">

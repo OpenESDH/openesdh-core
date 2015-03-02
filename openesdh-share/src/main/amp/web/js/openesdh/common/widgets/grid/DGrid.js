@@ -87,6 +87,25 @@ define(["dojo/_base/declare",
             allowColumnReorder: true,
 
             /**
+             * The topic we would like to publish on row selection
+             */
+            rowSelectionTopic: "GRID_ROW_SELECTED",
+
+            /**
+             * The topic we would like to publish on row deselection
+             */
+            rowDeselectionTopic: "GRID_ROW_DESELECTED",
+
+            gridRefreshTopic: "GRID_REFRESH",
+
+            /* noDataMessage: String
+             * Message that shows if the grid has no data - wrap it in a
+             * span with class 'dojoxGridNoData' if you want it to be
+             * styled similar to the loading and error messages
+             */
+            noDataMessage:"",
+
+            /**
              * The Grid widget
              *
              * @instance
@@ -104,7 +123,7 @@ define(["dojo/_base/declare",
             postCreate: function () {
                 this.inherited(arguments);
                 this.alfSubscribe("GRID_SET_TARGET_URI", lang.hitch(this, "onSetTargetUri"));
-                this.alfSubscribe("GRID_REFRESH", lang.hitch(this, "onRefresh"));
+                this.alfSubscribe(this.gridRefreshTopic, lang.hitch(this, "onRefresh"));
                 this.alfSubscribe("GRID_SORT", lang.hitch(this, "onSort"));
 
                 // Add actions column if there are actions
@@ -237,11 +256,11 @@ define(["dojo/_base/declare",
 
                 this.grid.on("dgrid-select", lang.hitch(this, function(event){
                     // Only single-selection is supported, for now
-                    this.alfPublish("GRID_ROW_SELECTED", {row: event.rows[0]});
+                    this.alfPublish(this.rowSelectionTopic, {row: event.rows[0]});
                 }));
 
                 this.grid.on("dgrid-deselect", lang.hitch(this, function(event){
-                    this.alfPublish("GRID_ROW_DESELECTED", {row: event.rows[0]});
+                    this.alfPublish(this.rowDeselectionTopic, {row: event.rows[0]});
                 }));
 
                 this.grid.placeAt(this.containerNode);
@@ -291,8 +310,7 @@ define(["dojo/_base/declare",
              * @returns {*}
              */
             getActionUrl: function (action, item) {
-                return Alfresco.constants.URL_PAGECONTEXT + lang.replace(action.href,
-                    {
+                return Alfresco.constants.URL_PAGECONTEXT + lang.replace(action.href, {
                         // TODO: Support ANY item property?
                         "caseId": item["oe:id"],
                         "nodeRef": item["nodeRef"]

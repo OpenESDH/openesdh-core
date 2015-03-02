@@ -3,10 +3,9 @@
  */
 define(["dojo/_base/declare",
         "openesdh/common/widgets/grid/DGrid",
-        "dojo/_base/lang",
-        "openesdh/common/widgets/dashlets/_DocumentTopicsMixin"
+        "dojo/_base/lang"
     ],
-    function(declare, DGrid, lang, _TopicsMixin) {
+    function(declare, DGrid, lang) {
         return declare([DGrid], {
             //i18nRequirements: [
             //    {i18nFile: "./i18n/DocumentGrid.properties"}
@@ -35,25 +34,15 @@ define(["dojo/_base/declare",
 
             postMixInProperties: function () {
                 this.inherited(arguments);
-                this.targetURI = "api/openesdh/casedocumentssearch?nodeRef=" + this.nodeRef;
+                console.log("AttachmentGrid: targetURI => " + this.targetURI);
+                //if(this.nodeRef != null)
+                this.targetURI = "/api/openesdh/case/documentAttachments?nodeRef=" + this.nodeRef;
+
             },
 
             getColumns: function () {
                 return [
-                    { field: "doc:type", label: this.message("Type") }, // TODO: i18n!
-                    { get : lang.hitch(this, function(item){
-                            console.log(item.nodeRef)
-                            if(!this.firstRowSelect) {
-                                this.firstRowSelect = item.nodeRef;
-                                this.grid.select(item, item, true);
-                                this.alfPublish(this.CaseDocumentReloadAttachmentsTopic, item.nodeRef);
-                            } else {
-                                return item;
-                            }
-                        })
-                    },
-                    { field: "doc:category", label: this.message("Kategori") }, // TODO: i18n!
-                    { field: "doc:state", label: this.message("State") }, // TODO: i18n!
+
                     { field: "cm:title", label: this.message("cm_title"),
                         renderCell: lang.hitch(this, '_renderTitleCell')
                     },

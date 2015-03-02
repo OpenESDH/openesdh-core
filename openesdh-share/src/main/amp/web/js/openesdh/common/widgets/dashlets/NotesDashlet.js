@@ -41,7 +41,8 @@ define(["dojo/_base/declare", "alfresco/core/Core", "alfresco/dashlets/Dashlet",
 
             constructor: function (args) {
                 lang.mixin(this, args);
-                this.widgetsForBody = [
+
+                this.widgetsForTitleBarActions = [
                     {
                         name: "alfresco/buttons/AlfDynamicPayloadButton",
                         config: {
@@ -61,13 +62,17 @@ define(["dojo/_base/declare", "alfresco/core/Core", "alfresco/dashlets/Dashlet",
                                     {
                                         name: "alfresco/forms/controls/DojoTextarea",
                                         config: {
+                                            label: "Content",
                                             name: "content"
                                         }
                                     }
                                 ]
                             }
                         }
-                    },
+                    }
+                ];
+
+                this.widgetsForBody = [
                     {
                         name: "openesdh/common/widgets/lists/NoteList",
                         config: {

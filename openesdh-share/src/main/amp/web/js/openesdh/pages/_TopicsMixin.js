@@ -5,9 +5,12 @@ define(["dojo/_base/declare"],
             CaseInfoTopic: "CASE_INFO",
             CaseHistoryTopic : "CASE_HISTORY",
             DocumentsTopic: "DOCUMENT_LIST",
-            ReloadDocumentsTopic: "OE_RELOAD_DOCUMENTS",
             MainDocument: "MAIN_DOCUMENT_SUCCESS",
             CaseMembersList: "CASE_MEMBERS_LIST",
-            CaseMembersListSuccess: "CASE_MEMBERS_LIST_SUCCESS"
+            CaseMembersListSuccess: "CASE_MEMBERS_LIST_SUCCESS",
+            //These next two topics are also present in openesdh/common/widgets/dashlets/_DocumentTopicsMixin.js
+            CaseDocumentRowSelect: "DOCUMENT_ROW_SELECT",
+            CaseDocumentRowDeselect: "DOCUMENT_ROW_DESELECT",
+            CaseDocumentReloadAttachmentsTopic: "OE_RELOAD_ATTACHMENTS"
         });
     });

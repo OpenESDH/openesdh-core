@@ -67,10 +67,10 @@ define(["dojo/_base/declare",
 
             widgetsForBody: [
                 {
-                    name: "openesdh/pages/case/widgets/DocumentGrid",
+                    name: "openesdh/pages/case/widgets/DocumentAttachmentsGrid",
                     config: {
                         sort: [
-                            { attribute: 'cm:modified', descending: true }
+                            { attribute: 'cm:name', descending: true }
                         ]
                     }
                 },
@@ -83,24 +83,25 @@ define(["dojo/_base/declare",
             constructor: function (args) {
                 lang.mixin(this, args);
                 // Pass in the nodeRef to the widget
-                lang.setObject("config.nodeRef", this.nodeRef, this.widgetsForBody[0]);
                 //Set the row selection topic
-                this.widgetsForBody[0].config.rowSelectionTopic = this.DocumentRowSelect;
-                this.widgetsForBody[0].config.rowDeselectionTopic = this.DocumentRowDeselect;
+                this.widgetsForBody[0].config.rowSelectionTopic = this.AttachmentRowSelect;
+                this.widgetsForBody[0].config.rowDeselectionTopic = this.AttachmentRowDeselect;
             },
 
             postCreate: function () {
                 this.inherited(arguments);
-                this.alfSubscribe(this.ReloadDocumentsTopic, lang.hitch(this, "onReloadDocuments"));
+                this.alfSubscribe(this.ReloadAttachmentsTopic, lang.hitch(this, "onReloadDocuments"));
             },
 
             onReloadDocuments: function (payload) {
-                this.alfPublish("GRID_SORT", {
+                console.log("DocumentAttachmentsDashlet(97) NodeRef:"+ payload);
+                lang.setObject("config.nodeRef", payload.nodeRef, this.widgetsForBody[0]);
+                /*this.alfPublish("GRID_SORT", {
                     sort: [
                         { attribute: 'cm:modified', descending: true }
                     ]
-                });
-                this.alfPublish("GRID_REFRESH");
+                });*/
+                this.alfPublish(this.AttachmentGridRefresh);
             }
         });
     });

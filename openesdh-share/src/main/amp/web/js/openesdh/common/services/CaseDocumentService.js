@@ -16,6 +16,8 @@ define(["dojo/_base/declare",
 
                 this.alfSubscribe("OE_SHOW_UPLOADER", lang.hitch(this, this._showUploader));
                 this.alfSubscribe("OE_CASE_DOCUMENT_SERVICE_UPLOAD_REQUEST_RECEIVED", lang.hitch(this, this._onFileUploadRequest));
+                this.alfSubscribe(this.CaseDocumentRowSelect, lang.hitch(this, this._retrieveDocumentdetails));
+
             },
 
             /**
@@ -90,6 +92,13 @@ define(["dojo/_base/declare",
                 this.alfLog("log", "Upload complete");
                 this.alfUnsubscribe(this._uploadSubHandle);
                 this.alfPublish(this.ReloadDocumentsTopic, {});
+            },
+
+            _retrieveDocumentdetails: function openESDH_CaseDocumentService__retrieveCaseDocumentDetails(payload){
+                var rowData = payload.row;
+                console.log("CaseDocumentsService(99) NodeRef:"+rowData.id);
+                this.alfPublish(this.CaseDocumentReloadAttachmentsTopic, {nodeRef:rowData.id});
             }
+
         });
     });
