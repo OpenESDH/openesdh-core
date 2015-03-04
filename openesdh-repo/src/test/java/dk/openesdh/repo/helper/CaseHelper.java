@@ -16,11 +16,9 @@ import org.alfresco.service.cmr.security.AuthenticationService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.security.PersonService;
-import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
 import org.alfresco.util.ApplicationContextHelper;
-import org.omg.CORBA.RepositoryIdHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -35,13 +33,49 @@ import java.util.Map;
  */
 public class CaseHelper {
 
-    public void setNodeService(NodeService nodeService) {
-        this.nodeService = nodeService;
-    }
+    public static final String ADMIN_USER_NAME = "admin";
+    public final static String DEFAULT_USERNAME = "username12";
 
     @Autowired
     @Qualifier("nodeService")
     protected NodeService nodeService;
+
+    @Autowired
+    @Qualifier("searchService")
+    protected SearchService searchService;
+    @Autowired
+    @Qualifier("authorityService")
+    protected AuthorityService authorityService;
+    @Autowired
+    @Qualifier("permissionService")
+    protected PermissionService permissionService;
+    @Autowired
+    @Qualifier("repositoryHelper")
+    protected Repository repositoryHelper;
+    @Autowired
+    @Qualifier("retryingTransactionHelper")
+    protected RetryingTransactionHelper retryingTransactionHelper;
+    @Autowired
+    @Qualifier("personService")
+    protected PersonService personService;
+    @Autowired
+    @Qualifier("authenticationService")
+    protected AuthenticationService authenticationService;
+    @Autowired
+    @Qualifier("nodeLocatorService")
+    protected NodeLocatorService nodeLocatorService;
+
+    @Autowired
+    @Qualifier("transactionService")
+    protected TransactionService transactionService;
+
+    @Autowired
+    @Qualifier("policyBehaviourFilter")
+    private BehaviourFilter behaviourFilter;
+
+    public void setNodeService(NodeService nodeService) {
+        this.nodeService = nodeService;
+    }
 
     public void setSearchService(SearchService searchService) {
         this.searchService = searchService;
@@ -75,41 +109,6 @@ public class CaseHelper {
         this.nodeLocatorService = nodeLocatorService;
     }
 
-    @Autowired
-    @Qualifier("searchService")
-    protected SearchService searchService;
-    @Autowired
-    @Qualifier("authorityService")
-    protected AuthorityService authorityService;
-    @Autowired
-    @Qualifier("permissionService")
-    protected PermissionService permissionService;
-    @Autowired
-    @Qualifier("repositoryHelper")
-    protected Repository repositoryHelper;
-    @Autowired
-    @Qualifier("retryingTransactionHelper")
-    protected RetryingTransactionHelper retryingTransactionHelper;
-    @Autowired
-    @Qualifier("personService")
-    protected PersonService personService;
-    @Autowired
-    @Qualifier("authenticationService")
-    protected AuthenticationService authenticationService;
-    @Autowired
-    @Qualifier("nodeLocatorService")
-    protected NodeLocatorService nodeLocatorService;
-
-    @Autowired
-    @Qualifier("transactionService")
-    protected TransactionService transactionService;
-
-
-
-
-    public static final String ADMIN_USER_NAME = "admin";
-    public final static String DEFAULT_USERNAME = "username12";
-
     /**
      * Create a case. If disableBehaviour is true, transaction is run with
      * behaviours disabled.
@@ -135,18 +134,12 @@ public class CaseHelper {
         AuthenticationUtil.setFullyAuthenticatedUser(username);
         // We have to do in a transaction because we must set the case:owner
         // association before commit, to avoid an integrity error.
-        BehaviourFilter behaviourFilter = null;
-        if (disableBehaviour) {
-            behaviourFilter = (BehaviourFilter)
-                    ApplicationContextHelper.getApplicationContext().getBean("policyBehaviourFilter");
-        }
-        final BehaviourFilter finalBehaviourFilter = behaviourFilter;
         return retryingTransactionHelper.doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<NodeRef>() {
             @Override
             public NodeRef execute() throws Throwable {
-                if (finalBehaviourFilter != null) {
+                if (behaviourFilter != null) {
                     // Disable behaviour for txn
-                    finalBehaviourFilter.disableBehaviour();
+                    behaviourFilter.disableBehaviour();
                 }
 
                 properties.put(ContentModel.PROP_NAME, name);
@@ -159,12 +152,11 @@ public class CaseHelper {
                         caseType,
                         properties
                 );
-                nodeService.setAssociations(childAssoc.getChildRef(),
-                        OpenESDHModel.ASSOC_CASE_OWNERS, owners);
+                nodeService.setAssociations(childAssoc.getChildRef(), OpenESDHModel.ASSOC_CASE_OWNERS, owners);
 
-                if (finalBehaviourFilter != null) {
+                if (behaviourFilter != null) {
                     // Re-enable behaviour
-                    finalBehaviourFilter.enableBehaviour();
+                    behaviourFilter.enableBehaviour();
                 }
 
                 return childAssoc.getChildRef();
@@ -193,7 +185,7 @@ public class CaseHelper {
     public NodeRef createSimpleCase(String title, String userName, NodeRef owner) {
         NodeRef caseNode;
         NodeRef companyHome = nodeLocatorService.getNode(CompanyHomeNodeLocator.NAME, null, null);
-        Map<QName, Serializable> properties = new HashMap<QName, Serializable>();
+        Map<QName, Serializable> properties = new HashMap<>();
         properties.put(ContentModel.PROP_TITLE, title);
         List<NodeRef> owners = new LinkedList<>();
         owners.add(owner);
@@ -208,7 +200,7 @@ public class CaseHelper {
             personService.deletePerson(userName);
         }
 
-        HashMap<QName, Serializable> properties = new HashMap<QName, Serializable>();
+        HashMap<QName, Serializable> properties = new HashMap<>();
 
         properties.put(ContentModel.PROP_USERNAME, userName);
         properties.put(ContentModel.PROP_FIRSTNAME, firstName);
