@@ -1,5 +1,10 @@
 .add-icon-16
-{
-    background: transparent url(../../../../../../components/images/add-icon-16.png) no-repeat center center;
+ {
+     background: transparent url(../../../../../../components/images/add-icon-16.png) no-repeat center center;
+     padding: 8px;
+ }
+
+.preview-icon-16{
+    background: transparent url(../../../../../../openesdh/images/preview-16.png) no-repeat center center;
     padding: 8px;
 }

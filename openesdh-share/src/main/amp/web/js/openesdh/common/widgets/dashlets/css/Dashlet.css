@@ -1,6 +1,11 @@
 .alfresco-dashlets-Dashlet.dashlet .titleBarActions {
     opacity: inherit;
 }
+.alfresco-dashlets-Dashlet.dashlet .alfresco-buttons-AlfButton{
+    background-image: none !important;
+    background-color: inherit;
+    border: none !important;
+}
 
 .add-icon-16
 {

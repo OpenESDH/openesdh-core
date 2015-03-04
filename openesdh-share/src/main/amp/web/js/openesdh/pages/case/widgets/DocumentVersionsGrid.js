@@ -1,5 +1,5 @@
 /**
- * A grid to show the cases related to the user.
+ * A grid to show the previous versions of selected document.
  */
 define(["dojo/_base/declare",
         "openesdh/common/widgets/grid/DGrid",
@@ -9,7 +9,7 @@ define(["dojo/_base/declare",
     function(declare, DGrid, lang, _DocumentTopicsMixin) {
         return declare([DGrid, _DocumentTopicsMixin], {
             i18nRequirements: [
-                {i18nFile: "./i18n/DocumentAttachmentsGrid.properties"}
+                {i18nFile: "./i18n/DocumentVersionsGrid.properties"}
             ],
 
             /**
@@ -23,56 +23,45 @@ define(["dojo/_base/declare",
                 {"callback" : "onPreviewDoc",
                     "id" : "doc-preview",
                     "label" : "grid.actions.preview_doc",
-                    "key" : "13"},
-
-                   // TODO: use widgets!
-                   {"href" : "edit-metadata?nodeRef={nodeRef}",
-                   "id" : "case-edit",
-                   "label" : "grid.actions.edit_doc",
-                   "key" : "69",
-                   "shift": true}
+                    "key" : "13"}
             ],
 
             /**
-             * The nodeRef of the document for which we want to retrieve its attachments
+             * The nodeRef of the document for which we want to retrieve its versions
              */
             nodeRef: "",
 
             /**
              * The target URI for the store
              */
-            targetURI: "api/openesdh/case/documentAttachments?nodeRef=",
+            targetURI: "api/version",
 
 
             onPreviewDoc: function (item) {
                 // TODO: Use the nodeRef of the main document
                 this.alfPublish("OE_PREVIEW_DOC", {
                     nodeRef: item.nodeRef,
-                    displayName: item['cm:title'] ? item['cm:title'] : item['cm:name']
+                    displayName: item['cm:title'] ? item['cm:title'] : item['name']
                 });
             },
             postMixInProperties: function () {
                 this.inherited(arguments);
-                this.alfSubscribe(this.ReloadAttachmentsTopic, lang.hitch(this, "_onRefresh"));
+                this.alfSubscribe(this.GetDocumentVersionsTopic, lang.hitch(this, "_onRefresh"));
             },
 
             getColumns: function () {
                 return [
-                    { field: "oe:caseId", label: this.message("oe_caseId") },
-                    { field: "cm:title", label: this.message("cm_title"),
-                        renderCell: lang.hitch(this, '_renderTitleCell')
-                    },
-                    { field: "cm:versionLabel", label: this.message("Version"), // TODO: i18n!
+
+                    { field: "label", label: this.message("version.label.version"), // TODO: i18n!
                         formatter: lang.hitch(this, "_formatVersion")
                     },
-                    { field: "cm:creator", label: this.message("attachments.addedBy") }, // TODO: i18n!
-
-                    { field: "cm:created", label: this.message("cm_created"),
+                    { field: "createdDate", label: this.message("version.label.created"),
                         formatter: lang.hitch(this, "_formatDate")
                     },
-                    { field: "cm:modified", label: this.message("cm_modified"),
-                        formatter: lang.hitch(this, "_formatDate")
-                    }
+                    { field: "creator", label: this.message("version.label.addedBy"),
+                        formatter: lang.hitch(this, "_getCreator")
+                    } // TODO: i18n!
+
                 ];
             },
 
@@ -84,6 +73,17 @@ define(["dojo/_base/declare",
              */
             _formatVersion: function (value) {
                 return value ? value : "1.0";
+            },
+
+            /**
+             * Return the creator name from the object.
+             * @param value
+             * @returns {*}
+             * @private
+             */
+            _getCreator: function (value) {
+                var name=value.firstName+" "+value.lastName+" ("+value.userName+")";
+                return name;
             },
 
             /**
@@ -102,13 +102,12 @@ define(["dojo/_base/declare",
              * Override the refresh method in DGrid.js to allow re-stitching of the nodeRef to the target URI.
              */
             _onRefresh: function (payload) {
-                var temp = this.targetURI;
-                this.targetURI += payload.nodeRef;
+                var temp = this.targetURI;// To preserve the original state of the URI
+                this.targetURI += "?nodeRef="+ payload.nodeRef; //Stitch the nodeRef to the store target URI
                 this.grid.store = this.createStore();
-                //.target = this.targetURI+payload.nodeRef; //Have to modify the grid store's target URL directly.
-                //console.log("openesdh/pages/case/widgets/DocumentAttachmentsGrid.js(90) Refresh called.");
+                //console.log("openesdh/pages/case/widgets/DocumentVersionsGrid.js(100) Refresh called.");
                 this.grid.refresh();
-                this.targetURI = temp;//Revert the targetURI back to its original state
+                this.targetURI = temp; //Revert the URI back to its original state
             }
         });
     });

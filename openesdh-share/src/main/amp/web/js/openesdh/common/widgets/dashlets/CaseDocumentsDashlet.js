@@ -56,7 +56,6 @@ define(["dojo/_base/declare",
                 {
                     name: "alfresco/buttons/AlfButton",
                     config: {
-                        // TODO: Add icon class
                         iconClass: "add-icon-16",
                         // TODO: i18n
                         label: "Tilføj Dokument",

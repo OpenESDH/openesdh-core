@@ -40,7 +40,7 @@ public class CaseDocumentAttachements extends XSearchWebscript {
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
         Map<String, String> params = getParams(req);
         String caseDocNodeRefStr = params.get("nodeRef");
-        if(StringUtils.isBlank(caseDocNodeRefStr) || caseDocNodeRefStr.equalsIgnoreCase("undefined"))
+        if(StringUtils.isBlank(caseDocNodeRefStr) || caseDocNodeRefStr.equalsIgnoreCase("undefined") || caseDocNodeRefStr.equalsIgnoreCase("null"))
             return;
         try {
             NodeRef documentsNodeRef = new NodeRef(params.get("nodeRef"));

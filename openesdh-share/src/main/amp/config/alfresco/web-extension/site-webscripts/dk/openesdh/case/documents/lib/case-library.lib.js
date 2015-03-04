@@ -454,6 +454,8 @@ getRepositoryUrl: function getRepositoryUrl() {
  */
 function getDocumentLibraryServices() {
     return [
+        "alfresco/services/DocumentService",
+        "alfresco/services/LightboxService",
         "alfresco/services/ContentService",
         "alfresco/dialogs/AlfDialogService",
         "openesdh/common/services/CaseActionService",
