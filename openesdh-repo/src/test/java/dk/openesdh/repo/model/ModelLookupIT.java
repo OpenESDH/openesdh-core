@@ -10,6 +10,8 @@ import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,9 +31,8 @@ import static org.junit.Assert.assertEquals;
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass=SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:alfresco/application-context.xml")
-public class ModelLookupTest {
-
-    private static final String ADMIN_USER_NAME = "admin";
+//@Ignore
+public class ModelLookupIT {
 
     @Autowired
     @Qualifier("dictionaryService")
@@ -51,45 +52,34 @@ public class ModelLookupTest {
 
 
 
-    protected ModelLookup modelLookup = new ModelLookup();
+    protected ModelLookup modelLookup;
     protected String testPrefix = OpenESDHModel.DOC_PREFIX;
     protected String testType = OpenESDHModel.TYPE_SIMPLE_NAME;
 
+    @Before
+    public void setUp() {
+        AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
 
+        modelLookup = new ModelLookup();
+        modelLookup.setDictionaryService(dictionaryService);
+        modelLookup.setNamespaceService(namespaceService);
+    }
 
 
     @Test
-    public void testCreateSimpleCase() {
-        AuthenticationUtil.setFullyAuthenticatedUser(ADMIN_USER_NAME);
+    public void testCreateSimpleCase() throws Exception {
 
-        modelLookup.setDictionaryService(dictionaryService);
-        modelLookup.setNamespaceService(namespaceService);
-        TypeDefinition modelType = modelLookup.getTypeDefinition(testPrefix
-                        + ":" + testType);
-
+        TypeDefinition modelType = modelLookup.getTypeDefinition(testPrefix + ":" + testType);
 
         Map properties = modelLookup.getProperties(modelType);
         JSONObject property = (JSONObject)properties.get("oe:id");
-        try {
-            assertEquals(property.get("type"),"d:text");
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
+        assertEquals(property.get("type"),"d:text");
 
         Map associations = modelLookup.getAssociations(modelType);
 
-
         JSONObject association = (JSONObject)associations.get("doc:owner");
 
-
-        try {
-            assertEquals(association.get("isTargetMany"),false);
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-
-
+        assertEquals(association.get("isTargetMany"),false);
     }
     
 

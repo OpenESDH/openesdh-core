@@ -29,7 +29,7 @@ import static org.junit.Assert.*;
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:alfresco/application-context.xml")
-public class NoteServiceImplTest {
+public class NoteServiceImplIT {
     @Autowired
     @Qualifier("NodeService")
     protected NodeService nodeService;

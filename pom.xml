@@ -54,7 +54,25 @@
         </dependencies>
     </dependencyManagement>
 
-    <!-- This repository is only needed to retrieve Alfresco parent POM. 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.18.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!-- This repository is only needed to retrieve Alfresco parent POM.
         NOTE: This can be removed when/if Alfresco will be on Maven Central 
         
         NOTE: The repository to be used for Alfresco Enterprise artifacts is
