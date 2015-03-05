@@ -20,17 +20,12 @@ define(["dojo/_base/declare",
              * @type {object[]}
              */
             actions: [
-                {"callback" : "onPreviewDoc",
+                {
+                    "callback" : "onPreviewDoc",
                     "id" : "doc-preview",
                     "label" : "grid.actions.preview_doc",
-                    "key" : "13"},
-
-                   // TODO: use widgets!
-                   {"href" : "edit-metadata?nodeRef={nodeRef}",
-                   "id" : "case-edit",
-                   "label" : "grid.actions.edit_doc",
-                   "key" : "69",
-                   "shift": true}
+                    "key" : "13"
+                }
             ],
 
             /**
@@ -42,7 +37,6 @@ define(["dojo/_base/declare",
              * The target URI for the store
              */
             targetURI: "api/openesdh/case/documentAttachments?nodeRef=",
-
 
             onPreviewDoc: function (item) {
                 // TODO: Use the nodeRef of the main document
@@ -105,7 +99,6 @@ define(["dojo/_base/declare",
                 var temp = this.targetURI;
                 this.targetURI += payload.nodeRef;
                 this.grid.store = this.createStore();
-                //.target = this.targetURI+payload.nodeRef; //Have to modify the grid store's target URL directly.
                 //console.log("openesdh/pages/case/widgets/DocumentAttachmentsGrid.js(90) Refresh called.");
                 this.grid.refresh();
                 this.targetURI = temp;//Revert the targetURI back to its original state

@@ -10,8 +10,7 @@ define(["dojo/_base/declare",
 
             buildRendering: function dk_openesdh_pages_case_widgets_InfoWidget__buildRendering() {
                 this.inherited(arguments);
-
-                this.bodyTitle.remove();
+                this.bodyTitle.innerHTML = "";
             },
 
             _onPayloadReceive: function (payload) {
