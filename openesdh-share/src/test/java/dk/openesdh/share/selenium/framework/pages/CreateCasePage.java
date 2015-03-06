@@ -70,6 +70,6 @@ public class CreateCasePage extends BasePage {
         // Wait for the case dashboard to load
         Browser.Driver.findElement(By.cssSelector(".dashlet"));
 
-        return Pages.CaseDashboard.getNodeRef();
+        return this.getCaseId();
     }
 }

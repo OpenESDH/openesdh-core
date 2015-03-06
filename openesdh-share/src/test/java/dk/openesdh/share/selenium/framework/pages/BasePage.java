@@ -7,6 +7,8 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -22,13 +24,25 @@ public abstract class BasePage {
     public static final String BASE_URL = "http://localhost:8081/share";
 
 
-
     /**
      * Headermenu item "Cases"
      */
     @FindBy(id = "HEADER_CASES_DROPDOWN_text")
     WebElement headerCaseMenu;
 
+    /*
+     * Find the case ID from the URL with the new /page/oe/case/<id>/page scheme
+     */
+    public String getCaseId() {
+        Pattern p = Pattern.compile("\\/oe\\/case\\/(.+)/");
+        Matcher matcher = p.matcher(Browser.Driver.getCurrentUrl());
+        if (matcher.find()) {
+            return matcher.group(1);
+        } else {
+            return null;
+        }
+
+    }
 
     //TODO make it take an enum that represents the values
     public void clickCasesMenuItem() {
