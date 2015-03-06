@@ -287,7 +287,8 @@ public class CaseServiceImplIT {
         }
     }
 
-    @Ignore
+
+    /*
     @Test
     public void testBehaviourOnAddOwnersToPermissionGroup() throws Exception {
         String caseId = caseService.getCaseId(behaviourOnCaseNodeRef);
@@ -297,6 +298,8 @@ public class CaseServiceImplIT {
         assertTrue("Creating a case should add the users in case owners " +
                 "association to the CaseOwners group", auth.contains(CaseHelper.DEFAULT_USERNAME));
     }
+    */
+
 
     @Test
     public void testBehaviourOnAddRemoveOwner() throws Exception {
