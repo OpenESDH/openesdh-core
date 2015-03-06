@@ -121,12 +121,11 @@ public class CaseServiceImpl implements CaseService {
      * @return
      */
     protected NodeRef createCasesRoot(NodeRef companyHomeNodeRef) {
-        Map<QName, Serializable> properties = new HashMap<QName, Serializable>();
+        Map<QName, Serializable> properties = new HashMap<>();
         properties.put(ContentModel.PROP_NAME, CASES);
         NodeRef casesRootNodeRef = nodeService.createNode(companyHomeNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, CASES), ContentModel.TYPE_FOLDER, properties).getChildRef();
         setupAssignCaseIdRule(casesRootNodeRef);
         return casesRootNodeRef;
-
     }
 
     /**
@@ -403,7 +402,7 @@ public class CaseServiceImpl implements CaseService {
      * @return
      */
     private NodeRef createNode(NodeRef parentFolderNodeRef, String name) {
-        Map<QName, Serializable> properties = new HashMap<QName, Serializable>();
+        Map<QName, Serializable> properties = new HashMap<>();
         properties.put(ContentModel.PROP_NAME, name);
         return nodeService.createNode(parentFolderNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, name), ContentModel.TYPE_FOLDER, properties).getChildRef();
 
@@ -430,14 +429,14 @@ public class CaseServiceImpl implements CaseService {
         nodeService.addAspect(documentsNodeRef, OpenESDHModel.ASPECT_DOCUMENT_CONTAINER, null);
     }
 
-    protected void setupAssignCaseIdRule(NodeRef folderNodeRef) {
+    protected void setupAssignCaseIdRule(final NodeRef folderNodeRef) {
+        Action action = actionService.createAction(AssignCaseIdActionExecuter.NAME);
+        action.setTitle("Assign caseId");
+        action.setExecuteAsynchronously(true);
         Rule rule = new Rule();
         rule.setRuleType(RuleType.INBOUND);
         rule.setTitle("Assign caseId to case documents");
         rule.applyToChildren(true);
-        Action action = actionService.createAction(AssignCaseIdActionExecuter.NAME);
-        action.setTitle("Assign caseId");
-        action.setExecuteAsynchronously(true);
         rule.setAction(action);
         ruleService.saveRule(folderNodeRef, rule);
     }
@@ -473,7 +472,7 @@ public class CaseServiceImpl implements CaseService {
 
                 return null;
             }
-        }, "admin");
+        }, AuthenticationUtil.getAdminUserName());
     }
 
     /**

@@ -19,6 +19,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +38,7 @@ import static org.junit.Assert.*;
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass=SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:alfresco/application-context.xml")
-public class XSearchServiceImplTest {
+public class XSearchServiceImplIT {
 
     @Autowired
     @Qualifier("NodeService")

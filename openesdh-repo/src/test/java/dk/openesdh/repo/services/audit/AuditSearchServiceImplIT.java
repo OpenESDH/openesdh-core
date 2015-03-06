@@ -22,6 +22,7 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeUtils;
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,8 +47,9 @@ import static org.junit.Assert.assertNull;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
-@ContextConfiguration(locations = {"classpath:alfresco/application-context.xml", "classpath:alfresco/extension/openesdh-test-context.xml"})
-public class AuditSearchServiceImplTest {
+@ContextConfiguration("classpath:alfresco/application-context.xml")
+@Ignore
+public class AuditSearchServiceImplIT {
 
     @Autowired
     @Qualifier("authorityService")

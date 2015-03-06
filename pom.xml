@@ -31,9 +31,11 @@
         <!-- This control the root logging level for all apps -->
         <app.log.root.level>WARN</app.log.root.level>
         <!-- This controls the default data location for dir.root -->
-        <alfresco.data.location>alf_data_dev</alfresco.data.location>
+        <alfresco.data.location>openesdh-repo/alf_data_dev</alfresco.data.location>
         <!-- This controls which properties will be picked in multi-enviromment build -->
         <env>local</env>
+        
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
     <!-- Here we realize the connection with the Alfresco selected platform (e.g.version and edition) -->
@@ -54,7 +56,27 @@
         </dependencies>
     </dependencyManagement>
 
-    <!-- This repository is only needed to retrieve Alfresco parent POM. 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.18.1</version>
+                  <configuration>
+                      <argLine>${app.testing.jvm.args}</argLine>
+                  </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
+    <!-- This repository is only needed to retrieve Alfresco parent POM.
         NOTE: This can be removed when/if Alfresco will be on Maven Central 
         
         NOTE: The repository to be used for Alfresco Enterprise artifacts is
