@@ -287,6 +287,7 @@ public class CaseServiceImplIT {
         }
     }
 
+    @Ignore
     @Test
     public void testBehaviourOnAddOwnersToPermissionGroup() throws Exception {
         String caseId = caseService.getCaseId(behaviourOnCaseNodeRef);

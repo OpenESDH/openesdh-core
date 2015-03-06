@@ -31,7 +31,7 @@
         <!-- This control the root logging level for all apps -->
         <app.log.root.level>WARN</app.log.root.level>
         <!-- This controls the default data location for dir.root -->
-        <alfresco.data.location>alf_data_dev</alfresco.data.location>
+        <alfresco.data.location>openesdh-repo/alf_data_dev</alfresco.data.location>
         <!-- This controls which properties will be picked in multi-enviromment build -->
         <env>local</env>
         
