@@ -42,7 +42,6 @@ import static org.junit.Assert.*;
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:alfresco/application-context.xml")
-//@Ignore
 public class CaseServiceImplIT {
 
 //    private static final String ADMIN_USER_NAME = "admin";
@@ -200,7 +199,6 @@ public class CaseServiceImplIT {
     }
 
     @Test
-//    @Ignore
     public void testGetParentCase() throws Exception {
         NodeRef documentsFolder = caseService.getDocumentsFolder(behaviourOnCaseNodeRef);
 
@@ -215,7 +213,6 @@ public class CaseServiceImplIT {
     }
 
     @Test
-//    @Ignore
     public void testAssignCaseIDRule() throws Exception {
         NodeRef documentsFolder = caseService.getDocumentsFolder(behaviourOnCaseNodeRef);
 
@@ -238,7 +235,6 @@ public class CaseServiceImplIT {
     }
 
     @Test
-//    @Ignore
     public void testGetCasesRootNodeRef() throws Exception {
         NodeRef casesRootNodeRef = caseService.getCasesRootNodeRef();
         assertNotNull("Cases root noderef does not exist", casesRootNodeRef);
@@ -247,7 +243,6 @@ public class CaseServiceImplIT {
     }
 
     @Test
-//    @Ignore
     public void testGetCaseId() throws Exception {
         long uniqueNumber = 1231L;
         String caseId = caseService.getCaseId(uniqueNumber);
@@ -261,7 +256,6 @@ public class CaseServiceImplIT {
     }
 
     @Test
-//    @Ignore
     public void testGetCasePathNodeRef() throws Exception {
         Calendar c = Calendar.getInstance();
         NodeRef y = caseService.getCasePathNodeRef(temporaryRepoNodeRef, Calendar.YEAR);
@@ -273,7 +267,6 @@ public class CaseServiceImplIT {
     }
 
     @Test
-//    @Ignore
     public void testSetupPermissionGroups() throws Exception {
         long uniqueNumber = 1231L;
         String caseId = caseService.getCaseId(uniqueNumber);
@@ -295,7 +288,6 @@ public class CaseServiceImplIT {
     }
 
     @Test
-//    @Ignore
     public void testBehaviourOnAddOwnersToPermissionGroup() throws Exception {
         String caseId = caseService.getCaseId(behaviourOnCaseNodeRef);
         String groupName = caseService.getCaseRoleGroupName(caseId, "CaseOwners");
@@ -306,7 +298,6 @@ public class CaseServiceImplIT {
     }
 
     @Test
-//    @Ignore
     public void testBehaviourOnAddRemoveOwner() throws Exception {
 //        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
 
@@ -337,7 +328,6 @@ public class CaseServiceImplIT {
     }
 
     @Test
-//    @Ignore
     public void testGetCaseFolderNodeRef() throws Exception {
         Calendar c = Calendar.getInstance();
 
@@ -370,7 +360,6 @@ public class CaseServiceImplIT {
     }
 
     @Test
-//    @Ignore
     public void testGetRoles() throws Exception {
         long uniqueNumber = 1231L;
         String caseId = caseService.getCaseId(uniqueNumber);
@@ -382,7 +371,6 @@ public class CaseServiceImplIT {
 
 
     @Test
-//    @Ignore
     public void testAddRemoveAuthorityRole() throws Exception {
         caseService.setupPermissionGroups(temporaryCaseNodeRef,
                 caseService.getCaseId(temporaryCaseNodeRef));
@@ -402,7 +390,6 @@ public class CaseServiceImplIT {
 
 
     @Test
-//    @Ignore
     public void testAddAuthoritiesToRole() throws Exception {
         caseService.setupPermissionGroups(temporaryCaseNodeRef,
                 caseService.getCaseId(temporaryCaseNodeRef));
@@ -423,7 +410,6 @@ public class CaseServiceImplIT {
     }
 
     @Test
-//    @Ignore
     public void testChangeAuthorityRole() throws Exception {
         caseService.setupPermissionGroups(temporaryCaseNodeRef,
                 caseService.getCaseId(temporaryCaseNodeRef));
@@ -444,7 +430,6 @@ public class CaseServiceImplIT {
     }
 
     @Test
-//    @Ignore
     public void testGetMembersByRole() throws Exception {
         caseService.setupPermissionGroups(temporaryCaseNodeRef,
                 caseService.getCaseId(temporaryCaseNodeRef));
@@ -461,7 +446,6 @@ public class CaseServiceImplIT {
     }
 
     @Test
-//    @Ignore
     public void testGetAllMembersByRole() throws Exception {
         caseService.setupPermissionGroups(temporaryCaseNodeRef, caseService.getCaseId(temporaryCaseNodeRef));
         caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", temporaryCaseNodeRef);
@@ -488,7 +472,6 @@ public class CaseServiceImplIT {
     }
 
     @Test
-//    @Ignore
     public void testJournalize() throws Exception {
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
 

@@ -8,10 +8,8 @@ import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.dictionary.TypeDefinition;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.NamespaceService;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +29,6 @@ import static org.junit.Assert.assertEquals;
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass=SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:alfresco/application-context.xml")
-//@Ignore
 public class ModelLookupIT {
 
     @Autowired

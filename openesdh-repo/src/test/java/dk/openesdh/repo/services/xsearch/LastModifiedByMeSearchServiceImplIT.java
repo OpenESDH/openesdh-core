@@ -45,7 +45,6 @@ import static org.junit.Assert.assertEquals;
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:alfresco/application-context.xml")
-@Ignore
 public class LastModifiedByMeSearchServiceImplIT {
 
     @Autowired
@@ -110,7 +109,7 @@ public class LastModifiedByMeSearchServiceImplIT {
 
     @Before
     public void setUp() throws Exception {
-
+        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ADMIN_USER_NAME);
 
         lastModifiedByMeSearchService = new LastModifiedByMeSearchServiceImpl();
         lastModifiedByMeSearchService.setAuthorityService(authorityService);
@@ -144,8 +143,24 @@ public class LastModifiedByMeSearchServiceImplIT {
             }
         });
 
+
+    }
+
+    @After
+    public void tearDown() throws Exception {
+
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ADMIN_USER_NAME);
 
+        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Boolean>() {
+
+            public Boolean execute() throws Throwable {
+
+                caseHelper.deleteDummyUser();
+                nodeService.deleteNode(caseA);
+
+                return true;
+            }
+        });
     }
 
 
@@ -181,25 +196,5 @@ public class LastModifiedByMeSearchServiceImplIT {
         assertEquals(list.size(), 0);
 
         DateTimeUtils.setCurrentMillisSystem();
-
-
-
-    }
-
-    @After
-    public void tearDown() throws Exception {
-
-        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ADMIN_USER_NAME);
-
-        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Boolean>() {
-
-            public Boolean execute() throws Throwable {
-
-                caseHelper.deleteDummyUser();
-                nodeService.deleteNode(caseA);
-
-                return true;
-            }
-        });
     }
 }

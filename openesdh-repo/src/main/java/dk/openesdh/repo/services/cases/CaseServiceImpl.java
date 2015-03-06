@@ -442,7 +442,7 @@ public class CaseServiceImpl implements CaseService {
         Action action = actionService.createAction(AssignCaseIdActionExecuter.NAME);
         action.setTitle("Assign caseId");
         action.setExecuteAsynchronously(true);
-        final Rule rule = new Rule();
+        Rule rule = new Rule();
         rule.setRuleType(RuleType.INBOUND);
         rule.setTitle("Assign caseId to case documents");
         rule.applyToChildren(true);

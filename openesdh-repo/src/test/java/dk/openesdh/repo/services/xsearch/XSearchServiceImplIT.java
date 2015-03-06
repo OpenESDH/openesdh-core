@@ -38,7 +38,6 @@ import static org.junit.Assert.*;
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass=SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:alfresco/application-context.xml")
-@Ignore
 public class XSearchServiceImplIT {
 
     @Autowired
