@@ -34,6 +34,8 @@
         <alfresco.data.location>alf_data_dev</alfresco.data.location>
         <!-- This controls which properties will be picked in multi-enviromment build -->
         <env>local</env>
+        
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
     </properties>
 
     <!-- Here we realize the connection with the Alfresco selected platform (e.g.version and edition) -->
@@ -60,11 +62,13 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>2.18.1</version>
+                  <configuration>
+                      <argLine>${app.testing.jvm.args}</argLine>
+                  </configuration>
                 <executions>
                     <execution>
                         <goals>
                             <goal>integration-test</goal>
-                            <goal>verify</goal>
                         </goals>
                     </execution>
                 </executions>
