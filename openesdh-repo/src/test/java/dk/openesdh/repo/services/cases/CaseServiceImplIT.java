@@ -624,27 +624,4 @@ public class CaseServiceImplIT {
                         (OpenESDHModel.CASE_URI, name),
                 ContentModel.TYPE_CONTENT, properties).getChildRef();
     }
-
-    @Test
-    @Ignore
-    public void testSetupCase() throws Exception {
-        /*
-        // Used for removing aspects, in the absence of the javascript console.
-        SearchParameters sp = new SearchParameters();
-        sp.addStore(repositoryHelper.getCompanyHome().getStoreRef());
-        sp.setLanguage(SearchService.LANGUAGE_LUCENE);
-        sp.setQuery("TYPE:\"case:base\"");
-        ResultSet rs = searchService.query(sp);
-        try {
-            List<NodeRef> cases = rs.getNodeRefs();
-            for (int i = 0; i < cases.size(); i++) {
-                NodeRef nodeRef = cases.get(i);
-                nodeService.removeAspect(nodeRef, ContentModel.ASPECT_UNDELETABLE);
-            }
-        }
-        finally {
-            rs.close();
-        }
-        */
-    }
 }
