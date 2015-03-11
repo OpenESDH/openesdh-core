@@ -21,13 +21,13 @@ model.jsonModel = {
                     },
 
                     {
-//                        name: "alfresco/forms/controls/ContainerPicker",
-                        name: "openesdh/common/widgets/controls/CasePicker",
-//                        name: "openesdh/common/widgets/controls/CasePicker2",
+//                        name: "openesdh/common/widgets/controls/CasePicker",
+                        name: "openesdh/common/widgets/controls/CasePicker3",
                         config: {
                             label: msg.get("page.case.label"),
                             name: "caseId",
-                            itemKey: "nodeRef"
+                            value: "{value}"
+//                            itemKey: "nodeRef"
                         }
                     },
                     {
@@ -39,13 +39,6 @@ model.jsonModel = {
                                 regex: "^[A-Za-z0-9-]+",
                                 errorMessage: "Title must not be empty"
                             }
-                        }
-                    },
-                    {
-                        name: "alfresco/forms/controls/DojoValidationTextBox",
-                        config: {
-                            name: "responsible",
-                            label: msg.get("page.responsible.label")
                         }
                     },
                     {
