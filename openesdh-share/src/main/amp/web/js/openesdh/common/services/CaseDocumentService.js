@@ -11,8 +11,14 @@ define(["dojo/_base/declare",
 
         return declare([AlfCore, CoreXhr, _TopicsMixin], {
 
+            /**
+             * The documents NodeRef for a case.
+             */
             documentsNodeRef: null,
 
+            /**
+             * The current nodeRef of the selected document record in a case.
+             */
             currentDocRecordNodeRef: null,
 
             constructor: function (args) {
@@ -146,15 +152,13 @@ define(["dojo/_base/declare",
 
             _retrieveDocumentdetails: function openESDH_CaseDocumentService__retrieveCaseDocumentDetails(payload){
                 var rowData = payload.row;
-                console.log("CaseDocumentsService(142) NodeRef:"+rowData.id);
-                this.alfPublish(this.CaseDocumentReloadAttachmentsTopic, {nodeRef:rowData.id});
                 this.currentDocRecordNodeRef = rowData.id;
+                this.alfPublish(this.CaseDocumentReloadAttachmentsTopic, {nodeRef:rowData.id});
                 this.alfPublish(this.GetDocumentVersionsTopicClick, {nodeRef:rowData.data.mainDocNodeRef});
             },
 
             _retrieveDocumentVersions: function openESDH_CaseDocumentService__retrieveCaseDocumentDetails(payload){
                 var nodeRef = payload.nodeRef;
-                console.log("CaseDocumentsService(150) NodeRef: "+payload.nodeRef);
                 this.alfPublish(this.GetDocumentVersionsTopic, {nodeRef:nodeRef});
             }
         });

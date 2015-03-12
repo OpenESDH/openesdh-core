@@ -26,7 +26,9 @@ model.jsonModel = {
         },
         {
             name: "alfresco/services/NavigationService",
-            config: {}
+            config: {
+                fieldId: "35cbd518-a7c1-5432-89ba-7e3d781154be"
+            }
         }
     ],
 

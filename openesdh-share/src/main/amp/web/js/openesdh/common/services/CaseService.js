@@ -72,11 +72,16 @@ define(["dojo/_base/declare",
                 var url = Alfresco.constants.PROXY_URI + "api/openesdh/documents/isCaseDoc/" + persistedObjNodeRef.uri;
 
                 this.serviceXhr({
-                    url: url,
-                    method: "GET",
-                    successCallback: this.alfPublish(this.navigateToPageTopic, {
-                        type: this.contextRelativePath,
-                        url: "page/oe/case/"+response.caseId+"/dashboard"}),
+                        url: url,
+                        method: "GET",
+                        successCallback: function (response, config) {
+                            this.alfPublish("ALF_NAVIGATE_TO_PAGE", {
+                                type: "CONTEXT_RELATIVE",
+                                target: "CURRENT",
+                                url: "page/oe/case/" + response.caseId + "/dashboard"
+                            }
+                        )
+                    },
                     callbackScope: this});
             },
 
