@@ -40,8 +40,11 @@ define(["dojo/_base/declare",
             postMixInProperties: function alfresco_renderers_UserNameField__postMixInProperties() {
 
                 var property = lang.getObject(this.propertyToRender, false, this.currentItem);
-                this.renderedValue = property.value;
+                //Attempt to render the actual property itself (in the case where the propertyToRender isn't an object
+                //but a simple string (This was hacked for DocInfoWidget for example)
+                this.renderedValue = (property.value == null) ? property: property.value;
                 this.renderedValueClass = this.renderedValueClass + " " + this.renderSize + " block";
+
             }
         });
     });

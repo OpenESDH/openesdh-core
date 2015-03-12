@@ -3,11 +3,12 @@ define(["dojo/_base/declare",
         "alfresco/core/CoreXhr",
         "dojo/_base/array",
         "dojo/_base/lang",
+        "alfresco/core/NodeUtils",
         "openesdh/pages/_TopicsMixin",
         "alfresco/dialogs/AlfFormDialog",
         "dojo/window"
     ],
-    function (declare, AlfCore, CoreXhr, array, lang, _TopicsMixin, AlfFormDialog, win) {
+    function (declare, AlfCore, CoreXhr, array, lang, NodeUtils, _TopicsMixin, AlfFormDialog, win) {
 
         return declare([AlfCore, CoreXhr, _TopicsMixin], {
 
@@ -28,6 +29,7 @@ define(["dojo/_base/declare",
                 this.alfSubscribe("OE_SHOW_ATTACHMENTS_UPLOADER", lang.hitch(this, this._showUploader));
                 this.alfSubscribe("OE_CASE_DOCUMENT_SERVICE_UPLOAD_REQUEST_RECEIVED", lang.hitch(this, this._onFileUploadRequest));
                 this.alfSubscribe("OE_PREVIEW_DOC", lang.hitch(this, this.onPreviewDoc));
+                this.alfSubscribe("GET_DOCUMENT_RECORD_INFO", lang.hitch(this, this._docRecordInfo));
                 this.alfSubscribe(this.CaseDocumentRowSelect, lang.hitch(this, this._retrieveDocumentdetails));
                 this.alfSubscribe(this.GetDocumentVersionsTopicClick, lang.hitch(this, this._retrieveDocumentVersions));
             },
@@ -137,6 +139,24 @@ define(["dojo/_base/declare",
                 this.alfPublish("ALF_UPLOAD_REQUEST", payload);
             },
 
+            _docRecordInfo: function (nodeRef) {
+                // Get caseInfo from webscript
+                if (nodeRef == null) {
+                    console.log("error", "Null nodeRef");
+                    return false;
+                }
+                var docRecordNodeRefURI = NodeUtils.processNodeRef(nodeRef).uri;
+                var url = Alfresco.constants.PROXY_URI + "api/openesdh/documentInfo/" + docRecordNodeRefURI;
+
+                this.serviceXhr({
+                    url: url,
+                    method: "GET",
+                    successCallback:function (response) {
+                        this.alfPublish(this.CaseRefreshDocInfoTopic, response)
+                    },
+                    callbackScope: this});
+            },
+
             /**
              * This function is called once the document upload is complete. It publishes a request to reload the
              * current document list data.
@@ -153,6 +173,7 @@ define(["dojo/_base/declare",
             _retrieveDocumentdetails: function openESDH_CaseDocumentService__retrieveCaseDocumentDetails(payload){
                 var rowData = payload.row;
                 this.currentDocRecordNodeRef = rowData.id;
+                this.alfPublish("GET_DOCUMENT_RECORD_INFO", rowData.id);
                 this.alfPublish(this.CaseDocumentReloadAttachmentsTopic, {nodeRef:rowData.id});
                 this.alfPublish(this.GetDocumentVersionsTopicClick, {nodeRef:rowData.data.mainDocNodeRef});
             },

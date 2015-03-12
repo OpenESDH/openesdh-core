@@ -104,6 +104,7 @@ public interface OpenESDHModel {
     public static final QName PROP_DOC_CATEGORY = QName.createQName(DOC_URI, "category");
     public static final QName PROP_DOC_IS_MAIN_ENTRY = QName.createQName(DOC_URI, "isMainEntry");
     public static final QName PROP_DOC_VARIANT = QName.createQName(DOC_URI, "variant");
+    public static final QName PROP_DOC_TYPE = QName.createQName(DOC_URI, "type");
 
 
     public static final QName PROP_CONTACT_EMAIL = QName.createQName(CONTACT_URI, "email");

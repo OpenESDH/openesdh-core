@@ -74,6 +74,12 @@
         <property name="caseService" ref="CaseService"/>
     </bean>
 
+    <bean id="webscript.dk.openesdh.case.docRecordInfo.get"
+          class="dk.openesdh.repo.webscripts.cases.DocumentRecordInfo"
+          parent="webscript">
+        <property name="nodeInfoService" ref="NodeInfoService"/>
+    </bean>
+
     <bean id="webscript.dk.openesdh.iscasenode.get"
           class="dk.openesdh.repo.webscripts.cases.IsCaseNode"
           parent="webscript">
