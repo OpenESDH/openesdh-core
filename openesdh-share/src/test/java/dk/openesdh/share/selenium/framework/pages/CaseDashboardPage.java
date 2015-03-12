@@ -10,7 +10,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CaseDashboardPage extends BasePage {
-    private static final String URL = BASE_URL + "/page/hdp/ws/dk-openesdh-pages-case-dashboard";
+
+    public static final String URL = BASE_URL + "/page/oe/case/@@ID@@/dashboard";
 
     @FindBy(id = "HEADER_CASE_CONFIGURATION_DROPDOWN")
     WebElement headerCaseConfigDropdown;
@@ -18,26 +19,28 @@ public class CaseDashboardPage extends BasePage {
     @FindBy(id = "HEADER_CASE_JOURNALIZE_text")
     WebElement headerJournalizeItem;
 
+    @FindBy(id = "HEADER_CASE_EDIT_text")
+    WebElement headerCaseEditButton;
+
+
     @FindBy(id = "HEADER_CASE_UNJOURNALIZE_text")
     WebElement headerUnJournalizeItem;
 
+
+    public void gotoPage(String caseId) {
+        Browser.open(URL.replace("@@ID@@", caseId) );
+    }
+
     public boolean isAt() {
-        return Browser.Driver.getCurrentUrl().startsWith(URL);
+        String tmpUrl = URL.replace("@@ID@@", this.getCaseId());
+        return Browser.Driver.getCurrentUrl().startsWith(tmpUrl);
     }
 
-    public String getNodeRef() {
-        Pattern p = Pattern.compile("nodeRef=(.+)");
-        Matcher matcher = p.matcher(Browser.Driver.getCurrentUrl());
-        if (matcher.find()) {
-            return matcher.group(1);
-        } else {
-            return null;
-        }
+    public void edit() {
+        headerCaseConfigDropdown.click();
+        headerCaseEditButton.click();
     }
 
-    public void gotoPage(String nodeRef) {
-        Browser.open(URL + "?nodeRef=" + nodeRef);
-    }
 
     public void journalize(String journalKey) {
         headerCaseConfigDropdown.click();
@@ -97,5 +100,11 @@ public class CaseDashboardPage extends BasePage {
         // Accept the confirmation dialog
         Alert alert = Browser.Driver.switchTo().alert();
         alert.accept();
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
     }
 }

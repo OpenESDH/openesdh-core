@@ -8,7 +8,7 @@ import org.openqa.selenium.support.FindBy;
 import java.util.List;
 
 public class CaseMembersPage extends BasePage {
-    private static final String URL = BASE_URL + "/page/hdp/ws/dk-openesdh-pages-case-dashboard-members";
+    private static final String URL = BASE_URL + "/page/oe/case/@@ID@@/members";
 
     /**
      * Headermenu item "Cases"
@@ -16,13 +16,16 @@ public class CaseMembersPage extends BasePage {
     @FindBy(id = "CASE_MEMBERS_ADD_AUTHORITIES_text")
     WebElement addAuthoritiesButton;
 
-    public boolean isAt() {
-        return Browser.Driver.getCurrentUrl().startsWith(URL);
+
+    public void gotoPage(String caseId) {
+        Browser.open(URL.replace("@@ID@@", caseId) );
     }
 
-    public void gotoPage(String nodeRef) {
-        Browser.open(URL + "?nodeRef=" + nodeRef);
+    public boolean isAt() {
+        String tmpUrl = URL.replace("@@ID@@", this.getCaseId());
+        return Browser.Driver.getCurrentUrl().startsWith(tmpUrl);
     }
+
 
     public void addAuthoritiesToRole(List<String> authorities, String role) {
         addAuthoritiesButton.click();

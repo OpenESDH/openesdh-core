@@ -11,7 +11,7 @@ import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
 public class SearchPage extends BasePage {
-    private static final String URL = BASE_URL + "/page/hdp/ws/search";
+    private static final String URL = BASE_URL + "/page/oe/case/search";
 
     public boolean isAt() {
         return Browser.Driver.getCurrentUrl().startsWith(URL);

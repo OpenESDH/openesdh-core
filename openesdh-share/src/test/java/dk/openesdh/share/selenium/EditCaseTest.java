@@ -21,7 +21,7 @@ public class EditCaseTest {
     String testCaseStartDate;
     String testCaseEndDate;
 
-    String testCaseNodeRef;
+    String caseId;
 
     /**
      * Headermenu item "Cases"
@@ -53,10 +53,9 @@ public class EditCaseTest {
         testCaseOwners = Arrays.asList("admin");
         testCaseStartDate = "";
         testCaseEndDate = "";
-        testCaseNodeRef = createCase();
+        caseId = createCase();
+        Pages.CaseDashboard.edit();
 
-        // Edit the test "case" giving it a random title
-        Pages.EditCase.gotoPage(testCaseNodeRef);
         testCaseTitle = RandomStringUtils.randomAlphanumeric(24);
         Pages.EditCase.editCase(testCaseTitle,
                 testCaseStatus, testCaseStartDate, testCaseEndDate);
@@ -66,9 +65,6 @@ public class EditCaseTest {
 
     @After
     public void tearDown() {
-        // Delete the test case
-        Pages.DocumentDetails.gotoPage(testCaseNodeRef);
-        Pages.DocumentDetails.deleteNode();
         Pages.Login.logout();
     }
 

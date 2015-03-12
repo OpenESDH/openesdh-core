@@ -9,7 +9,6 @@ import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
 
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -23,7 +22,7 @@ public class CaseMembersTest {
     String testCaseStatus;
     List<String> testCaseOwners;
 
-    String testCaseNodeRef;
+    String testCaseID;
 
     @BeforeClass
     public static void setUpBeforeClass() {
@@ -41,16 +40,20 @@ public class CaseMembersTest {
         testCaseOwners = Arrays.asList("admin");
         String testCaseStartDate = "";
         String testCaseEndDate = "";
-        testCaseNodeRef = Pages.CreateCase.createCase(testCaseTitle, testCaseStatus,
-                testCaseOwners, testCaseStartDate, testCaseEndDate);
-        assertNotNull(testCaseNodeRef);
 
-        Pages.CaseMembers.gotoPage(testCaseNodeRef);
+        testCaseID = Pages.CreateCase.createCase(testCaseTitle, testCaseStatus,
+                testCaseOwners, testCaseStartDate, testCaseEndDate);
+        assertNotNull(testCaseID);
+
+        Pages.CaseMembers.gotoPage(testCaseID);
         assertTrue(Pages.CaseMembers.isAt());
     }
 
     @Test
     public void testAddChangeRemoveUser() {
+
+
+
         String role = "CaseSimpleReader";
         List<String> authorities = new LinkedList<>();
         String testUser = "admin";
@@ -88,9 +91,6 @@ public class CaseMembersTest {
 
     @After
     public void tearDown() {
-        // Delete the test case
-        Pages.DocumentDetails.gotoPage(testCaseNodeRef);
-        Pages.DocumentDetails.deleteNode();
         Pages.Login.logout();
     }
 

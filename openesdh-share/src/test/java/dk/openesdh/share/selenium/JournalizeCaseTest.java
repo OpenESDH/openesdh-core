@@ -79,9 +79,6 @@ public class JournalizeCaseTest {
 
     @After
     public void tearDown() {
-        // Delete the test case
-        Pages.DocumentDetails.gotoPage(testCaseNodeRef);
-        Pages.DocumentDetails.deleteNode();
         Pages.Login.logout();
     }
 

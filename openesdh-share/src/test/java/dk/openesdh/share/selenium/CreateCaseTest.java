@@ -54,14 +54,13 @@ public class CreateCaseTest {
                 testCaseOwners, testCaseStartDate, testCaseEndDate);
         assertNotNull(testCaseNodeRef);
 
+        assertTrue(Pages.CaseDashboard.isAt());
+
         // TODO: Check that case dashboard appears as desired
     }
 
     @After
     public void tearDown() {
-        // Delete the test case
-        Pages.DocumentDetails.gotoPage(testCaseNodeRef);
-        Pages.DocumentDetails.deleteNode();
         Pages.Login.logout();
     }
 
