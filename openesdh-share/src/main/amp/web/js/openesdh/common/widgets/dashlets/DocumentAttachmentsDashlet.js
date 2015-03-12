@@ -53,7 +53,8 @@ define(["dojo/_base/declare",
                         showPagination: false,
                         sort: [
                             { attribute: 'cm:name', descending: true }
-                        ]
+                        ],
+                        showColumnHider: false
                     }
                 }
             ],

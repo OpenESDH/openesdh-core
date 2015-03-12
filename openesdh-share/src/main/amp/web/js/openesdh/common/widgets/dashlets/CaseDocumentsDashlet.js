@@ -69,8 +69,9 @@ define(["dojo/_base/declare",
                     name: "openesdh/pages/case/widgets/DocumentGrid",
                     config: {
                         sort: [
-                            { attribute: 'cm:modified', descending: true }
-                        ]
+                            { attribute: 'cm:modified', descending: true}
+                        ],
+                        showColumnHider: false
                     }
                 }
 

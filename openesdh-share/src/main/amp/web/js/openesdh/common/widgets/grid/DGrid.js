@@ -311,11 +311,7 @@ define(["dojo/_base/declare",
              * @returns {*}
              */
             getActionUrl: function (action, item) {
-                return Alfresco.constants.URL_PAGECONTEXT + lang.replace(action.href, {
-                        // TODO: Support ANY item property?
-                        "caseId": item["oe:id"],
-                        "nodeRef": item["nodeRef"]
-                    });
+                return Alfresco.constants.URL_PAGECONTEXT + lang.replace(action.href, item);
             },
 
             /**
@@ -348,7 +344,7 @@ define(["dojo/_base/declare",
              */
             _formatDate: function (value) {
                 var date = new Date(value);
-                return date.toLocaleDateString() + " - " + date.toLocaleTimeString();
+                return date.toLocaleDateString();
             },
 
             /**

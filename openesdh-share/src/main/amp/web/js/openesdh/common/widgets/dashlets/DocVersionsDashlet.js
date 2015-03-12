@@ -49,16 +49,7 @@ define(["dojo/_base/declare", "alfresco/core/Core",
              */
             i18nRequirements: [{i18nFile: "./i18n/DocVersionsDashlet.properties"}],
 
-             /*widgetsForTitleBarActions : [
-                 {
-                     name: "alfresco/buttons/AlfButton",
-                     config: {
-                         // TODO: Add icon class
-                         iconClass: "add-icon-16",
-                         publishTopic: "OE_SHOW_UPLOADER"
-                     }
-                 }
-             ],*/
+             /*widgetsForTitleBarActions : [{}],*/
 
              /**
               * The widgets in the body
@@ -70,7 +61,8 @@ define(["dojo/_base/declare", "alfresco/core/Core",
                          showPagination: false,
                          sort: [
                              { attribute: 'label', descending: true }
-                         ]
+                         ],
+                         showColumnHider: false
                      }
                  }
              ],

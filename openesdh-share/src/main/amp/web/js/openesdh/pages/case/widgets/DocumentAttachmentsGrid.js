@@ -25,7 +25,12 @@ define(["dojo/_base/declare",
                     "id" : "doc-preview",
                     "label" : "grid.actions.preview_doc",
                     "key" : "13"
-                }
+                },
+                {"href" : "document-details?nodeRef={nodeRef}",
+                    "id" : "doc-details",
+                    "label" : "grid.actions.doc_details",
+                    "key" : "68", // Shift+D
+                    "shift": true}
             ],
 
             /**

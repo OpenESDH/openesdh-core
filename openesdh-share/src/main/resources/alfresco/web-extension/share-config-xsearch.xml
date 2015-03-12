@@ -47,7 +47,7 @@
                 </filters-availability>
                 <actions>
                     <action id="case-dashboard"
-                            href="oe/case/{caseId}/dashboard"
+                            href="oe/case/{oe:id}/dashboard"
                             label="grid.actions.goto_case"
                             key="13"/>
                     <action id="case-edit"
