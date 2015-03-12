@@ -20,31 +20,39 @@ model.jsonModel = {
                         id:"CASE_INFO_DASHLET",
                         name: "openesdh/common/widgets/dashlets/CaseInfoDashlet"
                     },
-                    { id: "CASE_MEMBERS_DASHLET",
-                      name: "alfresco/layout/HorizontalWidgets",
-                      align: "right",
-                      config: {
-                            widgetWidth: 50,
-                            widgets: [{
-                                name: "openesdh/common/widgets/dashlets/CaseMembersDashlet",
-                                config:{
-                                    caseId : caseId
+                    {
+                        name: "alfresco/layout/VerticalWidgets",
+                        config: {
+                            widgets: [
+                                {
+                                    id: "CASE_HISTORY_DASHLET",
+                                    name: "openesdh/common/widgets/dashlets/CaseHistoryDashlet",
+                                    config: {
+                                        nodeRef: caseNodeRef
+                                    }
+                                },
+                                { id: "CASE_MEMBERS_DASHLET",
+                                    name: "alfresco/layout/HorizontalWidgets",
+                                    align: "right",
+                                    config: {
+                                        widgetWidth: 50,
+                                        widgets: [{
+                                            name: "openesdh/common/widgets/dashlets/CaseMembersDashlet",
+                                            config:{
+                                                caseId : caseId
+                                            }
+                                        }]
+                                    }
+                                },
+                                {
+                                    id: "CASE_NOTES_DASHLET",
+                                    name: "openesdh/common/widgets/dashlets/NotesDashlet",
+                                    config: {
+                                        nodeRef: caseNodeRef
+
+                                    }
                                 }
-                            }]
-                      }
-                    },
-                    {
-
-                        name: "openesdh/common/widgets/dashlets/CaseHistoryDashlet",
-                        config: {
-                            nodeRef: caseNodeRef
-                        }
-                    },
-                    {
-                        name: "openesdh/common/widgets/dashlets/NotesDashlet",
-                        config: {
-                            nodeRef: caseNodeRef
-
+                            ]
                         }
                     }
                 ]

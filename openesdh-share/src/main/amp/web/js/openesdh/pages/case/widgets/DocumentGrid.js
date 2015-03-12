@@ -34,7 +34,12 @@ define(["dojo/_base/declare",
                 {"href" : "edit-metadata?nodeRef={nodeRef}",
                     "id" : "case-edit",
                     "label" : "grid.actions.edit_doc",
-                    "key" : "69",
+                    "key" : "69", // Shift+E
+                    "shift": true},
+                {"href" : "document-details?nodeRef={mainDocNodeRef}",
+                    "id" : "doc-details",
+                    "label" : "grid.actions.doc_details",
+                    "key" : "68", // Shift+D
                     "shift": true}
             ],
 

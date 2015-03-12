@@ -67,6 +67,7 @@ define(["dojo/_base/declare",
                 name: "alfresco/documentlibrary/views/layouts/HeaderCell",
                 config: {
                     label: "label.role",
+                    i18nScope: "openesdh.case.CaseMembersDashlet",
                     sortable: true,
                     visibilityConfig: {
                         initialValue: false,
