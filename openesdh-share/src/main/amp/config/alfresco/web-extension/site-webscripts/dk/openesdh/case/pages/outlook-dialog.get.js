@@ -21,8 +21,7 @@ model.jsonModel = {
                     },
 
                     {
-//                        name: "openesdh/common/widgets/controls/CasePicker",
-                        name: "openesdh/common/widgets/controls/CasePicker3",
+                        name: "openesdh/common/widgets/controls/CasePicker",
                         config: {
                             label: msg.get("page.case.label"),
                             name: "caseId",
