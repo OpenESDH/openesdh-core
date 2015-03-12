@@ -10,6 +10,7 @@ define(["dojo/_base/declare"],
             AttachmentRowDeselect: "ATTACHMENTS_DOCUMENT_ROW_DESELECT",
             ReloadAttachmentsTopic: "OE_RELOAD_ATTACHMENTS",
             GetDocumentVersionsTopic: "GET_DOCUMENT_VERSIONS",
+            SetDocumentAttachmentsNodeRef: "SET_DOC_ATTACHMENTS_TOPIC",
             VersionsGridRefresh:"VERSIONS_GRID_REFRESH"
 
         });

@@ -115,25 +115,21 @@ public class XSearchWebscript extends AbstractWebScript {
         Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
         for (Map.Entry<QName, Serializable> entry : properties.entrySet()) {
             if (entry.getValue() instanceof Date) {
-                json.put(entry.getKey().toPrefixString(namespaceService),
-                        ((Date) entry.getValue()).getTime());
+                json.put(entry.getKey().toPrefixString(namespaceService), ((Date) entry.getValue()).getTime());
             } else {
                 json.put(entry.getKey().toPrefixString(namespaceService), entry.getValue());
             }
         }
-        List<AssociationRef> associations = nodeService.getTargetAssocs
-                (nodeRef, RegexQNamePattern.MATCH_ALL);
+        List<AssociationRef> associations = nodeService.getTargetAssocs(nodeRef, RegexQNamePattern.MATCH_ALL);
         for (AssociationRef association : associations) {
-            String assocName = association.getTypeQName().toPrefixString
-                    (namespaceService);
+            String assocName = association.getTypeQName().toPrefixString(namespaceService);
             if (!json.has(assocName)) {
                 JSONArray refs = new JSONArray();
-                if (nodeService.getType(association.getTargetRef()).equals(
-                        ContentModel.TYPE_PERSON)) {
-                    PersonService.PersonInfo info = personService.getPerson
-                            (association.getTargetRef());
+                if (nodeService.getType(association.getTargetRef()).equals( ContentModel.TYPE_PERSON)) {
+                    PersonService.PersonInfo info = personService.getPerson(association.getTargetRef());
                     refs.put(info.getUserName());
-                } else {
+                }
+                else {
                     refs.put(association.getTargetRef());
                 }
 
@@ -141,8 +137,7 @@ public class XSearchWebscript extends AbstractWebScript {
             } else {
                 JSONArray refs = (JSONArray) json.get(assocName);
                 refs.put(association.getTargetRef());
-                json.put(association.getTypeQName().toPrefixString
-                        (namespaceService), refs);
+                json.put(association.getTypeQName().toPrefixString(namespaceService), refs);
             }
         }
         json.put("TYPE", nodeService.getType(nodeRef).toPrefixString(namespaceService));

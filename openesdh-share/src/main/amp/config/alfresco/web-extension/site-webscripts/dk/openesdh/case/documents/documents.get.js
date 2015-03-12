@@ -36,33 +36,6 @@ var services = [
     }
 ];
 
-/*
-model.jsonModel = {
-    services: services,
-    widgets: [
-        {
-            id: "SHARE_VERTICAL_LAYOUT",
-            name: "alfresco/layout/VerticalWidgets",
-            config:
-            {
-                //widgets: widgets
-                widgets: [
-                    {
-                        name: "openesdh/common/widgets/dashlets/CaseDocumentsDashlet",
-                        config: {
-                            nodeRef: caseNodeRef
-                        }
-                    },
-                    {
-                        name: "openesdh/common/widgets/dashlets/DocumentAttachmentsDashlet"
-                    }
-                ]
-            }
-        }
-    ]
-};
-*/
-
 model.jsonModel = {
     services: services,
     widgets: [

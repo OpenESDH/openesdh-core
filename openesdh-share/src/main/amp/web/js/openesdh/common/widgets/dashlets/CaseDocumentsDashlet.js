@@ -72,11 +72,8 @@ define(["dojo/_base/declare",
                             { attribute: 'cm:modified', descending: true }
                         ]
                     }
-                },
-                // This widget is required to handle ALF_UPLOAD_REQUEST topics
-                {
-                    name: "alfresco/upload/AlfUpload"
                 }
+
             ],
 
             constructor: function (args) {

@@ -39,7 +39,7 @@ function getActionList(configElement) {
         var obj = {
             id: action.getAttribute(new String('id')),
             label: action.getAttribute(new String('label')),
-            href: action.getAttribute(new String('href')),
+            href: action.getAttribute(new String('href'))
         };
         var key = action.getAttribute(new String('key'));
         var shift = action.getAttribute(new String('shift'));

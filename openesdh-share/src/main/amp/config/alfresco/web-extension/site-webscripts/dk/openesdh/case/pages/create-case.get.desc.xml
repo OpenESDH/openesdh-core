@@ -1,0 +1,6 @@
+<webscript>
+    <shortname>Page for creating a case</shortname>
+    <description>A detailed view of an individual document</description>
+    <family>Share</family>
+    <url>/create-case</url>
+</webscript>

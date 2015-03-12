@@ -5,10 +5,11 @@ define(["dojo/_base/declare",
         "dojo/_base/array",
         "dojo/_base/lang",
         "openesdh/pages/_TopicsMixin",
+        "alfresco/services/_NavigationServiceTopicMixin",
         "alfresco/dialogs/AlfFormDialog",
         "alfresco/core/NotificationUtils",
         "openesdh/common/widgets/controls/category/CategoryPickerControl"],
-    function (declare, AlfCore, CoreXhr, NodeUtils, array, lang, _TopicsMixin, AlfFormDialog, NotificationUtils, CategoryPickerControl) {
+    function (declare, AlfCore, CoreXhr, NodeUtils, array, lang, _TopicsMixin, _NavigationServiceTopicMixin, AlfFormDialog, NotificationUtils, CategoryPickerControl) {
 
         return declare([AlfCore, CoreXhr, _TopicsMixin, NotificationUtils], {
 
@@ -36,6 +37,8 @@ define(["dojo/_base/declare",
                 this.alfSubscribe("OPENESDH_JOURNALIZE", lang.hitch(this, "onJournalize"));
                 this.alfSubscribe("OPENESDH_UNJOURNALIZE", lang.hitch(this, "onUnJournalize"));
                 this.alfSubscribe("ALF_WIDGETS_READY", lang.hitch(this, "onAllWidgetsReady"));
+                this.alfSubscribe(this.CreateCaseTopic, lang.hitch(this, "_onCreateCaseTopic"));
+                this.alfSubscribe(this.CreateCaseSuccess, lang.hitch(this, "_onCreateCaseTopicSuccess"));
 
                 // Don't do anything when the widgets are ready
                 // This is overwritten when the case info is loaded
@@ -47,6 +50,35 @@ define(["dojo/_base/declare",
             //onCaseInfo: function (payload) {
             //    this._caseInfo(payload.caseId != null ? payload.caseId: payload.nodeRef, lang.hitch(this, "_onCaseInfoSuccess"));
             //},
+
+            _onCreateCaseTopic: function (payload){
+                console.log("create case submit");
+                var url = Alfresco.constants.PROXY_URI + "api/type/case%3Asimple/formprocessor";
+
+                this.serviceXhr({
+                    url: url,
+                    method: "POST",
+                    data: payload,
+                    successCallback:function (response, config) {
+                        this.alfPublish(this.CreateCaseSuccess, response)
+                    },
+                    callbackScope: this});
+            },
+
+            _onCreateCaseTopicSuccess: function (payload){
+                console.log("CaseService(66) navigating to dashboard");
+                // construct the url to call
+                var persistedObjNodeRef = NodeUtils.processNodeRef(payload.persistedObject);
+                var url = Alfresco.constants.PROXY_URI + "api/openesdh/documents/isCaseDoc/" + persistedObjNodeRef.uri;
+
+                this.serviceXhr({
+                    url: url,
+                    method: "GET",
+                    successCallback: this.alfPublish(this.navigateToPageTopic, {
+                        type: this.contextRelativePath,
+                        url: "page/oe/case/"+response.caseId+"/dashboard"}),
+                    callbackScope: this});
+            },
 
             _caseInfo: function (nodeRefOrCaseId, successCallback) {
                 // Get caseInfo from webscript

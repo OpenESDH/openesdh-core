@@ -10,18 +10,22 @@
         </property>
     </bean>
 
+    <bean id="webscript.dk.openesdh.case.permittedStates.get" parent="webscript"
+          class="dk.openesdh.repo.webscripts.cases.PermittedStates">
+        <property name="dictionaryService" ref="dictionaryService"/>
+    </bean>
+
     <bean id="webscript.dk.openesdh.casehistory.get"
           class="dk.openesdh.repo.webscripts.cases.CaseHistory"
           parent="webscript">
         <property name="auditSearchService" ref="AuditSearchService"/>
     </bean>
 
-    <bean id="xsearchWebscript"
-          class="dk.openesdh.repo.webscripts.xsearch.XSearchWebscript"
-          parent="webscript">
-        <property name="nodeService" ref="NodeService"/>
-        <property name="namespaceService" ref="NamespaceService"/>
-        <property name="personService" ref="PersonService"/>
+    <bean id="xsearchWebscript" parent="webscript"
+          class="dk.openesdh.repo.webscripts.xsearch.XSearchWebscript">
+        <property name="nodeService" ref="nodeService"/>
+        <property name="namespaceService" ref="namespaceService"/>
+        <property name="personService" ref="personService"/>
     </bean>
 
     <bean id="webscript.dk.openesdh.search.get"

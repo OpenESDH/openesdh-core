@@ -2,6 +2,8 @@ define(["dojo/_base/declare"],
     function(declare) {
 
         return declare(null, {
+            CreateCaseTopic:"OE_CREATE_CASE_TOPIC",
+            CreateCaseSuccess:"OE_CREATE_CASE_SUCCESS",
             CaseInfoTopic: "CASE_INFO",
             CaseHistoryTopic : "CASE_HISTORY",
             DocumentsTopic: "DOCUMENT_LIST",

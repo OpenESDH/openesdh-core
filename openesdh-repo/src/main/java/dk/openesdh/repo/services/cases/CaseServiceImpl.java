@@ -167,7 +167,7 @@ public class CaseServiceImpl implements CaseService {
     public NodeRef getCaseById(String caseId) {
         SearchParameters sp = new SearchParameters();
         sp.addStore(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE);
-        sp.setLanguage(SearchService.LANGUAGE_FTS_ALFRESCO);
+        sp.setLanguage(SearchService.LANGUAGE_LUCENE);
         sp.setQuery("TYPE:\""+OpenESDHModel.TYPE_CASE_SIMPLE+"\"AND @oe\\:id:\""+ caseId+"\"");
         ResultSet results = null;
         NodeRef caseNodeRef = null;
@@ -180,8 +180,8 @@ public class CaseServiceImpl implements CaseService {
             if(results != null) {
                 results.close();
             }
-            return caseNodeRef;
         }
+        return caseNodeRef;
     }
 
     public String getCaseId(NodeRef caseNodeRef) {

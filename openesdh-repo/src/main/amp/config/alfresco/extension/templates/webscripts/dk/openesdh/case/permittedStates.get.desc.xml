@@ -1,0 +1,9 @@
+<webscript>
+    <shortname>Get permitted states for cases</shortname>
+    <description>Returns the list of permitted states for a case</description>
+    <url>/api/openesdh/case/party/permittedStates</url>
+    <format default="json"></format>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+    <family>Case Tools</family>
+</webscript>
