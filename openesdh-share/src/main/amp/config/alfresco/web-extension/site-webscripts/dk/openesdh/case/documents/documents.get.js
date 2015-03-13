@@ -36,33 +36,6 @@ var services = [
     }
 ];
 
-/*
-model.jsonModel = {
-    services: services,
-    widgets: [
-        {
-            id: "SHARE_VERTICAL_LAYOUT",
-            name: "alfresco/layout/VerticalWidgets",
-            config:
-            {
-                //widgets: widgets
-                widgets: [
-                    {
-                        name: "openesdh/common/widgets/dashlets/CaseDocumentsDashlet",
-                        config: {
-                            nodeRef: caseNodeRef
-                        }
-                    },
-                    {
-                        name: "openesdh/common/widgets/dashlets/DocumentAttachmentsDashlet"
-                    }
-                ]
-            }
-        }
-    ]
-};
-*/
-
 model.jsonModel = {
     services: services,
     widgets: [
@@ -99,15 +72,8 @@ model.jsonModel = {
                         config: {
                             widgets:[
                                 {
-                                    id:"CASE_DOCUMENTS_DASHLET",
-                                    name: "openesdh/common/widgets/dashlets/CaseInfoDashlet",
-                                    config:{
-                                        widgetsForBody: [
-                                            {
-                                                name: "openesdh/pages/case/widgets/DocInfoWidget"
-                                            }
-                                        ]
-                                    }
+                                    id:"DOC_RECORD_INFO",
+                                    name: "openesdh/common/widgets/dashlets/DocRecordInfoDashlet"
                                 },
                                 {
                                     id:"DOCUMENT_PREVIEW_DASHLET",

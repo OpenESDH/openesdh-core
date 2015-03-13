@@ -20,7 +20,7 @@ define(["dojo/_base/declare",
              * @instance
              * @type {object[]}
              */
-            actions: [ {"href" : "oe/case/{caseId}/dashboard" ,
+            actions: [ {"href" : "oe/case/{oe:id}/dashboard" ,
                         "id" : "case-dashboard",
                         "label" : "grid.actions.goto_case",
                         "key" : "13"},

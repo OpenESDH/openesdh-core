@@ -16,7 +16,7 @@ function getCreateCaseWidgets (caseTypes) {
                 config: {
                     id: "CASE_MENU_CREATE_CASE_" + c.type.replace(":", "_").toUpperCase(),
                     label: label,
-                    targetUrl: "create-content?destination=" + encodeURIComponent(newCaseFolder) + "&itemId=" + encodeURIComponent(c.type)
+                    targetUrl: "oe/case/create-case?destination=" + encodeURIComponent(newCaseFolder) + "&itemId=" + encodeURIComponent(c.type)
                 }
             }
         );
@@ -65,6 +65,10 @@ if (headerMenu != null) {
                         label: "Create",
                         widgets: createCasesWidgets
                     }
+                },
+                // This widget is required to handle ALF_UPLOAD_REQUEST topics
+                {
+                    name: "alfresco/upload/AlfUpload"
                 }
             ]
         }

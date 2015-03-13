@@ -69,14 +69,12 @@ define(["dojo/_base/declare",
                     name: "openesdh/pages/case/widgets/DocumentGrid",
                     config: {
                         sort: [
-                            { attribute: 'cm:modified', descending: true }
-                        ]
+                            { attribute: 'cm:modified', descending: true}
+                        ],
+                        showColumnHider: false
                     }
-                },
-                // This widget is required to handle ALF_UPLOAD_REQUEST topics
-                {
-                    name: "alfresco/upload/AlfUpload"
                 }
+
             ],
 
             constructor: function (args) {

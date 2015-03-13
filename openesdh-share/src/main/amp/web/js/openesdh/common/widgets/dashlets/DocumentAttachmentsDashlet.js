@@ -33,13 +33,15 @@ define(["dojo/_base/declare",
              */
             i18nRequirements: [{i18nFile: "./i18n/DocumentAttachmentsDashlet.properties"}],
 
+            currentDocumentNodeRef: null,
+
             widgetsForTitleBarActions: [
                 {
                     name: "alfresco/buttons/AlfButton",
                     config: {
                         // TODO: Add icon class
                         iconClass: "add-icon-16",
-                        publishTopic: "OE_SHOW_UPLOADER"
+                        publishTopic: "OE_SHOW_ATTACHMENTS_UPLOADER"
                     }
                 }
             ],
@@ -51,11 +53,10 @@ define(["dojo/_base/declare",
                         showPagination: false,
                         sort: [
                             { attribute: 'cm:name', descending: true }
-                        ]
+                        ],
+                        showColumnHider: false
                     }
-                },
-                // This widget is required to handle ALF_UPLOAD_REQUEST topics
-                { name: "alfresco/upload/AlfUpload" }
+                }
             ],
 
             constructor: function (args) {
@@ -64,6 +65,7 @@ define(["dojo/_base/declare",
                 this.widgetsForBody[0].config.rowSelectionTopic = this.AttachmentRowSelect;
                 this.widgetsForBody[0].config.rowDeselectionTopic = this.AttachmentRowDeselect;
                 this.widgetsForBody[0].config.gridRefreshTopic = this.AttachmentGridRefresh;
+
             }
         });
     });

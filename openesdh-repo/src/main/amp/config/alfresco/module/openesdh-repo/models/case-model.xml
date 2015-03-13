@@ -26,14 +26,14 @@
         <constraint name="case:simpleStatusConstraint" type="LIST">
             <parameter name="allowedValues">
                 <list>
-                    <!-- TODO: localize -->
-                    <value>Planlagt</value>
-                    <value>Igangværende</value>
-                    <value>Gældende</value>
-                    <value>Afventer</value>
-                    <value>Udgået</value>
-                    <value>Annulleret</value>
-                    <value>Lukket</value>
+                    <!-- TODO: localize (check localisation in /src/main/amp/config/alfresco/module/openesdh-repo/messages/case-model.properties) -->
+                    <value>planned</value>
+                    <value>in-progress</value>
+                    <value>existing</value>
+                    <value>pending</value>
+                    <value>archived</value>
+                    <value>cancelled</value>
+                    <value>closed</value>
                 </list>
             </parameter>
         </constraint>

@@ -2,3 +2,8 @@
     vertical-align: top;
     background: url(../../../../../../openesdh/images/preview-16.png) no-repeat;
 }
+
+.grid-action.action-doc-details {
+    vertical-align: top;
+    background: url(../../../../../../components/documentlibrary/actions/document-view-content-16.png) no-repeat;
+}

@@ -48,7 +48,7 @@ function getCaseRoleTypes (nodeRef, caseId) {
 
 
 /**
- * Get the permitted role types for cases
+ * Get the permitted role types for cases. Used for the contact roles
  */
 function getPermittedRoleTypes () {
 
@@ -56,6 +56,16 @@ function getPermittedRoleTypes () {
     var roleTypes = connector.get("/api/openesdh/case/party/permittedRoles");
     roleTypes = eval('(' + roleTypes + ')');
     return roleTypes;
+}
+
+/**
+ * Get the permitted status types for cases. Used for the case status select control input(s)
+ */
+function getCaseStatusTypes () {
+    var connector = remote.connect("alfresco");
+    var states = connector.get("/api/openesdh/case/party/permittedStates");
+    states = eval('(' + states + ')');
+    return states;
 }
 
 /**

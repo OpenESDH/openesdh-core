@@ -3,22 +3,33 @@ define(["dojo/_base/declare",
         "alfresco/core/CoreXhr",
         "dojo/_base/array",
         "dojo/_base/lang",
+        "alfresco/core/NodeUtils",
         "openesdh/pages/_TopicsMixin",
         "alfresco/dialogs/AlfFormDialog",
         "dojo/window"
     ],
-    function (declare, AlfCore, CoreXhr, array, lang, _TopicsMixin, AlfFormDialog, win) {
+    function (declare, AlfCore, CoreXhr, array, lang, NodeUtils, _TopicsMixin, AlfFormDialog, win) {
 
         return declare([AlfCore, CoreXhr, _TopicsMixin], {
 
+            /**
+             * The documents NodeRef for a case.
+             */
             documentsNodeRef: null,
+
+            /**
+             * The current nodeRef of the selected document record in a case.
+             */
+            currentDocRecordNodeRef: null,
 
             constructor: function (args) {
                 lang.mixin(this, args);
 
                 this.alfSubscribe("OE_SHOW_UPLOADER", lang.hitch(this, this._showUploader));
+                this.alfSubscribe("OE_SHOW_ATTACHMENTS_UPLOADER", lang.hitch(this, this._showUploader));
                 this.alfSubscribe("OE_CASE_DOCUMENT_SERVICE_UPLOAD_REQUEST_RECEIVED", lang.hitch(this, this._onFileUploadRequest));
                 this.alfSubscribe("OE_PREVIEW_DOC", lang.hitch(this, this.onPreviewDoc));
+                this.alfSubscribe("GET_DOCUMENT_RECORD_INFO", lang.hitch(this, this._docRecordInfo));
                 this.alfSubscribe(this.CaseDocumentRowSelect, lang.hitch(this, this._retrieveDocumentdetails));
                 this.alfSubscribe(this.GetDocumentVersionsTopicClick, lang.hitch(this, this._retrieveDocumentVersions));
             },
@@ -76,6 +87,7 @@ define(["dojo/_base/declare",
              * @param {object} payload
              */
             _showUploader: function alfresco_services_ContentService__showUploader(payload) {
+                console.log("CaseDocumentsService(80) Uploader payload:\n"+payload.documentNodeRef);
                 this.uploadDialog = new AlfFormDialog({
                     dialogTitle: "Select files to upload",
                     dialogConfirmationButtonTitle: "Upload",
@@ -83,7 +95,7 @@ define(["dojo/_base/declare",
                     formSubmissionTopic: "OE_CASE_DOCUMENT_SERVICE_UPLOAD_REQUEST_RECEIVED",
                     formSubmissionPayload: {
                         targetData: {
-                            destination: this.documentsNodeRef,
+                            destination: (payload.alfTopic == "OE_SHOW_ATTACHMENTS_UPLOADER")? this.currentDocRecordNodeRef: this.documentsNodeRef,
                             siteId: null,
                             containerId: null,
                             uploadDirectory: null,
@@ -127,6 +139,24 @@ define(["dojo/_base/declare",
                 this.alfPublish("ALF_UPLOAD_REQUEST", payload);
             },
 
+            _docRecordInfo: function (nodeRef) {
+                // Get caseInfo from webscript
+                if (nodeRef == null) {
+                    console.log("error", "Null nodeRef");
+                    return false;
+                }
+                var docRecordNodeRefURI = NodeUtils.processNodeRef(nodeRef).uri;
+                var url = Alfresco.constants.PROXY_URI + "api/openesdh/documentInfo/" + docRecordNodeRefURI;
+
+                this.serviceXhr({
+                    url: url,
+                    method: "GET",
+                    successCallback:function (response) {
+                        this.alfPublish(this.CaseRefreshDocInfoTopic, response)
+                    },
+                    callbackScope: this});
+            },
+
             /**
              * This function is called once the document upload is complete. It publishes a request to reload the
              * current document list data.
@@ -137,18 +167,19 @@ define(["dojo/_base/declare",
                 this.alfLog("log", "Upload complete");
                 this.alfUnsubscribe(this._uploadSubHandle);
                 this.alfPublish(this.ReloadDocumentsTopic, {});
+                this.alfPublish(this.CaseDocumentReloadAttachmentsTopic, {nodeRef:this.currentDocRecordNodeRef});
             },
 
             _retrieveDocumentdetails: function openESDH_CaseDocumentService__retrieveCaseDocumentDetails(payload){
                 var rowData = payload.row;
-                console.log("CaseDocumentsService(142) NodeRef:"+rowData.id);
+                this.currentDocRecordNodeRef = rowData.id;
+                this.alfPublish("GET_DOCUMENT_RECORD_INFO", rowData.id);
                 this.alfPublish(this.CaseDocumentReloadAttachmentsTopic, {nodeRef:rowData.id});
                 this.alfPublish(this.GetDocumentVersionsTopicClick, {nodeRef:rowData.data.mainDocNodeRef});
             },
 
             _retrieveDocumentVersions: function openESDH_CaseDocumentService__retrieveCaseDocumentDetails(payload){
                 var nodeRef = payload.nodeRef;
-                console.log("CaseDocumentsService(150) NodeRef: "+payload.nodeRef);
                 this.alfPublish(this.GetDocumentVersionsTopic, {nodeRef:nodeRef});
             }
         });
