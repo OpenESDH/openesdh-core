@@ -212,7 +212,6 @@ public class CaseHelper {
         List<NodeRef> owners = new LinkedList<>();
         owners.add(owner);
         ChildAssociationRef assocRef = this.createCaseNode(userName, companyHome, title, OpenESDHModel.TYPE_CASE_SIMPLE, properties, owners, false);
-        caseService.createCase(assocRef);
 
         return assocRef.getChildRef();
     }
