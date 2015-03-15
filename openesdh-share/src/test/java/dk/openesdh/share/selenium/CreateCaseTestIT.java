@@ -5,8 +5,7 @@ import dk.openesdh.share.selenium.framework.Pages;
 import dk.openesdh.share.selenium.framework.enums.User;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.*;
-import static org.junit.Assert.assertTrue;
-
+import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
@@ -14,8 +13,9 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-public class EditCaseTest {
+public class CreateCaseTestIT {
 
     String testCaseTitle;
     String testCaseStatus;
@@ -23,7 +23,7 @@ public class EditCaseTest {
     String testCaseStartDate;
     String testCaseEndDate;
 
-    String caseId;
+    String testCaseNodeRef;
 
     /**
      * Headermenu item "Cases"
@@ -41,30 +41,22 @@ public class EditCaseTest {
         Pages.Login.loginWith(User.ADMIN);
     }
 
-    public String createCase() {
+    @Test
+    public void createCase() {
         // Create a test "case" with a random title
         Pages.CreateCase.gotoPage();
-        return Pages.CreateCase.createCase(testCaseTitle, testCaseStatus,
-                testCaseOwners, testCaseStartDate, testCaseEndDate);
-    }
-
-    @Test
-    public void editCase() {
         testCaseTitle = RandomStringUtils.randomAlphanumeric(24);
         testCaseStatus = "Planlagt";
         testCaseOwners = Arrays.asList("admin");
         testCaseStartDate = "";
         testCaseEndDate = "";
-        caseId = createCase();
-        Pages.CaseDashboard.edit();
-
-        testCaseTitle = RandomStringUtils.randomAlphanumeric(24);
-        Pages.EditCase.editCase(testCaseTitle,
-                testCaseStatus, testCaseStartDate, testCaseEndDate);
+        testCaseNodeRef = Pages.CreateCase.createCase(testCaseTitle, testCaseStatus,
+                testCaseOwners, testCaseStartDate, testCaseEndDate);
+        assertNotNull(testCaseNodeRef);
 
         assertTrue(Pages.CaseDashboard.isAt());
 
-        // TODO: Check that case dashboard is updated
+        // TODO: Check that case dashboard appears as desired
     }
 
     @After

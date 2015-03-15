@@ -24,7 +24,7 @@ import static org.junit.Assert.assertTrue;
  * @author Søren Kirkegård
  *
  */
-public class CaseMenuTest {
+public class CaseMenuTestIT {
 
     @BeforeClass
     public static void setUpBeforeClass() {

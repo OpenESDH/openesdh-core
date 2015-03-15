@@ -16,7 +16,7 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-public class CaseMembersTest {
+public class CaseMembersTestIT {
 
     String testCaseTitle;
     String testCaseStatus;

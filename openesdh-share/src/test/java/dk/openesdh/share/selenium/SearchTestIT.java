@@ -17,7 +17,7 @@ import java.util.List;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class SearchTest {
+public class SearchTestIT {
 
     String testCaseTitle;
     String testCaseStatus;
