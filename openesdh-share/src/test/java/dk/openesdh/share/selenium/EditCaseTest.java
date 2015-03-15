@@ -5,6 +5,8 @@ import dk.openesdh.share.selenium.framework.Pages;
 import dk.openesdh.share.selenium.framework.enums.User;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.*;
+import static org.junit.Assert.assertTrue;
+
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
@@ -59,6 +61,8 @@ public class EditCaseTest {
         testCaseTitle = RandomStringUtils.randomAlphanumeric(24);
         Pages.EditCase.editCase(testCaseTitle,
                 testCaseStatus, testCaseStartDate, testCaseEndDate);
+
+        assertTrue(Pages.CaseDashboard.isAt());
 
         // TODO: Check that case dashboard is updated
     }

@@ -68,10 +68,11 @@ public abstract class BasePage {
 
     public static void selectAuthoritiesInPicker(String id,
                                                   List<String> authorities) {
-        WebElement searchInput = Browser.Driver.findElement(By.id
-                (id + "-cntrl-picker-searchText"));
-        WebElement searchButton = Browser.Driver.findElement(By.id
-                (id + "-cntrl-picker-searchButton-button"));
+        WebElement searchInput = Browser.Driver.findElement(By.cssSelector(
+                "input[id$='" + id + "-cntrl-picker-searchText']"));
+
+        WebElement searchButton = Browser.Driver.findElement(By.cssSelector(
+                "button[id$='" + id + "-cntrl-picker-searchButton-button']"));
         for (String authority : authorities) {
             searchInput.clear();
             searchInput.sendKeys(authority);
@@ -86,8 +87,11 @@ public abstract class BasePage {
         }
 
         WebElement authorityPickerOkButton = Browser.Driver.findElement(By
-                .id(id + "-cntrl-ok-button"));
+                .cssSelector("button[id$='" + id + "-cntrl-ok-button']"));
         authorityPickerOkButton.click();
+
+
+
     }
 
 }

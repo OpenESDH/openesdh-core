@@ -3,6 +3,7 @@ package dk.openesdh.share.selenium.framework.pages;
 import dk.openesdh.share.selenium.framework.Browser;
 import dk.openesdh.share.selenium.framework.Pages;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -13,26 +14,30 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CreateCasePage extends BasePage {
-    private static final String URL = BASE_URL + "/page/create-content";
+    private static final String URL = BASE_URL + "/page/oe/case/create-case";
 
-    @FindBy(id = "template_x002e_create-content_x002e_create-content_x0023_default_prop_cm_title")
+    @FindBy(name = "prop_cm_title")
     WebElement titleField;
 
-    @FindBy(id = "template_x002e_create-content_x002e_create-content_x0023_default_prop_oe_status")
-    WebElement statusField;
+    //@FindBy(xpath = "//table[@id='prop_oe_status_CONTROL']/tbody/tr/td")
+    @FindBy(css = "#prop_oe_status_CONTROL tbody tr td")
+    WebElement statusControl;
 
-    @FindBy(id = "template_x002e_create-content_x002e_create-content_x0023_default_prop_case_startDate-cntrl-date")
+    @FindBy(id = "prop_case_startDate_CONTROL")
     WebElement startDateField;
 
-    @FindBy(id = "template_x002e_create-content_x002e_create-content_x0023_default_prop_case_endDate-cntrl-date")
+    @FindBy(id = "prop_case_endDate_CONTROL")
     WebElement endDateField;
 
+
+/*
     @FindBy(css = "#template_x002e_create-content_x002e_create" +
             "-content_x0023_default_assoc_case_owners-cntrl button")
+            */
+    @FindBy(css = "#create_case_owner_widget button")
     WebElement ownersFieldButton;
 
-    @FindBy(id = "template_x002e_create-content_x002e_create" +
-            "-content_x0023_default-form-submit-button")
+    @FindBy(css = ".buttons .confirmationButton .dijitButtonNode")
     WebElement createButton;
 
     public boolean isAt() {
@@ -58,12 +63,36 @@ public class CreateCasePage extends BasePage {
     public String createCase(String title, String status, List<String> owners,
                        String startDate, String endDate) {
         titleField.sendKeys(title);
-        statusField.sendKeys(status);
+
+
+
+        statusControl.click();
+        status = "Afventer";
+
+
+        //List<WebElement> statusOptions = statusControl.findElements(By.cssSelector( "td[id^=dijit_MenuItem_]" ));
+
+        List<WebElement> statusOptions = Browser.Driver.findElements(By.cssSelector( "#prop_oe_status_CONTROL_dropdown td[id^=dijit_MenuItem_]" ));
+        for (WebElement opt : statusOptions) {
+            if (opt.getText().equals( status ) ) {
+                opt.click();
+                break;
+            }
+        }
+
+
+
+        statusControl.sendKeys("Afventer");
+
         startDateField.sendKeys(startDate);
         endDateField.sendKeys(endDate);
 
+
+
+
         ownersFieldButton.click();
-        selectAuthoritiesInPicker("template_x002e_create-content_x002e_create-content_x0023_default_assoc_case_owners", owners);
+        //selectAuthoritiesInPicker("assoc_case_owners_added", owners);
+        selectAuthoritiesInPicker("assoc_case_owners_added", owners);
 
         createButton.click();
 

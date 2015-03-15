@@ -58,8 +58,8 @@ public class LoginPage extends BasePage {
     }
 
     public void logout() {
-        WebElement userMenuPopup = Browser.Driver.findElement(By.id("HEADER_USER_MENU_POPUP"));
-        userMenuPopup.click();
+        //WebElement userMenuPopup = Browser.Driver.findElement(By.id("HEADER_USER_MENU_POPUP"));
+        //userMenuPopup.click();
 
         WebElement userMenuPopup1 = Browser.Driver.findElement(By.id("HEADER_USER_MENU_POPUP_text"));
         userMenuPopup1.click();

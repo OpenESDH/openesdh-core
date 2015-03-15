@@ -147,7 +147,7 @@
         <property name="model" value="alfresco/module/openesdh-repo/models/permission-model-extension.xml" />
     </bean>
 
-    <bean id="webscript.dk.openesdh.journalize.put"openesdh-repository-context.xml
+    <bean id="webscript.dk.openesdh.journalize.put"
           class="dk.openesdh.repo.webscripts.cases.Journalize"
           parent="webscript">
         <property name="caseService" ref="CaseService"/>
