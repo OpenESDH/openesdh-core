@@ -118,9 +118,13 @@ public class ContactServiceImpl implements ContactService {
         QName contactType = type.equalsIgnoreCase("PERSON") ? OpenESDHModel.TYPE_CONTACT_PERSON : OpenESDHModel.TYPE_CONTACT_ORGANIZATION;
 
         StringBuilder query = new StringBuilder(256);
-        query.append("TYPE:\"").append(contactType).append("\" AND ");
-        query.append("@contact\\:email").append(":\"").append(id).append("*");
-        query.append("\"");
+        query.append("TYPE:\"").append(contactType).append("\" AND (");
+        query.append("@contact\\:email").append(":\"").append(id).append("*\"");
+        query.append(" OR @contact\\:firstName").append(":\"").append(id).append("*\"");
+        query.append(" OR @contact\\:lastName").append(":\"").append(id).append("*");
+        query.append("\")");
+
+        logger.warn("The contact query: "+query.toString());
 
         searchParams.setQuery(query.toString());
         ResultSet results = null;
