@@ -37,7 +37,7 @@ define(["dojo/_base/declare",
                         this.alfPublish(this.CasePartiesTopic, {parties: response});
                     },
                     failureCallback: function(response, config){
-                        alert("Help");
+                        alert("Failed to load parties");
                     },
                     callbackScope: this
                 });

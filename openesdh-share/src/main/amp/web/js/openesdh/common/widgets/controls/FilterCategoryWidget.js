@@ -68,8 +68,8 @@ function(declare, _Widget, _Templated, Core, CoreXhr, dom, domConstruct, domClas
         },
 
         _onClickTest: function (payload) {
-           alert("clicktest");
-            console.log(this);
+           //alert("clicktest");
+           // console.log(this);
         },
         
         
