@@ -4,6 +4,7 @@ define(["dojo/_base/declare"],
         return declare(null, {
             CreateCaseTopic:"OE_CREATE_CASE_TOPIC",
             CreateCaseSuccess:"OE_CREATE_CASE_SUCCESS",
+            CaseReloadDocumentsTopic:"OE_RELOAD_DOCUMENTS",
             CaseInfoTopic: "CASE_INFO",
             CaseHistoryTopic : "CASE_HISTORY",
             DocumentsTopic: "DOCUMENT_LIST",

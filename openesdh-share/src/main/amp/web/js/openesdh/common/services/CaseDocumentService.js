@@ -166,7 +166,7 @@ define(["dojo/_base/declare",
             _onFileUploadComplete: function alfresco_services_ContentService__onFileUploadComplete() {
                 this.alfLog("log", "Upload complete");
                 this.alfUnsubscribe(this._uploadSubHandle);
-                this.alfPublish(this.ReloadDocumentsTopic, {});
+                this.alfPublish(this.CaseReloadDocumentsTopic, {});
                 this.alfPublish(this.CaseDocumentReloadAttachmentsTopic, {nodeRef:this.currentDocRecordNodeRef});
             },
 
