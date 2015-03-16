@@ -4,6 +4,7 @@ import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CaseService;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.nodelocator.CompanyHomeNodeLocator;
@@ -87,10 +88,15 @@ public class UserInvolvedSearchServiceImplIT {
     @Qualifier("transactionService")
     protected TransactionService transactionService;
 
-    private PermissionService permissionService;
 
+    @Autowired
+    @Qualifier("CaseService")
+    protected CaseService caseService;
 
-    private UserInvolvedSearchServiceImpl userInvolvedSearchService = null;
+    @Autowired
+    @Qualifier("UserInvolvedSearchService")
+    protected UserInvolvedSearchServiceImpl userInvolvedSearchService;
+
     private String caseATitle = "caseA";
     private NodeRef caseA;
     private NodeRef owner;
@@ -98,42 +104,15 @@ public class UserInvolvedSearchServiceImplIT {
 
     @Before
     public void setUp() throws Exception {
-
-
-        userInvolvedSearchService = new UserInvolvedSearchServiceImpl();
-        userInvolvedSearchService.setAuthorityService(authorityService);
-        userInvolvedSearchService.setRepositoryHelper(repositoryHelper);
-        userInvolvedSearchService.setSearchService(searchService);
         owner = caseHelper.createDummyUser();
 
         caseA = caseHelper.createSimpleCase(caseATitle,
                 CaseHelper.ADMIN_USER_NAME,
                 owner);
 
-
-
-        String DATE_FORMAT = "yyyyMMdd";
-        DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        Date date = new Date();
-        String d = dateFormat.format(date);
-        Long caseAnodedbid = (Long) nodeService.getProperty(caseA, ContentModel.PROP_NODE_DBID);
-        final String adminGroup = authorityService.getName(AuthorityType.GROUP, "case_" + d + "-" + caseAnodedbid + "_CaseSimpleReader");
-
-
-        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Boolean>() {
-
-            public Boolean execute() throws Throwable {
-
-                authorityService.addAuthority(adminGroup, caseHelper.DEFAULT_USERNAME);
-
-                return true;
-            }
-        });
-
-
+        caseService.addAuthorityToRole(owner, "CaseSimpleReader", caseA);
 
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ADMIN_USER_NAME);
-
     }
 
 

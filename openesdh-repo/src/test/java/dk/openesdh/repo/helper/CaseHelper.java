@@ -134,7 +134,6 @@ public class CaseHelper {
                               final List<NodeRef> owners,
                               boolean disableBehaviour) {
         ChildAssociationRef assocRef = createCaseNode(username, parent, name, caseType, properties, owners, disableBehaviour);
-        caseService.createCase(assocRef);
         return assocRef.getChildRef();
     }
 
@@ -144,16 +143,14 @@ public class CaseHelper {
                                                final QName caseType,
                                                final Map<QName, Serializable> properties,
                                                final List<NodeRef> owners,
-                                               boolean disableBehaviour) {
-
-//        AuthenticationUtil.setFullyAuthenticatedUser(username);
+                                               final boolean disableBehaviour) {
         return AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<ChildAssociationRef>() {
             @Override
             public ChildAssociationRef doWork() throws Exception {
                 return retryingTransactionHelper.doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<ChildAssociationRef>() {
                     @Override
                     public ChildAssociationRef execute() throws Throwable {
-                        if (behaviourFilter != null) {
+                        if (disableBehaviour) {
                             // Disable behaviour for txn
                             behaviourFilter.disableBehaviour();
                         }
@@ -168,11 +165,10 @@ public class CaseHelper {
                                 caseType,
                                 properties
                         );
-//                caseService.createCase(childAssoc);
 
                         nodeService.setAssociations(childAssoc.getChildRef(), OpenESDHModel.ASSOC_CASE_OWNERS, owners);
 
-                        if (behaviourFilter != null) {
+                        if (disableBehaviour) {
                             // Re-enable behaviour
                             behaviourFilter.enableBehaviour();
                         }
@@ -205,7 +201,6 @@ public class CaseHelper {
     }
 
     public NodeRef createSimpleCase(String title, String userName, NodeRef owner) {
-        NodeRef caseNode;
         NodeRef companyHome = nodeLocatorService.getNode(CompanyHomeNodeLocator.NAME, null, null);
         Map<QName, Serializable> properties = new HashMap<>();
         properties.put(ContentModel.PROP_TITLE, title);
@@ -234,11 +229,9 @@ public class CaseHelper {
         properties.put(ContentModel.PROP_ENABLED, true);
         properties.put(ContentModel.PROP_SIZE_QUOTA, -1);
 
-        NodeRef person = personService.createPerson(properties);
+        //        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
 
-//        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
-
-        return person;
+        return personService.createPerson(properties);
     }
 
     public NodeRef createDummyUser() {
