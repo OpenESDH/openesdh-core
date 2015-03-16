@@ -14,10 +14,11 @@ import org.json.JSONObject;
 
 import java.io.Serializable;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 /**
- * Created by torben on 11/09/14.
+ * @author Torben Lauritzen.
  */
 public class NodeInfoServiceImpl implements NodeInfoService {
 
@@ -88,6 +89,48 @@ public class NodeInfoServiceImpl implements NodeInfoService {
             }
             result.put("aspects", aspectsObj);
             result.put("isJournalized", nodeInfo.aspects.contains(OpenESDHModel.ASPECT_OE_JOURNALIZED));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        return result;
+    }
+
+    @Override
+    public JSONObject getSelectedProperties(NodeInfo nodeInfo, CaseInfo caseInfo, List<QName>objectProps){
+        JSONObject result = new JSONObject();
+        JSONObject properties = new JSONObject();
+
+        try {
+
+            for(QName reqObject : objectProps){
+                JSONObject valueObj = new JSONObject();
+                Serializable value = nodeInfo.properties.get(reqObject);
+                if (value != null) {
+                    if (Date.class.equals(value.getClass())) {
+                        valueObj.put("type", "Date");
+                        valueObj.put("value", ((Date) value).getTime());
+                    }
+                    else if(reqObject.getPrefixString().equals("modifier") || reqObject.getPrefixString().equals("creator")) {
+                        valueObj.put("type", "UserName");
+                        valueObj.put("value", value);
+                        NodeRef personNodeRef = personService.getPerson((String) value);
+                        String firstName = (String) nodeService.getProperty(personNodeRef, ContentModel.PROP_FIRSTNAME);
+                        String lastName = (String) nodeService.getProperty(personNodeRef, ContentModel.PROP_LASTNAME);
+                        valueObj.put("fullname", firstName + " " + lastName);
+                    } else {
+                        valueObj.put("value", value);
+                        valueObj.put("type", "String");
+                    }
+
+                    valueObj.put("label", dictionaryService.getProperty(reqObject).getTitle(dictionaryService));
+                    properties.put(reqObject.toPrefixString(namespaceService), valueObj);
+                }
+                properties.put(reqObject.toPrefixString(namespaceService), valueObj);
+            }
+            result.put("properties", properties);
+
+            result.put("isJournalized", nodeInfo.aspects.contains(OpenESDHModel.ASPECT_OE_JOURNALIZED));
+
         } catch (JSONException e) {
             e.printStackTrace();
         }

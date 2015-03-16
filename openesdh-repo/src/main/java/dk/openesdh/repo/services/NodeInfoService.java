@@ -7,6 +7,7 @@ import org.json.JSONObject;
 import org.springframework.extensions.webscripts.WebScript;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,4 +23,6 @@ public interface NodeInfoService {
     public NodeInfo getNodeInfo(NodeRef nodeRef);
 
     JSONObject buildJSON(NodeInfo nodeInfo, CaseInfo caseInfo);
+
+    JSONObject getSelectedProperties(NodeInfo nodeInfo, CaseInfo caseInfo, List<QName> objectProps);
 }
