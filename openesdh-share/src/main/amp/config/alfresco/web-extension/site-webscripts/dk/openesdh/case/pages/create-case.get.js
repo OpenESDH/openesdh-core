@@ -1,3 +1,4 @@
+<import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/utils/oe.js">
 <import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/utils/case.js">
 
 function getStatusLabels() {
@@ -14,6 +15,8 @@ function getStatusLabels() {
 };
 var caseContainerNodeRef = url.args.destination;
 var item = url.args.itemId;
+
+var userNodeRef = getUserNodeRef(user.name);
 
 model.jsonModel = {
     publishOnReady: "",
@@ -149,10 +152,10 @@ model.jsonModel = {
                                                     fieldId: "88ba8d88-b562-4954-81b9-d34ac564d5ff",
                                                     widgets: [
                                                         {
-
+                                                            id: "create_case_owner_widget",
                                                             name: "openesdh/common/widgets/controls/WrappedYUIAuthorityWidget",
                                                             config: {
-                                                                id: "create_case_owner_widget",
+                                                                value: userNodeRef,
                                                                 name: "assoc_case_owners_added",
                                                                 visibilityConfig: { initialValue: true },
                                                                 fieldId: "b03a9abe-c4be-44aa-8e1f-c1048172eba1",
