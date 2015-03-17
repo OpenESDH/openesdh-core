@@ -3,6 +3,11 @@
 
 var args = page.url.args;
 var caseId = url.templateArgs.caseId;
+//In the case of some pages (e.g. document details) we need to get the caseId in reverse
+// i.e. from the nodeRef
+if (caseId == null)
+    caseId = getCaseIdFromNodeRef(args.nodeRef);
+
 var nodeRef = getCaseNodeRefFromId(caseId);
 var navMenu = widgetUtils.findObject(model.jsonModel, "id", "HEADER_NAVIGATION_MENU_BAR");
 

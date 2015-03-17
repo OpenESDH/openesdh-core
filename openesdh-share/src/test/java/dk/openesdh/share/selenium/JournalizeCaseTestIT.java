@@ -5,31 +5,24 @@ import dk.openesdh.share.selenium.framework.Pages;
 import dk.openesdh.share.selenium.framework.enums.User;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.*;
+import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
+import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.support.FindBy;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
-public class CreateCaseTest {
+public class JournalizeCaseTestIT {
 
     String testCaseTitle;
     String testCaseStatus;
     List<String> testCaseOwners;
-    String testCaseStartDate;
-    String testCaseEndDate;
 
     String testCaseNodeRef;
-
-    /**
-     * Headermenu item "Cases"
-     */
-    @FindBy(id = "HEADER_CASES_DROPDOWN_text")
-    protected WebElement headerCaseMenu;
 
     @BeforeClass
     public static void setUpBeforeClass() {
@@ -37,27 +30,52 @@ public class CreateCaseTest {
     }
 
     @Before
-    public void login() {
+    public void setup() {
         Pages.Login.loginWith(User.ADMIN);
-    }
 
-    @Test
-    public void createCase() {
         // Create a test "case" with a random title
         Pages.CreateCase.gotoPage();
         testCaseTitle = RandomStringUtils.randomAlphanumeric(24);
         testCaseStatus = "Planlagt";
         testCaseOwners = Arrays.asList("admin");
-        testCaseStartDate = "";
-        testCaseEndDate = "";
+        String testCaseStartDate = "";
+        String testCaseEndDate = "";
         testCaseNodeRef = Pages.CreateCase.createCase(testCaseTitle, testCaseStatus,
                 testCaseOwners, testCaseStartDate, testCaseEndDate);
         assertNotNull(testCaseNodeRef);
 
+        Pages.CaseDashboard.gotoPage(testCaseNodeRef);
         assertTrue(Pages.CaseDashboard.isAt());
-
-        // TODO: Check that case dashboard appears as desired
     }
+
+    @Test
+    public void testJournalizeCase() {
+
+        WebElement warning = Browser.Driver.findElement(By.id("HEADER_CASE_JOURNALIZED_WARNING"));
+        assertFalse(warning.isDisplayed());
+
+        // TODO load a valid journalKey instead of supplying the dummy ref
+        // Journalize
+        Pages.CaseDashboard.journalize("Languages");
+
+        // TODO: Make it language-independent
+        WebElement elem = Browser.Driver.findElement(By.xpath("//*[text()='Journaliseret af']//following-sibling::*[@class='value']"));
+        assertEquals(User.ADMIN.username(), elem.getText());
+
+        warning = Browser.Driver.findElement(By.id("HEADER_CASE_JOURNALIZED_WARNING"));
+        assertTrue(warning.isDisplayed());
+
+        // TODO: Assert that journal key is correct
+
+
+        // Unjournalize
+        Pages.CaseDashboard.unJournalize();
+
+
+        warning = Browser.Driver.findElement(By.id("HEADER_CASE_JOURNALIZED_WARNING"));
+        assertFalse(warning.isDisplayed());
+    }
+
 
     @After
     public void tearDown() {

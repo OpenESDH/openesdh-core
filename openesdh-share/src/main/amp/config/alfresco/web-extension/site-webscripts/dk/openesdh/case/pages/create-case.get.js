@@ -149,8 +149,10 @@ model.jsonModel = {
                                                     fieldId: "88ba8d88-b562-4954-81b9-d34ac564d5ff",
                                                     widgets: [
                                                         {
+
                                                             name: "openesdh/common/widgets/controls/WrappedYUIAuthorityWidget",
                                                             config: {
+                                                                id: "create_case_owner_widget",
                                                                 name: "assoc_case_owners_added",
                                                                 visibilityConfig: { initialValue: true },
                                                                 fieldId: "b03a9abe-c4be-44aa-8e1f-c1048172eba1",
@@ -158,9 +160,11 @@ model.jsonModel = {
                                                                 label: msg.get("create-case.label.button.case-owner")
                                                             }
                                                         },
+
                                                         {
                                                             name: "alfresco/forms/controls/DojoSelect",
                                                             config: {
+                                                                id: "prop_oe_status",
                                                                 label: msg.get("create-case.label.button.case-status"),
                                                                 optionsConfig: {
                                                                     fixed: getStatusLabels()
@@ -185,6 +189,7 @@ model.jsonModel = {
                                                         {
                                                             name: "openesdh/common/widgets/controls/DojoDateExt",
                                                             config: {
+                                                                id: "prop_case_startDate",
                                                                 unitsLabel: "mm/dd/yy",
                                                                 description: "Starting date of the case",
                                                                 label: msg.get("create-case.label.button.start-date"),
@@ -196,6 +201,7 @@ model.jsonModel = {
                                                         {
                                                             name: "openesdh/common/widgets/controls/DojoDateExt",
                                                             config: {
+                                                                id: "prop_case_endDate",
                                                                 unitsLabel: "mm/dd/yy",
                                                                 description: "The end date of the case",
                                                                 label: msg.get("create-case.label.button.end-date"),

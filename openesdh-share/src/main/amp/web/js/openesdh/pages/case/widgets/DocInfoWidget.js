@@ -1,44 +1,58 @@
 define(["dojo/_base/declare",
-        "openesdh/pages/case/widgets/InfoWidget"
-    ],
-    function (declare, InfoWidget) {
-        return declare([InfoWidget], {
+        "dijit/_WidgetBase",
+    "alfresco/core/Core",
+    "alfresco/core/CoreWidgetProcessing",
+    "dijit/_TemplatedMixin",
+    "dojo/text!./templates/InfoWidget.html",
+    "dojo/_base/lang",
+    "openesdh/pages/_TopicsMixin",
+    "openesdh/pages/case/widgets/lib/JSONProcessing",
+    "openesdh/common/widgets/renderers/PropertyField"
+],
+function (declare, _Widget, Core, CoreWidgetProcessing, _Templated, template, lang, _TopicsMixin, JSONProcessing, PropertyField) {
+    return declare([_Widget, Core, CoreWidgetProcessing, _Templated, _TopicsMixin, JSONProcessing], {
+        templateString: template,
 
-            /*i18nRequirements: [
-                {i18nFile: "./i18n/InfoWidget.properties"}
-            ],*/
+        i18nRequirements: [
+            {i18nFile: "./i18n/DocInfoWidget.properties"}
+        ],
 
-            buildRendering: function dk_openesdh_pages_case_widgets_InfoWidget__buildRendering() {
-                this.inherited(arguments);
-                this.bodyTitle.innerHTML = "";
-            },
+
+        cssRequirements: [{cssFile:"./css/DocInfoWidget.css"}],
+
+        bodyNode: null,
+
+        widgetsForBody: [],
+
+        buildRendering: function pages_case_widgets_DocInfoWidget__buildRendering() {
+            this.alfSubscribe(this.CaseRefreshDocInfoTopic, lang.hitch(this, "_onPayloadReceive"));
+
+            this.bodyTitle = this.message('bodyTitle');
+            this.inherited(arguments);
+        },
 
             _onPayloadReceive: function (payload) {
-                var docProperties = {"sys:node-dbid":"Document Id", "oe:id":"Case-Id", "oe:status":"Status"};
+                this.bodyNode.innerHTML="";
                 this.widgetsForBody = [];
-                var properties = payload.properties;
-                    for(var key in docProperties) {
-                        for (var i in properties) {
-                            //console.log("-->Key ("+ key +"): "+ docProperties[key]);
-                            if (!i.match(key)) continue;
-                            var widget = "openesdh/common/widgets/renderers/PropertyField";
+                var properties = payload;
+                for (var i in properties) {
+                    if (i == "alfTopic") continue;
+                    var widget = "openesdh/common/widgets/renderers/PropertyField";
+                    console.log("DocInfoWidget(29) Ping");
+                    var propertyWidget = {
+                        name: widget,
+                        config: {
+                            currentItem: properties,
+                            propertyToRender: i,
+                            label: this.message("doc.info.label."+i),
+                            renderOnNewLine: true
+                        }
+                    };
 
-                            var propertyWidget = {
-                                name: widget,
-                                config: {
-                                    currentItem: properties,
-                                    propertyToRender: i,
-                                    label: docProperties[key],
-                                    renderOnNewLine: true
-                                }
-                            };
-
-                            this.widgetsForBody.push(propertyWidget);
-                    }
+                    this.widgetsForBody.push(propertyWidget);
                 }
                 this.processWidgets(this.widgetsForBody, this.bodyNode);
             }
-
 
         });
     })

@@ -194,11 +194,6 @@ public class CaseServiceImplIT {
     }
 
     @Test
-    public void test1() throws Exception {
-
-    }
-
-    @Test
     public void testGetParentCase() throws Exception {
         NodeRef documentsFolder = caseService.getDocumentsFolder(behaviourOnCaseNodeRef);
 
@@ -451,13 +446,13 @@ public class CaseServiceImplIT {
 
     @Test
     public void testGetAllMembersByRole() throws Exception {
-        caseService.setupPermissionGroups(temporaryCaseNodeRef, caseService.getCaseId(temporaryCaseNodeRef));
-        caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", temporaryCaseNodeRef);
-        caseService.addAuthorityToRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", temporaryCaseNodeRef);
-        caseService.addAuthorityToRole(USER_NAME_1, "CaseOwners", temporaryCaseNodeRef);
-        caseService.addAuthorityToRole(USER_NAME_2, "CaseSimpleWriter", temporaryCaseNodeRef);
+        caseService.setupPermissionGroups(behaviourOnCaseNodeRef, caseService.getCaseId(behaviourOnCaseNodeRef));
+        caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", behaviourOnCaseNodeRef);
+        caseService.addAuthorityToRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", behaviourOnCaseNodeRef);
+        caseService.addAuthorityToRole(USER_NAME_1, "CaseOwners", behaviourOnCaseNodeRef);
+        caseService.addAuthorityToRole(USER_NAME_2, "CaseSimpleWriter", behaviourOnCaseNodeRef);
 
-        Map<String, Set<String>> membersByRole = caseService.getMembersByRole(temporaryCaseNodeRef, false, true);
+        Map<String, Set<String>> membersByRole = caseService.getMembersByRole(behaviourOnCaseNodeRef, false, true);
         //check everyone's permissions
         assertTrue(membersByRole.get("CaseSimpleReader").contains(AuthenticationUtil.getAdminUserName()));
         Set<String> caseOwners = membersByRole.get("CaseOwners");
@@ -465,11 +460,11 @@ public class CaseServiceImplIT {
         assertTrue(caseOwners.contains(USER_NAME_1));
         assertTrue(membersByRole.get("CaseSimpleWriter").contains(USER_NAME_2));
         //remove 2 out of 3 from groups
-        caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", temporaryCaseNodeRef);
-        caseService.removeAuthorityFromRole(USER_NAME_2, "CaseSimpleWriter", temporaryCaseNodeRef);
+        caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", behaviourOnCaseNodeRef);
+        caseService.removeAuthorityFromRole(USER_NAME_2, "CaseSimpleWriter", behaviourOnCaseNodeRef);
 
         //retrieve and test role memeberships
-        membersByRole = caseService.getMembersByRole(temporaryCaseNodeRef, false, true);
+        membersByRole = caseService.getMembersByRole(behaviourOnCaseNodeRef, false, true);
         assertFalse(membersByRole.get("CaseSimpleReader").contains(AuthenticationUtil.getAdminUserName()));
         assertFalse(membersByRole.get("CaseSimpleWriter").contains(USER_NAME_2));
         assertTrue(membersByRole.get("CaseOwners").contains(USER_NAME_1));

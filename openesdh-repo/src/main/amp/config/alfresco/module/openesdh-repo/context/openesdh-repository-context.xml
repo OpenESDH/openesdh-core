@@ -74,6 +74,12 @@
         <property name="caseService" ref="CaseService"/>
     </bean>
 
+    <bean id="webscript.dk.openesdh.case.docRecordInfo.get"
+          class="dk.openesdh.repo.webscripts.cases.DocumentRecordInfo"
+          parent="webscript">
+        <property name="nodeInfoService" ref="NodeInfoService"/>
+    </bean>
+
     <bean id="webscript.dk.openesdh.iscasenode.get"
           class="dk.openesdh.repo.webscripts.cases.IsCaseNode"
           parent="webscript">
@@ -150,7 +156,7 @@
     <bean id="webscript.dk.openesdh.CaseIDExtractor" class="dk.openesdh.repo.audit.CaseNodeRefExtractor">
         <property name="registry" ref="auditModel.extractorRegistry" />
         <property name="nodeService" ref="NodeService" />
-        <property name="searchService" ref="searchService" />
+        <property name="searchService" ref="SearchService" />
     </bean>
 
 
