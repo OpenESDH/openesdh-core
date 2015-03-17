@@ -67,7 +67,7 @@ define(["dojo/_base/declare",
                 var many = this.multiple;
 
                 // TODO: internationalize
-                var picker = this.createAuthorityPicker(itemType, pickerId, this.label, this.initialValue, many,
+                var picker = this.createAuthorityPicker(itemType, pickerId, this.label, this.value, many,
                     (function(scope) {
                         return function(obj) {
                             scope.value = obj.selectedItems;
