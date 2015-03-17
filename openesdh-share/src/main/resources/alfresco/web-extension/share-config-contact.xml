@@ -15,17 +15,17 @@
                     <show id="contact:email" />
 
                     <show id="contact:cprNumber" />
-                    <show id="contact:contactType" />
-                    <show id="contact:personInformationProtection" />
+                    <!--<show id="contact:contactType" />
+                    <show id="contact:personInformationProtection" />-->
 
                     <!-- TODO: Better appearance of address fields -->
                     <show id="contact:address" />
                     <show id="contact:houseNumber" />
                     <show id="contact:streetName" />
+                    <show id="contact:floorIdentifier" />
                     <show id="contact:postBox" />
                     <show id="contact:cityName" />
-                    <show id="contact:floorIdentifier" />
-                    <show id="contact:suiteIdentifier" />
+                    <!--<show id="contact:suiteIdentifier" />-->
                     <show id="contact:postCode" />
                     <show id="contact:countryCode" />
                 </field-visibility>
@@ -52,8 +52,8 @@
                     <show id="contact:email" />
 
                     <show id="contact:cprNumber" />
-                    <show id="contact:contactType" />
-                    <show id="contact:personInformationProtection" />
+                    <!--<show id="contact:contactType" />-->
+                    <!--<show id="contact:personInformationProtection" />-->
 
                     <!-- TODO: Better appearance of address fields -->
                     <show id="contact:address" />
@@ -62,7 +62,7 @@
                     <show id="contact:postBox" />
                     <show id="contact:cityName" />
                     <show id="contact:floorIdentifier" />
-                    <show id="contact:suiteIdentifier" />
+                    <!--<show id="contact:suiteIdentifier" />-->
                     <show id="contact:postCode" />
                     <show id="contact:countryCode" />
                 </field-visibility>
@@ -81,19 +81,16 @@
                     <hide id="cm:name"/>
                     <show id="contact:organizationName" />
                     <show id="contact:email" />
-
                     <show id="contact:cvrNumber" />
-
-                    <show id="contact:members" />
 
                     <!-- TODO: Better appearance of address fields -->
                     <show id="contact:address" />
                     <show id="contact:houseNumber" />
                     <show id="contact:streetName" />
+                    <show id="contact:floorIdentifier" />
                     <show id="contact:postBox" />
                     <show id="contact:cityName" />
-                    <show id="contact:floorIdentifier" />
-                    <show id="contact:suiteIdentifier" />
+                    <!--<show id="contact:suiteIdentifier" />-->
                     <show id="contact:postCode" />
                     <show id="contact:countryCode" />
                 </field-visibility>
@@ -114,7 +111,7 @@
 
                     <show id="contact:cvrNumber" />
 
-                    <show id="contact:members" />
+                    <!--<show id="contact:members" />-->
 
                     <!-- TODO: Better appearance of address fields -->
                     <show id="contact:address" />
@@ -123,7 +120,7 @@
                     <show id="contact:postBox" />
                     <show id="contact:cityName" />
                     <show id="contact:floorIdentifier" />
-                    <show id="contact:suiteIdentifier" />
+                    <!--<show id="contact:suiteIdentifier" />-->
                     <show id="contact:postCode" />
                     <show id="contact:countryCode" />
                 </field-visibility>

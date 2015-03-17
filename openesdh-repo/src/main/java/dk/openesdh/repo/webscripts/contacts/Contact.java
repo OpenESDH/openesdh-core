@@ -53,7 +53,7 @@ public class Contact extends ContactAbstractWebscript {
                 typeProps.put(OpenESDHModel.PROP_CONTACT_CPR_NUMBER, getOrNull(parsedRequest, "cprNumber"));
                 //TODO There are 2/4 more props that are boolean types to possibly add.
             }
-            if (contactType.equalsIgnoreCase("organisation")) {
+            if (contactType.equalsIgnoreCase("organization")) {
                 typeProps.put(OpenESDHModel.PROP_CONTACT_ORGANIZATION_NAME, getOrNull(parsedRequest, "organizationName"));
                 typeProps.put(OpenESDHModel.PROP_CONTACT_CVR_NUMBER, getOrNull(parsedRequest, "cvrNumber"));
             }

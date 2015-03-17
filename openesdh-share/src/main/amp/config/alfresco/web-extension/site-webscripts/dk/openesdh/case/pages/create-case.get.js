@@ -115,7 +115,7 @@ model.jsonModel = {
                                                                 value: "",
                                                                 label: msg.get("create-case.label.title"),
                                                                 unitsLabel: "",
-                                                                description: msg.get("create-case.msg.title-desc"),
+                                                                description: "",
                                                                 visibilityConfig: {
                                                                     initialValue: true,
                                                                     rules: []
@@ -191,7 +191,7 @@ model.jsonModel = {
                                                             config: {
                                                                 id: "prop_case_startDate",
                                                                 unitsLabel: "mm/dd/yy",
-                                                                description: "Starting date of the case",
+                                                                description: "",
                                                                 label: msg.get("create-case.label.button.start-date"),
                                                                 name: "prop_case_startDate",
                                                                 fieldId: "b4bd606f-66ae-4f06-847d-dfdc77f5abc2",
@@ -203,7 +203,7 @@ model.jsonModel = {
                                                             config: {
                                                                 id: "prop_case_endDate",
                                                                 unitsLabel: "mm/dd/yy",
-                                                                description: "The end date of the case",
+                                                                description: "",
                                                                 label: msg.get("create-case.label.button.end-date"),
                                                                 name: "prop_case_endDate",
                                                                 fieldId: "69707d94-0f8c-4966-832a-a1adbc53b74f",
@@ -228,7 +228,7 @@ model.jsonModel = {
                                                                 value: "",
                                                                 label: "Description",
                                                                 unitsLabel: "",
-                                                                description: "Description",
+                                                                description: "",
                                                                 visibilityConfig: {
                                                                     initialValue: true,
                                                                     rules: []

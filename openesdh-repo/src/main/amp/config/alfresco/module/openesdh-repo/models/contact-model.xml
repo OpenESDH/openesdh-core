@@ -21,7 +21,7 @@
         </constraint>
         <constraint name="contact:cvrConstraint" type="REGEX">
             <parameter name="expression">
-                <value>^\d{8}$</value>
+                <value>^\d{10}$</value>
             </parameter>
         </constraint>
         <constraint name="contact:emailConstraint" type="REGEX">
@@ -227,6 +227,8 @@
             </overrides>
         </type>
     </types>
+
+    <!--aspects-->
     <aspects>
         <aspect name="contact:address">
             <title>Address</title>
