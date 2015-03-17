@@ -49,7 +49,7 @@ define(["dojo/_base/declare", "alfresco/core/Core",
                         name: "alfresco/buttons/AlfDynamicPayloadButton",
                         config: {
                             iconClass: "add-icon-16",
-                            label: "",
+                            label: this.message("notes.button.label.add"),
                             publishTopic: "ALF_CREATE_FORM_DIALOG_REQUEST",
                             publishPayload: {
                                 dialogTitle: this.message("notes.add.dialog.title"),

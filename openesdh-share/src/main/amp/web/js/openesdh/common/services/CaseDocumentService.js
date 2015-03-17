@@ -12,6 +12,10 @@ define(["dojo/_base/declare",
 
         return declare([AlfCore, CoreXhr, _TopicsMixin], {
 
+            i18nRequirements: [
+                {i18nFile: "./i18n/CaseDocumentService.properties"}
+            ],
+
             /**
              * The documents NodeRef for a case.
              */
@@ -27,6 +31,7 @@ define(["dojo/_base/declare",
 
                 this.alfSubscribe("OE_SHOW_UPLOADER", lang.hitch(this, this._showUploader));
                 this.alfSubscribe("OE_SHOW_ATTACHMENTS_UPLOADER", lang.hitch(this, this._showUploader));
+                this.alfSubscribe("OE_SHOW_VERSION_UPLOADER", lang.hitch(this, this._showVersionUploader));
                 this.alfSubscribe("OE_CASE_DOCUMENT_SERVICE_UPLOAD_REQUEST_RECEIVED", lang.hitch(this, this._onFileUploadRequest));
                 this.alfSubscribe("OE_PREVIEW_DOC", lang.hitch(this, this.onPreviewDoc));
                 this.alfSubscribe("GET_DOCUMENT_RECORD_INFO", lang.hitch(this, this._docRecordInfo));
@@ -116,6 +121,71 @@ define(["dojo/_base/declare",
                         }
                     ]
                 });
+                this.uploadDialog.show();
+            },
+
+            /**
+             * This function will open a [AlfFormDialog]{@link module:alfresco/forms/AlfFormDialog} containing a
+             * [file select form control]{@link module:alfresco/forms/controls/FileSelect} so that the user can
+             * select one or more files to upload. When the dialog is confirmed the
+             * [_onFileUploadRequest]{@link module:alfresco/services/ContentService#_onFileUploadRequest}
+             * function will be called to destroy the dialog and pass the upload request on.
+             *
+             * @instance
+             * @param {object} payload
+             */
+            _showVersionUploader: function alfresco_services_ContentService__showUploader(payload) {
+                console.log("CaseDocumentsService(134) Uploader payload:\n"+payload.documentNodeRef);
+                this.uploadDialog = new AlfFormDialog({
+                    dialogTitle: "upload-dialog.label.title",
+                    dialogConfirmationButtonTitle: "Upload",
+                    dialogCancellationButtonTitle: "Cancel",
+                    formSubmissionTopic: "OE_CASE_DOCUMENT_SERVICE_UPLOAD_REQUEST_RECEIVED",
+                    formSubmissionPayload: {
+                        targetData: {
+                            destination: null,
+                            siteId: null,
+                            containerId: null,
+                            uploadDirectory: null,
+                            updateNodeRef: payload.documentNodeRef,
+                            overwrite: payload.versioning,
+                            thumbnails: null,
+                            username: null
+                        }
+                    },
+                    widgets: [
+                        {
+                            name: "alfresco/forms/controls/FileSelect",
+                            config: {
+                                label: this.message("upload-dialog.form-control.label.file-control"),
+                                name: "files"
+                            }
+                        },
+                        {
+                            name: "alfresco/forms/controls/DojoTextarea",
+                            config: {
+                                label: this.message("upload-dialog.form-control.label.description"),
+                                name: "description"
+                            }
+                        },
+                        {
+                            name: "alfresco/forms/controls/DojoRadioButtons",
+                            config: {
+                                label: this.message("upload-dialog.form-control.label.version-options"),
+                                name: "targetData.majorVersion",
+                                value: "false",
+                                optionsConfig: {
+                                    fixed: [
+                                        { label: this.message("upload-dialog.form-control.label.version-options.minor"), value: "false" },
+                                        { label: this.message("upload-dialog.form-control.label.version-options.major"), value: "true" }
+                                    ]
+                                }
+                            }
+                        }
+                    ]
+                });
+
+
                 this.uploadDialog.show();
             },
 
