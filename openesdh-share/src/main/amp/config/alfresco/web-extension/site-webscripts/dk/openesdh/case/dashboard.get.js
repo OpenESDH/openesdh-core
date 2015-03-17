@@ -31,17 +31,18 @@ model.jsonModel = {
                                         nodeRef: caseNodeRef
                                     }
                                 },
+                                {
+                                    name: "openesdh/common/widgets/dashlets/CaseMembersDashlet",
+                                    config:{
+                                        caseId : caseId
+                                    }
+                                },
                                 { id: "CASE_MEMBERS_DASHLET",
                                     name: "alfresco/layout/HorizontalWidgets",
                                     align: "right",
                                     config: {
-                                        widgetWidth: 50,
-                                        widgets: [{
-                                            name: "openesdh/common/widgets/dashlets/CaseMembersDashlet",
-                                            config:{
-                                                caseId : caseId
-                                            }
-                                        }]
+                                        //widgetWidth: 50,
+                                        widgets: []
                                     }
                                 },
                                 {
