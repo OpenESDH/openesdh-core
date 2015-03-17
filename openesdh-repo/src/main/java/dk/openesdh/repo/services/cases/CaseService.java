@@ -2,7 +2,10 @@ package dk.openesdh.repo.services.cases;
 
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.namespace.QName;
+import org.json.simple.JSONObject;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -212,4 +215,6 @@ public interface CaseService {
      * @return
      */
     public NodeRef getDocumentsFolder(NodeRef caseNodeRef);
+
+    public Map<String, Object> getSearchDefinition(QName caseType);
 }

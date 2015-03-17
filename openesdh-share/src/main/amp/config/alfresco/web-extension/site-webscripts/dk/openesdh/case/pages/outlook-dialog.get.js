@@ -21,12 +21,26 @@ model.jsonModel = {
                     },
 
                     {
-                        name: "openesdh/common/widgets/controls/CasePicker",
+                        name: "alfresco/forms/controls/DojoValidationTextBox",
                         config: {
-                            label: msg.get("page.case.label"),
                             name: "caseId",
-                            value: "{value}"
-//                            itemKey: "nodeRef"
+                            assignTo: "pickedCaseWidget",
+                            label: "Case"
+                        }
+                    },
+                    {
+                        name: "alfresco/buttons/AlfButton",
+                        config: {
+                            label: "Find Case",
+                            publishTopic: "OE_FIND_CASE",
+                            publishGlobal: true
+                        },
+                        assignTo: "formDialogButton",
+                    },
+                    {
+                        name: "alfresco/buttons/AlfButton",
+                        config: {
+                            label: "Create Case"
                         }
                     },
                     {
