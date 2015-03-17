@@ -348,6 +348,16 @@ define(["dojo/_base/declare",
             },
 
             /**
+             * Formatter function for formatting a date/time.
+             * @param value
+             * @private
+             */
+            _formatDateTime: function (value) {
+                var date = new Date(value);
+                return date.toLocaleDateString() + " - " + date.toLocaleTimeString();
+            },
+
+            /**
              * Implement Object.keys for browsers that don't support it.
              */
             addPolyfillObjectKeys: function () {
