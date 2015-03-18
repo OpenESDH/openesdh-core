@@ -40,7 +40,9 @@ model.jsonModel = {
                     {
                         name: "alfresco/buttons/AlfButton",
                         config: {
-                            label: "Create Case"
+                            label: "Create Case",
+                            publishTopic: "OE_CREATE_CASE",
+                            publishGlobal: true
                         }
                     },
                     {
@@ -132,6 +134,18 @@ model.jsonModel = {
             }
         },
         "alfresco/dialogs/AlfDialogService",
-        "alfresco/services/DocumentService"
+        "alfresco/services/DocumentService",
+        {
+            name: "openesdh/common/services/CaseService",
+            config: {
+                fieldId: "35cbd518-a7c1-44c8-89ba-7e3d781222be"
+            }
+        },
+        {
+            name: "alfresco/services/NavigationService",
+            config: {
+                fieldId: "35cbd518-a7c1-5432-89ba-7e3d781154be"
+            }
+        }
     ]
 };

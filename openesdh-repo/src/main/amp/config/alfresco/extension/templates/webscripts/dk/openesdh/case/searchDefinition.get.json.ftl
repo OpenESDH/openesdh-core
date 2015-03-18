@@ -1,4 +1,3 @@
-<#import "searchdefinition.lib.ftl" as searchdefinitionDefLib/>
 <#escape x as jsonUtils.encodeJSONString(x)>
 {
     "model": {
@@ -12,8 +11,6 @@
         },
         "properties": {
             <#list propertydefs as propertydef>
-            "p": {
-<#--
             "${propertydef.name.toPrefixString()}": {
                 "name": "${propertydef.name.toPrefixString()}",
                 "title": "${propertydef.getTitle(messages)!""}",
@@ -44,25 +41,34 @@
                     ]
                 }<#if constraintdefs_has_next>,</#if>
                     </#list>
-                ]
--->
+                ],
+                "control": "FilterTextWidget"
             }<#if propertydef_has_next>,</#if>
             </#list>
-<#--
-<#list classdefs as classdef>
-<@searchdefinitionDefLib.classDefJSON classdef=classdef key=classdef_index/>
-</#list>
--->
         }
     },
     "availableFilters": [
+        "cm:title"
     ],
     "visibleColumns": [
+        "oe:id",
+        "cm:title"
     ],
     "availableColumns": [
+        "oe:id",
+        "cm:title"
     ],
     "operatorSets": {
-
+        "equality": [
+            {
+                "name": "er",
+                "value": "="
+            },
+            {
+                "name": "er ikke",
+                "value": "!="
+            }
+        ]
     },
     "actions": [
     ]

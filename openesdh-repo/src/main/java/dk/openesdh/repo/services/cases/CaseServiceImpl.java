@@ -773,7 +773,9 @@ public class CaseServiceImpl implements CaseService {
 
         Map<QName, ClassDefinition> classDefs = new HashMap<>();
 
-        Map<QName, Collection> propertyDefs = new HashMap<>();
+//        Map<QName, Collection> propertyDefs = new HashMap<>();
+
+        List<PropertyDefinition> propertyDefs = new ArrayList<>();
 
         for (QName classType: dictionaryService.getSubTypes(caseType, true)) {
             ClassDefinition classDefinition = dictionaryService.getClass(classType);
@@ -794,7 +796,7 @@ public class CaseServiceImpl implements CaseService {
 //            handleProperties(properties);
             for (QName propertyName: classProperties.keySet()) {
                 PropertyDefinition p = classProperties.get(propertyName);
-                propertyDefs.put(classType, classProperties.values());
+                propertyDefs.addAll(classProperties.values());
 
 //                String pname = propertyName.toPrefixString();
 //                properties.add(handleProperty(classProperties.get(propertyName)));
@@ -811,7 +813,7 @@ public class CaseServiceImpl implements CaseService {
                 ClassDefinition aspectClassDefinition = dictionaryService.getClass(aspect.getName());
                 Map<QName, PropertyDefinition> aspectProperties = aspectClassDefinition.getProperties();
                 for (QName propertyName: aspectProperties.keySet()) {
-                    propertyDefs.put(aspect.getName(), aspectProperties.values());
+                    propertyDefs.addAll(aspectProperties.values());
                 }
             }
 
@@ -832,7 +834,7 @@ public class CaseServiceImpl implements CaseService {
 
         ArrayList classDefinitions1 = new ArrayList(classDefs.values());
         model.put("classdefs", classDefinitions1);
-        model.put("propertydefs", this.reorderedValues(classDefinitions1, propertyDefs));
+        model.put("propertydefs", propertyDefs);
         model.put("availableFilters", availableFilters);
         model.put("messages", this.dictionaryService);
         return model;
