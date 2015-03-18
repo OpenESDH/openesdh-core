@@ -326,7 +326,8 @@ define(["dojo/_base/declare",
                     if (action.href != null) {
                         var href = this.getActionUrl(action, item);
                         actionElem = domConstruct.toDom("<span><a class='magenta ui-icon grid-action action-" + action.id + "' href='" + href + "' title='" + label + "'>" + label + "</a></span>");
-                    } else if (action.callback != null && typeof this[action.callback] === "function") {
+                    }
+                    else if (action.callback != null && typeof this[action.callback] === "function") {
                         actionElem = domConstruct.toDom("<span><a class='magenta ui-icon grid-action action-" + action.id + "' href='#' title='" + label + "'>" + label + "</a></span>");
                         on(actionElem, "click", lang.hitch(this, function () {
                             this[action.callback].call(this, item);

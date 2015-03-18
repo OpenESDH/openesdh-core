@@ -1,0 +1,9 @@
+.grid-action.action-version-download {
+    vertical-align: top;
+    background: url(../../../../../../openesdh/images/download-16.png) no-repeat;
+}
+
+.grid-action.action-version-revert {
+    vertical-align: top;
+    background: url(../../../../../../openesdh/images/revert-16.png) no-repeat;
+}

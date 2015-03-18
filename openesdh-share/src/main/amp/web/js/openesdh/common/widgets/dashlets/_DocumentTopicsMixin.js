@@ -11,7 +11,7 @@ define(["dojo/_base/declare"],
             ReloadAttachmentsTopic: "OE_RELOAD_ATTACHMENTS",
             GetDocumentVersionsTopic: "GET_DOCUMENT_VERSIONS",
             SetDocumentAttachmentsNodeRef: "SET_DOC_ATTACHMENTS_TOPIC",
+            DocumentVersionRevertDialog: "DOCUMENT_REVERT",
             VersionsGridRefresh:"VERSIONS_GRID_REFRESH"
-
         });
     });

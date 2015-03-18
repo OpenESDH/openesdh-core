@@ -53,6 +53,7 @@ define(["dojo/_base/declare", "alfresco/core/Core",
              widgetsForBody : [
                  {
                      name: "openesdh/pages/case/widgets/DocumentVersionsGrid",
+                     id: "document_versions_grid",
                      config: {
                          showPagination: false,
                          sort: [
@@ -77,7 +78,9 @@ define(["dojo/_base/declare", "alfresco/core/Core",
             _setDocumentNodeRef : function(payload){
                 this.documentNodeRef = payload.nodeRef;
                 var actualObj = dijitRegistry.byId("document_version_upload_button");
+                var gridObj = dijitRegistry.byId("document_versions_grid");
                 actualObj.publishPayload.documentNodeRef = payload.nodeRef;
+                gridObj.nodeRef = payload.nodeRef;
             }
          });
       });

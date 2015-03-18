@@ -17,6 +17,10 @@ define(["dojo/_base/declare"],
             CaseDocumentRowDeselect: "DOCUMENT_ROW_DESELECT",
             CaseDocumentReloadAttachmentsTopic: "OE_RELOAD_ATTACHMENTS",
             GetDocumentVersionsTopic: "GET_DOCUMENT_VERSIONS",
+            DocumentVersionRevertTopic: "DOCUMENT_REVERT",
+            DocumentVersionRevertFormSubmitTopic: "DOCUMENT_REVERT_FORM_SUBMIT",
+            DocumentVersionUploaderTopic: "OE_SHOW_VERSION_UPLOADER",
+            VersionReversionSuccess: "VERSION_REVERT_SUCCESS",
             GetDocumentVersionsTopicClick: "GET_DOCUMENT_VERSIONS_CLICK"
         });
     });

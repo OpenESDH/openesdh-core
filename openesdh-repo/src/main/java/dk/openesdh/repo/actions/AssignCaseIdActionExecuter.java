@@ -32,13 +32,13 @@ public class AssignCaseIdActionExecuter extends ActionExecuterAbstractBase {
 
     @Override
     protected void executeImpl(Action action, NodeRef actionedUponNodeRef) {
+//        Map<QName, Serializable> allProps = this.nodeService.getProperties(actionedUponNodeRef);
         NodeRef caseNodeRef = caseService.getParentCase(actionedUponNodeRef);
         if (caseNodeRef != null) {
             String caseId = caseService.getCaseId(caseNodeRef);
             Map<QName, Serializable> properties = new HashMap<>();
             properties.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
-            nodeService.addAspect(actionedUponNodeRef,
-                    OpenESDHModel.ASPECT_OE_CASE_ID, properties);
+            nodeService.addAspect(actionedUponNodeRef, OpenESDHModel.ASPECT_OE_CASE_ID, properties);
         }
     }
 
