@@ -8,10 +8,13 @@ import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.action.ActionService;
-import org.alfresco.service.cmr.dictionary.DictionaryService;
+import org.alfresco.service.cmr.dictionary.*;
 import org.alfresco.service.cmr.lock.LockService;
 import org.alfresco.service.cmr.lock.LockType;
-import org.alfresco.service.cmr.repository.*;
+import org.alfresco.service.cmr.repository.ChildAssociationRef;
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.repository.StoreRef;
 import org.alfresco.service.cmr.rule.Rule;
 import org.alfresco.service.cmr.rule.RuleService;
 import org.alfresco.service.cmr.rule.RuleType;
@@ -24,7 +27,10 @@ import org.alfresco.service.cmr.security.OwnableService;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
+import static org.apache.commons.lang.StringUtils.*;
 import org.apache.log4j.Logger;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.springframework.security.access.AccessDeniedException;
 
 import java.io.Serializable;
@@ -756,4 +762,93 @@ public class CaseServiceImpl implements CaseService {
     }
     //</editor-fold>
 
+
+    @Override
+    public Map<String, Object> getSearchDefinition(QName caseType) {
+//        JSONObject model = new JSONObject();
+//        List<Object> types = new ArrayList<>();
+//        model.put("types", types);
+
+        Map<String, Object> model = new HashMap<>();
+
+        Map<QName, ClassDefinition> classDefs = new HashMap<>();
+
+//        Map<QName, Collection> propertyDefs = new HashMap<>();
+
+        List<PropertyDefinition> propertyDefs = new ArrayList<>();
+
+        for (QName classType: dictionaryService.getSubTypes(caseType, true)) {
+            ClassDefinition classDefinition = dictionaryService.getClass(classType);
+            classDefs.put(classType, classDefinition);
+
+//            String name = classDefinition.getName().toPrefixString();
+//            String title = classDefinition.getTitle(dictionaryService);
+
+//            Map<String, Object> type = new HashMap<>();
+//            type.put("name", name);
+//            type.put("title", title);
+//            types.add(type);
+
+
+//            propertyDefs.put(classDefinition.getName(), classDefinition.getProperties().values());
+//            propertyDefs.addAll(classDefinition.getProperties().values());
+            Map<QName, PropertyDefinition> classProperties = classDefinition.getProperties();
+//            handleProperties(properties);
+            for (QName propertyName: classProperties.keySet()) {
+                PropertyDefinition p = classProperties.get(propertyName);
+                propertyDefs.addAll(classProperties.values());
+
+//                String pname = propertyName.toPrefixString();
+//                properties.add(handleProperty(classProperties.get(propertyName)));
+//                PropertyDefinition propertyDefinition = dictionaryService.getProperty(propertyName);
+//                showProperty(propertyDefinition);
+//                List<ConstraintDefinition> constraints = propertyDefinition.getConstraints();
+//                for (ConstraintDefinition def: p.getConstraints()) {
+//                    def.getConstraint().getType()
+//                    System.out.println("constraint: " + def.getName());
+//                }
+            }
+
+            for (AspectDefinition aspect: classDefinition.getDefaultAspects()) {
+                ClassDefinition aspectClassDefinition = dictionaryService.getClass(aspect.getName());
+                Map<QName, PropertyDefinition> aspectProperties = aspectClassDefinition.getProperties();
+                for (QName propertyName: aspectProperties.keySet()) {
+                    propertyDefs.addAll(aspectProperties.values());
+                }
+            }
+
+            Map<QName, AssociationDefinition> associations = classDefinition.getAssociations();
+//            for (QName assocName: associations.keySet()) {
+//                classDefinition.
+//            }
+        }
+
+//        System.out.println("classTypes: " + classTypes);
+//        List<AspectDefinition> defaultAspects = cls.getDefaultAspects();
+//        cls.getName()
+
+        JSONObject availableFilters = new JSONObject();
+
+
+//        model.put("model", model);
+
+        ArrayList classDefinitions1 = new ArrayList(classDefs.values());
+        model.put("classdefs", classDefinitions1);
+        model.put("propertydefs", propertyDefs);
+        model.put("availableFilters", availableFilters);
+        model.put("messages", this.dictionaryService);
+        return model;
+    }
+
+    private <T> Collection<T> reorderedValues(List<ClassDefinition> sortedClassDefs, Map<QName, T> dependent) {
+        ArrayList result = new ArrayList(sortedClassDefs.size());
+        Iterator i$ = sortedClassDefs.iterator();
+
+        while(i$.hasNext()) {
+            ClassDefinition classDef = (ClassDefinition)i$.next();
+            result.add(dependent.get(classDef.getName()));
+        }
+
+        return result;
+    }
 }

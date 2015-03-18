@@ -68,6 +68,10 @@ define(["dojo/_base/declare",
              */
             sort: null,
 
+            rowsPerPage: 25,
+
+            pageSizeOptions: [25, 50, 75, 100],
+
             /**
              * An array containing the actions which should be available on all
              * result rows. If null or empty, there will be no actions column
@@ -246,8 +250,8 @@ define(["dojo/_base/declare",
                     columns: columns,
                     noDataMessage: this.message("grid.no_data_message"),
                     loadingMessage: this.message("grid.loading_message"),
-                    rowsPerPage: 25,
-                    pageSizeOptions: [25, 50, 75, 100],
+                    rowsPerPage: this.rowsPerPage,
+                    pageSizeOptions: this.pageSizeOptions,
                     selectionMode: "single",
                     cellNavigation: false
                 });

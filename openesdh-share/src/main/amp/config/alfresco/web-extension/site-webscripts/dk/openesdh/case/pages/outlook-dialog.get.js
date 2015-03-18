@@ -21,12 +21,28 @@ model.jsonModel = {
                     },
 
                     {
-                        name: "openesdh/common/widgets/controls/CasePicker",
+                        name: "alfresco/forms/controls/DojoValidationTextBox",
                         config: {
-                            label: msg.get("page.case.label"),
                             name: "caseId",
-                            value: "{value}"
-//                            itemKey: "nodeRef"
+                            assignTo: "pickedCaseWidget",
+                            label: "Case"
+                        }
+                    },
+                    {
+                        name: "alfresco/buttons/AlfButton",
+                        config: {
+                            label: "Find Case",
+                            publishTopic: "OE_FIND_CASE",
+                            publishGlobal: true
+                        },
+                        assignTo: "formDialogButton",
+                    },
+                    {
+                        name: "alfresco/buttons/AlfButton",
+                        config: {
+                            label: "Create Case",
+                            publishTopic: "OE_CREATE_CASE",
+                            publishGlobal: true
                         }
                     },
                     {
@@ -118,6 +134,18 @@ model.jsonModel = {
             }
         },
         "alfresco/dialogs/AlfDialogService",
-        "alfresco/services/DocumentService"
+        "alfresco/services/DocumentService",
+        {
+            name: "openesdh/common/services/CaseService",
+            config: {
+                fieldId: "35cbd518-a7c1-44c8-89ba-7e3d781222be"
+            }
+        },
+        {
+            name: "alfresco/services/NavigationService",
+            config: {
+                fieldId: "35cbd518-a7c1-5432-89ba-7e3d781154be"
+            }
+        }
     ]
 };
