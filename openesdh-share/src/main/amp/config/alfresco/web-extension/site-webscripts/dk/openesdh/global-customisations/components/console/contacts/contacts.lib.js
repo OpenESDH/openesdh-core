@@ -1,4 +1,3 @@
-<import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/utils/contacts.js">//</import>
 var userCanCreate = "CREATION_ALLOWED_TOPIC";
 
 function checkUserCanCreateAccount(){
@@ -65,10 +64,6 @@ function getAddressWidgets(){
                             label: "House Number",
                             description: "House number of the address",
                             placeHolder: "42",
-                            validationConfig: [{
-                                validation: "regex",
-                                regex: "^\\d{2,3}$"
-                            }],
                             requirementConfig: { initialValue: false}
 
                         }
@@ -104,13 +99,7 @@ function getAddressWidgets(){
                             maxLength: 3,
                             description: "The floor on which the address of the user is located within the building, if any",
                             placeHolder: "01",
-                            requirementConfig: { initialValue: false},
-                            validationConfig: [{
-                                validation: "regex",
-                                regex: "^(\\d){2,3}$",
-                                errorMessage: ""
-                            }
-                            ]
+                            requirementConfig: { initialValue: false}
                         }
                     },
                     {
@@ -313,7 +302,7 @@ function getFormDefinition(contactType) {
                             label: "Create User Account",
                             description: "Tick this field to create a corresponding user account",
                             value: false,
-                            visibilityConfig: userCanCreateAccounts
+                            visibilityConfig: {initialValue: false}
                         }
                     }
                 ]
@@ -397,8 +386,8 @@ function getFormDefinition(contactType) {
                                 label: "CVR Number",
                                 width: "7",
                                 maxLength: 10,
-                                description: "12345678",
-                                placeHolder: "12345678",
+                                description: "1234567890",
+                                placeHolder: "1234567890",
                                 requirementConfig: { initialValue: false},
                                 validationConfig: [{
                                     validation: "regex",
@@ -581,8 +570,6 @@ function generateContactTableView(contactType) {
 function generateContactPageWidgets(contactType, cType) {
     var contactTypeId = contactType.replace(":", "_");
 
-    var contactsFolderNodeRef = getContactsFolderNodeRef();
-
     var contactListViews = [generateContactTableView(contactType)];
 
     // TODO: Add browse hierarchy view for Organizations contacts
@@ -591,7 +578,6 @@ function generateContactPageWidgets(contactType, cType) {
         name: "openesdh/common/widgets/lists/ContactList",
         config: {
             contactType: contactType,
-
             loadDataPublishTopic: "ALF_CRUD_GET_ALL",
             itemsProperty: "items",
             widgets: contactListViews
@@ -610,80 +596,75 @@ function generateContactPageWidgets(contactType, cType) {
                     }
                 },
                 {
-                    name: "alfresco/layout/HorizontalWidgets",
+                    name: "alfresco/html/Heading",
+                    config: {
+                        label: msg.get("contacts.tool.heading." + contactTypeId),
+                        level: 2
+                    }
+                },
+                {
+                    name: "alfresco/layout/VerticalWidgets",
                     config: {
                         widgets: [
                             {
-                                name: "alfresco/layout/VerticalWidgets",
+                                name: "alfresco/html/Spacer",
                                 config: {
-                                    widgets: [
-                                        {
-                                            name: "alfresco/html/Heading",
-                                            config: {
-                                                label: msg.get("contacts.tool.heading." + contactTypeId),
-                                                level: 2
-                                            }
-                                        },
-                                        {
-                                            name: "alfresco/html/Spacer",
-                                            config: {
-                                                height: "8px"
-                                            }
-                                        }
-                                    ]
-                                }
-                            },
-                            {
-                                name: "alfresco/layout/HorizontalWidgets",
-                                config: {
-                                    widgets: [
-                                        {
-                                            name: "alfresco/buttons/AlfButton",
-                                            config: {
-                                                label: msg.get("contacts.tool.create.contact_person"),
-                                                additionalCssClasses: "call-to-action",
-                                                publishTopic: "ALF_CREATE_FORM_DIALOG_REQUEST",
-                                                publishPayloadType: "PROCESS",
-                                                publishPayloadModifiers: ["processCurrentItemTokens"],
-                                                publishPayload: {
-                                                    dialogTitle: "contacts.tool.create-dialog.label",
-                                                    dialogConfirmationButtonTitle: msg.get("create.button.label"),
-                                                    dialogCancellationButtonTitle: msg.get("cancel.button.label"),
-                                                    formSubmissionTopic: "ALF_CRUD_CREATE",
-                                                    formSubmissionPayloadMixin: {
-                                                        url: "/api/openesdh/contacts/create",
-                                                        contactType: cType,
-                                                        successResponseTopic: "CONTACT_LIST_SHOW_ALL"
-                                                    },
-                                                    fixedWidth: true,
-                                                    widgets: getFormDefinition(cType)
-                                                }
-                                            }
-                                        }
-                                    ]
+                                    height: "8px"
                                 }
                             }
                         ]
                     }
                 },
                 {
-                    name: "openesdh/common/widgets/forms/SingleTextFieldForm",
+                    name: "alfresco/layout/HorizontalWidgets",
                     config: {
-                        useHash: false,
-                        showOkButton: true,
-                        okButtonLabel: msg.get("contacts.tool.search.button"),
-                        showCancelButton: false,
-                        okButtonPublishTopic: "CONTACT_LIST_SEARCH",
-                        okButtonPublishGlobal: true,
-                        textBoxLabel: msg.get("contacts.tool.search.button"),
-                        textFieldName: "term",
-                        okButtonIconClass: "alf-white-search-icon",
-                        okButtonClass: "call-to-action",
-                        textBoxIconClass: "alf-search-icon",
-                        textBoxCssClasses: "long",
-                        textBoxRequirementConfig: {
-                            initialValue: false
-                        }
+                        widgets: [
+                            {
+                                name: "openesdh/common/widgets/forms/SingleTextFieldForm",
+                                widthPc : 85,
+                                config: {
+                                    useHash: false,
+                                    showOkButton: true,
+                                    okButtonLabel: msg.get("contacts.tool.search.button"),
+                                    showCancelButton: false,
+                                    okButtonPublishTopic: "CONTACT_LIST_SEARCH",
+                                    okButtonPublishGlobal: true,
+                                    textBoxLabel: msg.get("contacts.tool.search.button"),
+                                    textFieldName: "term",
+                                    okButtonIconClass: "alf-white-search-icon",
+                                    okButtonClass: "call-to-action",
+                                    textBoxIconClass: "alf-search-icon",
+                                    textBoxCssClasses: "long",
+                                    textBoxRequirementConfig: {
+                                        initialValue: false
+                                    }
+                                }
+                            },
+                            {
+                                name: "alfresco/buttons/AlfButton",
+                                widthPc : 10,
+                                config: {
+                                    label: msg.get("contacts.tool.create.contact_"+cType.toLowerCase()),
+                                    additionalCssClasses: "call-to-action",
+                                    publishTopic: "ALF_CREATE_FORM_DIALOG_REQUEST",
+                                    publishPayloadType: "PROCESS",
+                                    publishPayloadModifiers: ["processCurrentItemTokens"],
+                                    publishPayload: {
+                                        dialogTitle: "contacts.tool.create-dialog.label",
+                                        dialogConfirmationButtonTitle: msg.get("create.button.label"),
+                                        dialogCancellationButtonTitle: msg.get("cancel.button.label"),
+                                        formSubmissionTopic: "ALF_CRUD_CREATE",
+                                        formSubmissionPayloadMixin: {
+                                            url: "/api/openesdh/contacts/create",
+                                            contactType: cType,
+                                            successResponseTopic: "CONTACT_LIST_SHOW_ALL"
+                                        },
+                                        fixedWidth: true,
+                                        widgets: getFormDefinition(cType)
+                                    }
+                                }
+                            },
+                        ]
                     }
                 },
                 {

@@ -44,12 +44,16 @@ public class ContactAbstractWebscript extends AbstractWebScript{
 
         String method = req.getServiceMatch().getWebScript().getDescription().getMethod();
         try {
-            if (method.equals("GET")) {
-                get(nodeRef, req, res);
-            } else if (method.equals("POST")) {
-                post(req, res);
-            } else if (method.equals("PUT")) {
-                put(nodeRef, req, res);
+            switch (method) {
+                case "GET":
+                    get(nodeRef, req, res);
+                    break;
+                case "POST":
+                    post(req, res);
+                    break;
+                case "PUT":
+                    put(nodeRef, req, res);
+                    break;
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -103,9 +107,9 @@ public class ContactAbstractWebscript extends AbstractWebScript{
         typeProps.put(OpenESDHModel.PROP_CONTACT_HOUSE_NUMBER, getOrNull(obj,"houseNumber") );
         typeProps.put(OpenESDHModel.PROP_CONTACT_STREET_NAME, getOrNull(obj,"streetName") );
         typeProps.put(OpenESDHModel.PROP_CONTACT_STREET_CODE, getOrNull(obj,"streetCode") );
-        typeProps.put(OpenESDHModel.PROP_CONTACT_SUITE_IDENTIFIER, getOrNull(obj,"suiteIdentifier") );
-        typeProps.put(OpenESDHModel.PROP_CONTACT_FLOOR_IDENTIFIER, getOrNull(obj,"floorIdentifier") );
-        typeProps.put(OpenESDHModel.PROP_CONTACT_CITY_NAME, getOrNull(obj,"cityName") );
+        typeProps.put(OpenESDHModel.PROP_CONTACT_SUITE_IDENTIFIER, getOrNull(obj,"suite") );
+        typeProps.put(OpenESDHModel.PROP_CONTACT_FLOOR_IDENTIFIER, getOrNull(obj,"floorNumber") );
+        typeProps.put(OpenESDHModel.PROP_CONTACT_CITY_NAME, getOrNull(obj,"city") );
         typeProps.put(OpenESDHModel.PROP_CONTACT_POST_CODE, getOrNull(obj,"postCode") );
         typeProps.put(OpenESDHModel.PROP_CONTACT_POST_BOX, getOrNull(obj,"postBox") );
         typeProps.put(OpenESDHModel.PROP_CONTACT_POST_DISTRICT, getOrNull(obj,"postDistrict") );

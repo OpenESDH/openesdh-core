@@ -1,23 +1,4 @@
 /**
- * Copyright (C) 2005-2013 Alfresco Software Limited.
- *
- * This file is part of Alfresco
- *
- * Alfresco is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Lesser General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * Alfresco is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with Alfresco. If not, see <http://www.gnu.org/licenses/>.
- */
-
-/**
  * DocVersionsDashlet
  *
  * @module openesdh/common/widgets/dashlets/DocVersionsDashlet
@@ -28,8 +9,9 @@
 define(["dojo/_base/declare", "alfresco/core/Core",
         "openesdh/common/widgets/dashlets/Dashlet",
         "dojo/_base/lang", "alfresco/core/NodeUtils",
+        "dijit/registry",
         "openesdh/common/widgets/dashlets/_DocumentTopicsMixin"],
-      function(declare, AlfCore, Dashlet, lang, NodeUtils,_DocumentTopicsMixin) {
+      function(declare, AlfCore, Dashlet, lang, NodeUtils, dijitRegistry, _DocumentTopicsMixin) {
 
          return declare([Dashlet,_DocumentTopicsMixin], {
 
@@ -49,7 +31,21 @@ define(["dojo/_base/declare", "alfresco/core/Core",
              */
             i18nRequirements: [{i18nFile: "./i18n/DocVersionsDashlet.properties"}],
 
-             /*widgetsForTitleBarActions : [{}],*/
+             widgetsForTitleBarActions : [{
+                 id: "document_version_upload_button",
+                 name: "alfresco/buttons/AlfButton",
+                 config: {
+                     label: "Upload New Version",// msg.get("dashlet.button.label.version.upload"),
+                     // TODO: Add icon class
+                     iconClass: "add-icon-16",
+                     publishTopic: "OE_SHOW_VERSION_UPLOADER",
+                     publishPayload: {
+                         versioning: true,
+                         documentNodeRef: this.documentNodeRef
+                     }
+                 }
+
+             }],
 
              /**
               * The widgets in the body
@@ -67,9 +63,21 @@ define(["dojo/_base/declare", "alfresco/core/Core",
                  }
              ],
 
+             /**
+              * The nodeRef of the document for which versions we're displaying
+              */
+             documentNodeRef: null,
+
             constructor: function (args) {
                 lang.mixin(this, args);
                     this.widgetsForBody[0].config.gridRefreshTopic = this.VersionsGridRefresh;
+                this.alfSubscribe(this.GetDocumentVersionsTopic, lang.hitch(this, "_setDocumentNodeRef"));
+            },
+
+            _setDocumentNodeRef : function(payload){
+                this.documentNodeRef = payload.nodeRef;
+                var actualObj = dijitRegistry.byId("document_version_upload_button");
+                actualObj.publishPayload.documentNodeRef = payload.nodeRef;
             }
          });
       });

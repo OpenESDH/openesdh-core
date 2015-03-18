@@ -16,13 +16,16 @@ define(["dojo/_base/declare",
             i18nRequirements: [
                 {i18nFile: "./i18n/InfoWidget.properties"}
             ],
+
+            cssRequirements: [{cssFile:"./css/DocInfoWidget.css"}],
+
             bodyNode: null,
             widgetsForBody: [],
 
             buildRendering: function dk_openesdh_pages_case_widgets_InfoWidget__buildRendering() {
                 this.alfSubscribe(this.CaseInfoTopic, lang.hitch(this, "_onPayloadReceive"));
 
-                this.bodyTitle = this.message('bodyTitle');
+                this.bodyTitle = '';
                 this.inherited(arguments);
             },
 

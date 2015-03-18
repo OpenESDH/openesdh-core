@@ -52,7 +52,6 @@ define(["dojo/_base/declare",
             //},
 
             _onCreateCaseTopic: function (payload){
-                console.log("create case submit");
                 var url = Alfresco.constants.PROXY_URI + "api/type/case%3Asimple/formprocessor";
 
                 this.serviceXhr({

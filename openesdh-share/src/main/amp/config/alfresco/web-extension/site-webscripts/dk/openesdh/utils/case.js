@@ -84,7 +84,6 @@ function getCaseNodeRefFromId(caseId){
  */
 function getCaseIdFromNodeRef(nodeRef){
     var caseId = nodeRef.replace(":/","");
-    logger.warn("\n\n---> nodeRef as URI: "+ caseId+" <---\n\n");
     var connector = remote.connect("alfresco");
     var caseInfo = connector.get("/api/openesdh/documents/isCaseDoc/"+caseId);
     caseInfo = eval('(' + caseInfo + ')');
