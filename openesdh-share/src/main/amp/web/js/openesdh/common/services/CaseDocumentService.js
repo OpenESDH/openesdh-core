@@ -211,18 +211,7 @@ define(["dojo/_base/declare",
                     dialogConfirmationButtonTitle: "Upload",
                     dialogCancellationButtonTitle: "Cancel",
                     formSubmissionTopic: "OE_CASE_DOCUMENT_SERVICE_UPLOAD_REQUEST_RECEIVED",
-                    formSubmissionPayload: {
-                        targetData: {
-                            destination: null,
-                            siteId: null,
-                            containerId: null,
-                            uploadDirectory: null,
-                            updateNodeRef: payload.documentNodeRef,
-                            overwrite: payload.versioning,
-                            thumbnails: null,
-                            username: null
-                        }
-                    },
+                    formSubmissionPayload: {},
                     widgets: [
                         {
                             name: "alfresco/forms/controls/FileSelect",
@@ -250,6 +239,70 @@ define(["dojo/_base/declare",
                                         { label: this.message("upload-dialog.form-control.label.version-options.major"), value: "true" }
                                     ]
                                 }
+                            }
+                        },
+                        {
+                            name: "alfresco/forms/controls/HiddenValue",
+                            config: {
+                                name: "targetData.destination",
+                                value: null,
+                                postWhenHiddenOrDisabled: true
+                            }
+                        },
+                        {
+                            name: "alfresco/forms/controls/HiddenValue",
+                            config: {
+                                name: "targetData.siteId",
+                                value: null,
+                                postWhenHiddenOrDisabled: true
+                            }
+                        },
+                        {
+                            name: "alfresco/forms/controls/HiddenValue",
+                            config: {
+                                name: "targetData.containerId",
+                                value: null,
+                                postWhenHiddenOrDisabled: true
+                            }
+                        },
+                        {
+                            name: "alfresco/forms/controls/HiddenValue",
+                            config: {
+                                name: "targetData.uploadDirectory",
+                                value: null,
+                                postWhenHiddenOrDisabled: true
+                            }
+                        },
+                        {
+                            name: "alfresco/forms/controls/HiddenValue",
+                            config: {
+                                name: "targetData.thumbnails",
+                                value: null,
+                                postWhenHiddenOrDisabled: true
+                            }
+                        },
+                        {
+                            name: "alfresco/forms/controls/HiddenValue",
+                            config: {
+                                name: "targetData.username",
+                                value: null,
+                                postWhenHiddenOrDisabled: true
+                            }
+                        },
+                        {
+                            name: "alfresco/forms/controls/HiddenValue",
+                            config: {
+                                name: "targetData.updateNodeRef",
+                                value: payload.documentNodeRef,
+                                postWhenHiddenOrDisabled: true
+                            }
+                        },
+                        {
+                            name: "alfresco/forms/controls/HiddenValue",
+                            config: {
+                                name: "targetData.overwrite",
+                                value: payload.versioning,
+                                postWhenHiddenOrDisabled: true
                             }
                         }
                     ]
@@ -286,19 +339,16 @@ define(["dojo/_base/declare",
              * @param {object} payload The file data payload to pass on
              */
             _onVersionRevertSubmit: function alfresco_services_ContentService__onFileUploadRequest(payload) {
-                alert("Reversion attempt");
-                console.log("Reversion attempt");
+                var url = Alfresco.constants.PROXY_URI + "api/revert";
 
-                    var url = Alfresco.constants.PROXY_URI + "api/revert";
-
-                    this.serviceXhr({
-                        url: url,
-                        method: "POST",
-                        data: payload,
-                        successCallback:function (response, config) {
-                            this.alfPublish(this.GetDocumentVersionsTopic, response);
-                        },
-                        callbackScope: this});
+                this.serviceXhr({
+                    url: url,
+                    method: "POST",
+                    data: payload,
+                    successCallback:function (response, config) {
+                        this.alfPublish(this.GetDocumentVersionsTopic, response);
+                    },
+                    callbackScope: this});
             },
 
             _docRecordInfo: function (nodeRef) {

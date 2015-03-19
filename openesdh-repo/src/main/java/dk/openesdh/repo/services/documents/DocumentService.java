@@ -54,4 +54,11 @@ public interface DocumentService {
      * @return NodeRef  case node reference or null if node is not within a case
      */
     public NodeRef getCaseNodeRef(NodeRef nodeRef);
+
+    /**
+     * Get the attachments of the document record.
+     * @param docRecordNodeRef
+     * @return
+     */
+    List<NodeRef> getAttachments(NodeRef docRecordNodeRef);
 }

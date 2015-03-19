@@ -2,17 +2,17 @@ package dk.openesdh.repo.services.xsearch;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.documents.DocumentService;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.Path;
 import org.alfresco.service.namespace.NamespaceService;
+import org.alfresco.service.namespace.QName;
+import org.alfresco.service.namespace.QNamePattern;
 import org.alfresco.util.ISO9075;
 
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Lists all the documents in a given case
@@ -20,9 +20,11 @@ import java.util.Map;
 public class CaseDocumentsSearchServiceImpl extends AbstractXSearchService implements CaseDocumentsSearchService{
 
     protected CaseService caseService;
+
+    protected DocumentService documentService;
+
     protected NodeService nodeService;
     protected NamespaceService namespaceService;
-
     public XResultSet getNodes(Map<String, String> params, int startIndex, int pageSize, String sortField, boolean ascending) {
         NodeRef caseNodeRef = new NodeRef(params.get("nodeRef"));
         NodeRef documentsNodeRef = caseService.getDocumentsFolder(caseNodeRef);
@@ -34,19 +36,9 @@ public class CaseDocumentsSearchServiceImpl extends AbstractXSearchService imple
         return executeQuery(query, startIndex, pageSize, sortField, ascending);
     }
 
-    public XResultSet getAttachements(Map<String, String> params) {
+    public XResultSet getAttachments(Map<String, String> params) {
         NodeRef documentsNodeRef = new NodeRef(params.get("nodeRef"));
-
-        List<ChildAssociationRef> attachmentsRefs = this.nodeService.getChildAssocs(documentsNodeRef);
-        List<NodeRef> attachmentsNodes = new ArrayList<>();
-        for(ChildAssociationRef childRef : attachmentsRefs){
-            if(this.nodeService.hasAspect(childRef.getChildRef(), OpenESDHModel.ASPECT_CASE_MAIN_DOC))
-                continue;
-
-            attachmentsNodes.add(childRef.getChildRef());
-        }
-
-        return new XResultSet(attachmentsNodes);
+        return new XResultSet(documentService.getAttachments(documentsNodeRef));
     }
 
     public void setCaseService(CaseService caseService) {
@@ -59,5 +51,9 @@ public class CaseDocumentsSearchServiceImpl extends AbstractXSearchService imple
 
     public void setNamespaceService(NamespaceService namespaceService) {
         this.namespaceService = namespaceService;
+    }
+
+    public void setDocumentService(DocumentService documentService) {
+        this.documentService = documentService;
     }
 }

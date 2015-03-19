@@ -150,17 +150,9 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public NodeRef getMainDocument(NodeRef caseDocNodeRef){
-        NodeRef mainDoc = null;
-
-        List<ChildAssociationRef> children = this.nodeService.getChildAssocs(caseDocNodeRef);
-        for (ChildAssociationRef child : children){
-            NodeRef doc = child.getChildRef();
-            if (this.nodeService.hasAspect(doc, OpenESDHModel.ASPECT_CASE_MAIN_DOC)) {
-                mainDoc = doc;
-                break;
-            }
-        }
-        return mainDoc;
+        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(caseDocNodeRef, OpenESDHModel
+                .ASSOC_DOC_MAIN, QName.createQName(OpenESDHModel.DOC_URI, "main"));
+        return childAssocs.get(0).getChildRef();
     }
 
     @Override
@@ -206,6 +198,21 @@ public class DocumentServiceImpl implements DocumentService {
             }
         }
         return caseNodeRef;
+    }
+
+    @Override
+    public List<NodeRef> getAttachments(NodeRef docRecordNodeRef) {
+        NodeRef mainDocNodeRef = getMainDocument(docRecordNodeRef);
+
+        Collection<ChildAssociationRef> attachmentRefs = this.nodeService.getChildAssocs(docRecordNodeRef, null, null);
+
+        List<NodeRef> attachmentNodeRefs = new ArrayList<>();
+        for(ChildAssociationRef childRef : attachmentRefs){
+            if (!childRef.getChildRef().equals(mainDocNodeRef)) {
+                attachmentNodeRefs.add(childRef.getChildRef());
+            }
+        }
+        return attachmentNodeRefs;
     }
 
     /**
