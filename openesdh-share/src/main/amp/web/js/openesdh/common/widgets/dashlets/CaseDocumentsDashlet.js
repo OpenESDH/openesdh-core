@@ -55,6 +55,7 @@ define(["dojo/_base/declare",
             widgetsForTitleBarActions: [
                 {
                     name: "alfresco/buttons/AlfButton",
+                    id: "add_document_record_button",
                     config: {
                         iconClass: "add-icon-16",
                         // TODO: i18n

@@ -29,7 +29,6 @@ public class CreateCasePage extends BasePage {
     @FindBy(id = "prop_case_endDate_CONTROL")
     WebElement endDateField;
 
-
 /*
     @FindBy(css = "#template_x002e_create-content_x002e_create" +
             "-content_x0023_default_assoc_case_owners-cntrl button")

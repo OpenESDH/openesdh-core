@@ -38,6 +38,7 @@ define(["dojo/_base/declare",
             widgetsForTitleBarActions: [
                 {
                     name: "alfresco/buttons/AlfButton",
+                    id: "upload_attachment_button",
                     config: {
                         // TODO: Add icon class
                         iconClass: "add-icon-16",

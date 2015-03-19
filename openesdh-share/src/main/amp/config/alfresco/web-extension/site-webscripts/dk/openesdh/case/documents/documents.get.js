@@ -72,11 +72,11 @@ model.jsonModel = {
                         config: {
                             widgets:[
                                 {
-                                    id:"DOC_RECORD_INFO",
+                                    id:"DOC_RECORD_INFO_DASHLET",
                                     name: "openesdh/common/widgets/dashlets/DocRecordInfoDashlet"
                                 },
                                 {
-                                    id:"DOCUMENT_PREVIEW_DASHLET",
+                                    id:"DOCUMENT_VERSIONS_DASHLET",
                                     name: "openesdh/common/widgets/dashlets/DocVersionsDashlet"
                                 }
                             ]
