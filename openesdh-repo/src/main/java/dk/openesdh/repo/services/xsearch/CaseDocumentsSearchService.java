@@ -7,6 +7,6 @@ import java.util.Map;
  */
 public interface CaseDocumentsSearchService {
 
-    public XResultSet getAttachements(Map<String, String> params);
+    public XResultSet getAttachments(Map<String, String> params);
 
 }
