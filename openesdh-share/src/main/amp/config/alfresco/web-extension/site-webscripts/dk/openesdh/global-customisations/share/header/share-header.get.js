@@ -74,3 +74,4 @@ if (headerMenu != null) {
         }
     });
 }
+model.jsonModel.services.push("alfresco/dialogs/AlfDialogService");
