@@ -35,7 +35,6 @@ public class DocumentBehaviour implements NodeServicePolicies.OnCreateChildAssoc
 
     @Override
     public void onCreateChildAssociation(ChildAssociationRef childAssocRef, boolean isNewNode) {
-//        System.out.println("\n\t\tThe number of nodes: "+ nodeService.countChildAssocs(childAssocRef.getParentRef(), true)+"\n");
         if (nodeService.countChildAssocs(childAssocRef.getParentRef(), true) == 1) {//TODO does it have to be primary assocs?
             NodeRef fileRef = childAssocRef.getChildRef();
             //Tag the case document as the main document for the case
