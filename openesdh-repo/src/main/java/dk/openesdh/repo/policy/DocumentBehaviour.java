@@ -38,11 +38,13 @@ public class DocumentBehaviour implements NodeServicePolicies.OnCreateChildAssoc
 //        System.out.println("\n\t\tThe number of nodes: "+ nodeService.countChildAssocs(childAssocRef.getParentRef(), true)+"\n");
         if (nodeService.countChildAssocs(childAssocRef.getParentRef(), true) == 1) {//TODO does it have to be primary assocs?
             NodeRef fileRef = childAssocRef.getChildRef();
-            //Tag the case document as the main document for the case
-            nodeService.addAspect(fileRef, OpenESDHModel.ASPECT_CASE_MAIN_DOC, null);
-            nodeService.setType(fileRef, OpenESDHModel.TYPE_DOC_DIGITAL_FILE);
-            // TODO Get start value, localize
-            nodeService.setProperty(fileRef, OpenESDHModel.PROP_DOC_VARIANT, "Produktion");
+            if (nodeService.exists(fileRef)) {
+                //Tag the case document as the main document for the case
+                nodeService.addAspect(fileRef, OpenESDHModel.ASPECT_CASE_MAIN_DOC, null);
+                nodeService.setType(fileRef, OpenESDHModel.TYPE_DOC_DIGITAL_FILE);
+                // TODO Get start value, localize
+                nodeService.setProperty(fileRef, OpenESDHModel.PROP_DOC_VARIANT, "Produktion");
+            }
         }
     }
 

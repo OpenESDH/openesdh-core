@@ -33,6 +33,9 @@ public class AssignCaseIdActionExecuter extends ActionExecuterAbstractBase {
     @Override
     protected void executeImpl(Action action, NodeRef actionedUponNodeRef) {
 //        Map<QName, Serializable> allProps = this.nodeService.getProperties(actionedUponNodeRef);
+        if (!nodeService.exists(actionedUponNodeRef)) {
+            return;
+        }
         NodeRef caseNodeRef = caseService.getParentCase(actionedUponNodeRef);
         if (caseNodeRef != null) {
             String caseId = caseService.getCaseId(caseNodeRef);
