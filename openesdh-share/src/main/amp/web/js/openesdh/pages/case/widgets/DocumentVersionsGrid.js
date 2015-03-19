@@ -61,7 +61,6 @@ define(["dojo/_base/declare",
              */
             targetURI: "api/version",
 
-
             onRevert: function (item) {
                 this.alfPublish(this.DocumentVersionRevertDialog, {
                     documentNodeRef : this.nodeRef,

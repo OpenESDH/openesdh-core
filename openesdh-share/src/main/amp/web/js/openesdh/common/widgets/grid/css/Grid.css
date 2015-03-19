@@ -37,3 +37,6 @@
 .action-case-documents {
     background-position: -14px -95px;
 }
+.dgrid-row-odd{
+    background-color: #dddddd;
+}
