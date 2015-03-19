@@ -90,9 +90,9 @@ public class CreateCasePage extends BasePage {
 
 
 
-        ownersFieldButton.click();
+        //ownersFieldButton.click();
         //selectAuthoritiesInPicker("assoc_case_owners_added", owners);
-        selectAuthoritiesInPicker("assoc_case_owners_added", owners);
+        //selectAuthoritiesInPicker("assoc_case_owners_added", owners);
 
         createButton.click();
 

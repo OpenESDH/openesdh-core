@@ -68,6 +68,7 @@ public abstract class BasePage {
 
     public static void selectAuthoritiesInPicker(String id,
                                                   List<String> authorities) {
+
         WebElement searchInput = Browser.Driver.findElement(By.cssSelector(
                 "input[id$='" + id + "-cntrl-picker-searchText']"));
 
