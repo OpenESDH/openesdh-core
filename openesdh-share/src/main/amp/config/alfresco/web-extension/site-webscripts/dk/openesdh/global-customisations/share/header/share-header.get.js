@@ -52,7 +52,7 @@ if (headerMenu != null) {
                                 name: "alfresco/menus/AlfMenuBarItem",
                                 config: {
                                     label: "Saved Searches",
-                                    targetUrl: "/"
+                                    disabled: true
                                 }
                             }
                         ]
