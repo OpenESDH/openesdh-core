@@ -33,8 +33,7 @@ define(["dojo/_base/declare",
             templateString: template,
 
             i18nRequirements: [
-                {i18nFile: "./i18n/Grid.properties"},
-                {i18nFile: "./i18n/GridActions.properties"}
+                {i18nFile: "./i18n/Grid.properties"}
             ],
 
             cssRequirements: [
