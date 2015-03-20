@@ -139,7 +139,7 @@ model.jsonModel = {
                     }
                 ]
             }
-        },
+        }
     ],
     services: [
         {
@@ -149,8 +149,11 @@ model.jsonModel = {
             }
         },
         "alfresco/dialogs/AlfDialogService",
-        "alfresco/services/DocumentService",
-        {
+        "alfresco/services/DocumentService"
+        //Included in alfresco/web-extension/site-webscripts/dk/openesdh/global-customisations/share/header/share-header.get.js#310
+        //and
+        //alfresco/site-webscripts/org/alfresco/share/imports/share-header.lib.js#1342
+        /*{
             name: "openesdh/common/services/CaseService",
             config: {
                 fieldId: "35cbd518-a7c1-44c8-89ba-7e3d781222be"
@@ -162,5 +165,6 @@ model.jsonModel = {
                 fieldId: "35cbd518-a7c1-5432-89ba-7e3d781154be"
             }
         }
+        */
     ]
 };
