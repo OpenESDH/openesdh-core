@@ -125,24 +125,27 @@ public class XSearchWebscript extends AbstractWebScript {
             String assocName = association.getTypeQName().toPrefixString(namespaceService);
             if (!json.has(assocName)) {
                 JSONArray refs = new JSONArray();
-                if (nodeService.getType(association.getTargetRef()).equals( ContentModel.TYPE_PERSON)) {
-                    PersonService.PersonInfo info = personService.getPerson(association.getTargetRef());
-                    refs.put(info.getUserName());
-                }
-                else {
-                    refs.put(association.getTargetRef());
-                }
-
+                addAssocToArray(association, refs);
                 json.put(assocName, refs);
             } else {
                 JSONArray refs = (JSONArray) json.get(assocName);
-                refs.put(association.getTargetRef());
+                addAssocToArray(association, refs);
                 json.put(association.getTypeQName().toPrefixString(namespaceService), refs);
             }
         }
         json.put("TYPE", nodeService.getType(nodeRef).toPrefixString(namespaceService));
         json.put("nodeRef", nodeRef.toString());
         return json;
+    }
+
+    private void addAssocToArray(AssociationRef association, JSONArray refs) {
+        if (nodeService.getType(association.getTargetRef()).equals( ContentModel.TYPE_PERSON)) {
+            PersonService.PersonInfo info = personService.getPerson(association.getTargetRef());
+            refs.put(info.getUserName());
+        }
+        else {
+            refs.put(association.getTargetRef());
+        }
     }
 
     /**
