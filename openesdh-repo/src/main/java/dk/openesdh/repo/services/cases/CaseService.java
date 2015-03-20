@@ -43,6 +43,14 @@ public interface CaseService {
     public Set<String> getAllRoles(NodeRef caseNodeRef);
 
     /**
+     * Get a list of case db-id's where the given authority has the given role.
+     * @param authorityNodeRef
+     * @param role
+     * @return
+     */
+    List<Long> getCaseDbIdsWhereAuthorityHasRole(NodeRef authorityNodeRef, String role);
+
+    /**
      * Get the members on the case grouped by role.
      * Includes groups and users. If noExpandGroups,
      * then only all authorities within the immediate

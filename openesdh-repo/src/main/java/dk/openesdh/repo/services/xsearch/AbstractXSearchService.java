@@ -1,5 +1,6 @@
 package dk.openesdh.repo.services.xsearch;
 
+import dk.openesdh.repo.services.cases.CaseService;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.search.ResultSet;
@@ -20,9 +21,10 @@ import java.util.Map;
  * Created by flemmingheidepedersen on 12/09/14.
  */
 public abstract class AbstractXSearchService implements XSearchService {
+    protected CaseService caseService;
+
     protected Repository repositoryHelper;
     protected SearchService searchService;
-
     @Override
     public abstract XResultSet getNodes(Map<String, String> params, int startIndex, int pageSize, String sortField, boolean ascending);
 
@@ -70,7 +72,6 @@ public abstract class AbstractXSearchService implements XSearchService {
         return executeQuery(query, 0, -1, "cm:name", true);
     }
 
-
     protected static String stripTimeZoneFromDateTime(String str) {
         return str.replaceAll("((\\d{4})-(\\d{2})-(\\d{2})T(\\d{2}):(\\d{2}):(\\d{2}))[+-](\\d{2}):(\\d{2})", "$1");
     }
@@ -95,11 +96,16 @@ public abstract class AbstractXSearchService implements XSearchService {
         this.repositoryHelper = repositoryHelper;
     }
 
+
     public void setSearchService(SearchService searchService) {
         this.searchService = searchService;
     }
 
     public XResultSet getNodes(Map<String, String> params) {
         return getNodes(params, 0, -1, "@cm:name", true);
+    }
+
+    public void setCaseService(CaseService caseService) {
+        this.caseService = caseService;
     }
 }

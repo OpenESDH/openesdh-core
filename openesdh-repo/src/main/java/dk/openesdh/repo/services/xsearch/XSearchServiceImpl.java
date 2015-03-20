@@ -1,5 +1,6 @@
 package dk.openesdh.repo.services.xsearch;
 
+import dk.openesdh.repo.services.cases.CaseService;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -99,11 +100,44 @@ public class XSearchServiceImpl extends AbstractXSearchService {
         }
     }
 
+    List<Long> getCaseDbIdsWhereAuthoritiesHaveRole(String role, List<NodeRef> authorityNodeRefs) {
+        List<Long> dbIds = new ArrayList<>();
+        for (NodeRef authorityNodeRef : authorityNodeRefs) {
+            dbIds.addAll(caseService.getCaseDbIdsWhereAuthorityHasRole(authorityNodeRef, role));
+        }
+        return dbIds;
+    }
+
     String processFilter(JSONObject filter) throws JSONException {
         String name = filter.getString("name");
         String operator = filter.getString("operator");
 
-        String value = processFilterValue(filter);
+        String value;
+
+        if (name.equals("case:owners")) {
+            // Special handling for search on case:owners
+            // TODO: Move this code to a better place; it is too specific to
+            // cases
+            JSONArray owners = filter.getJSONArray("value");
+            List<NodeRef> ownersNodeRefs = new ArrayList<>();
+            for (int i = 0; i < owners.length(); i++) {
+                ownersNodeRefs.add(new NodeRef((String) owners.get(i)));
+            }
+            List<Long> dbIds = getCaseDbIdsWhereAuthoritiesHaveRole("CaseOwners", ownersNodeRefs);
+
+            name = "sys:node-dbid";
+            JSONArray dbIdsJsonArray = new JSONArray();
+            for (Long dbId : dbIds) {
+                dbIdsJsonArray.put(dbId.toString());
+            }
+            if (!dbIds.isEmpty()) {
+                filter.put("value", dbIdsJsonArray);
+            } else {
+                filter.put("value", "undefined");
+            }
+        }
+
+        value = processFilterValue(filter);
         //System.out.println("Filter " + name + " " + operator + " " + value);
 
         if (value == null) {
