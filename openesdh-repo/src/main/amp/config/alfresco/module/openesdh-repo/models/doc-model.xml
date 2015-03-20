@@ -227,6 +227,14 @@
                         <many>true</many>
                     </target>
                 </child-association>
+
+                <child-association name="doc:main">
+                    <target>
+                        <class>cm:content</class>
+                        <mandatory>true</mandatory>
+                        <many>false</many>
+                    </target>
+                </child-association>
             </associations>
 
             <overrides>
@@ -308,10 +316,6 @@
 
         <aspect name="doc:documentContainer">
             <description>If aspect is applied, the folder may contain documents</description>
-        </aspect>
-
-        <aspect name="doc:main">
-            <description>Used to tag the case's main document on case creation only</description>
         </aspect>
 
         <aspect name="doc:partied">

@@ -37,6 +37,8 @@ import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by torben on 19/08/14.
@@ -204,6 +206,22 @@ public class CaseServiceImpl implements CaseService {
 
     protected String getCaseRoleGroupAuthorityName(String caseId, String role) {
         return "case_" + caseId + "_" + role;
+    }
+
+    @Override
+    public List<Long> getCaseDbIdsWhereAuthorityHasRole(NodeRef authorityNodeRef, String role) {
+        List<Long> caseDbIds = new ArrayList<>();
+        Set<String> containingAuthorities = authorityService.getContainingAuthorities(null,
+                getAuthorityName(authorityNodeRef), false);
+
+        Pattern pattern = Pattern.compile("GROUP_case_\\d+-(\\d+)_" + role);
+        for (String containingAuthority : containingAuthorities) {
+            Matcher matcher = pattern.matcher(containingAuthority);
+            if (matcher.matches()) {
+                caseDbIds.add(Long.parseLong(matcher.group(1)));
+            }
+        }
+        return caseDbIds;
     }
 
     @Override

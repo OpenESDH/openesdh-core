@@ -59,7 +59,8 @@ define(["dojo/_base/declare", "alfresco/core/Core",
                                 formSubmissionPayloadMixin: {
                                     url: "api/openesdh/node/" + NodeUtils.processNodeRef(this.nodeRef).uri + "/notes",
                                     // Refresh the notes list
-                                    pubSubScope: "OPENESDH_NOTES_DASHLET"
+                                    pubSubScope: "OPENESDH_NOTES_DASHLET",
+                                    alfResponseTopic: "OPENESDH_NOTES_DASHLETALF_CRUD_CREATE"
                                 },
                                 widgets: [
                                     {
@@ -77,9 +78,10 @@ define(["dojo/_base/declare", "alfresco/core/Core",
 
                 this.widgetsForBody = [
                     {
-                        name: "openesdh/common/widgets/lists/NoteList",
+                        name: "openesdh/pages/case/widgets/NotesGrid",
                         config: {
                             pubSubScope: "OPENESDH_NOTES_DASHLET",
+                            gridRefreshTopic: "ALF_CRUD_CREATE_SUCCESS",
                             nodeRef: this.nodeRef
                         }
                     }

@@ -87,6 +87,9 @@
     </bean>
 
     <bean id="XSearchService" class="dk.openesdh.repo.services.xsearch.XSearchServiceImpl">
+        <property name="caseService">
+            <ref bean="CaseService"/>
+        </property>
         <property name="searchService">
             <ref bean="SearchService"/>
         </property>
@@ -138,6 +141,7 @@
           class="dk.openesdh.repo.services.xsearch.CaseDocumentsSearchServiceImpl"
           parent="XSearchService">
         <property name="caseService" ref="CaseService"/>
+        <property name="documentService" ref="DocumentService"/>
         <property name="nodeService" ref="NodeService"/>
         <property name="namespaceService" ref="NamespaceService"/>
     </bean>

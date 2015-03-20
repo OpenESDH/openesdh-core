@@ -47,7 +47,7 @@ public class CaseDocumentAttachements extends XSearchWebscript {
             int startIndex = 0;
             int pageSize = defaultPageSize;
 
-            XResultSet results = caseDocumentsSearchService.getAttachements(params);
+            XResultSet results = caseDocumentsSearchService.getAttachments(params);
             List<NodeRef> nodeRefs = results.getNodeRefs();
             JSONArray nodes = new JSONArray();
             for (NodeRef nodeRef : nodeRefs) {

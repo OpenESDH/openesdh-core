@@ -324,7 +324,7 @@ function(declare, array, lang, on, _TopicsMixin, AlfDialog, json, DGrid) {
                 }
                 var formatter;
                 // TODO: Make formatter functions configurable
-                if (dataType === 'd:datetime') {
+                if (dataType === 'd:datetime' || dataType === 'd:date') {
                     formatter = function (value) {
                         if (typeof value !== 'undefined') {
                             return Alfresco.util.formatDate(new Date(value), "dd/mm/yyyy");

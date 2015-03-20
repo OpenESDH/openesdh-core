@@ -19,6 +19,8 @@ define(["dojo/_base/declare",
             allowColumnReorder: false,
             showColumnHider: false,
 
+            additionalCssClasses: "CaseHistoryWidget",
+
             postMixInProperties: function () {
                 this.inherited(arguments);
                 this.targetURI = "api/openesdh/casehistory?nodeRef=" + this.nodeRef;

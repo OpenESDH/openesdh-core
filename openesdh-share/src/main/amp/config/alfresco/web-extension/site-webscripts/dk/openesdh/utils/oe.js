@@ -6,6 +6,8 @@ function escapeRegExp(string){
 }
 
 
+//try {null.ex;} catch(e) {logger.log("\n\n(oe.js) Linenumber: " + e.lineNumber)+"\n\n";}
+
 /**
  * Check if the current page is the given case page.
  */

@@ -1,7 +1,7 @@
-#CASE_HISTORY_DASHLET .field-time {
+.CaseHistoryWidget .field-time {
     width: 13em;
 }
 
-#CASE_HISTORY_DASHLET .field-user {
+.CaseHistoryWidget .field-user {
     width: 8em;
 }
