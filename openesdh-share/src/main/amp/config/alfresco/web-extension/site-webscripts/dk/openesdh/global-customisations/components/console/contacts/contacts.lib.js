@@ -385,13 +385,13 @@ function getFormDefinition(contactType) {
                                 name: "cvrNumber",
                                 label: "CVR Number",
                                 width: "7",
-                                maxLength: 10,
-                                description: "1234567890",
-                                placeHolder: "1234567890",
+                                maxLength: 8,
+                                description: "12345678",
+                                placeHolder: "12345678",
                                 requirementConfig: { initialValue: false},
                                 validationConfig: [{
                                     validation: "regex",
-                                    regex: "^\\d{10}$"
+                                    regex: "^\\d{8}$"
                                 }]
                             }
                         }
@@ -663,7 +663,7 @@ function generateContactPageWidgets(contactType, cType) {
                                         widgets: getFormDefinition(cType)
                                     }
                                 }
-                            },
+                            }
                         ]
                     }
                 },

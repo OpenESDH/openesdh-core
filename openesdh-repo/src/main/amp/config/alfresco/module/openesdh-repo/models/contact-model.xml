@@ -21,7 +21,7 @@
         </constraint>
         <constraint name="contact:cvrConstraint" type="REGEX">
             <parameter name="expression">
-                <value>^\d{10}$</value>
+                <value>^\d{8}$</value>
             </parameter>
         </constraint>
         <constraint name="contact:emailConstraint" type="REGEX">
