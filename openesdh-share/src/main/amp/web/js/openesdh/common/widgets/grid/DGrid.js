@@ -132,6 +132,13 @@ define(["dojo/_base/declare",
              */
             grid: null,
 
+            /**
+             * Optional function to pass to dgrid to provide custom row rendering logic.
+             */
+            renderRow: null,
+
+            showHeader: true,
+
             constructor: function (args) {
                 lang.mixin(this, args);
                 this.query = {};
@@ -257,7 +264,7 @@ define(["dojo/_base/declare",
 
                 var CustomGrid = declare(mixins);
 
-                this.grid = new CustomGrid({
+                var options = {
                     store: this.createStore(),
                     query: this.query,
                     sort: this.sort,
@@ -269,8 +276,15 @@ define(["dojo/_base/declare",
                     selectionMode: "single",
                     cellNavigation: false,
                     showFooter: this.showFooter,
-                    className: this.autoHeight ? "dgrid-autoheight" : ""
-                });
+                    className: this.autoHeight ? "dgrid-autoheight" : "",
+                    showHeader: this.showHeader
+                };
+
+                if (this.renderRow != null) {
+                    options.renderRow = this.renderRow;
+                }
+
+                this.grid = new CustomGrid(options);
                 this.addKeyHandlers();
 
                 this.grid.on("dgrid-select", lang.hitch(this, function(event){
