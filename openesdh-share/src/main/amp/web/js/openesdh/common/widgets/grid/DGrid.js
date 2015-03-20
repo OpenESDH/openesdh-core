@@ -9,9 +9,10 @@
 define(["dojo/_base/declare",
         "dijit/_WidgetBase",
         "dijit/_TemplatedMixin",
-        "dojo/text!./templates/Grid.html",
+        "dojo/text!./templates/DGrid.html",
         "alfresco/core/Core",
         "dojo/dom-construct",
+        "dojo/dom-class",
         "dojo/keys",
         "dojo/_base/array",
         "dojo/_base/lang",
@@ -27,7 +28,7 @@ define(["dojo/_base/declare",
         "dgrid/extensions/ColumnResizer",
         "dgrid/extensions/ColumnHider",
         "dgrid/extensions/ColumnReorder"],
-    function(declare, _Widget, _Templated, template, Core, domConstruct, keys, array, lang, on,
+    function(declare, _Widget, _Templated, template, Core, domConstruct, domClass, keys, array, lang, on,
              JsonRest, DijitRegistry, Grid, OnDemandGrid, Keyboard, Selection, Pagination, i18nPagination, ColumnResizer, ColumnHider, ColumnReorder) {
         return declare([_Widget, _Templated, Core], {
             templateString: template,
@@ -44,6 +45,15 @@ define(["dojo/_base/declare",
                 // This applies to the whole page, but I haven't found a better place to put it.
                 {cssFile:"./css/AlfrescoStyle.css"}
             ],
+
+            /**
+             * Additional classes to be applied to the root DOM element.
+             *
+             * @instance
+             * @type {string}
+             * @default ""
+             */
+            additionalCssClasses: "",
 
             /**
              * The URI to use for the data store for the grid.
@@ -71,6 +81,8 @@ define(["dojo/_base/declare",
 
             pageSizeOptions: [25, 50, 75, 100],
 
+            autoHeight: false,
+
             /**
              * An array containing the actions which should be available on all
              * result rows. If null or empty, there will be no actions column
@@ -83,6 +95,8 @@ define(["dojo/_base/declare",
             allowRowSelection: true,
 
             showPagination: true,
+
+            showFooter: true,
 
             allowColumnResize: true,
 
@@ -135,6 +149,7 @@ define(["dojo/_base/declare",
                 if (this.actions != null && this.actions.length > 0) {
                     columns.push(this.getActionsColumn());
                 }
+                domClass.add(this.domNode, (this.additionalCssClasses != null ? this.additionalCssClasses : ""));
                 this.createGrid(columns);
             },
 
@@ -252,7 +267,9 @@ define(["dojo/_base/declare",
                     rowsPerPage: this.rowsPerPage,
                     pageSizeOptions: this.pageSizeOptions,
                     selectionMode: "single",
-                    cellNavigation: false
+                    cellNavigation: false,
+                    showFooter: this.showFooter,
+                    className: this.autoHeight ? "dgrid-autoheight" : ""
                 });
                 this.addKeyHandlers();
 
