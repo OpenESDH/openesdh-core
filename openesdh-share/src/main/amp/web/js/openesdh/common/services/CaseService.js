@@ -114,7 +114,7 @@ define(["dojo/_base/declare",
             _onCaseInfoInitialLoadSuccess: function (response, config) {
                 this._allWidgetsProcessedFunction = lang.hitch(this, function () {
                     this.alfPublish(this.CaseInfoTopic, response);
-                    this.alfPublish("ALF_UPDATE_PAGE_TITLE", {title: response.properties["cm:title"].value});
+                    this.alfPublish("ALF_UPDATE_PAGE_TITLE", {title: response.allProps.properties["cm:title"].value});
                 });
 
                 // Due to https://issues.alfresco.com/jira/browse/ACE-1488
