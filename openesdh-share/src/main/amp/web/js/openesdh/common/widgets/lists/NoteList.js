@@ -18,7 +18,7 @@ define(["dojo/_base/declare",
             itemsProperty: "",
 
             i18nRequirements: [
-                {i18nFile: "./i18n/NoteList.properties"}
+                {i18nFile: "./i18n/NoteGrid.properties"}
             ],
 
             waitForPageWidgets: false,
