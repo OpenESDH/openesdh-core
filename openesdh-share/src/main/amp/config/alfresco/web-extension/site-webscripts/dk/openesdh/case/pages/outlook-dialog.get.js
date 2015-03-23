@@ -148,7 +148,7 @@ model.jsonModel = {
                 formId: "outlookForm"
             }
         },
-        "alfresco/dialogs/AlfDialogService",
+        //"alfresco/dialogs/AlfDialogService", This service is now included in the global header by default so in order to prevent double popups
         "alfresco/services/DocumentService"
         //Included in alfresco/web-extension/site-webscripts/dk/openesdh/global-customisations/share/header/share-header.get.js#310
         //and
