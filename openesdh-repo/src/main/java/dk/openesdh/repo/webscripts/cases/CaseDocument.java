@@ -49,8 +49,9 @@ public class CaseDocument extends AbstractWebScript {
         NodeRef documentsFolder = caseService.getDocumentsFolder(theCase);
         LOG.debug("documentsFolder: " + documentsFolder.toString());
         NodeRef documentFolder;
+
         try {
-            documentFolder = documentService.createDocumentFolder(documentsFolder, documentName).getChildRef();
+            documentFolder = documentService.createDocumentFolder(documentsFolder, documentName.substring(0, documentName.lastIndexOf('.'))).getChildRef();
         } catch (RuntimeException e) {
             throw new WebScriptException(Status.STATUS_CONFLICT, e.getMessage());
         }
@@ -94,4 +95,3 @@ public class CaseDocument extends AbstractWebScript {
         this.nodeService = nodeService;
     }
 }
-
