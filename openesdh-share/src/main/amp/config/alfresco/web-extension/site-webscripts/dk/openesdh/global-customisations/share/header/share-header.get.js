@@ -305,6 +305,16 @@ if (headerMenu != null) {
             ]
         }
     });
+
+    headerMenu.config.widgets.push(
+        {
+            name: "alfresco/menus/AlfMenuBarItem",
+            config: {
+                label: "Dagsorden",
+                disabled: true
+            }
+        }
+    );
 }
 model.jsonModel.services.push("openesdh/common/services/CaseService");
 model.jsonModel.services.push("alfresco/dialogs/AlfDialogService");
