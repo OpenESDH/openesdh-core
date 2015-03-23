@@ -17,5 +17,5 @@
 .NotesGrid .note-content {
     clear: both;
     margin-top: .25em;
-    white-space: pre;
+    white-space: pre-wrap;
 }

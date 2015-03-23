@@ -30,6 +30,10 @@ define(["dojo/_base/declare",
              */
             roleTypes: null,
 
+
+            _allWidgetsReady: 0,
+
+
             postCreate: function () {
                 this.inherited(arguments);
 
@@ -42,7 +46,10 @@ define(["dojo/_base/declare",
             },
 
             onAllWidgetsReady: function (payload) {
-                this.alfPublish(this.CaseMembersGet, {});
+                this._allWidgetsReady++;
+                if (this._allWidgetsReady == 1) {
+                    this.alfPublish(this.CaseMembersGet, {});
+                }
             },
 
             _onAddCaseMembers: function (payload) {
