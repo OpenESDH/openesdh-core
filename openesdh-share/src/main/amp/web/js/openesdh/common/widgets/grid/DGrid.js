@@ -281,7 +281,7 @@ define(["dojo/_base/declare",
                 };
 
                 if (this.renderRow != null) {
-                    options.renderRow = this.renderRow;
+                    options.renderRow = lang.hitch(this, "renderRow");
                 }
 
                 this.grid = new CustomGrid(options);

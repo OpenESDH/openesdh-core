@@ -1,0 +1,21 @@
+.NotesGrid .dgrid-row {
+    padding: .5em;
+}
+
+.NotesGrid .note-header .created {
+    display: block;
+    float: left;
+    font-weight: bold;
+    margin-right: 1em;
+}
+
+.NotesGrid .note-header .author {
+    display: block;
+    margin-left: 13em;
+}
+
+.NotesGrid .note-content {
+    clear: both;
+    margin-top: .25em;
+    white-space: pre;
+}
