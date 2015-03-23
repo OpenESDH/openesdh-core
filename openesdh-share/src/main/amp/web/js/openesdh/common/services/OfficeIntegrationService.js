@@ -54,7 +54,12 @@ define([
             },
 
             _onOK: function() {
-                alert("OK pressed");
+                var value = this._getForm().getValue();
+                var metadata = {
+                    caseId: value["caseId"],
+                    documentName: value["title"],
+                };
+                window.external.SaveAsOpenEsdh(JSON.stringify(metadata), JSON.stringify(metadata));
             },
 
             _onCancel: function() {

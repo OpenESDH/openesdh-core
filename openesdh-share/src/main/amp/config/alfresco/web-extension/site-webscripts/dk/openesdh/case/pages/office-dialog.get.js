@@ -21,25 +21,24 @@ model.jsonModel = {
                                             {
                                                 name: "alfresco/forms/controls/DojoValidationTextBox",
                                                 config: {
+                                                    label: msg.get("officedialog.caseid.label"),
                                                     name: "caseId",
-                                                    assignTo: "pickedCaseWidget",
-                                                    label: "Case",
-                                                    additionalCssClasses: "openesdh-office-title-field"
+                                                    assignTo: "pickedCaseWidget"
                                                 }
                                             },
                                             {
                                                 name: "alfresco/buttons/AlfButton",
                                                 config: {
-                                                    label: "Find Case",
+                                                    label: msg.get("officedialog.findcase.label"),
                                                     publishTopic: "OE_FIND_CASE",
-                                                    publishGlobal: true
-                                                },
-                                                assignTo: "formDialogButton",
+                                                    publishGlobal: true,
+                                                    assignTo: "formDialogButton"
+                                                }
                                             },
                                             {
                                                 name: "alfresco/buttons/AlfButton",
                                                 config: {
-                                                    label: "Create Case",
+                                                    label: msg.get("officedialog.createcase.label"),
                                                     publishTopic: "OE_CREATE_CASE",
                                                     publishGlobal: true
                                                 }
@@ -56,8 +55,8 @@ model.jsonModel = {
                                                 name: "alfresco/forms/controls/DojoValidationTextBox",
                                                 config: {
                                                     name: "title",
-                                                    label: "Title",
-                                                    cssRequirements: [{cssFile: "MyStyle.css"}]
+                                                    label: msg.get("officedialog.title.label"),
+                                                    additionalCssClasses: "openesdh-office-title-field"
                                                 }
                                             }
 //                                            {
