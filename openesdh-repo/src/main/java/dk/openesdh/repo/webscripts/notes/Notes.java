@@ -126,18 +126,17 @@ public class Notes extends AbstractRESTWebscript {
             // If it's a user who authored the note, output the user object
             JSONObject userObj = new JSONObject();
             PersonService.PersonInfo info = personService.getPerson(personNodeRef);
-//            userObj.put("userName", author);
-//            userObj.put("displayName", info.getFirstName() + " " + info.getLastName());
-            obj.put("author", info.getFirstName() + " " +
-                    info.getLastName() + " (" + author + ")");
+            userObj.put("userName", author);
+            userObj.put("displayName", info.getFirstName() + " " + info.getLastName());
+            obj.put("author", userObj);
         } else {
             // If it's not a user, just output the name
             obj.put("author", author);
         }
 
         obj.put("creator", nodeService.getProperty(nodeRef, ContentModel.PROP_CREATOR));
-        obj.put("created", nodeService.getProperty(nodeRef, ContentModel.PROP_CREATED));
-        obj.put("modified", nodeService.getProperty(nodeRef, ContentModel.PROP_MODIFIED));
+        obj.put("created", ((Date)nodeService.getProperty(nodeRef, ContentModel.PROP_CREATED)).getTime());
+        obj.put("modified", ((Date)nodeService.getProperty(nodeRef, ContentModel.PROP_MODIFIED)).getTime());
         return obj;
     }
 
