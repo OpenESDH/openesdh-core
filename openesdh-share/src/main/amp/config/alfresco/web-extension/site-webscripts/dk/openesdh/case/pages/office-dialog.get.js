@@ -56,7 +56,16 @@ model.jsonModel = {
                                                 config: {
                                                     name: "title",
                                                     label: msg.get("officedialog.title.label"),
-                                                    additionalCssClasses: "openesdh-office-title-field"
+                                                    additionalCssClasses: "openesdh-office-title-field",
+                                                    width: "50em"
+                                                }
+                                            },
+                                            {
+                                                "name": "alfresco/html/Spacer",
+                                                config: {
+                                                    height: "20px",
+//                                                    additionalCssClasses: "top-border-beyond-gutters",
+//                                                    visibilityConfig: isMainDocumentView
                                                 }
                                             }
 //                                            {
