@@ -55,6 +55,7 @@ public class Contact extends ContactAbstractWebscript {
             }
             if (contactType.equalsIgnoreCase("organization")) {
                 typeProps.put(OpenESDHModel.PROP_CONTACT_ORGANIZATION_NAME, getOrNull(parsedRequest, "organizationName"));
+                typeProps.put(OpenESDHModel.PROP_CONTACT_EMAIL, getOrNull(parsedRequest, "email"));
                 typeProps.put(OpenESDHModel.PROP_CONTACT_CVR_NUMBER, getOrNull(parsedRequest, "cvrNumber"));
             }
 

@@ -85,7 +85,7 @@
     <types>
         <type name="contact:base">
             <title>Contact</title>
-            <parent>dl:dataListItem</parent>
+            <parent>cm:authorityContainer</parent>
             <properties>
                 <!-- FASD: ePostAddresse -->
                 <property name="contact:email">

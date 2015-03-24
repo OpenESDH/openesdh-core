@@ -60,7 +60,7 @@ define(["dojo/_base/declare",
                 this.role = payload.role;
                 var _this = this;
 
-                this.popupAuthorityPicker("contact:person", true, [],
+                this.popupAuthorityPicker("contact:base", true, [],
                     function(obj) {
                         var contactNodeRefs = obj.selectedItems;
                         if (contactNodeRefs.length == 0) {
