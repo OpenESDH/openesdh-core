@@ -82,7 +82,7 @@ public class ContactServiceImpl implements ContactService {
         NodeRef contact = null;
 
         StringBuilder query = new StringBuilder(256);
-        query.append("TYPE:\"").append(OpenESDHModel.TYPE_CONTACT_PERSON).append("\" AND ");
+        query.append("TYPE:\"").append(OpenESDHModel.TYPE_CONTACT_BASE).append("\" AND ");//Use the base because ID should be unique across all contacts
         query.append("@contact\\:email").append(":\"").append(id);
         query.append("\"");
 
@@ -121,10 +121,11 @@ public class ContactServiceImpl implements ContactService {
         query.append("TYPE:\"").append(contactType).append("\" AND (");
         query.append("@contact\\:email").append(":\"").append(id).append("*\"");
         query.append(" OR @contact\\:firstName").append(":\"").append(id).append("*\"");
-        query.append(" OR @contact\\:lastName").append(":\"").append(id).append("*");
+        query.append(" OR @contact\\:lastName").append(":\"").append(id).append("*\"");
+        query.append(" OR @contact\\:organizationName").append(":\"").append(id).append("*");
         query.append("\")");
 
-        logger.warn("The contact query: "+query.toString());
+        logger.warn("dk/openesdh/repo/services/contacts/ContactServiceImpl.java(128) The contact query: "+query.toString());
 
         searchParams.setQuery(query.toString());
         ResultSet results = null;

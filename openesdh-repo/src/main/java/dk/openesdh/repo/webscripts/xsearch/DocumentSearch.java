@@ -30,7 +30,7 @@ public class DocumentSearch extends XSearchWebscript {
         if (mainDocNodeRef != null) {
             json.put("mainDocNodeRef", mainDocNodeRef.toString());
             //Get the main document version string
-            String mainDocVersion = this.nodeService.getProperty(mainDocNodeRef, ContentModel.PROP_VERSION_LABEL).toString();
+            String mainDocVersion = (String) nodeService.getProperty(mainDocNodeRef, ContentModel.PROP_VERSION_LABEL);
             json.put("mainDocVersion", mainDocVersion);
         }
         return json;

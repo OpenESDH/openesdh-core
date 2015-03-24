@@ -46,7 +46,7 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
     else if (value instanceof String) {
       String str = (String) value;
 //      System.out.println( "EXTRACT DATA: STRING:" + str + "\n\n" );
-      if (str.startsWith("("+ getClass().getCanonicalName() + ") GROUP_case_")) {
+      if (str.startsWith("GROUP_case_")) {
         String[] parts = str.split("_");
         if (parts.length < 3) {
           return null;

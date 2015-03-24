@@ -2,8 +2,7 @@
 
 var partyType = "contact:person", contactType = "PERSON";
 
-var services = [],
-    widgets = [];
+var services = [], widgets = [];
 
 // Append required services...
 services.push("openesdh/common/services/CrudService",
