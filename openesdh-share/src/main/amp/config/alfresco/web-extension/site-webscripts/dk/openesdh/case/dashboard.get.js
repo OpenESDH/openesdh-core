@@ -7,7 +7,7 @@ model.jsonModel = {
     services: [
         "alfresco/services/CrudService",
         "openesdh/common/services/CaseMembersService",
-        "alfresco/dialogs/AlfDialogService"
+        //"alfresco/dialogs/AlfDialogService"
     ],
     widgets: [{
             name: "alfresco/layout/HorizontalWidgets",

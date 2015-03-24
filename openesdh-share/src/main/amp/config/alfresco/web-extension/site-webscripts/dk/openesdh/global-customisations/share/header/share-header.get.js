@@ -317,3 +317,4 @@ if (headerMenu != null) {
     );
 }
 model.jsonModel.services.push("openesdh/common/services/CaseService");
+model.jsonModel.services.push("alfresco/dialogs/AlfDialogService");

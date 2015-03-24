@@ -9,7 +9,7 @@ var services = [],
 services.push("openesdh/common/services/CrudService",
     "openesdh/common/services/ContactsActionService",
     "alfresco/services/OptionsService",
-    "alfresco/dialogs/AlfDialogService",
+    //"alfresco/dialogs/AlfDialogService",
     "alfresco/services/NotificationService",
     "openesdh/common/services/LegacyFormService"
 );

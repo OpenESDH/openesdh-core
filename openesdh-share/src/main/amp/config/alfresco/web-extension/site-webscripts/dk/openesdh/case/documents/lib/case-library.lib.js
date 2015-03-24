@@ -457,7 +457,7 @@ function getDocumentLibraryServices() {
         "alfresco/services/DocumentService",
         "alfresco/services/LightboxService",
         "alfresco/services/ContentService",
-        "alfresco/dialogs/AlfDialogService",
+        //"alfresco/dialogs/AlfDialogService",
         "openesdh/common/services/CaseActionService",
         "alfresco/services/RatingsService",
         "alfresco/services/QuickShareService"

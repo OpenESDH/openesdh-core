@@ -57,11 +57,13 @@ define(["dojo/_base/declare",
 
                 var pickerId = Alfresco.util.generateDomId();
 
+                console.log("WrappedYUIAuthorityWidget(60) The div ID for the dialog: "+ pickerId);
+
                 // Create a container element for the picker
                 var pickerContainer = domConstruct.create("span", {
                     innerHTML: '',
                     id: pickerId
-                }, this.containerNode);
+                }, this._controlNode);
 
                 var itemType = "cm:object";
                 var many = this.multiple;
