@@ -63,7 +63,6 @@ model.jsonModel = {
                                                     widgets: addAuthorityToRoleDropdownItems,
                                                     visibilityConfig: {
                                                         initialValue: true, //TODO setting this property to false hides the buttons need to fix
-
                                                         rules: [
                                                             {
                                                                 topic: "CASE_INFO",

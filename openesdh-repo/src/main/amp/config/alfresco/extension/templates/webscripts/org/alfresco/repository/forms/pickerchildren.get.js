@@ -191,6 +191,10 @@ function main() {
             else if (argsSelectableType == "contact:organization") {
                 findContacts(argsSearchTerm, "ORGANIZATION", results);
             }
+            else if (argsSelectableType == "contact:base") {
+                findContacts(argsSearchTerm, "PERSON", results);
+                findContacts(argsSearchTerm, "ORGANIZATION", results);
+            }
             else {
                 // combine groups and users
                 findGroups(argsSearchTerm, maxResults, results);
@@ -384,7 +388,7 @@ function createContactResult(node)
     // define properties for person
     contactPersonObject.properties.username = node.properties["contact:email"];
     contactPersonObject.properties.name = (node.properties["contact:firstName"] ? node.properties["contact:firstName"] + " " : "") +
-    (node.properties["contact:lastName"] ? node.properties["contact:lastName"] : "") +
+    (node.properties["contact:lastName"] ? node.properties["contact:lastName"] : "") +  (node.properties["contact:organizationName"] ? node.properties["contact:organizationName"] + " " : "") +
     " (" + node.properties["contact:email"] + ")";
 
     return contactPersonObject;
