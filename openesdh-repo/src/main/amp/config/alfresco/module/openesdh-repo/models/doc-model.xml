@@ -282,6 +282,9 @@
                     </constraints>
                 </property>
             </properties>
+            <mandatory-aspects>
+                <aspect>cm:versionable</aspect>
+            </mandatory-aspects>
         </type>
 
         <type name="doc:digitalFile">

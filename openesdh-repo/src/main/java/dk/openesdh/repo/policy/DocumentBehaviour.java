@@ -47,17 +47,21 @@ public class DocumentBehaviour implements NodeServicePolicies.OnCreateChildAssoc
         if (!nodeService.exists(childAssocRef.getParentRef())) {
             return;
         }
-        if (nodeService.countChildAssocs(childAssocRef.getParentRef(), true) == 1) {//TODO does it have to be primary assocs?
-            NodeRef fileRef = childAssocRef.getChildRef();
-            if (nodeService.exists(fileRef)) {
-                //Tag the case document as the main document for the case
-                nodeService.addChild(childAssocRef.getParentRef(), fileRef,
-                        OpenESDHModel.ASSOC_DOC_MAIN, QName.createQName(OpenESDHModel.DOC_URI, "main"));
-                nodeService.setType(fileRef, OpenESDHModel.TYPE_DOC_DIGITAL_FILE);
-                // TODO Get start value, localize
-                nodeService.setProperty(fileRef, OpenESDHModel.PROP_DOC_VARIANT, "Produktion");
-            }
+        NodeRef fileRef = childAssocRef.getChildRef();
+        if (!nodeService.exists(fileRef)) {
+            return;
         }
+        // Set the first child as main document
+        if (nodeService.countChildAssocs(childAssocRef.getParentRef(), true) == 1) {//TODO does it have to be primary assocs?
+            //Tag the case document as the main document for the case
+            nodeService.addChild(childAssocRef.getParentRef(), fileRef,
+                    OpenESDHModel.ASSOC_DOC_MAIN, QName.createQName(OpenESDHModel.DOC_URI, "main"));
+        }
+
+        // Make sure all children get the type doc:digitalFile
+        nodeService.setType(fileRef, OpenESDHModel.TYPE_DOC_DIGITAL_FILE);
+        // TODO Get start value, localize
+        nodeService.setProperty(fileRef, OpenESDHModel.PROP_DOC_VARIANT, "Produktion");
     }
 
     public void setPolicyComponent(PolicyComponent policyComponent) {
