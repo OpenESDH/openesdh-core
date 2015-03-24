@@ -2,10 +2,12 @@ package dk.openesdh.repo.services.audit;
 
 import com.google.gdata.data.DateTime;
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CaseServiceImpl;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.service.cmr.audit.*;
 import org.alfresco.service.cmr.audit.AuditService;
 import org.alfresco.service.namespace.QName;
+import org.alfresco.util.Pair;
 import org.apache.commons.lang.StringUtils;
 import org.apache.solr.common.util.Hash;
 import org.json.JSONException;
@@ -15,6 +17,8 @@ import org.springframework.extensions.surf.util.I18NUtil;
 
 import java.io.Serializable;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Created by flemmingheidepedersen on 18/11/14.
@@ -65,6 +69,23 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
         return "";
     }
 
+
+    /**
+     * Return the role given a case group name.
+     * Returns null if the group name does not belong to a case.
+     * @param groupName
+     * @return
+     */
+    public static String getRoleFromCaseGroupName(String groupName) {
+        Pattern pattern = Pattern.compile("GROUP_case_([\\d\\-]+)_(.+)");
+        Matcher matcher = pattern.matcher(groupName);
+        if (matcher.matches()) {
+            return matcher.group(2);
+        } else {
+            return null;
+        }
+    }
+
     @Override
     public boolean valuesRequired() {
         return true;
@@ -85,6 +106,32 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
                     continue;
                 }
                 switch (key) {
+                    // Added member to role
+                    case "/esdh/security/addAuthority/args/parentName/value": {
+                        String parent = (String) values.get("/esdh/security/addAuthority/args/parentName/value");
+                        String role = getRoleFromCaseGroupName(parent);
+                        if (role != null) {
+                            String authority = (String) values.get("/esdh/security/addAuthority/args/childName/value");
+                            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.member.added", authority, role));
+                            auditEntry.put("type", I18NUtil.getMessage("auditlog.label.type.member"));
+                            result.add(auditEntry);
+                        }
+                        break;
+                    }
+
+                    // Removed member from role
+                    case "/esdh/security/removeAuthority/args/parentName/value": {
+                        String parent = (String) values.get("/esdh/security/removeAuthority/args/parentName/value");
+                        String role = getRoleFromCaseGroupName(parent);
+                        if (role != null) {
+                            String authority = (String) values.get("/esdh/security/removeAuthority/args/childName/value");
+                            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.member.removed", authority, role));
+                            auditEntry.put("type", I18NUtil.getMessage("auditlog.label.type.member"));
+                            result.add(auditEntry);
+                        }
+                        break;
+                    }
+
                     // file/folder CRUD transaction
                     case "/esdh/transaction/user":  {
                         if (values.get("/esdh/transaction/action").equals("CREATE")) {
