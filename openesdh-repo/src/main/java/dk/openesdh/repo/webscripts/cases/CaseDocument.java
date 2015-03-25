@@ -6,6 +6,8 @@ import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.*;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.JSONException;
@@ -13,7 +15,9 @@ import org.json.JSONObject;
 import org.springframework.extensions.surf.util.Content;
 import org.springframework.extensions.webscripts.*;
 
+import javax.activation.MimeType;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
@@ -39,6 +43,7 @@ public class CaseDocument extends AbstractWebScript {
         String documentName = request.getParameter("name");
         LOG.info("document name: " + documentName);
 
+        String mimeType = request.getParameter("mimeType");
         NodeRef theCase = caseService.getCaseById(caseId);
         if (theCase == null) {
             LOG.error("Case not found: " + caseId);
@@ -50,16 +55,18 @@ public class CaseDocument extends AbstractWebScript {
         LOG.debug("documentsFolder: " + documentsFolder.toString());
         NodeRef documentFolder;
 
+        String nameWithoutExtension =  FilenameUtils.removeExtension(documentName);
+
+        LOG.debug("document: " + nameWithoutExtension);
         try {
-            documentFolder = documentService.createDocumentFolder(documentsFolder, documentName.substring(0, documentName.lastIndexOf('.'))).getChildRef();
+            documentFolder = documentService.createDocumentFolder(documentsFolder, nameWithoutExtension).getChildRef();
         } catch (RuntimeException e) {
             throw new WebScriptException(Status.STATUS_CONFLICT, e.getMessage());
         }
 
-        Content content = request.getContent();
+        InputStream is = request.getContent().getInputStream();
 
-        LOG.info("content size: " + content.getSize());
-        if (content.getSize() > 0) {
+        if (is != null) {
             Map<QName, Serializable> props = new HashMap<>();
             props.put(ContentModel.PROP_NAME, documentName);
             NodeRef node = nodeService.createNode(
@@ -69,8 +76,8 @@ public class CaseDocument extends AbstractWebScript {
                     ContentModel.TYPE_CONTENT,
                     props).getChildRef();
             ContentWriter writer = contentService.getWriter(node, ContentModel.PROP_CONTENT, true);
-//            writer.setMimetype("text/plain");
-            writer.putContent(content.getInputStream());
+            writer.setMimetype(mimeType);
+            writer.putContent(is);
         }
         try {
             new JSONObject().put("nodeRef", documentFolder.toString()).write(response.getWriter());
