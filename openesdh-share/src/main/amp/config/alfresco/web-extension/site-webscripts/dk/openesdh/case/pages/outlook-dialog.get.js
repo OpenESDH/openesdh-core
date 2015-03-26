@@ -55,6 +55,12 @@ model.jsonModel = {
                                                 }
                                             },
                                             {
+                                                "name": "alfresco/html/Spacer",
+                                                config: {
+                                                    height: "14px",
+                                                }
+                                            },
+                                            {
                                                 name: "alfresco/forms/controls/DojoValidationTextBox",
                                                 config: {
                                                     name: "subject",
@@ -129,6 +135,12 @@ model.jsonModel = {
                                                             }
                                                         }
                                                     ]
+                                                }
+                                            },
+                                            {
+                                                "name": "alfresco/html/Spacer",
+                                                config: {
+                                                    height: "20px",
                                                 }
                                             }
                                         ]
