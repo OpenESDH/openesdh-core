@@ -139,7 +139,9 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public ChildAssociationRef createDocumentFolder(final NodeRef documentsFolder, final String name) {
-        ChildAssociationRef documentAssociationRef = nodeService.createNode(documentsFolder, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.DOC_URI, name), OpenESDHModel.TYPE_DOC_SIMPLE, Collections.<QName, Serializable>singletonMap(ContentModel.PROP_NAME, name));
+        Map<QName, Serializable> props = new HashMap<>(1);
+        props.put(ContentModel.PROP_NAME, name);
+        ChildAssociationRef documentAssociationRef = nodeService.createNode(documentsFolder, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.DOC_URI, name), OpenESDHModel.TYPE_DOC_SIMPLE, props);
         NodeRef documentNodeRef = documentAssociationRef.getChildRef();
 
         NodeRef person = personService.getPerson(AuthenticationUtil.getFullyAuthenticatedUser());
