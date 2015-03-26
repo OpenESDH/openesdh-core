@@ -3,20 +3,21 @@ package dk.openesdh.repo.services.cases;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
-import org.json.simple.JSONObject;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Created by torben on 19/08/14.
  */
 public interface CaseService {
-
     static final String DATE_FORMAT = "yyyyMMdd";
+
     static final String CASES = "openesdh_cases";
+
+    static final Pattern CASE_ID_PATTERN = Pattern.compile("\\d+-(\\d+)");
 
 
     /**
