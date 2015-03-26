@@ -10,7 +10,7 @@
 
     <parent>
         <groupId>org.alfresco.maven</groupId>
-        <artifactId>alfresco-sdk-parent</artifactId>
+        <artifactId>alfresco-sdk-parent</artifactId>vi
         <version>2.0.0</version>
     </parent>
 
