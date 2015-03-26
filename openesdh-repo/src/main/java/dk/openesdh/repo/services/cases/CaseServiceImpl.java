@@ -172,23 +172,28 @@ public class CaseServiceImpl implements CaseService {
 
     @Override
     public NodeRef getCaseById(String caseId) {
-        SearchParameters sp = new SearchParameters();
-        sp.addStore(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE);
-        sp.setLanguage(SearchService.LANGUAGE_LUCENE);
-        sp.setQuery("TYPE:\""+OpenESDHModel.TYPE_CASE_SIMPLE+"\"AND @oe\\:id:\""+ caseId+"\"");
-        ResultSet results = null;
-        NodeRef caseNodeRef = null;
-        try {
-            results = this.searchService.query(sp);
-            if(results.length() == 1) //Because "There there can be only one"
-                caseNodeRef = results.getRow(0).getNodeRef();
-        }
-        finally {
-            if(results != null) {
-                results.close();
+        Matcher matcher = CASE_ID_PATTERN.matcher(caseId);
+        if (matcher.matches()) {
+            // Get the DBID from the case ID, and grab the NodeRef
+            try {
+                final Long dbid = Long.parseLong(matcher.group(1));
+                NodeRef caseNodeRef = AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<NodeRef>() {
+                    @Override
+                    public NodeRef doWork() throws Exception {
+                        return nodeService.getNodeRef(dbid);
+                    }
+                });
+
+                // Check that it exists and is really a case node (extending type
+                // "case:base")
+                if (nodeService.exists(caseNodeRef) && isCaseNode(caseNodeRef)) {
+                    return caseNodeRef;
+                }
+            } catch (NumberFormatException e) {
+                return null;
             }
         }
-        return caseNodeRef;
+        return null;
     }
 
     public String getCaseId(NodeRef caseNodeRef) {
