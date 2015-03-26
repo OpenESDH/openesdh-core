@@ -28,13 +28,18 @@ model.jsonModel = {
             }
         },
         {
+            name: "openesdh/common/services/AuthorityService",
+            config: {
+                fieldId: "35c9ck58-a7c1-5512-89ba-7e3d7III22be"
+            }
+        },
+        {
             name: "alfresco/services/NavigationService",
             config: {
                 fieldId: "35cbd518-a7c1-5432-89ba-7e3d781154be"
             }
         }
     ],
-
     widgets: [
         {
             name: "alfresco/layout/ClassicWindow",
@@ -108,7 +113,7 @@ model.jsonModel = {
                                                 config: {
                                                     description: "",
                                                     title: "",
-                                                    fieldId: "33ed6de4-3a60-46bb-8389-40b04aeddd37",
+                                                    fieldId: "31ed6de4-3a60-46bb-83e9-40b04ae0dd37",
                                                     widgets: [
                                                         {
                                                             name: "alfresco/forms/controls/DojoValidationTextBox",
@@ -138,32 +143,8 @@ model.jsonModel = {
                                                                 },
                                                                 placeHolder: "",
                                                                 widgets: []
-                                                            },
-                                                            widthPc: "98"
-                                                        }
-                                                    ]
-                                                }
-                                            },
-                                            {
-                                                name: "alfresco/forms/ControlRow",
-                                                config: {
-                                                    description: "",
-                                                    title: "",
-                                                    fieldId: "88ba8d88-b562-4954-81b9-d34ac564d5ff",
-                                                    widgets: [
-                                                        {
-                                                            id: "create_case_owner_widget",
-                                                            name: "openesdh/common/widgets/controls/WrappedYUIAuthorityWidget",
-                                                            config: {
-                                                                value: userNodeRef,
-                                                                name: "assoc_case_owners_added",
-                                                                visibilityConfig: { initialValue: true },
-                                                                fieldId: "b03a9abe-c4be-44aa-8e1f-c1048172eba1",
-                                                                multiple: true,
-                                                                label: msg.get("create-case.label.button.case-owner")
                                                             }
                                                         },
-
                                                         {
                                                             name: "alfresco/forms/controls/DojoSelect",
                                                             config: {
@@ -179,6 +160,39 @@ model.jsonModel = {
                                                                 widgets: []
                                                             }
                                                         }
+                                                    ]
+                                                }
+                                            },
+                                            {
+                                                name: "alfresco/forms/ControlRow",
+                                                config: {
+                                                    description: "",
+                                                    title: "",
+                                                    fieldId: "88ba8d88-b562-4954-81b9-d34ac564d5ff",
+                                                    widgets: [
+                                                        {
+                                                            name: "openesdh/common/widgets/controls/AuthorityPicker",
+                                                            config: {
+                                                                label: "Owner",
+                                                                name: "test",
+                                                                itemKey: "nodeRef",
+                                                                authorityType: "cm:person",
+                                                                singleItemMode: false
+                                                            }
+                                                        }
+                                                        /*{
+                                                            id: "create_case_owner_widget",
+                                                            name: "openesdh/common/widgets/controls/WrappedYUIAuthorityWidget",
+                                                            config: {
+                                                                value: userNodeRef,
+                                                                name: "assoc_case_owners_added",
+                                                                visibilityConfig: { initialValue: true },
+                                                                fieldId: "b03a9abe-c4be-44aa-8e1f-c1048172eba1",
+                                                                multiple: true,
+                                                                label: msg.get("create-case.label.button.case-owner")
+                                                            }
+                                                        },*/
+
                                                     ]
                                                 }
                                             },

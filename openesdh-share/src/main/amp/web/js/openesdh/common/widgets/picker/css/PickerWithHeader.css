@@ -1,0 +1,10 @@
+.alfresco-pickers-Picker {
+
+    .picker-picked-items-container > div {
+        float: left;
+    }
+
+    .picker-header, .picker-picked-items-container{
+        float: none !important;
+    }
+}
