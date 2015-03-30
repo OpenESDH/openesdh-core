@@ -113,7 +113,9 @@ if (headerMenu != null) {
 var caseService= {
     name: "openesdh/common/services/CaseService",
     config:{
-        casesFolderNodeRef: getNewCaseFolderNodeRef()
+        caseId: caseId,
+        casesFolderNodeRef: getNewCaseFolderNodeRef(),
+        nodeRef: (nodeRef != null) ? nodeRef : args.destination
     }
 };
 model.jsonModel.services.push(caseService);
