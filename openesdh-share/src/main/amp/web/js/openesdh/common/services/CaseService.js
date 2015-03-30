@@ -273,7 +273,7 @@ define(["dojo/_base/declare",
                                 fieldId: "b0632dac-002e-4860-884b-b9237246075c",
                                 widgets: [
                                     {
-                                        name: "alfresco/forms/controls/DateTextBox",
+                                        name: "openesdh/common/widgets/controls/DojoDateExt",
                                         config: {
                                             id: "prop_case_startDate",
                                             unitsLabel: "mm/dd/yy",
@@ -285,7 +285,7 @@ define(["dojo/_base/declare",
                                         }
                                     },
                                     {
-                                        name: "alfresco/forms/controls/DateTextBox",
+                                        name: "openesdh/common/widgets/controls/DojoDateExt",
                                         config: {
                                             id: "prop_case_endDate",
                                             unitsLabel: "mm/dd/yy",
