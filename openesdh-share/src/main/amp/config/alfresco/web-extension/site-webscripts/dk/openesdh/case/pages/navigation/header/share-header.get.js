@@ -163,6 +163,3 @@ verticalLayout.config.widgets.push({
 });*/
 
 navMenu.config.widgets.push(caseConfig);
-
-
-name: "alfresco/menus/AlfMenuBarItem"

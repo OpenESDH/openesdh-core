@@ -92,7 +92,6 @@
         <property name="caseService" ref="CaseService"/>
     </bean>
 
-
     <bean id="webscript.dk.openesdh.documents.get"
           class="dk.openesdh.repo.webscripts.documents.Documents"
           parent="webscript">
@@ -123,7 +122,6 @@
         <property name="personService" ref="PersonService" />
         <property name="nodeService" ref="nodeService" />
     </bean>
-
 
     <bean id="webscript.dk.openesdh.model.get"
           class="dk.openesdh.repo.model.ModelLookup"
@@ -158,7 +156,6 @@
         <property name="nodeService" ref="NodeService" />
         <property name="searchService" ref="SearchService" />
     </bean>
-
 
     <bean id="webscript.dk.openesdh.documents.containerNodes.get" class="dk.openesdh.repo.webscripts.documents.DocumentCaseContainers" parent="webscript">
         <property name="caseService" ref="CaseService" />
@@ -258,9 +255,14 @@
         <property name="contactService" ref="ContactService"/>
     </bean>
 
+    <!--Miscellaneous-->
     <bean id="webscript.dk.openesdh.case.searchDefinition.get" parent="webscript"
           class="dk.openesdh.repo.webscripts.cases.SearchDefinition">
         <property name="caseService" ref="CaseService"/>
         <property name="namespaceService" ref="namespaceService"/>
+    </bean>
+    <bean id="webscript.dk.openesdh.currentUser.get" parent="webscript"
+          class="dk.openesdh.repo.webscripts.CurrentUser">
+        <property name="personService" ref="PersonService"/>
     </bean>
 </beans>
