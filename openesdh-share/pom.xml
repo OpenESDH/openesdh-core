@@ -21,6 +21,7 @@
         | Allowed values: alfresco | share. In this case it's configured to use OOTB share -->
         <alfresco.client.war>share</alfresco.client.war>
         <alfresco.client.contextPath>/share</alfresco.client.contextPath>
+        <!--<alfresco.repo.url>http://demo.openesdh.dk/alfresco</alfresco.repo.url>-->
         <alfresco.repo.url>http://localhost:8080/alfresco</alfresco.repo.url>
         <!-- Since Alfresco is already running on port 8080, we run Share on port 8081 -->
         <maven.tomcat.port>8081</maven.tomcat.port>        
