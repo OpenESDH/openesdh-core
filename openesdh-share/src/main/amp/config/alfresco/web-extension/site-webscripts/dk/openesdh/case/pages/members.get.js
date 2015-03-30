@@ -60,7 +60,7 @@ model.jsonModel = {
                                                     label: msg.get("case-members.invite-people"),
                                                     widgets: addAuthorityToRoleDropdownItems,
                                                     visibilityConfig: {
-                                                        initialValue: true, //TODO setting this property to false hides the buttons need to fix
+                                                        initialValue: false,
                                                         rules: [
                                                             {
                                                                 topic: "CASE_INFO",

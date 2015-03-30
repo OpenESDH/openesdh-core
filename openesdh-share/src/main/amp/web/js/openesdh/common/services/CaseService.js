@@ -42,8 +42,6 @@ define(["dojo/_base/declare",
              */
             currentUser:null,
 
-            _allWidgetsReady: 0,
-
             constructor: function (args) {
                 lang.mixin(this, args);
                 this.caseId = args.caseId;
@@ -381,6 +379,7 @@ define(["dojo/_base/declare",
             },
 
             _caseInfo: function (nodeRefOrCaseId, successCallback) {
+
                 // Get caseInfo from webscript
                 if (nodeRefOrCaseId == null) {
                     this.alfLog("error", "Null nodeRef or caseId passed to _caseInfo");
@@ -401,10 +400,7 @@ define(["dojo/_base/declare",
             },
 
             onAllWidgetsReady: function (payload) {
-                this._allWidgetsReady++;
-                if (this._allWidgetsReady == 2) {
-                    this._allWidgetsProcessedFunction();
-                }
+                this._allWidgetsProcessedFunction();
             },
 
             _onCaseInfoInitialLoadSuccess: function (response, config) {
@@ -412,20 +408,9 @@ define(["dojo/_base/declare",
                     this.alfPublish(this.CaseInfoTopic, response);
                     this.alfPublish("ALF_UPDATE_PAGE_TITLE", {title: response.allProps.properties["cm:title"].value});
                 });
-
-                // Due to https://issues.alfresco.com/jira/browse/ACE-1488
-                // HACK: This assumes that you have two Page instances on
-                // the page ('share-header' and 'page'), which both
-                // publish ALF_WIDGETS_READY. We only want to publish the info
-                // results when the page is ready. Since there is no way to
-                // identify which instance the ALF_WIDGETS_READY publication
-                // is coming from, we just assume that the 'page' was the
-                // second one.
-                if (this._allWidgetsReady == 2) {
-                    // If the page widgets were ready before we got the results,
-                    // call the function to publish the results now
-                    this._allWidgetsProcessedFunction();
-                }
+                // Call it immediately after we receive the response, and let
+                // it be called each time we get an ALF_WIDGETS_READY.
+                this._allWidgetsProcessedFunction();
             },
 
             onJournalize: function (payload) {
