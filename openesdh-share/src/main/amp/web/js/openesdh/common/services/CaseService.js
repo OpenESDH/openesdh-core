@@ -37,6 +37,11 @@ define(["dojo/_base/declare",
              */
             caseId: "",
 
+            /**
+             * The authenticated user (Initially used for the Authority Picker)
+             */
+            currentUser:null,
+
             _allWidgetsReady: 0,
 
             constructor: function (args) {
@@ -55,8 +60,8 @@ define(["dojo/_base/declare",
                 this.alfSubscribe(this.ShowCreateCaseDialog, lang.hitch(this, "_showCreateCaseDialog"));
                 this.alfSubscribe(this.CreateCaseSuccess, lang.hitch(this, "_onCreateCaseTopicSuccess"));
 
+                this._getLoggedInUser();
                 this._getCaseStatusTypes();
-
 
                 // Don't do anything when the widgets are ready
                 // This is overwritten when the case info is loaded
@@ -196,6 +201,8 @@ define(["dojo/_base/declare",
                                                         name: "assoc_case_owners_added",
                                                         itemKey: "nodeRef",
                                                         singleItemMode: false,
+                                                        setDefaultPickedItems: true,
+                                                        defaultPickedItems: this.currentUser,
                                                         /**
                                                          *Override widgetsForControl to remove the "remove all" button
                                                          */
@@ -543,7 +550,7 @@ define(["dojo/_base/declare",
             },
             
             _getCaseStatusTypes: function dk_openesdh___getCaseStatusTypes() {
-                var url =  Alfresco.constants.PROXY_URI + "/api/openesdh/case/party/permittedStates";
+                var url =  Alfresco.constants.PROXY_URI + "api/openesdh/case/party/permittedStates";
                 this.serviceXhr({
                     url: url,
                     method: "GET",
@@ -758,6 +765,18 @@ define(["dojo/_base/declare",
                     }
                 }
             ]
-        }
+        },
+
+            _getLoggedInUser: function dk_openesdh__getLoggedInUser(){
+                var url =  Alfresco.constants.PROXY_URI + "/api/openesdh/currentUser";
+                this.serviceXhr({
+                    url: url,
+                    method: "GET",
+                    successCallback: function (response) {
+                        this.currentUser = response;
+                    },
+                    callbackScope: this});
+            }
+
         });
     });

@@ -7,14 +7,32 @@
  */
 define(["dojo/_base/declare",
         "dojo/_base/lang",
+        "alfresco/core/ObjectTypeUtils",
         "alfresco/forms/controls/Picker",
         "openesdh/common/widgets/picker/PickerWithHeader"
     ],
-        function(declare, lang, Picker, PickerWithHeader) {
+        function(declare, lang, ObjectTypeUtils, Picker, PickerWithHeader) {
 
    return declare([Picker], {
 
+       /**
+        * The authority type to scope to. by default all but can be set to:
+        *  cm:person ==> People
+        *  cm:authorityContainer ==> Groups
+        */
        authorityType: "cm:authority",
+
+       /**
+        * This is used to determine whether to set default picked items for the picker
+        * for instance if one wants the current logged in user to be set by default.
+        */
+       setDefaultPickedItems: false,
+
+       /**
+        * This is meant to be an array of items with which to set default picked items.
+        * The use of this is determined by the setDefaultPickedItems variable above.
+        */
+       defaultPickedItems: null,
 
        /**
         * This should be overridden to define the widget model for rendering the picker that appears within the
@@ -187,6 +205,27 @@ define(["dojo/_base/declare",
            ]
        },
 
+       /**
+        * Overrides the [inherited function]{@link module:alfresco/forms/controls/BaseFormControl#createFormControl}
+        * to create the picked items display and the picker itself. This should not need to be overridden by extending
+        * pickers.
+        *
+        * @instance
+        * @param {object} config The configuration object for instantiating the picker form control
+        */
+       postCreate: function alfresco_forms_controls_Picker__postCreate(config) {
+
+           this.inherited(arguments);
+           if(this.setDefaultPickedItems){
+               //If it's a single object then change it into an array containing a single object
+               if(!ObjectTypeUtils.isArray(this.defaultPickedItems)) {
+                   this.defaultPickedItems = [this.defaultPickedItems];
+               }
+
+               this.alfPublish(this.itemSelectionPubSubScope + "ALF_ITEMS_SELECTED", {pickedItems:this.defaultPickedItems}, true);
+           }
+
+       },
 
        /**
         * Updates the model to set a value of the currently selected items. It is necessary to do this because
