@@ -276,11 +276,11 @@ define(["dojo/_base/declare",
                                             label: this.message("create-case.label.button.start-date"),
                                             name: "prop_case_startDate",
                                             fieldId: "b4bd606f-66ae-4f06-847d-dfdc77f5abc2",
-                                            widgets: []
+                                            value: new Date()
                                         }
                                     },
                                     {
-                                        name: "openesdh/common/widgets/controls/DojoDateExt",
+                                        name: "alfresco/forms/controls/DateTextBox",
                                         config: {
                                             id: "prop_case_endDate",
                                             unitsLabel: "mm/dd/yy",
@@ -288,7 +288,7 @@ define(["dojo/_base/declare",
                                             label: this.message("create-case.label.button.end-date"),
                                             name: "prop_case_endDate",
                                             fieldId: "69707d94-0f8c-4966-832a-a1adbc53b74f",
-                                            widgets: []
+                                            value: new Date()
                                         }
                                     }
                                 ]
