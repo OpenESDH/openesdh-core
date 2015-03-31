@@ -160,7 +160,7 @@ define(["dojo/_base/declare",
                                         widthPc: "50"
                                     },
                                     {
-                                        name: "alfresco/forms/controls/DojoSelect",
+                                        name: "openesdh/common/widgets/controls/Select",
                                         config: {
                                             id: "prop_oe_status",
                                             label: this.message("create-case.label.button.case-status"),
