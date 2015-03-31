@@ -52,7 +52,6 @@ define(["dojo/_base/declare",
                 // Load the case info
                 this._caseInfo(this.caseNodeRef, lang.hitch(this, "_onCaseInfoInitialLoadSuccess"));
 
-
                 this.alfSubscribe("OPENESDH_JOURNALIZE", lang.hitch(this, "onJournalize"));
                 this.alfSubscribe("OPENESDH_UNJOURNALIZE", lang.hitch(this, "onUnJournalize"));
                 this.alfSubscribe("ALF_WIDGETS_READY", lang.hitch(this, "onAllWidgetsReady"));
@@ -196,6 +195,7 @@ define(["dojo/_base/declare",
                                             widgets: [
                                                 {
                                                     name: "openesdh/common/widgets/controls/AuthorityPicker",
+                                                    id:"create_case_dialog_auth_picker",
                                                     config: {
                                                         label: "Owner",
                                                         name: "assoc_case_owners_added",
@@ -221,6 +221,7 @@ define(["dojo/_base/declare",
                                                                         },
                                                                         {
                                                                             name: "alfresco/buttons/AlfButton",
+                                                                            id: "create_case_dialog_auth_picker_button",
                                                                             assignTo: "formDialogButton",
                                                                             config: {
                                                                                 label: "picker.add.label",
@@ -237,6 +238,7 @@ define(["dojo/_base/declare",
                                                                                     widgetsButtons: [
                                                                                         {
                                                                                             name: "alfresco/buttons/AlfButton",
+                                                                                            id: "create_case_dialog_auth_picker_picked_ok_button",
                                                                                             config: {
                                                                                                 label: "picker.ok.label",
                                                                                                 publishTopic: "ALF_ITEMS_SELECTED",
@@ -245,6 +247,7 @@ define(["dojo/_base/declare",
                                                                                         },
                                                                                         {
                                                                                             name: "alfresco/buttons/AlfButton",
+                                                                                            id:"create_case_dialog_auth_picker_picked_cancel_button",
                                                                                             config: {
                                                                                                 label: "picker.cancel.label",
                                                                                                 publishTopic: "NO_OP"
@@ -275,7 +278,7 @@ define(["dojo/_base/declare",
                                 fieldId: "b0632dac-002e-4860-884b-b9237246075c",
                                 widgets: [
                                     {
-                                        name: "alfresco/forms/controls/DateTextBox",
+                                        name: "openesdh/common/widgets/controls/DojoDateExt",
                                         config: {
                                             id: "prop_case_startDate",
                                             unitsLabel: "mm/dd/yy",
@@ -287,7 +290,7 @@ define(["dojo/_base/declare",
                                         }
                                     },
                                     {
-                                        name: "alfresco/forms/controls/DateTextBox",
+                                        name: "openesdh/common/widgets/controls/DojoDateExt",
                                         config: {
                                             id: "prop_case_endDate",
                                             unitsLabel: "mm/dd/yy",

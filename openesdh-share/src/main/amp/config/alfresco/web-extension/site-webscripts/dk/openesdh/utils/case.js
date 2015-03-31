@@ -86,7 +86,7 @@ function getCaseNodeRefFromId(caseId){
  * Get the case id from nodeRef
  */
 function getCaseIdFromNodeRef(nodeRef){
-    if (nodeRef == null || caseId == undefined)
+    if (nodeRef == null || nodeRef == undefined)
         return null;
     var caseId = nodeRef.replace(":/","");
     var connector = remote.connect("alfresco");

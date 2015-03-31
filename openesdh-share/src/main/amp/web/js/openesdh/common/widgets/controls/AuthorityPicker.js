@@ -206,9 +206,8 @@ define(["dojo/_base/declare",
        },
 
        /**
-        * Overrides the [inherited function]{@link module:alfresco/forms/controls/BaseFormControl#createFormControl}
-        * to create the picked items display and the picker itself. This should not need to be overridden by extending
-        * pickers.
+        * Overrides the [inherited function]{@link module:alfresco/forms/controls/BaseFormControl#postCreate}
+        * to set default picked users in the case that the setDefaultPickedItems property is set to true
         *
         * @instance
         * @param {object} config The configuration object for instantiating the picker form control
@@ -221,8 +220,7 @@ define(["dojo/_base/declare",
                if(!ObjectTypeUtils.isArray(this.defaultPickedItems)) {
                    this.defaultPickedItems = [this.defaultPickedItems];
                }
-
-               this.alfPublish(this.itemSelectionPubSubScope + "ALF_ITEMS_SELECTED", {pickedItems:this.defaultPickedItems}, true);
+               this.alfPublish(this.itemSelectionPubSubScope + "ALF_ITEMS_SELECTED", {pickedItems : this.defaultPickedItems}, true);
            }
 
        },
