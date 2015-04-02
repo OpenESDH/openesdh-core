@@ -44,7 +44,8 @@ define(["dojo/_base/declare",
                         label: "Tilføj Bilag",//TODO can't seem to localise
                         // TODO: Add icon class
                         iconClass: "add-icon-16",
-                        publishTopic: "OE_SHOW_ATTACHMENTS_UPLOADER"
+                        publishTopic: "OE_SHOW_ATTACHMENTS_UPLOADER",
+                        disabled: true
                     }
                 }
             ],

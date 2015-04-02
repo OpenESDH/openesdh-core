@@ -93,7 +93,7 @@ if (headerMenu != null) {
                 },
                 // This widget is required to handle ALF_UPLOAD_REQUEST topics
                 {
-                    name: "alfresco/upload/AlfUpload"
+                    name: "openesdh/common/services/UploadService"
                 }
             ]
         }

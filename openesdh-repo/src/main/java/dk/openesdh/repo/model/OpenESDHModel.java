@@ -24,6 +24,14 @@ public interface OpenESDHModel {
     public static final String NOTE_URI = "http://openesdh.dk/model/note/1.0/";
 
 
+
+
+    /**
+     * Models
+     */
+    public static final QName DOCUMENT_MODEL = QName.createQName(DOC_URI, "documentModel");
+
+
     /**
      * Types
      */
@@ -104,6 +112,7 @@ public interface OpenESDHModel {
     public static final QName PROP_DOC_IS_MAIN_ENTRY = QName.createQName(DOC_URI, "isMainEntry");
     public static final QName PROP_DOC_VARIANT = QName.createQName(DOC_URI, "variant");
     public static final QName PROP_DOC_TYPE = QName.createQName(DOC_URI, "type");
+    public static final QName PROP_DOC_STATE = QName.createQName(DOC_URI, "state");
 
 
     public static final QName PROP_CONTACT_EMAIL = QName.createQName(CONTACT_URI, "email");
@@ -153,8 +162,14 @@ public interface OpenESDHModel {
      */
     public static final QName CONSTRAINT_CASE_SIMPLE_STATUS = QName.createQName(CASE_URI, "simpleStatusConstraint");
     public static final QName CONSTRAINT_CASE_ALLOWED_PARTY_ROLES = QName.createQName(CASE_URI, "allowedPartyRoles");
+
+    //Document constraints
     public static final QName CONSTRAINT_DOC_STATUS = QName.createQName(DOC_URI, "statusConstraint");
+    public static final QName CONSTRAINT_DOC_TYPES = QName.createQName(DOC_URI, "typeConstraint");
     public static final QName CONSTRAINT_DOC_CATEGORY = QName.createQName(DOC_URI, "categoryConstraint");
+    public static final QName CONSTRAINT_DOC_STATE = QName.createQName(DOC_URI, "stateConstraint");
+    public static final QName CONSTRAINT_DOC_RELATION = QName.createQName(DOC_URI, "relationConstraint");
+    public static final QName CONSTRAINT_DOC_VARIANT = QName.createQName(DOC_URI, "variantConstraint");
 
     /**
      * Documents
@@ -164,11 +179,8 @@ public interface OpenESDHModel {
     /**
      * Various constants
      */
-
     // currently 7 days in miliseconds - one day is 86400000
     public static final String MYCASES_DAYS_IN_THE_PAST = "604800000";
-
-
 
     public static final int AUDIT_LOG_MAX = 1000;
 

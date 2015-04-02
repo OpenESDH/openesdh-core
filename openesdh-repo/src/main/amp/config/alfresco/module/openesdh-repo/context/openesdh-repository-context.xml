@@ -265,4 +265,10 @@
           class="dk.openesdh.repo.webscripts.CurrentUser">
         <property name="personService" ref="PersonService"/>
     </bean>
+
+
+    <bean id="webscript.dk.openesdh.documents.constraints.get" parent="webscript"
+          class="dk.openesdh.repo.webscripts.documents.DocumentConstraints">
+        <property name="dictionaryService" ref="dictionaryService"/>
+    </bean>
 </beans>

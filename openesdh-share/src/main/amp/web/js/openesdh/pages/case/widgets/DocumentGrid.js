@@ -58,22 +58,14 @@ define(["dojo/_base/declare",
 
             getColumns: function () {
                 return [
-                    { field: "doc:type", label: this.message("Type") }, // TODO: i18n!
-                    { field: "doc:category", label: this.message("Kategori") }, // TODO: i18n!
-                    { field: "doc:state", label: this.message("State") }, // TODO: i18n!
-                    { field: "cm:title", label: this.message("cm_title"),
-                        renderCell: lang.hitch(this, '_renderTitleCell')
-                    },
-                    { field: "mainDocVersion", label: this.message("Version"), // TODO: i18n!
-                        formatter: lang.hitch(this, "_formatVersion")
-                    },
-                    { field: "doc:owner", label: this.message("Ejer") }, // TODO: i18n!
-                    { field: "cm:created", label: this.message("cm_created"),
-                        formatter: lang.hitch(this, "_formatDate")
-                    },
-                    { field: "cm:modified", label: this.message("cm_modified"),
-                        formatter: lang.hitch(this, "_formatDate")
-                    }
+                    { field: "doc:type", label: this.message("table.header.label.type"), renderCell: lang.hitch(this, '_renderDocType') },
+                    { field: "doc:category", label: this.message("table.header.label.category"), renderCell: lang.hitch(this, '_renderDocCategory')  },
+                    { field: "doc:state", label: this.message("table.header.label.state"), renderCell: lang.hitch(this, '_renderDocState')  },
+                    { field: "cm:title", label: this.message("cm_title"), renderCell: lang.hitch(this, '_renderTitleCell') },
+                    { field: "mainDocVersion", label: this.message("table.header.label.version"), formatter: lang.hitch(this, "_formatVersion") },
+                    { field: "doc:owner", label: this.message("table.header.label.owner") },
+                    { field: "cm:created", label: this.message("cm_created"), formatter: lang.hitch(this, "_formatDate") },
+                    { field: "cm:modified", label: this.message("cm_modified"), formatter: lang.hitch(this, "_formatDate") }
                 ];
             },
 
@@ -97,6 +89,21 @@ define(["dojo/_base/declare",
              */
             _renderTitleCell:  function (item, value, node, options) {
                 node.innerHTML = item['cm:title'] ? item['cm:title'] : item['cm:name'];
+            },
+
+            _renderDocType:  function (item, value, node, options) {
+                if(value && value != undefined && value != "")
+                    node.innerHTML = this.message("document.type.constraint.label."+value);
+            },
+
+            _renderDocState:  function (item, value, node, options) {
+                if(value && value != undefined && value != "")
+                    node.innerHTML = this.message("document.state.constraint.label."+value);
+            },
+
+            _renderDocCategory:  function (item, value, node, options) {
+                if(value && value != undefined && value != "")
+                    node.innerHTML = this.message("document.category.constraint.label."+value);
             }
         });
     });

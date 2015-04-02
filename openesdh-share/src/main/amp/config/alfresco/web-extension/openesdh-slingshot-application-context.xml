@@ -84,6 +84,7 @@
         <property name="resourceBundles">
             <list>
                 <value>alfresco.web-extension.messages.openesdh</value>
+                <value>alfresco.web-extension.messages.constraints</value>
             </list>
         </property>
     </bean>
