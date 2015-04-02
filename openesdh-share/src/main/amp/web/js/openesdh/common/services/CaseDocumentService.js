@@ -110,38 +110,6 @@ define(["dojo/_base/declare",
                             label: "Select files to upload...",
                             name: "files"
                         }
-                    }
-                ];
-                var docRecordWidgets = [
-                    {
-                        name: "openesdh/common/widgets/controls/Select",
-                            config: {
-                                id: "doc_category",
-                                label: this.message("upload-dialog.control.label.category"),
-                                optionsConfig: { fixed: this._createConstraintSelection("category") },
-                                name: "targetData.doc_category",
-                                fieldId: "ebf9b987-9744-47bc-8823-klar7aa783f4"
-                            }
-                    },
-                    {
-                        name: "openesdh/common/widgets/controls/Select",
-                            config: {
-                                id: "doc_type",
-                                label: this.message("upload-dialog.control.label.type"),
-                                optionsConfig: { fixed: this._createConstraintSelection("type") },
-                                name: "targetData.doc_type",
-                                fieldId: "ebf9b987-6598-47ad-8823-ee9d2ee783f4"
-                            }
-                    },
-                    {
-                        name: "openesdh/common/widgets/controls/Select",
-                            config: {
-                                id: "doc_state",
-                                label: this.message("upload-dialog.control.label.state"),
-                                optionsConfig: { fixed: this._createConstraintSelection("state") },
-                                name: "targetData.doc_state",
-                                fieldId: "ebf9b987-9744-32ll-8823-ee9d9afkt7f4"
-                            }
                     },
                     {
                         name: "alfresco/forms/controls/HiddenValue",
@@ -206,6 +174,38 @@ define(["dojo/_base/declare",
                             value: "doclib",
                             postWhenHiddenOrDisabled: true
                         }
+                    }
+                ];
+                var docRecordWidgets = [
+                    {
+                        name: "openesdh/common/widgets/controls/Select",
+                            config: {
+                                id: "doc_category",
+                                label: this.message("upload-dialog.control.label.category"),
+                                optionsConfig: { fixed: this._createConstraintSelection("category") },
+                                name: "targetData.doc_category",
+                                fieldId: "ebf9b987-9744-47bc-8823-klar7aa783f4"
+                            }
+                    },
+                    {
+                        name: "openesdh/common/widgets/controls/Select",
+                            config: {
+                                id: "doc_type",
+                                label: this.message("upload-dialog.control.label.type"),
+                                optionsConfig: { fixed: this._createConstraintSelection("type") },
+                                name: "targetData.doc_type",
+                                fieldId: "ebf9b987-6598-47ad-8823-ee9d2ee783f4"
+                            }
+                    },
+                    {
+                        name: "openesdh/common/widgets/controls/Select",
+                            config: {
+                                id: "doc_state",
+                                label: this.message("upload-dialog.control.label.state"),
+                                optionsConfig: { fixed: this._createConstraintSelection("state") },
+                                name: "targetData.doc_state",
+                                fieldId: "ebf9b987-9744-32ll-8823-ee9d9afkt7f4"
+                            }
                     }
                 ];
 

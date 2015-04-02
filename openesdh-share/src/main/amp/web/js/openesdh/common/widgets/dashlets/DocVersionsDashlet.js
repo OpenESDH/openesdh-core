@@ -42,7 +42,8 @@ define(["dojo/_base/declare", "alfresco/core/Core",
                      publishPayload: {
                          versioning: true,
                          documentNodeRef: this.documentNodeRef
-                     }
+                     },
+                     disabled: true
                  }
 
              }],
@@ -73,6 +74,7 @@ define(["dojo/_base/declare", "alfresco/core/Core",
                 lang.mixin(this, args);
                     this.widgetsForBody[0].config.gridRefreshTopic = this.VersionsGridRefresh;
                 this.alfSubscribe(this.GetDocumentVersionsTopic, lang.hitch(this, "_setDocumentNodeRef"));
+                this.alfSubscribe(this.DocumentRowSelect, lang.hitch(this, "_enableUpload"));
             },
 
             _setDocumentNodeRef : function(payload){
@@ -81,6 +83,11 @@ define(["dojo/_base/declare", "alfresco/core/Core",
                 var gridObj = dijitRegistry.byId("document_versions_grid");
                 actualObj.publishPayload.documentNodeRef = payload.nodeRef;
                 gridObj.nodeRef = payload.nodeRef;
-            }
+            },
+
+             _enableUpload: function () {
+                 var uploadButtonObj = dijitRegistry.byId("document_version_upload_button");
+                 uploadButtonObj.setDisabled(false);
+             }
          });
       });
