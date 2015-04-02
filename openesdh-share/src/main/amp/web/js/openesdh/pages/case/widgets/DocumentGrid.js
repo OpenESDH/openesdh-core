@@ -87,21 +87,21 @@ define(["dojo/_base/declare",
              * @param options
              * @private
              */
-            _renderTitleCell:  function (item, value, node, options) {
+            _renderTitleCell: function (item, value, node, options) {
                 node.innerHTML = item['cm:title'] ? item['cm:title'] : item['cm:name'];
             },
 
-            _renderDocType:  function (item, value, node, options) {
+            _renderDocType: function (item, value, node, options) {
                 if(value && value != undefined && value != "")
                     node.innerHTML = this.message("document.type.constraint.label."+value);
             },
 
-            _renderDocState:  function (item, value, node, options) {
+            _renderDocState: function (item, value, node, options) {
                 if(value && value != undefined && value != "")
                     node.innerHTML = this.message("document.state.constraint.label."+value);
             },
 
-            _renderDocCategory:  function (item, value, node, options) {
+            _renderDocCategory: function (item, value, node, options) {
                 if(value && value != undefined && value != "")
                     node.innerHTML = this.message("document.category.constraint.label."+value);
             }
