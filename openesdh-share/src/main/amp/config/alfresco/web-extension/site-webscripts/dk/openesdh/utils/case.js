@@ -72,6 +72,9 @@ function getCaseStatusTypes () {
  * Get the case nodeRef from caseId
  */
 function getCaseNodeRefFromId(caseId){
+    //When we're not within the case context this will always be null as CaseService is included in the
+    if (caseId == null || caseId == undefined)
+        return null;
     var connector = remote.connect("alfresco");
     var caseInfo = connector.get("/api/openesdh/case/noderef/"+caseId);
     caseInfo = eval('(' + caseInfo + ')');
@@ -83,6 +86,8 @@ function getCaseNodeRefFromId(caseId){
  * Get the case id from nodeRef
  */
 function getCaseIdFromNodeRef(nodeRef){
+    if (nodeRef == null || nodeRef == undefined)
+        return null;
     var caseId = nodeRef.replace(":/","");
     var connector = remote.connect("alfresco");
     var caseInfo = connector.get("/api/openesdh/documents/isCaseDoc/"+caseId);
@@ -91,7 +96,7 @@ function getCaseIdFromNodeRef(nodeRef){
     return caseInfo.caseId;
 }
 
-
+/*
 function getCreateCaseWidgets(){
     var caseContainerNodeRef = getNewCaseFolderNodeRef();
     return [
@@ -235,7 +240,7 @@ function getCreateCaseWidgets(){
                 fieldId: "b0632dac-002e-4860-884b-b9237246075c",
                 widgets: [
                     {
-                        name: "openesdh/common/widgets/controls/DojoDateExt",
+                        name: "alfresco/forms/controls/DateTextBox",
                         config: {
                             id: "prop_case_startDate",
                             unitsLabel: "mm/dd/yy",
@@ -299,4 +304,4 @@ function getCreateCaseWidgets(){
             }
         }
     ]
-}
+}*/

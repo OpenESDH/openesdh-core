@@ -44,7 +44,6 @@ navMenu.config.widgets.push({
         selected: isOnCasePage("members")
     }
 });
-
 navMenu.config.widgets.push({
     id: "HEADER_CASE_PARTIES",
     name: "alfresco/menus/AlfMenuBarItem",
@@ -55,7 +54,6 @@ navMenu.config.widgets.push({
         selected: isOnCasePage("parties")
     }
 });
-
 
 // Create the basic site configuration menu...
 var caseConfig = {
@@ -69,6 +67,7 @@ var caseConfig = {
         widgets: []
     }
 };
+
 
 caseConfig.config.widgets.push({
     id: "HEADER_CASE_EDIT",
@@ -111,6 +110,7 @@ caseConfig.config.widgets.push({
         }
     }
 });
+
 caseConfig.config.widgets.push({
     id: "HEADER_CASE_UNJOURNALIZE",
     name: "alfresco/menus/AlfMenuBarItem",
@@ -132,8 +132,8 @@ caseConfig.config.widgets.push({
         }
     }
 });
-
 var verticalLayout = widgetUtils.findObject(model.jsonModel, "id", "SHARE_VERTICAL_LAYOUT");
+
 verticalLayout.config.widgets.push({
     id: "HEADER_CASE_JOURNALIZED_WARNING",
     name: "alfresco/header/Warning",
@@ -154,14 +154,12 @@ verticalLayout.config.widgets.push({
         }
     }
 });
-
-model.jsonModel.services.push({
+/*model.jsonModel.services.push({
     name: "openesdh/common/services/CaseService",
     config: {
         caseId: caseId,
         nodeRef: (nodeRef != null) ? nodeRef : args.destination
     }
-});
-
+});*/
 
 navMenu.config.widgets.push(caseConfig);

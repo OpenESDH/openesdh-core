@@ -12,6 +12,7 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.namespace.QName;
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -51,11 +52,40 @@ public class DocumentBehaviour implements NodeServicePolicies.OnCreateChildAssoc
         if (!nodeService.exists(fileRef)) {
             return;
         }
+        NodeRef docRecord = childAssocRef.getParentRef();
         // Set the first child as main document
-        if (nodeService.countChildAssocs(childAssocRef.getParentRef(), true) == 1) {//TODO does it have to be primary assocs?
+        if (nodeService.countChildAssocs(docRecord, true) == 1) {//TODO does it have to be primary assocs?
             //Tag the case document as the main document for the case
-            nodeService.addChild(childAssocRef.getParentRef(), fileRef,
-                    OpenESDHModel.ASSOC_DOC_MAIN, QName.createQName(OpenESDHModel.DOC_URI, "main"));
+            nodeService.addChild(docRecord, fileRef, OpenESDHModel.ASSOC_DOC_MAIN, QName.createQName(OpenESDHModel.DOC_URI, "main"));
+
+            //find a better way to do this
+            /**
+             * When a document is uploaded, the javascript controller upload.post.js
+             * creates this document in the documents directory. Unfortunately it is only after creation
+             * that the document record exists so the meta-data needed for the doc record is grafted on the main doc
+             * then applied to the document record here and removed from the main document.
+             */
+            String doc_category, doc_state, doc_type;
+            doc_category = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY).toString();
+            doc_state = nodeService.getProperty(childAssocRef.getChildRef(),OpenESDHModel.PROP_DOC_STATE).toString();
+            doc_type = nodeService.getProperty(childAssocRef.getChildRef(),OpenESDHModel.PROP_DOC_TYPE).toString();
+
+            if (StringUtils.isNotEmpty(doc_category)){
+                this.nodeService.setProperty(docRecord, OpenESDHModel.PROP_DOC_CATEGORY, doc_category);
+                this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY);
+            }
+
+            if (StringUtils.isNotEmpty(doc_state)){
+                this.nodeService.setProperty(docRecord, OpenESDHModel.PROP_DOC_STATE, doc_state);
+                this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_STATE);
+            }
+
+            if (StringUtils.isNotEmpty(doc_type)){
+                this.nodeService.setProperty(docRecord, OpenESDHModel.PROP_DOC_TYPE, doc_type);
+                this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_TYPE);
+            }
+
+
         }
 
         // Make sure all children get the type doc:digitalFile

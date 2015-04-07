@@ -44,6 +44,8 @@ function (declare, _Widget, Core, CoreWidgetProcessing, _Templated, template, la
                         config: {
                             currentItem: properties,
                             propertyToRender: i,
+                            localise: true,
+                            i18Value: this.message("document."+i+".constraint.label."+payload[i]),
                             label: this.message("doc.info.label."+i),
                             renderOnNewLine: true
                         }

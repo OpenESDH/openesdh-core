@@ -17,6 +17,13 @@ define(["dojo/_base/declare",
             ],
 
             /**
+             * An object which contains the document constraints as received from the repository.
+             * In the form
+             * {variantConstraint: ["string value_1". "string value_n"], ...}
+             */
+            documentConstraints : null,
+
+            /**
              * The documents NodeRef for a case.
              */
             documentsNodeRef: null,
@@ -39,6 +46,8 @@ define(["dojo/_base/declare",
                 this.alfSubscribe(this.DocumentVersionRevertTopic, lang.hitch(this, this._revertDocumentVersion));
                 this.alfSubscribe(this.DocumentVersionRevertFormSubmitTopic, lang.hitch(this, this._onVersionRevertSubmit));
                 this.alfSubscribe(this.GetDocumentVersionsTopicClick, lang.hitch(this, this._retrieveDocumentVersions));
+
+                this._getDocumentConstraints();
             },
 
             onPreviewDoc: function (payload) {
@@ -94,35 +103,123 @@ define(["dojo/_base/declare",
              * @param {object} payload
              */
             _showUploader: function alfresco_services_ContentService__showUploader(payload) {
-                console.log("CaseDocumentsService(80) Uploader payload:\n"+payload.documentNodeRef);
+                var finalWidget = [
+                    {
+                        name: "alfresco/forms/controls/FileSelect",
+                        config: {
+                            label: "Select files to upload...",
+                            name: "files"
+                        }
+                    },
+                    {
+                        name: "alfresco/forms/controls/HiddenValue",
+                        config: {
+                            name: "targetData.destination",
+                            value: (payload.alfTopic == "OE_SHOW_ATTACHMENTS_UPLOADER")? this.currentDocRecordNodeRef: this.documentsNodeRef,
+                            postWhenHiddenOrDisabled: true
+                        }
+                    },
+                    {
+                        name: "alfresco/forms/controls/HiddenValue",
+                        config: {
+                            name: "targetData.description",
+                            value: "",
+                            postWhenHiddenOrDisabled: true
+                        }
+                    },
+                    {
+                        name: "alfresco/forms/controls/HiddenValue",
+                        config: {
+                            name: "targetData.overwrite",
+                            value: false,
+                            postWhenHiddenOrDisabled: true
+                        }
+                    },
+                    {
+                        name: "alfresco/forms/controls/HiddenValue",
+                        config: {
+                            name: "targetData.uploadDirectory",
+                            value: null,
+                            postWhenHiddenOrDisabled: true
+                        }
+                    },
+                    {
+                        name: "alfresco/forms/controls/HiddenValue",
+                        config: {
+                            name: "targetData.siteId",
+                            value: null,
+                            postWhenHiddenOrDisabled: true
+                        }
+                    },
+                    {
+                        name: "alfresco/forms/controls/HiddenValue",
+                        config: {
+                            name: "targetData.username",
+                            value: null,
+                            postWhenHiddenOrDisabled: true
+                        }
+                    },
+                    {
+                        name: "alfresco/forms/controls/HiddenValue",
+                        config: {
+                            name: "targetData.containerId",
+                            value: null,
+                            postWhenHiddenOrDisabled: true
+                        }
+                    },
+                    {
+                        name: "alfresco/forms/controls/HiddenValue",
+                        config: {
+                            name: "targetData.thumbnails",
+                            value: "doclib",
+                            postWhenHiddenOrDisabled: true
+                        }
+                    }
+                ];
+                var docRecordWidgets = [
+                    {
+                        name: "openesdh/common/widgets/controls/Select",
+                            config: {
+                                id: "doc_category",
+                                label: this.message("upload-dialog.control.label.category"),
+                                optionsConfig: { fixed: this._createConstraintSelection("category") },
+                                name: "targetData.doc_category",
+                                fieldId: "ebf9b987-9744-47bc-8823-klar7aa783f4"
+                            }
+                    },
+                    {
+                        name: "openesdh/common/widgets/controls/Select",
+                            config: {
+                                id: "doc_type",
+                                label: this.message("upload-dialog.control.label.type"),
+                                optionsConfig: { fixed: this._createConstraintSelection("type") },
+                                name: "targetData.doc_type",
+                                fieldId: "ebf9b987-6598-47ad-8823-ee9d2ee783f4"
+                            }
+                    },
+                    {
+                        name: "openesdh/common/widgets/controls/Select",
+                            config: {
+                                id: "doc_state",
+                                label: this.message("upload-dialog.control.label.state"),
+                                optionsConfig: { fixed: this._createConstraintSelection("state") },
+                                name: "targetData.doc_state",
+                                fieldId: "ebf9b987-9744-32ll-8823-ee9d9afkt7f4"
+                            }
+                    }
+                ];
+
+                if(payload.alfTopic != "OE_SHOW_ATTACHMENTS_UPLOADER")
+                    finalWidget = finalWidget.concat(docRecordWidgets);
+
                 this.uploadDialog = new AlfFormDialog({
                     dialogTitle: "Select files to upload",
                     dialogConfirmationButtonTitle: "Upload",
                     dialogCancellationButtonTitle: "Cancel",
                     formSubmissionTopic: "OE_CASE_DOCUMENT_SERVICE_UPLOAD_REQUEST_RECEIVED",
-                    formSubmissionPayload: {
-                        targetData: {
-                            destination: (payload.alfTopic == "OE_SHOW_ATTACHMENTS_UPLOADER")? this.currentDocRecordNodeRef: this.documentsNodeRef,
-                            siteId: null,
-                            containerId: null,
-                            uploadDirectory: null,
-                            updateNodeRef: null,
-                            description: "",
-                            overwrite: false,
-                            thumbnails: "doclib",
-                            username: null
-                        }
-                    },
-                    widgets: [
-                        {
-                            name: "alfresco/forms/controls/FileSelect",
-                            config: {
-                                label: "Select files to upload...",
-                                name: "files"
-                            }
-                        }
-                    ]
+                    widgets: finalWidget
                 });
+
                 this.uploadDialog.show();
             },
 
@@ -323,6 +420,8 @@ define(["dojo/_base/declare",
              * @param {object} payload The file upload data payload to pass on
              */
             _onFileUploadRequest: function alfresco_services_ContentService__onFileUploadRequest(payload) {
+                console.log("CaseDocumentService [367] uploading...");
+
                 if (this.uploadDialog != null) {
                     this.uploadDialog.destroyRecursive();
                 }
@@ -367,6 +466,33 @@ define(["dojo/_base/declare",
                         this.alfPublish(this.CaseRefreshDocInfoTopic, response)
                     },
                     callbackScope: this});
+            },
+
+            _getDocumentConstraints: function () {
+                var url = Alfresco.constants.PROXY_URI + "api/openesdh/case/document/constraints";
+                var _this = this;
+
+                this.serviceXhr({
+                    url: url,
+                    method: "GET",
+                    successCallback:function (response) {
+                        _this.documentConstraints = response;
+                    },
+                    callbackScope: this});
+            },
+
+
+            _createConstraintSelection: function dk_openesdh__createConstraintSelection(constraintType) {
+                var options = [];
+                var constraintTarget = constraintType+"Constraint";
+                var constraintValues = this.documentConstraints[constraintTarget];
+                for (var state in constraintValues) {
+                    options.push({
+                        value: constraintValues[state],
+                        label: this.message("document."+constraintType+".constraint.label." + constraintValues[state])
+                    });
+                }
+                return options;
             },
 
             /**

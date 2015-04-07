@@ -5,11 +5,12 @@ define(["dojo/_base/declare",
         "dijit/_TemplatedMixin",
         "dojo/text!./templates/InfoWidget.html",
         "dojo/_base/lang",
+        "dojo/_base/array",
         "openesdh/pages/_TopicsMixin",
         "openesdh/pages/case/widgets/lib/JSONProcessing",
         "openesdh/common/widgets/renderers/PropertyField"
     ],
-    function (declare, _Widget, Core, CoreWidgetProcessing, _Templated, template, lang, _TopicsMixin, JSONProcessing, PropertyField) {
+    function (declare, _Widget, Core, CoreWidgetProcessing, _Templated, template, lang, array, _TopicsMixin, JSONProcessing, PropertyField) {
         return declare([_Widget, Core, CoreWidgetProcessing, _Templated, _TopicsMixin, JSONProcessing], {
             templateString: template,
 
@@ -23,13 +24,16 @@ define(["dojo/_base/declare",
             widgetsForBody: [],
 
             buildRendering: function dk_openesdh_pages_case_widgets_InfoWidget__buildRendering() {
-                this.alfSubscribe(this.CaseInfoTopic, lang.hitch(this, "_onPayloadReceive"));
+                this.caseInfoTopicSubscription = this.alfSubscribe(this.CaseInfoTopic, lang.hitch(this, "_onPayloadReceive"));
 
                 this.bodyTitle = '';
                 this.inherited(arguments);
             },
 
             _onPayloadReceive: function (payload) {
+                // Unsubscribe from CaseInfoTopic so we don't show the data twice
+                this.alfUnsubscribe(this.caseInfoTopicSubscription);
+
 //                console.log(payload);
 
                 this.widgetsForBody = [];

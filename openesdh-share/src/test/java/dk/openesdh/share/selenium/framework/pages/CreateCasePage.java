@@ -29,11 +29,7 @@ public class CreateCasePage extends BasePage {
     @FindBy(id = "prop_case_endDate_CONTROL")
     WebElement endDateField;
 
-/*
-    @FindBy(css = "#template_x002e_create-content_x002e_create" +
-            "-content_x0023_default_assoc_case_owners-cntrl button")
-            */
-    @FindBy(css = "#create_case_owner_widget button")
+    @FindBy(id = "create_case_dialog_auth_picker_button")
     WebElement ownersFieldButton;
 
     @FindBy(css = ".buttons .confirmationButton .dijitButtonNode")
@@ -79,18 +75,11 @@ public class CreateCasePage extends BasePage {
             }
         }
 
-
-
         statusControl.sendKeys("Afventer");
-
         startDateField.sendKeys(startDate);
         endDateField.sendKeys(endDate);
 
-
-
-
-        //ownersFieldButton.click();
-        //selectAuthoritiesInPicker("assoc_case_owners_added", owners);
+        ownersFieldButton.click();
         //selectAuthoritiesInPicker("assoc_case_owners_added", owners);
 
         createButton.click();

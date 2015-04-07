@@ -1,6 +1,15 @@
 <import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/utils/case.js">
 <import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/utils/oe.js">
 
+var args = page.url.args;
+var caseId = url.templateArgs.caseId;
+//In the case of some pages (e.g. document details) we need to get the caseId in reverse
+// i.e. from the nodeRef
+if (caseId == null)
+    caseId = getCaseIdFromNodeRef(args.nodeRef);
+
+var nodeRef = getCaseNodeRefFromId(caseId);
+
 //try {null.ex;} catch(e) {logger.log("\n\n(global-customisations/share/header/share-header.get.js) Linenumber: " + e.lineNumber)+"\n\n";}
 
 var caseTypes = getCaseTypes();
@@ -31,23 +40,9 @@ function getCreateCaseMenuWidgets (caseTypes) {
             {
                 name: "alfresco/menus/AlfMenuBarItem",
                 config: {
-                    publishTopic: "ALF_CREATE_FORM_DIALOG_REQUEST",
+                    publishTopic: "OE_SHOW_CREATE_CASE_DIALOG",
                     id: "CASE_MENU_CREATE_CASE_" + c.type.replace(":", "_").toUpperCase(),
-                    label: label,
-                    publishPayloadType: "PROCESS",
-                    publishPayloadModifiers: ["processCurrentItemTokens"],
-                    publishPayload: {
-                        dialogTitle: "contacts.tool.create-dialog.label",
-                        dialogId: "CREATE_CASE_DIALOG",
-                        dialogConfirmationButtonTitle: msg.get("create.button.label"),
-                        dialogCancellationButtonTitle: msg.get("cancel.button.label"),
-                        formSubmissionTopic: "OE_CREATE_CASE_TOPIC",
-                        formSubmissionPayloadMixin: {
-                            successResponseTopic: "OE_CREATE_CASE_SUCCESS"
-                        },
-                        fixedWidth: true,
-                        widgets: getCreateCaseWidgets()
-                    }
+                    label: label
                 }
             }
         );
@@ -98,7 +93,7 @@ if (headerMenu != null) {
                 },
                 // This widget is required to handle ALF_UPLOAD_REQUEST topics
                 {
-                    name: "alfresco/upload/AlfUpload"
+                    name: "openesdh/common/services/UploadService"
                 }
             ]
         }
@@ -114,6 +109,15 @@ if (headerMenu != null) {
         }
     );
 }
-model.jsonModel.services.push("openesdh/common/services/CaseService");
+
+var caseService= {
+    name: "openesdh/common/services/CaseService",
+    config:{
+        caseId: caseId,
+        casesFolderNodeRef: getNewCaseFolderNodeRef(),
+        nodeRef: (nodeRef != null) ? nodeRef : args.destination
+    }
+};
+model.jsonModel.services.push(caseService);
 model.jsonModel.services.push("openesdh/common/services/AuthorityService");
 model.jsonModel.services.push("alfresco/services/DialogService");

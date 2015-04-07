@@ -44,7 +44,8 @@ define(["dojo/_base/declare",
                         label: "Tilføj Bilag",//TODO can't seem to localise
                         // TODO: Add icon class
                         iconClass: "add-icon-16",
-                        publishTopic: "OE_SHOW_ATTACHMENTS_UPLOADER"
+                        publishTopic: "OE_SHOW_ATTACHMENTS_UPLOADER",
+                        disabled: true
                     }
                 }
             ],
@@ -68,11 +69,18 @@ define(["dojo/_base/declare",
                 this.widgetsForBody[0].config.rowSelectionTopic = this.AttachmentRowSelect;
                 this.widgetsForBody[0].config.rowDeselectionTopic = this.AttachmentRowDeselect;
                 this.widgetsForBody[0].config.gridRefreshTopic = this.AttachmentGridRefresh;
+
+                this.alfSubscribe(this.DocumentRowSelect, lang.hitch(this, "_enableUpload"));
             },
             postCreate: function () {
                 this.inherited(arguments);
                 var uploadButtonObj = dijitRegistry.byId("upload_attachment_button");
                 uploadButtonObj.label = this.message("dashlet.button.label.attachment.upload");
+            },
+
+            _enableUpload: function () {
+                var uploadButtonObj = dijitRegistry.byId("upload_attachment_button");
+                uploadButtonObj.setDisabled(false);
             }
         });
     });

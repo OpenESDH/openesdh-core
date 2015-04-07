@@ -19,7 +19,7 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Created by lanre on 18/11/2014.
+ * @author Lanre Abiwon.
  */
 public class MembersList extends DeclarativeWebScript {
 

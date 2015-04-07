@@ -33,6 +33,16 @@ define(["dojo/_base/declare",
             ],
 
             /**
+             * Determine whether we localise what we're about to display
+             */
+            localise: false,
+
+            /**
+             * Used if the above is true
+             */
+            i18Value:"",
+
+            /**
              * Set up the attributes to be used when rendering the template.
              *
              * @instance
@@ -43,6 +53,8 @@ define(["dojo/_base/declare",
                 //Attempt to render the actual property itself (in the case where the propertyToRender isn't an object
                 //but a simple string (This was hacked for DocInfoWidget for example)
                 this.renderedValue = (property.value == null) ? property: property.value;
+                if(this.localise)
+                    this.renderedValue = this.i18Value;
                 this.renderedValueClass = this.renderedValueClass + " " + this.renderSize + " block";
 
             }

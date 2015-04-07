@@ -19,36 +19,37 @@
             <parameter name="allowedValues">
                 <list>
                     <!-- TODO: localize -->
-                    <value>Under behandling</value>
-                    <value>Gældende</value>
-                    <value>Godkendt</value>
-                    <value>Ikke godkendt</value>
-                    <value>Scannet</value>
-                    <value>Sendt til godkendelse</value>
-                    <value>Til kommentering</value>
-                    <value>Udgået</value>
-                    <value>Afsluttet</value>
-                    <value>Journaliseret</value>
+                    <value>under-treatment</value>
+                    <value>applicable</value>
+                    <value>approved</value>
+                    <value>not-approved</value>
+                    <value>scanned</value>
+                    <value>sent-for-approval</value>
+                    <value>awaiting-comments</value>
+                    <value>discontinued</value>
+                    <value>completed</value>
+                    <value>journalized</value>
                 </list>
             </parameter>
         </constraint>
+
         <constraint name="doc:categoryConstraint" type="LIST">
             <parameter name="allowedValues">
                 <list>
                     <!-- TODO: localize -->
-                    <value>Bilag</value>
-                    <value>Bevis</value>
-                    <value>Kontrakt</value>
-                    <value>Note</value>
-                    <value>Rapport</value>
-                    <value>Fuldmagt</value>
-                    <value>Garanti</value>
-                    <value>Afgørelse</value>
-                    <value>Opgørelse</value>
-                    <value>Referat</value>
-                    <value>Regnskab</value>
-                    <value>Tilbud</value>
-                    <value>Andet</value>
+                    <value>annex</value>
+                    <value>proof</value>
+                    <value>contract</value>
+                    <value>note</value>
+                    <value>report</value>
+                    <value>proxy</value>
+                    <value>warranty</value>
+                    <value>part</value>
+                    <value>statement</value>
+                    <value>summary</value>
+                    <value>accounting</value>
+                    <value>offers</value>
+                    <value>other</value>
                 </list>
             </parameter>
         </constraint>
@@ -57,12 +58,12 @@
             <parameter name="allowedValues">
                 <list>
                     <!-- TODO: localize -->
-                    <value>Faktura</value>
-                    <value>Brev</value>
-                    <value>Notat</value>
-                    <value>Rapport</value>
-                    <value>Dagsorden</value>
-                    <value>Andet</value>
+                    <value>invoice</value>
+                    <value>letter</value>
+                    <value>note</value>
+                    <value>report</value>
+                    <value>agenda</value>
+                    <value>other</value>
                 </list>
             </parameter>
         </constraint>
@@ -71,13 +72,13 @@
             <parameter name="allowedValues">
                 <list>
                     <!-- TODO: localize -->
-                    <value>Modtaget</value>
-                    <value>Fordelt</value>
-                    <value>Under udarbejdelse</value>
-                    <value>Under review</value>
-                    <value>Publiceet</value>
-                    <value>Endeligt</value>
-                    <value>Afleveret</value>
+                    <value>received</value>
+                    <value>distributed</value>
+                    <value>draft</value>
+                    <value>under-review</value>
+                    <value>published</value>
+                    <value>finalised</value>
+                    <value>submitted</value>
                 </list>
             </parameter>
         </constraint>

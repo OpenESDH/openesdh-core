@@ -24,7 +24,6 @@ define(["dojo/_base/declare",
                 {
                     value = stamp.fromISOString(this.value, { selector: "date" })
                 }
-                console.log("Date ping");
                 return {
                     id : this.id + "_CONTROL",
                     name: this.name,
