@@ -96,7 +96,7 @@ define([
                                             visibleColumns: ["oe:id", "cm:title", "oe:status", "cm:created"],
                                             availableColumns: ["oe:id", "cm:title", "oe:status", "cm:created"],
                                             actions: [],
-                                            rowsPerPage: 2,
+                                            rowsPerPage: 15,
                                             pageSizeOptions: [],
                                         }
                                     }

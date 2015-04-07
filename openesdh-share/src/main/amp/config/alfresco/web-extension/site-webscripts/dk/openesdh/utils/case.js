@@ -93,7 +93,6 @@ function getCaseIdFromNodeRef(nodeRef){
 
 
 function getCreateCaseWidgets(){
-    var userNodeRef = getUserNodeRef(user.name);
     var caseContainerNodeRef = getNewCaseFolderNodeRef();
     return [
         {

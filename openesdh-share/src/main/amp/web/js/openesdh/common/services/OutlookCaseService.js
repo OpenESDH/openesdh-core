@@ -97,8 +97,8 @@ define([
                                             properties: this.searchDefinition.model.properties,
                                             visibleColumns: ["oe:id", "cm:title", "oe:status", "cm:created"],
                                             availableColumns: ["oe:id", "cm:title", "oe:status", "cm:created"],
-                                            actions: [],
-                                            rowsPerPage: 2,
+//                                            actions: [],
+                                            rowsPerPage: 15,
                                             pageSizeOptions: [],
                                         }
                                     }

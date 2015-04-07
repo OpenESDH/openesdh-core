@@ -1,3 +1,18 @@
+<import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/utils/case.js">
+
+function getStatusLabels() {
+    var optionStatus = [];
+    var states = getCaseStatusTypes();
+
+    for (var state in states) {
+        optionStatus.push({
+            value: msg.get("create-case.status.constraint.value." + states[state]),
+            label: msg.get("create-case.status.constraint.label." + states[state])
+        });
+    }
+    return optionStatus;
+};
+
 model.jsonModel = {
     widgets: [
         {
@@ -49,9 +64,24 @@ model.jsonModel = {
                                             {
                                                 name: "alfresco/buttons/AlfButton",
                                                 config: {
-                                                    label: "Create Case",
-                                                    publishTopic: "OE_CREATE_CASE",
-                                                    publishGlobal: true
+//                                                    id: "CASE_MENU_CREATE_CASE_CASE_SIMPLE",
+                                                    label: msg.get("outlook-dialog.createcase.label"),
+//                                                    publishTopic: "ALF_CREATE_FORM_DIALOG_REQUEST",
+                                                    publishTopic: "OE_SHOW_CREATE_CASE_DIALOG",
+//                                                    publishGlobal: true,
+                                                    publishPayloadType: "PROCESS",
+                                                    publishPayloadModifiers: ["processCurrentItemTokens"],
+                                                    publishPayload: {
+                                                        dialogTitle: "Create Case",
+                                                        dialogConfirmationButtonTitle: msg.get("create.button.label"),
+                                                        dialogCancellationButtonTitle: msg.get("cancel.button.label"),
+                                                        formSubmissionTopic: "OE_CREATE_CASE_TOPIC",
+                                                        formSubmissionPayloadMixin: {
+                                                            successResponseTopic: "OE_CREATE_CASE_SUCCESS"
+                                                        },
+                                                        fixedWidth: true,
+                                                        widgets: getCreateCaseWidgets()
+                                                    }
                                                 }
                                             },
                                             {
@@ -160,19 +190,15 @@ model.jsonModel = {
                 formId: "outlookForm"
             }
         },
-        "alfresco/dialogs/AlfDialogService",
+        "alfresco/services/DialogService",
         "alfresco/services/DocumentService",
-        {
-            name: "openesdh/common/services/CaseService",
-            config: {
-                fieldId: "35cbd518-a7c1-44c8-89ba-7e3d781222be"
-            }
-        },
         {
             name: "alfresco/services/NavigationService",
             config: {
                 fieldId: "35cbd518-a7c1-5432-89ba-7e3d781154be"
             }
-        }
+        },
+        "openesdh/common/services/CaseService",
+        "openesdh/common/services/AuthorityService"
     ]
 };
