@@ -59,29 +59,17 @@ model.jsonModel = {
                                                     publishTopic: "OE_FIND_CASE",
                                                     publishGlobal: true
                                                 },
-                                                assignTo: "formDialogButton",
+                                                assignTo: "formDialogButton"
                                             },
                                             {
                                                 name: "alfresco/buttons/AlfButton",
                                                 config: {
-//                                                    id: "CASE_MENU_CREATE_CASE_CASE_SIMPLE",
                                                     label: msg.get("outlook-dialog.createcase.label"),
-//                                                    publishTopic: "ALF_CREATE_FORM_DIALOG_REQUEST",
                                                     publishTopic: "OE_SHOW_CREATE_CASE_DIALOG",
-//                                                    publishGlobal: true,
-                                                    publishPayloadType: "PROCESS",
-                                                    publishPayloadModifiers: ["processCurrentItemTokens"],
                                                     publishPayload: {
-                                                        dialogTitle: "Create Case",
-                                                        dialogConfirmationButtonTitle: msg.get("create.button.label"),
-                                                        dialogCancellationButtonTitle: msg.get("cancel.button.label"),
-                                                        formSubmissionTopic: "OE_CREATE_CASE_TOPIC",
-                                                        formSubmissionPayloadMixin: {
-                                                            successResponseTopic: "OE_CREATE_CASE_SUCCESS"
-                                                        },
-                                                        fixedWidth: true,
-                                                        widgets: getCreateCaseWidgets()
-                                                    }
+                                                        publishOnSuccessTopic: "OE_OUTLOOK_CASE_CREATED"
+                                                    },
+                                                    publishGlobal: true
                                                 }
                                             },
                                             {
@@ -198,7 +186,12 @@ model.jsonModel = {
                 fieldId: "35cbd518-a7c1-5432-89ba-7e3d781154be"
             }
         },
-        "openesdh/common/services/CaseService",
+        {
+            name: "openesdh/common/services/CaseService",
+            config: {
+                casesFolderNodeRef: getNewCaseFolderNodeRef()
+            }
+        },
         "openesdh/common/services/AuthorityService"
     ]
 };

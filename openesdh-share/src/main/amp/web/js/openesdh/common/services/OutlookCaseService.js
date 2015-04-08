@@ -16,6 +16,7 @@ define([
                 this.alfSubscribe("OE_FIND_CASE", lang.hitch(this, this.onFindCase));
                 this.alfSubscribe("OE_CREATE_CASE", lang.hitch(this, this.onCreateCase));
                 this.alfSubscribe("GRID_ROW_SELECTED", lang.hitch(this, this.onSelectCase));
+                this.alfSubscribe("OE_OUTLOOK_CASE_CREATED", lang.hitch(this, this.onCaseCreated));
 //                this.alfSubscribe(this.FiltersApplyTopic, lang.hitch(this, this.onApplyFilters));
             },
 
@@ -352,6 +353,18 @@ define([
             onSelectCase: function(payload) {
                 var data = payload.row.data;
                 this._getForm().setValue({caseId: data["oe:caseId"]});
+            },
+
+            onCaseCreated: function(payload) {
+                var nodeRef = payload["persistedObject"].replace(":/", "");
+                this.serviceXhr({
+                      url: Alfresco.constants.PROXY_URI + "api/openesdh/documents/isCaseDoc/" + nodeRef,
+                      method: "GET",
+                      handleAs: "json",
+                      successCallback: function (response, config) {
+                          this._getForm().setValue({caseId: response["caseId"]});
+                      }
+                });
             }
         });
     }

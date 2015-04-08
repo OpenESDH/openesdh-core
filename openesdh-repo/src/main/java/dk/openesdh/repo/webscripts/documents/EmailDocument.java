@@ -1,5 +1,6 @@
 package dk.openesdh.repo.webscripts.documents;
 
+import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.DocumentService;
 import org.alfresco.model.ContentModel;
@@ -68,6 +69,12 @@ public class EmailDocument extends AbstractWebScript {
         NodeRef documentsFolder = caseService.getDocumentsFolder(nodeRef);
         NodeRef documentFolder = documentService.createDocumentFolder(documentsFolder, name).getChildRef();
 
+        Map<QName, Serializable> props = new HashMap<>();
+        props.put(OpenESDHModel.PROP_DOC_TYPE, "letter");
+        props.put(OpenESDHModel.PROP_DOC_CATEGORY, "other");
+        props.put(OpenESDHModel.PROP_DOC_STATE, "received");
+        nodeService.setProperties(documentFolder, props);
+
         LOG.warn("responsible: " + responsible);
         if (responsible != null) {
             NodeRef personRef = personService.getPerson(responsible, false);
@@ -81,7 +88,7 @@ public class EmailDocument extends AbstractWebScript {
         String filename = name + ".txt";
         LOG.warn("Creating mail file: " + filename);
         String bodyText = (String) email.get("BodyText");
-        Map<QName, Serializable> props = new HashMap<>();
+        props = new HashMap<>();
         props.put(ContentModel.PROP_NAME, filename);
         NodeRef node = nodeService.createNode(
                 documentFolder,

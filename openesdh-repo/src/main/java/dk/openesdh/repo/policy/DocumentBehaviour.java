@@ -65,27 +65,25 @@ public class DocumentBehaviour implements NodeServicePolicies.OnCreateChildAssoc
              * that the document record exists so the meta-data needed for the doc record is grafted on the main doc
              * then applied to the document record here and removed from the main document.
              */
-            String doc_category, doc_state, doc_type;
-            doc_category = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY).toString();
-            doc_state = nodeService.getProperty(childAssocRef.getChildRef(),OpenESDHModel.PROP_DOC_STATE).toString();
-            doc_type = nodeService.getProperty(childAssocRef.getChildRef(),OpenESDHModel.PROP_DOC_TYPE).toString();
-
-            if (StringUtils.isNotEmpty(doc_category)){
+            Serializable categoryProperty = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY);
+            if (categoryProperty != null && StringUtils.isNotEmpty(categoryProperty.toString())){
+                String doc_category = categoryProperty.toString();
                 this.nodeService.setProperty(docRecord, OpenESDHModel.PROP_DOC_CATEGORY, doc_category);
                 this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY);
             }
-
-            if (StringUtils.isNotEmpty(doc_state)){
+            Serializable stateProperty = nodeService.getProperty(childAssocRef.getChildRef(),OpenESDHModel.PROP_DOC_STATE);
+            if (stateProperty != null && StringUtils.isNotEmpty(stateProperty.toString())){
+                String doc_state = stateProperty.toString();
                 this.nodeService.setProperty(docRecord, OpenESDHModel.PROP_DOC_STATE, doc_state);
                 this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_STATE);
             }
 
-            if (StringUtils.isNotEmpty(doc_type)){
+            Serializable typeProperty = nodeService.getProperty(childAssocRef.getChildRef(),OpenESDHModel.PROP_DOC_TYPE);
+            if (typeProperty != null && StringUtils.isNotEmpty(typeProperty.toString())){
+                String doc_type = typeProperty.toString();
                 this.nodeService.setProperty(docRecord, OpenESDHModel.PROP_DOC_TYPE, doc_type);
                 this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_TYPE);
             }
-
-
         }
 
         // Make sure all children get the type doc:digitalFile
