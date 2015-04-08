@@ -58,7 +58,7 @@ if (headerMenu != null) {
         id: "HEADER_CASES_DROPDOWN",
         name: "alfresco/header/AlfMenuBarPopup",
         config: {
-            label: "Cases",
+            label: msg.get("header.cases.menu.label"),
             widgets: [
                 {
                     name: "alfresco/menus/AlfMenuGroup",
