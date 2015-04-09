@@ -49,13 +49,13 @@ model.jsonModel = {
                                                 config: {
                                                     name: "caseId",
                                                     assignTo: "pickedCaseWidget",
-                                                    label: "Case"
+                                                    label: msg.get("page.case.label")
                                                 }
                                             },
                                             {
                                                 name: "alfresco/buttons/AlfButton",
                                                 config: {
-                                                    label: "Find Case",
+                                                    label: msg.get("outlook-dialog.findcase.label"),
                                                     publishTopic: "OE_FIND_CASE",
                                                     publishGlobal: true
                                                 },
@@ -85,7 +85,7 @@ model.jsonModel = {
                                                     label: msg.get("page.title.label"),
                                                     validationConfig: {
                                                         regex: "^[A-Za-z0-9-]+",
-                                                        errorMessage: "Title must not be empty"
+                                                        errorMessage: msg.get("page.title.errormsg")
                                                     }
                                                 }
                                             },
