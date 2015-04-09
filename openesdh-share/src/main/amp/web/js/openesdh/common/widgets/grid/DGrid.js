@@ -121,7 +121,7 @@ define(["dojo/_base/declare",
              * span with class 'dojoxGridNoData' if you want it to be
              * styled similar to the loading and error messages
              */
-            noDataMessage:"",
+            noDataMessage: "grid.no_data_message",
 
             /**
              * The Grid widget
@@ -269,7 +269,7 @@ define(["dojo/_base/declare",
                     query: this.query,
                     sort: this.sort,
                     columns: columns,
-                    noDataMessage: this.message("grid.no_data_message"),
+                    noDataMessage: this.message(this.noDataMessage),
                     loadingMessage: this.message("grid.loading_message"),
                     rowsPerPage: this.rowsPerPage,
                     pageSizeOptions: this.pageSizeOptions,
