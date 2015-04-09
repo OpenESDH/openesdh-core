@@ -82,20 +82,4 @@
 
     </dependencies>
 
-	<repositories>
-		<repository>
-			<id>magenta-public</id>
-			<url>http://nexus.magenta-aps.dk/nexus/content/repositories/Alfresco-RELEASES</url>
-		</repository>
-		<repository>
-			<id>magenta-public-snapshots</id>
-			<url>http://nexus.magenta-aps.dk/nexus/content/repositories/Alfresco-SNAPSHOTS</url>
-			<snapshots>
-				<enabled>true</enabled>
-				<updatePolicy>daily</updatePolicy>
-			</snapshots>
-		</repository>
-	</repositories>
-
-
 </project>
