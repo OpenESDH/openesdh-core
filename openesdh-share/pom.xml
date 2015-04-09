@@ -73,7 +73,29 @@
             <type>amp</type>
         </dependency>
 
+		<dependency>
+			<groupId>magenta-aps</groupId>
+			<artifactId>share_da_dk</artifactId>
+			<version>5.0.0-SNAPSHOT</version>
+			<type>amp</type>
+		</dependency>
+
     </dependencies>
+
+	<repositories>
+		<repository>
+			<id>magenta-public</id>
+			<url>http://nexus.magenta-aps.dk/nexus/content/repositories/Alfresco-RELEASES</url>
+		</repository>
+		<repository>
+			<id>magenta-public-snapshots</id>
+			<url>http://nexus.magenta-aps.dk/nexus/content/repositories/Alfresco-SNAPSHOTS</url>
+			<snapshots>
+				<enabled>true</enabled>
+				<updatePolicy>daily</updatePolicy>
+			</snapshots>
+		</repository>
+	</repositories>
 
 
 </project>
