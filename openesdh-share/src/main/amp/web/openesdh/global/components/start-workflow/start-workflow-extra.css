@@ -1,3 +1,7 @@
 .start-workflow .description {
 	display : none;
 }
+
+.form-field label[for$="_assoc_packageItems-cntrl"]:first-child {
+	display : none;
+}
