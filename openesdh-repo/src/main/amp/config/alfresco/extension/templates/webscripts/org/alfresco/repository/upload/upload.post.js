@@ -133,7 +133,6 @@ function main()
                     break;
                 //For open-E document records
                 case "doc_category":
-                    logger.warn("\n\ndoc:category ===> "+field.value+" <===\n\n");
                     doc_category = field.value;
                     break;
 

@@ -2,29 +2,25 @@ package dk.openesdh.repo.policy;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 import org.alfresco.model.ContentModel;
-import org.alfresco.repo.node.NodeServicePolicies;
-import org.alfresco.repo.policy.*;
-import org.alfresco.repo.version.VersionRevertCallback;
-import org.alfresco.repo.version.VersionRevertDetails;
-import org.alfresco.repo.version.VersionServicePolicies;
+import org.alfresco.repo.policy.Behaviour;
+import org.alfresco.repo.policy.JavaBehaviour;
+import org.alfresco.repo.policy.PolicyComponent;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.namespace.QName;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.io.Serializable;
-import java.util.Map;
+import org.springframework.extensions.webscripts.WebScriptException;
+import org.alfresco.repo.node.NodeServicePolicies.OnCreateChildAssociationPolicy;
 
 /**
  * Created by rasmutor on 2/11/15.
  */
-public class DocumentBehaviour implements NodeServicePolicies.OnCreateChildAssociationPolicy {
+public class DocumentBehaviour implements OnCreateChildAssociationPolicy{
 
-    private static final Log LOG = LogFactory.getLog(DocumentBehaviour.class);
+    private static final Log logger = LogFactory.getLog(DocumentBehaviour.class);
 
     private Behaviour onCreateChildAssociation;
 
@@ -35,7 +31,7 @@ public class DocumentBehaviour implements NodeServicePolicies.OnCreateChildAssoc
         onCreateChildAssociation = new JavaBehaviour(this, "onCreateChildAssociation", Behaviour.NotificationFrequency.TRANSACTION_COMMIT);
 
         this.policyComponent.bindAssociationBehaviour(
-                NodeServicePolicies.OnCreateChildAssociationPolicy.QNAME,
+                OnCreateChildAssociationPolicy.QNAME,
                 OpenESDHModel.TYPE_DOC_SIMPLE,
                 ContentModel.ASSOC_CONTAINS,
                 this.onCreateChildAssociation
@@ -54,36 +50,38 @@ public class DocumentBehaviour implements NodeServicePolicies.OnCreateChildAssoc
         }
         NodeRef docRecord = childAssocRef.getParentRef();
         // Set the first child as main document
-        if (nodeService.countChildAssocs(docRecord, true) == 1) {//TODO does it have to be primary assocs?
+        if (nodeService.countChildAssocs(docRecord, true) == 1) {
             //Tag the case document as the main document for the case
             nodeService.addChild(docRecord, fileRef, OpenESDHModel.ASSOC_DOC_MAIN, QName.createQName(OpenESDHModel.DOC_URI, "main"));
 
             //find a better way to do this
             /**
              * When a document is uploaded, the javascript controller upload.post.js
-             * creates this document in the documents directory. Unfortunately it is only after creation
+             * creates the document in the documents directory for the case. Unfortunately it is only after creation
              * that the document record exists so the meta-data needed for the doc record is grafted on the main doc
              * then applied to the document record here and removed from the main document.
              */
-            Serializable categoryProperty = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY);
-            if (categoryProperty != null && StringUtils.isNotEmpty(categoryProperty.toString())){
-                String doc_category = categoryProperty.toString();
-                this.nodeService.setProperty(docRecord, OpenESDHModel.PROP_DOC_CATEGORY, doc_category);
-                this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY);
+            String doc_category, doc_state, doc_type;
+            try {
+                doc_category = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY).toString();
+                doc_state = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_STATE).toString();
+                doc_type = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_TYPE).toString();
+
+                if (StringUtils.isAnyEmpty(doc_category, doc_state, doc_type))
+                    throw new NullPointerException("Mandatory parameters missing.");
             }
-            Serializable stateProperty = nodeService.getProperty(childAssocRef.getChildRef(),OpenESDHModel.PROP_DOC_STATE);
-            if (stateProperty != null && StringUtils.isNotEmpty(stateProperty.toString())){
-                String doc_state = stateProperty.toString();
-                this.nodeService.setProperty(docRecord, OpenESDHModel.PROP_DOC_STATE, doc_state);
-                this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_STATE);
+            catch(NullPointerException npe){
+                throw new WebScriptException(npe.getMessage() + "\nThe following meta-data is required for a main document:\n\tCategory\n\tState\n\ttype");
             }
 
-            Serializable typeProperty = nodeService.getProperty(childAssocRef.getChildRef(),OpenESDHModel.PROP_DOC_TYPE);
-            if (typeProperty != null && StringUtils.isNotEmpty(typeProperty.toString())){
-                String doc_type = typeProperty.toString();
-                this.nodeService.setProperty(docRecord, OpenESDHModel.PROP_DOC_TYPE, doc_type);
-                this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_TYPE);
-            }
+            this.nodeService.setProperty(docRecord, OpenESDHModel.PROP_DOC_CATEGORY, doc_category);
+            this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY);
+
+            this.nodeService.setProperty(docRecord, OpenESDHModel.PROP_DOC_STATE, doc_state);
+            this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_STATE);
+
+            this.nodeService.setProperty(docRecord, OpenESDHModel.PROP_DOC_TYPE, doc_type);
+            this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_TYPE);
         }
 
         // Make sure all children get the type doc:digitalFile

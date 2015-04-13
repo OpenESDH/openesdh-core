@@ -66,6 +66,7 @@ public interface OpenESDHModel {
     public static final QName ASPECT_CONTACT_ADDRESS = QName.createQName(CONTACT_URI, "address");
 
     public static final QName ASPECT_NOTE_NOTABLE = QName.createQName(NOTE_URI, "notable");
+    public static final QName ASPECT_DOC_RECORD = QName.createQName(DOC_URI, "record");
 
     /**
      * Associations
@@ -150,6 +151,7 @@ public interface OpenESDHModel {
     public static final QName PROP_CONTACT_INTERNAL = QName.createQName (CONTACT_URI, "internal");
 
     public static final QName PROP_NOTE_CONTENT = QName.createQName(NOTE_URI, "content");
+    public static final QName PROP_ATTACHMENT_COUNT = QName.createQName(DOC_URI, "attachmentCount");
 
     /**
      * Association Names
