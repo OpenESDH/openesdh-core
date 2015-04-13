@@ -52,7 +52,7 @@ define(["dojo/_base/declare",
 
             widgetsForToolbar: [
                 {
-                    name: "alfresco/forms/controls/DojoSelect",
+                    name: "openesdh/common/widgets/controls/Select",
                     id: "MY_CASES_DASHLET_OPTIONS",
                     config: {
                         fieldId: "MY_CASES_DASHLET_OPTIONS",
