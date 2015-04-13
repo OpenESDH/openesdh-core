@@ -67,12 +67,15 @@ define(["dojo/_base/declare",
 
             _showCreateCaseDialog: function dk_openesdh__showCreateCaseDialog(payload) {
 
+                var publishOnSuccessTopic = (payload.publishOnSuccessTopic != null ? payload.publishOnSuccessTopic : this.CreateCaseSuccess);
                 this.createCaseDialog = new AlfFormDialog({
                     dialogTitle: this.message("create-case.dialog.title"),
                     dialogConfirmationButtonTitle: this.message("create-case.label.button.create"),
                     dialogCancellationButtonTitle: this.message("create-case.label.button.cancel"),
                     formSubmissionTopic: this.CreateCaseTopic,
-                    formSubmissionPayload: {},
+                    formSubmissionPayload: {
+                        publishOnSuccessTopic: publishOnSuccessTopic
+                    },
                     widgets: [
                         {
                             name: "alfresco/forms/ControlRow",
@@ -356,7 +359,7 @@ define(["dojo/_base/declare",
                     method: "POST",
                     data: payload,
                     successCallback:function (response, config) {
-                        this.alfPublish(this.CreateCaseSuccess, response)
+                        this.alfPublish(payload.publishOnSuccessTopic, response)
                     },
                     callbackScope: this});
             },

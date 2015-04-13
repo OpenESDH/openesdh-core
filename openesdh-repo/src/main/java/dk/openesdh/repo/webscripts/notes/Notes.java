@@ -65,6 +65,11 @@ public class Notes extends AbstractRESTWebscript {
             Collections.reverse(nodeRefs);
         }
 
+        int resultsEnd = nodeRefs.size();
+        int startIndex = 0;
+        res.setHeader("Content-Range", "items " + startIndex +
+                "-" + resultsEnd + "/" + nodeRefs.size());
+
         res.setContentEncoding("UTF-8");
         try {
             JSONArray json = buildJSON(nodeRefs);

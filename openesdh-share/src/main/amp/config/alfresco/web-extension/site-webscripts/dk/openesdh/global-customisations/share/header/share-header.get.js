@@ -58,25 +58,25 @@ if (headerMenu != null) {
         id: "HEADER_CASES_DROPDOWN",
         name: "alfresco/header/AlfMenuBarPopup",
         config: {
-            label: "Cases",
+            label: msg.get("header.cases.menu.label"),
             widgets: [
                 {
                     name: "alfresco/menus/AlfMenuGroup",
                     config: {
-                        label: "Search",
+                        label: msg.get("header.cases.menu.search.group"),
                         widgets: [
                             {
                                 name: "alfresco/menus/AlfMenuBarItem",
                                 config: {
                                     id: "CASE_MENU_SEARCH_LINK",
-                                    label: "Search",
+                                    label: msg.get("header.cases.menu.search"),
                                     targetUrl: "oe/case/search"
                                 }
                             },
                             {
                                 name: "alfresco/menus/AlfMenuBarItem",
                                 config: {
-                                    label: "Saved Searches",
+                                    label: msg.get("header.cases.menu.savedsearch"),
                                     disabled: true
                                 }
                             }
@@ -87,7 +87,7 @@ if (headerMenu != null) {
                     name: "alfresco/menus/AlfMenuGroup",
                     config: {
                         id: "CASE_MENU_CREATE_CASE_GROUP",
-                        label: "Create",
+                        label: msg.get("header.cases.menu.create.group"),
                         widgets: createCasesWidgets
                     }
                 },

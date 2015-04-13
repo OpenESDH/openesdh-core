@@ -19,6 +19,8 @@ define(["dojo/_base/declare",
                 {i18nFile: "./i18n/NotesGrid.properties"}
             ],
 
+            noDataMessage: "notes.grid.no_data_message",
+
             showPagination: false,
             showColumnHider: false,
             allowColumnReorder: false,

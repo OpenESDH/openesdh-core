@@ -16,8 +16,6 @@ define([
                 this.alfSubscribe("OE_FIND_CASE", lang.hitch(this, this.onFindCase));
                 this.alfSubscribe("OE_CREATE_CASE", lang.hitch(this, this.onCreateCase));
                 this.alfSubscribe("GRID_ROW_SELECTED", lang.hitch(this, this.onSelectCase));
-                this.alfSubscribe("OE_OUTLOOK_CASE_CREATED", lang.hitch(this, this.onCaseCreated));
-//                this.alfSubscribe(this.FiltersApplyTopic, lang.hitch(this, this.onApplyFilters));
             },
 
             getSearchDefinition: function() {
@@ -34,35 +32,34 @@ define([
                     callbackScope: this
                 });
             },
-//            _getDataObject: function() {
-//                return {
-//                    caseId: this.caseId,
-//                    subject: this.subject,
-//                    attachments: this.attachments
-//                };
-//            },
+            _getDataObject: function() {
+                return {
+                    caseId: this.caseId,
+                    title: this.documentDesc.Title
+                };
+            },
+
+            _onLoad: function(payload) {
+                alert("_onLoad");
+                if (typeof payload == "string") {
+                    this.documentDesc = JSON.parse(payload);
+                } else {
+                    this.documentDesc = payload;
+                }
+
+//                this.title = this.documentDesc.Title;
+//                this.nodeRef = this.documentDesc.ID;
+
+                this._getForm().setValue(this._getDataObject());
+            },
 
             _onOK: function() {
                 var value = this._getForm().getValue();
-                this.serviceXhr({
-                    url: AlfConstants.PROXY_URI + "dk-openesdh-case-email",
-                    method: "POST",
-                    data: {
-                        caseId: value["caseId"],
-                        name: value["subject"],
-                        responsible: value["responsible"],
-                        email: this.emailDesc
-                    },
-                    successCallback: function(response, originalRequestConfig) {
-                        var metadata = {
-                            nodeRef: response["nodeRef"]
-                        };
-                        window.external.SaveAsOpenEsdh(JSON.stringify(metadata), JSON.stringify(value.attachments));
-                    },
-                    failureCallback: function(response, originalRequestConfig) {
-                        alert(response);
-                    }
-                });
+                var metadata = {
+                    caseId: value["caseId"],
+                    documentName: value["title"],
+                };
+                window.external.SaveAsOpenEsdh(JSON.stringify(metadata), JSON.stringify(metadata));
             },
 
             _onCancel: function() {
@@ -98,7 +95,7 @@ define([
                                             properties: this.searchDefinition.model.properties,
                                             visibleColumns: ["oe:id", "cm:title", "oe:status", "cm:created"],
                                             availableColumns: ["oe:id", "cm:title", "oe:status", "cm:created"],
-//                                            actions: [],
+                                            actions: [],
                                             rowsPerPage: 15,
                                             pageSizeOptions: [],
                                         }
@@ -353,18 +350,6 @@ define([
             onSelectCase: function(payload) {
                 var data = payload.row.data;
                 this._getForm().setValue({caseId: data["oe:caseId"]});
-            },
-
-            onCaseCreated: function(payload) {
-                var nodeRef = payload["persistedObject"].replace(":/", "");
-                this.serviceXhr({
-                      url: Alfresco.constants.PROXY_URI + "api/openesdh/documents/isCaseDoc/" + nodeRef,
-                      method: "GET",
-                      handleAs: "json",
-                      successCallback: function (response, config) {
-                          this._getForm().setValue({caseId: response["caseId"]});
-                      }
-                });
             }
         });
     }
