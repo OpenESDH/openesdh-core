@@ -17,7 +17,6 @@ function (declare, _Widget, Core, CoreWidgetProcessing, _Templated, template, la
             {i18nFile: "./i18n/DocInfoWidget.properties"}
         ],
 
-
         cssRequirements: [{cssFile:"./css/DocInfoWidget.css"}],
 
         bodyNode: null,
@@ -31,30 +30,29 @@ function (declare, _Widget, Core, CoreWidgetProcessing, _Templated, template, la
             this.inherited(arguments);
         },
 
-            _onPayloadReceive: function (payload) {
-                this.bodyNode.innerHTML="";
-                this.widgetsForBody = [];
-                var properties = payload;
-                for (var i in properties) {
-                    if (i == "alfTopic") continue;
-                    var widget = "openesdh/common/widgets/renderers/PropertyField";
-                    console.log("DocInfoWidget(29) Ping");
-                    var propertyWidget = {
-                        name: widget,
-                        config: {
-                            currentItem: properties,
-                            propertyToRender: i,
-                            localise: true,
-                            i18Value: this.message("document."+i+".constraint.label."+payload[i]),
-                            label: this.message("doc.info.label."+i),
-                            renderOnNewLine: true
-                        }
-                    };
+        _onPayloadReceive: function (payload) {
+            this.bodyNode.innerHTML="";
+            this.widgetsForBody = [];
+            var properties = payload;
+            for (var i in properties) {
+                if (i == "alfTopic") continue;
+                var widget = "openesdh/common/widgets/renderers/PropertyField";
+                var propertyWidget = {
+                    name: widget,
+                    config: {
+                        currentItem: properties,
+                        propertyToRender: i,
+                        localise: true,
+                        i18Value: this.message("document."+i+".constraint.label."+payload[i]),
+                        label: this.message("doc.info.label."+i),
+                        renderOnNewLine: true
+                    }
+                };
 
-                    this.widgetsForBody.push(propertyWidget);
-                }
-                this.processWidgets(this.widgetsForBody, this.bodyNode);
+                this.widgetsForBody.push(propertyWidget);
             }
+            this.processWidgets(this.widgetsForBody, this.bodyNode);
+        }
 
         });
     })

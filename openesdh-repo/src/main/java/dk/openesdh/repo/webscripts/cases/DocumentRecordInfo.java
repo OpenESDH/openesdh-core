@@ -27,7 +27,6 @@ public class DocumentRecordInfo extends AbstractWebScript {
         this.nodeInfoService = nodeInfoService;
     }
 
-
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
         Map<String, String> templateArgs = req.getServiceMatch().getTemplateVars();
@@ -47,9 +46,5 @@ public class DocumentRecordInfo extends AbstractWebScript {
         catch (JSONException jse){
             throw new WebScriptException("Error when retrieving document details: "+ jse.getMessage());
         }
-
-
     }
-
-
 }

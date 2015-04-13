@@ -335,6 +335,18 @@
                 </property>
             </properties>
         </aspect>
+
+        <!--Just in case in the future-->
+        <aspect name="doc:record">
+            <properties>
+                <property name="doc:attachmentCount">
+                    <type>d:int</type>
+                    <mandatory>true</mandatory>
+                    <default>0</default>
+                </property>
+            </properties>
+        </aspect>
+
     </aspects>
 
 </model>
