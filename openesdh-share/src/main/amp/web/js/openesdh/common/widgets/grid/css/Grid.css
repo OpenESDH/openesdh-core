@@ -49,3 +49,8 @@
 .dgrid-row-odd{
     background-color: #dddddd;
 }
+
+.dgrid-no-data{
+	padding-top:2px;
+	padding-left:4px;
+}
