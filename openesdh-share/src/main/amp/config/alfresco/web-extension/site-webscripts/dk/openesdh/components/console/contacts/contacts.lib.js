@@ -55,6 +55,17 @@ function getAddressWidgets(){
                 widgetMarginRight: 10,
                 widgets: [
                     {
+                        name: "alfresco/forms/controls/DojoValidationTextBox",
+                        config: {
+                            fieldId: "streetName",
+                            name: "streetName",
+                            label: "Street",
+                            description: "The name of the street",
+                            placeHolder: "Street Name",
+                            requirementConfig: { initialValue: false}
+                        }
+                    },
+                    {
                         name: "openesdh/common/widgets/controls/form/VariableWidthDojoValidationTextBox",
                         config: {
                             fieldId: "houseNumber",
@@ -66,17 +77,6 @@ function getAddressWidgets(){
                             placeHolder: "42",
                             requirementConfig: { initialValue: false}
 
-                        }
-                    },
-                    {
-                        name: "alfresco/forms/controls/DojoValidationTextBox",
-                        config: {
-                            fieldId: "streetName",
-                            name: "streetName",
-                            label: "Street",
-                            description: "The name of the street",
-                            placeHolder: "Street Name",
-                            requirementConfig: { initialValue: false}
                         }
                     }
                 ]
@@ -175,6 +175,7 @@ function getAddressWidgets(){
                             width:"4",
                             maxLength: 2,
                             description: "The two digit country code e.g. DK",
+                            value: "DK",
                             placeHolder: "DK",
                             requirementConfig: { initialValue: false},
                             validationConfig: [
