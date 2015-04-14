@@ -1,4 +1,4 @@
-<import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/global-customisations/components/console/contacts/contacts.lib.js">
+<import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/components/console/contacts/contacts.lib.js">
 
 var partyType = "contact:organization", contactType = "ORGANIZATION";
 
