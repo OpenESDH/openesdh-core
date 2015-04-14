@@ -30,6 +30,7 @@ public interface OpenESDHModel {
      * Models
      */
     public static final QName DOCUMENT_MODEL = QName.createQName(DOC_URI, "documentModel");
+    public static final QName CASE_MODEL = QName.createQName(CASE_URI, "caseModel");
 
 
     /**
@@ -39,6 +40,7 @@ public interface OpenESDHModel {
 
     public static final QName TYPE_CASE_BASE = QName.createQName(CASE_URI, TYPE_BASE_NAME);
     public static final QName TYPE_CASE_SIMPLE = QName.createQName(CASE_URI, TYPE_SIMPLE_NAME);
+    public static final QName TYPE_CASE_COMPLAINT = QName.createQName(CASE_URI, "complaint");
 
     public static final QName TYPE_DOC_BASE = QName.createQName(DOC_URI, TYPE_BASE_NAME);
     public static final QName TYPE_DOC_SIMPLE = QName.createQName(DOC_URI, TYPE_SIMPLE_NAME);
@@ -104,6 +106,7 @@ public interface OpenESDHModel {
 
     public static final QName PROP_CASE_STARTDATE = QName.createQName(CASE_URI, "startDate");
     public static final QName PROP_CASE_ENDDATE = QName.createQName(CASE_URI, "endDate");
+    public static final QName PROP_CASE_SUBJECT = QName.createQName(CASE_URI, "subject");//TODO This is a value used for testing
 
     public static final QName PROP_CASE_UNIQUE_NUMBER = QName.createQName(CASE_URI, "uniqueNumber");
 

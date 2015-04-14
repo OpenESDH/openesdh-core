@@ -1,0 +1,9 @@
+<webscript>
+    <shortname>OpenESDH case constraints</shortname>
+    <description>Returns all case constraints separated into different array within the structure</description>
+    <url>/api/openesdh/case/constraints</url>
+    <format default="json"></format>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+    <family>Case Tools</family>
+</webscript>

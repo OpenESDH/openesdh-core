@@ -32,7 +32,7 @@ import java.util.*;
  */
 public class DocumentServiceImpl implements DocumentService {
 
-    private static Log LOGGER = LogFactory.getLog(DocumentServiceImpl.class);
+    private static Log logger = LogFactory.getLog(DocumentServiceImpl.class);
 
     private NodeService nodeService;
     private DictionaryService dictionaryService;

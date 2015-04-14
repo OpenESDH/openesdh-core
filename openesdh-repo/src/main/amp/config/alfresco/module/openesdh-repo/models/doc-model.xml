@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<model name="doc:documentModel"
-       xmlns="http://www.alfresco.org/model/dictionary/1.0">
+<model name="doc:documentModel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
     <description>openESDH Document Model</description>
     <author>Seth Yastrov, Flemming Heide Pedersen, Ole Hejlskov, Torben Lauritzen</author>
     <version>1.0</version>

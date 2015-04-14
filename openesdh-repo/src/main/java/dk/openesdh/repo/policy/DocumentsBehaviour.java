@@ -26,7 +26,7 @@ import org.apache.tika.mime.MimeTypes;
  */
 public class DocumentsBehaviour implements NodeServicePolicies.OnCreateChildAssociationPolicy {
 
-    private static Log LOG = LogFactory.getLog(DocumentsBehaviour.class);
+    private static Log logger = LogFactory.getLog(DocumentsBehaviour.class);
 
     // Dependencies
     private DocumentService documentService;
@@ -58,13 +58,6 @@ public class DocumentsBehaviour implements NodeServicePolicies.OnCreateChildAsso
                 OpenESDHModel.ASPECT_DOCUMENT_CONTAINER,
                 this.onCreateChildAssociation
         );
-        /*
-        this.policyComponent.bindClassBehaviour(
-                NodeServicePolicies.OnCreateChildAssociationPolicy.QNAME,
-                ContentModel.TYPE_CONTENT,
-                this.onCreateChildAssociation
-        );
-        */
     }
 
     @Override
