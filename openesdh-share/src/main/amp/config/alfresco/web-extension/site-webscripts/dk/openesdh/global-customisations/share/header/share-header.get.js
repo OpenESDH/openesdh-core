@@ -41,6 +41,7 @@ function getCreateCaseMenuWidgets (caseTypes) {
                 name: "alfresco/menus/AlfMenuBarItem",
                 config: {
                     publishTopic: "OE_SHOW_CREATE_CASE_DIALOG",
+                    publishPayload: {caseType : c.type.substr(c.type.indexOf(":")+1, c.type.length )},
                     id: "CASE_MENU_CREATE_CASE_" + c.type.replace(":", "_").toUpperCase(),
                     label: label
                 }

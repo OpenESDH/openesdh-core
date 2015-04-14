@@ -25,7 +25,7 @@ define(["dojo/_base/declare",
             /**
              * This is meant to be an array of case status types for the create case dialog select control
              */
-            caseStatusTypes: null,
+            caseConstraintsList: null,
 
             /**
              * The nodeRef for the case
@@ -58,7 +58,7 @@ define(["dojo/_base/declare",
                 this.alfSubscribe(this.CreateCaseSuccess, lang.hitch(this, "_onCreateCaseTopicSuccess"));
 
                 this._getLoggedInUser();
-                this._getCaseStatusTypes();
+                this._getCaseConstraints();//Get the lis of all case constraints
 
                 // Don't do anything when the widgets are ready
                 // This is overwritten when the case info is loaded
@@ -66,7 +66,6 @@ define(["dojo/_base/declare",
             },
 
             _showCreateCaseDialog: function dk_openesdh__showCreateCaseDialog(payload) {
-
                 var publishOnSuccessTopic = (payload.publishOnSuccessTopic != null ? payload.publishOnSuccessTopic : this.CreateCaseSuccess);
                 this.createCaseDialog = new AlfFormDialog({
                     dialogTitle: this.message("create-case.dialog.title"),
@@ -76,273 +75,7 @@ define(["dojo/_base/declare",
                     formSubmissionPayload: {
                         publishOnSuccessTopic: publishOnSuccessTopic
                     },
-                    widgets: [
-                        {
-                            name: "alfresco/forms/ControlRow",
-                            config: {
-                                description: "",
-                                title: "",
-                                fieldId: "33ed6de4-3a60-46bb-8389-40b04aeddd37",
-                                widgets: [
-                                    {
-                                        name: "alfresco/forms/controls/HiddenValue",
-                                        config: {
-                                            fieldId: "edb22ed0-ch9a-48f4-8f30-c5atjd748ffb",
-                                            name: "alf_destination",
-                                            value: this.casesFolderNodeRef,
-                                            label: "",
-                                            unitsLabel: "",
-                                            description: "",
-                                            postWhenHiddenOrDisabled: true,
-                                            noValueUpdateWhenHiddenOrDisabled: false,
-                                            validationConfig: {
-                                                regex: ".*"
-                                            },
-                                            placeHolder: "",
-                                            widgets: []
-                                        },
-                                        widthPc: "1"
-                                    },
-                                    {
-                                        name: "alfresco/forms/controls/HiddenValue",
-                                        config: {
-                                            fieldId: "edb31ed0-c74a-48f4-8f30-c5atbd748ffb",
-                                            value: "",
-                                            label: "",
-                                            unitsLabel: "",
-                                            description: "",
-                                            postWhenHiddenOrDisabled: true,
-                                            noValueUpdateWhenHiddenOrDisabled: false,
-                                            validationConfig: {
-                                                regex: ".*"
-                                            },
-                                            placeHolder: "",
-                                            widgets: []
-                                        },
-                                        widthPc: "1"
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            name: "alfresco/forms/ControlRow",
-                            config: {
-                                description: "",
-                                title: "",
-                                fieldId: "33ed6de4-3a60-46bb-8389-40b04aeddd37",
-                                widgets: [
-                                    {
-                                        name: "alfresco/forms/controls/DojoValidationTextBox",
-                                        config: {
-                                            fieldId: "edb19ed0-c74a-48f4-8f30-c5aabd74fffb",
-                                            name: "prop_cm_title",
-                                            value: "",
-                                            label: this.message("create-case.label.title"),
-                                            unitsLabel: "",
-                                            description: "",
-                                            visibilityConfig: {
-                                                initialValue: true,
-                                                rules: []
-                                            },
-                                            requirementConfig: {
-                                                initialValue: false,
-                                                rules: []
-                                            },
-                                            disablementConfig: {
-                                                initialValue: false,
-                                                rules: []
-                                            },
-                                            postWhenHiddenOrDisabled: true,
-                                            noValueUpdateWhenHiddenOrDisabled: false,
-                                            validationConfig: {
-                                                regex: ".*"
-                                            },
-                                            placeHolder: "",
-                                            widgets: []
-                                        },
-                                        widthPc: "50"
-                                    },
-                                    {
-                                        name: "openesdh/common/widgets/controls/Select",
-                                        config: {
-                                            id: "prop_oe_status",
-                                            label: this.message("create-case.label.button.case-status"),
-                                            optionsConfig: {
-                                                fixed: this.caseStatusTypes
-                                            },
-                                            unitsLabel: "",
-                                            description: "",
-                                            name: "prop_oe_status",
-                                            fieldId: "ebf9b987-9744-47ad-8823-ee9d9aa783f4",
-                                            widgets: []
-                                        }
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            name: "alfresco/forms/ControlRow",
-                            config: {
-                                description: "",
-                                title: "",
-                                fieldId: "88ba8d88-b562-4954-81b9-d34ac564d5ff",
-                                widgets: [
-                                    {
-                                        name: "alfresco/forms/ControlRow",
-                                        config: {
-                                            description: "",
-                                            title: "",
-                                            fieldId: "31ed6de4-3a60-46bb-83e9-40b04ae0dd37",
-                                            widgets: [
-                                                {
-                                                    name: "openesdh/common/widgets/controls/AuthorityPicker",
-                                                    id:"create_case_dialog_auth_picker",
-                                                    config: {
-                                                        label: "Owner",
-                                                        name: "assoc_case_owners_added",
-                                                        itemKey: "nodeRef",
-                                                        singleItemMode: false,
-                                                        setDefaultPickedItems: true,
-                                                        defaultPickedItems: this.currentUser,
-                                                        /**
-                                                         *Override widgetsForControl to remove the "remove all" button
-                                                         */
-                                                        widgetsForControl: [
-                                                            {
-                                                                name: "alfresco/layout/VerticalWidgets",
-                                                                assignTo: "verticalWidgets",
-                                                                config: {
-                                                                    widgets: [
-                                                                        {
-                                                                            name: "alfresco/pickers/PickedItems",
-                                                                            assignTo: "pickedItemsWidget",
-                                                                            config: {
-                                                                                pubSubScope: "{itemSelectionPubSubScope}"
-                                                                            }
-                                                                        },
-                                                                        {
-                                                                            name: "alfresco/buttons/AlfButton",
-                                                                            id: "create_case_dialog_auth_picker_button",
-                                                                            assignTo: "formDialogButton",
-                                                                            config: {
-                                                                                label: "picker.add.label",
-                                                                                publishTopic: "ALF_CREATE_DIALOG_REQUEST",
-                                                                                publishPayload: {
-                                                                                    dialogTitle: "picker.select.title",
-                                                                                    handleOverflow: false,
-                                                                                    widgetsContent: [
-                                                                                        {
-                                                                                            name: "{pickerWidget}",
-                                                                                            config: {}
-                                                                                        }
-                                                                                    ],
-                                                                                    widgetsButtons: [
-                                                                                        {
-                                                                                            name: "alfresco/buttons/AlfButton",
-                                                                                            id: "create_case_dialog_auth_picker_picked_ok_button",
-                                                                                            config: {
-                                                                                                label: "picker.ok.label",
-                                                                                                publishTopic: "ALF_ITEMS_SELECTED",
-                                                                                                pubSubScope: "{itemSelectionPubSubScope}"
-                                                                                            }
-                                                                                        },
-                                                                                        {
-                                                                                            name: "alfresco/buttons/AlfButton",
-                                                                                            id:"create_case_dialog_auth_picker_picked_cancel_button",
-                                                                                            config: {
-                                                                                                label: "picker.cancel.label",
-                                                                                                publishTopic: "NO_OP"
-                                                                                            }
-                                                                                        }
-                                                                                    ]
-                                                                                },
-                                                                                publishGlobal: true
-                                                                            }
-                                                                        }
-                                                                    ]
-                                                                }
-                                                            }
-                                                        ]
-                                                    }
-                                                }
-                                            ]
-                                        }
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            name: "alfresco/forms/ControlRow",
-                            config: {
-                                description: "",
-                                title: "",
-                                fieldId: "b0632dac-002e-4860-884b-b9237246075c",
-                                widgets: [
-                                    {
-                                        name: "openesdh/common/widgets/controls/DojoDateExt",
-                                        config: {
-                                            id: "prop_case_startDate",
-                                            unitsLabel: "mm/dd/yy",
-                                            description: "",
-                                            label: this.message("create-case.label.button.start-date"),
-                                            name: "prop_case_startDate",
-                                            fieldId: "b4bd606f-66ae-4f06-847d-dfdc77f5abc2",
-                                            value: new Date()
-                                        }
-                                    },
-                                    {
-                                        name: "openesdh/common/widgets/controls/DojoDateExt",
-                                        config: {
-                                            id: "prop_case_endDate",
-                                            unitsLabel: "mm/dd/yy",
-                                            description: "",
-                                            label: this.message("create-case.label.button.end-date"),
-                                            name: "prop_case_endDate",
-                                            fieldId: "69707d94-0f8c-4966-832a-a1adbc53b74f",
-                                            value: new Date()
-                                        }
-                                    }
-                                ]
-                            }
-                        },
-                        {
-                            name: "alfresco/forms/ControlRow",
-                            config: {
-                                description: "",
-                                title: "",
-                                fieldId: "0b4ab71a-26ce-4df9-839f-c26b12fffecb",
-                                widgets: [
-                                    {
-                                        name: "alfresco/forms/controls/DojoTextarea",
-                                        config: {
-                                            fieldId: "63854d9e-295a-454d-8c0d-685de6f68d71",
-                                            name: "prop_cm_description",
-                                            value: "",
-                                            label: "Description",
-                                            unitsLabel: "",
-                                            description: "",
-                                            visibilityConfig: {
-                                                initialValue: true,
-                                                rules: []
-                                            },
-                                            requirementConfig: {
-                                                initialValue: false,
-                                                rules: []
-                                            },
-                                            disablementConfig: {
-                                                initialValue: false,
-                                                rules: []
-                                            },
-                                            postWhenHiddenOrDisabled: true,
-                                            noValueUpdateWhenHiddenOrDisabled: false,
-                                            widgets: []
-                                        },
-                                        widthPc: "98"
-                                    }
-                                ]
-                            }
-                        }
-                    ]
+                    widgets: this._getCreateCaseWidgets(payload.caseType)
                 });
                 this.createCaseDialog.show();
             },
@@ -524,238 +257,576 @@ define(["dojo/_base/declare",
             //Internally used functions
 
             /**
-             * Get the permitted status types for cases. Used for the case status select control input(s)
+             * Constructs the options for the select controls for the case creation dialog
              */
-
-            _getStatusLabels: function dk_openesdh__getStatusLabels(payload) {
+            _getSelectControlOptions: function dk_openesdh_setCaseConstraintLists(listName) {
                 var options = [];
-                var states = payload;
-    
+                var states = this.caseConstraintsList[listName];
+
                 for (var state in states) {
                     options.push({
-                        value: this.message("create-case.status.constraint.value." + states[state]),
-                        label: this.message("create-case.status.constraint.label." + states[state])
+                        value:  states[state].value,
+                        label: states[state].label
                     });
                 }
-                this.caseStatusTypes =  options;
+                return options;
             },
-            
-            _getCaseStatusTypes: function dk_openesdh___getCaseStatusTypes() {
-                var url =  Alfresco.constants.PROXY_URI + "api/openesdh/case/party/permittedStates";
+
+            _getCaseConstraints: function dk_openesdh___getCaseConstraints() {
+                var url =  Alfresco.constants.PROXY_URI + "api/openesdh/case/constraints";
                 this.serviceXhr({
                     url: url,
                     method: "GET",
-                    successCallback: this._getStatusLabels,
+                    successCallback: (function (payload) {
+                        this.caseConstraintsList =  payload;
+                    }),
                     callbackScope: this});
             },
 
-            _getCreateCaseWidgets: function dk_openesdh__getCreateCaseWidgets(){
-            var caseContainerNodeRef = this.casesFolderNodeRef;
-            return [
-                {
-                    name: "alfresco/forms/ControlRow",
-                    config: {
-                        description: "",
-                        title: "",
-                        fieldId: "33ed6de4-3a60-46bb-8389-40b04aeddd37",
-                        widgets: [
-                            {
-                                name: "alfresco/forms/controls/HiddenValue",
-                                config: {
-                                    fieldId: "edb22ed0-ch9a-48f4-8f30-c5atjd748ffb",
-                                    name: "alf_destination",
-                                    value: caseContainerNodeRef,
-                                    label: "",
-                                    unitsLabel: "",
-                                    description: "",
-                                    postWhenHiddenOrDisabled: true,
-                                    noValueUpdateWhenHiddenOrDisabled: false,
-                                    validationConfig: {
-                                        regex: ".*"
-                                    },
-                                    placeHolder: "",
-                                    widgets: []
-                                },
-                                widthPc: "1"
-                            },
-                            {
-                                name: "alfresco/forms/controls/HiddenValue",
-                                config: {
-                                    fieldId: "edb31ed0-c74a-48f4-8f30-c5atbd748ffb",
-                                    value: "",
-                                    label: "",
-                                    unitsLabel: "",
-                                    description: "",
-                                    postWhenHiddenOrDisabled: true,
-                                    noValueUpdateWhenHiddenOrDisabled: false,
-                                    validationConfig: {
-                                        regex: ".*"
-                                    },
-                                    placeHolder: "",
-                                    widgets: []
-                                },
-                                widthPc: "1"
-                            }
-                        ]
-                    }
-                },
-                {
-                    name: "alfresco/forms/ControlRow",
-                    config: {
-                        description: "",
-                        title: "",
-                        fieldId: "33ed6de4-3a60-46bb-8389-40b04aeddd37",
-                        widgets: [
-                            {
-                                name: "alfresco/forms/controls/DojoValidationTextBox",
-                                config: {
-                                    fieldId: "edb19ed0-c74a-48f4-8f30-c5aabd74fffb",
-                                    name: "prop_cm_title",
-                                    value: "",
-                                    label: this.message("create-case.label.title"),
-                                    unitsLabel: "",
-                                    description: "",
-                                    visibilityConfig: {
-                                        initialValue: true,
-                                        rules: []
-                                    },
-                                    requirementConfig: {
-                                        initialValue: false,
-                                        rules: []
-                                    },
-                                    disablementConfig: {
-                                        initialValue: false,
-                                        rules: []
-                                    },
-                                    postWhenHiddenOrDisabled: true,
-                                    noValueUpdateWhenHiddenOrDisabled: false,
-                                    validationConfig: {
-                                        regex: ".*"
-                                    },
-                                    placeHolder: "",
-                                    widgets: []
-                                },
-                                widthPc: "70"
-                            },
-                            {
-                                name: "alfresco/forms/controls/DojoSelect",
-                                config: {
-                                    id: "prop_oe_status",
-                                    label: this.message("create-case.label.button.case-status"),
-                                    optionsConfig: {
-                                        fixed: getStatusLabels()
-                                    },
-                                    unitsLabel: "",
-                                    description: "",
-                                    name: "prop_oe_status",
-                                    fieldId: "ebf9b987-9744-47ad-8823-ee9d9aa783f4",
-                                    widgets: []
-                                }
-                            }
-                        ]
-                    }
-                },
-                {
-                    name: "alfresco/forms/ControlRow",
-                    config: {
-                        description: "",
-                        title: "",
-                        fieldId: "88ba8d88-b562-4954-81b9-d34ac564d5ff",
-                        widgets: [
+            _getCreateCaseWidgets: function dk_openesdh__getCreateCaseWidgets(caseType){
+                var caseContainerNodeRef = this.casesFolderNodeRef;
+
+                switch(caseType){
+                    case "simple" :
+                        return [
                             {
                                 name: "alfresco/forms/ControlRow",
                                 config: {
                                     description: "",
                                     title: "",
-                                    fieldId: "31ed6de4-3a60-46bb-83e9-40b04ae0dd37",
+                                    fieldId: "33ed6de4-3a60-46bb-8389-40b04aeddd37",
                                     widgets: [
                                         {
-                                            name: "openesdh/common/widgets/controls/AuthorityPicker",
+                                            name: "alfresco/forms/controls/HiddenValue",
                                             config: {
-                                                label: "Owner",
-                                                name: "assoc_case_owners_added",
-                                                itemKey: "nodeRef",
-                                                singleItemMode: false
+                                                fieldId: "edb22ed0-ch9a-48f4-8f30-c5atjd748ffb",
+                                                name: "alf_destination",
+                                                value: caseContainerNodeRef,
+                                                label: "",
+                                                unitsLabel: "",
+                                                description: "",
+                                                postWhenHiddenOrDisabled: true,
+                                                noValueUpdateWhenHiddenOrDisabled: false,
+                                                validationConfig: {
+                                                    regex: ".*"
+                                                },
+                                                placeHolder: "",
+                                                widgets: []
+                                            },
+                                            widthPc: "1"
+                                        },
+                                        {
+                                            name: "alfresco/forms/controls/HiddenValue",
+                                            config: {
+                                                fieldId: "edb31ed0-c74a-48f4-8f30-c5atbd748ffb",
+                                                value: "",
+                                                label: "",
+                                                unitsLabel: "",
+                                                description: "",
+                                                postWhenHiddenOrDisabled: true,
+                                                noValueUpdateWhenHiddenOrDisabled: false,
+                                                validationConfig: {
+                                                    regex: ".*"
+                                                },
+                                                placeHolder: "",
+                                                widgets: []
+                                            },
+                                            widthPc: "1"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                name: "alfresco/forms/ControlRow",
+                                config: {
+                                    description: "",
+                                    title: "",
+                                    fieldId: "33ed6de4-3a60-46bb-8389-40b04aeddd37",
+                                    widgets: [
+                                        {
+                                            name: "alfresco/forms/controls/DojoValidationTextBox",
+                                            config: {
+                                                fieldId: "edb19ed0-c74a-48f4-8f30-c5aabd74fffb",
+                                                name: "prop_cm_title",
+                                                value: "",
+                                                label: this.message("create-case.label.title"),
+                                                unitsLabel: "",
+                                                description: "",
+                                                visibilityConfig: {
+                                                    initialValue: true,
+                                                    rules: []
+                                                },
+                                                requirementConfig: {
+                                                    initialValue: false,
+                                                    rules: []
+                                                },
+                                                disablementConfig: {
+                                                    initialValue: false,
+                                                    rules: []
+                                                },
+                                                postWhenHiddenOrDisabled: true,
+                                                noValueUpdateWhenHiddenOrDisabled: false,
+                                                validationConfig: {
+                                                    regex: ".*"
+                                                },
+                                                placeHolder: "",
+                                                widgets: []
+                                            },
+                                            widthPc: "70"
+                                        },
+                                        {
+                                            name: "openesdh/common/widgets/controls/Select",
+                                            config: {
+                                                id: "prop_oe_status",
+                                                label: this.message("create-case.label.button.case-status"),
+                                                optionsConfig: {
+                                                    fixed: this._getSelectControlOptions("simpleStatusConstraint")
+                                                },
+                                                unitsLabel: "",
+                                                description: "",
+                                                name: "prop_oe_status",
+                                                fieldId: "ebf9b987-9744-47ad-8823-ee9d9aa783f4",
+                                                widgets: []
                                             }
                                         }
                                     ]
                                 }
-                            }
-                        ]
-                    }
-                },
-                {
-                    name: "alfresco/forms/ControlRow",
-                    config: {
-                        description: "",
-                        title: "",
-                        fieldId: "b0632dac-002e-4860-884b-b9237246075c",
-                        widgets: [
+                            },
                             {
-                                name: "alfresco/forms/controls/DateTextBox",
+                                name: "alfresco/forms/ControlRow",
                                 config: {
-                                    id: "prop_case_startDate",
-                                    unitsLabel: "mm/dd/yy",
                                     description: "",
-                                    label: this.message("create-case.label.button.start-date"),
-                                    name: "prop_case_startDate",
-                                    fieldId: "b4bd606f-66ae-4f06-847d-dfdc77f5abc2",
-                                    widgets: []
+                                    title: "",
+                                    fieldId: "88ba8d88-b562-4954-81b9-d34ac564d5ff",
+                                    widgets: [
+                                        {
+                                            name: "openesdh/common/widgets/controls/AuthorityPicker",
+                                            id:"create_case_dialog_auth_picker",
+                                            config: {
+                                                label: "Owner",
+                                                name: "assoc_case_owners_added",
+                                                itemKey: "nodeRef",
+                                                singleItemMode: false,
+                                                setDefaultPickedItems: true,
+                                                defaultPickedItems: this.currentUser,
+                                                /**
+                                                 *Override widgetsForControl to remove the "remove all" button
+                                                 */
+                                                widgetsForControl: [
+                                                    {
+                                                        name: "alfresco/layout/VerticalWidgets",
+                                                        assignTo: "verticalWidgets",
+                                                        config: {
+                                                            widgets: [
+                                                                {
+                                                                    name: "alfresco/pickers/PickedItems",
+                                                                    assignTo: "pickedItemsWidget",
+                                                                    config: {
+                                                                        pubSubScope: "{itemSelectionPubSubScope}"
+                                                                    }
+                                                                },
+                                                                {
+                                                                    name: "alfresco/buttons/AlfButton",
+                                                                    id: "create_case_dialog_auth_picker_button",
+                                                                    assignTo: "formDialogButton",
+                                                                    config: {
+                                                                        label: "picker.add.label",
+                                                                        publishTopic: "ALF_CREATE_DIALOG_REQUEST",
+                                                                        publishPayload: {
+                                                                            dialogTitle: "picker.select.title",
+                                                                            handleOverflow: false,
+                                                                            widgetsContent: [
+                                                                                {
+                                                                                    name: "{pickerWidget}",
+                                                                                    config: {}
+                                                                                }
+                                                                            ],
+                                                                            widgetsButtons: [
+                                                                                {
+                                                                                    name: "alfresco/buttons/AlfButton",
+                                                                                    id: "create_case_dialog_auth_picker_picked_ok_button",
+                                                                                    config: {
+                                                                                        label: "picker.ok.label",
+                                                                                        publishTopic: "ALF_ITEMS_SELECTED",
+                                                                                        pubSubScope: "{itemSelectionPubSubScope}"
+                                                                                    }
+                                                                                },
+                                                                                {
+                                                                                    name: "alfresco/buttons/AlfButton",
+                                                                                    id:"create_case_dialog_auth_picker_picked_cancel_button",
+                                                                                    config: {
+                                                                                        label: "picker.cancel.label",
+                                                                                        publishTopic: "NO_OP"
+                                                                                    }
+                                                                                }
+                                                                            ]
+                                                                        },
+                                                                        publishGlobal: true
+                                                                    }
+                                                                }
+                                                            ]
+                                                        }
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
                                 }
                             },
                             {
-                                name: "openesdh/common/widgets/controls/DojoDateExt",
+                                name: "alfresco/forms/ControlRow",
                                 config: {
-                                    id: "prop_case_endDate",
-                                    unitsLabel: "mm/dd/yy",
                                     description: "",
-                                    label: this.message("create-case.label.button.end-date"),
-                                    name: "prop_case_endDate",
-                                    fieldId: "69707d94-0f8c-4966-832a-a1adbc53b74f",
-                                    widgets: []
+                                    title: "",
+                                    fieldId: "b0632dac-002e-4860-884b-b9237246075c",
+                                    widgets: [
+                                        {
+                                            name: "openesdh/common/widgets/controls/DojoDateExt",
+                                            config: {
+                                                id: "prop_case_startDate",
+                                                unitsLabel: "mm/dd/yy",
+                                                description: "",
+                                                label: this.message("create-case.label.button.start-date"),
+                                                name: "prop_case_startDate",
+                                                fieldId: "b4bd606f-66ae-4f06-847d-dfdc77f5abc2",
+                                                value: new Date()
+                                            }
+                                        },
+                                        {
+                                            name: "openesdh/common/widgets/controls/DojoDateExt",
+                                            config: {
+                                                id: "prop_case_endDate",
+                                                unitsLabel: "mm/dd/yy",
+                                                description: "",
+                                                label: this.message("create-case.label.button.end-date"),
+                                                name: "prop_case_endDate",
+                                                fieldId: "69707d94-0f8c-4966-832a-a1adbc53b74f",
+                                                value: new Date()
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                name: "alfresco/forms/ControlRow",
+                                config: {
+                                    description: "",
+                                    title: "",
+                                    fieldId: "0b4ab71a-26ce-4df9-839f-c26b12fffecb",
+                                    widgets: [
+                                        {
+                                            name: "alfresco/forms/controls/DojoTextarea",
+                                            config: {
+                                                fieldId: "63854d9e-295a-454d-8c0d-685de6f68d71",
+                                                name: "prop_cm_description",
+                                                value: "",
+                                                label: "Description",
+                                                unitsLabel: "",
+                                                description: "",
+                                                visibilityConfig: {
+                                                    initialValue: true,
+                                                    rules: []
+                                                },
+                                                requirementConfig: {
+                                                    initialValue: false,
+                                                    rules: []
+                                                },
+                                                disablementConfig: {
+                                                    initialValue: false,
+                                                    rules: []
+                                                },
+                                                postWhenHiddenOrDisabled: true,
+                                                noValueUpdateWhenHiddenOrDisabled: false,
+                                                widgets: []
+                                            },
+                                            widthPc: "98"
+                                        }
+                                    ]
                                 }
                             }
-                        ]
-                    }
-                },
-                {
-                    name: "alfresco/forms/ControlRow",
-                    config: {
-                        description: "",
-                        title: "",
-                        fieldId: "0b4ab71a-26ce-4df9-839f-c26b12fffecb",
-                        widgets: [
+                        ];
+                    case "complaint" : //This one is for testing purposes only
+                        return [
                             {
-                                name: "alfresco/forms/controls/DojoTextarea",
+                                name: "alfresco/forms/ControlRow",
                                 config: {
-                                    fieldId: "63854d9e-295a-454d-8c0d-685de6f68d71",
-                                    name: "prop_cm_description",
-                                    value: "",
-                                    label: "Description",
-                                    unitsLabel: "",
                                     description: "",
-                                    visibilityConfig: {
-                                        initialValue: true,
-                                        rules: []
-                                    },
-                                    requirementConfig: {
-                                        initialValue: false,
-                                        rules: []
-                                    },
-                                    disablementConfig: {
-                                        initialValue: false,
-                                        rules: []
-                                    },
-                                    postWhenHiddenOrDisabled: true,
-                                    noValueUpdateWhenHiddenOrDisabled: false,
-                                    widgets: []
-                                },
-                                widthPc: "98"
+                                    title: "",
+                                    fieldId: "33ed6de4-3a60-46bb-8389-40b04aeddd37",
+                                    widgets: [
+                                        {
+                                            name: "alfresco/forms/controls/HiddenValue",
+                                            config: {
+                                                fieldId: "edb22ed0-ch9a-48f4-8f30-c5atjd748ffb",
+                                                name: "alf_destination",
+                                                value: caseContainerNodeRef,
+                                                label: "",
+                                                unitsLabel: "",
+                                                description: "",
+                                                postWhenHiddenOrDisabled: true,
+                                                noValueUpdateWhenHiddenOrDisabled: false,
+                                                validationConfig: {
+                                                    regex: ".*"
+                                                },
+                                                placeHolder: "",
+                                                widgets: []
+                                            },
+                                            widthPc: "1"
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                name: "alfresco/forms/ControlRow",
+                                config: {
+                                    description: "",
+                                    title: "",
+                                    fieldId: "33ed6de4-3a60-46bb-8389-40b04aeddd37",
+                                    widgets: [
+                                        {
+                                            name: "alfresco/forms/controls/DojoValidationTextBox",
+                                            config: {
+                                                fieldId: "edb19ed0-c74a-48f4-8f30-c5aabd74fffb",
+                                                name: "prop_cm_title",
+                                                value: "",
+                                                label: this.message("create-case.label.title"),
+                                                unitsLabel: "",
+                                                description: "",
+                                                visibilityConfig: {
+                                                    initialValue: true,
+                                                    rules: []
+                                                },
+                                                requirementConfig: {
+                                                    initialValue: false,
+                                                    rules: []
+                                                },
+                                                disablementConfig: {
+                                                    initialValue: false,
+                                                    rules: []
+                                                },
+                                                postWhenHiddenOrDisabled: true,
+                                                noValueUpdateWhenHiddenOrDisabled: false,
+                                                validationConfig: {
+                                                    regex: ".*"
+                                                },
+                                                placeHolder: "",
+                                                widgets: []
+                                            },
+                                            widthPc: "70"
+                                        },
+                                        {
+                                            name: "openesdh/common/widgets/controls/Select",
+                                            config: {
+                                                id: "prop_oe_status",
+                                                label: this.message("create-case.label.button.case-status"),
+                                                optionsConfig: {
+                                                    fixed: this._getSelectControlOptions("complaintStatusConstraint")
+                                                },
+                                                unitsLabel: "",
+                                                description: "",
+                                                name: "prop_oe_status",
+                                                fieldId: "ebf9b987-9744-47ad-8823-ee9d9aa783f4",
+                                                widgets: []
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                name: "alfresco/forms/ControlRow",
+                                config: {
+                                    description: "",
+                                    title: "",
+                                    fieldId: "88ba8d88-b562-4954-81b9-d34ac564d5ff",
+                                    widgets: [
+                                        {
+                                            name: "alfresco/forms/ControlRow",
+                                            config: {
+                                                description: "",
+                                                title: "",
+                                                fieldId: "31ed6de4-3a60-46bb-83e9-40b04ae0dd37",
+                                                widgets: [
+                                                    {
+                                                        name: "openesdh/common/widgets/controls/AuthorityPicker",
+                                                        id:"create_case_dialog_auth_picker",
+                                                        config: {
+                                                            label: "Owner",
+                                                            name: "assoc_case_owners_added",
+                                                            itemKey: "nodeRef",
+                                                            singleItemMode: false,
+                                                            setDefaultPickedItems: true,
+                                                            defaultPickedItems: this.currentUser,
+                                                            /**
+                                                             *Override widgetsForControl to remove the "remove all" button
+                                                             */
+                                                            widgetsForControl: [
+                                                                {
+                                                                    name: "alfresco/layout/VerticalWidgets",
+                                                                    assignTo: "verticalWidgets",
+                                                                    config: {
+                                                                        widgets: [
+                                                                            {
+                                                                                name: "alfresco/pickers/PickedItems",
+                                                                                assignTo: "pickedItemsWidget",
+                                                                                config: {
+                                                                                    pubSubScope: "{itemSelectionPubSubScope}"
+                                                                                }
+                                                                            },
+                                                                            {
+                                                                                name: "alfresco/buttons/AlfButton",
+                                                                                id: "create_case_dialog_auth_picker_button",
+                                                                                assignTo: "formDialogButton",
+                                                                                config: {
+                                                                                    label: "picker.add.label",
+                                                                                    publishTopic: "ALF_CREATE_DIALOG_REQUEST",
+                                                                                    publishPayload: {
+                                                                                        dialogTitle: "picker.select.title",
+                                                                                        handleOverflow: false,
+                                                                                        widgetsContent: [
+                                                                                            {
+                                                                                                name: "{pickerWidget}",
+                                                                                                config: {}
+                                                                                            }
+                                                                                        ],
+                                                                                        widgetsButtons: [
+                                                                                            {
+                                                                                                name: "alfresco/buttons/AlfButton",
+                                                                                                id: "create_case_dialog_auth_picker_picked_ok_button",
+                                                                                                config: {
+                                                                                                    label: "picker.ok.label",
+                                                                                                    publishTopic: "ALF_ITEMS_SELECTED",
+                                                                                                    pubSubScope: "{itemSelectionPubSubScope}"
+                                                                                                }
+                                                                                            },
+                                                                                            {
+                                                                                                name: "alfresco/buttons/AlfButton",
+                                                                                                id:"create_case_dialog_auth_picker_picked_cancel_button",
+                                                                                                config: {
+                                                                                                    label: "picker.cancel.label",
+                                                                                                    publishTopic: "NO_OP"
+                                                                                                }
+                                                                                            }
+                                                                                        ]
+                                                                                    },
+                                                                                    publishGlobal: true
+                                                                                }
+                                                                            }
+                                                                        ]
+                                                                    }
+                                                                }
+                                                            ]
+                                                        }
+                                                    },
+                                                    {
+                                                        name: "alfresco/forms/controls/DojoValidationTextBox",
+                                                        config: {
+                                                            fieldId: "edba6ed0-c74a-48f4-9c30-c5aabd74ff1b",
+                                                            name: "prop_case_subject",
+                                                            value: "",
+                                                            label: this.message("create-case.label.subject"),
+                                                            unitsLabel: "",
+                                                            description: "",
+                                                            visibilityConfig: {
+                                                                initialValue: true,
+                                                                rules: []
+                                                            },
+                                                            requirementConfig: {
+                                                                initialValue: false,
+                                                                rules: []
+                                                            },
+                                                            disablementConfig: {
+                                                                initialValue: false,
+                                                                rules: []
+                                                            },
+                                                            postWhenHiddenOrDisabled: true,
+                                                            noValueUpdateWhenHiddenOrDisabled: false,
+                                                            validationConfig: {
+                                                                regex: ".*"
+                                                            },
+                                                            placeHolder: "",
+                                                            widgets: []
+                                                        },
+                                                        widthPc: "50"
+                                                    }
+                                                ]
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                name: "alfresco/forms/ControlRow",
+                                config: {
+                                    description: "",
+                                    title: "",
+                                    fieldId: "b0632dac-002e-4860-884b-b9237246075c",
+                                    widgets: [
+                                        {
+                                            name: "openesdh/common/widgets/controls/DojoDateExt",
+                                            config: {
+                                                id: "prop_case_startDate",
+                                                unitsLabel: "mm/dd/yy",
+                                                description: "",
+                                                label: this.message("create-case.label.button.start-date"),
+                                                name: "prop_case_startDate",
+                                                fieldId: "b4bd606f-66ae-4f06-847d-dfdc77f5abc2",
+                                                value: new Date()
+                                            }
+                                        },
+                                        {
+                                            name: "openesdh/common/widgets/controls/DojoDateExt",
+                                            config: {
+                                                id: "prop_case_endDate",
+                                                unitsLabel: "mm/dd/yy",
+                                                description: "",
+                                                label: this.message("create-case.label.button.end-date"),
+                                                name: "prop_case_endDate",
+                                                fieldId: "69707d94-0f8c-4966-832a-a1adbc53b74f",
+                                                value: new Date()
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            {
+                                name: "alfresco/forms/ControlRow",
+                                config: {
+                                    description: "",
+                                    title: "",
+                                    fieldId: "0b4ab71a-26ce-4df9-839f-c26b12fffecb",
+                                    widgets: [
+                                        {
+                                            name: "alfresco/forms/controls/DojoTextarea",
+                                            config: {
+                                                fieldId: "63854d9e-295a-454d-8c0d-685de6f68d71",
+                                                name: "prop_cm_description",
+                                                value: "",
+                                                label: "Description",
+                                                unitsLabel: "",
+                                                description: "",
+                                                visibilityConfig: {
+                                                    initialValue: true,
+                                                    rules: []
+                                                },
+                                                requirementConfig: {
+                                                    initialValue: false,
+                                                    rules: []
+                                                },
+                                                disablementConfig: {
+                                                    initialValue: false,
+                                                    rules: []
+                                                },
+                                                postWhenHiddenOrDisabled: true,
+                                                noValueUpdateWhenHiddenOrDisabled: false,
+                                                widgets: []
+                                            },
+                                            widthPc: "98"
+                                        }
+                                    ]
+                                }
                             }
-                        ]
-                    }
+                        ];
                 }
-            ]
         },
 
             _getLoggedInUser: function dk_openesdh__getLoggedInUser(){

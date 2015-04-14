@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<model name="case:caseModel"
-       xmlns="http://www.alfresco.org/model/dictionary/1.0">
+<model name="case:caseModel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
     <description>openESDH Case Model</description>
     <author>Seth Yastrov, Flemming Heide Pedersen, Ole Hejlskov, Torben Lauritzen</author>
     <version>1.0</version>
@@ -37,6 +36,17 @@
                 </list>
             </parameter>
         </constraint>
+        <!--for testing-->
+        <constraint name="case:complaintStatusConstraint" type="LIST">
+            <parameter name="allowedValues">
+                <list>
+                    <!-- TODO: localize (check localisation in /src/main/amp/config/alfresco/module/openesdh-repo/messages/case-model.properties) -->
+                    <value>new</value>
+                    <value>in-transition</value>
+                    <value>elevated</value>
+                </list>
+            </parameter>
+        </constraint>
     </constraints>
     <types>
         <type name="case:base">
@@ -68,7 +78,6 @@
                 </association>
             </associations>
 
-
         </type>
 
         <type name="case:simple">
@@ -78,6 +87,25 @@
                 <property name="oe:status">
                     <constraints>
                         <constraint ref="case:simpleStatusConstraint"/>
+                    </constraints>
+                </property>
+            </overrides>
+        </type>
+
+        <type name="case:complaint">
+            <parent>case:base</parent>
+            <properties>
+                <property name="case:subject">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
+            </properties>
+
+            <overrides>
+                <!--From oe:base model-->
+                <property name="oe:status">
+                    <constraints>
+                        <constraint ref="case:complaintStatusConstraint"/>
                     </constraints>
                 </property>
             </overrides>
