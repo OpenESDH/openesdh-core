@@ -19,7 +19,6 @@ define(["dojo/_base/declare",
             multiple: true,
             cssRequirements: [{cssFile:"/components/object-finder/object-finder.css"}],
 
-
             getWidgetConfig: function() {
                 // Return the configuration for the widget
                 return {
@@ -27,14 +26,11 @@ define(["dojo/_base/declare",
                     name: this.name,
                     value: this.value
                 };
-
             },
 
             isPromisedWidget: true,
 
             createFormControl: function(config) {
-
-
                 require(["/share/modules/form/control-wrapper.js",
                          "/share/components/object-finder/object-finder.js"
                         ], lang.hitch(this, this.setupPicker));
@@ -54,11 +50,7 @@ define(["dojo/_base/declare",
             },
 
             setupPicker: function () {
-
                 var pickerId = Alfresco.util.generateDomId();
-
-                console.log("WrappedYUIAuthorityWidget(60) The div ID for the dialog: "+ pickerId);
-
                 // Create a container element for the picker
                 var pickerContainer = domConstruct.create("span", {
                     innerHTML: '',
@@ -76,11 +68,9 @@ define(["dojo/_base/declare",
                             scope.onValueChangeEvent(scope.name, scope.value, obj.selectedItems);
                         };
                     })(this));
-
                 this.wrappedWidget.resolve(picker);
 
             },
-
 
             // Return the filter data as an object
             getValue: function () {

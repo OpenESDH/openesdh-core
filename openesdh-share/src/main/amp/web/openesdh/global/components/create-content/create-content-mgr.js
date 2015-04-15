@@ -18,7 +18,6 @@ Alfresco.CreateContentMgr.prototype._redirectToCaseDashboard = function CreateCo
     var url = Alfresco.constants.PROXY_URI + "/api/openesdh/documents/isCaseDoc/" + nodeRef.uri;
 
     var caseIdRetrievedSuccess = function (response) {
-        console.log("about to return");
         var responseObject = eval('(' + response.serverResponse.responseText + ')');
         window.location.href = caseURL("case", responseObject.caseId, "dashboard");
     };
@@ -33,7 +32,6 @@ Alfresco.CreateContentMgr.prototype._redirectToCaseDashboard = function CreateCo
         failureMessage: this.msg("localise this message about not being able to get the case id for the created content")
     });
 
-    console.log("Exiting");
 };
 
 //TODO for now all content creation redirects to the case dashboard. Is this to be the final behaviour
@@ -45,7 +43,6 @@ Alfresco.CreateContentMgr.prototype._redirectToCaseDashboard = function CreateCo
  * @param nodeRef {Alfresco.util.NodeRef} Optional: NodeRef of just-created content item
  */
 Alfresco.CreateContentMgr.prototype._navigateForward = function CreateContentMgr__navigateForward(nodeRef) {
-    console.log("Creating content")
     /* Have we been given a nodeRef from the Forms Service? */
     if (YAHOO.lang.isObject(nodeRef)) {
         if(this.options.isCase)

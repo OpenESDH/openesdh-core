@@ -190,7 +190,7 @@ public class DocumentServiceImpl implements DocumentService {
     public NodeRef getCaseNodeRef(NodeRef nodeRef) {
         NodeRef caseNodeRef = null;
         QName nodeRefType = this.nodeService.getType(nodeRef);
-        if (dictionaryService.isSubClass(nodeRefType, OpenESDHModel.TYPE_CASE_SIMPLE) ) {
+        if (dictionaryService.isSubClass(nodeRefType, OpenESDHModel.TYPE_CASE_BASE) ) {
             caseNodeRef = nodeRef;
         }
         else {

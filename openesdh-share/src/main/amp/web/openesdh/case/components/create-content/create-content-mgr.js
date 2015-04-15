@@ -33,8 +33,6 @@ Alfresco.CreateContentMgr.prototype._getCaseId = function CreateContentMgr_getCa
                 },//TODO read the line below
                 failureMessage: this.msg("localise this message about not being able to get the case id for the created content")
         });
-
-    console.log("Exiting");
 };
 
 //TODO for now all content creation redirects to the case dashboard. Is this to be the final behaviour
@@ -46,7 +44,6 @@ Alfresco.CreateContentMgr.prototype._getCaseId = function CreateContentMgr_getCa
  * @param nodeRef {Alfresco.util.NodeRef} Optional: NodeRef of just-created content item
  */
 Alfresco.CreateContentMgr.prototype._navigateForward = function CreateContentMgr__navigateForward(nodeRef) {
-    console.log("Creating content")
     /* Have we been given a nodeRef from the Forms Service? */
     if (YAHOO.lang.isObject(nodeRef)) {
         this._getCaseId(nodeRef);

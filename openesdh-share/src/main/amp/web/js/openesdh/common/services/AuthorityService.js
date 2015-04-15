@@ -52,7 +52,6 @@ define(["dojo/_base/declare",
                     method: "GET",
                     data: payload,
                     successCallback:function (response) {
-                        console.log("publishing to : "+ payload.alfResponseTopic);
                         this.alfPublish(payload.alfResponseTopic+"_SUCCESS", response)
                     },
                     callbackScope: this});

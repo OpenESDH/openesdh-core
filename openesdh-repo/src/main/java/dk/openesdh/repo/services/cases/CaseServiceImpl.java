@@ -3,6 +3,7 @@ package dk.openesdh.repo.services.cases;
 import dk.openesdh.repo.actions.AssignCaseIdActionExecuter;
 import dk.openesdh.repo.model.OpenESDHModel;
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
@@ -14,12 +15,9 @@ import org.alfresco.service.cmr.lock.LockType;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.repository.StoreRef;
 import org.alfresco.service.cmr.rule.Rule;
 import org.alfresco.service.cmr.rule.RuleService;
 import org.alfresco.service.cmr.rule.RuleType;
-import org.alfresco.service.cmr.search.ResultSet;
-import org.alfresco.service.cmr.search.SearchParameters;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
@@ -27,10 +25,10 @@ import org.alfresco.service.cmr.security.OwnableService;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
-import static org.apache.commons.lang.StringUtils.*;
 import org.apache.log4j.Logger;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.security.access.AccessDeniedException;
 
 import java.io.Serializable;
@@ -872,6 +870,21 @@ public class CaseServiceImpl implements CaseService {
             result.add(dependent.get(classDef.getName()));
         }
 
+        return result;
+    }
+
+    public JSONArray buildConstraintsJSON(ConstraintDefinition constraint) throws
+            JSONException {
+        org.json.JSONArray result = new org.json.JSONArray();
+        org.json.JSONObject lvPair;
+
+        List<String> constraintValues = (List<String>)constraint.getConstraint().getParameters().get(ListOfValuesConstraint.ALLOWED_VALUES_PARAM);
+        for (String constraintValue : constraintValues) {
+            lvPair = new org.json.JSONObject();
+            lvPair.put("label", ((ListOfValuesConstraint)constraint.getConstraint()).getDisplayLabel(constraintValue, dictionaryService));
+            lvPair.put("value", constraintValue);
+            result.put(lvPair);
+        }
         return result;
     }
 }

@@ -47,14 +47,12 @@ define(["dojo/_base/declare",
                             var showPickerButton = query(".show-picker button", pickerContainer)[0];
                             showPickerButton.click();
                         }, 500);
-                        console.log(arguments);
                     },
                     scope: this,
                     obj: {}
                 };
 
                 var picker = this.createAuthorityPicker(itemType, pickerId, "", initialValue, many, callback, loadedCallback);
-                console.log(picker);
             },
 
             /**

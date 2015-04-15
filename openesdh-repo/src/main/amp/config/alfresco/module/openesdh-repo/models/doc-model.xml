@@ -17,7 +17,6 @@
         <constraint name="doc:statusConstraint" type="LIST">
             <parameter name="allowedValues">
                 <list>
-                    <!-- TODO: localize -->
                     <value>under-treatment</value>
                     <value>applicable</value>
                     <value>approved</value>
@@ -35,7 +34,6 @@
         <constraint name="doc:categoryConstraint" type="LIST">
             <parameter name="allowedValues">
                 <list>
-                    <!-- TODO: localize -->
                     <value>annex</value>
                     <value>proof</value>
                     <value>contract</value>
@@ -56,7 +54,6 @@
         <constraint name="doc:typeConstraint" type="LIST">
             <parameter name="allowedValues">
                 <list>
-                    <!-- TODO: localize -->
                     <value>invoice</value>
                     <value>letter</value>
                     <value>note</value>
@@ -70,7 +67,6 @@
         <constraint name="doc:stateConstraint" type="LIST">
             <parameter name="allowedValues">
                 <list>
-                    <!-- TODO: localize -->
                     <value>received</value>
                     <value>distributed</value>
                     <value>draft</value>
@@ -85,10 +81,9 @@
         <constraint name="doc:relationConstraint" type="LIST">
             <parameter name="allowedValues">
                 <list>
-                    <!-- TODO: localize -->
-                    <value>Underaktivitet</value>
-                    <value>Reference fra</value>
-                    <value>Har relevans i</value>
+                    <value>pending</value>
+                    <value>referenced-by</value>
+                    <value>relevant-to</value>
                 </list>
             </parameter>
         </constraint>
@@ -96,21 +91,20 @@
         <constraint name="doc:variantConstraint" type="LIST">
             <parameter name="allowedValues">
                 <list>
-                    <!-- TODO: localize -->
-                    <value>Produktion</value>
-                    <value>Offentliggørelse</value>
-                    <value>Arkivering</value>
-                    <value>Signeret</value>
+                    <value>production</value>
+                    <value>publication</value>
+                    <value>archiving</value>
+                    <value>signed</value>
                 </list>
             </parameter>
         </constraint>
 
         <!-- FASD: JournalPostPartType -->
-        <constraint name="doc:contactTypeConstraint" type="LIST">
+        <constraint name="doc:contactRoleConstraint" type="LIST">
             <parameter name="allowedValues">
                 <list>
-                    <value>SENDER</value>
-                    <value>RECEIVER</value>
+                    <value>sender</value>
+                    <value>receiver</value>
                 </list>
             </parameter>
         </constraint>
@@ -329,7 +323,7 @@
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <constraints>
-                        <constraint ref="doc:contactTypeConstraint"/>
+                        <constraint ref="doc:contactRoleConstraint"/>
                     </constraints>
                 </property>
             </properties>

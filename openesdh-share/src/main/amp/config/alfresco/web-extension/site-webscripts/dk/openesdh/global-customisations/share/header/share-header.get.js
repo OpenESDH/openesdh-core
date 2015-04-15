@@ -14,19 +14,6 @@ var nodeRef = getCaseNodeRefFromId(caseId);
 
 var caseTypes = getCaseTypes();
 
-function getStatusLabels() {
-    var optionStatus = [];
-    var states = getCaseStatusTypes();
-
-    for (var state in states) {
-        optionStatus.push({
-            value: msg.get("create-case.status.constraint.value." + states[state]),
-            label: msg.get("create-case.status.constraint.label." + states[state])
-        });
-    }
-    return optionStatus;
-}
-
 /**
  * Return an array of create case menu items.
  * @param caseTypes An array of case types to create menu items for

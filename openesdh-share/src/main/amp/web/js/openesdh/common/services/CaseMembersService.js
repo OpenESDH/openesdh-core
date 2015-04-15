@@ -95,7 +95,6 @@ define(["dojo/_base/declare",
 
             _loadCaseMembers: function () {
                 // Get members from webscript
-                console.log("openesdhcommon/services/CaseMemberService(46) Here");
                 this.serviceXhr({
                     url: Alfresco.constants.PROXY_URI + "api/openesdh/casemembers",
                     query: {

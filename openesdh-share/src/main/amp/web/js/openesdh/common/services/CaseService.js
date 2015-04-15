@@ -81,11 +81,9 @@ define(["dojo/_base/declare",
             },
 
             _onCreateCaseTopic: function (payload){
-                var url = Alfresco.constants.PROXY_URI + "api/type/case%3Asimple/formprocessor";
-
+                var url = Alfresco.constants.PROXY_URI + "api/type/case%3A"+payload.caseType+"/formprocessor";
                 //Convert the owners array to string, in the case of more than one owner
                 payload.assoc_case_owners_added = payload.assoc_case_owners_added.toString();
-                console.log("Payload converted to string: "+ payload.assoc_case_owners_added);
 
                 this.serviceXhr({
                     url: url,
@@ -98,7 +96,6 @@ define(["dojo/_base/declare",
             },
 
             _onCreateCaseTopicSuccess: function (payload){
-                console.log("CaseService(66) navigating to dashboard");
                 // construct the url to call
                 var persistedObjNodeRef = NodeUtils.processNodeRef(payload.persistedObject);
                 var url = Alfresco.constants.PROXY_URI + "api/openesdh/documents/isCaseDoc/" + persistedObjNodeRef.uri;
@@ -319,7 +316,8 @@ define(["dojo/_base/declare",
                                             name: "alfresco/forms/controls/HiddenValue",
                                             config: {
                                                 fieldId: "edb31ed0-c74a-48f4-8f30-c5atbd748ffb",
-                                                value: "",
+                                                name:"caseType",
+                                                value: caseType,
                                                 label: "",
                                                 unitsLabel: "",
                                                 description: "",
@@ -560,6 +558,25 @@ define(["dojo/_base/declare",
                                                 fieldId: "edb22ed0-ch9a-48f4-8f30-c5atjd748ffb",
                                                 name: "alf_destination",
                                                 value: caseContainerNodeRef,
+                                                label: "",
+                                                unitsLabel: "",
+                                                description: "",
+                                                postWhenHiddenOrDisabled: true,
+                                                noValueUpdateWhenHiddenOrDisabled: false,
+                                                validationConfig: {
+                                                    regex: ".*"
+                                                },
+                                                placeHolder: "",
+                                                widgets: []
+                                            },
+                                            widthPc: "1"
+                                        },
+                                        {
+                                            name: "alfresco/forms/controls/HiddenValue",
+                                            config: {
+                                                fieldId: "edb31ed0-c74a-48f4-8f30-c5atbd748ffb",
+                                                name:"caseType",
+                                                value: caseType,
                                                 label: "",
                                                 unitsLabel: "",
                                                 description: "",

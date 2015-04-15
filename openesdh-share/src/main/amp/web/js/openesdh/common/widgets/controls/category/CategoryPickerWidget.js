@@ -126,7 +126,6 @@ define(["dojo/_base/declare",
                     this.dialog.destroyRecursive();
 
                     this.set("value", selectedItems);
-                    console.log("OK", payload);
                 }
             },
 
@@ -158,7 +157,6 @@ define(["dojo/_base/declare",
                 if (this.dialog) {
                     this.dialog.hide();
                     this.dialog.destroyRecursive();
-                    console.log("DESTROYING");
                 }
             },
 

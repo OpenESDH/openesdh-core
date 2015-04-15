@@ -100,7 +100,6 @@ define(["dojo/_base/declare",
                         }));
                     }
                     else if (action.download) {
-                        console.log("DocumentVersionGrid(87) ping");
                         href = Alfresco.constants.PROXY_URI + 'api/node/content/' + item.nodeRef.replace(":/", "") + '/' + item['name'] + '?a=true';
                         actionElem = domConstruct.toDom("<span><a class='magenta ui-icon grid-action action-" + action.id + "' href='" + href + "' title='" + label + "'>" + label + "</a></span>");
                     }
@@ -175,7 +174,6 @@ define(["dojo/_base/declare",
                     this.targetURI += "?nodeRef=" + payload.nodeRef; //Stitch the nodeRef to the store target URI
                     this.grid.store = this.createStore();
                 }
-                console.log("openesdh/pages/case/widgets/DocumentVersionsGrid.js(160) Refresh called. "+ this.nodeRef);
                 this.grid.refresh();
                 this.targetURI = temp; //Revert the URI back to its original state
             }

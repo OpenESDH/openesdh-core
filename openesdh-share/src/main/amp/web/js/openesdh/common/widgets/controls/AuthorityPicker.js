@@ -237,7 +237,6 @@ define(["dojo/_base/declare",
        setModelPickerConfig: function alfresco_forms_controls_Picker__setModelPickerConfig(value, widgetsForControl) {
            this.inherited(arguments);
            lang.setObject("0.config.widgets.1.config.publishPayload.widgetsContent.0.name", "openesdh/common/widgets/picker/PickerWithHeader", widgetsForControl);
-           console.log("widgetsForControl: "+ widgetsForControl);
            this.processObject(["processInstanceTokens"], widgetsForControl);
        }
 

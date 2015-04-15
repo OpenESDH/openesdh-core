@@ -1,8 +1,11 @@
 package dk.openesdh.repo.services.cases;
 
+import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
+import org.json.JSONArray;
+import org.json.JSONException;
 
 import java.util.List;
 import java.util.Map;
@@ -226,4 +229,6 @@ public interface CaseService {
     public NodeRef getDocumentsFolder(NodeRef caseNodeRef);
 
     public Map<String, Object> getSearchDefinition(QName caseType);
+
+    public JSONArray buildConstraintsJSON(ConstraintDefinition constraint) throws JSONException;
 }

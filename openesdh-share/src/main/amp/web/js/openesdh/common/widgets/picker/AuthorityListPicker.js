@@ -268,7 +268,6 @@ define(["dojo/_base/declare",
         * @instance
         */
        loadData: function alfresco_pickers_DocumentListPicker__loadData() {
-           console.log("Ping load data");
            if (!this.requestInProgress)
            {
                this.showLoadingMessage();

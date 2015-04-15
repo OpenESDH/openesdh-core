@@ -234,7 +234,6 @@ define(["dojo/_base/declare",
              * @param {object} payload
              */
             _revertDocumentVersion: function alfresco_services_ContentService__showUploader(payload) {
-                console.log("CaseDocumentsService(139) Uploader payload:\n"+payload.version);
                 var targetData = {
                     destination: null, siteId: null, containerId: null,
                     uploadDirectory: null, updateNodeRef: payload.documentNodeRef,
@@ -302,7 +301,6 @@ define(["dojo/_base/declare",
              * @param {object} payload
              */
             _showVersionUploader: function alfresco_services_ContentService__showUploader(payload) {
-                console.log("CaseDocumentsService(134) Uploader payload:\n"+payload.documentNodeRef);
                 this.uploadDialog = new AlfFormDialog({
                     dialogTitle: "upload-dialog.label.title",
                     dialogConfirmationButtonTitle: "Upload",
@@ -420,8 +418,6 @@ define(["dojo/_base/declare",
              * @param {object} payload The file upload data payload to pass on
              */
             _onFileUploadRequest: function alfresco_services_ContentService__onFileUploadRequest(payload) {
-                console.log("CaseDocumentService [367] uploading...");
-
                 if (this.uploadDialog != null) {
                     this.uploadDialog.destroyRecursive();
                 }
@@ -453,7 +449,7 @@ define(["dojo/_base/declare",
             _docRecordInfo: function (nodeRef) {
                 // Get caseInfo from webscript
                 if (nodeRef == null) {
-                    console.log("error", "Null nodeRef");
+                    console.log("openesdh/common/services/CaseDocumentService(452) Error", "Null nodeRef");
                     return false;
                 }
                 var docRecordNodeRefURI = NodeUtils.processNodeRef(nodeRef).uri;
