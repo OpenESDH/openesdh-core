@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>dk.openesdh</groupId>
     <artifactId>openesdh-share</artifactId>
@@ -23,7 +23,7 @@
         <alfresco.client.contextPath>/share</alfresco.client.contextPath>
         <alfresco.repo.url>http://localhost:8080/alfresco</alfresco.repo.url>
         <!-- Since Alfresco is already running on port 8080, we run Share on port 8081 -->
-        <maven.tomcat.port>8081</maven.tomcat.port>        
+        <maven.tomcat.port>8081</maven.tomcat.port>
     </properties>
 
     <!-- Following dependencies are needed for compiling Java code in src/main/java; 
@@ -45,10 +45,10 @@
         </dependency>
 
         <dependency>
-          <groupId>org.springframework.extensions.surf</groupId>
-          <artifactId>spring-surf</artifactId>
+            <groupId>org.springframework.extensions.surf</groupId>
+            <artifactId>spring-surf</artifactId>
             <version>${alfresco.version}</version>
-          <scope>provided</scope>
+            <scope>provided</scope>
         </dependency>
 
         <dependency>
@@ -73,13 +73,29 @@
             <type>amp</type>
         </dependency>
 
-		<dependency>
-			<groupId>magenta-aps</groupId>
-			<artifactId>share_da_dk</artifactId>
-			<version>5.0.0-SNAPSHOT</version>
-			<type>amp</type>
-		</dependency>
+        <dependency>
+            <groupId>magenta-aps</groupId>
+            <artifactId>share_da_dk</artifactId>
+            <version>5.0.0-SNAPSHOT</version>
+            <type>amp</type>
+        </dependency>
 
     </dependencies>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>2.7</version>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.apache.maven.shared</groupId>
+                        <artifactId>maven-filtering</artifactId>
+                        <version>1.3</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+        </plugins>
+    </build>
 </project>
