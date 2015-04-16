@@ -87,7 +87,7 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy{
         // Make sure all children get the type doc:digitalFile
         nodeService.setType(fileRef, OpenESDHModel.TYPE_DOC_DIGITAL_FILE);
         // TODO Get start value, localize
-        nodeService.setProperty(fileRef, OpenESDHModel.PROP_DOC_VARIANT, "Produktion");
+//        nodeService.setProperty(fileRef, OpenESDHModel.PROP_DOC_VARIANT, "Produktion");
     }
 
     public void setPolicyComponent(PolicyComponent policyComponent) {
