@@ -484,8 +484,8 @@ define(["dojo/_base/declare",
                 var constraintValues = this.documentConstraints[constraintTarget];
                 for (var state in constraintValues) {
                     options.push({
-                        value: constraintValues[state],
-                        label: this.message("document."+constraintType+".constraint.label." + constraintValues[state])
+                        value: constraintValues[state].value,
+                        label: constraintValues[state].label
                     });
                 }
                 return options;
