@@ -51,7 +51,7 @@
 }
 
 .dgrid-no-data{
-	padding-top:6px;
-	padding-left:62px;
+	padding-top:.5em;
+	padding-left:1em;
 	font-size: 108%;
 }
