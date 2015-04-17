@@ -60,7 +60,17 @@ define(["dojo/_base/declare",
                         iconClass: "add-icon-16",
                         // TODO: i18n
                         label: "Tilføj Dokument",
-                        publishTopic: "OE_SHOW_UPLOADER"
+                        publishTopic: "OE_SHOW_UPLOADER",
+                        visibilityConfig: {
+                            initialValue: false,
+                            rules: [
+                                {
+                                    topic: "CASE_INFO",
+                                    attribute: "isJournalized",
+                                    is: [false]
+                                }
+                            ]
+                        }
                     }
                 }
             ],

@@ -71,6 +71,16 @@ define(["dojo/_base/declare", "alfresco/core/Core",
                                         }
                                     }
                                 ]
+                            },
+                            visibilityConfig: {
+                                initialValue: false,
+                                rules: [
+                                    {
+                                        topic: "CASE_INFO",
+                                        attribute: "isJournalized",
+                                        is: [false]
+                                    }
+                                ]
                             }
                         }
                     }
