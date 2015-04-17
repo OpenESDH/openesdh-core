@@ -249,7 +249,7 @@ define(["dojo/_base/declare",
                 }; //conditionally insert this into the widget array
                 var widgetArray = [
                     {
-                    name: "alfresco/forms/controls/DojoRadioButtons",
+                    name: "alfresco/forms/controls/RadioButtons",
                     config: {
                         label: this.message("upload-dialog.form-control.label.version-options"),
                         name: "majorVersion",
@@ -323,7 +323,7 @@ define(["dojo/_base/declare",
                             }
                         },
                         {
-                            name: "alfresco/forms/controls/DojoRadioButtons",
+                            name: "alfresco/forms/controls/RadioButtons",
                             config: {
                                 label: this.message("upload-dialog.form-control.label.version-options"),
                                 name: "targetData.majorVersion",
