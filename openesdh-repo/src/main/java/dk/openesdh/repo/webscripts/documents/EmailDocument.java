@@ -91,7 +91,7 @@ public class EmailDocument extends AbstractWebScript {
         props = new HashMap<>();
         props.put(ContentModel.PROP_NAME, filename);
         NodeRef node = nodeService.createNode(
-                documentsFolder,
+                documentFolder,
                 ContentModel.ASSOC_CONTAINS,
                 QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, filename),
                 ContentModel.TYPE_CONTENT,
