@@ -46,6 +46,8 @@ public interface DocumentService {
 
     public ChildAssociationRef createDocumentFolder(final NodeRef documentsFolder, final String name);
 
+    public ChildAssociationRef createDocumentFolder(final NodeRef documentsFolder, final String name, Map<QName, Serializable> props);
+
     /**
      * This method gets the <code>case:simple</code> NodeRef for the case which contains the given NodeRef.
      * If the given NodeRef is not contained within a case, then <code>null</code> is returned.

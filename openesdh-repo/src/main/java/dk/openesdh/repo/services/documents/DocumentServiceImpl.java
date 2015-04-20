@@ -30,6 +30,7 @@ import java.util.*;
 /**
  * Created by torben on 11/09/14.
  */
+
 public class DocumentServiceImpl implements DocumentService {
 
     private static Log logger = LogFactory.getLog(DocumentServiceImpl.class);
@@ -40,7 +41,6 @@ public class DocumentServiceImpl implements DocumentService {
     private TransactionService transactionService;
     private CaseService caseService;
     private NamespaceService namespaceService;
-
     private BehaviourFilter behaviourFilter;
 
     private MimeTypes allMimeTypes = MimeTypes.getDefaultMimeTypes();
@@ -140,6 +140,11 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public ChildAssociationRef createDocumentFolder(final NodeRef documentsFolder, final String name) {
         Map<QName, Serializable> props = new HashMap<>(1);
+        return this.createDocumentFolder(documentsFolder,name, props);
+    }
+
+    @Override
+    public ChildAssociationRef createDocumentFolder(NodeRef documentsFolder, String name, Map<QName, Serializable> props) {
         props.put(ContentModel.PROP_NAME, name);
         ChildAssociationRef documentAssociationRef = nodeService.createNode(documentsFolder, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.DOC_URI, name), OpenESDHModel.TYPE_DOC_SIMPLE, props);
         NodeRef documentNodeRef = documentAssociationRef.getChildRef();
@@ -171,7 +176,6 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public List<PersonService.PersonInfo> getDocResponsibles(NodeRef caseDocNodeRef) {
         //TODO could it be the case that in the future there could be more than one person responsible for a document
-        //Should
         List <AssociationRef> responsibleList = this.nodeService.getTargetAssocs(caseDocNodeRef, OpenESDHModel.ASSOC_DOC_RESPONSIBLE_PERSON);
         List <PersonService.PersonInfo> responsibles = new ArrayList<>();
 
