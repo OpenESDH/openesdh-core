@@ -69,7 +69,7 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy{
                 doc_type = nodeService.getProperty(docRecord, OpenESDHModel.PROP_DOC_TYPE).toString();
             }
             catch(NullPointerException npe){
-                //if not check that the document itself has it and st it on the docRecord
+                //if not check that the document itself has the mandatory properties and set it on the docRecord (uploads)
                 doc_category = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY).toString();
                 doc_state = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_STATE).toString();
                 doc_type = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_TYPE).toString();
