@@ -63,25 +63,31 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy{
              */
             String doc_category, doc_state, doc_type;
             try {
-                doc_category = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY).toString();
-                doc_state = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_STATE).toString();
-                doc_type = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_TYPE).toString();
+                //First check if the docRecord has any of the mandatory props
+                doc_category = nodeService.getProperty(docRecord, OpenESDHModel.PROP_DOC_CATEGORY).toString();
+                doc_state = nodeService.getProperty(docRecord, OpenESDHModel.PROP_DOC_STATE).toString();
+                doc_type = nodeService.getProperty(docRecord, OpenESDHModel.PROP_DOC_TYPE).toString();
 
-                if (StringUtils.isAnyEmpty(doc_category, doc_state, doc_type))
-                    throw new NullPointerException("Mandatory parameters missing.");
+                if (StringUtils.isAnyEmpty(doc_category, doc_state, doc_type)){
+                    //if not check that the document itself has it.
+                    doc_category = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY).toString();
+                    doc_state = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_STATE).toString();
+                    doc_type = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_TYPE).toString();
+                    if (StringUtils.isAnyEmpty(doc_category, doc_state, doc_type))
+                        throw new NullPointerException("Mandatory parameters missing.");
+                    else{
+                        this.nodeService.setProperty(docRecord, OpenESDHModel.PROP_DOC_CATEGORY, doc_category);
+                        this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY);
+                        this.nodeService.setProperty(docRecord, OpenESDHModel.PROP_DOC_STATE, doc_state);
+                        this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_STATE);
+                        this.nodeService.setProperty(docRecord, OpenESDHModel.PROP_DOC_TYPE, doc_type);
+                        this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_TYPE);
+                    }
+                }
             }
             catch(NullPointerException npe){
                 throw new WebScriptException(npe.getMessage() + "\nThe following meta-data is required for a main document:\n\tCategory\n\tState\n\ttype");
             }
-
-            this.nodeService.setProperty(docRecord, OpenESDHModel.PROP_DOC_CATEGORY, doc_category);
-            this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY);
-
-            this.nodeService.setProperty(docRecord, OpenESDHModel.PROP_DOC_STATE, doc_state);
-            this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_STATE);
-
-            this.nodeService.setProperty(docRecord, OpenESDHModel.PROP_DOC_TYPE, doc_type);
-            this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_TYPE);
         }
 
         // Make sure all children get the type doc:digitalFile

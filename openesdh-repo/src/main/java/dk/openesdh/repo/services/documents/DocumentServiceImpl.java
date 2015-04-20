@@ -30,6 +30,7 @@ import java.util.*;
 /**
  * Created by torben on 11/09/14.
  */
+
 public class DocumentServiceImpl implements DocumentService {
 
     private static Log logger = LogFactory.getLog(DocumentServiceImpl.class);
@@ -40,7 +41,6 @@ public class DocumentServiceImpl implements DocumentService {
     private TransactionService transactionService;
     private CaseService caseService;
     private NamespaceService namespaceService;
-
     private BehaviourFilter behaviourFilter;
 
     private MimeTypes allMimeTypes = MimeTypes.getDefaultMimeTypes();
@@ -151,6 +151,18 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
+    public ChildAssociationRef createDocumentFolder(NodeRef documentsFolder, String name, Map<QName, Serializable> props) {
+        props.put(ContentModel.PROP_NAME, name);
+        ChildAssociationRef documentAssociationRef = nodeService.createNode(documentsFolder, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.DOC_URI, name), OpenESDHModel.TYPE_DOC_SIMPLE, props);
+        NodeRef documentNodeRef = documentAssociationRef.getChildRef();
+
+        NodeRef person = personService.getPerson(AuthenticationUtil.getFullyAuthenticatedUser());
+        nodeService.createAssociation(documentNodeRef, person, OpenESDHModel.ASSOC_DOC_OWNER);
+        nodeService.createAssociation(documentNodeRef, person, OpenESDHModel.ASSOC_DOC_RESPONSIBLE_PERSON);
+        return documentAssociationRef;
+    }
+
+    @Override
     public NodeRef getMainDocument(NodeRef caseDocNodeRef){
         List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(caseDocNodeRef, OpenESDHModel
                 .ASSOC_DOC_MAIN, QName.createQName(OpenESDHModel.DOC_URI, "main"));
@@ -171,7 +183,6 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public List<PersonService.PersonInfo> getDocResponsibles(NodeRef caseDocNodeRef) {
         //TODO could it be the case that in the future there could be more than one person responsible for a document
-        //Should
         List <AssociationRef> responsibleList = this.nodeService.getTargetAssocs(caseDocNodeRef, OpenESDHModel.ASSOC_DOC_RESPONSIBLE_PERSON);
         List <PersonService.PersonInfo> responsibles = new ArrayList<>();
 

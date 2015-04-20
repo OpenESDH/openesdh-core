@@ -67,13 +67,13 @@ public class EmailDocument extends AbstractWebScript {
 
         NodeRef nodeRef = caseService.getCaseById(caseId);
         NodeRef documentsFolder = caseService.getDocumentsFolder(nodeRef);
-//        Map<QName, Serializable> props = new HashMap<>();
-//        props.put(OpenESDHModel.PROP_DOC_TYPE, "letter");
-//        props.put(OpenESDHModel.PROP_DOC_CATEGORY, "other");
-//        props.put(OpenESDHModel.PROP_DOC_STATE, "received");
-//        NodeRef documentFolder = documentService.createDocumentFolder(documentsFolder, name, props).getChildRef();
+        Map<QName, Serializable> props = new HashMap<>();
+        props.put(OpenESDHModel.PROP_DOC_TYPE, "letter");
+        props.put(OpenESDHModel.PROP_DOC_CATEGORY, "other");
+        props.put(OpenESDHModel.PROP_DOC_STATE, "received");
+        NodeRef documentFolder = documentService.createDocumentFolder(documentsFolder, name, props).getChildRef();
 
-//        nodeService.setProperties(documentFolder, props);
+        nodeService.setProperties(documentFolder, props);
 
         LOG.warn("responsible: " + responsible);
         if (responsible != null) {
@@ -83,16 +83,13 @@ public class EmailDocument extends AbstractWebScript {
                 LOG.warn("Person '" + responsible + "' not found.");
             }
         }
-//        LOG.warn("documentFolder: " + documentFolder.toString());
+        LOG.warn("documentFolder: " + documentFolder.toString());
 
         String filename = name + ".txt";
         LOG.warn("Creating mail file: " + filename);
         String bodyText = (String) email.get("BodyText");
-        Map<QName, Serializable> props = new HashMap<>();
+        props = new HashMap<>();
         props.put(ContentModel.PROP_NAME, filename);
-        props.put(OpenESDHModel.PROP_DOC_TYPE, "letter");
-        props.put(OpenESDHModel.PROP_DOC_CATEGORY, "other");
-        props.put(OpenESDHModel.PROP_DOC_STATE, "received");
         NodeRef node = nodeService.createNode(
                 documentsFolder,
                 ContentModel.ASSOC_CONTAINS,
@@ -104,7 +101,7 @@ public class EmailDocument extends AbstractWebScript {
         writer.putContent(bodyText);
 
         JSONObject result = new JSONObject();
-//        result.put("nodeRef", documentFolder.toString());
+        result.put("nodeRef", documentFolder.toString());
         result.writeJSONString(resp.getWriter());
     }
 
