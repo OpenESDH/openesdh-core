@@ -20,6 +20,8 @@
         <activiti:taskListener event="complete" class="org.alfresco.repo.workflow.activiti.tasklistener.ScriptTaskListener">
           <activiti:field name="script">
             <activiti:string>
+                /*
+
 		// get documents
 		var bpm_package =  task.getVariable('bpm_package')
 		logger.log("*********************** hvad er bpm_package ******************** " + bpm_package );
@@ -30,16 +32,17 @@
 		   logger.log("nodref: " + bpm_package.children[x].nodeRef);
 
 
-		   if (bpm_package.children[x].properties["esdh:producent"] == null) {
-		       bpm_package.children[x].properties["esdh:producent"] = new Array();
-		       bpm_package.children[x].properties["esdh:producent"].push(person);
+		   if (bpm_package.children[x].properties["oe:producent"] == null) {
+		       bpm_package.children[x].properties["oe:producent"] = new Array();
+		       bpm_package.children[x].properties["oe:producent"].push(person);
 		   }	
 		   else {
-		       bpm_package.children[x].properties["esdh:producent"].push(person);   
+		       bpm_package.children[x].properties["oe:producent"].push(person);
 		   }
 
 		   bpm_package.children[x].save();
 		}
+                */
 </activiti:string>
           </activiti:field>
         </activiti:taskListener>
@@ -64,8 +67,9 @@
             <activiti:string>
                 execution.setVariable('bpm_assignee', person);
                 execution.setVariable('oewf_qaaQTaskOutcome', task.getVariable('oewf_qaaQTaskOutcome'));
-                
-                
+
+                /*
+
                 var t = execution.getVariable('oewf_qaaQTaskOutcome');
                 if (t == 'Ja') {
                   // set metadata on all documents
@@ -73,19 +77,19 @@
                      logger.log("nodref: " + bpm_package.children[x].nodeRef);
   
   
-                     if (bpm_package.children[x].properties["esdh:kvalitetssikring"] == null) {
-                         bpm_package.children[x].properties["esdh:kvalitetssikring"] = new Array();
-                         bpm_package.children[x].properties["esdh:kvalitetssikring"].push(person);
+                     if (bpm_package.children[x].properties["oe:kvalitetssikring"] == null) {
+                         bpm_package.children[x].properties["oe:kvalitetssikring"] = new Array();
+                         bpm_package.children[x].properties["oe:kvalitetssikring"].push(person);
                      }	
                      else {
-                         bpm_package.children[x].properties["esdh:kvalitetssikring"].push(person);   
+                         bpm_package.children[x].properties["oe:kvalitetssikring"].push(person);
                      }
   
                      bpm_package.children[x].save();
                   }
                 }
                 
-                
+                */
             </activiti:string>
           </activiti:field>
         </activiti:taskListener>        
@@ -121,8 +125,9 @@
                 execution.setVariable('bpm_assignee', person);
                 execution.setVariable('oewf_qaaATaskOutcome', task.getVariable('oewf_qaaATaskOutcome'));
                 task.setVariable('oewf_isLastTask', true);
-                
-                
+
+                /*
+
                 
                 var t = execution.getVariable('oewf_qaaQTaskOutcome');
                 if (t == 'Ja') {
@@ -130,18 +135,18 @@
                   for (var x in bpm_package.children) {
                      logger.log("nodref: " + bpm_package.children[x].nodeRef);
   
-                     if (bpm_package.children[x].properties["esdh:godkendelse"] == null) {
-                         bpm_package.children[x].properties["esdh:godkendelse"] = new Array();
-                         bpm_package.children[x].properties["esdh:godkendelse"].push(person);
+                     if (bpm_package.children[x].properties["oe:godkendelse"] == null) {
+                         bpm_package.children[x].properties["oe:godkendelse"] = new Array();
+                         bpm_package.children[x].properties["oe:godkendelse"].push(person);
                      }	
                      else {
-                         bpm_package.children[x].properties["esdh:godkendelse"].push(person);   
+                         bpm_package.children[x].properties["oe:godkendelse"].push(person);
                      }
   
                      bpm_package.children[x].save();
                   }
                 }
-                
+                */
             </activiti:string>
           </activiti:field>
         </activiti:taskListener>

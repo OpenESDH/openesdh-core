@@ -10,11 +10,11 @@
                     <show id="bpm:workflowDueDate"/>
                     <show id="bpm:workflowPriority"/>
                     <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                    <show id="esdhwf:phase"/>
-                    <show id="esdhwf:editGroupAssignee" />
-                    <show id="esdhwf:qGroupAssignee" />
-                    <show id="esdhwf:aGroupAssignee" />
+                    <show id="oewf:caseId"/>
+                    <show id="oewf:phase"/>
+                    <show id="oewf:editGroupAssignee" />
+                    <show id="oewf:qGroupAssignee" />
+                    <show id="oewf:aGroupAssignee" />
                     <show id="bpm:sendEMailNotifications" />
                     
                 </field-visibility>
@@ -26,19 +26,19 @@
                     <set id="other" appearance="title" label-id="workflow.set.other"/>
                     
                  
-                    <field id="esdhwf:editGroupAssignee" label="Rolle der redigerer produkt" set="assignee">
+                    <field id="oewf:editGroupAssignee" label="Rolle der redigerer produkt" set="assignee">
                         <control template="controls/rolepicker.ftl">
                             <control-param name="multipleSelectMode">false</control-param>
                         </control>                        
                     </field>
 
-                    <field id="esdhwf:qGroupAssignee" label="Rolle der skal kvalitetssikre produkt" set="assignee">
+                    <field id="oewf:qGroupAssignee" label="Rolle der skal kvalitetssikre produkt" set="assignee">
                         <control template="controls/rolepicker.ftl">
                             <control-param name="multipleSelectMode">false</control-param>
                         </control>
                     </field>
                     
-                    <field id="esdhwf:aGroupAssignee" label="Rolle der skal godkende produkt" set="assignee">
+                    <field id="oewf:aGroupAssignee" label="Rolle der skal godkende produkt" set="assignee">
                         <control template="controls/rolepicker.ftl">
                             <control-param name="multipleSelectMode">false</control-param>
                         </control>
@@ -52,7 +52,7 @@
 
 
                     
-                    <field id="esdhwf:caseId" label="Sag" set="info">
+                    <field id="oewf:caseId" label="Sag" set="info">
                         <control template="controls/datapicker.ftl">
                             <control-param name="multipleSelectMode">false</control-param>
                             <control-param name="itemType">esdh:case</control-param>
@@ -61,7 +61,7 @@
                             <control-param name="linkPhaseParentWithCase">true</control-param>
                         </control>
                     </field>
-                    <field id="esdhwf:phase" label="Fase" set="info">
+                    <field id="oewf:phase" label="Fase" set="info">
                         <control template="/org/alfresco/components/form/controls/phasepicker.ftl">
                             <control-param name="multipleSelectMode">false</control-param>
                         </control>
@@ -81,7 +81,7 @@
     </config>
     
     
-    <config evaluator="task-type" condition="esdhwf:qaEdit">
+    <config evaluator="task-type" condition="oewf:qaEdit">
         <forms>
             <form>
                 <field-visibility>
@@ -94,8 +94,8 @@
                     <show id="packageItems" />
                     <show id="bpm:comment"/>
                     <show id="transitions"/>
-                    <show id="esdhwf:caseId"/>
-                    <show id="esdhwf:phase"/>
+                    <show id="oewf:caseId"/>
+                    <show id="oewf:phase"/>
                 </field-visibility>
                 <appearance>
                     <set id="" appearance="title" label-id="workflow.set.task.info"/>
@@ -104,14 +104,14 @@
                     <set id="items" appearance="title" label-id="workflow.set.items"/>
                     <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
                     <set id="response" appearance="title" label-id="workflow.set.response"/>
-                    <field id="esdhwf:caseId" label="Sag" set="case">
+                    <field id="oewf:caseId" label="Sag" set="case">
                         <control template="controls/datapicker.ftl">
                             <control-param name="multipleSelectMode">false</control-param>
                             <control-param name="itemType">esdh:case</control-param>
                             <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
                         </control>
                     </field>
-                    <field id="esdhwf:phase" label="Fase" set="case">
+                    <field id="oewf:phase" label="Fase" set="case">
                         <control template="/org/alfresco/components/form/controls/phasepicker.ftl">
                             <control-param name="multipleSelectMode">false</control-param>
                         </control>
@@ -144,7 +144,7 @@
     
     
     
-    <config evaluator="task-type" condition="esdhwf:qaaQTask">
+    <config evaluator="task-type" condition="oewf:qaaQTask">
         <forms>
             <form>
                 <field-visibility>
@@ -156,9 +156,9 @@
                     <show id="bpm:status"/>
                     <show id="packageItems" />
                     <show id="bpm:comment"/>
-                    <show id="esdhwf:caseId"/>
-                    <show id="esdhwf:phase"/>
-                    <show id="esdhwf:qaaQTaskOutcome" />
+                    <show id="oewf:caseId"/>
+                    <show id="oewf:phase"/>
+                    <show id="oewf:qaaQTaskOutcome" />
                 </field-visibility>
                 <appearance>
                     <set id="" appearance="title" label-id="workflow.set.task.info"/>
@@ -167,14 +167,14 @@
                     <set id="items" appearance="title" label-id="workflow.set.items"/>
                     <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
                     <set id="response" appearance="title" label-id="workflow.set.response"/>
-                    <field id="esdhwf:caseId" label="Sag" set="case">
+                    <field id="oewf:caseId" label="Sag" set="case">
                         <control template="controls/datapicker.ftl">
                             <control-param name="multipleSelectMode">false</control-param>
                             <control-param name="itemType">esdh:case</control-param>
                             <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
                         </control>
                     </field>
-                    <field id="esdhwf:phase" label="Fase" set="case">
+                    <field id="oewf:phase" label="Fase" set="case">
                         <control template="/org/alfresco/components/form/controls/phasepicker.ftl">
                             <control-param name="multipleSelectMode">false</control-param>
                         </control>
@@ -198,7 +198,7 @@
                         <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
                     </field>
 
-                    <field id="esdhwf:qaaQTaskOutcome" label-id="workflow.field.outcome" set="response">
+                    <field id="oewf:qaaQTaskOutcome" label-id="workflow.field.outcome" set="response">
                        <control template="/org/alfresco/components/form/controls/workflow/activiti-transitions.ftl" />
                     </field>                    
                     
@@ -209,7 +209,7 @@
     
     
     
-    <config evaluator="task-type" condition="esdhwf:qaaATask">
+    <config evaluator="task-type" condition="oewf:qaaATask">
         <forms>
             <form>
                 <field-visibility>
@@ -221,9 +221,9 @@
                     <show id="bpm:status"/>
                     <show id="packageItems" />
                     <show id="bpm:comment"/>
-                    <show id="esdhwf:caseId"/>
-                    <show id="esdhwf:phase"/>
-                    <show id="esdhwf:qaaATaskOutcome" />
+                    <show id="oewf:caseId"/>
+                    <show id="oewf:phase"/>
+                    <show id="oewf:qaaATaskOutcome" />
                 </field-visibility>
                 <appearance>
                     <set id="" appearance="title" label-id="workflow.set.task.info"/>
@@ -232,14 +232,14 @@
                     <set id="items" appearance="title" label-id="workflow.set.items"/>
                     <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
                     <set id="response" appearance="title" label-id="workflow.set.response"/>
-                    <field id="esdhwf:caseId" label="Sag" set="case">
+                    <field id="oewf:caseId" label="Sag" set="case">
                         <control template="controls/datapicker.ftl">
                             <control-param name="multipleSelectMode">false</control-param>
                             <control-param name="itemType">esdh:case</control-param>
                             <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
                         </control>
                     </field>
-                    <field id="esdhwf:phase" label="Fase" set="case">
+                    <field id="oewf:phase" label="Fase" set="case">
                         <control template="/org/alfresco/components/form/controls/phasepicker.ftl">
                             <control-param name="multipleSelectMode">false</control-param>
                         </control>
@@ -263,7 +263,7 @@
                         <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
                     </field>
 
-                    <field id="esdhwf:qaaATaskOutcome" label-id="workflow.field.outcome" set="response">
+                    <field id="oewf:qaaATaskOutcome" label-id="workflow.field.outcome" set="response">
                        <control template="/org/alfresco/components/form/controls/workflow/activiti-transitions.ftl" />
                     </field>                    
                     
@@ -272,451 +272,6 @@
         </forms>
     </config>
     
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    <!-- Activiti Phase Task Workflow Definition -->
-    <!-- This is used for the form when creating a new workflow -->
-    <config evaluator="string-compare" condition="activiti$activitiPhaseTask">
-        <forms>
-            <form>
-                <field-visibility>
-                    <show id="bpm:workflowDescription"/>
-                    <show id="bpm:workflowDueDate"/>
-                    <show id="bpm:workflowPriority"/>
-                    <show id="bpm:groupAssignee"/>
-                    <show id="esdhwf:caseId"/>
-                    <show id="esdhwf:phase"/>
-                    <show id="bpm:sendEMailNotifications" />
-                    <show id="packageItems" />
-                    
-                    
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.general"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="assignee" appearance="title" label-id="workflow.set.assignee"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="other" appearance="title" label-id="workflow.set.other"/>
-                    <field id="bpm:groupAssignee" label-id="workflow.field.review_group" set="assignee">
-                        <control template="controls/rolepicker.ftl">
-                        </control>
-                    </field>
-                    <field id="esdhwf:caseId" label="Sag" set="info">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                            <control-param name="linkPackageParentWithCase">true</control-param>
-                            <control-param name="linkPhaseParentWithCase">true</control-param>
-                            
-                        </control>
-                    </field>
-                    <field id="esdhwf:phase" label="Fase" set="info">
-                        <control template="/org/alfresco/components/form/controls/phasepicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                        </control>
-                    </field>
-                    <field id="bpm:workflowDescription" label-id="workflow.field.message">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl">
-                            <control-param name="style">width: 95%</control-param>
-                        </control>
-                    </field>
-                    <field id="bpm:workflowDueDate" label-id="workflow.field.due" set="info"/>
-                    <field id="bpm:workflowPriority" label-id="workflow.field.priority" set="info">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    
-                    <field id="bpm:sendEMailNotifications" set="other">
-                       <control template="/org/alfresco/components/form/controls/workflow/email-notification.ftl" />
-                    </field>
-                    
-                    <field id="packageItems" set="items">
-                           <control template="/org/alfresco/components/form/controls/workflow/packageitems.ftl">
-                                <control-param name="linkPackageParentWithCase">true</control-param>
-                           </control>
-                    </field>
-                        
-                    
-                    
-                </appearance>
-            </form>
-        </forms>
-    </config>
-    <!-- The form "workflow-details" are used for.. the workflow details form -->
-    <!-- The other form in there, is used when viewing the history of the workflow -->
-    <!-- and you click the submit task -->
-    <config evaluator="task-type" condition="esdhwf:submitPhaseTask">
-        <forms>
-            <form id="workflow-details">
-                <field-visibility>
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                    <show id="esdhwf:phase"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.workflow.more_info"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <field id="esdhwf:caseId" label="Sag" set="">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="esdhwf:phase" label="Fase" set="">
-                        <control template="/org/alfresco/components/form/controls/phasepicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                        </control>
-                    </field>
-                    <field id="packageItems" set="items" />
-                </appearance>
-            </form>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:workflowPriority"/>
-                    <show id="bpm:workflowDueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                    <show id="esdhwf:phase"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="other" appearance="title" label-id="workflow.set.other"/>
-                    <field id="esdhwf:caseId" label="Sag" set="">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="esdhwf:phase" label="Fase" set="">
-                        <control template="/org/alfresco/components/form/controls/phasepicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:workflowPriority" label-id="workflow.field.priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:workflowDueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-
-    <config evaluator="task-type" condition="esdhwf:phaseTask">
-        <forms>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:priority"/>
-                    <show id="bpm:dueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="bpm:comment"/>
-                    <show id="transitions"/>
-                    <show id="esdhwf:caseId"/>
-                    <show id="esdhwf:phase"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="response" appearance="title" label-id="workflow.set.response"/>
-                    <field id="esdhwf:caseId" label="Sag" set="case">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="esdhwf:phase" label="Fase" set="case">
-                        <control template="/org/alfresco/components/form/controls/phasepicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:dueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    <field id="bpm:comment" label-id="workflow.field.comment" set="response">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
-                    </field>
-                    <field id="transitions" set="response"/>
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-    <config evaluator="task-type" condition="esdhwf:completedPhaseTask">
-        <forms>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:priority"/>
-                    <show id="bpm:dueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="bpm:comment"/>
-                    <show id="transitions"/>
-                    <show id="esdhwf:caseId"/>
-                    <show id="esdhwf:phase"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="response" appearance="title" label-id="workflow.set.response"/>
-                    <field id="esdhwf:caseId" label="Sag" set="case">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="esdhwf:phase" label="Fase" set="case">
-                        <control template="/org/alfresco/components/form/controls/phasepicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:dueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    <field id="bpm:comment" label-id="workflow.field.comment" set="response">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
-                    </field>
-                    <field id="transitions" set="response"/>
-                </appearance>
-            </form>
-        </forms>
-    </config>
-    
-    
-
-    <!-- Workflow form for starting phase comment task -->
-    <config evaluator="string-compare" condition="activiti$activitiPhaseCommentTask">
-        <forms>
-            <form>
-                <field-visibility>
-                    <show id="bpm:workflowDescription"/>
-                    <show id="bpm:workflowDueDate"/>
-                    <show id="bpm:workflowPriority"/>
-                    <!--               <show id="bpm:groupAssignee" />-->
-                    <show id="esdhwf:groupAssignees"/>
-                    <show id="packageItems"/>
-                    <show id="bpm:sendEMailNotifications"/>
-                    <show id="esdhwf:caseId"/>
-                    <show id="esdhwf:phase"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.general"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="assignee" appearance="title" label-id="workflow.set.assignee"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="other" appearance="title" label-id="workflow.set.other"/>
-
-                    <field id="esdhwf:caseId" label="Sag" set="info">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                            <control-param name="linkPackageParentWithCase">true</control-param>
-                            <control-param name="linkPhaseParentWithCase">true</control-param>                    
-                        </control>
-                    </field>
-                    <field id="esdhwf:phase" label="Fase" set="info">
-                        <control template="/org/alfresco/components/form/controls/phasepicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                        </control>
-                    </field>
-                    <field id="esdhwf:groupAssignees" label-id="workflow.field.review_group" set="assignee">
-                        <control template="controls/rolepicker.ftl">
-                            <control-param name="multipleSelectMode">true</control-param>
-                        </control>
-                    </field>
-                    <field id="bpm:workflowDescription" label-id="workflow.field.message">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl">
-                            <control-param name="style">width: 95%</control-param>
-                        </control>
-                    </field>
-                    <field id="bpm:workflowDueDate" label-id="workflow.field.due" set="info"/>
-                    <field id="bpm:workflowPriority" label-id="workflow.field.priority" set="info">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="packageItems" set="items">
-                           <control template="/org/alfresco/components/form/controls/workflow/packageitems.ftl">
-                                <control-param name="linkPackageParentWithCase">true</control-param>
-                           </control>
-                    </field>
-                    <field id="bpm:sendEMailNotifications" set="other">
-                        <control template="/org/alfresco/components/form/controls/workflow/email-notification.ftl"/>
-                    </field>
-                </appearance>
-            </form>
-        </forms>
-    </config>
-    <!--  Activiti Phase Comment Task -->
-    <config evaluator="task-type" condition="esdhwf:phaseCommentTask">
-        <forms>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:priority"/>
-                    <show id="bpm:dueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems"/>
-                    <show id="bpm:comment"/>
-                    <show id="transitions"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="response" appearance="title" label-id="workflow.set.response"/>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:dueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items"/>
-                    <field id="bpm:comment" label-id="workflow.field.comment" set="response">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
-                    </field>
-                    <field id="transitions" set="response"/>
-                </appearance>
-            </form>
-        </forms>
-    </config>
-    <config evaluator="task-type" condition="esdhwf:phaseCommentProduceTask">
-        <forms>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:priority"/>
-                    <show id="bpm:dueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="esdhwf:reviewerCount"/>
-                    <show id="esdhwf:approveCount"/>
-                    <show id="esdhwf:requiredPercent"/>
-                    <show id="esdhwf:actualPercent"/>
-                    <show id="packageItems"/>
-                    <show id="bpm:comment"/>
-                    <show id="transitions"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="outcome" appearance="title" label-id="workflow.set.outcome" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="response" appearance="title" label-id="workflow.set.response"/>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:dueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="esdhwf:reviewerCount" set="outcome">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="esdhwf:approveCount" set="outcome">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="esdhwf:requiredPercent" set="outcome">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="esdhwf:actualPercent" set="outcome">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items"/>
-                    <field id="bpm:comment" label-id="workflow.field.comment" set="response">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
-                    </field>
-                    <field id="transitions" set="response"/>
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
 
 
     <!-- Activiti Case Task User Workflow Definition -->
@@ -730,7 +285,7 @@
                     <show id="bpm:workflowPriority"/>
                     <show id="bpm:assignee" />
                     <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
+                    <show id="oewf:caseId"/>
                     <show id="bpm:sendEMailNotifications" />
                 </field-visibility>
                 <appearance>
@@ -739,7 +294,7 @@
                     <set id="assignee" appearance="title" label-id="workflow.set.assignee"/>
                     <set id="items" appearance="title" label-id="workflow.set.items"/>
                     <set id="other" appearance="title" label-id="workflow.set.other"/>
-                    <field id="esdhwf:caseId" label="Sag" set="info">
+                    <field id="oewf:caseId" label="Sag" set="info">
                         <control template="controls/datapicker.ftl">
                             <control-param name="multipleSelectMode">false</control-param>
                             <control-param name="itemType">esdh:case</control-param>
@@ -771,17 +326,17 @@
     <!-- The form "workflow-details" are used for.. the workflow details form -->
     <!-- The other form in there, is used when viewing the history of the workflow -->
     <!-- and you click the submit task -->
-    <config evaluator="task-type" condition="esdhwf:submitCaseTaskUser">
+    <config evaluator="task-type" condition="oewf:submitCaseTaskUser">
         <forms>
             <form id="workflow-details">
                 <field-visibility>
                     <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
+                    <show id="oewf:caseId"/>
                 </field-visibility>
                 <appearance>
                     <set id="" appearance="title" label-id="workflow.set.workflow.more_info"/>
                     <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <field id="esdhwf:caseId" label="Sag" set="">
+                    <field id="oewf:caseId" label="Sag" set="">
                         <control template="controls/datapicker.ftl">
                             <control-param name="multipleSelectMode">false</control-param>
                             <control-param name="itemType">esdh:case</control-param>
@@ -800,7 +355,7 @@
                     <show id="bpm:taskId"/>
                     <show id="bpm:status"/>
                     <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
+                    <show id="oewf:caseId"/>
                 </field-visibility>
                 <appearance>
                     <set id="" appearance="title" label-id="workflow.set.task.info"/>
@@ -808,7 +363,7 @@
                     <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
                     <set id="items" appearance="title" label-id="workflow.set.items"/>
                     <set id="other" appearance="title" label-id="workflow.set.other"/>
-                    <field id="esdhwf:caseId" label="Sag" set="">
+                    <field id="oewf:caseId" label="Sag" set="">
                         <control template="controls/datapicker.ftl">
                             <control-param name="multipleSelectMode">false</control-param>
                             <control-param name="itemType">esdh:case</control-param>
@@ -836,7 +391,7 @@
     </config>
 
 
-    <config evaluator="task-type" condition="esdhwf:caseTaskUser">
+    <config evaluator="task-type" condition="oewf:caseTaskUser">
         <forms>
             <form>
                 <field-visibility>
@@ -849,7 +404,7 @@
                     <show id="packageItems" />
                     <show id="bpm:comment"/>
                     <show id="transitions"/>
-                    <show id="esdhwf:caseId"/>
+                    <show id="oewf:caseId"/>
                 </field-visibility>
                 <appearance>
                     <set id="" appearance="title" label-id="workflow.set.task.info"/>
@@ -858,7 +413,7 @@
                     <set id="items" appearance="title" label-id="workflow.set.items"/>
                     <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
                     <set id="response" appearance="title" label-id="workflow.set.response"/>
-                    <field id="esdhwf:caseId" label="Sag" set="case">
+                    <field id="oewf:caseId" label="Sag" set="case">
                         <control template="controls/datapicker.ftl">
                             <control-param name="multipleSelectMode">false</control-param>
                             <control-param name="itemType">esdh:case</control-param>
@@ -888,7 +443,7 @@
             </form>
         </forms>
     </config>
-    <config evaluator="task-type" condition="esdhwf:completedCaseTaskUser">
+    <config evaluator="task-type" condition="oewf:completedCaseTaskUser">
         <forms>
             <form>
                 <field-visibility>
@@ -901,7 +456,7 @@
                     <show id="packageItems" />
                     <show id="bpm:comment"/>
                     <show id="transitions"/>
-                    <show id="esdhwf:caseId"/>
+                    <show id="oewf:caseId"/>
                 </field-visibility>
                 <appearance>
                     <set id="" appearance="title" label-id="workflow.set.task.info"/>
@@ -910,7 +465,7 @@
                     <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
                     <set id="items" appearance="title" label-id="workflow.set.items"/>
                     <set id="response" appearance="title" label-id="workflow.set.response"/>
-                    <field id="esdhwf:caseId" label="Sag" set="case">
+                    <field id="oewf:caseId" label="Sag" set="case">
                         <control template="controls/datapicker.ftl">
                             <control-param name="multipleSelectMode">false</control-param>
                             <control-param name="itemType">esdh:case</control-param>
@@ -940,2372 +495,6 @@
             </form>
         </forms>
     </config>
-
- <!-- case followup task start-->
-
-    <!-- The form "workflow-details" are used for.. the workflow details form -->
-    <!-- The other form in there, is used when viewing the history of the workflow -->
-    <!-- and you click the submit task -->
-
-    <!-- Activiti Case Task User Workflow Definition -->
-    <!-- This is used for the form when creating a new workflow -->
-    <config evaluator="string-compare" condition="activiti$case-follow-up">
-        <forms>
-            <form>
-                <field-visibility>
-                    <show id="bpm:workflowDescription"/>
-                    <show id="bpm:workflowDueDate"/>
-                    <show id="bpm:workflowPriority"/>
-                    <show id="bpm:assignee" />
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                    <show id="bpm:sendEMailNotifications" />
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.general"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="assignee" appearance="title" label-id="workflow.set.assignee"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="other" appearance="title" label-id="workflow.set.other"/>
-                    <field id="esdhwf:caseId" label="Sag" set="info">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                            <control-param name="linkPackageParentWithCase">true</control-param>
-                        </control>
-                    </field>
-                    <field id="bpm:workflowDescription" label-id="workflow.field.message">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl">
-                            <control-param name="style">width: 95%</control-param>
-                        </control>
-                    </field>
-                    <field id="bpm:workflowDueDate" label-id="workflow.field.due" set="info"/>
-                    <field id="bpm:workflowPriority" label-id="workflow.field.priority" set="info">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="packageItems" set="items">
-                           <control template="/org/alfresco/components/form/controls/workflow/packageitems.ftl">
-                                <control-param name="linkPackageParentWithCase">true</control-param>
-                           </control>
-                    </field>
-                    <field id="bpm:sendEMailNotifications" set="other">
-                       <control template="/org/alfresco/components/form/controls/workflow/email-notification.ftl" />
-                    </field>
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-    <config evaluator="task-type" condition="esdhwf:submit-case_followup-task">
-        <forms>
-            <form id="workflow-details">
-                <field-visibility>
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.workflow.more_info"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <field id="esdhwf:caseId" label="Sag" set="">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="packageItems" set="items" />
-                </appearance>
-            </form>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:workflowPriority"/>
-                    <show id="bpm:workflowDueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="other" appearance="title" label-id="workflow.set.other"/>
-                    <field id="esdhwf:caseId" label="Sag" set="">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:workflowPriority" label-id="workflow.field.priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:workflowDueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-    <config evaluator="task-type" condition="esdhwf:recipient_do_task">
-        <forms>
-            <form id="workflow-details">
-                <field-visibility>
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.workflow.more_info"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <field id="esdhwf:caseId" label="Sag" set="">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="packageItems" set="items" />
-                </appearance>
-            </form>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:workflowPriority"/>
-                    <show id="bpm:workflowDueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-		    <show id="bpm:comment"/>
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                    <show id="transitions"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="other" appearance="title" label-id="workflow.set.other"/>
-                    <set id="response" appearance="title" label-id="workflow.set.response"/>
-                    <field id="esdhwf:caseId" label="Sag" set="">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:workflowPriority" label-id="workflow.field.priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:workflowDueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    <field id="transitions" set="response"/>
-
-		    <field id="bpm:comment" label-id="workflow.field.comment" set="response">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
-                    </field>
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-
-
-
-
-
-    <config evaluator="task-type" condition="esdhwf:verifyTaskDone">
-        <forms>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:priority"/>
-                    <show id="bpm:dueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="bpm:comment"/>
-                    <show id="esdhwf:caseId"/>
-                    <show id="esdhwf:casefollowupTaskOutcome" />
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="response" appearance="title" label-id="workflow.set.response"/>
-                    <field id="esdhwf:caseId" label="Sag" set="case">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:dueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    <field id="bpm:comment" label-id="workflow.field.comment" set="response">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
-                    </field>
-
-                    <field id="esdhwf:casefollowupTaskOutcome" label-id="workflow.field.outcome" set="response">
-                       <control template="/org/alfresco/components/form/controls/workflow/activiti-transitions.ftl" />
-                    </field>                    
-                    
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-    <!-- case followup task end -->
-
-    <!-- case approval task start-->
-
-    <!-- The form "workflow-details" are used for.. the workflow details form -->
-    <!-- The other form in there, is used when viewing the history of the workflow -->
-    <!-- and you click the submit task -->
-
-    <!-- Activiti Case Task User Workflow Definition -->
-    <!-- This is used for the form when creating a new workflow -->
-    <config evaluator="string-compare" condition="activiti$case-approval">
-        <forms>
-            <form>
-                <field-visibility>
-                    <show id="bpm:workflowDescription"/>
-                    <show id="bpm:workflowDueDate"/>
-                    <show id="bpm:workflowPriority"/>
-                    <show id="bpm:assignee" />
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                    <show id="bpm:sendEMailNotifications" />
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.general"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="assignee" appearance="title" label-id="workflow.set.assignee"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="other" appearance="title" label-id="workflow.set.other"/>
-                    <field id="esdhwf:caseId" label="Sag" set="info">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                            <control-param name="linkPackageParentWithCase">true</control-param>
-                        </control>
-                    </field>
-                    <field id="bpm:workflowDescription" label-id="workflow.field.message">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl">
-                            <control-param name="style">width: 95%</control-param>
-                        </control>
-                    </field>
-                    <field id="bpm:workflowDueDate" label-id="workflow.field.due" set="info"/>
-                    <field id="bpm:workflowPriority" label-id="workflow.field.priority" set="info">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="packageItems" set="items">
-                           <control template="/org/alfresco/components/form/controls/workflow/packageitems.ftl">
-                                <control-param name="linkPackageParentWithCase">true</control-param>
-                           </control>
-                    </field>
-                    <field id="bpm:sendEMailNotifications" set="other">
-                       <control template="/org/alfresco/components/form/controls/workflow/email-notification.ftl" />
-                    </field>
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-    <config evaluator="task-type" condition="esdhwf:submit-case_approval-task">
-        <forms>
-            <form id="workflow-details">
-                <field-visibility>
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.workflow.more_info"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <field id="esdhwf:caseId" label="Sag" set="">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="packageItems" set="items" />
-                </appearance>
-            </form>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:workflowPriority"/>
-                    <show id="bpm:workflowDueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="other" appearance="title" label-id="workflow.set.other"/>
-                    <field id="esdhwf:caseId" label="Sag" set="">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:workflowPriority" label-id="workflow.field.priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:workflowDueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-    <config evaluator="task-type" condition="esdhwf:redo_task">
-        <forms>
-            <form id="workflow-details">
-                <field-visibility>
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.workflow.more_info"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <field id="esdhwf:caseId" label="Sag" set="">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="packageItems" set="items" />
-                </appearance>
-            </form>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:workflowPriority"/>
-                    <show id="bpm:workflowDueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                    <show id="transitions"/>
-                    <show id="bpm:comment"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="other" appearance="title" label-id="workflow.set.other"/>
-                    <set id="response" appearance="title" label-id="workflow.set.response"/>
-                    <field id="esdhwf:caseId" label="Sag" set="">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:workflowPriority" label-id="workflow.field.priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:workflowDueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    <field id="transitions" set="response"/>
-
-                    <field id="bpm:comment" label-id="workflow.field.comment" set="response">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
-                    </field>                    
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-    <config evaluator="task-type" condition="esdhwf:verify_case_approval_task_done">
-        <forms>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:priority"/>
-                    <show id="bpm:dueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="bpm:comment"/>
-                    <show id="esdhwf:caseId"/>
-                    <show id="esdhwf:caseApprovalTaskOutcome" />
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="response" appearance="title" label-id="workflow.set.response"/>
-                    <field id="esdhwf:caseId" label="Sag" set="case">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:dueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    <field id="bpm:comment" label-id="workflow.field.comment" set="response">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
-                    </field>
-
-                    <field id="esdhwf:caseApprovalTaskOutcome" label-id="workflow.field.outcome" set="response">
-                       <control template="/org/alfresco/components/form/controls/workflow/activiti-transitions.ftl" />
-                    </field>
-
-            
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-    <!-- case approval task end-->
-
- <!--hiring-contracts-task start -->
-
-
-    <!-- Activiti Case Task User Workflow Definition -->
-    <!-- This is used for the form when creating a new workflow -->
-    <config evaluator="string-compare" condition="activiti$hiring-contracts">
-        <forms>
-            <form>
-                <field-visibility>
-                    <show id="bpm:workflowDescription"/>
-                    <show id="bpm:workflowDueDate"/>
-                    <show id="bpm:workflowPriority"/>
-                    <show id="esdhwf:leader" />
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                    <show id="bpm:sendEMailNotifications" />
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.general"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="other" appearance="title" label-id="workflow.set.other"/>
-
-                    <field id="esdhwf:caseId" label="Sag" set="info">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                            <control-param name="linkPackageParentWithCase">true</control-param>
-                        </control>
-                    </field>
-                    <field id="bpm:workflowDescription" label-id="workflow.field.message">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl">
-                            <control-param name="style">width: 95%</control-param>
-                        </control>
-                    </field>
-                    <field id="bpm:workflowDueDate" label-id="workflow.hiring.contracts.field.due" set="info"/>
-                    <field id="bpm:workflowPriority" label-id="workflow.field.priority" set="info">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="packageItems" set="items">
-                           <control template="/org/alfresco/components/form/controls/workflow/packageitems.ftl">
-                                <control-param name="linkPackageParentWithCase">true</control-param>
-                           </control>
-                    </field>
-                    <field id="bpm:sendEMailNotifications" set="other">
-                       <control template="/org/alfresco/components/form/controls/workflow/email-notification.ftl" />
-                    </field>
-                </appearance>
-            </form>
-        </forms>
-    </config>
-    
-    <!-- The form "workflow-details" are used for.. the workflow details form -->
-    <!-- The other form in there, is used when viewing the history of the workflow -->
-    <!-- and you click the submit task -->
-    <config evaluator="task-type" condition="esdhwf:submit-hiring_contracts-task">
-        <forms>
-            <form id="workflow-details">
-                <field-visibility>
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.workflow.more_info"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <field id="esdhwf:caseId" label="Sag" set="">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="packageItems" set="items" />
-                </appearance>
-            </form>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:workflowPriority"/>
-                    <show id="bpm:workflowDueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="other" appearance="title" label-id="workflow.set.other"/>
-                    <field id="esdhwf:caseId" label="Sag" set="">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:workflowPriority" label-id="workflow.field.priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:workflowDueDate" set="info" label-id="workflow.hiring.contracts.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-    <!-- The form "workflow-details" are used for.. the workflow details form -->
-    <!-- The other form in there, is used when viewing the history of the workflow -->
-    <!-- and you click the submit task -->
-    <config evaluator="task-type" condition="esdhwf:contact_through_leader">
-        <forms>
-            
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:workflowPriority"/>
-                    <show id="bpm:workflowDueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                    <show id="esdhwf:contact_leaderTaskOutcome" />
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="response" appearance="title" label-id="workflow.hiring.contracts.contact.field.outcome"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="other" appearance="title" label-id="workflow.set.other"/>
-
-                    <field id="esdhwf:caseId" label="Sag" set="">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:workflowPriority" label-id="workflow.field.priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:workflowDueDate" set="info" label-id="workflow.hiring.contracts.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-
-		    <field id="esdhwf:contact_leaderTaskOutcome" label-id="workflow.field.comment" set="response">
-                       <control template="/org/alfresco/components/form/controls/workflow/activiti-transitions.ftl" />
-                    </field>                    
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-    <!-- The form "workflow-details" are used for.. the workflow details form -->
-    <!-- The other form in there, is used when viewing the history of the workflow -->
-    <!-- and you click the submit task -->
-    <config evaluator="task-type" condition="esdhwf:leader_inform_applyer">
-        <forms>
-            <form id="workflow-details">
-                <field-visibility>
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.workflow.more_info"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <field id="esdhwf:caseId" label="Sag" set="">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="packageItems" set="items" />
-                </appearance>
-            </form>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:workflowPriority"/>
-                    <show id="bpm:workflowDueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                    <show id="transitions"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="other" appearance="title" label-id="workflow.set.other"/>
-                    <set id="response" appearance="title" label-id="workflow.set.response"/>
-                    <field id="esdhwf:caseId" label="Sag" set="">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:workflowPriority" label-id="workflow.field.priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:workflowDueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    <field id="transitions" set="response"/>
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-
-    <!-- The form "workflow-details" are used for.. the workflow details form -->
-    <!-- The other form in there, is used when viewing the history of the workflow -->
-    <!-- and you click the submit task -->
-    <config evaluator="task-type" condition="esdhwf:hr_inform_applyer">
-        <forms>
-            <form id="workflow-details">
-                <field-visibility>
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.workflow.more_info"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <field id="esdhwf:caseId" label="Sag" set="">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="packageItems" set="items" />
-                </appearance>
-            </form>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:workflowPriority"/>
-                    <show id="bpm:workflowDueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                    <show id="transitions"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="other" appearance="title" label-id="workflow.set.other"/>
-                    <set id="response" appearance="title" label-id="workflow.set.response"/>
-                    <field id="esdhwf:caseId" label="Sag" set="">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:workflowPriority" label-id="workflow.field.priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:workflowDueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    <field id="transitions" set="response"/>
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-
-
-    <!-- The form "workflow-details" are used for.. the workflow details form -->
-    <!-- The other form in there, is used when viewing the history of the workflow -->
-    <!-- and you click the submit task -->
-    <config evaluator="task-type" condition="esdhwf:add_signed_contract">
-        <forms>
-            
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:workflowPriority"/>
-                    <show id="bpm:workflowDueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                    <show id="transitions"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="response" appearance="title" label-id="workflow.set.response"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="other" appearance="title" label-id="workflow.set.other"/>
-
-                    <field id="esdhwf:caseId" label="Sag" set="">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:workflowPriority" label-id="workflow.field.priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:workflowDueDate" set="info" label-id="workflow.hiring.contracts.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-
-		    <field id="transitions" set="response"/>
-
-		    
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-    <!-- The form "workflow-details" are used for.. the workflow details form -->
-    <!-- The other form in there, is used when viewing the history of the workflow -->
-    <!-- and you click the submit task -->
-    <config evaluator="task-type" condition="esdhwf:create_user">
-        <forms>
-            <form id="workflow-details">
-                <field-visibility>
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.workflow.more_info"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <field id="esdhwf:caseId" label="Sag" set="">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="packageItems" set="items" />
-                </appearance>
-            </form>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:workflowPriority"/>
-                    <show id="bpm:workflowDueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                    <show id="esdhwf:hiring_contractsTaskOutcome" />
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="other" appearance="title" label-id="workflow.set.other"/>
-		    <set id="response" appearance="title" label-id="workflow.hiring.contracts.field.outcome"/>                    
-                    <field id="esdhwf:caseId" label="Sag" set="">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:workflowPriority" label-id="workflow.field.priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:workflowDueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-		    <field id="esdhwf:hiring_contractsTaskOutcome" label-id="workflow.field.comment" set="response">
-                       <control template="/org/alfresco/components/form/controls/workflow/activiti-transitions.ftl" />
-                    </field>                    
-
-                    
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-
-    <!-- The form "workflow-details" are used for.. the workflow details form -->
-    <!-- The other form in there, is used when viewing the history of the workflow -->
-    <!-- and you click the submit task -->
-    <config evaluator="task-type" condition="esdhwf:order_move">
-        <forms>
-            <form id="workflow-details">
-                <field-visibility>
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.workflow.more_info"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <field id="esdhwf:caseId" label="Sag" set="">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="packageItems" set="items" />
-                </appearance>
-            </form>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:workflowPriority"/>
-                    <show id="bpm:workflowDueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                    <show id="transitions"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="other" appearance="title" label-id="workflow.set.other"/>
-                    <set id="response" appearance="title" label-id="workflow.set.response"/>
-                    <field id="esdhwf:caseId" label="Sag" set="">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:workflowPriority" label-id="workflow.field.priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:workflowDueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    <field id="transitions" set="response"/>
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-    <!--hiring-contracts-task end -->
-
-   <!-- Course-Application start -->
-
-    <config evaluator="string-compare" condition="activiti$course-application">
-              <forms>
-            <form>
-                <field-visibility>
-                    <show id="bpm:workflowDescription"/>
-                    <show id="bpm:workflowDueDate"/>
-                    <show id="bpm:workflowPriority"/>
-                    <show id="bpm:assignee" />
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                    <show id="bpm:sendEMailNotifications" />
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.general"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="assignee" appearance="title" label-id="workflow.set.assignee"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="other" appearance="title" label-id="workflow.set.other"/>
-                    <field id="esdhwf:caseId" label="Sag" set="info">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                            <control-param name="linkPackageParentWithCase">true</control-param>
-                        </control>
-                    </field>
-                    <field id="bpm:workflowDescription" label-id="workflow.field.message">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl">
-                            <control-param name="style">width: 95%</control-param>
-                        </control>
-                    </field>
-                    <field id="bpm:workflowDueDate" label-id="workflow.field.due" set="info"/>
-                    <field id="bpm:workflowPriority" label-id="workflow.field.priority" set="info">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="packageItems" set="items">
-                           <control template="/org/alfresco/components/form/controls/workflow/packageitems.ftl">
-                                <control-param name="linkPackageParentWithCase">true</control-param>
-                           </control>
-                    </field>
-                    <field id="bpm:sendEMailNotifications" set="other">
-                       <control template="/org/alfresco/components/form/controls/workflow/email-notification.ftl" />
-                    </field>
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-    <!-- The form "workflow-details" are used for.. the workflow details form -->
-    <!-- The other form in there, is used when viewing the history of the workflow -->
-    <!-- and you click the submit task -->
-    <config evaluator="task-type" condition="esdhwf:submit-ca-task">
-        <forms>
-            <form id="workflow-details">
-                <field-visibility>
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.workflow.more_info"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <field id="esdhwf:caseId" label="Sag" set="">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="packageItems" set="items" />
-                </appearance>
-            </form>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:workflowPriority"/>
-                    <show id="bpm:workflowDueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="other" appearance="title" label-id="workflow.set.other"/>
-                    <field id="esdhwf:caseId" label="Sag" set="">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:workflowPriority" label-id="workflow.field.priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:workflowDueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-
-    <config evaluator="task-type" condition="esdhwf:ca_start">
-        <forms>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:priority"/>
-                    <show id="bpm:dueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="bpm:comment"/>
-                    <show id="transitions"/>
-                    <show id="esdhwf:caseId"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <field id="esdhwf:caseId" label="Sag" set="case">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:dueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    <field id="bpm:comment" label-id="workflow.field.comment" set="response">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
-                    </field>
-                    <field id="transitions" set="response"/>
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-
-
-    <!--  task for the leader to approve or reject the application-->
-    <config evaluator="task-type" condition="esdhwf:ca_approve_leader">
-<forms>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:priority"/>
-                    <show id="bpm:dueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="bpm:comment"/>
-                    <show id="esdhwf:caseId"/>
-                    <show id="esdhwf:leaderTaskOutcome" />
-                    <show id="esdhwf:hrGroupAssignee" />
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
-		    <set id="assignee" appearance="title" label-id="workflow.set.assignee"/>
-                    <set id="response" appearance="title" label-id="workflow.set.response"/>
-
-                    
-		            <field id="esdhwf:caseId" label="Sag" set="case">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:dueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    <field id="bpm:comment" label-id="workflow.field.comment" set="response">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
-                    </field>
-
-                    <field id="esdhwf:leaderTaskOutcome" label-id="workflow.field.outcome" set="response">
-                       <control template="/org/alfresco/components/form/controls/workflow/activiti-transitions.ftl" />
-                    </field>                    
-
-
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-    <!--  task for the leader to approve or reject the application-->
-    <config evaluator="task-type" condition="esdhwf:ca_approve_hr">
-    <forms>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:priority"/>
-                    <show id="bpm:dueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="bpm:comment"/>
-                    <show id="esdhwf:caseId"/>
-                    <show id="esdhwf:hrTaskOutcome"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="response" appearance="title" label-id="workflow.set.response"/>
-
-                    
-                    <field id="esdhwf:caseId" label="Sag" set="case">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:dueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    <field id="bpm:comment" label-id="workflow.field.comment" set="response">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
-                    </field>
-
-                    <field id="esdhwf:hrTaskOutcome" label-id="workflow.field.outcome" set="response">
-                       <control template="/org/alfresco/components/form/controls/workflow/activiti-transitions.ftl" />
-                    </field>                    
-
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-
-    <config evaluator="task-type" condition="esdhwf:inform_about_rejection">
-    <forms>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:priority"/>
-                    <show id="bpm:dueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="transitions"/>
-                    <show id="packageItems" />
-                    <show id="bpm:comment"/>
-                    <show id="esdhwf:caseId"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="response" appearance="title" label-id="workflow.set.response"/>
-
-                    
-                    <field id="esdhwf:caseId" label="Sag" set="case">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:dueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    <field id="bpm:comment" label-id="workflow.field.comment" set="response">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
-                    </field>
-                    <field id="transitions" set="response"/>
-
-                    
-
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-   <!-- the form for the hr to upload the course certificate--> 
-    <config evaluator="task-type" condition="esdhwf:ca_lock_application">
-    <forms>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:priority"/>
-                    <show id="bpm:dueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="transitions"/>
-                    <show id="packageItems" />
-                    <show id="bpm:comment"/>
-                    <show id="esdhwf:caseId"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="response" appearance="title" label-id="workflow.set.response"/>
-
-                    
-                    <field id="esdhwf:caseId" label="Sag" set="case">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:dueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    <field id="bpm:comment" label-id="workflow.field.comment" set="response">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
-                    </field>
-                    <field id="transitions" set="response"/>
-
-                    
-
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-   <!-- the form for the hr to upload the course certificate--> 
-    <config evaluator="task-type" condition="esdhwf:inform_approval">
-    <forms>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:priority"/>
-                    <show id="bpm:dueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="transitions"/>
-                    <show id="packageItems" />
-                    <show id="bpm:comment"/>
-                    <show id="esdhwf:caseId"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="response" appearance="title" label-id="workflow.set.response"/>
-
-                    
-                    <field id="esdhwf:caseId" label="Sag" set="case">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:dueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    <field id="bpm:comment" label-id="workflow.field.comment" set="response">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
-                    </field>
-                    <field id="transitions" set="response"/>
-
-                    
-
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-   <!-- the form for the hr to upload the course certificate--> 
-    <config evaluator="task-type" condition="esdhwf:mail_certificate">
-    <forms>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:priority"/>
-                    <show id="bpm:dueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="transitions"/>
-                    <show id="packageItems" />
-                    <show id="bpm:comment"/>
-                    <show id="esdhwf:caseId"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="response" appearance="title" label-id="workflow.set.response"/>
-
-                    
-                    <field id="esdhwf:caseId" label="Sag" set="case">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:dueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    <field id="bpm:comment" label-id="workflow.field.comment" set="response">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
-                    </field>
-                    <field id="transitions" set="response"/>
-
-                    
-
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-
-   <!-- the form for the hr to upload the course certificate--> 
-    <config evaluator="task-type" condition="esdhwf:ca_upload_certificate">
-    <forms>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:priority"/>
-                    <show id="bpm:dueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="transitions"/>
-                    <show id="packageItems" />
-                    <show id="bpm:comment"/>
-                    <show id="esdhwf:caseId"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="wf.course.application.workflow.set.add.course.certificate"/>
-                    <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="response" appearance="title" label-id="workflow.set.response"/>
-
-                    
-                    <field id="esdhwf:caseId" label="Sag" set="case">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:dueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    <field id="bpm:comment" label-id="workflow.field.comment" set="response">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
-                    </field>
-                    <field id="transitions" set="response"/>
-
-                    
-
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-   <!-- Course-Application end -->
-
-   <!-- Travel-task start -->
-
- <!-- Activiti Case Task User Workflow Definition -->
-    <!-- This is used for the form when creating a new workflow -->
-    <config evaluator="string-compare" condition="activiti$travel-task">
-        <forms>
-            <form>
-                <field-visibility>
-                    <show id="bpm:workflowDescription"/>
-                    <show id="bpm:workflowDueDate"/>
-                    <show id="bpm:workflowPriority"/>
-                    <show id="bpm:assignee" />
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                    <show id="bpm:sendEMailNotifications" />
-                </field-visibility>
-                <appearance>
-
-		    <set id="assignee" appearance="title" label-id="workflow.set.assignee"/>
-                    <set id="" appearance="title" label-id="workflow.set.general"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="other" appearance="title" label-id="workflow.set.other"/>
-		    
-		    <field id="bpm:assignee" label-id="workflow.travel.assigned" set="assignee"/>
-
-                    <field id="esdhwf:caseId" label="Sag" set="info">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                            <control-param name="linkPackageParentWithCase">true</control-param>
-                        </control>
-                    </field>
-                    <field id="bpm:workflowDescription" label-id="workflow.field.message">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl">
-                            <control-param name="style">width: 95%</control-param>
-                        </control>
-                    </field>
-                    <field id="bpm:workflowDueDate" label-id="workflow.field.due" set="info"/>
-
-                    <field id="bpm:workflowPriority" label-id="workflow.field.priority" set="info">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="packageItems" set="items">
-                           <control template="/org/alfresco/components/form/controls/workflow/packageitems.ftl">
-                                <control-param name="linkPackageParentWithCase">true</control-param>
-                           </control>
-                    </field>
-                    <field id="bpm:sendEMailNotifications" set="other">
-                       <control template="/org/alfresco/components/form/controls/workflow/email-notification.ftl" />
-                    </field>
-                </appearance>
-            </form>
-        </forms>
-    </config>
-    
-    <!-- The form "workflow-details" are used for.. the workflow details form -->
-    <!-- The other form in there, is used when viewing the history of the workflow -->
-    <!-- and you click the submit task -->
-    <config evaluator="task-type" condition="esdhwf:submit-travel-task">
-        <forms>
-            <form id="workflow-details">
-                <field-visibility>
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.workflow.more_info"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <field id="esdhwf:caseId" label="Sag" set="">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="packageItems" set="items" />
-                </appearance>
-            </form>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:workflowPriority"/>
-                    <show id="bpm:workflowDueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="other" appearance="title" label-id="workflow.set.other"/>
-                    <field id="esdhwf:caseId" label="Sag1" set="">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:workflowPriority" label-id="workflow.field.priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:workflowDueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-    <!--  task for the leader to approve or reject the application-->
-    <config evaluator="task-type" condition="esdhwf:approval_by_leader_travel">
-    <forms>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:priority"/>
-                    <show id="bpm:dueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="bpm:comment"/>
-                    <show id="esdhwf:caseId"/>
-                    <show id="esdhwf:approval_by_leader_travelOutcome"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="response" appearance="title" label-id="workflow.travel.field.outcome"/>
-                    
-                    <field id="esdhwf:caseId" label="Sag" set="case">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:dueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    <field id="bpm:comment" label-id="workflow.field.comment" set="response">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
-                    </field>
-
-                    <field id="esdhwf:approval_by_leader_travelOutcome" label-id="workflow.field.outcome" set="response">
-                       <control template="/org/alfresco/components/form/controls/workflow/activiti-transitions.ftl" />
-                    </field>                    
-
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-    <!--  task for the leader to approve or reject the application-->
-    <config evaluator="task-type" condition="esdhwf:add_travelplan_reservation">
-    <forms>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:priority"/>
-                    <show id="bpm:dueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="bpm:comment"/>
-                    <show id="esdhwf:caseId"/>
-                    <show id="transitions"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="response" appearance="title" label-id="workflow.set.response"/>
-                    
-                    <field id="esdhwf:caseId" label="Sag" set="case">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:dueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    <field id="bpm:comment" label-id="workflow.field.comment" set="response">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
-                    </field>
-
-                    <field id="transitions" set="response"/>
-
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-    <config evaluator="task-type" condition="esdhwf:make_budget">
-    <forms>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:priority"/>
-                    <show id="bpm:dueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="bpm:comment"/>
-                    <show id="esdhwf:caseId"/>
-                    <show id="transitions"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="response" appearance="title" label-id="workflow.set.response"/>
-                    
-                    <field id="esdhwf:caseId" label="Sag" set="case">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:dueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    <field id="bpm:comment" label-id="workflow.field.comment" set="response">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
-                    </field>
-
-                    <field id="transitions" set="response"/>
-
-                </appearance>
-            </form>
-        </forms>
-    </config>
-    
-    <!--  task for the leader to approve or reject the application-->
-    <config evaluator="task-type" condition="esdhwf:approval_of_budget">
-    <forms>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:priority"/>
-                    <show id="bpm:dueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="bpm:comment"/>
-                    <show id="esdhwf:caseId"/>
-                    <show id="esdhwf:approval_of_budget_travelOutcome"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="response" appearance="title" label-id="workflow.travel.field.outcome"/>
-                    
-                    <field id="esdhwf:caseId" label="Sag" set="case">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:dueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    <field id="bpm:comment" label-id="workflow.field.comment" set="response">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
-                    </field>
-
-                    <field id="esdhwf:approval_of_budget_travelOutcome" label-id="workflow.field.outcome" set="response">
-                       <control template="/org/alfresco/components/form/controls/workflow/activiti-transitions.ftl" />
-                    </field>                    
-
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-
-    <!--  task for the leader to approve or reject the application-->
-    <config evaluator="task-type" condition="esdhwf:ask_for_advance">
-    <forms>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:priority"/>
-                    <show id="bpm:dueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="bpm:comment"/>
-                    <show id="esdhwf:advance_amount"/>
-                    <show id="esdhwf:caseId"/>
-		    <show id="esdhwf:approver" />
-                    <show id="transitions"/>
-                </field-visibility>
-                <appearance>
-		    <set id="assignee" appearance="title" label-id="workflow.travel.preliminary_approver"/>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="response" appearance="title" label-id="workflow.travel.ask_for_advance_field.outcome"/>
-                    
-		    
-		    <field id="esdhwf:approver" label-id="workflow.travel.approver" set="assignee"/>
-
-		    <field id="esdhwf:advance_amount" label-id="workflow.travel.add_advance_field" set="">
-                    </field> 
-
-                   <field id="esdhwf:caseId" label="Sag" set="case">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:dueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    <field id="bpm:comment" label-id="workflow.field.comment" set="response">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
-                    </field>
-
-                    <field id="transitions" set="response"/>
-
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-    <!--  task for the leader to approve or reject the application-->
-    <config evaluator="task-type" condition="esdhwf:approve_advance_travel">
-    <forms>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:priority"/>
-                    <show id="bpm:dueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="bpm:comment"/>
-                    <show id="esdhwf:approved_advance_amount"/>
-                    <show id="esdhwf:caseId"/>
-                    <show id="esdhwf:approve_advance_travelOutcome"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="response" appearance="title" label-id="workflow.travel.approve_for_advance_field.outcome"/>
-                    
-		    <field id="esdhwf:approved_advance_amount" label-id="workflow.travel.add_advance_field" set="">
-                    </field> 
-
-                    <field id="esdhwf:caseId" label="Sag" set="case">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:dueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    <field id="bpm:comment" label-id="workflow.field.comment" set="response">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
-                    </field>
-
-                    <field id="esdhwf:approve_advance_travelOutcome" label-id="workflow.field.outcome" set="response">
-                       <control template="/org/alfresco/components/form/controls/workflow/activiti-transitions.ftl" />
-                    </field>                    
-
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-    <!--  task for the leader to approve or reject the application-->
-    <config evaluator="task-type" condition="esdhwf:pay_advance">
-    <forms>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:priority"/>
-                    <show id="bpm:dueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="bpm:comment"/>
-                    <show id="esdhwf:pay_advance_amount"/>
-                    <show id="esdhwf:caseId"/>
-		    <show id="bpm:assignee" />
-                    <show id="transitions"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="response" appearance="title" label-id="workflow.travel.pay_for_advance_field.outcome"/>
-                    
-
-		    <field id="esdhwf:pay_advance_amount" label-id="workflow.travel.add_advance_field" set="">
-                    </field> 
-
-                    <field id="esdhwf:caseId" label="Sag" set="case">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:dueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    <field id="bpm:comment" label-id="workflow.field.comment" set="response">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
-                    </field>
-
-                    <field id="transitions" set="response"/>
-
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-    <!--  task for the leader to approve or reject the application-->
-    <config evaluator="task-type" condition="esdhwf:add_expenses">
-    <forms>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:priority"/>
-                    <show id="bpm:dueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="bpm:comment"/>
-                    <show id="esdhwf:add_expenses_advance_amount"/>
-                    <show id="esdhwf:caseId"/>
-		    <show id="esdhwf:expenses_approver" />
-                    <show id="transitions"/>
-                </field-visibility>
-                <appearance>
-		    <set id="assignee" appearance="title" label-id="workflow.travel.preliminary_expenses_approver"/>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="response" appearance="title" label-id="workflow.travel.add_expenses_field.outcome"/>
-                    
-
-		    <field id="esdhwf:expenses_approver" label-id="workflow.travel.approver" set="assignee"/>
-
-		    <field id="esdhwf:add_expenses_advance_amount" label-id="workflow.travel.add_advance_field" set="">
-                    </field> 
-                    <field id="esdhwf:caseId" label="Sag" set="case">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:dueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    
-		    <field id="bpm:comment" label-id="workflow.field.comment" set="response">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
-                    </field>
-
-                    <field id="transitions" set="response"/>
-
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-    <!--  task for the leader to approve or reject the application-->
-    <config evaluator="task-type" condition="esdhwf:approve_expenses">
-    <forms>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:priority"/>
-                    <show id="bpm:dueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="bpm:comment"/>
-                    <show id="esdhwf:expenses_advance_amount"/>
-                    <show id="esdhwf:caseId"/>
-                    <show id="esdhwf:approve_expensesOutcome"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="response" appearance="title" label-id="workflow.travel.approve_expenses_field.outcome"/>
-                    
-    		    <field id="esdhwf:expenses_advance_amount" label-id="workflow.travel.add_advance_field" set="">
-                    </field> 
-
-                    <field id="esdhwf:caseId" label="Sag" set="case">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:dueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    <field id="bpm:comment" label-id="workflow.field.comment" set="response">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
-                    </field>
-
-                    <field id="esdhwf:approve_expensesOutcome" label-id="workflow.travel.advance_final_field" set="response">
-                       <control template="/org/alfresco/components/form/controls/workflow/activiti-transitions.ftl" />
-                    </field>                    
-
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
-    <!--  task for the leader to approve or reject the application-->
-    <config evaluator="task-type" condition="esdhwf:accounting">
-    <forms>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:priority"/>
-                    <show id="bpm:dueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="bpm:comment"/>
-                    <show id="esdhwf:accounting_advance_amount"/>
-                    <show id="esdhwf:caseId"/>
-		    <show id="bpm:assignee" />
-                    <show id="transitions"/>
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="response" appearance="title" label-id="workflow.travel.accounting_field.outcome"/>
-                    
-		    <field id="esdhwf:accounting_advance_amount" label-id="workflow.travel.add_advance_field" set="">
-                    </field> 
-
-                    <field id="esdhwf:caseId" label="Sag" set="case">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:dueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    <field id="bpm:comment" label-id="workflow.field.comment" set="response">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
-                    </field>
-
-                    <field id="transitions" set="response"/>
-
-                </appearance>
-            </form>
-        </forms>
-    </config>
-
- <!-- Travel-task end -->
 
     <!-- caseTaskUserDecision start-->
 
@@ -3320,7 +509,7 @@
                     <show id="bpm:workflowPriority"/>
                     <show id="bpm:assignee" />
                     <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
+                    <show id="oewf:caseId"/>
                     <show id="bpm:sendEMailNotifications" />
                 </field-visibility>
                 <appearance>
@@ -3329,7 +518,7 @@
                     <set id="assignee" appearance="title" label-id="workflow.set.assignee"/>
                     <set id="items" appearance="title" label-id="workflow.set.items"/>
                     <set id="other" appearance="title" label-id="workflow.set.other"/>
-                    <field id="esdhwf:caseId" label="Sag" set="info">
+                    <field id="oewf:caseId" label="Sag" set="info">
                         <control template="controls/datapicker.ftl">
                             <control-param name="multipleSelectMode">false</control-param>
                             <control-param name="itemType">esdh:case</control-param>
@@ -3361,17 +550,17 @@
     <!-- The form "workflow-details" are used for.. the workflow details form -->
     <!-- The other form in there, is used when viewing the history of the workflow -->
     <!-- and you click the submit task -->
-    <config evaluator="task-type" condition="esdhwf:submitCaseTaskUserDecision">
+    <config evaluator="task-type" condition="oewf:submitCaseTaskUserDecision">
         <forms>
             <form id="workflow-details">
                 <field-visibility>
                     <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
+                    <show id="oewf:caseId"/>
                 </field-visibility>
                 <appearance>
                     <set id="" appearance="title" label-id="workflow.set.workflow.more_info"/>
                     <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <field id="esdhwf:caseId" label="Sag" set="">
+                    <field id="oewf:caseId" label="Sag" set="">
                         <control template="controls/datapicker.ftl">
                             <control-param name="multipleSelectMode">false</control-param>
                             <control-param name="itemType">esdh:case</control-param>
@@ -3390,7 +579,7 @@
                     <show id="bpm:taskId"/>
                     <show id="bpm:status"/>
                     <show id="packageItems" />
-                    <show id="esdhwf:caseId"/>
+                    <show id="oewf:caseId"/>
                 </field-visibility>
                 <appearance>
                     <set id="" appearance="title" label-id="workflow.set.task.info"/>
@@ -3398,7 +587,7 @@
                     <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
                     <set id="items" appearance="title" label-id="workflow.set.items"/>
                     <set id="other" appearance="title" label-id="workflow.set.other"/>
-                    <field id="esdhwf:caseId" label="Sag" set="">
+                    <field id="oewf:caseId" label="Sag" set="">
                         <control template="controls/datapicker.ftl">
                             <control-param name="multipleSelectMode">false</control-param>
                             <control-param name="itemType">esdh:case</control-param>
@@ -3426,7 +615,7 @@
     </config>
 
 
-    <config evaluator="task-type" condition="esdhwf:caseTaskUserDecision">
+    <config evaluator="task-type" condition="oewf:caseTaskUserDecision">
         <forms>
             <form>
                 <field-visibility>
@@ -3439,7 +628,7 @@
                     <show id="packageItems" />
                     <show id="bpm:comment"/>
                     <show id="transitions"/>
-                    <show id="esdhwf:caseId"/>
+                    <show id="oewf:caseId"/>
                 </field-visibility>
                 <appearance>
                     <set id="" appearance="title" label-id="workflow.set.task.info"/>
@@ -3448,7 +637,7 @@
                     <set id="items" appearance="title" label-id="workflow.set.items"/>
                     <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
                     <set id="response" appearance="title" label-id="workflow.set.response"/>
-                    <field id="esdhwf:caseId" label="Sag" set="case">
+                    <field id="oewf:caseId" label="Sag" set="case">
                         <control template="controls/datapicker.ftl">
                             <control-param name="multipleSelectMode">false</control-param>
                             <control-param name="itemType">esdh:case</control-param>
@@ -3487,7 +676,7 @@
             </form>
         </forms>
     </config>
-    <config evaluator="task-type" condition="esdhwf:verifyTaskDoneDecision">
+    <config evaluator="task-type" condition="oewf:verifyTaskDoneDecision">
         <forms>
             <form>
                 <field-visibility>
@@ -3499,8 +688,8 @@
                     <show id="bpm:status"/>
                     <show id="packageItems" />
                     <show id="bpm:comment"/>
-                    <show id="esdhwf:caseId"/>
-                    <show id="esdhwf:caseTaskUserDecisionOutcome"/>
+                    <show id="oewf:caseId"/>
+                    <show id="oewf:caseTaskUserDecisionOutcome"/>
                 </field-visibility>
                 <appearance>
                     <set id="" appearance="title" label-id="workflow.set.task.info"/>
@@ -3509,7 +698,7 @@
                     <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
                     <set id="items" appearance="title" label-id="workflow.set.items"/>
                     <set id="response" appearance="title" label-id="workflow.set.response"/>
-                    <field id="esdhwf:caseId" label="Sag" set="case">
+                    <field id="oewf:caseId" label="Sag" set="case">
                         <control template="controls/datapicker.ftl">
                             <control-param name="multipleSelectMode">false</control-param>
                             <control-param name="itemType">esdh:case</control-param>
@@ -3536,7 +725,7 @@
                         <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
                     </field>
 
-                    <field id="esdhwf:caseTaskUserDecisionOutcome" label-id="workflow.travel.advance_final_field" set="response">
+                    <field id="oewf:caseTaskUserDecisionOutcome" label-id="workflow.travel.advance_final_field" set="response">
                        <control template="/org/alfresco/components/form/controls/workflow/activiti-transitions.ftl" />
                     </field>                    
 
@@ -3546,69 +735,5 @@
     </config>
 
     <!-- caseTaskUserDecision end-->
-    
-    <!-- close jobcase start-->
-    
-    <config evaluator="task-type" condition="esdhwf:decision-to-close">
-        <forms>
-            <form>
-                <field-visibility>
-                    <show id="message"/>
-                    <show id="taskOwner"/>
-                    <show id="bpm:priority"/>
-                    <show id="bpm:dueDate"/>
-                    <show id="bpm:taskId"/>
-                    <show id="bpm:status"/>
-                    <show id="packageItems" />
-                    <show id="bpm:comment"/>
-                    <show id="esdhwf:caseId"/>
-                    <show id="esdhwf:decisiontocloseTaskOutcome" />
-                </field-visibility>
-                <appearance>
-                    <set id="" appearance="title" label-id="workflow.set.task.info"/>
-                    <set id="info" appearance="" template="/org/alfresco/components/form/3-column-set.ftl"/>
-                    <set id="progress" appearance="title" label-id="workflow.set.task.progress"/>
-                    <set id="items" appearance="title" label-id="workflow.set.items"/>
-                    <set id="case" appearance="title" label="Sag" template="/org/alfresco/components/form/2-column-set.ftl"/>
-                    <set id="response" appearance="title" label-id="workflow.set.response"/>
-                    <field id="esdhwf:caseId" label="Sag" set="case">
-                        <control template="controls/datapicker.ftl">
-                            <control-param name="multipleSelectMode">false</control-param>
-                            <control-param name="itemType">esdh:case</control-param>
-                            <control-param name="startLocation">/app:company_home/esdh:Sager</control-param>
-                        </control>
-                    </field>
-                    <field id="message">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="taskOwner" set="info"/>
-                    <field id="bpm:taskId" set="info">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:priority" set="info" read-only="true">
-                        <control template="/org/alfresco/components/form/controls/workflow/priority.ftl"/>
-                    </field>
-                    <field id="bpm:dueDate" set="info" label-id="workflow.field.due">
-                        <control template="/org/alfresco/components/form/controls/info.ftl"/>
-                    </field>
-                    <field id="bpm:status" set="progress"/>
-                    <field id="packageItems" set="items" />
-                    
-                    <field id="bpm:comment" label-id="workflow.field.comment" set="response">
-                        <control template="/org/alfresco/components/form/controls/textarea.ftl"/>
-                    </field>
-
-                    <field id="esdhwf:decisiontocloseTaskOutcome" label-id="workflow.field.outcome" set="response">
-                       <control template="/org/alfresco/components/form/controls/workflow/activiti-transitions.ftl" />
-                    </field>
-
-            
-                </appearance>
-            </form>
-        </forms>
-    </config>
-    
-    <!-- close jobcase end-->
-
 
 </alfresco-config>
