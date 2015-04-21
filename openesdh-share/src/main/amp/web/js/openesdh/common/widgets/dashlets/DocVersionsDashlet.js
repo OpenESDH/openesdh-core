@@ -35,8 +35,10 @@ define(["dojo/_base/declare", "alfresco/core/Core",
                  id: "document_version_upload_button",
                  name: "alfresco/buttons/AlfButton",
                  config: {
-                     label: "Upload New Version",// msg.get("dashlet.button.label.version.upload"),
                      // TODO: Add icon class
+                	 i18nScope: "openesdh.dashlet.DocVersionsDashlet",
+                     i18nRequirements: [{i18nFile: "./i18n/DocVersionsDashlet.properties"}],
+                	 label : "dashlet.button.label.version.upload",
                      iconClass: "add-icon-16",
                      publishTopic: "OE_SHOW_VERSION_UPLOADER",
                      publishPayload: {
@@ -44,6 +46,7 @@ define(["dojo/_base/declare", "alfresco/core/Core",
                          documentNodeRef: this.documentNodeRef
                      },
                      disabled: true
+                 
                  }
 
              }],
@@ -84,7 +87,7 @@ define(["dojo/_base/declare", "alfresco/core/Core",
                 actualObj.publishPayload.documentNodeRef = payload.nodeRef;
                 gridObj.nodeRef = payload.nodeRef;
             },
-
+  
              _enableUpload: function () {
                  var uploadButtonObj = dijitRegistry.byId("document_version_upload_button");
                  uploadButtonObj.setDisabled(false);

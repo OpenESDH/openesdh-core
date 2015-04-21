@@ -58,8 +58,9 @@ define(["dojo/_base/declare",
                     id: "add_document_record_button",
                     config: {
                         iconClass: "add-icon-16",
-                        // TODO: i18n
-                        label: "Tilføj Dokument",
+                        i18nRequirements: [{i18nFile: "./i18n/CaseDocumentsDashlet.properties"}],
+                        i18nScope: "openesdh.case.DocumentsDashlet",
+                        label: "dashlet.button.label.document.upload",
                         publishTopic: "OE_SHOW_UPLOADER",
                         visibilityConfig: {
                             initialValue: false,
