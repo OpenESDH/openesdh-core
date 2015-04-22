@@ -65,51 +65,44 @@ model.jsonModel = {
                                                 }
                                             },
                                             {
-                                                name: "alfresco/forms/ControlRow",
+                                                name: "alfresco/buttons/AlfButton",
                                                 config: {
-                                                    widgets: [
+                                                    label: msg.get("outlook-dialog.findcase.label"),
+                                                    publishTopic: "OE_FIND_CASE",
+                                                    publishGlobal: true
+                                                },
+                                                assignTo: "formDialogButton",
+                                                widthPc: "25"
+                                            },
+                                            {
+                                                name: "alfresco/forms/controls/Select",
+                                                config: {
+                                                    name: "caseType",
+                                                    optionsConfig: {
+                                                        fixed: optionCaseTypes
+                                                    },
+                                                    fieldId: "caseTypeSelect"
+                                                },
+                                                widthPx: "150"
+                                            },
+                                            {
+                                                name: "alfresco/buttons/AlfDynamicPayloadButton",
+                                                config: {
+                                                    label: msg.get("outlook-dialog.createcase.label"),
+                                                    publishTopic: "OE_SHOW_CREATE_CASE_DIALOG",
+                                                    publishPayload: {
+//                                                                    caseType: "simple",
+                                                        publishOnSuccessTopic: "OE_OUTLOOK_CASE_CREATED"
+                                                    },
+                                                    publishPayloadSubscriptions: [
                                                         {
-                                                            name: "alfresco/buttons/AlfButton",
-                                                            config: {
-                                                                label: msg.get("outlook-dialog.findcase.label"),
-                                                                publishTopic: "OE_FIND_CASE",
-                                                                publishGlobal: true
-                                                            },
-                                                            assignTo: "formDialogButton",
-                                                            widthPc: "25"
-                                                        },
-                                                        {
-                                                            name: "alfresco/forms/controls/Select",
-                                                            config: {
-                                                                name: "caseType",
-                                                                optionsConfig: {
-                                                                    fixed: optionCaseTypes
-                                                                },
-                                                                fieldId: "caseTypeSelect"
-                                                            },
-                                                            widthPx: "150"
-                                                        },
-                                                        {
-                                                            name: "alfresco/buttons/AlfDynamicPayloadButton",
-                                                            config: {
-                                                                label: msg.get("outlook-dialog.createcase.label"),
-                                                                publishTopic: "OE_SHOW_CREATE_CASE_DIALOG",
-                                                                publishPayload: {
-                                                                    caseType: "simple",
-                                                                    publishOnSuccessTopic: "OE_OUTLOOK_CASE_CREATED"
-                                                                },
-                                                                publishPayloadSubscriptions: [
-                                                                    {
-                                                                        topic: "_valueChangeOf_caseTypeSelect",
-                                                                        dataMapping: {
-                                                                            value: "caseType"
-                                                                        }
-                                                                    }
-                                                                ],
-                                                                publishGlobal: true
+                                                            topic: "_valueChangeOf_caseTypeSelect",
+                                                            dataMapping: {
+                                                                value: "caseType"
                                                             }
                                                         }
-                                                    ]
+                                                    ],
+                                                    publishGlobal: true
                                                 }
                                             },
                                             {
