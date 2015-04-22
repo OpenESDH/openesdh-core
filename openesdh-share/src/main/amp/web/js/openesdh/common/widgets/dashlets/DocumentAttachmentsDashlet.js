@@ -40,12 +40,16 @@ define(["dojo/_base/declare",
                 {
                     name: "alfresco/buttons/AlfButton",
                     id: "upload_attachment_button",
+                   
+                    
                     config: {
-                        label: "Tilføj Bilag",//TODO can't seem to localise
+                        label: "dashlet.button.label.attachment.upload",
                         // TODO: Add icon class
                         iconClass: "add-icon-16",
                         publishTopic: "OE_SHOW_ATTACHMENTS_UPLOADER",
-                        disabled: true
+                        disabled: true,
+                        i18nScope: "openesdh.case.DocumentAttachmentsDashlet",
+                        i18nRequirements: [{i18nFile: "./i18n/DocumentAttachmentsDashlet.properties"}]
                     }
                 }
             ],
@@ -72,12 +76,7 @@ define(["dojo/_base/declare",
 
                 this.alfSubscribe(this.DocumentRowSelect, lang.hitch(this, "_enableUpload"));
             },
-            postCreate: function () {
-                this.inherited(arguments);
-                var uploadButtonObj = dijitRegistry.byId("upload_attachment_button");
-                uploadButtonObj.label = this.message("dashlet.button.label.attachment.upload");
-            },
-
+            
             _enableUpload: function () {
                 var uploadButtonObj = dijitRegistry.byId("upload_attachment_button");
                 uploadButtonObj.setDisabled(false);

@@ -107,7 +107,7 @@ define(["dojo/_base/declare",
                     {
                         name: "alfresco/forms/controls/FileSelect",
                         config: {
-                            label: "Select files to upload...",
+                            label: "upload-dialog.form-control.label.file-control", 
                             name: "files"
                         }
                     },
@@ -213,9 +213,9 @@ define(["dojo/_base/declare",
                     finalWidget = finalWidget.concat(docRecordWidgets);
 
                 this.uploadDialog = new AlfFormDialog({
-                    dialogTitle: "Select files to upload",
-                    dialogConfirmationButtonTitle: "Upload",
-                    dialogCancellationButtonTitle: "Cancel",
+                    dialogTitle: "upload-dialog.new_doc.dialog.title",
+                    dialogConfirmationButtonTitle: "upload-dialog.new_doc.dialog.btn.upload",
+                    dialogCancellationButtonTitle: "dialog.button.label.cancel",
                     formSubmissionTopic: "OE_CASE_DOCUMENT_SERVICE_UPLOAD_REQUEST_RECEIVED",
                     widgets: finalWidget
                 });
