@@ -5,8 +5,10 @@ var args = page.url.args;
 var caseId = url.templateArgs.caseId;
 //In the case of some pages (e.g. document details) we need to get the caseId in reverse
 // i.e. from the nodeRef
-if (caseId == null)
-    caseId = getCaseIdFromNodeRef(args.nodeRef);
+if (caseId == null){
+    if ( (caseId = getCaseIdFromNodeRef(args.nodeRef)) ) ;
+    else if ( (caseId = getCaseIdFromNodeRef(args.targetCase)) ) ;// from start-workflow page
+}
 
 var nodeRef = getCaseNodeRefFromId(caseId);
 var navMenu = widgetUtils.findObject(model.jsonModel, "id", "HEADER_NAVIGATION_MENU_BAR");
@@ -154,12 +156,5 @@ verticalLayout.config.widgets.push({
         }
     }
 });
-/*model.jsonModel.services.push({
-    name: "openesdh/common/services/CaseService",
-    config: {
-        caseId: caseId,
-        nodeRef: (nodeRef != null) ? nodeRef : args.destination
-    }
-});*/
 
 navMenu.config.widgets.push(caseConfig);

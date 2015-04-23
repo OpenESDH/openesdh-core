@@ -159,7 +159,7 @@ model.jsonModel = {
                                             {
                                                 "name": "alfresco/html/Spacer",
                                                 config: {
-                                                    height: "20px",
+                                                    height: "20px"
                                                 }
                                             }
                                         ]

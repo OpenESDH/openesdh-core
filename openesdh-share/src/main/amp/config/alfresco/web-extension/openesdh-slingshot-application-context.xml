@@ -59,6 +59,7 @@
                 <value>classpath:alfresco/web-extension/share-config-contact.xml</value>
                 <value>classpath:alfresco/web-extension/share-config-xsearch.xml</value>
                 <value>classpath:alfresco/web-extension/share-documentlibrary-config-custom.xml</value>
+                <value>classpath:alfresco/web-extension/openE-workflow-form-config.xml</value>
             </list>
         </constructor-arg>
     </bean>

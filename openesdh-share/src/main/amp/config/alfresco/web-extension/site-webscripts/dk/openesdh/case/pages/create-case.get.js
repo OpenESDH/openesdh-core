@@ -22,12 +22,6 @@ model.jsonModel = {
     publishOnReady: "",
     services: [
         {
-            name: "openesdh/common/services/CaseService",
-            config: {
-                fieldId: "35cbd518-a7c1-44c8-89ba-7e3d781222be"
-            }
-        },
-        {
             name: "openesdh/common/services/AuthorityService",
             config: {
                 fieldId: "35c9ck58-a7c1-5512-89ba-7e3d7III22be"

@@ -108,4 +108,5 @@ var caseService= {
 };
 model.jsonModel.services.push(caseService);
 model.jsonModel.services.push("openesdh/common/services/AuthorityService");
+model.jsonModel.services.push("alfresco/services/OptionsService");
 model.jsonModel.services.push("alfresco/services/DialogService");
