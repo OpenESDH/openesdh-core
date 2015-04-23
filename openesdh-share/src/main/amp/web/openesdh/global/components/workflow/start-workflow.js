@@ -1,3 +1,4 @@
+Alfresco.component.StartWorkflow.prototype.options.caseId = "";
 Alfresco.component.StartWorkflow.prototype.options.targetCase = "";
 Alfresco.component.StartWorkflow.prototype.options.targetCasePhase = "";
 
@@ -18,7 +19,7 @@ Alfresco.component.StartWorkflow.prototype.onObjectFinderReady= function StartWo
         objectFinder.selectItems(this.options.selectedItems);
     }
     if (objectFinder.options.field == "prop_oewf_caseId" && objectFinder.eventGroup.indexOf(this.id) == 0) {
-        objectFinder.selectItems(this.options.targetCase);
+        objectFinder.selectItems(this.options.caseId);
     }
     if (objectFinder.options.field == "prop_oewf_phase" && objectFinder.eventGroup.indexOf(this.id) == 0) {
         objectFinder.selectItems(this.options.targetCasePhase);

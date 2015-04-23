@@ -248,14 +248,6 @@
         <property name="nodeService" ref="NodeService"/>
     </bean>
 
-    <!--Rootscope object for contact searching-->
-    <bean id="contactUtils" parent="baseJavaScriptExtension" class="dk.openesdh.repo.rootScopeExt.Contact">
-        <property name="extensionName">
-            <value>contactUtil</value>
-        </property>
-        <property name="contactService" ref="ContactService"/>
-    </bean>
-
     <!--Miscellaneous-->
     <bean id="webscript.dk.openesdh.case.searchDefinition.get" parent="webscript"
           class="dk.openesdh.repo.webscripts.cases.SearchDefinition">
@@ -288,7 +280,7 @@
     <bean id="webscript.dk.openesdh.workflows.caseWorkflowDefinitions.get" class="dk.openesdh.repo.webscripts.workflows.CaseWorkflowsDefinitionGet"
           parent="abstractWorkflowWebScript">
         <property name="casePrefix">
-            <value>openE</value>
+            <value>openE-</value>
         </property>
     </bean>
 </beans>

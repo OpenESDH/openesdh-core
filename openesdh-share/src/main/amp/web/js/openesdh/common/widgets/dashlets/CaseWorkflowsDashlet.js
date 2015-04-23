@@ -53,6 +53,8 @@ define(["dojo/_base/declare",
              */
             i18nRequirements: [{i18nFile: "./i18n/CaseWorkflowsDashlet.properties"}],
 
+            caseId: null,
+
             caseNodeRef: null,
 
             widgetsForTitleBarActions: [
@@ -60,11 +62,13 @@ define(["dojo/_base/declare",
                     name: "alfresco/buttons/AlfButton",
                     id: "new_workflow_button",
                     config: {
+                        i18nScope: "openesdh.case.workflows",
+                        i18nRequirements: [{i18nFile: "./i18n/CaseWorkflowsDashlet.properties"}],
                         iconClass: "add-icon-16",
                         // TODO: i18n
-                        label: "Start ny proces",
+                        label: "title-bar.button.label.start-workflow",
                         publishTopic: "OE_NAVIGATE_WORKFLOW_PAGE_TOPIC",
-                        publishPayload: {caseNodeRef: this.caseNodeRef}
+                        publishPayload: {caseNodeRef: this.caseNodeRef, caseId: this.caseId}
                     }
                 }
             ],
@@ -82,23 +86,35 @@ define(["dojo/_base/declare",
                 }
             ],*/
 
-            widgetsForBody: [ ],
+            widgetsForBody: [
+                {
+                    name: "openesdh/pages/case/widgets/CaseWorkflowGrid",
+                    config: {
+                        showPagination: false,
+                        sort: [
+                            { attribute: 'type', descending: true }
+                        ],
+                        showColumnHider: false,
+                        caseId: this.caseId,
+                        caseNodeRef: this.caseNodeRef
+                    }
+                }
+            ],
+
+            constructor: function (args) {
+                lang.mixin(this, args);
+                // Pass in the nodeRef to the widget
+                lang.setObject("config.caseId", this.caseId, this.widgetsForBody[0]);
+                lang.setObject("config.caseNodeRef", this.caseNodeRef, this.widgetsForBody[0]);
+
+                console.log("This caseId: "+ this.caseId);
+            },
 
             postCreate: function () {
                 this.inherited(arguments);
                 var startCaseWorkflowButton = dijitRegistry.byId("new_workflow_button");
                 startCaseWorkflowButton.publishPayload.caseNodeRef = this.caseNodeRef;
-            }/*,
-
-            onDropdownChanged: function (payload) {
-                console.log("CaseWorkflowDashlet.js (86) Navigating to form....");
-                this.alfPublish("ALF_NAVIGATE_TO_PAGE", {
-                    type: "CONTEXT_RELATIVE",
-                    target: "CURRENT",
-                    url: "service/components/form?htmlid=template_x002e_start-workflow_x002e_start-workflow_x0023_" +
-                    "default-startWorkflowForm-alf-id1&itemKind=workflow&itemId="+payload.value+"&mode=create&submitType" +
-                    "=json&showCaption=true&formUI=true&showCancelButton=true"
-                })
-            }*/
+                startCaseWorkflowButton.publishPayload.caseId = this.caseId;
+            }
         });
     });

@@ -21,6 +21,7 @@ function injectWFItems() {
 
     var startWorkflowModule = widgetUtils.findObject(model.widgets, "id", "StartWorkflow");
     startWorkflowModule.options.workflowDefinitions = model.workflowDefinitions;
+    startWorkflowModule.options.caseId = (page.url.args.caseId != null) ? page.url.args.caseId : "";
     startWorkflowModule.options.targetCase = (page.url.args.targetCase != null) ? page.url.args.targetCase : "";
     startWorkflowModule.options.targetCasePhase = (page.url.args.targetCasePhase  != null) ? page.url.args.targetCasePhase : "";
 }

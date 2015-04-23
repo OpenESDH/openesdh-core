@@ -15,7 +15,10 @@ import org.springframework.extensions.webscripts.WebScriptRequest;
 
 /**
  * Webscript implementation to return the latest version of all deployed
- * workflow definitions.
+ * workflow definitions. Specifically ones relevant to cases.
+ *
+ * Essentially this returns all workflows that have an id with the prefix
+ * that is set in the xml bean config
  *
  * @author Lanre
  * @basedOn WorkflowsDefinitionGet by Nick Smith
@@ -23,11 +26,9 @@ import org.springframework.extensions.webscripts.WebScriptRequest;
 public class CaseWorkflowsDefinitionGet extends AbstractWorkflowWebscript {
 
     private String casePrefix;
-
     public void setCasePrefix(String casePrefix) {
         this.casePrefix = casePrefix;
     }
-
 
     @Override
     protected Map<String, Object> buildModel(WorkflowModelBuilder modelBuilder, WebScriptRequest req, Status status, Cache cache) {

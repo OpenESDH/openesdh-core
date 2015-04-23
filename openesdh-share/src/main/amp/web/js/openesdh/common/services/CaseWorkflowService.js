@@ -65,7 +65,7 @@ define(["dojo/_base/declare",
                 this.alfPublish("ALF_NAVIGATE_TO_PAGE", {
                         type: "CONTEXT_RELATIVE",
                         target: "CURRENT",
-                        url: "page/start-workflow?targetCase="+payload.caseNodeRef
+                        url: "page/start-workflow?targetCase="+payload.caseNodeRef+"&caseId="+payload.caseId
                     }
                 )
             },

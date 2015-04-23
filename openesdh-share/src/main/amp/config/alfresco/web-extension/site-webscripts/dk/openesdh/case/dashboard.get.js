@@ -31,6 +31,13 @@ model.jsonModel = {
                                     name: "openesdh/common/widgets/dashlets/CaseInfoDashlet"
                                 },
                                 {
+                                    id: "CASE_MEMBERS_DASHLET",
+                                    name: "openesdh/common/widgets/dashlets/CaseMembersDashlet",
+                                    config:{
+                                        caseId : caseId
+                                    }
+                                },
+                                {
                                     id: "CASE_NOTES_DASHLET",
                                     name: "openesdh/common/widgets/dashlets/NotesDashlet",
                                     config: {
@@ -53,16 +60,10 @@ model.jsonModel = {
                                     }
                                 },
                                 {
-                                    id: "CASE_MEMBERS_DASHLET",
-                                    name: "openesdh/common/widgets/dashlets/CaseMembersDashlet",
-                                    config:{
-                                        caseId : caseId
-                                    }
-                                },
-                                {
                                     id: "CASE_WORKFLOW_DASHLET",
                                     name: "openesdh/common/widgets/dashlets/CaseWorkflowsDashlet",
                                     config: {
+                                        caseId : caseId,
                                         caseNodeRef: caseNodeRef
                                     }
                                 }

@@ -1,12 +1,15 @@
 package dk.openesdh.repo.webscripts.workflows;
 
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.workflow.WorkflowModel;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthorityService;
+import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.workflow.*;
 import org.alfresco.service.namespace.QName;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.extensions.webscripts.AbstractWebScript;
@@ -25,12 +28,14 @@ public class WorkflowSearch extends AbstractWebScript {
     private WorkflowService workflowService;
     private NodeService nodeService;
     private AuthorityService authorityService;
+    private PersonService personService;
 
     public void setServiceRegistry(ServiceRegistry registry) {
         this.registry = registry;
         this.workflowService = registry.getWorkflowService();
         this.nodeService = registry.getNodeService();
         this.authorityService = this.registry.getAuthorityService();
+        this.personService = this.registry.getPersonService();
 
     }
 
@@ -81,7 +86,7 @@ public class WorkflowSearch extends AbstractWebScript {
 
         try {
             // build a json object
-            JSONObject obj = new JSONObject();
+            JSONArray obj = new JSONArray();
 
             QName OWNER = QName.createQName("http://www.alfresco.org/model/content/1.0", "owner");
 
@@ -114,13 +119,10 @@ public class WorkflowSearch extends AbstractWebScript {
                         }
 
                         if (t.getName().equals("esdhwf:completedPhaseTask") == true) {
-
                             taskStatus = "In Progress";
                             pooledActorsNodeRef = (NodeRef) t.getProperties().get(tmpGroupQName);
-
                             groupName = (String) this.nodeService.getProperty(pooledActorsNodeRef, ContentModel.PROP_AUTHORITY_NAME);
                             groupDisplayName = (String) this.nodeService.getProperty(pooledActorsNodeRef, ContentModel.PROP_AUTHORITY_DISPLAY_NAME);
-
                         }
 
                 } catch (Exception e) {
@@ -130,18 +132,20 @@ public class WorkflowSearch extends AbstractWebScript {
 
 
                 NodeRef nr = t.getPath().getInstance().getInitiator();
+                NodeRef assigneeNR = (NodeRef) t.getProperties().get(WorkflowModel.ASSOC_ASSIGNEE);
+                PersonService.PersonInfo assignee = this.personService.getPerson(assigneeNR);
+                PersonService.PersonInfo initiator = this.personService.getPerson(nr);
 
                 JSONObject task = new JSONObject();
-                task.put("tmp", t.getProperties().get(pooledActors));
-                task.put("name", t.getName());
+//                task.put("name", t.getName());
                 task.put("id", t.getId());
+                task.put("type", t.getTitle());
+                task.put("name", assignee.getFirstName() +" "+ assignee.getLastName()+" ("+assignee.getUserName()+")");
                 task.put("owner", t.getProperties().get(OWNER));
-                task.put("groupName", groupName);
-                task.put("groupDisplayName", groupDisplayName);
                 task.put("description", t.getProperties().get(DESCRIPTION));
-                task.put("initiator", nr.toString());
+                task.put("initiator",  initiator.getFirstName() +" "+ initiator.getLastName()+" ("+initiator.getUserName()+")");
                 task.put("status", taskStatus);
-                obj.append("tasks", task);
+                obj.put(task);
             }
 
             // build a JSON string and send it back
