@@ -3,8 +3,6 @@ function sortByTitle(workflow1, workflow2) {
         title2 = (workflow2.title || workflow2.name).toUpperCase();
     return (title1 > title2) ? 1 : (title1 < title2) ? -1 : 0;
 }
-
-
 function getCaseWorkflowDefinitions() {
     var connector = remote.connect("alfresco");
     var result = connector.get("/api/openesdh/case/workflow/definitions");
@@ -17,14 +15,14 @@ function getCaseWorkflowDefinitions() {
     return [];
 }
 
-
-function injectItemId() {
+function injectWFItems() {
 
     model.workflowDefinitions = getCaseWorkflowDefinitions();
 
     var startWorkflowModule = widgetUtils.findObject(model.widgets, "id", "StartWorkflow");
     startWorkflowModule.options.workflowDefinitions = model.workflowDefinitions;
     startWorkflowModule.options.targetCase = (page.url.args.targetCase != null) ? page.url.args.targetCase : "";
+    startWorkflowModule.options.targetCasePhase = (page.url.args.targetCasePhase  != null) ? page.url.args.targetCasePhase : "";
 }
 
-injectItemId();
+injectWFItems();

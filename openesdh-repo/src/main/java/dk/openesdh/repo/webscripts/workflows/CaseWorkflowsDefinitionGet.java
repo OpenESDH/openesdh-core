@@ -53,7 +53,6 @@ public class CaseWorkflowsDefinitionGet extends AbstractWorkflowWebscript {
 
         Map<String, Object> model = new HashMap<String, Object>();
         model.put("workflowDefinitions", results);
-        System.out.println("Returning case workflows");
         return model;
     }
 }

@@ -30,16 +30,4 @@
             </list>
         </property>
     </bean>
-    <bean id="practice.workflowBootstrap" parent="workflowDeployer">
-        <property name="workflowDefinitions">
-            <list>
-                <props>
-                    <prop key="engineId">activiti</prop>
-                    <prop key="location">alfresco/extension/workflows/workflowFork.bpmn</prop>
-                    <prop key="mimetype">text/xml</prop>
-                    <prop key="redeploy">false</prop>
-                </props>
-            </list>
-        </property>
-    </bean>
 </beans>
