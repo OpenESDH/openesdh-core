@@ -5,10 +5,7 @@ import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthorityService;
-import org.alfresco.service.cmr.workflow.WorkflowService;
-import org.alfresco.service.cmr.workflow.WorkflowTask;
-import org.alfresco.service.cmr.workflow.WorkflowTaskQuery;
-import org.alfresco.service.cmr.workflow.WorkflowTaskState;
+import org.alfresco.service.cmr.workflow.*;
 import org.alfresco.service.namespace.QName;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,7 +36,6 @@ public class WorkflowSearch extends AbstractWebScript {
 
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
         String caseId = req.getParameter("caseId");
-        String phase = req.getParameter("phase");
         String status = req.getParameter("status");
         if (status == null) {
             status = "";
@@ -49,30 +45,28 @@ public class WorkflowSearch extends AbstractWebScript {
 
         Map<QName, Object> processCustomProps = new HashMap<QName, Object>();
 
-        processCustomProps.put(QName.createQName(
-                "http://www.alfresco.org/model/bpm/1.0", "caseId"), caseId);
+//        processCustomProps.put(QName.createQName(
+//                "http://www.magenta-aps.dk/model/oeworkflow/1.0", "caseId"), caseId);
 
-        if (phase != null) {
-            processCustomProps.put(QName.createQName("http://www.alfresco.org/model/bpm/1.0", "casePhase"), phase);
-        }
+//        tasksQuery.setProcessCustomProps(processCustomProps);
 
-        tasksQuery.setProcessCustomProps(processCustomProps);
+        tasksQuery.setWorkflowDefinitionName("activiti$openE-CaseTaskUser");
 
-
-        List<WorkflowTask> tasks = new ArrayList<WorkflowTask>();
+        List<WorkflowTask> tasks = new ArrayList<>();
 
 		/* If the status is empty, perform two queries so we get both open and closed tasks */
         if (status.isEmpty()) {
 
             tasksQuery.setTaskState(WorkflowTaskState.IN_PROGRESS);
-            List<WorkflowTask> openTasks = workflowService.queryTasks(tasksQuery);
+    //        List<WorkflowInstance> openTasks = workflowService.getWorkflows();
+            List<WorkflowTask> openTasks = workflowService.queryTasks(tasksQuery, true);
 
             tasksQuery.setTaskState(WorkflowTaskState.COMPLETED);
             tasksQuery.setActive(false);
-            List<WorkflowTask> closedTasks = workflowService.queryTasks(tasksQuery);
+            List<WorkflowInstance> closedTasks = workflowService.getWorkflows();
 
             tasks.addAll(openTasks);
-            tasks.addAll(closedTasks);
+//            tasks.addAll(closedTasks);
 
         } else {
 
@@ -82,7 +76,7 @@ public class WorkflowSearch extends AbstractWebScript {
                 tasksQuery.setActive(false);
                 tasksQuery.setTaskState(WorkflowTaskState.COMPLETED);
             }
-            tasks = workflowService.queryTasks(tasksQuery);
+//            tasks = workflowService.queryTasks(tasksQuery);
         }
 
         try {
@@ -95,28 +89,16 @@ public class WorkflowSearch extends AbstractWebScript {
 
             QName DESCRIPTION = QName.createQName("http://www.alfresco.org/model/bpm/1.0", "description");
 
-            QName phaseQName = QName.createQName("http://www.alfresco.org/model/bpm/1.0", "casePhase");
-
             QName pooledActors = QName.createQName("http://www.alfresco.org/model/bpm/1.0", "pooledActors");
 
             QName tmpGroupQName = QName.createQName("http://www.magenta-aps.dk/model/esdhworkflow/1.0", "tmpGroup");
+
 
             for (WorkflowTask t : tasks) {
                 if (t.getName().equals("esdhwf:completedPhaseTask") == true && t.getProperties().get(STATUS).equals("Completed")) {
                     continue;
                 }
 
-                Object tmpp = t.getProperties().get(phaseQName);
-
-
-                if (tmpp == null) {
-                    continue;
-                }
-                String tmp = tmpp.toString();
-
-                NodeRef phaseNodeRef = new NodeRef(tmp);
-
-                String phaseName = this.nodeService.getProperty(phaseNodeRef, ContentModel.PROP_NAME).toString();
 
                 NodeRef pooledActorsNodeRef;
                 String groupName = "";
@@ -152,8 +134,6 @@ public class WorkflowSearch extends AbstractWebScript {
                 JSONObject task = new JSONObject();
                 task.put("tmp", t.getProperties().get(pooledActors));
                 task.put("name", t.getName());
-                task.put("phaseName", phaseName);
-                task.put("phase", tmp);
                 task.put("id", t.getId());
                 task.put("owner", t.getProperties().get(OWNER));
                 task.put("groupName", groupName);
