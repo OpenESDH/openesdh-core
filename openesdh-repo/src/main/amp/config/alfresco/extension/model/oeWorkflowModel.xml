@@ -12,7 +12,6 @@
         <namespace uri="http://www.magenta-aps.dk/model/oeworkflow/1.0" prefix="oewf" />
     </namespaces>
 
-
     <types>
         <type name="oewf:submitPhaseTask">
             <title>Indsend faseopgave</title>
@@ -90,7 +89,6 @@
 
         </type>
 
-
         <type name="oewf:phaseCommentTask">
             <parent>bpm:workflowTask</parent>
             <overrides>
@@ -108,7 +106,6 @@
             </mandatory-aspects>
         </type>
 
-
         <type name="oewf:phaseCommentProduceTask">
             <parent>bpm:workflowTask</parent>
             <mandatory-aspects>
@@ -119,9 +116,6 @@
                 <aspect>oewf:lastPooledActor</aspect>
             </mandatory-aspects>
         </type>
-
-
-
 
         <type name="oewf:submitQAApprovalTask">
             <parent>bpm:startTask</parent>
@@ -184,7 +178,6 @@
                 <aspect>oewf:phase</aspect>
             </mandatory-aspects>
         </type>
-
 
         <type name="oewf:qaaQTask">
             <parent>bpm:activitiOutcomeTask</parent>
@@ -260,8 +253,6 @@
                 <aspect>oewf:isLastTask</aspect>
             </mandatory-aspects>
         </type>
-
-
 
         <type name="oewf:submitCaseTaskUser">
             <title>Start sagsopgave</title>
@@ -536,10 +527,6 @@
             </mandatory-aspects>
         </type>
 
-
-
-
-
         <type name="oewf:add_signed_contract">
             <parent>bpm:workflowTask</parent>
 
@@ -555,8 +542,6 @@
                 <aspect>oewf:case</aspect>
             </mandatory-aspects>
         </type>
-
-
 
         <type name="oewf:create_user">
             <parent>bpm:activitiOutcomeTask</parent>
@@ -611,11 +596,9 @@
             </mandatory-aspects>
         </type>
 
-
         <!--hiring-contracts-task end -->
 
         <!-- Course Application start -->
-
 
         <type name="oewf:submit-ca-task">
             <title>Start sagsopgave</title>
@@ -777,9 +760,6 @@
             </mandatory-aspects>
         </type>
 
-
-
-
         <type name="oewf:ca_upload_certificate">
             <parent>bpm:workflowTask</parent>
 
@@ -897,7 +877,6 @@
             </mandatory-aspects>
         </type>
 
-
         <type name="oewf:ask_for_advance">
             <parent>bpm:workflowTask</parent>
 
@@ -958,14 +937,11 @@
                     </constraints>
                 </property>
 
-
                 <property name="oewf:approved_advance_amount">
                     <type>d:text</type>
                     <mandatory>false</mandatory>
                 </property>
             </properties>
-
-
 
             <overrides>
                 <property name="bpm:packageActionGroup">
@@ -1012,17 +988,14 @@
             </mandatory-aspects>
         </type>
 
-
         <type name="oewf:add_expenses">
             <parent>bpm:activitiOutcomeTask</parent>
 
             <properties>
-
                 <property name="oewf:add_expenses_advance_amount">
                     <type>d:text</type>
                     <mandatory>false</mandatory>
                 </property>
-
             </properties>
 
             <associations>
@@ -1055,7 +1028,6 @@
             </mandatory-aspects>
         </type>
 
-
         <type name="oewf:approve_expenses">
             <parent>bpm:activitiOutcomeTask</parent>
             <properties>
@@ -1074,14 +1046,11 @@
                     </constraints>
                 </property>
 
-
                 <property name="oewf:expenses_advance_amount">
                     <type>d:text</type>
                     <mandatory>false</mandatory>
                 </property>
             </properties>
-
-
 
             <overrides>
                 <property name="bpm:packageActionGroup">
@@ -1090,11 +1059,9 @@
                 <property name="bpm:packageItemActionGroup">
                     <default>edit_package_item_actions</default>
                 </property>
-
                 <property name="bpm:outcomePropertyName">
                     <default>{http://www.magenta-aps.dk/model/oeworkflow/1.0}approve_expensesOutcome</default>
                 </property>
-
             </overrides>
             <mandatory-aspects>
                 <aspect>oewf:case</aspect>
@@ -1106,7 +1073,6 @@
             <parent>bpm:activitiOutcomeTask</parent>
 
             <properties>
-
                 <property name="oewf:accounting_advance_amount">
                     <type>d:text</type>
                     <mandatory>false</mandatory>
@@ -1204,10 +1170,7 @@
         </type>
     </types>
 
-
     <!-- caseTaskUserDecision end-->
-
-
     <aspects>
 
         <aspect name="oewf:case">
@@ -1264,8 +1227,4 @@
             </properties>
         </aspect>
     </aspects>
-
-
-
-
 </model>

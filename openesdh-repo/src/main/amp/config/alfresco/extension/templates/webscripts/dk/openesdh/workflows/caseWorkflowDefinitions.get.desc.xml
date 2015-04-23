@@ -1,0 +1,13 @@
+<webscript>
+  <shortname>Webscript to get workflow definitions</shortname>
+  <description>
+    Retrieves all the case specific workflow definitions. Two things to note
+    1) This relies on the naming convention that that all workflow IDs have a standard set prefix (e.g. open-E)
+    2) This prefix is set in the spring bean definition
+       ("webscript.dk.openesdh.workflows.caseWorkflowDefinitions.get") to allow a degree of flexibility.
+  </description>
+  <url>/api/openesdh/case/workflow/definitions</url>
+  <authentication>user</authentication>
+  <family>Case Workflow Tools</family>
+  <format default="json">argument</format>
+</webscript>

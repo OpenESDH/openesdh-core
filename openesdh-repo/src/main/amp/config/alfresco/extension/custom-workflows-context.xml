@@ -1,26 +1,21 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
-
 <beans>
-
     <bean id="phaseTask.workflowBootstrap" parent="workflowDeployer">
         <property name="workflowDefinitions">
             <list>
                 <props>
                     <prop key="engineId">activiti</prop>
-                    <prop key="location">alfresco/extension/workflows/qa-and-approval.bpmn20.xml</prop>
+                    <prop key="location">alfresco/extension/workflows/qa-and-approval.bpmn</prop>
                     <prop key="mimetype">text/xml</prop>
-                    <prop key="redeploy">true</prop>
+                    <prop key="redeploy">false</prop>
                 </props>
-
-
                 <props>
                     <prop key="engineId">activiti</prop>
-                    <prop key="location">alfresco/extension/workflows/case-task-user.bpmn20.xml</prop>
+                    <prop key="location">alfresco/extension/workflows/case-task-user.bpmn</prop>
                     <prop key="mimetype">text/xml</prop>
-                    <prop key="redeploy">true</prop>
+                    <prop key="redeploy">false</prop>
                 </props>
-
             </list>
         </property>
         <property name="models">
@@ -35,7 +30,16 @@
             </list>
         </property>
     </bean>
-
-
-
+    <bean id="practice.workflowBootstrap" parent="workflowDeployer">
+        <property name="workflowDefinitions">
+            <list>
+                <props>
+                    <prop key="engineId">activiti</prop>
+                    <prop key="location">alfresco/extension/workflows/workflowFork.bpmn</prop>
+                    <prop key="mimetype">text/xml</prop>
+                    <prop key="redeploy">false</prop>
+                </props>
+            </list>
+        </property>
+    </bean>
 </beans>

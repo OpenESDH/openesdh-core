@@ -154,12 +154,5 @@ verticalLayout.config.widgets.push({
         }
     }
 });
-/*model.jsonModel.services.push({
-    name: "openesdh/common/services/CaseService",
-    config: {
-        caseId: caseId,
-        nodeRef: (nodeRef != null) ? nodeRef : args.destination
-    }
-});*/
 
 navMenu.config.widgets.push(caseConfig);

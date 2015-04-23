@@ -3,11 +3,17 @@
 var caseId = url.templateArgs.caseId;
 var caseNodeRef = getCaseNodeRefFromId(caseId);
 
+var caseWorkflowService= {
+    name: "openesdh/common/services/CaseWorkflowService",
+    config:{
+        caseId: caseId,
+        nodeRef: (caseNodeRef != null) ? caseNodeRef : args.destination
+    }
+};
 model.jsonModel = {
     services: [
         "alfresco/services/CrudService",
-        "openesdh/common/services/CaseMembersService",
-        //"alfresco/dialogs/AlfDialogService"
+        "openesdh/common/services/CaseMembersService"
     ],
     widgets: [{
             name: "alfresco/layout/HorizontalWidgets",
@@ -52,6 +58,13 @@ model.jsonModel = {
                                     config:{
                                         caseId : caseId
                                     }
+                                },
+                                {
+                                    id: "CASE_WORKFLOW_DASHLET",
+                                    name: "openesdh/common/widgets/dashlets/CaseWorkflowsDashlet",
+                                    config: {
+                                        caseNodeRef: caseNodeRef
+                                    }
                                 }
                             ]
                         }
@@ -61,3 +74,5 @@ model.jsonModel = {
     }]
 
 };
+
+model.jsonModel.services.push(caseWorkflowService);
