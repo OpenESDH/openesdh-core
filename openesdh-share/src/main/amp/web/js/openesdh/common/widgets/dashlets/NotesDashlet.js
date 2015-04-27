@@ -18,19 +18,22 @@
  */
 
 define(["dojo/_base/declare", "alfresco/core/Core",
+        "alfresco/core/I18nUtils",
         "openesdh/common/widgets/dashlets/Dashlet",
         "dojo/_base/lang",
         "alfresco/core/NodeUtils"],
-      function(declare, AlfCore, Dashlet, lang, NodeUtils) {
+    function (declare, AlfCore, I18nUtils, Dashlet, lang, NodeUtils) {
 
-         return declare([Dashlet], {
+        var i18nScope = "openesdh.dashlet.NotesDashlet";
+
+        return declare([Dashlet], {
 
             /**
              * The i18n scope to use for this widget.
              *
              * @instance
              */
-            i18nScope: "openesdh.dashlet.NotesDashlet",
+            i18nScope: i18nScope,
 
             /**
              * An array of the i18n files to use with this widget.
@@ -41,51 +44,62 @@ define(["dojo/_base/declare", "alfresco/core/Core",
              */
             i18nRequirements: [{i18nFile: "./i18n/NotesDashlet.properties"}],
 
+            widgetsForTitleBarActions: [
+                {
+                    name: "alfresco/buttons/AlfButton",
+                    config: {
+                        iconClass: "add-icon-16",
+                        label: I18nUtils.msg(i18nScope, "notes.button.label.add"),
+                        publishTopic: "ALF_CREATE_FORM_DIALOG_REQUEST",
+                        publishPayload: {
+                            i18nScope: "openesdh.dashlet.NotesDashlet",
+                            dialogTitle: I18nUtils.msg(i18nScope, "notes.add.dialog.title"),
+                            dialogConfirmationButtonTitle: I18nUtils.msg(i18nScope, "notes.form.add.label"),
+                            dialogCancellationButtonTitle: I18nUtils.msg(i18nScope, "notes.form.cancel.label"),
+                            formSubmissionTopic: "ALF_CRUD_CREATE",
+                            formSubmissionPayloadMixin: {
+                                // Refresh the notes list
+                                pubSubScope: "OPENESDH_NOTES_DASHLET",
+                                alfResponseTopic: "OPENESDH_NOTES_DASHLETALF_CRUD_CREATE"
+                            },
+                            widgets: [
+                                {
+                                    name: "alfresco/forms/controls/DojoTextarea",
+                                    config: {
+                                        //label: "Content",
+                                        name: "content"
+                                    }
+                                }
+                            ]
+                        },
+                        visibilityConfig: {
+                            initialValue: false,
+                            rules: [
+                                {
+                                    topic: "CASE_INFO",
+                                    attribute: "isJournalized",
+                                    is: [false]
+                                }
+                            ]
+                        }
+                    }
+                }
+            ],
+
+            widgetsForBody: [
+                {
+                    name: "openesdh/pages/case/widgets/NotesGrid",
+                    config: {
+                        pubSubScope: "OPENESDH_NOTES_DASHLET",
+                        gridRefreshTopic: "ALF_CRUD_CREATE_SUCCESS",
+                    }
+                }
+            ],
+
             constructor: function (args) {
                 lang.mixin(this, args);
-
-                this.widgetsForTitleBarActions = [
-                    {
-                        name: "alfresco/buttons/AlfDynamicPayloadButton",
-                        config: {
-                            iconClass: "add-icon-16",
-                            label: this.message("notes.button.label.add"),
-                            publishTopic: "ALF_CREATE_FORM_DIALOG_REQUEST",
-                            publishPayload: {
-                                dialogTitle: this.message("notes.add.dialog.title"),
-                                dialogConfirmationButtonTitle: this.message("notes.form.add.label"),
-                                dialogCancellationButtonTitle: this.message("notes.form.cancel.label"),
-                                formSubmissionTopic: "ALF_CRUD_CREATE",
-                                formSubmissionPayloadMixin: {
-                                    url: "api/openesdh/node/" + NodeUtils.processNodeRef(this.nodeRef).uri + "/notes",
-                                    // Refresh the notes list
-                                    pubSubScope: "OPENESDH_NOTES_DASHLET",
-                                    alfResponseTopic: "OPENESDH_NOTES_DASHLETALF_CRUD_CREATE"
-                                },
-                                widgets: [
-                                    {
-                                        name: "alfresco/forms/controls/DojoTextarea",
-                                        config: {
-                                            label: "Content",
-                                            name: "content"
-                                        }
-                                    }
-                                ]
-                            }
-                        }
-                    }
-                ];
-
-                this.widgetsForBody = [
-                    {
-                        name: "openesdh/pages/case/widgets/NotesGrid",
-                        config: {
-                            pubSubScope: "OPENESDH_NOTES_DASHLET",
-                            gridRefreshTopic: "ALF_CRUD_CREATE_SUCCESS",
-                            nodeRef: this.nodeRef
-                        }
-                    }
-                ];
+                this.widgetsForTitleBarActions[0].config.publishPayload.formSubmissionPayloadMixin.url = "api/openesdh/node/" + NodeUtils.processNodeRef(this.nodeRef).uri + "/notes";
+                this.widgetsForBody[0].config.nodeRef = this.nodeRef;
             }
-         });
-      });
+        });
+    });

@@ -107,7 +107,7 @@ define(["dojo/_base/declare",
                     {
                         name: "alfresco/forms/controls/FileSelect",
                         config: {
-                            label: "Select files to upload...",
+                            label: "upload-dialog.form-control.label.file-control", 
                             name: "files"
                         }
                     },
@@ -213,9 +213,9 @@ define(["dojo/_base/declare",
                     finalWidget = finalWidget.concat(docRecordWidgets);
 
                 this.uploadDialog = new AlfFormDialog({
-                    dialogTitle: "Select files to upload",
-                    dialogConfirmationButtonTitle: "Upload",
-                    dialogCancellationButtonTitle: "Cancel",
+                    dialogTitle: "upload-dialog.new_doc.dialog.title",
+                    dialogConfirmationButtonTitle: "upload-dialog.new_doc.dialog.btn.upload",
+                    dialogCancellationButtonTitle: "dialog.button.label.cancel",
                     formSubmissionTopic: "OE_CASE_DOCUMENT_SERVICE_UPLOAD_REQUEST_RECEIVED",
                     widgets: finalWidget
                 });
@@ -249,7 +249,7 @@ define(["dojo/_base/declare",
                 }; //conditionally insert this into the widget array
                 var widgetArray = [
                     {
-                    name: "alfresco/forms/controls/DojoRadioButtons",
+                    name: "alfresco/forms/controls/RadioButtons",
                     config: {
                         label: this.message("upload-dialog.form-control.label.version-options"),
                         name: "majorVersion",
@@ -323,7 +323,7 @@ define(["dojo/_base/declare",
                             }
                         },
                         {
-                            name: "alfresco/forms/controls/DojoRadioButtons",
+                            name: "alfresco/forms/controls/RadioButtons",
                             config: {
                                 label: this.message("upload-dialog.form-control.label.version-options"),
                                 name: "targetData.majorVersion",
@@ -484,8 +484,8 @@ define(["dojo/_base/declare",
                 var constraintValues = this.documentConstraints[constraintTarget];
                 for (var state in constraintValues) {
                     options.push({
-                        value: constraintValues[state],
-                        label: this.message("document."+constraintType+".constraint.label." + constraintValues[state])
+                        value: constraintValues[state].value,
+                        label: constraintValues[state].label
                     });
                 }
                 return options;

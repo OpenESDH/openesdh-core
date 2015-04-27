@@ -28,12 +28,17 @@ define(["dojo/_base/declare",
             caseConstraintsList: null,
 
             /**
-             * The nodeRef for the case
+             * This is meant to be an array of select options containing workflows specific to cases
+             */
+            caseWorkflowList: null,
+
+            /**
+             * The nodeRef for a case
              */
             caseNodeRef: "",
 
             /**
-             * The case id for the case.
+             * The case id for a case.
              */
             caseId: "",
 
@@ -269,6 +274,32 @@ define(["dojo/_base/declare",
                 return options;
             },
 
+            /**
+             * Constructs the options for the select controls for the case workflow select control
+             * and publishes it.
+             */
+            _getWorkFlowSelectControlOptions: function dk_openesdh_setCaseConstraintLists(payload) {
+                var options = [];
+                var states = this.caseWorkflowList;
+
+                options.push({
+                    label: "Please Select a Workflow",
+                    value: "",
+                    selected: true
+                });
+
+                console.log("CaseService (294) publishing select control options....");
+
+                for (var state in states) {
+                    options.push({
+                        value:  states[state].name,
+                        label: states[state].title
+                    });
+                }
+
+                this.alfPublish(payload.responseTopic, {options:options} );
+            },
+
             _getCaseConstraints: function dk_openesdh___getCaseConstraints() {
                 var url =  Alfresco.constants.PROXY_URI + "api/openesdh/case/constraints";
                 this.serviceXhr({
@@ -276,6 +307,17 @@ define(["dojo/_base/declare",
                     method: "GET",
                     successCallback: (function (payload) {
                         this.caseConstraintsList =  payload;
+                    }),
+                    callbackScope: this});
+            },
+
+            _getCaseWorkflows: function dk_openesdh___getCaseWorkflows() {
+                var url =  Alfresco.constants.PROXY_URI + "api/openesdh/case/workflow/definitions";
+                this.serviceXhr({
+                    url: url,
+                    method: "GET",
+                    successCallback: (function (payload) {
+                        this.caseWorkflowList =  payload.data;
                     }),
                     callbackScope: this});
             },
@@ -401,7 +443,7 @@ define(["dojo/_base/declare",
                                             name: "openesdh/common/widgets/controls/AuthorityPicker",
                                             id:"create_case_dialog_auth_picker",
                                             config: {
-                                                label: "Owner",
+                                                label: "create-case.label.button.case-owner",
                                                 name: "assoc_case_owners_added",
                                                 itemKey: "nodeRef",
                                                 singleItemMode: false,
@@ -482,7 +524,7 @@ define(["dojo/_base/declare",
                                             name: "openesdh/common/widgets/controls/DojoDateExt",
                                             config: {
                                                 id: "prop_case_startDate",
-                                                unitsLabel: "mm/dd/yy",
+                                                unitsLabel: "dd/mm/\u00e5\u00e5\u00e5\u00e5",
                                                 description: "",
                                                 label: this.message("create-case.label.button.start-date"),
                                                 name: "prop_case_startDate",
@@ -494,7 +536,7 @@ define(["dojo/_base/declare",
                                             name: "openesdh/common/widgets/controls/DojoDateExt",
                                             config: {
                                                 id: "prop_case_endDate",
-                                                unitsLabel: "mm/dd/yy",
+                                                unitsLabel: "dd/mm/\u00e5\u00e5\u00e5\u00e5",
                                                 description: "",
                                                 label: this.message("create-case.label.button.end-date"),
                                                 name: "prop_case_endDate",
@@ -518,7 +560,7 @@ define(["dojo/_base/declare",
                                                 fieldId: "63854d9e-295a-454d-8c0d-685de6f68d71",
                                                 name: "prop_cm_description",
                                                 value: "",
-                                                label: "Description",
+                                                label: "create-case.label.description",
                                                 unitsLabel: "",
                                                 description: "",
                                                 visibilityConfig: {
@@ -667,7 +709,7 @@ define(["dojo/_base/declare",
                                                         name: "openesdh/common/widgets/controls/AuthorityPicker",
                                                         id:"create_case_dialog_auth_picker",
                                                         config: {
-                                                            label: "Owner",
+                                                            label: "create-case.label.button.case-owner",
                                                             name: "assoc_case_owners_added",
                                                             itemKey: "nodeRef",
                                                             singleItemMode: false,
@@ -782,7 +824,7 @@ define(["dojo/_base/declare",
                                             name: "openesdh/common/widgets/controls/DojoDateExt",
                                             config: {
                                                 id: "prop_case_startDate",
-                                                unitsLabel: "mm/dd/yy",
+                                                unitsLabel: "dd/mm/\u00e5\u00e5\u00e5\u00e5",
                                                 description: "",
                                                 label: this.message("create-case.label.button.start-date"),
                                                 name: "prop_case_startDate",
@@ -794,7 +836,7 @@ define(["dojo/_base/declare",
                                             name: "openesdh/common/widgets/controls/DojoDateExt",
                                             config: {
                                                 id: "prop_case_endDate",
-                                                unitsLabel: "mm/dd/yy",
+                                                unitsLabel: "dd/mm/\u00e5\u00e5\u00e5\u00e5",
                                                 description: "",
                                                 label: this.message("create-case.label.button.end-date"),
                                                 name: "prop_case_endDate",
@@ -818,7 +860,7 @@ define(["dojo/_base/declare",
                                                 fieldId: "63854d9e-295a-454d-8c0d-685de6f68d71",
                                                 name: "prop_cm_description",
                                                 value: "",
-                                                label: "Description",
+                                                label: "create-case.label.description",
                                                 unitsLabel: "",
                                                 description: "",
                                                 visibilityConfig: {

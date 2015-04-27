@@ -67,12 +67,12 @@ public class EmailDocument extends AbstractWebScript {
 
         NodeRef nodeRef = caseService.getCaseById(caseId);
         NodeRef documentsFolder = caseService.getDocumentsFolder(nodeRef);
-        NodeRef documentFolder = documentService.createDocumentFolder(documentsFolder, name).getChildRef();
-
         Map<QName, Serializable> props = new HashMap<>();
         props.put(OpenESDHModel.PROP_DOC_TYPE, "letter");
         props.put(OpenESDHModel.PROP_DOC_CATEGORY, "other");
         props.put(OpenESDHModel.PROP_DOC_STATE, "received");
+        NodeRef documentFolder = documentService.createDocumentFolder(documentsFolder, name, props).getChildRef();
+
         nodeService.setProperties(documentFolder, props);
 
         LOG.warn("responsible: " + responsible);

@@ -67,6 +67,7 @@ model.jsonModel = {
                                                     label: msg.get("outlook-dialog.createcase.label"),
                                                     publishTopic: "OE_SHOW_CREATE_CASE_DIALOG",
                                                     publishPayload: {
+                                                        caseType: "simple",
                                                         publishOnSuccessTopic: "OE_OUTLOOK_CASE_CREATED"
                                                     },
                                                     publishGlobal: true
@@ -158,7 +159,7 @@ model.jsonModel = {
                                             {
                                                 "name": "alfresco/html/Spacer",
                                                 config: {
-                                                    height: "20px",
+                                                    height: "20px"
                                                 }
                                             }
                                         ]
