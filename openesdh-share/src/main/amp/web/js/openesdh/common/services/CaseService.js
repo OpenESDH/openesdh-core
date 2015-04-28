@@ -473,7 +473,7 @@ define(["dojo/_base/declare",
                                                                         label: "picker.add.label",
                                                                         publishTopic: "ALF_CREATE_DIALOG_REQUEST",
                                                                         publishPayload: {
-                                                                            dialogTitle: "picker.select.title",
+                                                                            dialogTitle: "auth-picker.select.title",
                                                                             handleOverflow: false,
                                                                             widgetsContent: [
                                                                                 {

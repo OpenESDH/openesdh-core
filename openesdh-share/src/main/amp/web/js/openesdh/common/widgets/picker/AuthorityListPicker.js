@@ -183,7 +183,6 @@ define(["dojo/_base/declare",
          this.processWidgets(config, this.itemsNode);
       },
 
-
       /**
        * Override the default implementation to call [loadData]{@link module:alfresco/documentlibrary/AlfDocumentList#loadData}
        * with the currently selected folder node.

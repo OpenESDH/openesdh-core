@@ -1,7 +1,7 @@
 /**
  * Based on alfresco/forms/controls/ContainerPicker
  *
- * @module openesdh/common/widgets/controls/AuthorityPicker.js
+ * @module openesdh/common/widgets/controls/AuthorityPicker
  * @extends module:alfresco/forms/controls/Picker
  * @author Lanre Abiwon
  */
@@ -14,6 +14,13 @@ define(["dojo/_base/declare",
         function(declare, lang, ObjectTypeUtils, Picker, PickerWithHeader) {
 
    return declare([Picker], {
+       /**
+        * An array of the i18n files to use with this widget.
+        *
+        * @instance
+        * @type {Array}
+        */
+       i18nRequirements: [{i18nFile: "./i18n/AuthorityPicker.properties"}],
 
        /**
         * The authority type to scope to. by default all but can be set to:
@@ -115,7 +122,7 @@ define(["dojo/_base/declare",
                                    showOkButton: true,
                                    okButtonLabel: "Search", //this.message("button.label.search"),
                                    showCancelButton: false,
-                                   okButtonPublishTopic: "OE_UPDATE_SEARCH_TERM",
+                                   okButtonPublishTopic: " ",
                                    okButtonPublishGlobal: false,
                                    textBoxLabel: "Search",
                                    textFieldName: "searchTerm",
@@ -213,7 +220,6 @@ define(["dojo/_base/declare",
         * @param {object} config The configuration object for instantiating the picker form control
         */
        postCreate: function alfresco_forms_controls_Picker__postCreate(config) {
-
            this.inherited(arguments);
            if(this.setDefaultPickedItems){
                //If it's a single object then change it into an array containing a single object
