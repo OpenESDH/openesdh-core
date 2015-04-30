@@ -280,6 +280,8 @@
     </bean>
 
     <!--Workflows-->
+<!--
+
     <bean id="webscript.dk.openesdh.workflows.workflowsearch.get" class="dk.openesdh.repo.webscripts.workflows.WorkflowSearch"
           parent="webscript">
         <property name="serviceRegistry" ref="ServiceRegistry"/>
@@ -290,4 +292,6 @@
             <value>openE-</value>
         </property>
     </bean>
+-->
+
 </beans>
