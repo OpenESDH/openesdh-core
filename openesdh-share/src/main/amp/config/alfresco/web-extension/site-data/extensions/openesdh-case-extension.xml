@@ -4,6 +4,7 @@
             <id>OpenESDH Case Extensions</id>
             <version>1.1</version>
             <auto-deploy>true</auto-deploy>
+            <auto-deploy-index>2</auto-deploy-index>
             <evaluator type="openesdh.caseModuleEvaluator">
                 <params>
                     <caseType>.*</caseType>

@@ -4,6 +4,7 @@
       <id>OpenESDH Extensions</id>
       <version>1.0</version>
       <auto-deploy>true</auto-deploy>
+      <auto-deploy-index>1</auto-deploy-index>
 
       <customizations>
         <customization>

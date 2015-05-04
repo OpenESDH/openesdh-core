@@ -1,0 +1,80 @@
+<extension>
+    <modules>
+        <module>
+            <id>OpenESDH Case Handler Extensions</id>
+            <version>1.0</version>
+            <auto-deploy>true</auto-deploy>
+            <auto-deploy-index>3</auto-deploy-index>
+            <evaluator type="group.module.evaluator">
+                <params>
+                    <groups>GROUP_case_handlers</groups>
+                </params>
+            </evaluator>
+
+            <customizations>
+                <customization>
+                    <targetPackageRoot>org.alfresco</targetPackageRoot>
+                    <sourcePackageRoot>dk.openesdh.users.groups.case_handlers</sourcePackageRoot>
+                </customization>
+            </customizations>
+        </module>
+
+        <module>
+            <id>OpenESDH Dagsorden User Extensions</id>
+            <version>1.0</version>
+            <auto-deploy>true</auto-deploy>
+            <auto-deploy-index>3</auto-deploy-index>
+            <evaluator type="group.module.evaluator">
+                <params>
+                    <groups>GROUP_dagsorden_handler</groups>
+                </params>
+            </evaluator>
+
+            <customizations>
+                <customization>
+                    <targetPackageRoot>org.alfresco</targetPackageRoot>
+                    <sourcePackageRoot>dk.openesdh.users.groups.dagsorden</sourcePackageRoot>
+                </customization>
+            </customizations>
+        </module>
+
+        <module>
+            <id>OpenESDH Consultant User Extensions</id>
+            <version>1.0</version>
+            <auto-deploy>true</auto-deploy>
+            <auto-deploy-index>3</auto-deploy-index>
+            <evaluator type="group.module.evaluator">
+                <params>
+                    <groups>GROUP_consultant</groups>
+                </params>
+            </evaluator>
+
+            <customizations>
+                <customization>
+                    <targetPackageRoot>org.alfresco</targetPackageRoot>
+                    <sourcePackageRoot>dk.openesdh.users.groups.consultant</sourcePackageRoot>
+                </customization>
+            </customizations>
+        </module>
+
+        <module>
+            <id>OpenESDH Light User Extensions</id>
+            <version>1.0</version>
+            <auto-deploy>true</auto-deploy>
+            <auto-deploy-index>3</auto-deploy-index>
+            <evaluator type="group.module.evaluator">
+                <params>
+                    <groups>GROUP_light_user</groups>
+                </params>
+            </evaluator>
+
+            <customizations>
+                <customization>
+                    <targetPackageRoot>org.alfresco</targetPackageRoot>
+                    <sourcePackageRoot>dk.openesdh.users.groups.light_users</sourcePackageRoot>
+                </customization>
+            </customizations>
+        </module>
+    </modules>
+</extension>
+

@@ -42,7 +42,8 @@ var createCasesWidgets = getCreateCaseMenuWidgets(caseTypes);
 
 var headerMenu = widgetUtils.findObject(model.jsonModel, "id", "HEADER_APP_MENU_BAR");
 if (headerMenu != null) {
-    headerMenu.config.widgets.push({
+    //insert case menu object at position 2 and remove "My Files"
+    headerMenu.config.widgets.splice(1, 1 ,{
         id: "HEADER_CASES_DROPDOWN",
         name: "alfresco/header/AlfMenuBarPopup",
         config: {
@@ -89,6 +90,7 @@ if (headerMenu != null) {
 
     headerMenu.config.widgets.push(
         {
+            id: "HEADER_DAGSORDEN_MENU",
             name: "alfresco/menus/AlfMenuBarItem",
             config: {
                 label: "Dagsorden",
