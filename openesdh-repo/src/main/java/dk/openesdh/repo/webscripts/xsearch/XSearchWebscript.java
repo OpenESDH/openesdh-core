@@ -1,5 +1,6 @@
 package dk.openesdh.repo.webscripts.xsearch;
 
+import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.xsearch.XResultSet;
 import dk.openesdh.repo.services.xsearch.XSearchService;
 import dk.openesdh.repo.utils.Utils;
@@ -11,6 +12,7 @@ import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.namespace.RegexQNamePattern;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -135,6 +137,13 @@ public class XSearchWebscript extends AbstractWebScript {
         }
         json.put("TYPE", nodeService.getType(nodeRef).toPrefixString(namespaceService));
         json.put("nodeRef", nodeRef.toString());
+
+        if(nodeService.getType(nodeRef).equals(OpenESDHModel.TYPE_DOC_DIGITAL_FILE)) {
+            //also return the filename extension
+            String fileName = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_NAME);
+            String extension = FilenameUtils.getExtension(fileName);
+            json.put("fileType", extension);
+        }
         return json;
     }
 

@@ -2,7 +2,9 @@ package dk.openesdh.repo.webscripts.xsearch;
 
 import dk.openesdh.repo.services.xsearch.CaseDocumentsSearchService;
 import dk.openesdh.repo.services.xsearch.XResultSet;
+import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -52,6 +54,10 @@ public class CaseDocumentAttachements extends XSearchWebscript {
             JSONArray nodes = new JSONArray();
             for (NodeRef nodeRef : nodeRefs) {
                 JSONObject node = nodeToJSON(nodeRef);
+                //also return the filename extension
+                String fileName = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_NAME);
+                String extension = FilenameUtils.getExtension(fileName);
+                node.put("fileType", extension);
                 nodes.put(node);
             }
 

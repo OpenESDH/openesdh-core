@@ -152,7 +152,8 @@ define(["dojo/_base/declare",
                 this.alfSubscribe("GRID_SORT", lang.hitch(this, "onSort"));
 
                 // Add actions column if there are actions
-                var columns = this.getColumns();
+                var columns = [this.getIconsColumn()];
+                columns = columns.concat(this.getColumns() );
                 if (this.actions != null && this.actions.length > 0) {
                     columns.push(this.getActionsColumn());
                 }
@@ -184,6 +185,20 @@ define(["dojo/_base/declare",
              */
             getColumns: function () {
                 return [];
+            },
+
+            /**
+             * Return the actions column.
+             * @returns {{field: string, label: *, renderCell: Function, sortable: boolean, unhidable: boolean}[]}
+             */
+            getIconsColumn: function () {
+                return {
+                    field: "fileType",
+                    label: "",
+                    renderCell: lang.hitch(this, '_renderIconsCell'),
+                    sortable: false,
+                    unhidable: true
+                };
             },
 
             /**
@@ -369,6 +384,21 @@ define(["dojo/_base/declare",
                     }
                     domConstruct.place(actionElem, div);
                 }));
+                domConstruct.place(div, node);
+            },
+
+            /**
+             * Renders a list of actions given the case item
+             */
+            _renderIconsCell: function (item, value, node) {
+                console.log("ping");
+
+                var fileIcon = item.name ? Alfresco.util.getFileIcon(item.name) : "generic-file-32.png";
+
+                var div = domConstruct.toDom('<div style="white-space: nowrap;" class="icon32">' +
+                '<img id="' + node + '" src="' + Alfresco.constants.URL_RESCONTEXT + 'components/images/filetypes/'
+                + ((item.fileType) ? item.fileType+"-file-32.png" : fileIcon) + '" alt="file type image Icon" />'+'</div>');
+
                 domConstruct.place(div, node);
             },
 
