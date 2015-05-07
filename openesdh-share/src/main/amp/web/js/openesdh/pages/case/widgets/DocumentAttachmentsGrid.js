@@ -53,6 +53,7 @@ define(["dojo/_base/declare",
             postMixInProperties: function () {
                 this.inherited(arguments);
                 this.alfSubscribe(this.ReloadAttachmentsTopic, lang.hitch(this, "_onRefresh"));
+                this.alfSubscribe(this.CaseDocumentMoved, lang.hitch(this, "_onCaseDocumentMoved"));
             },
 
             getColumns: function () {
@@ -107,6 +108,14 @@ define(["dojo/_base/declare",
                 //console.log("openesdh/pages/case/widgets/DocumentAttachmentsGrid.js(90) Refresh called.");
                 this.grid.refresh();
                 this.targetURI = temp;//Revert the targetURI back to its original state
+            },
+            
+            /**
+             * Empty attachments grid when document has been moved to another case
+             */
+            _onCaseDocumentMoved: function(){
+            	this.grid.store = this.createStore();
+            	this.grid.refresh();
             }
         });
     });

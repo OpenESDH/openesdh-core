@@ -1,16 +1,16 @@
 package dk.openesdh.repo.services.documents;
 
-import dk.openesdh.repo.webscripts.cases.CaseInfo;
-import dk.openesdh.repo.webscripts.documents.Documents;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
 import org.json.JSONObject;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
+import dk.openesdh.repo.webscripts.documents.Documents;
 
 /**
  * Created by torben on 11/09/14.
@@ -63,4 +63,15 @@ public interface DocumentService {
      * @return
      */
     List<NodeRef> getAttachments(NodeRef docRecordNodeRef);
+    
+    /**
+	 * Moves provided document to the target case
+	 * 
+	 * @param documentToMove
+	 *            NodeRef of the document to move
+	 * @param targetCaseId
+	 *            Id of the case to move the document into
+	 */
+	public void moveDocumentToCase(final NodeRef documentToMove,
+			String targetCaseId) throws Exception;
 }

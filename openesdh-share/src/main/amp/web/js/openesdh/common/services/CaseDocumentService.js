@@ -6,11 +6,12 @@ define(["dojo/_base/declare",
         "alfresco/core/NodeUtils",
         "openesdh/pages/_TopicsMixin",
         "alfresco/dialogs/AlfFormDialog",
-        "dojo/window"
+        "dojo/window",
+        "alfresco/core/NotificationUtils"
     ],
-    function (declare, AlfCore, CoreXhr, array, lang, NodeUtils, _TopicsMixin, AlfFormDialog, win) {
+    function (declare, AlfCore, CoreXhr, array, lang, NodeUtils, _TopicsMixin, AlfFormDialog, win, NotificationUtils) {
 
-        return declare([AlfCore, CoreXhr, _TopicsMixin], {
+        return declare([AlfCore, CoreXhr, _TopicsMixin, NotificationUtils], {
 
             i18nRequirements: [
                 {i18nFile: "./i18n/CaseDocumentService.properties"}
@@ -32,22 +33,48 @@ define(["dojo/_base/declare",
              * The current nodeRef of the selected document record in a case.
              */
             currentDocRecordNodeRef: null,
-
+            
+            /**
+             * NodeRef of the current document to move
+             */
+            documentToMoveNodeRef: null,
+            
+            docMoveToCaseGridRowSelectedTopic : "DOC_MOVE_TO_CASE_GRID_ROW_SELECTED",
+                        
             constructor: function (args) {
                 lang.mixin(this, args);
 
+                this.getSearchDefinition();
                 this.alfSubscribe("OE_SHOW_UPLOADER", lang.hitch(this, this._showUploader));
                 this.alfSubscribe("OE_SHOW_ATTACHMENTS_UPLOADER", lang.hitch(this, this._showUploader));
                 this.alfSubscribe("OE_CASE_DOCUMENT_SERVICE_UPLOAD_REQUEST_RECEIVED", lang.hitch(this, this._onFileUploadRequest));
                 this.alfSubscribe("OE_PREVIEW_DOC", lang.hitch(this, this.onPreviewDoc));
+                this.alfSubscribe("OE_MOVE_DOC", lang.hitch(this, this.onMoveDoc));
                 this.alfSubscribe("GET_DOCUMENT_RECORD_INFO", lang.hitch(this, this._docRecordInfo));
                 this.alfSubscribe(this.CaseDocumentRowSelect, lang.hitch(this, this._retrieveDocumentdetails));
                 this.alfSubscribe(this.DocumentVersionUploaderTopic, lang.hitch(this, this._showVersionUploader));
                 this.alfSubscribe(this.DocumentVersionRevertTopic, lang.hitch(this, this._revertDocumentVersion));
                 this.alfSubscribe(this.DocumentVersionRevertFormSubmitTopic, lang.hitch(this, this._onVersionRevertSubmit));
                 this.alfSubscribe(this.GetDocumentVersionsTopicClick, lang.hitch(this, this._retrieveDocumentVersions));
+                
+                this.alfSubscribe(this.docMoveToCaseGridRowSelectedTopic, lang.hitch(this, this._onMoveDocTargetCaseSelected));
 
                 this._getDocumentConstraints();
+            },
+            
+            getSearchDefinition: function() {
+                this.serviceXhr({
+                    url: Alfresco.constants.PROXY_URI + "api/openesdh/case/searchDefinition/case_simple",
+                    method: "GET",
+                    handleAs: "json",
+                    successCallback: function (response, config) {
+                        this.searchDefinition = response;
+                    },
+                    failureCallback: function(response, config){
+                        alert("failure: " + JSON.stringify(response));
+                    },
+                    callbackScope: this
+                });
             },
 
             onPreviewDoc: function (payload) {
@@ -90,6 +117,89 @@ define(["dojo/_base/declare",
                         }
                     ]
                 });
+            },
+            
+            onMoveDoc: function (payload) {
+            	
+            	this.documentToMoveNodeRef = payload.nodeRef;
+            	
+            	this.alfPublish("ALF_CREATE_DIALOG_REQUEST", {
+                    contentWidth: "800px",
+                    dialogTitle: "Find Case",
+                    handleOverflow: false,
+                    hideTopic: this.docMoveToCaseGridRowSelectedTopic,
+                    widgetsContent: [
+                        {
+                            name: 'alfresco/layout/VerticalWidgets',
+                            config: {
+                                widgets: [
+                                    {
+                                        name: "openesdh/xsearch/FilterPane",
+                                        config: {
+                                            baseType: "case:base",
+                                            types: this.searchDefinition.model.types,
+                                            properties: this.searchDefinition.model.properties,
+                                            availableFilters: ["cm:title", "oe:status", "cm:created"],
+                                            operatorSets: this.searchDefinition.operatorSets
+                                        }
+                                    },
+                                    {
+                                        name: "openesdh/xsearch/Grid",
+                                        config: {
+                                            baseType: "case:base",
+                                            types: this.searchDefinition.model.types,
+                                            properties: this.searchDefinition.model.properties,
+                                            visibleColumns: ["oe:id", "cm:title", "oe:status", "cm:created"],
+                                            availableColumns: ["oe:id", "cm:title", "oe:status", "cm:created"],
+                                            actions: [],
+                                            rowsPerPage: 15,
+                                            pageSizeOptions: [],
+                                            rowSelectionTopic : this.docMoveToCaseGridRowSelectedTopic
+                                        }
+                                    }
+                                ]
+                            }
+                        }
+                    ],
+                    widgetsButtons: [
+                        {
+                            name: "alfresco/buttons/AlfButton",
+                            config: {
+                                label: "Cancel",
+                                publishTopic: "NO_OP"
+                            }
+                        }
+                    ]
+                });
+            },
+            
+            _onMoveDocTargetCaseSelected : function(payload){
+            	
+            	var data = payload.row.data;
+            	var caseId = data["oe:caseId"];
+            	
+            	var responseTopic = this.generateUuid();
+                var successSubscription = this.alfSubscribe(responseTopic + "_SUCCESS", lang.hitch(this, this._onMoveDocToCaseSuccess), true);
+                var failureSubscription = this.alfSubscribe(responseTopic + "_FAILURE", lang.hitch(this, this._onMoveDocToCaseFailure), true);
+                this.serviceXhr({
+                   alfTopic: responseTopic,
+                   subscriptionHandles: [successSubscription, failureSubscription], 
+                   url: Alfresco.constants.PROXY_URI + "api/openesdh/documents/move-to/case",
+                   method: "POST",
+                   handleAs: "json",
+                   data: {
+                      nodeRef: this.documentToMoveNodeRef,
+                      caseId: caseId
+                   }
+                });
+            },
+            
+            _onMoveDocToCaseSuccess : function(payload){
+            	this.alfPublish(this.CaseDocumentMoved);
+            },
+            
+            _onMoveDocToCaseFailure : function(payload){
+            	//Do nothing since auto notification utils in operation
             },
 
             /**

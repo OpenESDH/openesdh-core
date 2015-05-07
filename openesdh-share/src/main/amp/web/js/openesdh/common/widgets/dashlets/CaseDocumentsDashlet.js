@@ -101,6 +101,7 @@ define(["dojo/_base/declare",
             postCreate: function () {
                 this.inherited(arguments);
                 this.alfSubscribe(this.ReloadDocumentsTopic, lang.hitch(this, "onReloadDocuments"));
+                this.alfSubscribe(this.CaseDocumentMoved, lang.hitch(this, "onDocumentMoved"));
             },
 
             onReloadDocuments: function (payload) {
@@ -110,6 +111,10 @@ define(["dojo/_base/declare",
                     ]
                 });
                 this.alfPublish("GRID_REFRESH");
+            },
+            
+            onDocumentMoved: function(){
+            	this.alfPublish("GRID_REFRESH");
             }
         });
     });

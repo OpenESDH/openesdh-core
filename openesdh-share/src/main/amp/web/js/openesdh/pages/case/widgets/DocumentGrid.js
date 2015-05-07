@@ -29,7 +29,7 @@ define(["dojo/_base/declare",
                     "id" : "doc-preview",
                     "label" : "grid.actions.preview_doc",
                     "key" : "13"},
-
+                    
                 // TODO: use widgets!
                 {"href" : "edit-metadata?nodeRef={nodeRef}",
                     "id" : "case-edit",
@@ -40,7 +40,14 @@ define(["dojo/_base/declare",
                     "id" : "doc-details",
                     "label" : "grid.actions.doc_details",
                     "key" : "68", // Shift+D
-                    "shift": true}
+                    "shift": true},
+                
+                {"callback" : "onMoveDoc",
+                    "id" : "doc-move",
+                    "label" : "grid.actions.move_doc",
+                    "key"	: "77", // Shift+M
+                    "shift" : true
+                },
             ],
 
             onPreviewDoc: function (item) {
@@ -50,7 +57,15 @@ define(["dojo/_base/declare",
                     displayName: item['cm:title'] ? item['cm:title'] : item['cm:name']
                 });
             },
-
+            
+            onMoveDoc : function (item) {
+            	this.alfPublish("OE_MOVE_DOC", {
+                    nodeRef: item.mainDocNodeRef,
+                    caseId: item["oe:caseId"],
+                    nodeUuid: item["sys:node-uuid"]
+                });
+            },
+            
             postMixInProperties: function () {
                 this.inherited(arguments);
                 this.targetURI = "api/openesdh/casedocumentssearch?nodeRef=" + this.nodeRef;

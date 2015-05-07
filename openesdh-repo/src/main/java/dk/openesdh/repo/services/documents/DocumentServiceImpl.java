@@ -1,8 +1,15 @@
 package dk.openesdh.repo.services.documents;
 
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.webscripts.documents.Documents;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -24,8 +31,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serializable;
-import java.util.*;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.webscripts.documents.Documents;
 
 /**
  * Created by torben on 11/09/14.
@@ -230,4 +238,49 @@ public class DocumentServiceImpl implements DocumentService {
         String fileNameExt =  FilenameUtils.getExtension(filename);
         return StringUtils.isNotEmpty(fileNameExt);
     }
+
+	@Override
+	public void moveDocumentToCase(NodeRef documentToMove, String targetCaseId)
+			throws Exception {
+
+    	ChildAssociationRef docToFolderAssoc = nodeService.getPrimaryParent(documentToMove);
+    	if(docToFolderAssoc == null){
+			throw new Exception("No primary parent was found for node ref: "
+							+ documentToMove.toString());
+    	}
+    	
+		String documentCurrentCaseId = (String) nodeService.getProperty(
+				documentToMove, OpenESDHModel.PROP_OE_CASE_ID);
+
+		if (StringUtils.equals(documentCurrentCaseId, targetCaseId)) {
+			throw new Exception(
+					"The document has already been stored in the case "
+							+ targetCaseId);
+		}
+
+		NodeRef targetCase = null;
+		try {
+			targetCase = caseService.getCaseById(targetCaseId);
+		} catch (Exception e) {
+			throw new Exception("Error trying to get target case for case id: "
+					+ targetCaseId, e);
+    	}
+    	
+		NodeRef documentFolderToMove = docToFolderAssoc.getParentRef();
+
+		String documentFolderName = (String) nodeService.getProperty(
+				documentFolderToMove, ContentModel.PROP_NAME);
+
+		NodeRef targetCaseDocumentsFolder = caseService
+				.getDocumentsFolder(targetCase);
+
+		nodeService.moveNode(documentFolderToMove, targetCaseDocumentsFolder,
+				ContentModel.ASSOC_CONTAINS,
+				QName.createQName(OpenESDHModel.DOC_URI, documentFolderName));
+
+		// Refer to CaseServiceImpl.setupAssignCaseIdRule and
+		// AssignCaseIdActionExecuter
+		// for automatic update of the caseId property rule.
+
+	}
 }
