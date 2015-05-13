@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.transaction.TransactionService;
@@ -103,6 +102,21 @@ public class DocumentServiceImplIT {
     }
 
     @Test
+    public void shouldDeclineMovingDocumentToTheSameCase() throws Exception {
+        String testCase1Id = caseService.getCaseId(testCase1);
+        try {
+            documentService.moveDocumentToCase(testDocument, testCase1Id);
+            Assert.fail("The move document should fail here and throw an exception, since it's the same target case.");
+        } catch (Exception e) {
+
+            Assert.assertEquals("Unexpected exception throw while moving document to the same case.",
+                    DocumentService.DOCUMENT_STORED_IN_CASE_MESSAGE + testCase1Id, e.getMessage());
+
+            Assert.assertTrue("The exception is thrown which is OK", true);
+        }
+    }
+
+    @Test
     public void shouldCopyDocumentFromCase1ToCase2() throws Exception {
 
         Assert.assertTrue("Test case 2 should be empty before copy operation",
@@ -111,13 +125,7 @@ public class DocumentServiceImplIT {
         final String testCase2Id = caseService.getCaseId(testCase2);
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
 
-        transactionService.getRetryingTransactionHelper().doInTransaction(
-                new RetryingTransactionHelper.RetryingTransactionCallback<Boolean>() {
-                    public Boolean execute() throws Throwable {
-                        documentService.copyDocumentToCase(testDocument, testCase2Id);
-                        return true;
-                    }
-                });
+        documentService.copyDocumentToCase(testDocument, testCase2Id);
 
         List<ChildAssociationRef> testCase1DocsList = documentService.getDocumentsForCase(testCase1);
         Assert.assertFalse("Test case1 shouldn't be empty and should still contain documents",
@@ -138,5 +146,36 @@ public class DocumentServiceImplIT {
         String documentName = docTestHelper.getNodePropertyString(docRef, ContentModel.PROP_NAME);
         Assert.assertEquals("Wrong test document name from case 2", TEST_DOCUMENT_NAME, documentName);
 
+    }
+
+    @Test
+    public void shouldDeclineCopyDocumentToTheSameCase() throws Exception {
+        final String testCase1Id = caseService.getCaseId(testCase1);
+        try {
+            AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
+            documentService.copyDocumentToCase(testDocument, testCase1Id);
+            Assert.fail("The copy document should fail here and throw an exception, since it's the same target case.");
+        } catch (Exception e) {
+
+            Assert.assertEquals("Unexpected exception thrown while copying document to the same case.",
+                    DocumentService.DOCUMENT_STORED_IN_CASE_MESSAGE + testCase1Id, e.getMessage());
+
+            Assert.assertTrue("The exception is thrown which is OK", true);
+        }
+    }
+
+    @Test
+    public void shouldDeclineCopyDocumentIfSameExistsInTargetCase() throws Exception {
+        final String testCase2Id = caseService.getCaseId(testCase2);
+        AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
+        documentService.copyDocumentToCase(testDocument, testCase2Id);
+        try {
+            documentService.copyDocumentToCase(testDocument, testCase2Id);
+            Assert.fail("The copy document should fail here and throw an exception, since a doc with the same name exists.");
+        } catch (Exception e) {
+            Assert.assertTrue("Unexpected exception throw while copying document to the same case.", e.getCause()
+                    .getMessage().startsWith("Duplicate child name not allowed"));
+            Assert.assertTrue("The exception is thrown which is OK", true);
+        }
     }
 }

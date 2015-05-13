@@ -44,8 +44,6 @@ public class DocumentServiceImpl implements DocumentService {
 
     private static Log logger = LogFactory.getLog(DocumentServiceImpl.class);
 
-	private static final String DOCUMENT_STORED_IN_CASE_MESSAGE = "The document has already been stored in the case ";
-
     private NodeService nodeService;
     private DictionaryService dictionaryService;
     private PersonService personService;
@@ -253,7 +251,7 @@ public class DocumentServiceImpl implements DocumentService {
         ChildAssociationRef docToFolderAssoc = getDocumentPrimaryParent(documentToMove);
 
         if (isCaseContainsDocument(targetCaseId, documentToMove)) {
-            throw new Exception(DOCUMENT_STORED_IN_CASE_MESSAGE + targetCaseId);
+            throw new Exception(DocumentService.DOCUMENT_STORED_IN_CASE_MESSAGE + targetCaseId);
         }
 
         NodeRef targetCase = getTargetCase(targetCaseId);
@@ -278,7 +276,7 @@ public class DocumentServiceImpl implements DocumentService {
 		ChildAssociationRef docToFolderAssoc = getDocumentPrimaryParent(documentToCopy);
 
 		if (isCaseContainsDocument(targetCaseId, documentToCopy)) {
-			throw new Exception(DOCUMENT_STORED_IN_CASE_MESSAGE + targetCaseId);
+			throw new Exception(DocumentService.DOCUMENT_STORED_IN_CASE_MESSAGE + targetCaseId);
 		}
 
 		NodeRef targetCase = getTargetCase(targetCaseId);

@@ -17,6 +17,8 @@ import dk.openesdh.repo.webscripts.documents.Documents;
  */
 public interface DocumentService {
 
+    public static final String DOCUMENT_STORED_IN_CASE_MESSAGE = "The document has already been stored in the case ";
+
     /**
      * Gets the main document node in case document (i.e. The content with the doc:main aspect inside the folder)
      * @param caseDocNodeRef The actual case document nodeRef (i.e. The case card folder)
