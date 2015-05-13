@@ -11,7 +11,9 @@ import org.alfresco.service.transaction.TransactionService;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -31,6 +33,9 @@ import dk.openesdh.repo.services.cases.CaseService;
 @ContextConfiguration({ "classpath:alfresco/application-context.xml",
         "classpath:alfresco/extension/openesdh-test-context.xml" })
 public class DocumentServiceImplIT {
+
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
     @Autowired
     @Qualifier("CaseService")
@@ -104,16 +109,9 @@ public class DocumentServiceImplIT {
     @Test
     public void shouldDeclineMovingDocumentToTheSameCase() throws Exception {
         String testCase1Id = caseService.getCaseId(testCase1);
-        try {
-            documentService.moveDocumentToCase(testDocument, testCase1Id);
-            Assert.fail("The move document should fail here and throw an exception, since it's the same target case.");
-        } catch (Exception e) {
-
-            Assert.assertEquals("Unexpected exception throw while moving document to the same case.",
-                    DocumentService.DOCUMENT_STORED_IN_CASE_MESSAGE + testCase1Id, e.getMessage());
-
-            Assert.assertTrue("The exception is thrown which is OK", true);
-        }
+        thrown.expect(Exception.class);
+        thrown.expectMessage(DocumentService.DOCUMENT_STORED_IN_CASE_MESSAGE + testCase1Id);
+        documentService.moveDocumentToCase(testDocument, testCase1Id);
     }
 
     @Test
@@ -151,24 +149,22 @@ public class DocumentServiceImplIT {
     @Test
     public void shouldDeclineCopyDocumentToTheSameCase() throws Exception {
         final String testCase1Id = caseService.getCaseId(testCase1);
-        try {
-            AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
-            documentService.copyDocumentToCase(testDocument, testCase1Id);
-            Assert.fail("The copy document should fail here and throw an exception, since it's the same target case.");
-        } catch (Exception e) {
 
-            Assert.assertEquals("Unexpected exception thrown while copying document to the same case.",
-                    DocumentService.DOCUMENT_STORED_IN_CASE_MESSAGE + testCase1Id, e.getMessage());
+        AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
 
-            Assert.assertTrue("The exception is thrown which is OK", true);
-        }
+        thrown.expect(Exception.class);
+        thrown.expectMessage(DocumentService.DOCUMENT_STORED_IN_CASE_MESSAGE + testCase1Id);
+        documentService.copyDocumentToCase(testDocument, testCase1Id);
+
     }
 
     @Test
     public void shouldDeclineCopyDocumentIfSameExistsInTargetCase() throws Exception {
+
         final String testCase2Id = caseService.getCaseId(testCase2);
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
         documentService.copyDocumentToCase(testDocument, testCase2Id);
+
         try {
             documentService.copyDocumentToCase(testDocument, testCase2Id);
             Assert.fail("The copy document should fail here and throw an exception, since a doc with the same name exists.");
