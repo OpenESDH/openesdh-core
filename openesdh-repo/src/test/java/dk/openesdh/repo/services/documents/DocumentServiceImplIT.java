@@ -5,12 +5,13 @@ import java.util.List;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.transaction.TransactionService;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,6 +44,10 @@ public class DocumentServiceImplIT {
     @Autowired
     @Qualifier("DocumentService")
     protected DocumentService documentService;
+
+    @Autowired
+    @Qualifier("TransactionService")
+    protected TransactionService transactionService;
 
     private static final String TEST_FOLDER_NAME = "DocumentServiceImpIT";
     private static final String TEST_CASE_NAME1 = "TestCase1";
@@ -97,43 +102,41 @@ public class DocumentServiceImplIT {
         Assert.assertEquals("Wrong test document name", TEST_DOCUMENT_NAME, documentName);
     }
 
-    @Ignore
     @Test
     public void shouldCopyDocumentFromCase1ToCase2() throws Exception {
 
         Assert.assertTrue("Test case 2 should be empty before copy operation",
                 CollectionUtils.isEmpty(documentService.getDocumentsForCase(testCase2)));
 
-        String testCase2Id = caseService.getCaseId(testCase2);
+        final String testCase2Id = caseService.getCaseId(testCase2);
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
-        documentService.copyDocumentToCase(testDocument, testCase2Id);
-        /*
-         * List<ChildAssociationRef> testCase1DocsList =
-         * documentService.getDocumentsForCase(testCase1); Assert.assertFalse(
-         * "Test case1 shouldn't be empty and should still contain documents",
-         * CollectionUtils.isEmpty(testCase1DocsList));
-         * 
-         * NodeRef docFromTetsCase1Ref = testCase1DocsList.get(0).getChildRef();
-         * String docFromTestCase1Name =
-         * testEnvHelper.getNodePropertyString(docFromTetsCase1Ref,
-         * ContentModel.PROP_NAME);
-         * Assert.assertEquals("Wrong test document name from case 1",
-         * TEST_DOCUMENT_NAME, docFromTestCase1Name);
-         * 
-         * List<ChildAssociationRef> testCase2DocsList =
-         * documentService.getDocumentsForCase(testCase2); Assert.assertFalse(
-         * "Test Case2 shouldn't be empty and should contain documents",
-         * CollectionUtils.isEmpty(testCase2DocsList));
-         * 
-         * Assert.assertEquals("Test Case2 should contain 1 document", 1,
-         * testCase2DocsList.size()); NodeRef docRef =
-         * testCase2DocsList.get(0).getChildRef();
-         * 
-         * String documentName = testEnvHelper.getNodePropertyString(docRef,
-         * ContentModel.PROP_NAME);
-         * Assert.assertEquals("Wrong test document name from case 2",
-         * TEST_DOCUMENT_NAME, documentName);
-         */
+
+        transactionService.getRetryingTransactionHelper().doInTransaction(
+                new RetryingTransactionHelper.RetryingTransactionCallback<Boolean>() {
+                    public Boolean execute() throws Throwable {
+                        documentService.copyDocumentToCase(testDocument, testCase2Id);
+                        return true;
+                    }
+                });
+
+        List<ChildAssociationRef> testCase1DocsList = documentService.getDocumentsForCase(testCase1);
+        Assert.assertFalse("Test case1 shouldn't be empty and should still contain documents",
+                CollectionUtils.isEmpty(testCase1DocsList));
+
+        NodeRef docFromTetsCase1Ref = testCase1DocsList.get(0).getChildRef();
+        String docFromTestCase1Name = docTestHelper.getNodePropertyString(docFromTetsCase1Ref,
+                ContentModel.PROP_NAME);
+        Assert.assertEquals("Wrong test document name from case 1", TEST_DOCUMENT_NAME, docFromTestCase1Name);
+
+        List<ChildAssociationRef> testCase2DocsList = documentService.getDocumentsForCase(testCase2);
+        Assert.assertFalse("Test Case2 shouldn't be empty and should contain documents",
+                CollectionUtils.isEmpty(testCase2DocsList));
+
+        Assert.assertEquals("Test Case2 should contain 1 document", 1, testCase2DocsList.size());
+        NodeRef docRef = testCase2DocsList.get(0).getChildRef();
+
+        String documentName = docTestHelper.getNodePropertyString(docRef, ContentModel.PROP_NAME);
+        Assert.assertEquals("Wrong test document name from case 2", TEST_DOCUMENT_NAME, documentName);
 
     }
 }

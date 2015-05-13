@@ -40,7 +40,8 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
     public void init() {
         onCreateChildAssociation = new JavaBehaviour(this, "onCreateChildAssociation", Behaviour.NotificationFrequency.TRANSACTION_COMMIT);
         beforeCopyDocumentFolder = new JavaBehaviour(this, "beforeCopy");
-        afterCopyDocumentFolder = new JavaBehaviour(this, "onCopyComplete");
+        afterCopyDocumentFolder = new JavaBehaviour(this, "onCopyComplete",
+                Behaviour.NotificationFrequency.TRANSACTION_COMMIT);
 
         this.policyComponent.bindAssociationBehaviour(
                 OnCreateChildAssociationPolicy.QNAME,
