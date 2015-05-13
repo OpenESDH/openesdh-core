@@ -23,6 +23,9 @@ define(["dojo/_base/declare"],
             DocumentVersionUploaderTopic: "OE_SHOW_VERSION_UPLOADER",
             VersionReversionSuccess: "VERSION_REVERT_SUCCESS",
             GetDocumentVersionsTopicClick: "GET_DOCUMENT_VERSIONS_CLICK",
-            CaseDocumentMoved : "OE_CASE_DOCUMENT_MOVED"
+            CaseDocumentMoved : "OE_CASE_DOCUMENT_MOVED",
+            MoveDocumentTopic: "OE_MOVE_DOC",
+            CopyDocumentTopic: "OE_COPY_DOC",
+            FindCaseDialogTopic : "OE_CREATE_FIND_CASE_DIALOG"
         });
     });

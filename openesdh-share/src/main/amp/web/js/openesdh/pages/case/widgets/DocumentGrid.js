@@ -8,7 +8,7 @@ define(["dojo/_base/declare",
         "openesdh/common/widgets/dashlets/_DocumentTopicsMixin"
     ],
     function(declare, DGrid, lang, _TopicsMixin) {
-        return declare([DGrid], {
+        return declare([DGrid, _TopicsMixin], {
             cssRequirements: [
                 {cssFile: "./css/DocumentGrid.css"}
             ],
@@ -47,6 +47,12 @@ define(["dojo/_base/declare",
                     "label" : "grid.actions.move_doc",
                     "key"	: "77", // Shift+M
                     "shift" : true
+                },                
+                {"callback" : "onCopyDoc",
+                    "id" : "doc-copy",
+                    "label" : "grid.actions.copy_doc",
+                    "key"	: "67", // Shift+C
+                    "shift" : true
                 },
             ],
 
@@ -59,8 +65,18 @@ define(["dojo/_base/declare",
             },
             
             onMoveDoc : function (item) {
-            	this.alfPublish("OE_MOVE_DOC", {
+            	this.alfPublish(this.MoveDocumentTopic, {
                     nodeRef: item.mainDocNodeRef,
+                    name: item["cm:name"],
+                    caseId: item["oe:caseId"],
+                    nodeUuid: item["sys:node-uuid"]
+                });
+            },
+            
+            onCopyDoc : function (item) {
+            	this.alfPublish(this.CopyDocumentTopic, {
+                    nodeRef: item.mainDocNodeRef,
+                    name: item["cm:name"],
                     caseId: item["oe:caseId"],
                     nodeUuid: item["sys:node-uuid"]
                 });

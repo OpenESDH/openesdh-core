@@ -1,32 +1,46 @@
 package dk.openesdh.repo.policy;
 
-import dk.openesdh.repo.model.OpenESDHModel;
+import java.util.List;
+import java.util.Map;
+
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.copy.CopyServicePolicies.BeforeCopyPolicy;
+import org.alfresco.repo.copy.CopyServicePolicies.OnCopyCompletePolicy;
+import org.alfresco.repo.node.NodeServicePolicies.OnCreateChildAssociationPolicy;
 import org.alfresco.repo.policy.Behaviour;
 import org.alfresco.repo.policy.JavaBehaviour;
 import org.alfresco.repo.policy.PolicyComponent;
+import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
+import org.alfresco.service.namespace.RegexQNamePattern;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.extensions.webscripts.WebScriptException;
-import org.alfresco.repo.node.NodeServicePolicies.OnCreateChildAssociationPolicy;
+import org.springframework.util.CollectionUtils;
+
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.utils.Utils;
 
 /**
  * Created by rasmutor on 2/11/15.
  */
-public class DocumentBehaviour implements OnCreateChildAssociationPolicy{
+public class DocumentBehaviour implements OnCreateChildAssociationPolicy, BeforeCopyPolicy, OnCopyCompletePolicy {
 
     private static final Log logger = LogFactory.getLog(DocumentBehaviour.class);
     private Behaviour onCreateChildAssociation;
     private PolicyComponent policyComponent;
     private NodeService nodeService;
+	private Behaviour beforeCopyDocumentFolder;
+    private Behaviour afterCopyDocumentFolder;
 
     public void init() {
         onCreateChildAssociation = new JavaBehaviour(this, "onCreateChildAssociation", Behaviour.NotificationFrequency.TRANSACTION_COMMIT);
+        beforeCopyDocumentFolder = new JavaBehaviour(this, "beforeCopy");
+        afterCopyDocumentFolder = new JavaBehaviour(this, "onCopyComplete");
 
         this.policyComponent.bindAssociationBehaviour(
                 OnCreateChildAssociationPolicy.QNAME,
@@ -34,6 +48,104 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy{
                 ContentModel.ASSOC_CONTAINS,
                 this.onCreateChildAssociation
         );
+
+        this.policyComponent.bindClassBehaviour(
+                BeforeCopyPolicy.QNAME, 
+                OpenESDHModel.TYPE_DOC_SIMPLE, 
+                this.beforeCopyDocumentFolder
+        );
+        this.policyComponent.bindClassBehaviour(
+                OnCopyCompletePolicy.QNAME, 
+                OpenESDHModel.TYPE_DOC_SIMPLE,
+                this.afterCopyDocumentFolder
+        );
+    }
+
+    @Override
+    public void beforeCopy(QName classRef, NodeRef sourceNodeRef, NodeRef targetNodeRef) {
+        // Remove doc:main association to get over the issue with
+        // "Behaviour should have been invoked" exception which is thrown by the
+        // standard copy service.
+        //
+        // The issue is concerned with the
+        // CopyServiceImpl.FolderTypeCopyBehaviourCallback and
+        // CompoundCopyBehaviourCallback implementations.
+        //
+        // The doc:main association is restored when the document is copied (see
+        // onCopyComplete).
+        removeDocMainAssociation(sourceNodeRef);
+    }
+
+    @Override
+    public void onCopyComplete(QName classRef, NodeRef docRecordNode, NodeRef targetCaseDocumentsNodeRef,
+            boolean copyToNewNode, Map<NodeRef, NodeRef> copyMap) {
+
+        // Restore doc:main association which is removed when beforeCopy is run.
+        // Likewise create doc:main association for the copy of the document.
+        restoreDocMainAssociationAndCopyDocMainAssociation(docRecordNode, copyMap);
+
+        // Remove association with copies to make the documents independent.
+        removeOriginalAssoc(docRecordNode);
+    }
+
+    private void removeDocMainAssociation(NodeRef docRecordNodeRef) {
+        ChildAssociationRef docMainAssociation = getDocMainAssociation(docRecordNodeRef);
+        if (docMainAssociation == null) {
+            return;
+        }
+        nodeService.removeChildAssociation(docMainAssociation);
+    }
+
+    private ChildAssociationRef getDocMainAssociation(NodeRef docFolderNodeRef) {
+        List<ChildAssociationRef> childAssocList = nodeService.getChildAssocs(docFolderNodeRef,
+                OpenESDHModel.ASSOC_DOC_MAIN, RegexQNamePattern.MATCH_ALL);
+        if (CollectionUtils.isEmpty(childAssocList)) {
+            return null;
+        }
+        return childAssocList.get(0);
+    }
+
+    private void restoreDocMainAssociationAndCopyDocMainAssociation(NodeRef docRecordNode,
+            Map<NodeRef, NodeRef> copyMap) {
+        ChildAssociationRef docContentAssociation = getContentAssociation(docRecordNode);
+        NodeRef docFileRef = docContentAssociation.getChildRef();
+        nodeService.addChild(docRecordNode, docFileRef, OpenESDHModel.ASSOC_DOC_MAIN,
+                OpenESDHModel.ASSOC_DOC_MAIN);
+
+        NodeRef copyDocRecordNode = copyMap.get(docRecordNode);
+
+        String documentName = (String) nodeService.getProperty(docRecordNode, ContentModel.PROP_NAME);
+        nodeService.setProperty(copyDocRecordNode, ContentModel.PROP_NAME, documentName);
+
+        ChildAssociationRef copyDocMainAssoc = getDocMainAssociation(copyDocRecordNode);
+        if (copyDocMainAssoc != null) {
+            return;
+        }
+
+        NodeRef copyDocFileNode = copyMap.get(docFileRef);
+        nodeService.addChild(copyDocRecordNode, copyDocFileNode, OpenESDHModel.ASSOC_DOC_MAIN,
+                OpenESDHModel.ASSOC_DOC_MAIN);
+    }
+
+    private void removeOriginalAssoc(NodeRef docRecordNode) {
+        List<AssociationRef> assocList = nodeService.getSourceAssocs(docRecordNode, ContentModel.ASSOC_ORIGINAL);
+        for (AssociationRef assoc : assocList) {
+            nodeService.removeAssociation(assoc.getSourceRef(), assoc.getTargetRef(), ContentModel.ASSOC_ORIGINAL);
+        }
+    }
+
+    private ChildAssociationRef getContentAssociation(NodeRef docFolderNodeRef) {
+
+        String documentName = (String) nodeService.getProperty(docFolderNodeRef, ContentModel.PROP_NAME);
+        QName docContentAssocName = Utils.createDocumentContentAssociationName(documentName);
+        List<ChildAssociationRef> childAssocList = nodeService.getChildAssocs(docFolderNodeRef,
+                ContentModel.ASSOC_CONTAINS, docContentAssocName);
+
+        if (CollectionUtils.isEmpty(childAssocList)) {
+            return null;
+        }
+
+        return childAssocList.get(0);
     }
 
     @Override
@@ -49,8 +161,13 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy{
         NodeRef docRecord = childAssocRef.getParentRef();
         // Set the first child as main document
         if (nodeService.countChildAssocs(docRecord, true) == 1) {
-            //Tag the case document as the main document for the case
-            nodeService.addChild(docRecord, fileRef, OpenESDHModel.ASSOC_DOC_MAIN, QName.createQName(OpenESDHModel.DOC_URI, "main"));
+            
+            ChildAssociationRef childAssoc = nodeService.getChildAssocs(docRecord).get(0);
+            if(!OpenESDHModel.ASSOC_DOC_MAIN.equals(childAssoc.getTypeQName())){
+                //Tag the case document as the main document for the case
+                nodeService.addChild(docRecord, fileRef, OpenESDHModel.ASSOC_DOC_MAIN, OpenESDHModel.ASSOC_DOC_MAIN);
+            }
+            
 
             //find a better way to do this
             /**

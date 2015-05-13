@@ -6,10 +6,11 @@ define(["dojo/_base/declare",
         "alfresco/core/NodeUtils",
         "openesdh/pages/_TopicsMixin",
         "alfresco/dialogs/AlfFormDialog",
+        "alfresco/dialogs/AlfDialog",
         "dojo/window",
         "alfresco/core/NotificationUtils"
     ],
-    function (declare, AlfCore, CoreXhr, array, lang, NodeUtils, _TopicsMixin, AlfFormDialog, win, NotificationUtils) {
+    function (declare, AlfCore, CoreXhr, array, lang, NodeUtils, _TopicsMixin, AlfFormDialog, AlfDialog, win, NotificationUtils) {
 
         return declare([AlfCore, CoreXhr, _TopicsMixin, NotificationUtils], {
 
@@ -35,21 +36,29 @@ define(["dojo/_base/declare",
             currentDocRecordNodeRef: null,
             
             /**
-             * NodeRef of the current document to move
+             * Current selected case document
              */
-            documentToMoveNodeRef: null,
+            selectedCaseDocument: null,
             
             docMoveToCaseGridRowSelectedTopic : "DOC_MOVE_TO_CASE_GRID_ROW_SELECTED",
+            
+            docCopyToCaseGridRowSelectedTopic : "DOC_COPY_TO_CASE_GRID_ROW_SELECTED",
+            
+            docMoveCopyActionConfirmedTopic : "DOC_MOVE_COPY_ACTION_CONFIRMED",
+            
+            _docMoveCopySuccessSubscription : null,
+            _docMoveCopyFailureSubscription : null,
                         
             constructor: function (args) {
                 lang.mixin(this, args);
 
-                this.getSearchDefinition();
                 this.alfSubscribe("OE_SHOW_UPLOADER", lang.hitch(this, this._showUploader));
                 this.alfSubscribe("OE_SHOW_ATTACHMENTS_UPLOADER", lang.hitch(this, this._showUploader));
                 this.alfSubscribe("OE_CASE_DOCUMENT_SERVICE_UPLOAD_REQUEST_RECEIVED", lang.hitch(this, this._onFileUploadRequest));
                 this.alfSubscribe("OE_PREVIEW_DOC", lang.hitch(this, this.onPreviewDoc));
-                this.alfSubscribe("OE_MOVE_DOC", lang.hitch(this, this.onMoveDoc));
+                this.alfSubscribe(this.MoveDocumentTopic, lang.hitch(this, this.onMoveDoc));
+                this.alfSubscribe(this.CopyDocumentTopic, lang.hitch(this, this.onCopyDoc));
+                
                 this.alfSubscribe("GET_DOCUMENT_RECORD_INFO", lang.hitch(this, this._docRecordInfo));
                 this.alfSubscribe(this.CaseDocumentRowSelect, lang.hitch(this, this._retrieveDocumentdetails));
                 this.alfSubscribe(this.DocumentVersionUploaderTopic, lang.hitch(this, this._showVersionUploader));
@@ -57,24 +66,11 @@ define(["dojo/_base/declare",
                 this.alfSubscribe(this.DocumentVersionRevertFormSubmitTopic, lang.hitch(this, this._onVersionRevertSubmit));
                 this.alfSubscribe(this.GetDocumentVersionsTopicClick, lang.hitch(this, this._retrieveDocumentVersions));
                 
-                this.alfSubscribe(this.docMoveToCaseGridRowSelectedTopic, lang.hitch(this, this._onMoveDocTargetCaseSelected));
+                this.alfSubscribe(this.docMoveToCaseGridRowSelectedTopic, lang.hitch(this, this._confirmMoveCopyDocumentAction));
+                this.alfSubscribe(this.docCopyToCaseGridRowSelectedTopic, lang.hitch(this, this._confirmMoveCopyDocumentAction));
+                this.alfSubscribe(this.docMoveCopyActionConfirmedTopic, lang.hitch(this, this._onDocumentMoveCopyActionConfirmed));
 
                 this._getDocumentConstraints();
-            },
-            
-            getSearchDefinition: function() {
-                this.serviceXhr({
-                    url: Alfresco.constants.PROXY_URI + "api/openesdh/case/searchDefinition/case_simple",
-                    method: "GET",
-                    handleAs: "json",
-                    successCallback: function (response, config) {
-                        this.searchDefinition = response;
-                    },
-                    failureCallback: function(response, config){
-                        alert("failure: " + JSON.stringify(response));
-                    },
-                    callbackScope: this
-                });
             },
 
             onPreviewDoc: function (payload) {
@@ -119,89 +115,111 @@ define(["dojo/_base/declare",
                 });
             },
             
-            onMoveDoc: function (payload) {
-            	
-            	this.documentToMoveNodeRef = payload.nodeRef;
-            	
-            	this.alfPublish("ALF_CREATE_DIALOG_REQUEST", {
-                    contentWidth: "800px",
-                    dialogTitle: "Find Case",
-                    handleOverflow: false,
-                    hideTopic: this.docMoveToCaseGridRowSelectedTopic,
-                    widgetsContent: [
-                        {
-                            name: 'alfresco/layout/VerticalWidgets',
-                            config: {
-                                widgets: [
-                                    {
-                                        name: "openesdh/xsearch/FilterPane",
-                                        config: {
-                                            baseType: "case:base",
-                                            types: this.searchDefinition.model.types,
-                                            properties: this.searchDefinition.model.properties,
-                                            availableFilters: ["cm:title", "oe:status", "cm:created"],
-                                            operatorSets: this.searchDefinition.operatorSets
-                                        }
-                                    },
-                                    {
-                                        name: "openesdh/xsearch/Grid",
-                                        config: {
-                                            baseType: "case:base",
-                                            types: this.searchDefinition.model.types,
-                                            properties: this.searchDefinition.model.properties,
-                                            visibleColumns: ["oe:id", "cm:title", "oe:status", "cm:created"],
-                                            availableColumns: ["oe:id", "cm:title", "oe:status", "cm:created"],
-                                            actions: [],
-                                            rowsPerPage: 15,
-                                            pageSizeOptions: [],
-                                            rowSelectionTopic : this.docMoveToCaseGridRowSelectedTopic
-                                        }
-                                    }
-                                ]
-                            }
-                        }
-                    ],
-                    widgetsButtons: [
-                        {
-                            name: "alfresco/buttons/AlfButton",
-                            config: {
-                                label: "Cancel",
-                                publishTopic: "NO_OP"
-                            }
-                        }
-                    ]
-                });
+            onMoveDoc: function (payload) {            	
+            	this.selectedCaseDocument = payload;
+            	this.alfPublish(this.FindCaseDialogTopic, {
+        			dialogHideTopic : this.docMoveToCaseGridRowSelectedTopic,
+        			gridRowSelectedTopic : this.docMoveToCaseGridRowSelectedTopic
+        		});
             },
             
-            _onMoveDocTargetCaseSelected : function(payload){
+            onCopyDoc : function(payload){
+            	this.selectedCaseDocument = payload;            	
+            	this.alfPublish(this.FindCaseDialogTopic, {
+        			dialogHideTopic : this.docCopyToCaseGridRowSelectedTopic,
+        			gridRowSelectedTopic : this.docCopyToCaseGridRowSelectedTopic
+        		});
+            },
+            
+            _confirmMoveCopyDocumentAction : function(payload){
             	
-            	var data = payload.row.data;
-            	var caseId = data["oe:caseId"];
+            	var copy = payload.alfTopic == this.docCopyToCaseGridRowSelectedTopic ? true : false;
+            	payload.copy = copy;
+            	
+            	var confirmText = copy ? "dialog.copy_doc.confirm.text" : "dialog.move_doc.confirm.text";
+            	
+            	var docName = this.selectedCaseDocument.name;
+            	var caseTitle = payload.row.data["cm:title"];
+            	
+            	var dialog = new AlfDialog({
+            		generatePubSubScope : false,
+            		title: this.message("dialog.move_copy.confirm.title"),
+            		textContent: this.message(confirmText, docName, caseTitle),
+            		widgetsButtons: [
+	                 {
+	                	name: "alfresco/buttons/AlfButton",
+	                	config: {
+	                		label: "dialog.button.label.yes",
+	                		publishTopic: this.docMoveCopyActionConfirmedTopic,
+	                		publishPayload: payload
+	                	}
+	                 },
+	                 {
+	                	 name: "alfresco/buttons/AlfButton",
+	                	 config: {
+	                		 label: "dialog.button.label.no",
+	                		 publishTopic: "NOOP"
+	                	 }
+	                 }
+            		]
+            	});
+            	dialog.show();
+            },
+            
+            _onDocumentMoveCopyActionConfirmed: function(payload){
+            	var targetCase = payload.row.data;
+            	var caseId = targetCase["oe:caseId"];
+            	
+            	var docName = this.selectedCaseDocument.name;
+            	var caseTitle = targetCase["cm:title"];
+            	
+            	var actionUrl = payload.copy ? "api/openesdh/documents/copy-to/case" : "api/openesdh/documents/move-to/case";
             	
             	var responseTopic = this.generateUuid();
-                var successSubscription = this.alfSubscribe(responseTopic + "_SUCCESS", lang.hitch(this, this._onMoveDocToCaseSuccess), true);
-                var failureSubscription = this.alfSubscribe(responseTopic + "_FAILURE", lang.hitch(this, this._onMoveDocToCaseFailure), true);
+                this._docMoveCopySuccessSubscription = this.alfSubscribe(responseTopic + "_SUCCESS", lang.hitch(this, this._onDocMoveCopyActionSuccess), true);
+                this._docMoveCopyFailureSubscription = this.alfSubscribe(responseTopic + "_FAILURE", lang.hitch(this, this._onDocMoveCopyActionFailure), true);
+                
                 this.serviceXhr({
                    alfTopic: responseTopic,
-                   subscriptionHandles: [successSubscription, failureSubscription], 
-                   url: Alfresco.constants.PROXY_URI + "api/openesdh/documents/move-to/case",
+                   subscriptionHandles: [this._docMoveCopySuccessSubscription, this._docMoveCopyFailureSubscription], 
+                   url: Alfresco.constants.PROXY_URI + actionUrl,
                    method: "POST",
                    handleAs: "json",
+                   copy: payload.copy,
+                   caseTitle: caseTitle,
+                   docName: docName,
                    data: {
-                      nodeRef: this.documentToMoveNodeRef,
+                      nodeRef: this.selectedCaseDocument.nodeRef,
                       caseId: caseId
                    }
                 });
             },
             
-            _onMoveDocToCaseSuccess : function(payload){
-            	this.alfPublish(this.CaseDocumentMoved);
+            _onDocMoveCopyActionSuccess : function(payload){
+            	
+            	this.alfUnsubscribe(this._docMoveCopySuccessSubscription);
+            	this.alfUnsubscribe(this._docMoveCopyFailureSubscription);
+            	
+            	var docName = payload.requestConfig.docName;
+            	var caseTitle = payload.requestConfig.caseTitle;
+            	
+            	var copy = payload.requestConfig.copy;
+            	if(!copy){
+            		this.alfPublish(this.CaseDocumentMoved);
+            	}
+            	
+            	var messageText = copy ? "dialog.copy_doc.success.text" : "dialog.move_doc.success.text";
+
+            	this.alfPublish("ALF_DISPLAY_NOTIFICATION", {
+                    message: this.message(messageText, docName, caseTitle)
+                 });
             },
             
-            _onMoveDocToCaseFailure : function(payload){
-            	//Do nothing since auto notification utils in operation
+            _onDocMoveCopyActionFailure : function(payload){
+            	this.alfUnsubscribe(this._docMoveCopySuccessSubscription);
+            	this.alfUnsubscribe(this._docMoveCopyFailureSubscription);
             },
-
+            
             /**
              * This function will open a [AlfFormDialog]{@link module:alfresco/forms/AlfFormDialog} containing a
              * [file select form control]{@link module:alfresco/forms/controls/FileSelect} so that the user can

@@ -73,5 +73,16 @@ public interface DocumentService {
 	 *            Id of the case to move the document into
 	 */
 	public void moveDocumentToCase(final NodeRef documentToMove,
-			String targetCaseId) throws Exception;
+			final String targetCaseId) throws Exception;
+
+	/**
+	 * Copies provided document to the target case
+	 * 
+	 * @param documentToCopy
+	 *            NodeRef of the document to copy
+	 * @param targetCaseId
+	 *            Id of the case to copy the document into
+	 */
+	public void copyDocumentToCase(final NodeRef documentToMove,
+			final String targetCaseId) throws Exception;
 }

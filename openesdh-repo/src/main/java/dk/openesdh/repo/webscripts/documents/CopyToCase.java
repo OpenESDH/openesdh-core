@@ -14,16 +14,16 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
 
 import dk.openesdh.repo.services.documents.DocumentService;
 
-public class MoveToCase  extends AbstractWebScript {
+public class CopyToCase extends AbstractWebScript {
 
-	private static Log logger = LogFactory.getLog(MoveToCase.class);
+	private static Log logger = LogFactory.getLog(CopyToCase.class);
 
-    private DocumentService documentService;
+	private DocumentService documentService;
 
-    public void setDocumentService(DocumentService documentService) {
-        this.documentService = documentService;
-    }
-    
+	public void setDocumentService(DocumentService documentService) {
+		this.documentService = documentService;
+	}
+
 	@Override
 	public void execute(WebScriptRequest req, WebScriptResponse res)
 			throws IOException {
@@ -33,21 +33,19 @@ public class MoveToCase  extends AbstractWebScript {
 		String caseId = (String) json.get("caseId");
 		String docRef = (String) json.get("nodeRef");
 
+		DocumentsWebScriptUtil.respondSuccess(res, "The document has been copied to the case "
+				+ caseId);
+
 		try {
-			documentService.moveDocumentToCase(new NodeRef(docRef), caseId);
+			documentService.copyDocumentToCase(new NodeRef(docRef), caseId);
 		} catch (Exception e) {
 			logError(e);
-			throw new WebScriptException(Status.STATUS_CONFLICT,
-					"Unable to move document to case. " + e.getMessage());
+			throw new WebScriptException(Status.STATUS_CONFLICT, "Unable to copy document to case. " + e.getMessage());
 		}
-
-		DocumentsWebScriptUtil.respondSuccess(res, "The document has been moved to the case " + caseId);
 	}
 
 	private void logError(Exception e) {
-		logger.error("Unable to move document to case due to the following exception: "
-				+ e.getMessage());
+		logger.error("Unable to copy document to case due to the following exception: " + e.getMessage());
 		e.printStackTrace();
 	}
-
 }

@@ -28,6 +28,7 @@ var services = [
     "openesdh/common/services/CaseActionService",
     "alfresco/services/RatingsService",
     "alfresco/services/QuickShareService",
+    "openesdh/common/services/FindCaseDialogService",
     {
         name: "openesdh/common/services/CaseDocumentService",
         config: {

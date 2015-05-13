@@ -16,6 +16,7 @@ import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
+import org.alfresco.service.cmr.repository.CopyService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.PersonService;
@@ -43,6 +44,8 @@ public class DocumentServiceImpl implements DocumentService {
 
     private static Log logger = LogFactory.getLog(DocumentServiceImpl.class);
 
+	private static final String DOCUMENT_STORED_IN_CASE_MESSAGE = "The document has already been stored in the case ";
+
     private NodeService nodeService;
     private DictionaryService dictionaryService;
     private PersonService personService;
@@ -50,6 +53,7 @@ public class DocumentServiceImpl implements DocumentService {
     private CaseService caseService;
     private NamespaceService namespaceService;
     private BehaviourFilter behaviourFilter;
+    private CopyService copyService;
 
     private MimeTypes allMimeTypes = MimeTypes.getDefaultMimeTypes();
     private MimeTypes types;
@@ -82,7 +86,11 @@ public class DocumentServiceImpl implements DocumentService {
     public void setBehaviourFilter(BehaviourFilter behaviourFilter) {
         this.behaviourFilter = behaviourFilter;
     }
-    //</editor-fold>
+
+    public void setCopyService(CopyService copyService) {
+        this.copyService = copyService;
+    }
+	// </editor-fold>
 
     @Override
     public List<ChildAssociationRef> getDocumentsForCase(NodeRef nodeRef) {
@@ -239,48 +247,70 @@ public class DocumentServiceImpl implements DocumentService {
         return StringUtils.isNotEmpty(fileNameExt);
     }
 
-	@Override
-	public void moveDocumentToCase(NodeRef documentToMove, String targetCaseId)
+    @Override
+    public void moveDocumentToCase(NodeRef documentToMove, String targetCaseId) throws Exception {
+
+        ChildAssociationRef docToFolderAssoc = getDocumentPrimaryParent(documentToMove);
+
+        if (isCaseContainsDocument(targetCaseId, documentToMove)) {
+            throw new Exception(DOCUMENT_STORED_IN_CASE_MESSAGE + targetCaseId);
+        }
+
+        NodeRef targetCase = getTargetCase(targetCaseId);
+
+        NodeRef documentFolderToMove = docToFolderAssoc.getParentRef();
+
+        String documentFolderName = (String) nodeService.getProperty(documentFolderToMove, ContentModel.PROP_NAME);
+
+        NodeRef targetCaseDocumentsFolder = caseService.getDocumentsFolder(targetCase);
+
+        nodeService.moveNode(documentFolderToMove, targetCaseDocumentsFolder, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.DOC_URI, documentFolderName));
+
+        // Refer to CaseServiceImpl.setupAssignCaseIdRule and
+        // AssignCaseIdActionExecuter
+        // for automatic update of the caseId property rule.
+
+    }
+
+    @Override
+	public void copyDocumentToCase(NodeRef documentToCopy, String targetCaseId)
 			throws Exception {
+		ChildAssociationRef docToFolderAssoc = getDocumentPrimaryParent(documentToCopy);
 
-    	ChildAssociationRef docToFolderAssoc = nodeService.getPrimaryParent(documentToMove);
-    	if(docToFolderAssoc == null){
-			throw new Exception("No primary parent was found for node ref: "
-							+ documentToMove.toString());
-    	}
-    	
-		String documentCurrentCaseId = (String) nodeService.getProperty(
-				documentToMove, OpenESDHModel.PROP_OE_CASE_ID);
-
-		if (StringUtils.equals(documentCurrentCaseId, targetCaseId)) {
-			throw new Exception(
-					"The document has already been stored in the case "
-							+ targetCaseId);
+		if (isCaseContainsDocument(targetCaseId, documentToCopy)) {
+			throw new Exception(DOCUMENT_STORED_IN_CASE_MESSAGE + targetCaseId);
 		}
 
-		NodeRef targetCase = null;
-		try {
-			targetCase = caseService.getCaseById(targetCaseId);
-		} catch (Exception e) {
-			throw new Exception("Error trying to get target case for case id: "
-					+ targetCaseId, e);
-    	}
-    	
-		NodeRef documentFolderToMove = docToFolderAssoc.getParentRef();
+		NodeRef targetCase = getTargetCase(targetCaseId);
+        NodeRef targetCaseDocumentsFolder = caseService.getDocumentsFolder(targetCase);
 
-		String documentFolderName = (String) nodeService.getProperty(
-				documentFolderToMove, ContentModel.PROP_NAME);
+		NodeRef documentFolderToCopy = docToFolderAssoc.getParentRef();
+		
+		String documentFolderName = (String) nodeService.getProperty(documentFolderToCopy, ContentModel.PROP_NAME);
 
-		NodeRef targetCaseDocumentsFolder = caseService
-				.getDocumentsFolder(targetCase);
-
-		nodeService.moveNode(documentFolderToMove, targetCaseDocumentsFolder,
-				ContentModel.ASSOC_CONTAINS,
-				QName.createQName(OpenESDHModel.DOC_URI, documentFolderName));
-
-		// Refer to CaseServiceImpl.setupAssignCaseIdRule and
-		// AssignCaseIdActionExecuter
-		// for automatic update of the caseId property rule.
-
+        copyService.copy(documentFolderToCopy, targetCaseDocumentsFolder, ContentModel.ASSOC_CONTAINS,
+                QName.createQName(OpenESDHModel.DOC_URI, documentFolderName), true);
+		
 	}
+
+    private ChildAssociationRef getDocumentPrimaryParent(NodeRef document) throws Exception {
+        ChildAssociationRef docToFolderAssoc = nodeService.getPrimaryParent(document);
+        if (docToFolderAssoc == null) {
+            throw new Exception("No primary parent was found for node ref: " + document.toString());
+        }
+        return docToFolderAssoc;
+    }
+
+    private NodeRef getTargetCase(String targetCaseId) throws Exception {
+        try {
+            return caseService.getCaseById(targetCaseId);
+        } catch (Exception e) {
+            throw new Exception("Error trying to get target case for the case id: " + targetCaseId, e);
+        }
+    }
+
+    private boolean isCaseContainsDocument(String caseId, NodeRef document) {
+        String documentCurrentCaseId = (String) nodeService.getProperty(document, OpenESDHModel.PROP_OE_CASE_ID);
+        return StringUtils.equals(documentCurrentCaseId, caseId);
+    }
 }
