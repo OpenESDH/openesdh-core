@@ -61,6 +61,7 @@ function getPermittedRoleTypes () {
 /**
  * Get the permitted status types for cases. Used for the case status select control input(s)
  */
+//TODO Don't think we need this any longer
 function getCaseStatusTypes () {
     var connector = remote.connect("alfresco");
     var states = connector.get("/api/openesdh/case/party/permittedStates");

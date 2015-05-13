@@ -4,4 +4,5 @@
     <url>/api/openesdh/casetypes</url>
     <authentication>user</authentication>
     <transaction>required</transaction>
+    <family>Case Tools</family>
 </webscript>
