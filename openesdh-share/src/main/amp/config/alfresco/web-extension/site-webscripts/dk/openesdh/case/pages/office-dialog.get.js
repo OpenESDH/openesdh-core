@@ -93,6 +93,7 @@ model.jsonModel = {
                 formId: "officeForm"
             }
         },
+        "openesdh/common/services/FindCaseDialogService",
         "alfresco/dialogs/AlfDialogService",
         "alfresco/services/DocumentService"
     ]
