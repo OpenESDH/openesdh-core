@@ -80,6 +80,7 @@ define(["dojo/_base/declare",
                     formSubmissionPayload: {
                         publishOnSuccessTopic: publishOnSuccessTopic
                     },
+                    fixedWidth: true,
                     widgets: this._getCreateCaseWidgets(payload.caseType)
                 });
                 this.createCaseDialog.show();
