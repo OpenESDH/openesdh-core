@@ -1,14 +1,15 @@
 package dk.openesdh.repo.utils;
 
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
-
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.alfresco.service.namespace.QName;
+import org.apache.http.NameValuePair;
+import org.apache.http.client.utils.URLEncodedUtils;
+
+import dk.openesdh.repo.model.OpenESDHModel;
 
 /**
  * Created by syastrov on 8/26/14.
@@ -37,4 +38,15 @@ public class Utils {
         return parameters;
     }
 
+    /**
+     * Creates name for document content association.
+     * 
+     * @param documentName
+     *            name of the document to create the content association name
+     *            for
+     * @return document content association name.
+     */
+    public static QName createDocumentContentAssociationName(String documentName) {
+        return QName.createQName(OpenESDHModel.DOC_URI, "content_" + documentName);
+    }
 }

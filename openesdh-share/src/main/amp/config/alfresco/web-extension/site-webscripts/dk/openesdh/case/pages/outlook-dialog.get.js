@@ -193,6 +193,7 @@ model.jsonModel = {
                 casesFolderNodeRef: getNewCaseFolderNodeRef()
             }
         },
+        "openesdh/common/services/FindCaseDialogService",
         "openesdh/common/services/AuthorityService"
     ]
 };

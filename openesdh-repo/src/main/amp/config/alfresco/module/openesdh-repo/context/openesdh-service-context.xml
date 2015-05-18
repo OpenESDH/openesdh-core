@@ -64,6 +64,10 @@
         <property name="caseService">
             <ref bean="CaseService"/>
         </property>
+        
+        <property name="copyService">
+            <ref bean="CopyService"/>
+        </property>
 
         <property name="nodeService">
             <ref bean="NodeService"/>
