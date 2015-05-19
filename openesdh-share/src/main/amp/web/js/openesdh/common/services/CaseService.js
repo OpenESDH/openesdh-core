@@ -148,7 +148,11 @@ define(["dojo/_base/declare",
             _onCaseInfoInitialLoadSuccess: function (response, config) {
                 this._allWidgetsProcessedFunction = lang.hitch(this, function () {
                     this.alfPublish(this.CaseInfoTopic, response);
-                    this.alfPublish("ALF_UPDATE_PAGE_TITLE", {title: response.allProps.properties["cm:title"].value});
+                    
+                    var caseProps  = response.allProps.properties;
+                    var caseTitle = caseProps["cm:title"].value;
+                    caseTitle += " (" + caseProps["cm:name"].value + ")"
+                    this.alfPublish("ALF_UPDATE_PAGE_TITLE", {title: caseTitle});
                 });
                 // Call it immediately after we receive the response, and let
                 // it be called each time we get an ALF_WIDGETS_READY.

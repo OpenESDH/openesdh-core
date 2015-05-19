@@ -17,6 +17,8 @@ define(["dojo/_base/declare",
             i18nRequirements: [
                 {i18nFile: "./i18n/InfoWidget.properties"}
             ],
+            
+            baseClass: "case-info-widget",
 
             cssRequirements: [{cssFile:"./css/DocInfoWidget.css"}],
 
@@ -34,13 +36,14 @@ define(["dojo/_base/declare",
                 // Unsubscribe from CaseInfoTopic so we don't show the data twice
                 this.alfUnsubscribe(this.caseInfoTopicSubscription);
 
-//                console.log(payload);
+                console.log("on case info received: ", payload);
 
                 this.widgetsForBody = [];
 //                var currentItem = this.unmarshal(payload);
                 var properties = payload.properties;
                 for (var i in properties) {
                     if (i == "alfTopic") continue;
+                    
                     var widget = "";
                     if (properties[i].type == "Date") {
                         widget = "openesdh/common/widgets/renderers/DateField";
@@ -48,14 +51,18 @@ define(["dojo/_base/declare",
                     else if (properties[i].type == "UserName") {
                         widget = "openesdh/common/widgets/renderers/UserNameField";
                     }
+                    else if(i == "cm:title"){
+                    	widget = "openesdh/common/widgets/renderers/CaseTitle";
+                    }
                     else {
+//                    	console.log("adding property: "+i);
                         widget = "openesdh/common/widgets/renderers/PropertyField";
                     }
 
                     var propertyWidget = {
                         name: widget,
                         config: {
-                            currentItem: properties,
+                            currentItem: payload.allProps.properties, //properties,
                             propertyToRender: i,
                             label: properties[i].label,
                             renderOnNewLine: true
