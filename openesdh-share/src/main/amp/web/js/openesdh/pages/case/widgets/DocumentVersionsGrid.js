@@ -114,6 +114,7 @@ define(["dojo/_base/declare",
             postMixInProperties: function () {
                 this.inherited(arguments);
                 this.alfSubscribe(this.GetDocumentVersionsTopic, lang.hitch(this, "_onRefresh"));
+                this.alfSubscribe(this.CaseDocumentMoved, lang.hitch(this, "_onCaseDocumentMoved"));
             },
 
             getColumns: function () {
@@ -176,6 +177,14 @@ define(["dojo/_base/declare",
                 }
                 this.grid.refresh();
                 this.targetURI = temp; //Revert the URI back to its original state
+            },
+            
+            /**
+             * Empty document versions grid when document has been moved to another case
+             */
+            _onCaseDocumentMoved: function (payload) {
+            	this.grid.store = this.createStore();
+            	this.grid.refresh();
             }
         });
     });

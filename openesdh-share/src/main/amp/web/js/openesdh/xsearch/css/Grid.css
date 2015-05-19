@@ -1,3 +1,9 @@
-.dgrid {
+/*Change height of xsearch grids only*/
+div[id^="openesdh_xsearch_Grid"] .dgrid {
     height: 50em !important;
+}
+
+/*Set default height of a xsearch grid in a dialog pane*/
+.dialog-body div[id^="openesdh_xsearch_Grid"] .dgrid {
+    height: 30em !important;
 }

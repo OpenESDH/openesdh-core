@@ -271,6 +271,7 @@
             <properties>
                 <property name="doc:variant">
                     <type>d:text</type>
+                    <default>production</default>
                     <constraints>
                         <constraint ref="doc:variantConstraint"/>
                     </constraints>

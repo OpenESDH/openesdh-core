@@ -1,4 +1,4 @@
-/**
+ /**
  * Copyright (C) 2005-2014 Alfresco Software Limited.
  *
  * This file is part of Alfresco
@@ -23,12 +23,13 @@
  * {@link module:alfresco/pickers/Picker#widgetsForRootPicker}. The picked items display can also be customized by
  * overriding the [widgetsForPickedItems attribute]{@link module:alfresco/pickers/Picker#widgetsForPickedItems}.</p>
  *
- * @module alfresco/pickers/Picker
+ * @module openesdh/common/widgets/picker/PickerWithHeader
  * @extends dijit/_WidgetBase
  * @mixes dijit/_TemplatedMixin
  * @mixes module:alfresco/core/Core
  * @mixes module:alfresco/core/CoreWidgetProcessing
- * @author Dave Draper & David Webster
+ * @author Lanre Abiwon
+ * @based on alfresco/pickers/Picker by Dave Draper & David Webster
  */
 define(["dojo/_base/declare",
         "alfresco/pickers/Picker",
@@ -47,12 +48,38 @@ define(["dojo/_base/declare",
        */
       cssRequirements: [{cssFile:"./css/PickerWithHeader.css"}],
 
+       /**
+        * An array of the i18n files to use with this widget.
+        *
+        * @instance
+        * @type {Array}
+        */
+       i18nRequirements: [{i18nFile: "./i18n/PickerWithHeader.properties"}],
+
       /**
        * The HTML template to use for the widget.
        * @instance
        * @type {String}
        */
       templateString: template,
+
+       /**
+        * This is the label to display above the picker.
+        *
+        * @instance
+        * @type {string}
+        * @default "picker.subPickers.label"
+        */
+       subPickersLabel: "auth-picker.subPickers.label",
+
+       /**
+        * This is the label to display above the picked items.
+        *
+        * @instance
+        * @type {string}
+        * @default "picker.pickedItems.label"
+        */
+       pickedItemsLabel: "auth-picker.pickedItems.label",
 
       /**
        *

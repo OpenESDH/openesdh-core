@@ -21,6 +21,10 @@
                     <targetPackageRoot>org.alfresco.components.create-content</targetPackageRoot>
                     <sourcePackageRoot>dk.openesdh.case.components.create-content</sourcePackageRoot>
                 </customization>
+                <customization>
+                    <targetPackageRoot>org.alfresco.components.workflow</targetPackageRoot>
+                    <sourcePackageRoot>dk.openesdh.case.components.workflow</sourcePackageRoot>
+                </customization>
             </customizations>
         </module>
 

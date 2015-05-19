@@ -1,11 +1,8 @@
 package dk.openesdh.repo.policy;
 
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.documents.DocumentService;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.node.NodeServicePolicies;
 import org.alfresco.repo.policy.Behaviour;
-import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.policy.JavaBehaviour;
 import org.alfresco.repo.policy.PolicyComponent;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
@@ -20,6 +17,10 @@ import org.apache.commons.logging.LogFactory;
 import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
+
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.utils.Utils;
 
 /**
  * Created by torben on 19/08/14.
@@ -86,7 +87,8 @@ public class DocumentsBehaviour implements NodeServicePolicies.OnCreateChildAsso
 
             // Create document folder
             NodeRef documentFolderRef = documentService.createDocumentFolder(documentsFolderRef, documentName).getChildRef();
-            nodeService.moveNode(fileRef, documentFolderRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.DOC_URI, "content_" + documentName));
+            nodeService.moveNode(fileRef, documentFolderRef, ContentModel.ASSOC_CONTAINS,
+                    Utils.createDocumentContentAssociationName(documentName));
         }
     }
 

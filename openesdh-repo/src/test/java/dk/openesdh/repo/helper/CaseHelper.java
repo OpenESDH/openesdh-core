@@ -1,7 +1,11 @@
 package dk.openesdh.repo.helper;
 
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.cases.CaseService;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.nodelocator.CompanyHomeNodeLocator;
@@ -22,11 +26,8 @@ import org.alfresco.service.transaction.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CaseService;
 
 /**
  * Created by ole on 18/08/14.
@@ -235,11 +236,14 @@ public class CaseHelper {
     }
 
     public NodeRef createDummyUser() {
+        return createDummyUser(CaseHelper.DEFAULT_USERNAME);
+    }
 
+    public NodeRef createDummyUser(final String userName) {
         NodeRef result = transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<NodeRef>(){
 
             public NodeRef execute() throws Throwable {
-               return createDummyUser(CaseHelper.DEFAULT_USERNAME,
+                        return createDummyUser(userName,
                         "firstname",
                         "lastname",
                         "email.email.dk",
@@ -252,10 +256,21 @@ public class CaseHelper {
     }
 
     public void deleteDummyUser() {
-        personService.deletePerson(DEFAULT_USERNAME);
+        deleteDummyUser(DEFAULT_USERNAME);
+    }
+
+    public void deleteDummyUser(String userName) {
+        personService.deletePerson(userName);
     }
 
     public void setCaseService(CaseService caseService) {
         this.caseService = caseService;
+    }
+
+    public NodeRef getDummyUser(String userName) {
+        if (personService.personExists(userName)) {
+            return personService.getPerson(userName);
+        }
+        return createDummyUser(userName);
     }
 }

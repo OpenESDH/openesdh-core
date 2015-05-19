@@ -25,6 +25,7 @@ function (declare, _Widget, Core, CoreWidgetProcessing, _Templated, template, la
 
         buildRendering: function pages_case_widgets_DocInfoWidget__buildRendering() {
             this.alfSubscribe(this.CaseRefreshDocInfoTopic, lang.hitch(this, "_onPayloadReceive"));
+            this.alfSubscribe(this.CaseDocumentMoved, lang.hitch(this, "_onPayloadReceive"));
 
             this.bodyTitle = this.message('bodyTitle');
             this.inherited(arguments);

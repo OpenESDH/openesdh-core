@@ -52,14 +52,25 @@ define(["dojo/_base/declare",
              */
             i18nRequirements: [{i18nFile: "./i18n/CaseDocumentsDashlet.properties"}],
 
+            /**
+             * Allow Drag and drop
+             */
+            allowDnD: true,
+
+            /**
+             * set the topic to publish to publish to if dnd (See the _DocumentGridUploadMixin)
+             */
+            dndPublishTopic: "OE_SHOW_DND_UPLOADER",
+
             widgetsForTitleBarActions: [
                 {
                     name: "alfresco/buttons/AlfButton",
                     id: "add_document_record_button",
                     config: {
                         iconClass: "add-icon-16",
-                        // TODO: i18n
-                        label: "Tilføj Dokument",
+                        i18nRequirements: [{i18nFile: "./i18n/CaseDocumentsDashlet.properties"}],
+                        i18nScope: "openesdh.case.DocumentsDashlet",
+                        label: "dashlet.button.label.document.upload",
                         publishTopic: "OE_SHOW_UPLOADER",
                         visibilityConfig: {
                             initialValue: false,
@@ -78,6 +89,7 @@ define(["dojo/_base/declare",
             widgetsForBody: [
                 {
                     name: "openesdh/pages/case/widgets/DocumentGrid",
+                    id:"CASE_DOCUMENTS_GRID",
                     config: {
                         sort: [
                             { attribute: 'cm:modified', descending: true}
@@ -100,6 +112,7 @@ define(["dojo/_base/declare",
             postCreate: function () {
                 this.inherited(arguments);
                 this.alfSubscribe(this.ReloadDocumentsTopic, lang.hitch(this, "onReloadDocuments"));
+                this.alfSubscribe(this.CaseDocumentMoved, lang.hitch(this, "onDocumentMoved"));
             },
 
             onReloadDocuments: function (payload) {
@@ -109,6 +122,10 @@ define(["dojo/_base/declare",
                     ]
                 });
                 this.alfPublish("GRID_REFRESH");
+            },
+            
+            onDocumentMoved: function(){
+            	this.alfPublish("GRID_REFRESH");
             }
         });
     });

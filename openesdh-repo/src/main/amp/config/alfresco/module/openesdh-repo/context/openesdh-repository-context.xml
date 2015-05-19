@@ -166,6 +166,14 @@
         <property name="caseService" ref="CaseService" />
         <property name="documentService" ref="DocumentService" />
     </bean>
+    
+    <bean id="webscript.dk.openesdh.documents.moveToCase.post" class="dk.openesdh.repo.webscripts.documents.MoveToCase" parent="webscript">
+        <property name="documentService" ref="DocumentService" />
+    </bean>
+    
+    <bean id="webscript.dk.openesdh.documents.copyToCase.post" class="dk.openesdh.repo.webscripts.documents.CopyToCase" parent="webscript">
+        <property name="documentService" ref="DocumentService" />
+    </bean>
 
     <bean id="webscript.dk.openesdh.case.caseNoderefById.get" class="dk.openesdh.repo.webscripts.cases.CaseNodeRefById" parent="webscript">
         <property name="caseService" ref="CaseService" />
@@ -194,7 +202,6 @@
         <property name="noteService" ref="NoteService"/>
         <property name="personService" ref="PersonService"/>
     </bean>
-
     <bean id="webscript.dk.openesdh.notes.notes.get"
           parent="openesdhNotesWebscript">
     </bean>
@@ -216,6 +223,13 @@
     </bean>
     <bean id="webscript.dk.openesdh.contact.contact.post" parent="contactAbstractWebscript"/>
     <bean id="webscript.dk.openesdh.contact.contact.get" parent="contactAbstractWebscript"/>
+    <!--Rootscope javascript object for contact searching-->
+    <bean id="contactUtils" parent="baseJavaScriptExtension" class="dk.openesdh.repo.rootScopeExt.Contact">
+        <property name="extensionName">
+            <value>contactUtil</value>
+        </property>
+        <property name="contactService" ref="ContactService"/>
+    </bean>
 
     <!--Parties-->
     <!--Permitted Roles-->
@@ -249,14 +263,6 @@
         <property name="nodeService" ref="NodeService"/>
     </bean>
 
-    <!--Rootscope object for contact searching-->
-    <bean id="contactUtils" parent="baseJavaScriptExtension" class="dk.openesdh.repo.rootScopeExt.Contact">
-        <property name="extensionName">
-            <value>contactUtil</value>
-        </property>
-        <property name="contactService" ref="ContactService"/>
-    </bean>
-
     <!--Miscellaneous-->
     <bean id="webscript.dk.openesdh.case.searchDefinition.get" parent="webscript"
           class="dk.openesdh.repo.webscripts.cases.SearchDefinition">
@@ -280,4 +286,20 @@
         <property name="dictionaryService" ref="dictionaryService"/>
         <property name="caseService" ref="CaseService" />
     </bean>
+
+    <!--Workflows-->
+<!--
+
+    <bean id="webscript.dk.openesdh.workflows.workflowsearch.get" class="dk.openesdh.repo.webscripts.workflows.WorkflowSearch"
+          parent="webscript">
+        <property name="serviceRegistry" ref="ServiceRegistry"/>
+    </bean>
+    <bean id="webscript.dk.openesdh.workflows.caseWorkflowDefinitions.get" class="dk.openesdh.repo.webscripts.workflows.CaseWorkflowsDefinitionGet"
+          parent="abstractWorkflowWebScript">
+        <property name="casePrefix">
+            <value>openE-</value>
+        </property>
+    </bean>
+-->
+
 </beans>

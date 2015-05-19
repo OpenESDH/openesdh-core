@@ -4,36 +4,22 @@ define([
     "alfresco/core/CoreXhr",
     "dojo/_base/lang",
     "service/constants/Default",
-    "openesdh/xsearch/_TopicsMixin"
+    "openesdh/xsearch/_TopicsMixin",
+    "openesdh/pages/_TopicsMixin"
     ],
-    function(declare, OfficeIntegrationService, CoreXhr, lang, AlfConstants, _TopicsMixin) {
-        return declare([OfficeIntegrationService, CoreXhr, _TopicsMixin], {
+    function(declare, OfficeIntegrationService, CoreXhr, lang, AlfConstants, _TopicsMixin, _PagesTopicsMixin) {
+        return declare([OfficeIntegrationService, CoreXhr, _TopicsMixin, _PagesTopicsMixin], {
 
             constructor: function(args) {
                 lang.mixin(this, args);
 
-                this.getSearchDefinition();
                 this.alfSubscribe("OE_FIND_CASE", lang.hitch(this, this.onFindCase));
                 this.alfSubscribe("OE_CREATE_CASE", lang.hitch(this, this.onCreateCase));
                 this.alfSubscribe("GRID_ROW_SELECTED", lang.hitch(this, this.onSelectCase));
                 this.alfSubscribe("OE_OUTLOOK_CASE_CREATED", lang.hitch(this, this.onCaseCreated));
 //                this.alfSubscribe(this.FiltersApplyTopic, lang.hitch(this, this.onApplyFilters));
             },
-
-            getSearchDefinition: function() {
-                this.serviceXhr({
-                    url: Alfresco.constants.PROXY_URI + "api/openesdh/case/searchDefinition/case_simple",
-                    method: "GET",
-                    handleAs: "json",
-                    successCallback: function (response, config) {
-                        this.searchDefinition = response;
-                    },
-                    failureCallback: function(response, config){
-                        alert("failure: " + JSON.stringify(response));
-                    },
-                    callbackScope: this
-                });
-            },
+            
 //            _getDataObject: function() {
 //                return {
 //                    caseId: this.caseId,
@@ -70,53 +56,7 @@ define([
             },
 
             onFindCase: function() {
-                this.alfPublish("ALF_CREATE_DIALOG_REQUEST", {
-                    contentWidth: "800px",
-                    dialogTitle: "Find Case",
-                    handleOverflow: false,
-                    hideTopic: "GRID_ROW_SELECTED",
-                    widgetsContent: [
-                        {
-                            name: 'alfresco/layout/VerticalWidgets',
-                            config: {
-                                widgets: [
-                                    {
-                                        name: "openesdh/xsearch/FilterPane",
-                                        config: {
-                                            baseType: "case:base",
-                                            types: this.searchDefinition.model.types,
-                                            properties: this.searchDefinition.model.properties,
-                                            availableFilters: ["cm:title", "oe:status", "cm:created"],
-                                            operatorSets: this.searchDefinition.operatorSets
-                                        }
-                                    },
-                                    {
-                                        name: "openesdh/xsearch/Grid",
-                                        config: {
-                                            baseType: "case:base",
-                                            types: this.searchDefinition.model.types,
-                                            properties: this.searchDefinition.model.properties,
-                                            visibleColumns: ["oe:id", "cm:title", "oe:status", "cm:created"],
-                                            availableColumns: ["oe:id", "cm:title", "oe:status", "cm:created"],
-//                                            actions: [],
-                                            rowsPerPage: 15,
-                                            pageSizeOptions: [],
-                                        }
-                                    }
-                                ]
-                            }
-                        }
-                    ],
-                    widgetsButtons: [
-                        {
-                            name: "alfresco/buttons/AlfButton",
-                            config: {
-                                label: "Cancel",
-                                publishTopic: "NO_OP"
-                            }
-                        }
-                    ]
-                });
+            	this.alfPublish(this.FindCaseDialogTopic);
             },
 
             onCreateCase: function() {

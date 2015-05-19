@@ -53,23 +53,24 @@ define(["dojo/_base/declare",
             postMixInProperties: function () {
                 this.inherited(arguments);
                 this.alfSubscribe(this.ReloadAttachmentsTopic, lang.hitch(this, "_onRefresh"));
+                this.alfSubscribe(this.CaseDocumentMoved, lang.hitch(this, "_onCaseDocumentMoved"));
             },
 
             getColumns: function () {
                 return [
                     { field: "oe:caseId", label: this.message("oe_caseId") },
-                    { field: "cm:title", label: this.message("cm_title"),
+                    { field: "cm:title", label: this.message("table.header.label.title"),
                         renderCell: lang.hitch(this, '_renderTitleCell')
                     },
-                    { field: "cm:versionLabel", label: this.message("Version"), // TODO: i18n!
+                    { field: "cm:versionLabel", label: this.message("table.header.label.version"),
                         formatter: lang.hitch(this, "_formatVersion")
                     },
-                    { field: "cm:creator", label: this.message("attachments.addedBy") }, // TODO: i18n!
+                    { field: "cm:creator", label: this.message("table.header.label.addedBy") },
 
-                    { field: "cm:created", label: this.message("cm_created"),
+                    { field: "cm:created", label: this.message("table.header.label.created"),
                         formatter: lang.hitch(this, "_formatDate")
                     },
-                    { field: "cm:modified", label: this.message("cm_modified"),
+                    { field: "cm:modified", label: this.message("table.header.label.modified"),
                         formatter: lang.hitch(this, "_formatDate")
                     }
                 ];
@@ -107,6 +108,14 @@ define(["dojo/_base/declare",
                 //console.log("openesdh/pages/case/widgets/DocumentAttachmentsGrid.js(90) Refresh called.");
                 this.grid.refresh();
                 this.targetURI = temp;//Revert the targetURI back to its original state
+            },
+            
+            /**
+             * Empty attachments grid when document has been moved to another case
+             */
+            _onCaseDocumentMoved: function(){
+            	this.grid.store = this.createStore();
+            	this.grid.refresh();
             }
         });
     });

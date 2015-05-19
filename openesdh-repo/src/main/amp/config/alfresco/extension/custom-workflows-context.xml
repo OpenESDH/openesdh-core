@@ -1,0 +1,33 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+<beans>
+    <bean id="phaseTask.workflowBootstrap" parent="workflowDeployer">
+        <property name="workflowDefinitions">
+            <list>
+                <props>
+                    <prop key="engineId">activiti</prop>
+                    <prop key="location">alfresco/extension/workflows/qa-and-approval.bpmn</prop>
+                    <prop key="mimetype">text/xml</prop>
+                    <prop key="redeploy">false</prop>
+                </props>
+                <props>
+                    <prop key="engineId">activiti</prop>
+                    <prop key="location">alfresco/extension/workflows/case-task-user.bpmn</prop>
+                    <prop key="mimetype">text/xml</prop>
+                    <prop key="redeploy">false</prop>
+                </props>
+            </list>
+        </property>
+        <property name="models">
+            <list>
+                <value>alfresco/extension/model/oeWorkflowModel.xml</value>
+            </list>
+        </property>
+        <property name="labels">
+            <list>
+                <value>alfresco/extension/messages/case-task-user</value>
+                <value>alfresco/extension/messages/qa-and-approval</value>
+            </list>
+        </property>
+    </bean>
+</beans>

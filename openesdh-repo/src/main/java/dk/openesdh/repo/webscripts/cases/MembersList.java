@@ -89,7 +89,7 @@ public class MembersList extends DeclarativeWebScript {
                             memberObj.put("avatar", "api/node/" + avatarNodeRef.toString().replace("://", "/") + "/content/thumbnails/avatar");
                         }
                     } catch (IndexOutOfBoundsException iobe) {
-                        logger.warn("\n\n ===>(MemberList.java 92) " + displayName + " has no avatar <===\n\n");
+                        logger.warn("\n\n ===>(MemberList.java 92) This is a Warning. " + displayName + " has no avatar <===\n\n");
                     }
                 }
                 else{

@@ -29,6 +29,7 @@ public class CaseEvaluatorUtil {
     //e.g when we need to create content(create-content page) or view document details
     private final String  CASE_NODEREF = "nodeRef";
     private final String  DESTINATION = "destination";
+    private final String  TARGET_CASE = "targetCase";
 
     private WebFrameworkServiceRegistry serviceRegistry;
 
@@ -83,9 +84,10 @@ public class CaseEvaluatorUtil {
     Pair<Boolean, String> nodeRefBoolPair(RequestContext context){
         String destination  = context.getParameter(DESTINATION);
         String urlNodeRef = context.getParameter(CASE_NODEREF);
+        String workflowCaseNodeRef = context.getParameter(TARGET_CASE);
         Pair<Boolean, String> result = new Pair<>(false,null);
 
-        String node = findNodeInUrl(destination, urlNodeRef);
+        String node = findNodeInUrl(destination, urlNodeRef, workflowCaseNodeRef);
         if(StringUtils.isEmpty(node))
             return result;
 
@@ -104,9 +106,10 @@ public class CaseEvaluatorUtil {
         return result;
     }
 
-    String findNodeInUrl(String dst, String nde) {
+    String findNodeInUrl(String dst, String nde, String cTarget) {
         if(StringUtils.isNotEmpty(dst) ) return dst;
         else if(StringUtils.isNotEmpty(nde) ) return nde;
+        else if(StringUtils.isNotEmpty(cTarget) ) return cTarget;
         else return null;
     }
 

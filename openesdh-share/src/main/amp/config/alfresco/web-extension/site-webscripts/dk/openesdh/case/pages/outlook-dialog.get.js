@@ -191,7 +191,7 @@ model.jsonModel = {
                                             {
                                                 "name": "alfresco/html/Spacer",
                                                 config: {
-                                                    height: "20px",
+                                                    height: "20px"
                                                 }
                                             }
                                         ]
@@ -225,6 +225,7 @@ model.jsonModel = {
                 casesFolderNodeRef: getNewCaseFolderNodeRef()
             }
         },
+        "openesdh/common/services/FindCaseDialogService",
         "openesdh/common/services/AuthorityService"
     ]
 };

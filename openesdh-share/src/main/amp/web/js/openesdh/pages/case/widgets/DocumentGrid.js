@@ -8,7 +8,7 @@ define(["dojo/_base/declare",
         "openesdh/common/widgets/dashlets/_DocumentTopicsMixin"
     ],
     function(declare, DGrid, lang, _TopicsMixin) {
-        return declare([DGrid], {
+        return declare([DGrid, _TopicsMixin], {
             cssRequirements: [
                 {cssFile: "./css/DocumentGrid.css"}
             ],
@@ -29,7 +29,7 @@ define(["dojo/_base/declare",
                     "id" : "doc-preview",
                     "label" : "grid.actions.preview_doc",
                     "key" : "13"},
-
+                    
                 // TODO: use widgets!
                 {"href" : "edit-metadata?nodeRef={nodeRef}",
                     "id" : "case-edit",
@@ -40,7 +40,20 @@ define(["dojo/_base/declare",
                     "id" : "doc-details",
                     "label" : "grid.actions.doc_details",
                     "key" : "68", // Shift+D
-                    "shift": true}
+                    "shift": true},
+                
+                {"callback" : "onMoveDoc",
+                    "id" : "doc-move",
+                    "label" : "grid.actions.move_doc",
+                    "key"	: "77", // Shift+M
+                    "shift" : true
+                },                
+                {"callback" : "onCopyDoc",
+                    "id" : "doc-copy",
+                    "label" : "grid.actions.copy_doc",
+                    "key"	: "67", // Shift+C
+                    "shift" : true
+                },
             ],
 
             onPreviewDoc: function (item) {
@@ -50,7 +63,25 @@ define(["dojo/_base/declare",
                     displayName: item['cm:title'] ? item['cm:title'] : item['cm:name']
                 });
             },
-
+            
+            onMoveDoc : function (item) {
+            	this.alfPublish(this.MoveDocumentTopic, {
+                    nodeRef: item.mainDocNodeRef,
+                    name: item["cm:name"],
+                    caseId: item["oe:caseId"],
+                    nodeUuid: item["sys:node-uuid"]
+                });
+            },
+            
+            onCopyDoc : function (item) {
+            	this.alfPublish(this.CopyDocumentTopic, {
+                    nodeRef: item.mainDocNodeRef,
+                    name: item["cm:name"],
+                    caseId: item["oe:caseId"],
+                    nodeUuid: item["sys:node-uuid"]
+                });
+            },
+            
             postMixInProperties: function () {
                 this.inherited(arguments);
                 this.targetURI = "api/openesdh/casedocumentssearch?nodeRef=" + this.nodeRef;
@@ -61,11 +92,11 @@ define(["dojo/_base/declare",
                     { field: "doc:type", label: this.message("table.header.label.type"), renderCell: lang.hitch(this, '_renderDocType') },
                     { field: "doc:category", label: this.message("table.header.label.category"), renderCell: lang.hitch(this, '_renderDocCategory')  },
                     { field: "doc:state", label: this.message("table.header.label.state"), renderCell: lang.hitch(this, '_renderDocState')  },
-                    { field: "cm:title", label: this.message("cm_title"), renderCell: lang.hitch(this, '_renderTitleCell') },
+                    { field: "cm:title", label: this.message("table.header.label.title"), renderCell: lang.hitch(this, '_renderTitleCell') },
                     { field: "mainDocVersion", label: this.message("table.header.label.version"), formatter: lang.hitch(this, "_formatVersion") },
                     { field: "doc:owner", label: this.message("table.header.label.owner") },
-                    { field: "cm:created", label: this.message("cm_created"), formatter: lang.hitch(this, "_formatDate") },
-                    { field: "cm:modified", label: this.message("cm_modified"), formatter: lang.hitch(this, "_formatDate") }
+                    { field: "cm:created", label: this.message("table.header.label.created"), formatter: lang.hitch(this, "_formatDate") },
+                    { field: "cm:modified", label: this.message("table.header.label.modified"), formatter: lang.hitch(this, "_formatDate") }
                 ];
             },
 
