@@ -52,10 +52,8 @@ define(["dojo/_base/declare",
                 {
                     name: "openesdh/pages/case/widgets/CaseHistoryWidget",
                     config: {
-                        showPagination: true,
-                        showFooter: false,
-                        rowsPerPage: 10,
-                        autoHeight: true
+                    	rowsPerPage: 10,
+                        showPagination: true
                     }
                 }
             ],
