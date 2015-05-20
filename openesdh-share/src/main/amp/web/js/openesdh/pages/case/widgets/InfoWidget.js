@@ -36,7 +36,7 @@ define(["dojo/_base/declare",
                 // Unsubscribe from CaseInfoTopic so we don't show the data twice
                 this.alfUnsubscribe(this.caseInfoTopicSubscription);
 
-                console.log("on case info received: ", payload);
+//                console.log("on case info received: ", payload);
 
                 this.widgetsForBody = [];
 //                var currentItem = this.unmarshal(payload);

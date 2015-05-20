@@ -21,6 +21,7 @@ import org.alfresco.service.namespace.QName;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.webscripts.cases.CaseInfo;
@@ -58,7 +59,7 @@ public class NodeInfoServiceImpl implements NodeInfoService {
         nodeInfo.aspects = nodeService.getAspects(nodeRef);
         nodeInfo.nodeClassName = nodeService.getType(nodeRef);
         
-        nodeInfo.properties.put(OpenESDHModel.ASSOC_CASE_OWNERS, getCaseOwnerUserName(nodeRef));
+        nodeInfo.properties.put(OpenESDHModel.ASSOC_CASE_OWNERS, getCaseOwnerUserNames(nodeRef));
         
         return nodeInfo;
     }
@@ -108,7 +109,7 @@ public class NodeInfoServiceImpl implements NodeInfoService {
     private JSONObject getNodePropertyValue(NodeInfo nodeInfo, QName propertyQName) throws JSONException {
 
         if (OpenESDHModel.ASSOC_CASE_OWNERS.equals(propertyQName)) {
-            return getCaseOwner(nodeInfo);
+            return getCaseOwners(nodeInfo);
         }
 
         JSONObject valueObj = new JSONObject();
@@ -135,36 +136,57 @@ public class NodeInfoServiceImpl implements NodeInfoService {
         return valueObj;
     }
 
-    private JSONObject getCaseOwner(NodeInfo nodeInfo) throws JSONException {
-        Serializable caseOwnerUserName = nodeInfo.properties.get(OpenESDHModel.ASSOC_CASE_OWNERS);
-        if (caseOwnerUserName == null) {
+    private JSONObject getCaseOwners(NodeInfo nodeInfo) throws JSONException {
+        Serializable caseOwnerUserNames = nodeInfo.properties.get(OpenESDHModel.ASSOC_CASE_OWNERS);
+        if (caseOwnerUserNames == null) {
             return new JSONObject();
         }
-        JSONObject caseOwner = getPersonValue((String) caseOwnerUserName);
+        JSONObject caseOwners = getPersonsValue((String[]) caseOwnerUserNames);
         AssociationDefinition assocDef = dictionaryService.getAssociation(OpenESDHModel.ASSOC_CASE_OWNERS);
-        caseOwner.put("label", assocDef.getTitle(dictionaryService));
-        return caseOwner;
+        caseOwners.put("label", assocDef.getTitle(dictionaryService));
+        return caseOwners;
     }
 
     private JSONObject getPersonValue(String userName) throws JSONException {
+        return getPersonsValue(new String[] { userName });
+    }
+
+    private JSONObject getPersonsValue(String[] userNames) throws JSONException {
         JSONObject valueObj = new JSONObject();
+        String commaDelimitedUserNames = StringUtils.arrayToCommaDelimitedString(userNames);
         valueObj.put("type", "UserName");
-        valueObj.put("value", userName);
-        NodeRef personNodeRef = personService.getPerson(userName);
-        String firstName = (String) nodeService.getProperty(personNodeRef, ContentModel.PROP_FIRSTNAME);
-        String lastName = (String) nodeService.getProperty(personNodeRef, ContentModel.PROP_LASTNAME);
-        valueObj.put("fullname", firstName + " " + lastName);
+        valueObj.put("value", commaDelimitedUserNames);
+
+        ArrayList<String> fullNames = new ArrayList<String>();
+        for (String userName : userNames) {
+            NodeRef personNodeRef = personService.getPerson(userName);
+            String firstName = (String) nodeService.getProperty(personNodeRef, ContentModel.PROP_FIRSTNAME);
+            String lastName = (String) nodeService.getProperty(personNodeRef, ContentModel.PROP_LASTNAME);
+            String fullName = StringUtils.isEmpty(lastName) ? firstName : firstName + " " + lastName;
+            fullNames.add(fullName);
+        }
+        String commaDelimitedFullNames = StringUtils.collectionToDelimitedString(fullNames, ", ");
+        valueObj.put("fullname", commaDelimitedFullNames);
+
         return valueObj;
     }
 
-    private String getCaseOwnerUserName(NodeRef nodeRef) {
+    private String[] getCaseOwnerUserNames(NodeRef nodeRef) {
+
         List<AssociationRef> caseOwnersAssocList = nodeService.getTargetAssocs(nodeRef,
                 OpenESDHModel.ASSOC_CASE_OWNERS);
+
         if (CollectionUtils.isEmpty(caseOwnersAssocList)) {
-            return null;
+            return new String[0];
         }
-        NodeRef personNodeRef = caseOwnersAssocList.get(0).getTargetRef();
-        return personService.getPerson(personNodeRef).getUserName();
+
+        ArrayList<String> caseOwnerUserNames = new ArrayList<String>();
+        for (AssociationRef caseOwnerAssoc : caseOwnersAssocList) {
+            String caseOwnerUserName = personService.getPerson(caseOwnerAssoc.getTargetRef()).getUserName();
+            caseOwnerUserNames.add(caseOwnerUserName);
+        }
+
+        return caseOwnerUserNames.toArray(new String[0]);
     }
 
     private PropertyDefinition getPropertyDefinition(NodeInfo nodeInfo, QName propertyQName) {
