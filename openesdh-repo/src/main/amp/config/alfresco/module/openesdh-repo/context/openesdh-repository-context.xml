@@ -121,6 +121,7 @@
         <property name="caseService" ref="CaseService" />
         <property name="personService" ref="PersonService" />
         <property name="nodeService" ref="nodeService" />
+        <property name="dictionaryService" ref="dictionaryService" />
     </bean>
 
     <bean id="webscript.dk.openesdh.model.get"
