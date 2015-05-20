@@ -1,24 +1,22 @@
 package dk.openesdh.repo.services.audit;
 
-import com.google.gdata.data.DateTime;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.cases.CaseServiceImpl;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.alfresco.error.AlfrescoRuntimeException;
-import org.alfresco.service.cmr.audit.*;
 import org.alfresco.service.cmr.audit.AuditService;
 import org.alfresco.service.namespace.QName;
-import org.alfresco.util.Pair;
 import org.apache.commons.lang.StringUtils;
-import org.apache.solr.common.util.Hash;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.simple.JSONArray;
 import org.springframework.extensions.surf.util.I18NUtil;
 
-import java.io.Serializable;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import dk.openesdh.repo.model.OpenESDHModel;
 
 /**
  * Created by flemmingheidepedersen on 18/11/14.
@@ -171,6 +169,7 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
                                             .getMessage("auditlog.label.type.note"));
                                 } else {
                                     auditEntry.put("action", I18NUtil.getMessage("auditlog.label.case.created") + " " + pArray[6].split(":")[1]);
+                                    auditEntry.put("type", getTypeMessageSystem());
                                     result.add(auditEntry);
                                 }
                             }
@@ -187,10 +186,12 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
 
                                 if (aspects != null && aspects.contains(name)) {
                                     auditEntry.put("action", I18NUtil.getMessage("auditlog.label.finished.editing") + " " + pArray[pArray.length-1].split(":")[1]);
+                                    auditEntry.put("type", getTypeMessageSystem());
                                     result.add(auditEntry);
                                 }
                                 else {
                                     auditEntry.put("action", I18NUtil.getMessage("auditlog.label.deleted.document") + " " + pArray[pArray.length-1].split(":")[1]);
+                                    auditEntry.put("type", getTypeMessageSystem());
                                     result.add(auditEntry);
                                 }
                             }
@@ -202,6 +203,7 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
                                 String[] pArray = path.split("/");
 
                                 auditEntry.put("action", I18NUtil.getMessage("auditlog.label.checkedin") + " " + pArray[pArray.length-1].split(":")[1]);
+                                auditEntry.put("type", getTypeMessageSystem());
                                 result.add(auditEntry);
                             }
                         }
@@ -213,6 +215,10 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
         }
 
         return true;
+    }
+    
+    private String getTypeMessageSystem(){
+        return I18NUtil.getMessage("auditlog.label.type.system");
     }
 
     @Override
