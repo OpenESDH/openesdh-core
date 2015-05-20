@@ -7,10 +7,12 @@ import java.util.List;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
+import org.alfresco.service.cmr.dictionary.AssociationDefinition;
 import org.alfresco.service.cmr.dictionary.Constraint;
 import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.dictionary.PropertyDefinition;
+import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.PersonService;
@@ -55,6 +57,9 @@ public class NodeInfoServiceImpl implements NodeInfoService {
         nodeInfo.properties = nodeService.getProperties(nodeRef);
         nodeInfo.aspects = nodeService.getAspects(nodeRef);
         nodeInfo.nodeClassName = nodeService.getType(nodeRef);
+        
+        nodeInfo.properties.put(OpenESDHModel.ASSOC_CASE_OWNERS, getCaseOwnerUserName(nodeRef));
+        
         return nodeInfo;
     }
 
@@ -63,7 +68,10 @@ public class NodeInfoServiceImpl implements NodeInfoService {
         JSONObject result = new JSONObject();
         try {
 
-            result = getSelectedProperties(nodeInfo, caseInfo, new ArrayList<QName>(nodeInfo.properties.keySet()));
+            ArrayList<QName> propertiesToRetrieve = new ArrayList<QName>(nodeInfo.properties.keySet());
+            propertiesToRetrieve.add(OpenESDHModel.ASSOC_CASE_OWNERS);
+
+            result = getSelectedProperties(nodeInfo, caseInfo, propertiesToRetrieve);
 
             JSONObject aspectsObj = new JSONObject();
             for (QName aspect : nodeInfo.aspects) {
@@ -99,6 +107,10 @@ public class NodeInfoServiceImpl implements NodeInfoService {
 
     private JSONObject getNodePropertyValue(NodeInfo nodeInfo, QName propertyQName) throws JSONException {
 
+        if (OpenESDHModel.ASSOC_CASE_OWNERS.equals(propertyQName)) {
+            return getCaseOwner(nodeInfo);
+        }
+
         JSONObject valueObj = new JSONObject();
         Serializable value = nodeInfo.properties.get(propertyQName);
 
@@ -112,12 +124,7 @@ public class NodeInfoServiceImpl implements NodeInfoService {
             valueObj.put("type", "Date");
             valueObj.put("value", ((Date) value).getTime());
         } else if (propertyQName.getPrefixString().equals("modifier") || propertyQName.getPrefixString().equals("creator")) {
-            valueObj.put("type", "UserName");
-            valueObj.put("value", value);
-            NodeRef personNodeRef = personService.getPerson((String) value);
-            String firstName = (String) nodeService.getProperty(personNodeRef, ContentModel.PROP_FIRSTNAME);
-            String lastName = (String) nodeService.getProperty(personNodeRef, ContentModel.PROP_LASTNAME);
-            valueObj.put("fullname", firstName + " " + lastName);
+            valueObj = getPersonValue((String) value);
         } else {
             valueObj.put("value", getDisplayLabel(propertyDefinition, value));
             valueObj.put("type", "String");
@@ -126,6 +133,38 @@ public class NodeInfoServiceImpl implements NodeInfoService {
         valueObj.put("label", propertyDefinition.getTitle(dictionaryService));
 
         return valueObj;
+    }
+
+    private JSONObject getCaseOwner(NodeInfo nodeInfo) throws JSONException {
+        Serializable caseOwnerUserName = nodeInfo.properties.get(OpenESDHModel.ASSOC_CASE_OWNERS);
+        if (caseOwnerUserName == null) {
+            return new JSONObject();
+        }
+        JSONObject caseOwner = getPersonValue((String) caseOwnerUserName);
+        AssociationDefinition assocDef = dictionaryService.getAssociation(OpenESDHModel.ASSOC_CASE_OWNERS);
+        caseOwner.put("label", assocDef.getTitle(dictionaryService));
+        return caseOwner;
+    }
+
+    private JSONObject getPersonValue(String userName) throws JSONException {
+        JSONObject valueObj = new JSONObject();
+        valueObj.put("type", "UserName");
+        valueObj.put("value", userName);
+        NodeRef personNodeRef = personService.getPerson(userName);
+        String firstName = (String) nodeService.getProperty(personNodeRef, ContentModel.PROP_FIRSTNAME);
+        String lastName = (String) nodeService.getProperty(personNodeRef, ContentModel.PROP_LASTNAME);
+        valueObj.put("fullname", firstName + " " + lastName);
+        return valueObj;
+    }
+
+    private String getCaseOwnerUserName(NodeRef nodeRef) {
+        List<AssociationRef> caseOwnersAssocList = nodeService.getTargetAssocs(nodeRef,
+                OpenESDHModel.ASSOC_CASE_OWNERS);
+        if (CollectionUtils.isEmpty(caseOwnersAssocList)) {
+            return null;
+        }
+        NodeRef personNodeRef = caseOwnersAssocList.get(0).getTargetRef();
+        return personService.getPerson(personNodeRef).getUserName();
     }
 
     private PropertyDefinition getPropertyDefinition(NodeInfo nodeInfo, QName propertyQName) {
