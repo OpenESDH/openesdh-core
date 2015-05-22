@@ -2,6 +2,7 @@ package dk.openesdh.repo.services.cases;
 
 import dk.openesdh.repo.actions.AssignCaseIdActionExecuter;
 import dk.openesdh.repo.model.OpenESDHModel;
+import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
 import org.alfresco.repo.model.Repository;
@@ -108,28 +109,25 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public NodeRef getCasesRootNodeRef() {
-
+    public NodeRef getOpenESDHRootFolder() {
         NodeRef companyHomeNodeRef = repositoryHelper.getCompanyHome();
-        NodeRef casesRootNodeRef = nodeService.getChildByName(companyHomeNodeRef, ContentModel.ASSOC_CONTAINS, CASES);
+        NodeRef openESDH_root_nodeRef = nodeService.getChildByName(companyHomeNodeRef, ContentModel.ASSOC_CONTAINS, OPENESDH_ROOT_CONTEXT);
 
-        if (casesRootNodeRef == null) {
-            //Creating case folder
-            casesRootNodeRef = createCasesRoot(companyHomeNodeRef);
-        }
-        return casesRootNodeRef;
+        //Throw an exception. This should have been created on first boot
+        if (openESDH_root_nodeRef == null)
+            throw new AlfrescoRuntimeException("The openESDH \"ROOT\" context folder has not been initialised.");
+
+        return openESDH_root_nodeRef;
     }
 
-    /**
-     * Creating Case Folder Ref
-     *
-     * @param companyHomeNodeRef
-     * @return
-     */
-    protected NodeRef createCasesRoot(NodeRef companyHomeNodeRef) {
-        Map<QName, Serializable> properties = new HashMap<>();
-        properties.put(ContentModel.PROP_NAME, CASES);
-        NodeRef casesRootNodeRef = nodeService.createNode(companyHomeNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, CASES), ContentModel.TYPE_FOLDER, properties).getChildRef();
+    @Override
+    public NodeRef getCasesRootNodeRef() {
+        NodeRef casesRootNodeRef = nodeService.getChildByName(getOpenESDHRootFolder(), ContentModel.ASSOC_CONTAINS, CASES_ROOT);
+
+        //Throw an exception. This should have been created on first boot along with the context root folder
+        if (casesRootNodeRef == null)
+            throw new AlfrescoRuntimeException("The openESDH \"CASES\" root folder has not been initialised.");
+
         setupAssignCaseIdRule(casesRootNodeRef);
         return casesRootNodeRef;
     }
@@ -260,16 +258,12 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public void removeAuthorityFromRole(final NodeRef authorityNodeRef,
-                                        final String role,
-                                        final NodeRef caseNodeRef) {
+    public void removeAuthorityFromRole(final NodeRef authorityNodeRef, final String role, final NodeRef caseNodeRef) {
         removeAuthorityFromRole(getAuthorityName(authorityNodeRef), role, caseNodeRef);
     }
 
     @Override
-    public void addAuthorityToRole(final String authorityName,
-                                   final String role,
-                                   final NodeRef caseNodeRef) {
+    public void addAuthorityToRole(final String authorityName, final String role, final NodeRef caseNodeRef) {
         checkCanUpdateCaseRoles(caseNodeRef);
 
         AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Object>() {
@@ -284,17 +278,13 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public void addAuthorityToRole(final NodeRef authorityNodeRef,
-                                   final String role,
-                                   final NodeRef caseNodeRef) {
+    public void addAuthorityToRole(final NodeRef authorityNodeRef, final String role, final NodeRef caseNodeRef) {
         addAuthorityToRole(getAuthorityName(authorityNodeRef), role,
                 caseNodeRef);
     }
 
     @Override
-    public void addAuthoritiesToRole(final List<NodeRef> authorities,
-                                     final String role,
-                                     final NodeRef caseNodeRef) {
+    public void addAuthoritiesToRole(final List<NodeRef> authorities, final String role, final NodeRef caseNodeRef) {
         checkCanUpdateCaseRoles(caseNodeRef);
 
         AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Object>() {
@@ -324,9 +314,7 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public void changeAuthorityRole(final String authorityName,
-                                    final String fromRole,
-                                    final String toRole,
+    public void changeAuthorityRole(final String authorityName, final String fromRole, final String toRole,
                                     final NodeRef caseNodeRef) {
         checkCanUpdateCaseRoles(caseNodeRef);
 
@@ -348,8 +336,7 @@ public class CaseServiceImpl implements CaseService {
         }, "admin");
     }
 
-    public void checkCanUpdateCaseRoles(NodeRef caseNodeRef) throws
-            AccessDeniedException {
+    public void checkCanUpdateCaseRoles(NodeRef caseNodeRef) throws AccessDeniedException {
         String user = AuthenticationUtil.getRunAsUser();
         if (!canUpdateCaseRoles(user, caseNodeRef)) {
             throw new AccessDeniedException(user + " is not allowed to " +
@@ -399,8 +386,7 @@ public class CaseServiceImpl implements CaseService {
         }
     }
 
-    String setupPermissionGroup(NodeRef caseNodeRef, String caseId,
-                                String permission) {
+    String setupPermissionGroup(NodeRef caseNodeRef, String caseId, String permission) {
         String groupSuffix = getCaseRoleGroupAuthorityName(caseId, permission);
         String groupName = getCaseRoleGroupName(caseId, permission);
 
@@ -873,8 +859,7 @@ public class CaseServiceImpl implements CaseService {
         return result;
     }
 
-    public JSONArray buildConstraintsJSON(ConstraintDefinition constraint) throws
-            JSONException {
+    public JSONArray buildConstraintsJSON(ConstraintDefinition constraint) throws JSONException {
         org.json.JSONArray result = new org.json.JSONArray();
         org.json.JSONObject lvPair;
 

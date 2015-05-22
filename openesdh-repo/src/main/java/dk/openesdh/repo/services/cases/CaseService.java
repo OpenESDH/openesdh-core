@@ -18,9 +18,19 @@ import java.util.regex.Pattern;
 public interface CaseService {
     static final String DATE_FORMAT = "yyyyMMdd";
 
-    static final String CASES = "openesdh_cases";
+    static final String OPENESDH_ROOT_CONTEXT = "OpenESDH";
+
+    static final String CASES_ROOT = "cases";
 
     static final Pattern CASE_ID_PATTERN = Pattern.compile("\\d+-(\\d+)");
+
+
+    /**
+     * Get the root folder for the openESDH context
+     *
+     * @return NodeRef for the openESDH root folder
+     */
+    public NodeRef getOpenESDHRootFolder();
 
 
     /**
