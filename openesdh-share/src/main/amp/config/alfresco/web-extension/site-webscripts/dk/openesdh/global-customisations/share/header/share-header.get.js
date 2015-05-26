@@ -125,11 +125,12 @@ function getOpenEsdhHeaderLogoUrl() {
    {
       // Use the message bundled configured logo as the logo source.
       // This is theme specific
-      var propsLogo = msg.get("header.logo");
-      if (propsLogo == "header.logo")
-      {
-         propsLogo = "openesdh-logo-48.png";
-      }
+      //var propsLogo = msg.get("header.logo");
+//      if (propsLogo == "header.logo")
+//      {
+//         propsLogo = "openesdh-logo-48.png";
+//      }
+      var propsLogo = "openesdh-logo-48.png";
       logoSrc = url.context + "/res/openesdh/images/" + propsLogo;
    }
    return logoSrc;
