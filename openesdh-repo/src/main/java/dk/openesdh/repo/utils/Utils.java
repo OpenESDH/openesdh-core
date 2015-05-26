@@ -5,9 +5,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.alfresco.service.cmr.i18n.MessageLookup;
 import org.alfresco.service.namespace.QName;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.springframework.extensions.surf.util.I18NUtil;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 
@@ -15,6 +18,9 @@ import dk.openesdh.repo.model.OpenESDHModel;
  * Created by syastrov on 8/26/14.
  */
 public class Utils {
+
+    private static final String ROLE_NAME_MESSAGE_PREFIX = "role.";
+
     /**
      * Alfresco's (or Java's) query string parsing doesn't handle UTF-8
      * encoded values. We parse the query string ourselves here.
@@ -48,5 +54,10 @@ public class Utils {
      */
     public static QName createDocumentContentAssociationName(String documentName) {
         return QName.createQName(OpenESDHModel.DOC_URI, "content_" + documentName);
+    }
+
+    public static String getRoleDisplayLabel(String role, MessageLookup messageLookup) {
+        String displayRoleName = messageLookup.getMessage(ROLE_NAME_MESSAGE_PREFIX + role, I18NUtil.getLocale());
+        return StringUtils.isEmpty(displayRoleName) ? role : displayRoleName;
     }
 }
