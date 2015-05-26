@@ -3,10 +3,11 @@
  */
 define(["dojo/_base/declare",
         "openesdh/common/widgets/grid/DGrid",
-        "dojo/_base/lang"
+        "dojo/_base/lang",
+        "openesdh/pages/_TopicsMixin"
     ],
-    function(declare, DGrid, lang) {
-        return declare([DGrid], {
+    function(declare, DGrid, lang, _TopicsMixin) {
+        return declare([DGrid, _TopicsMixin], {
             i18nRequirements: [
                 {i18nFile: "./i18n/CaseHistoryWidget.properties"}
             ],
@@ -20,6 +21,15 @@ define(["dojo/_base/declare",
             showColumnHider: false,
 
             additionalCssClasses: "CaseHistoryWidget",
+            
+            buildRendering: function dk_openesdh_pages_case_widgets_CaseHistoryWidget__buildRendering() {
+            	this.alfSubscribe(this.NotesTopicsScope + this.NoteCreatedTopic, lang.hitch(this, "_onCaseNoteCreated"));
+            	this.inherited(arguments);
+            },
+            
+            _onCaseNoteCreated: function(){
+            	this.onRefresh();
+            },
 
             postMixInProperties: function () {
                 this.inherited(arguments);

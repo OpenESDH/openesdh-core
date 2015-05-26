@@ -26,6 +26,8 @@ define(["dojo/_base/declare"],
             CaseDocumentMoved : "OE_CASE_DOCUMENT_MOVED",
             MoveDocumentTopic: "OE_MOVE_DOC",
             CopyDocumentTopic: "OE_COPY_DOC",
-            FindCaseDialogTopic : "OE_CREATE_FIND_CASE_DIALOG"
+            FindCaseDialogTopic : "OE_CREATE_FIND_CASE_DIALOG",
+            NotesTopicsScope: "OPENESDH_NOTES_DASHLET",
+            NoteCreatedTopic: "ALF_CRUD_CREATE_SUCCESS"
         });
     });
