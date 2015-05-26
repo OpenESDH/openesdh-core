@@ -106,6 +106,38 @@ var caseService= {
         nodeRef: (nodeRef != null) ? nodeRef : args.destination
     }
 };
+
+
+/**
+ * Attempt to build a URL for retrieving a logo image for the title bar.
+ *
+ * @returns {string}
+ */
+function getOpenEsdhHeaderLogoUrl() {
+   // Generate the source for the logo...
+   var logoSrc = context.getSiteConfiguration().getProperty("logo");
+   if (logoSrc && logoSrc.length() > 0)
+   {
+      // Use the site configured logo as the source for the logo image.
+      logoSrc = url.context + "/proxy/alfresco/api/node/" + logoSrc.replace("://", "/") + "/content";
+   }
+   else
+   {
+      // Use the message bundled configured logo as the logo source.
+      // This is theme specific
+      var propsLogo = msg.get("header.logo");
+      if (propsLogo == "header.logo")
+      {
+         propsLogo = "openesdh-logo-48.png";
+      }
+      logoSrc = url.context + "/res/openesdh/images/" + propsLogo;
+   }
+   return logoSrc;
+}
+
+var headerLogo = widgetUtils.findObject(model.jsonModel, "id", "HEADER_LOGO");
+headerLogo.config.logoSrc = getOpenEsdhHeaderLogoUrl();
+
 model.jsonModel.services.push(caseService);
 model.jsonModel.services.push("openesdh/common/services/AuthorityService");
 model.jsonModel.services.push("alfresco/services/OptionsService");
