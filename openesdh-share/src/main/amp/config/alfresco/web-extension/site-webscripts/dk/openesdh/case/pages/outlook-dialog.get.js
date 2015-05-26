@@ -13,6 +13,18 @@ function getStatusLabels() {
     return optionStatus;
 };
 
+var optionCaseTypes = [];
+var result = remote.call("/api/openesdh/casetypes");
+if (result.status.code == status.STATUS_OK) {
+    var rawData = JSON.parse(result);
+    for (var i = 0; i < rawData.length; i++) {
+        optionCaseTypes.push({
+            value: rawData[i].Name,
+            label: rawData[i].Title
+        });
+    }
+}
+
 model.jsonModel = {
     widgets: [
         {
@@ -59,17 +71,37 @@ model.jsonModel = {
                                                     publishTopic: "OE_FIND_CASE",
                                                     publishGlobal: true
                                                 },
-                                                assignTo: "formDialogButton"
+                                                assignTo: "formDialogButton",
+                                                widthPc: "25"
                                             },
                                             {
-                                                name: "alfresco/buttons/AlfButton",
+                                                name: "alfresco/forms/controls/Select",
+                                                config: {
+                                                    name: "caseType",
+                                                    optionsConfig: {
+                                                        fixed: optionCaseTypes
+                                                    },
+                                                    fieldId: "caseTypeSelect"
+                                                },
+                                                widthPx: "150"
+                                            },
+                                            {
+                                                name: "alfresco/buttons/AlfDynamicPayloadButton",
                                                 config: {
                                                     label: msg.get("outlook-dialog.createcase.label"),
                                                     publishTopic: "OE_SHOW_CREATE_CASE_DIALOG",
                                                     publishPayload: {
-                                                        caseType: "simple",
+//                                                                    caseType: "simple",
                                                         publishOnSuccessTopic: "OE_OUTLOOK_CASE_CREATED"
                                                     },
+                                                    publishPayloadSubscriptions: [
+                                                        {
+                                                            topic: "_valueChangeOf_caseTypeSelect",
+                                                            dataMapping: {
+                                                                value: "caseType"
+                                                            }
+                                                        }
+                                                    ],
                                                     publishGlobal: true
                                                 }
                                             },
