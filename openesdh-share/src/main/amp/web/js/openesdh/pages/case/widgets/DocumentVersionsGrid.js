@@ -123,7 +123,7 @@ define(["dojo/_base/declare",
                     { field: "label", label: this.message("version.label.version"), // TODO: i18n!
                         formatter: lang.hitch(this, "_formatVersion")
                     },
-                    { field: "createdDate", label: this.message("version.label.created"),
+                    { field: "createdDateISO", label: this.message("version.label.created"),
                         formatter: lang.hitch(this, "_formatDate")
                     },
                     { field: "creator", label: this.message("version.label.addedBy"),

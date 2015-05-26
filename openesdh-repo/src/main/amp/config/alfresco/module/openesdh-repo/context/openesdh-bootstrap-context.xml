@@ -2,6 +2,22 @@
 <!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
 
 <beans>
+    <!--The initial openESDH folder context-->
+    <bean id="${project.artifactId}_oeBootstrap" parent="spacesStoreImporter" >
+        <property name="log"> <value>false</value> </property>
+        <property name="useExistingStore"> <value>true</value> </property>
+        <property name="transactionService" ref="transactionService"/>
+        <property name="bootstrapViews">
+            <list>
+                <props>
+                    <prop key="path">app:company_home</prop>
+                    <prop key="uuidBinding">UPDATE_EXISTING</prop>
+                    <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/folders.xml</prop>
+                </props>
+            </list>
+        </property>
+    </bean>
+    <!--Contacts store-->
     <bean id="${project.artifactId}_contactBootstrap" parent="spacesStoreImporter" >
         <property name="log"> <value>false</value> </property>
         <property name="useExistingStore"> <value>true</value> </property>
