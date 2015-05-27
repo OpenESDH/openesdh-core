@@ -26,4 +26,15 @@ public interface NodeInfoService {
     JSONObject buildJSON(NodeInfo nodeInfo, CaseInfo caseInfo);
 
     JSONObject getSelectedProperties(NodeInfo nodeInfo, CaseInfo caseInfo, List<QName> objectProps);
+
+    /**
+     * Determines whether the provided user name is among case owners
+     * 
+     * @param userName
+     *            the user name to check
+     * @param caseNodeRef
+     *            the case node ref to check owners among
+     * @return true if the provided user is among case owners
+     */
+    public boolean isCaseOwner(String userName, NodeRef caseNodeRef);
 }
