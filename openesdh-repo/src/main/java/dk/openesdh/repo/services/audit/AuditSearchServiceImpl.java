@@ -73,9 +73,9 @@ public class AuditSearchServiceImpl implements AuditSearchService {
 
         // Only users with ACL_METHOD.ROLE_ADMINISTRATOR are allowed to call
         // AuditService methods.
-        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Object>() {
+        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Void>() {
             @Override
-            public Object doWork() throws Exception {
+            public Void doWork() throws Exception {
                 auditService.auditQuery(auditQueryCallback, auditQueryParameters, OpenESDHModel.AUDIT_LOG_MAX);
                 return null;
             }
