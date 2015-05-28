@@ -2,15 +2,14 @@ package dk.openesdh.repo.services.contacts;
 
 //import dk.openesdh.exceptions.contacts.InvalidContactTypeException;
 
-import dk.openesdh.exceptions.contacts.GenericContactException;
-import dk.openesdh.exceptions.contacts.InvalidContactTypeException;
-import dk.openesdh.exceptions.contacts.NoSuchContactException;
-import dk.openesdh.repo.model.ContactInfo;
-import dk.openesdh.repo.model.ContactType;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.xsearch.ContactSearchService;
-import dk.openesdh.repo.services.xsearch.XResultSet;
-import org.alfresco.model.ContentModel;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
@@ -23,8 +22,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.Serializable;
-import java.util.*;
+import dk.openesdh.exceptions.contacts.GenericContactException;
+import dk.openesdh.exceptions.contacts.InvalidContactTypeException;
+import dk.openesdh.exceptions.contacts.NoSuchContactException;
+import dk.openesdh.repo.model.ContactInfo;
+import dk.openesdh.repo.model.ContactType;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.xsearch.ContactSearchService;
+import dk.openesdh.repo.services.xsearch.XResultSet;
 
 /**
  * @author Lanre Abiwon.
@@ -136,7 +141,6 @@ public class ContactServiceImpl implements ContactService {
         return contacts;
     }
 
-
     public Map<QName,Serializable> getAddress(NodeRef contactRef){
         Map<QName,Serializable> addressProps = new HashMap<>();
         if(this.nodeService.hasAspect(contactRef, OpenESDHModel.ASPECT_CONTACT_ADDRESS)){
@@ -161,6 +165,11 @@ public class ContactServiceImpl implements ContactService {
             addressProps.put(OpenESDHModel.PROP_CONTACT_COUNTRY_CODE, allProps.get(OpenESDHModel.PROP_CONTACT_COUNTRY_CODE));
         }
         return addressProps;
+    }
+
+    @Override
+    public ContactInfo getContactInfo(NodeRef nodeRef) {
+        return new ContactInfo(nodeRef, getContactType(nodeRef), this.nodeService.getProperties(nodeRef));
     }
 
     //<editor-fold desc="Injected service bean setters">

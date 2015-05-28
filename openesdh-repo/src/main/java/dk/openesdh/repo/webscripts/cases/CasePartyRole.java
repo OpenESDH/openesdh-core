@@ -1,10 +1,11 @@
 package dk.openesdh.repo.webscripts.cases;
 
-import dk.openesdh.repo.model.ContactInfo;
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.cases.PartyService;
-import dk.openesdh.repo.services.contacts.ContactService;
-import org.alfresco.service.cmr.repository.NodeRef;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.alfresco.service.cmr.repository.NodeService;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
@@ -12,10 +13,15 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.springframework.extensions.webscripts.*;
+import org.springframework.extensions.webscripts.AbstractWebScript;
+import org.springframework.extensions.webscripts.Status;
+import org.springframework.extensions.webscripts.WebScriptException;
+import org.springframework.extensions.webscripts.WebScriptRequest;
+import org.springframework.extensions.webscripts.WebScriptResponse;
 
-import java.io.IOException;
-import java.util.*;
+import dk.openesdh.repo.model.ContactInfo;
+import dk.openesdh.repo.services.cases.PartyService;
+import dk.openesdh.repo.services.contacts.ContactService;
 
 public class CasePartyRole extends AbstractWebScript {
 
@@ -53,7 +59,7 @@ public class CasePartyRole extends AbstractWebScript {
     }
 
     private void get(WebScriptRequest req, WebScriptResponse res, String caseId) throws IOException, JSONException {
-        Map<String, Set<String>> contactsByRole = partyService.getContactsByRole(caseId);
+        Map<String, Set<ContactInfo>> contactsByRole = partyService.getContactsByRole(caseId);
         JSONArray json = buildJSON(contactsByRole);
         json.writeJSONString(res.getWriter());
     }
@@ -125,21 +131,25 @@ public class CasePartyRole extends AbstractWebScript {
 //        json.writeJSONString(res.getWriter());
     }
 
-    JSONArray buildJSON(Map<String, Set<String>> contactsByRole) throws JSONException {
+    JSONArray buildJSON(Map<String, Set<ContactInfo>> contactsByRole) throws JSONException {
         JSONArray result = new JSONArray();
 
-        for (Map.Entry<String, Set<String>> entry : contactsByRole.entrySet()) {
-            Set<String> value = entry.getValue();
-            for (String contact : value) {
+        for (Map.Entry<String, Set<ContactInfo>> entry : contactsByRole.entrySet()) {
+            Set<ContactInfo> parties = entry.getValue();
+            for (ContactInfo contactInfo : parties) {
                 JSONObject contactObj = new JSONObject();
-                NodeRef contactRef = this.contactService.getContactById(contact);
-                ContactInfo contactInfo = new ContactInfo(contactRef, this.contactService.getContactType(contactRef), this.nodeService.getProperties(contactRef));
+                contactObj.put(ContactInfo.PROP_NAME_CONTACT_TYPE, contactInfo.getType());
+                contactObj.put(ContactInfo.PROP_NAME_CONTACT_ID, contactInfo.getEmail()); //TODO perhaps look into allowing the id to change in the future??
+                contactObj.put(ContactInfo.PROP_NAME_CONTACT_DISPLAY_NAME, contactInfo.getName());
+                contactObj.put(ContactInfo.PROP_NAME_CONTACT_NODE_REF, contactInfo.getNodeRef().toString());
+                contactObj.put(ContactInfo.PROP_NAME_CONTACT_ROLE, entry.getKey());
 
-                contactObj.put("contactType", contactInfo.getType());
-                contactObj.put("contactId", contactInfo.getEmail()); //TODO perhaps look into allowing the id to change in the future??
-                contactObj.put("displayName", contactInfo.getName());
-                contactObj.put("nodeRef", contactInfo.getNodeRef().toString());
-                contactObj.put("role", entry.getKey());
+                contactObj.put(ContactInfo.PROP_NAME_CONTACT_STREET_NAME, contactInfo.getStreetName());
+                contactObj.put(ContactInfo.PROP_NAME_CONTACT_HOUSE_NUMBER, contactInfo.getHouseNumber());
+                contactObj.put(ContactInfo.PROP_NAME_CONTACT_POST_CODE, contactInfo.getPostCode());
+                contactObj.put(ContactInfo.PROP_NAME_CONTACT_CITY_NAME, contactInfo.getCityName());
+                contactObj.put(ContactInfo.PROP_NAME_CONTACT_COUNTRY_CODE, contactInfo.getCountryCode());
+                contactObj.put(ContactInfo.PROP_NAME_CONTACT_POST_BOX, contactInfo.getPostBox());
                 result.add(contactObj);
             }
         }

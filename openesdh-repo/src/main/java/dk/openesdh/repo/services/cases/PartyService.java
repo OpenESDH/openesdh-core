@@ -1,14 +1,13 @@
 package dk.openesdh.repo.services.cases;
 
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.namespace.QName;
-import org.alfresco.util.Pair;
-
-import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.util.Pair;
+
+import dk.openesdh.repo.model.ContactInfo;
 
 /**
  * @author Lanre Abiwon.
@@ -88,9 +87,9 @@ public interface PartyService {
     /**
      * Gets a complete list of contacts mapped to the roles they have (i.e. members of the group(s) in alfresco speak)
      * @param caseId the id of the case in question.
-     * @return Map<String, Set<String>>
+     * @return Map<String, Set<ContactInfo>>
      */
-    public Map<String, Set<String>> getContactsByRole(String caseId);
+    public Map<String, Set<ContactInfo>> getContactsByRole(String caseId);
 
 
 }

@@ -1,15 +1,16 @@
 package dk.openesdh.repo.services.cases;
 
-import dk.openesdh.exceptions.contacts.GenericContactException;
-import dk.openesdh.exceptions.contacts.InvalidContactTypeException;
-import dk.openesdh.exceptions.contacts.NoSuchContactException;
-import dk.openesdh.repo.model.ContactInfo;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.contacts.ContactService;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
-import org.alfresco.repo.security.authority.UnknownAuthorityException;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -24,7 +25,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.util.*;
+import dk.openesdh.exceptions.contacts.InvalidContactTypeException;
+import dk.openesdh.repo.model.ContactInfo;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.contacts.ContactService;
 
 /**
  * @author Lanre Abiwon.
@@ -183,20 +187,19 @@ public class PartyServiceImpl implements PartyService {
      * {@inheritDoc}
      */
     @Override
-    public Map<String, Set<String>> getContactsByRole(String caseId) {
-//        NodeRef caseNodeRef = caseService.getCaseById(caseId);
+    public Map<String, Set<ContactInfo>> getContactsByRole(String caseId) {
         List<String> roles = (List<String>) dictionaryService.getConstraint(OpenESDHModel.CONSTRAINT_CASE_ALLOWED_PARTY_ROLES).getConstraint().getParameters().get(ListOfValuesConstraint.ALLOWED_VALUES_PARAM);
-        Map<String, Set<String>> contactRoleMap = new HashMap<>();
+        Map<String, Set<ContactInfo>> contactRoleMap = new HashMap<>();
         for(String role : roles){
             Pair<Boolean, NodeRef> temp = roleExists(caseId, role);
             if(temp.getFirst()){
                 //We don't bother specify the type of assoc name because there should only ever be contact types in these groups.
                 List<ChildAssociationRef> contacts = this.nodeService.getChildAssocs(temp.getSecond());
-                Set<String> parties = new HashSet<>();
+                Set<ContactInfo> parties = new HashSet<>();
                 for(ChildAssociationRef associationRef: contacts) {
                     NodeRef childRef = associationRef.getChildRef();
-                    ContactInfo contact = new ContactInfo(childRef, this.contactService.getContactType(childRef), this.nodeService.getProperties(childRef));
-                    parties.add(contact.getEmail());
+                    ContactInfo contact = this.contactService.getContactInfo(childRef);
+                    parties.add(contact);
                 }
                 contactRoleMap.put(role, parties);
             }

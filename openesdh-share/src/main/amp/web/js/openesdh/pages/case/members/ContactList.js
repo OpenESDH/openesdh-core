@@ -101,6 +101,7 @@ define(["dojo/_base/declare",
                 this.widgets = [];
 
                 var parties = payload.parties;
+                
                 // Sort by display name
                 parties.sort(function (a, b) {
                     return a.displayName.localeCompare(b.displayName);
@@ -112,7 +113,13 @@ define(["dojo/_base/declare",
                         party: party.contactId,
                         displayName: party.displayName,
                         partyRole: party.role,
-                        contactType: "user",
+                        streetName : party.streetName,
+                        houseNumber : party.houseNumber,
+                        cityName : party.cityName,
+                        countryCode : party.countryCode,
+                        postCode : party.postCode,
+                        postBox : party.postBox,
+                        contactType: party.contactType,
                         roleTypes: _this.roleTypes
                     });
                     _this.widgets.push(partyRoleWidget);
