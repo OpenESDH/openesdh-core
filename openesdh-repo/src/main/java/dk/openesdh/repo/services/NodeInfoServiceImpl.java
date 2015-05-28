@@ -2,7 +2,6 @@ package dk.openesdh.repo.services;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -216,14 +215,5 @@ public class NodeInfoServiceImpl implements NodeInfoService {
         }
 
         return value;
-    }
-
-    @Override
-    /**
-     * {@inheritDoc}
-     */
-    public boolean isCaseOwner(String userName, NodeRef caseNodeRef) {
-        String[] caseOwners = getCaseOwnerUserNames(caseNodeRef);
-        return Arrays.asList(caseOwners).contains(userName);
     }
 }
