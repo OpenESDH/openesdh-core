@@ -1,16 +1,16 @@
 package dk.openesdh.repo.services.contacts;
 
-import dk.openesdh.repo.model.ContactInfo;
-import dk.openesdh.repo.model.ContactType;
-import dk.openesdh.exceptions.contacts.NoSuchContactException;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.namespace.QName;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.namespace.QName;
+
+import dk.openesdh.repo.model.ContactInfo;
+import dk.openesdh.repo.model.ContactType;
 
 /**
  * @author Lanre Abiwon.
@@ -97,4 +97,12 @@ public interface ContactService {
     public List<ContactInfo> getContactByFilter(String id, String type);
 
 
+    /**
+     * Returns a ContactInfo for provided nodeRef of the contact
+     * 
+     * @param nodeRef
+     *            - The nodeRef of the contact to return
+     * @return ContactInfo
+     */
+    public ContactInfo getContactInfo(NodeRef nodeRef);
 }

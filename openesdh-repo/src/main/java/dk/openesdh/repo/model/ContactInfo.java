@@ -1,13 +1,11 @@
 package dk.openesdh.repo.model;
 
+import java.io.Serializable;
+import java.util.Map;
+
 import org.alfresco.repo.security.permissions.PermissionCheckValue;
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
-
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author by Lanre Abiwon.
@@ -19,6 +17,19 @@ public class ContactInfo implements PermissionCheckValue {
     private final String email;
     private final String type;
     private Map<QName, Serializable> allProps;
+
+    public static final String PROP_NAME_CONTACT_TYPE = "contactType";
+    public static final String PROP_NAME_CONTACT_ID = "contactId";
+    public static final String PROP_NAME_CONTACT_DISPLAY_NAME = "displayName";
+    public static final String PROP_NAME_CONTACT_NODE_REF = "nodeRef";
+    public static final String PROP_NAME_CONTACT_ROLE = "role";
+
+    public static final String PROP_NAME_CONTACT_STREET_NAME = "streetName";
+    public static final String PROP_NAME_CONTACT_HOUSE_NUMBER = "houseNumber";
+    public static final String PROP_NAME_CONTACT_POST_CODE = "postCode";
+    public static final String PROP_NAME_CONTACT_CITY_NAME = "cityName";
+    public static final String PROP_NAME_CONTACT_COUNTRY_CODE = "countryCode";
+    public static final String PROP_NAME_CONTACT_POST_BOX = "postBox";
 
     //Create this from nodeRef of the same type
     public ContactInfo(NodeRef nodeRef, ContactType type, Map<QName, Serializable> props){
@@ -49,17 +60,53 @@ public class ContactInfo implements PermissionCheckValue {
             return (String) this.allProps.get(OpenESDHModel.PROP_CONTACT_ORGANIZATION_NAME);
     }
 
+    public String getStreetName() {
+        return getStringProp(OpenESDHModel.PROP_CONTACT_STREET_NAME);
+    }
+
+    public String getHouseNumber() {
+        return getStringProp(OpenESDHModel.PROP_CONTACT_HOUSE_NUMBER);
+    }
+
+    public String getPostCode() {
+        return getIntPropString(OpenESDHModel.PROP_CONTACT_POST_CODE);
+    }
+
+    public String getCityName() {
+        return getStringProp(OpenESDHModel.PROP_CONTACT_CITY_NAME);
+    }
+
+    public String getCountryCode() {
+        return getStringProp(OpenESDHModel.PROP_CONTACT_COUNTRY_CODE);
+    }
+
+    public String getPostBox() {
+        return getStringProp(OpenESDHModel.PROP_CONTACT_POST_BOX);
+    }
+
     //Some other common properties that we might want to access on a regular basis when working with contacts
     public String getCPRNumber(){
-            return (String) this.allProps.get(OpenESDHModel.PROP_CONTACT_CPR_NUMBER);
+        return getStringProp(OpenESDHModel.PROP_CONTACT_CPR_NUMBER);
     }
     public String getCVRNumber(){
-            return (String) this.allProps.get(OpenESDHModel.PROP_CONTACT_CVR_NUMBER);
+        return getStringProp(OpenESDHModel.PROP_CONTACT_CVR_NUMBER);
     }
     public boolean isRegistered(){
         return (boolean)this.allProps.get(OpenESDHModel.PROP_CONTACT_REGISTERED);
     }
     public boolean isInternal(){
         return (boolean)this.allProps.get(OpenESDHModel.PROP_CONTACT_INTERNAL) && (boolean)this.allProps.get(OpenESDHModel.PROP_CONTACT_REGISTERED);
+    }
+
+    private String getStringProp(QName qName) {
+        return (String) this.allProps.get(qName);
+    }
+
+    private String getIntPropString(QName qName) {
+        Integer value = (Integer) this.allProps.get(qName);
+        if(value != null){
+            return value.toString();
+        }
+        return null;
     }
 }
