@@ -26,4 +26,5 @@ public interface NodeInfoService {
     JSONObject buildJSON(NodeInfo nodeInfo, CaseInfo caseInfo);
 
     JSONObject getSelectedProperties(NodeInfo nodeInfo, CaseInfo caseInfo, List<QName> objectProps);
+
 }

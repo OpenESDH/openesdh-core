@@ -106,6 +106,12 @@
         <property name="auditService">
             <ref bean="AuditService"/>
         </property>
+        <property name="authorityService">
+            <ref bean="AuthorityService"/>
+        </property>
+        <property name="permissionService">
+            <ref bean="PermissionService"/>
+        </property>
     </bean>
 
     <bean id="UserInvolvedSearchService" class="dk.openesdh.repo.services.xsearch.UserInvolvedSearchServiceImpl">
