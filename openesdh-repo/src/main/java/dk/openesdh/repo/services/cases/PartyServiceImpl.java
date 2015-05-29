@@ -19,7 +19,6 @@ import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.namespace.NamespacePrefixResolver;
 import org.alfresco.service.namespace.QName;
-import org.alfresco.util.Pair;
 import org.alfresco.util.PropertyCheck;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -65,7 +64,7 @@ public class PartyServiceImpl implements PartyService {
             String dbid = Objects.toString(this.nodeService.getProperty(caseNodeRef, ContentModel.PROP_NODE_DBID).toString(), null);
             String partyName = PartyService.PARTY_PREFIX  + dbid + "_" + role;
             String createdGroup;
-            if(roleExists(caseId, role).getFirst()){
+            if (isRoleExists(caseId, role)) {
                 createdGroup = "GROUP_"+partyName;
             }
             else
@@ -139,31 +138,20 @@ public class PartyServiceImpl implements PartyService {
     @Override
     public boolean removePartyRole(String caseId, String partyId, String role) {
 
-        Pair<Boolean, NodeRef> caseRole = roleExists(caseId, role);
-        if(!caseRole.getFirst())
+        NodeRef roleNodeRef = getCaseRole(caseId, role);
+        if (roleNodeRef == null) {
             return false;
+        }
+
         try {
             NodeRef partyRef = this.contactService.getContactById(partyId);
-            this.nodeService.removeChild(caseRole.getSecond(), partyRef);
+            this.nodeService.removeChild(roleNodeRef, partyRef);
         }
         catch (Exception ge){
             throw new AlfrescoRuntimeException("Unable to remove contact from group for the following reason: " + ge.getMessage());
         }
-        return true;
-    }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Pair<Boolean, NodeRef> roleExists(String caseId, String roleName) {
-        NodeRef caseNodeRef = this.caseService.getCaseById(caseId);
-        String dbid = Objects.toString(this.nodeService.getProperty(caseNodeRef, ContentModel.PROP_NODE_DBID), null);
-        if(StringUtils.isNotBlank(dbid)) {
-            final String roleGroup = "GROUP_PARTY_" + dbid + "_" + roleName;
-            return new Pair<>(this.authorityService.authorityExists(roleGroup), this.authorityService.getAuthorityNodeRef(roleGroup));
-        }
-        else return new Pair<>(false, null);
+        return true;
     }
 
     /**
@@ -177,10 +165,7 @@ public class PartyServiceImpl implements PartyService {
         if(caseNodeRef == null){ //then get the nodeRef of the case by case id.
             caseNodeRef = this.caseService.getCaseById(caseId);
         }
-        Pair<Boolean, NodeRef> nbPartyRolePair = roleExists(caseId,partyRole);
-        if(nbPartyRolePair.getFirst())
-            return nbPartyRolePair.getSecond();
-        else return null;
+        return getCaseRole(caseId, partyRole);
     }
 
     /**
@@ -191,18 +176,20 @@ public class PartyServiceImpl implements PartyService {
         List<String> roles = (List<String>) dictionaryService.getConstraint(OpenESDHModel.CONSTRAINT_CASE_ALLOWED_PARTY_ROLES).getConstraint().getParameters().get(ListOfValuesConstraint.ALLOWED_VALUES_PARAM);
         Map<String, Set<ContactInfo>> contactRoleMap = new HashMap<>();
         for(String role : roles){
-            Pair<Boolean, NodeRef> temp = roleExists(caseId, role);
-            if(temp.getFirst()){
-                //We don't bother specify the type of assoc name because there should only ever be contact types in these groups.
-                List<ChildAssociationRef> contacts = this.nodeService.getChildAssocs(temp.getSecond());
-                Set<ContactInfo> parties = new HashSet<>();
-                for(ChildAssociationRef associationRef: contacts) {
-                    NodeRef childRef = associationRef.getChildRef();
-                    ContactInfo contact = this.contactService.getContactInfo(childRef);
-                    parties.add(contact);
-                }
-                contactRoleMap.put(role, parties);
+            NodeRef roleNodeRef = getCaseRole(caseId, role);
+            if (roleNodeRef == null) {
+                continue;
             }
+            // We don't bother specify the type of assoc name because there
+            // should only ever be contact types in these groups.
+            List<ChildAssociationRef> contacts = this.nodeService.getChildAssocs(roleNodeRef);
+            Set<ContactInfo> parties = new HashSet<>();
+            for (ChildAssociationRef associationRef : contacts) {
+                NodeRef childRef = associationRef.getChildRef();
+                ContactInfo contact = this.contactService.getContactInfo(childRef);
+                parties.add(contact);
+            }
+            contactRoleMap.put(role, parties);
         }
 
         return contactRoleMap;
@@ -239,5 +226,23 @@ public class PartyServiceImpl implements PartyService {
         PropertyCheck.mandatory(this, "nodeService", nodeService);
         PropertyCheck.mandatory(this, "caseService", caseService);
         PropertyCheck.mandatory(this, "contactService", contactService);
+    }
+
+    private boolean isRoleExists(String caseId, String roleName) {
+        return getCaseRole(caseId, roleName) != null;
+    }
+
+    private NodeRef getCaseRole(String caseId, String roleName) {
+        NodeRef caseNodeRef = this.caseService.getCaseById(caseId);
+        String dbid = Objects.toString(
+                this.nodeService.getProperty(caseNodeRef, ContentModel.PROP_NODE_DBID), null);
+        if (StringUtils.isBlank(dbid)) {
+            return null;
+        }
+        final String roleGroup = "GROUP_PARTY_" + dbid + "_" + roleName;
+        if (!this.authorityService.authorityExists(roleGroup)) {
+            return null;
+        }
+        return this.authorityService.getAuthorityNodeRef(roleGroup);
     }
 }

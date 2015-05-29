@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.util.Pair;
 
 import dk.openesdh.repo.model.ContactInfo;
 
@@ -66,14 +65,6 @@ public interface PartyService {
      * @return true if successful
      */
     public boolean removePartyRole(String caseId, String partyId, String role);
-
-    /**
-     *
-     * @param caseId - the case id
-     * @param roleName -  the role to check for
-     * @return pair<Boolean, NodeRef>
-     */
-    public Pair<Boolean, NodeRef> roleExists(String caseId, String roleName);
 
     /**
      * Get a specific party role (i.e. group) for a case.
