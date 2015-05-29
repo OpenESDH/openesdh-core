@@ -59,6 +59,7 @@ public class CasePartyRole extends AbstractWebScript {
     }
 
     private void get(WebScriptRequest req, WebScriptResponse res, String caseId) throws IOException, JSONException {
+        res.setContentEncoding("UTF-8");
         Map<String, Set<ContactInfo>> contactsByRole = partyService.getContactsByRole(caseId);
         JSONArray json = buildJSON(contactsByRole);
         json.writeJSONString(res.getWriter());
