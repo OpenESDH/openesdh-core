@@ -4,6 +4,7 @@ import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
 import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
+import org.alfresco.service.namespace.QName;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,20 +33,30 @@ public class CaseConstraints extends AbstractWebScript {
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
         res.setContentEncoding("UTF-8");
-        Collection<ConstraintDefinition> typeConstraints = this.dictionaryService.getConstraints(OpenESDHModel.CASE_MODEL);
-        JSONObject jsonResponse = new JSONObject();
 
-        try {
-            for(ConstraintDefinition constraint : typeConstraints){
-                //This only works if we stick to the rigorous naming convention of adding "Constraint" to the end
-                //of our constraints.
-                if(constraint.getName().getLocalName().contains("Constraint")) {
-                    JSONArray values = caseService.buildConstraintsJSON(constraint);
-                    jsonResponse.put(constraint.getName().getLocalName(),values);
+        JSONObject jsonResponse = new JSONObject();
+        Collection<QName> caseTypes = dictionaryService.getSubTypes(OpenESDHModel.TYPE_CASE_BASE, true);
+        for(QName type : caseTypes) {
+            Collection<ConstraintDefinition> typeConstraints = this.dictionaryService.getConstraints(type);
+
+            try {
+                for (ConstraintDefinition constraint : typeConstraints) {
+                    //This only works if we stick to the rigorous naming convention of adding "Constraint" to the end
+                    //of our constraints.
+                    if (constraint.getName().getLocalName().contains("Constraint")) {
+                        JSONArray values = caseService.buildConstraintsJSON(constraint);
+                        jsonResponse.put(constraint.getName().getLocalName(), values);
+                    }
                 }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
+        }
+
+        try{
             jsonResponse.write(res.getWriter());
-        } catch (JSONException e) {
+        }
+        catch (JSONException e){
             e.printStackTrace();
         }
     }

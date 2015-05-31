@@ -15,7 +15,7 @@ define(["dojo/_base/declare",
              */
             getWidgetConfig: function alfresco_forms_controls_DojoDateTextBox__getWidgetConfig() {
                 // Return the configuration for the widget
-                var value = ( this.value == "") ? this.value = new Date() : this.value ;
+                var value = ( !this.value) ? this.value = new Date() : this.value ;
                 if (this.value instanceof Date)
                 {
                     value = this.value;

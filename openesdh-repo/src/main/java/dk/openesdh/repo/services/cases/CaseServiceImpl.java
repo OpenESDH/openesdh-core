@@ -13,12 +13,11 @@ import org.alfresco.service.cmr.action.ActionService;
 import org.alfresco.service.cmr.dictionary.*;
 import org.alfresco.service.cmr.lock.LockService;
 import org.alfresco.service.cmr.lock.LockType;
-import org.alfresco.service.cmr.repository.ChildAssociationRef;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.repository.*;
 import org.alfresco.service.cmr.rule.Rule;
 import org.alfresco.service.cmr.rule.RuleService;
 import org.alfresco.service.cmr.rule.RuleType;
+import org.alfresco.service.cmr.search.ResultSet;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
@@ -26,6 +25,7 @@ import org.alfresco.service.cmr.security.OwnableService;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -51,6 +51,7 @@ public class CaseServiceImpl implements CaseService {
      */
     private Repository repositoryHelper;
     private NodeService nodeService;
+    private ContentService contentService;
     private SearchService searchService;
     private LockService lockService;
 
@@ -65,6 +66,10 @@ public class CaseServiceImpl implements CaseService {
     //<editor-fold desc="Service setters">
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
+    }
+
+    public void setContentService(ContentService contentService) {
+        this.contentService = contentService;
     }
 
     public void setSearchService(SearchService searchService) {
@@ -132,6 +137,17 @@ public class CaseServiceImpl implements CaseService {
         return casesRootNodeRef;
     }
 
+    @Override
+    public NodeRef getCasesTypeStorageRootNodeRef() {
+        NodeRef typesRootNodeRef = nodeService.getChildByName(getCasesRootNodeRef(), ContentModel.ASSOC_CONTAINS, CASES_TYPES_ROOT);
+
+        //Throw an exception. This should have been created on first boot along with the context root folder
+        if (typesRootNodeRef == null)
+            throw new AlfrescoRuntimeException("The openESDH folder for case types storage doesn't exist.");
+
+        return typesRootNodeRef;
+    }
+
     /**
      * Creating Groups and assigning permission on New case folder
      *
@@ -194,6 +210,38 @@ public class CaseServiceImpl implements CaseService {
 
     public String getCaseId(NodeRef caseNodeRef) {
         return (String) nodeService.getProperty(caseNodeRef, OpenESDHModel.PROP_OE_ID);
+    }
+
+    @Override
+    public JSONArray getCaseCreateFormWidgets(String caseType) {
+        JSONArray widgets = null;
+        Pattern modelPattern = Pattern.compile("(\\w+):(\\w+)");
+        Matcher matcher = modelPattern.matcher(caseType);
+        if(matcher.find()){ // then get the folder name from the postfix
+            caseType = StringUtils.substringAfter(caseType, ":");
+        }
+        //Recursively step 2 levels down to get the file
+        NodeRef typesFolder;
+        NodeRef caseFolder;
+        NodeRef caseFormsFolder;
+        try{
+            typesFolder = getCasesTypeStorageRootNodeRef();
+            caseFolder = nodeService.getChildByName(typesFolder, ContentModel.ASSOC_CONTAINS, caseType);
+            caseFormsFolder = nodeService.getChildByName(caseFolder, ContentModel.ASSOC_CONTAINS, "forms");
+            //Now read the file
+            NodeRef formWidgetsFile = nodeService.getChildByName(caseFormsFolder, ContentModel.ASSOC_CONTAINS, "create-form.js");
+            //Read the file contents
+            ContentReader contentReader = contentService.getReader(formWidgetsFile,ContentModel.PROP_CONTENT);
+            String tmp =  contentReader.getContentString();
+            JSONObject unparsedJSON = new JSONObject(tmp);
+            widgets = unparsedJSON.getJSONArray("widgets");
+        }
+        catch(Exception ge){
+            LOGGER.warn("\n\n\n====>\nerror with retrieving widgets: "+ ge.getMessage()+"\n<=====\n\n");
+//            throw(new AlfrescoRuntimeException("Unable to retrieve create form widgets because: "+ge.getMessage()));
+        }
+
+        return widgets;
     }
 
     long getCaseUniqueId(NodeRef caseNodeRef) {
@@ -556,6 +604,7 @@ public class CaseServiceImpl implements CaseService {
     public NodeRef getDocumentsFolder(NodeRef caseNodeRef) {
         return nodeService.getChildByName(caseNodeRef, ContentModel.ASSOC_CONTAINS, OpenESDHModel.DOCUMENTS_FOLDER_NAME);
     }
+
 
     //<editor-fold desc="Journalization methods">
     public void checkCanJournalize(NodeRef nodeRef) throws

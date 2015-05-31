@@ -29,7 +29,7 @@ function getCaseTypes () {
         var c = caseTypes[i];
         var cObject = {};
         cObject["type"] = c.Prefix;
-        cObject["label"] = c.Title;
+        cObject["label"] = c.Name;
         casesArr.push(cObject);
     }
     return casesArr;

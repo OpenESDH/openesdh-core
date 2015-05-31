@@ -41,6 +41,12 @@ define(["dojo/_base/declare",
              * The case id for a case.
              */
             caseId: "",
+            /**
+             * This should be an object containing case types and their corresponding array of widgets required to
+             * create the cases.
+             * { caseType: [] }
+             */
+            createCaseWidgets:null,
 
             /**
              * The authenticated user (Initially used for the Authority Picker)
@@ -64,6 +70,7 @@ define(["dojo/_base/declare",
 
                 this._getLoggedInUser();
                 this._getCaseConstraints();//Get the lis of all case constraints
+                this._initCreateCaseWidgets();
 
                 // Don't do anything when the widgets are ready
                 // This is overwritten when the case info is loaded
@@ -323,6 +330,29 @@ define(["dojo/_base/declare",
                     callbackScope: this});
             },
 
+            _initCreateCaseWidgets: function dk_openesdh__getCreateCaseWidgets(){
+                var respObj = {};
+
+                var parseResponse = function(res) {
+                    //alert("The length of the array is: "+res.length );
+                    for (var n = 0; n < res.length; n++){
+                        console.log("Object "+n+".name =>"+ res[n].Name);
+                        respObj[res[n].Name] = res[n].createFormWidgets;
+
+                        console.log(respObj);
+                    }
+                    this.createCaseWidgets = respObj;
+                };
+
+                var url =  Alfresco.constants.PROXY_URI + "/api/openesdh/casetypes";
+                this.serviceXhr({
+                    url: url,
+                    method: "GET",
+                    successCallback: parseResponse,
+                    callbackScope: this});
+
+            },
+
             _getCreateCaseWidgets: function dk_openesdh__getCreateCaseWidgets(caseType){
                 var caseContainerNodeRef = this.casesFolderNodeRef;
 
@@ -341,7 +371,7 @@ define(["dojo/_base/declare",
                                             config: {
                                                 fieldId: "edb22ed0-ch9a-48f4-8f30-c5atjd748ffb",
                                                 name: "alf_destination",
-                                                value: caseContainerNodeRef,
+                                                value: "{caseContainerNodeRef}",
                                                 label: "",
                                                 unitsLabel: "",
                                                 description: "",
@@ -360,7 +390,7 @@ define(["dojo/_base/declare",
                                             config: {
                                                 fieldId: "edb31ed0-c74a-48f4-8f30-c5atbd748ffb",
                                                 name:"caseType",
-                                                value: caseType,
+                                                value: "{caseType}",
                                                 label: "",
                                                 unitsLabel: "",
                                                 description: "",
@@ -390,7 +420,7 @@ define(["dojo/_base/declare",
                                                 fieldId: "edb19ed0-c74a-48f4-8f30-c5aabd74fffb",
                                                 name: "prop_cm_title",
                                                 value: "",
-                                                label: this.message("create-case.label.title"),
+                                                label: "create-case.label.title",
                                                 unitsLabel: "",
                                                 description: "",
                                                 visibilityConfig: {
@@ -419,7 +449,7 @@ define(["dojo/_base/declare",
                                             name: "openesdh/common/widgets/controls/Select",
                                             config: {
                                                 id: "prop_oe_status",
-                                                label: this.message("create-case.label.button.case-status"),
+                                                label: "create-case.label.button.case-status",
                                                 optionsConfig: {
                                                     fixed: this._getSelectControlOptions("simpleStatusConstraint")
                                                 },
@@ -449,7 +479,7 @@ define(["dojo/_base/declare",
                                                 itemKey: "nodeRef",
                                                 singleItemMode: false,
                                                 setDefaultPickedItems: true,
-                                                defaultPickedItems: this.currentUser,
+                                                defaultPickedItems: "{this.currentUser}",
                                                 /**
                                                  *Override widgetsForControl to remove the "remove all" button
                                                  */
@@ -527,10 +557,10 @@ define(["dojo/_base/declare",
                                                 id: "prop_case_startDate",
                                                 unitsLabel: "dd/mm/\u00e5\u00e5\u00e5\u00e5",
                                                 description: "",
-                                                label: this.message("create-case.label.button.start-date"),
+                                                label: "create-case.label.button.start-date",
                                                 name: "prop_case_startDate",
                                                 fieldId: "b4bd606f-66ae-4f06-847d-dfdc77f5abc2",
-                                                value: new Date()
+                                                value: null
                                             }
                                         },
                                         {
@@ -539,10 +569,10 @@ define(["dojo/_base/declare",
                                                 id: "prop_case_endDate",
                                                 unitsLabel: "dd/mm/\u00e5\u00e5\u00e5\u00e5",
                                                 description: "",
-                                                label: this.message("create-case.label.button.end-date"),
+                                                label: "create-case.label.button.end-date",
                                                 name: "prop_case_endDate",
                                                 fieldId: "69707d94-0f8c-4966-832a-a1adbc53b74f",
-                                                value: new Date()
+                                                value: null
                                             }
                                         }
                                     ]
@@ -649,7 +679,7 @@ define(["dojo/_base/declare",
                                                 fieldId: "edb19ed0-c74a-48f4-8f30-c5aabd74fffb",
                                                 name: "prop_cm_title",
                                                 value: "",
-                                                label: this.message("create-case.label.title"),
+                                                label: "create-case.label.title",
                                                 unitsLabel: "",
                                                 description: "",
                                                 visibilityConfig: {
@@ -678,7 +708,7 @@ define(["dojo/_base/declare",
                                             name: "openesdh/common/widgets/controls/Select",
                                             config: {
                                                 id: "prop_oe_status",
-                                                label: this.message("create-case.label.button.case-status"),
+                                                label: "create-case.label.button.case-status",
                                                 optionsConfig: {
                                                     fixed: this._getSelectControlOptions("complaintStatusConstraint")
                                                 },
@@ -783,7 +813,7 @@ define(["dojo/_base/declare",
                                                             fieldId: "edba6ed0-c74a-48f4-9c30-c5aabd74ff1b",
                                                             name: "prop_case_subject",
                                                             value: "",
-                                                            label: this.message("create-case.label.subject"),
+                                                            label: "create-case.label.subject",
                                                             unitsLabel: "",
                                                             description: "",
                                                             visibilityConfig: {
@@ -827,10 +857,10 @@ define(["dojo/_base/declare",
                                                 id: "prop_case_startDate",
                                                 unitsLabel: "dd/mm/\u00e5\u00e5\u00e5\u00e5",
                                                 description: "",
-                                                label: this.message("create-case.label.button.start-date"),
+                                                label: "create-case.label.button.start-date",
                                                 name: "prop_case_startDate",
                                                 fieldId: "b4bd606f-66ae-4f06-847d-dfdc77f5abc2",
-                                                value: new Date()
+                                                value: null
                                             }
                                         },
                                         {
@@ -839,10 +869,10 @@ define(["dojo/_base/declare",
                                                 id: "prop_case_endDate",
                                                 unitsLabel: "dd/mm/\u00e5\u00e5\u00e5\u00e5",
                                                 description: "",
-                                                label: this.message("create-case.label.button.end-date"),
+                                                label: "create-case.label.button.end-date",
                                                 name: "prop_case_endDate",
                                                 fieldId: "69707d94-0f8c-4966-832a-a1adbc53b74f",
-                                                value: new Date()
+                                                value: null
                                             }
                                         }
                                     ]
@@ -887,7 +917,7 @@ define(["dojo/_base/declare",
                             }
                         ];
                 }
-        },
+            },
 
             _getLoggedInUser: function dk_openesdh__getLoggedInUser(){
                 var url =  Alfresco.constants.PROXY_URI + "/api/openesdh/currentUser";

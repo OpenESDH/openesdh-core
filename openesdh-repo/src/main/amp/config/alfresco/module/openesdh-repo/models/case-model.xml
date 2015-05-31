@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<model name="case:caseModel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+<model name="base:caseModel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
     <description>openESDH Case Model</description>
-    <author>Seth Yastrov, Flemming Heide Pedersen, Ole Hejlskov, Torben Lauritzen</author>
+    <author>Seth Yastrov, Flemming Heide Pedersen, Ole Hejlskov, Torben Lauritzen, Lanre Abiwon</author>
     <version>1.0</version>
     <imports>
         <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d" />
@@ -10,10 +10,10 @@
         <import uri="http://openesdh.dk/model/openesdh/1.0/" prefix="oe" />
     </imports>
     <namespaces>
-        <namespace uri="http://openesdh.dk/model/case/1.0/" prefix="case" />
+        <namespace uri="http://openesdh.dk/model/case/base/1.0/" prefix="base" />
     </namespaces>
     <constraints>
-        <constraint name="case:allowedPartyRoles" type="LIST">
+        <constraint name="base:allowedPartyRoles" type="LIST">
             <parameter name="allowedValues">
                 <list>
                     <!-- TODO: localize -->
@@ -22,50 +22,25 @@
                 </list>
             </parameter>
         </constraint>
-        <constraint name="case:simpleStatusConstraint" type="LIST">
-            <parameter name="allowedValues">
-                <list>
-                    <!-- TODO: localize (check localisation in /src/main/amp/config/alfresco/module/openesdh-repo/messages/case-model.properties) -->
-                    <value>planned</value>
-                    <value>in-progress</value>
-                    <value>existing</value>
-                    <value>pending</value>
-                    <value>archived</value>
-                    <value>cancelled</value>
-                    <value>closed</value>
-                </list>
-            </parameter>
-        </constraint>
-        <!--for testing-->
-        <constraint name="case:complaintStatusConstraint" type="LIST">
-            <parameter name="allowedValues">
-                <list>
-                    <!-- TODO: localize (check localisation in /src/main/amp/config/alfresco/module/openesdh-repo/messages/case-model.properties) -->
-                    <value>new</value>
-                    <value>in-transition</value>
-                    <value>elevated</value>
-                </list>
-            </parameter>
-        </constraint>
     </constraints>
     <types>
-        <type name="case:base">
+        <type name="base:case">
             <parent>oe:base</parent>
             <archive>true</archive>
             <properties>
-                <property name="case:startDate">
+                <property name="base:startDate">
                     <type>d:date</type>
                     <mandatory>false</mandatory>
                 </property>
 
-                <property name="case:endDate">
+                <property name="base:endDate">
                     <type>d:date</type>
                     <mandatory>false</mandatory>
                 </property>
             </properties>
 
             <associations>
-                <association name="case:owners">
+                <association name="base:owners">
                     <source>
                         <mandatory>false</mandatory>
                         <many>true</many>
@@ -78,37 +53,6 @@
                 </association>
             </associations>
 
-        </type>
-
-        <type name="case:simple">
-            <parent>case:base</parent>
-
-            <overrides>
-                <property name="oe:status">
-                    <constraints>
-                        <constraint ref="case:simpleStatusConstraint"/>
-                    </constraints>
-                </property>
-            </overrides>
-        </type>
-
-        <type name="case:complaint">
-            <parent>case:base</parent>
-            <properties>
-                <property name="case:subject">
-                    <type>d:text</type>
-                    <mandatory>true</mandatory>
-                </property>
-            </properties>
-
-            <overrides>
-                <!--From oe:base model-->
-                <property name="oe:status">
-                    <constraints>
-                        <constraint ref="case:complaintStatusConstraint"/>
-                    </constraints>
-                </property>
-            </overrides>
         </type>
     </types>
 </model>

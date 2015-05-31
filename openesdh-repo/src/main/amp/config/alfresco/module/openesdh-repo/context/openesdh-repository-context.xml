@@ -8,6 +8,9 @@
         <property name="dictionaryService">
             <ref bean="dictionaryService"/>
         </property>
+        <property name="caseService">
+            <ref bean="CaseService"/>
+        </property>
     </bean>
 
     <bean id="webscript.dk.openesdh.case.permittedStates.get" parent="webscript"
