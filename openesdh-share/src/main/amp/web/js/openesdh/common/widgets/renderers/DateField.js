@@ -12,7 +12,8 @@ define(["dojo/_base/declare",
         "dojo/_base/lang"],
     function(declare, Property, TemporalUtils, UrlUtils, lang) {
 
-        return declare([Property, UrlUtils], {
+        return declare([Property, UrlUtils, TemporalUtils
+                        ], {
 
             /**
              * The i18n scope to use for this widget.
@@ -48,7 +49,7 @@ define(["dojo/_base/declare",
 
                     var dateI18N = "details.created-by";
                     this.renderedValue = this.message(dateI18N, {
-                        0: TemporalUtils.getRelativeTime(date),
+                        0: this.getRelativeTime(date),
                         1: this.userProfileLink(createdBy, creatorName)
                     });
                }
@@ -59,7 +60,7 @@ define(["dojo/_base/declare",
 
                     var dateI18N = "details.modified-by";
                     this.renderedValue = this.message(dateI18N, {
-                        0: TemporalUtils.getRelativeTime(date),
+                        0: this.getRelativeTime(date),
                         1: this.userProfileLink(modifiedBy, modifierName)
                     });
                 }
