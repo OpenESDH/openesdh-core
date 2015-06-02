@@ -1,9 +1,7 @@
 package dk.openesdh.repo.classification.sync;
 
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.repo.security.sync.UserRegistrySynchronizer;
 import org.alfresco.schedule.AbstractScheduledLockedJob;
-import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 

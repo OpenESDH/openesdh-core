@@ -13,7 +13,7 @@
                 <property name="jobDataAsMap">
                     <map>
                         <entry key="classificationSynchronizer">
-                            <ref bean="classificationSynchronizer" />
+                            <ref bean="kleClassificationSynchronizer" />
                         </entry>
                         <entry key="jobLockService">
                             <ref bean="jobLockService" />
@@ -31,8 +31,8 @@
     </bean>
 
     <!-- The Classification Synchronizer (using KLE) -->
-    <bean id="classificationSynchronizer"
-          class="dk.openesdh.repo.classification.sync.KLEClassificationSynchronizer"
+    <bean id="kleClassificationSynchronizer"
+          class="dk.openesdh.repo.classification.sync.kle.KLEClassificationSynchronizer"
           init-method="init">
         <property name="transactionService">
             <ref bean="transactionService" />
@@ -43,8 +43,14 @@
         <property name="repositoryHelper">
             <ref bean="repositoryHelper" />
         </property>
+        <property name="nodeService">
+            <ref bean="NodeService" />
+        </property>
         <property name="kleEmneplanURL">
             <value>${openesdh.classification.kle.emneplan.url}</value>
+        </property>
+        <property name="syncOnStartupIfMissing">
+            <value>${openesdh.classification.kle.syncOnStartupIfMissing}</value>
         </property>
     </bean>
 </beans>
