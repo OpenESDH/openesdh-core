@@ -23,12 +23,13 @@
     </bean>
 
     <!--The initial openESDH folder context bootstrap-->
-    <bean id="${project.artifactId}_folders_bootstrap" parent="spacesStoreImporter">
+    <bean id="${project.artifactId}_folders_bootstrap"
+          parent="spacesStoreImporter" depends-on="openesdh-repo_bootstrap">
         <property name="log"> <value>false</value> </property>
         <property name="allowWrite">
             <value>true</value>
         </property>
-        <property name="useExistingStore"> <value>false</value> </property>
+        <property name="useExistingStore"> <value>true</value> </property>
         <property name="transactionService" ref="transactionService"/>
         <property name="bootstrapViews">
             <list>

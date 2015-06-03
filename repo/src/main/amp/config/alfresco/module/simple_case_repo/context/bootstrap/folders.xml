@@ -64,7 +64,7 @@
                                     <cm:title>Simple case Aikau create form</cm:title>
                                     <cm:description>The Aikau create form widget for the case.</cm:description>
                                     <cm:content>
-                                        contentUrl=classpath:alfresco/module/simple_case/context/bootstrap/files/create-form.js|mimetype=application/x-javascript|size=11978|encoding=UTF-8
+                                        contentUrl=classpath:alfresco/module/simple_case_repo/context/bootstrap/files/create-form.js|mimetype=application/x-javascript|size=11978|encoding=UTF-8
                                     </cm:content>
                                     <!--<sys:node-uuid>KK8EJ9CT4-Dafq-334I-Nm3cLe9KJ524</sys:node-uuid>-->
                                 </view:properties>
