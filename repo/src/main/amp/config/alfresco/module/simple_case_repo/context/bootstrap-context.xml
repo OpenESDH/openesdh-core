@@ -1,0 +1,45 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+          http://www.springframework.org/schema/beans/spring-beans-2.0.xsd">
+
+    <!-- The bootstrap-context.xml file is used for patch definitions, importers, 
+		 workflow, and loading custom content models.  -->
+
+
+    <!-- Registration of new models -->
+    <bean id="${project.artifactId}_dictionaryBootstrap" parent="dictionaryModelBootstrap" depends-on="openesdh-repo_dictionaryBootstrap">
+        <property name="models">
+            <list>
+                <value>alfresco/module/${project.artifactId}/model/simple_case-model.xml</value>
+            </list>
+        </property>
+        <property name="labels">
+            <list>
+                <value>alfresco/module/${project.artifactId}/messages/simple_case-model</value>
+            </list>
+        </property>
+    </bean>
+
+    <!--The initial openESDH folder context bootstrap-->
+    <bean id="${project.artifactId}_folders_bootstrap" parent="spacesStoreImporter">
+        <property name="log"> <value>false</value> </property>
+        <property name="allowWrite">
+            <value>true</value>
+        </property>
+        <property name="useExistingStore"> <value>false</value> </property>
+        <property name="transactionService" ref="transactionService"/>
+        <property name="bootstrapViews">
+            <list>
+                <props>
+                    <prop key="path">/${spaces.company_home.childname}/oe:OpenESDH/oe:cases/oe:types</prop>
+                    <!--<prop key="uuidBinding">REPLACE_EXISTING</prop>-->
+                    <prop key="uuidBinding">UPDATE_EXISTING</prop>
+                    <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/folders.xml</prop>
+                </props>
+            </list>
+        </property>
+    </bean>
+
+</beans>

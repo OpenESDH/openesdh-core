@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model name="simple:caseModel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+    <description>OpenESDH simple case model</description>
+    <author>Lanre Abiwon</author>
+    <version>1.1</version>
+    <imports>
+        <import uri="http://openesdh.dk/model/openesdh/1.0/" prefix="oe" />
+        <import uri="http://openesdh.dk/model/case/base/1.0/" prefix="base" />
+    </imports>
+
+    <namespaces>
+        <namespace uri="http://openesdh.dk/model/case/simple/1.0/" prefix="simple" />
+    </namespaces>
+
+    <constraints>
+        <constraint name="simple:caseStatusConstraint" type="LIST">
+            <parameter name="allowedValues">
+                <list>
+                    <!-- TODO: localize (check localisation in /src/main/amp/config/alfresco/module/simple_case/messages/case-model.properties) -->
+                    <value>planned</value>
+                    <value>in-progress</value>
+                    <value>existing</value>
+                    <value>pending</value>
+                    <value>archived</value>
+                    <value>cancelled</value>
+                    <value>closed</value>
+                </list>
+            </parameter>
+        </constraint>
+    </constraints>
+
+    <types>
+
+        <type name="simple:case">
+            <parent>base:case</parent>
+            <overrides>
+                <property name="oe:status">
+                    <constraints>
+                        <constraint ref="simple:caseStatusConstraint"/>
+                    </constraints>
+                </property>
+            </overrides>
+        </type>
+
+    </types>
+</model>
