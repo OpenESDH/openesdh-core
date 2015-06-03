@@ -41,6 +41,7 @@ define(["dojo/_base/declare",
              * The case id for a case.
              */
             caseId: "",
+
             /**
              * This should be an object containing case types and their corresponding array of widgets required to
              * create the cases.
@@ -269,9 +270,9 @@ define(["dojo/_base/declare",
             /**
              * Constructs the options for the select controls for the case creation dialog
              */
-            _getSelectControlOptions: function dk_openesdh_setCaseConstraintLists(listName) {
+            _getSelectControlOptions: function dk_openesdh_setCaseConstraintLists(typeName, listName) {
                 var options = [];
-                var states = this.caseConstraintsList[listName];
+                var states = this.caseConstraintsList[typeName][listName];
 
                 for (var state in states) {
                     options.push({
@@ -336,8 +337,8 @@ define(["dojo/_base/declare",
                 var parseResponse = function(res) {
                     //alert("The length of the array is: "+res.length );
                     for (var n = 0; n < res.length; n++){
-                        console.log("Object "+n+".name =>"+ res[n].Name);
-                        respObj[res[n].Name] = res[n].createFormWidgets;
+                        console.log("Object "+n+".name =>"+ res[n].Type);
+                        respObj[res[n].Type] = res[n].createFormWidgets;
 
                         console.log(respObj);
                     }
@@ -451,7 +452,7 @@ define(["dojo/_base/declare",
                                                 id: "prop_oe_status",
                                                 label: "create-case.label.button.case-status",
                                                 optionsConfig: {
-                                                    fixed: this._getSelectControlOptions("simpleStatusConstraint")
+                                                    fixed: this._getSelectControlOptions("simple", "caseStatusConstraint")
                                                 },
                                                 unitsLabel: "",
                                                 description: "",
@@ -477,9 +478,11 @@ define(["dojo/_base/declare",
                                                 label: "create-case.label.button.case-owner",
                                                 name: "assoc_case_owners_added",
                                                 itemKey: "nodeRef",
+                                                currentUser: this.currentUser,
                                                 singleItemMode: false,
                                                 setDefaultPickedItems: true,
-                                                defaultPickedItems: "{this.currentUser}",
+                                                processDefaultPickerTokens: true,
+                                                defaultPickedItems: "{currentUser}",
                                                 /**
                                                  *Override widgetsForControl to remove the "remove all" button
                                                  */

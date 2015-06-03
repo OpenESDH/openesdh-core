@@ -46,7 +46,7 @@ public class CaseTypes extends AbstractWebScript {
         for (QName caseType : caseTypes) {
 
             // skip the basetype - getSubTypes returns it together with the subtypes
-            if (!caseType.getLocalName().equals(OpenESDHModel.TYPE_BASE_NAME)) {
+            if (!caseType.equals(OpenESDHModel.TYPE_CASE_BASE)) {
                 //System.out.println(caseType.getLocalName());
                 JSONObject c = new JSONObject();
                 try {

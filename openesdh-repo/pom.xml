@@ -19,6 +19,10 @@
         <alfresco.data.location>alf_data_dev</alfresco.data.location>
         <alfresco.client.war>alfresco</alfresco.client.war>
         <alfresco.client.contextPath>/alfresco</alfresco.client.contextPath>
+
+        <!--This will build a jar with a “classes” classifier containing the classes, for use in other modules where
+        we may need to extend openESDH classes-->
+        <maven.alfresco.attachClasses>true</maven.alfresco.attachClasses>
     </properties>
 
     <!-- Following dependencies are needed for compiling Java code in src/main/java; 

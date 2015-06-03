@@ -39,7 +39,8 @@
 
         <!-- IMPORTANT! Override this only if you know what you're doing; it could break amp-to-war overlay -->
         <alfresco.client.war.folder>${project.build.directory}/${project.build.finalName}-war</alfresco.client.war.folder>
-
+        <maven.alfresco.attachClasses>true</maven.alfresco.attachClasses>
+        <maven.alfresco.attachConfig>true</maven.alfresco.attachConfig>
     </properties>
 
     <!-- Here we realize the connection with the Alfresco selected platform (e.g.version and edition) -->

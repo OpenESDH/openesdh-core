@@ -205,6 +205,23 @@ public class PartyServiceImpl implements PartyService {
         return contactRoleMap;
     }
 
+    @Override
+    public List<ContactInfo> getPartiesInCase(String caseId) {
+        Map<String, Set<String>> partiesWithRoles = getContactsByRole(caseId);
+        List<ContactInfo> parties = new ArrayList<>();
+
+        for(Map.Entry<String, Set<String>> role : partiesWithRoles.entrySet()){
+            Set<String> value = role.getValue();
+            for (String contact : value) {
+                NodeRef contactRef = this.contactService.getContactById(contact);
+                ContactInfo contactInfo = new ContactInfo(contactRef, this.contactService.getContactType(contactRef),
+                        this.nodeService.getProperties(contactRef));
+                parties.add(contactInfo);
+            }
+        }
+        return parties;
+    }
+
     //<editor-fold desc="Injected service bean setters">
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;

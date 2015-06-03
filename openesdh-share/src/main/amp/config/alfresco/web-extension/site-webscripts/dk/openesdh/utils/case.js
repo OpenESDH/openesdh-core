@@ -28,8 +28,10 @@ function getCaseTypes () {
 
         var c = caseTypes[i];
         var cObject = {};
-        cObject["type"] = c.Prefix;
-        cObject["label"] = c.Name;
+        cObject["type"] = c.Prefix; //The actual model type containing the namespace prefix and postfix (base:case) e.g.
+        cObject["typeName"] = c.Type; //The type name (The namespace prefix for the type)
+        cObject["label"] = c.Title;
+        cObject["createForm"] = c.createFormWidgets;
         casesArr.push(cObject);
     }
     return casesArr;
