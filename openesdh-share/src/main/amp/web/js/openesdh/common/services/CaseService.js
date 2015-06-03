@@ -187,9 +187,9 @@ define(["dojo/_base/declare",
                                 label: this.message("journal.key"),
                                 requirementConfig: {
                                     initialValue: true
-                                }
+                                },
                                 // TODO: Set the root category for the journal key
-//                                rootNodeRef: "workspace://SpacesStore/abc/"
+                                initialPath: "kle_emneplan"
                             }
                         }
                     ]
