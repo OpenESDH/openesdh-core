@@ -6,7 +6,7 @@
             <type name="d:long" control="FilterTextWidget"/>
             <type name="d:date" control="FilterDateRangeWidget"/>
             <type name="d:datetime" control="FilterDateRangeWidget"/>
-            <type name="cm:authority" control="FilterAuthorityWidget"/>
+            <type name="d:category" control="openesdh/common/widgets/controls/category/CategoryPickerControl"/>
             <type name="LIST:*" control="FilterSelectWidget"/>
         </default-controls>
         <searches>
@@ -21,6 +21,7 @@
                     <show id="oe:status"/>
                     <show id="case:startDate"/>
                     <show id="case:endDate"/>
+                    <show id="oe:journalKey"/>
                 </column-visibility>
                 <column-availability>
                     <show id="TYPE"/>
@@ -32,6 +33,7 @@
                     <show id="oe:status"/>
                     <show id="case:startDate"/>
                     <show id="case:endDate"/>
+                    <show id="oe:journalKey"/>
                 </column-availability>
                 <filters-availability>
                     <show id="ALL"/>
@@ -44,6 +46,7 @@
                     <show id="oe:status"/>
                     <show id="case:startDate"/>
                     <show id="case:endDate"/>
+                    <show id="oe:journalKey"/>
                 </filters-availability>
                 <actions>
                     <action id="case-dashboard"

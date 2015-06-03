@@ -31,7 +31,12 @@ define(["dojo/_base/declare",
             },
 
             getValue: function () {
-                return this.wrappedWidget.get("value");
+                var value = this.wrappedWidget.get("value");
+                for (var property in value) {
+                    if (!value.hasOwnProperty(property)) continue;
+                    value = property;
+                }
+                return value;
             },
 
             setValue: function (value) {

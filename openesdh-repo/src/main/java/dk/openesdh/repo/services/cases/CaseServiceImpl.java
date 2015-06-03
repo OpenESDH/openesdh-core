@@ -656,9 +656,11 @@ public class CaseServiceImpl implements CaseService {
                 }
                 ownableService.setOwner(nodeRef, AuthenticationUtil.getSystemUserName());
 
+                nodeService.setProperty(nodeRef, OpenESDHModel
+                        .PROP_OE_JOURNALKEY, journalKey);
+
                 // Add journalized aspect
                 Map<QName, Serializable> props = new HashMap<>();
-                props.put(OpenESDHModel.PROP_OE_JOURNALKEY, journalKey);
                 props.put(OpenESDHModel.PROP_OE_JOURNALIZED_BY, AuthenticationUtil.getFullyAuthenticatedUser());
                 props.put(OpenESDHModel.PROP_OE_JOURNALIZED_DATE, new Date());
                 // Save the original owner, or null if there wasn't any

@@ -54,17 +54,9 @@
                 </property>
             </overrides>
         </aspect>
-        <aspect name="oe:journalized">
+        <aspect name="oe:journalizable">
             <parent>cm:classifiable</parent>
             <properties>
-                <property name="oe:journalizedBy">
-                    <type>d:text</type>
-                    <mandatory>true</mandatory>
-                </property>
-                <property name="oe:journalizedDate">
-                    <type>d:datetime</type>
-                    <mandatory>true</mandatory>
-                </property>
                 <property name="oe:journalKey">
                     <type>d:category</type>
                     <mandatory>true</mandatory>
@@ -74,6 +66,19 @@
                         <stored>true</stored>
                         <tokenised>false</tokenised>
                     </index>
+                </property>
+
+            </properties>
+        </aspect>
+        <aspect name="oe:journalized">
+            <properties>
+                <property name="oe:journalizedBy">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
+                <property name="oe:journalizedDate">
+                    <type>d:datetime</type>
+                    <mandatory>true</mandatory>
                 </property>
                 <property name="oe:originalOwner">
                     <!-- This stores the original owner of a node while it is journalized. -->
