@@ -14,8 +14,10 @@ define(["dojo/_base/declare",
              */
             getWidgetConfig: function () {
                 // Return the configuration for the widget
+                var initialPath = this.initialPath ? this.initialPath : "";
                 return {
                     id : this.generateUuid(),
+                    initialPath: initialPath,
                     name: this.name,
                     value: this.value
                 };

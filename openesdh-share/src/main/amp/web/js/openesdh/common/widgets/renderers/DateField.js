@@ -12,8 +12,7 @@ define(["dojo/_base/declare",
         "dojo/_base/lang"],
     function(declare, Property, TemporalUtils, UrlUtils, lang) {
 
-        return declare([Property, UrlUtils, TemporalUtils
-                        ], {
+        return declare([Property, UrlUtils, TemporalUtils], {
 
             /**
              * The i18n scope to use for this widget.
@@ -39,35 +38,7 @@ define(["dojo/_base/declare",
             postMixInProperties: function alfresco_renderers_Date__postMixInProperties() {
                 var property = lang.getObject(this.propertyToRender, false, this.currentItem);
                 var date = new Date(property.value);
-                if(this.propertyToRender == "cm:created") {
-                    var creatorProperty = lang.getObject("cm:creator", false, this.currentItem);
-                    var createdBy = creatorProperty.value;
-                    var creatorName = creatorProperty.fullname;
-
-                    var userName = property.value;
-                    var displayName = property.fullname;
-
-                    var dateI18N = "details.created-by";
-                    this.renderedValue = this.message(dateI18N, {
-                        0: this.getRelativeTime(date),
-                        1: this.userProfileLink(createdBy, creatorName)
-                    });
-               }
-                else if(this.propertyToRender == "cm:modified") {
-                    var modifierProperty = lang.getObject("cm:modifier", false, this.currentItem);
-                    var modifiedBy = modifierProperty.value;
-                    var modifierName = modifierProperty.fullname;
-
-                    var dateI18N = "details.modified-by";
-                    this.renderedValue = this.message(dateI18N, {
-                        0: this.getRelativeTime(date),
-                        1: this.userProfileLink(modifiedBy, modifierName)
-                    });
-                }
-                else {
-                    this.renderedValue = date;
-                }
-
+                this.renderedValue = this.getRelativeTime(date);
                 this.renderedValueClass = this.renderedValueClass + " " + this.renderSize + " block";
             }
         });

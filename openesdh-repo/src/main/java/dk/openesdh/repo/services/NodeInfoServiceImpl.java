@@ -4,14 +4,12 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.dictionary.DictionaryModelType;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
-import org.alfresco.service.cmr.dictionary.AssociationDefinition;
-import org.alfresco.service.cmr.dictionary.Constraint;
-import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
-import org.alfresco.service.cmr.dictionary.DictionaryService;
-import org.alfresco.service.cmr.dictionary.PropertyDefinition;
+import org.alfresco.service.cmr.dictionary.*;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -126,6 +124,8 @@ public class NodeInfoServiceImpl implements NodeInfoService {
             valueObj.put("value", ((Date) value).getTime());
         } else if (propertyQName.getPrefixString().equals("modifier") || propertyQName.getPrefixString().equals("creator")) {
             valueObj = getPersonValue((String) value);
+        } else if (propertyDefinition.getDataType().getName().equals(DataTypeDefinition.CATEGORY)) {
+            valueObj = getCategoryValue((NodeRef) value);
         } else {
             valueObj.put("value", getDisplayLabel(propertyDefinition, value));
             valueObj.put("type", "String");
@@ -133,6 +133,15 @@ public class NodeInfoServiceImpl implements NodeInfoService {
 
         valueObj.put("label", propertyDefinition.getTitle(dictionaryService));
 
+        return valueObj;
+    }
+
+    private JSONObject getCategoryValue(NodeRef nodeRef) throws JSONException {
+        JSONObject valueObj = new JSONObject();
+        Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
+        // TODO: Use dedicated category type, and render it in the client side
+        valueObj.put("type", "String");
+        valueObj.put("value", properties.get(ContentModel.PROP_NAME) + " " + properties.get(ContentModel.PROP_TITLE));
         return valueObj;
     }
 

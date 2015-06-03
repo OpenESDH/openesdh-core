@@ -64,7 +64,27 @@
 			<version>5.0.0-SNAPSHOT</version>
 			<type>amp</type>
 		</dependency>
-
     </dependencies>
 
+    <build>
+        <plugins>
+            <!-- Generate Java classes from KLE XSDs -->
+            <plugin>
+                <groupId>org.jvnet.jaxb2.maven2</groupId>
+                <artifactId>maven-jaxb2-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <schemaDirectory>src/main/resources/xsd/kle</schemaDirectory>
+                    <generatePackage>dk.klexml</generatePackage>
+                    <addTestCompileSourceRoot>true</addTestCompileSourceRoot>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
