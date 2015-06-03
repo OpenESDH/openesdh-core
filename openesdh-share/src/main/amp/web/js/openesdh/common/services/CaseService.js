@@ -205,14 +205,7 @@ define(["dojo/_base/declare",
                     return false;
                 }
 
-                var journalKey;
-                // Get the one key from the category picker widget which contains
-                // the nodeRef of the journalKey
-                for (var property in payload.journalKey) {
-                    if (!payload.journalKey.hasOwnProperty(property)) continue;
-                    journalKey = property;
-                }
-
+                var journalKey = payload.journalKey;
                 var nodeRef = payload.nodeRef;
 
                 var url = Alfresco.constants.PROXY_URI + "api/openesdh/" + NodeUtils.processNodeRef(nodeRef).uri + "/journalize?journalKey=" + journalKey;

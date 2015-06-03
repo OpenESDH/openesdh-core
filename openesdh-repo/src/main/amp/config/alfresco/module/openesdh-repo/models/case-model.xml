@@ -78,6 +78,9 @@
                 </association>
             </associations>
 
+            <mandatory-aspects>
+                <aspect>oe:journalizable</aspect>
+            </mandatory-aspects>
         </type>
 
         <type name="case:simple">
