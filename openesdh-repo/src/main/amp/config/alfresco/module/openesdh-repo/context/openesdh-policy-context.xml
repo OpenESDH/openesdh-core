@@ -8,6 +8,12 @@
         <property name="policyComponent">
             <ref bean="policyComponent"/>
         </property>
+        <property name="permissionService">
+            <ref bean="PermissionService"/>
+        </property>
+        <property name="authorityService">
+            <ref bean="AuthorityService"/>
+        </property>
     </bean>
 
     <bean id="caseOwnersBehaviour"
