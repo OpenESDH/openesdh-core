@@ -34,4 +34,21 @@
         </property>
     </bean>
 
+	<!-- The initial openESDH groups context -->
+	<bean id="${project.artifactId}_bootstrapGroups" class="org.alfresco.repo.module.ImporterModuleComponent" parent="module.baseComponent">
+      <property name="moduleId" value="${project.artifactId}" />
+      <property name="name" value="${project.artifactId}_bootstrapGroups" />
+      <property name="description" value="Import Case Simple and Case Complaint groups" />
+      <property name="sinceVersion" value="${noSnapshotVersion}" />        
+      <property name="appliesFromVersion" value="1.0" />   
+      <property name="importer" ref="spacesBootstrap"/>
+      <property name="bootstrapViews">
+        <list>
+          <props>
+            <prop key="path">/${alfresco_user_store.system_container.childname}</prop>
+            <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/groups.xml</prop>
+          </props>
+        </list>
+      </property>
+    </bean>
 </beans>
