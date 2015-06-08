@@ -127,8 +127,6 @@ public class CaseServiceImplIT {
         caseService.setTransactionService(transactionService);
         caseService.setDictionaryService(dictionaryService);
         caseService.setLockService(lockService);
-        caseService.setActionService(actionService);
-        caseService.setRuleService(ruleService);
 
         namespacePrefixResolver.registerNamespace(NamespaceService.APP_MODEL_PREFIX, NamespaceService.APP_MODEL_1_0_URI);
         namespacePrefixResolver.registerNamespace(OpenESDHModel.CASE_PREFIX, OpenESDHModel.CASE_URI);

@@ -1,6 +1,5 @@
 package dk.openesdh.repo.services.cases;
 
-import dk.openesdh.repo.actions.AssignCaseIdActionExecuter;
 import dk.openesdh.repo.model.OpenESDHModel;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
@@ -8,16 +7,11 @@ import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
-import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.action.ActionService;
 import org.alfresco.service.cmr.dictionary.*;
 import org.alfresco.service.cmr.lock.LockService;
 import org.alfresco.service.cmr.lock.LockType;
 import org.alfresco.service.cmr.repository.*;
-import org.alfresco.service.cmr.rule.Rule;
-import org.alfresco.service.cmr.rule.RuleService;
-import org.alfresco.service.cmr.rule.RuleType;
-import org.alfresco.service.cmr.search.ResultSet;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
@@ -60,8 +54,6 @@ public class CaseServiceImpl implements CaseService {
     private PermissionService permissionService;
     private TransactionService transactionService;
     private DictionaryService dictionaryService;
-    private RuleService ruleService;
-    private ActionService actionService;
     private OwnableService ownableService;
     //<editor-fold desc="Service setters">
     public void setNodeService(NodeService nodeService) {
@@ -103,15 +95,8 @@ public class CaseServiceImpl implements CaseService {
     public void setDictionaryService(DictionaryService dictionaryService) {
         this.dictionaryService = dictionaryService;
     }
+
     //</editor-fold>
-
-    public void setRuleService(RuleService ruleService) {
-        this.ruleService = ruleService;
-    }
-
-    public void setActionService(ActionService actionService) {
-        this.actionService = actionService;
-    }
 
     @Override
     public NodeRef getOpenESDHRootFolder() {
@@ -132,8 +117,6 @@ public class CaseServiceImpl implements CaseService {
         //Throw an exception. This should have been created on first boot along with the context root folder
         if (casesRootNodeRef == null)
             throw new AlfrescoRuntimeException("The openESDH \"CASES\" root folder has not been initialised.");
-
-        setupAssignCaseIdRule(casesRootNodeRef);
         return casesRootNodeRef;
     }
 
@@ -237,8 +220,7 @@ public class CaseServiceImpl implements CaseService {
             widgets = unparsedJSON.getJSONArray("widgets");
         }
         catch(Exception ge){
-            LOGGER.warn("\n\n\n====>\nerror with retrieving widgets: "+ ge.getMessage()+"\n<=====\n\n");
-//            throw(new AlfrescoRuntimeException("Unable to retrieve create form widgets because: "+ge.getMessage()));
+            LOGGER.warn("\n\n\n====>\nerror with retrieving widgets: "+ ge.getMessage()+"\n\n");
         }
 
         return widgets;
@@ -488,18 +470,6 @@ public class CaseServiceImpl implements CaseService {
         // TODO: Test
         NodeRef documentsNodeRef = createNode(caseNodeRef, OpenESDHModel.DOCUMENTS_FOLDER_NAME);
         nodeService.addAspect(documentsNodeRef, OpenESDHModel.ASPECT_DOCUMENT_CONTAINER, null);
-    }
-
-    protected void setupAssignCaseIdRule(final NodeRef folderNodeRef) {
-        Action action = actionService.createAction(AssignCaseIdActionExecuter.NAME);
-        action.setTitle("Assign caseId");
-        action.setExecuteAsynchronously(true);
-        Rule rule = new Rule();
-        rule.setRuleType(RuleType.INBOUND);
-        rule.setTitle("Assign caseId to case documents");
-        rule.applyToChildren(true);
-        rule.setAction(action);
-        ruleService.saveRule(folderNodeRef, rule);
     }
 
     String getCaseId(long uniqueNumber) {

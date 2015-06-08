@@ -16,7 +16,6 @@ public interface OpenESDHModel {
     public static final String TYPE_SIMPLE_NAME = "simple";
     public static final String TYPE_BASE_NAME = "base";
     public static final String CASE_MODEL_NAME = "caseModel";
-    public static final String CASE_TYPE_NAME = "case";
 
     public static final String CONTACT_PREFIX = "contact";
     public static final String CONTACT_URI = "http://openesdh.dk/model/contact/1.0/";

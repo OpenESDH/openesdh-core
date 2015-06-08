@@ -26,8 +26,8 @@ define(["dojo/_base/declare",
                 var processedValue = value;
 
                 // Regular expression to match token in curly braces
-                var re = /^{[a-zA-Z_$][0-9a-zA-Z_$]*}$/g; //Does adding the . break something elsewhere? like a default alfresco functionality?
-                var sc = /^{[a-zA-Z]+(\.[0-9a-zA-Z]+)+}$/g; //Does adding the . break something elsewhere? like a default alfresco functionality?
+                var re = /^{[a-zA-Z_$][0-9a-zA-Z_$]*}$/g;
+                var sc = /^{[a-zA-Z]+(\.[0-9a-zA-Z]+)+}$/g; //Could this cause a bug something elsewhere?
 
                 // If the whole string is the token, replace it if it matches
                 if (re.test(value)) {
@@ -43,8 +43,10 @@ define(["dojo/_base/declare",
                     // Strip off curly braces
                     var tokenWithoutBraces = value.slice(1, -1);
                     var keysArray = tokenWithoutBraces.split(".");
-
-                    processedValue = keysArray.reduce( function(memo, key){return memo[key]}, object);
+                    //Array reduction to traverse the object to get the property
+                    var uncheckedObj = keysArray.reduce( function(memo, key){return memo[key]}, object);
+                    if(typeof uncheckedObj !== "undefined")
+                        processedValue = uncheckedObj;
                 }
                 else {
                     // Deal with multiple tokens in the string.

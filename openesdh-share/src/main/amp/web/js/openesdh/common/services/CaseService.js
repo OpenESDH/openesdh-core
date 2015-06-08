@@ -98,9 +98,9 @@ define(["dojo/_base/declare",
             },
 
             _onCreateCaseTopic: function (payload){
-                var url = Alfresco.constants.PROXY_URI + "api/type/case%3A"+payload.caseType+"/formprocessor";
+                var url = Alfresco.constants.PROXY_URI + "api/type/"+payload.caseType+"%3Acase/formprocessor";
                 //Convert the owners array to string, in the case of more than one owner
-                payload.assoc_case_owners_added = payload.assoc_case_owners_added.toString();
+                payload.assoc_base_owners_added = payload.assoc_base_owners_added.toString();
 
                 this.serviceXhr({
                     url: url,
