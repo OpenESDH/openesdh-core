@@ -117,6 +117,17 @@
         </repository>
     </repositories>
 
+	<distributionManagement>
+		<repository>
+			<id>Alfresco-RELEASES</id>
+			<url>http://nexus.magenta-aps.dk/nexus/content/repositories/Alfresco-RELEASES</url>
+		</repository>
+		<snapshotRepository>
+			<id>Alfresco-SNAPSHOTS</id>
+			<url>http://nexus.magenta-aps.dk/nexus/content/repositories/Alfresco-SNAPSHOTS</url>
+		</snapshotRepository>
+	</distributionManagement>
+
     <modules>
         <module>openesdh-repo</module>
         <module>openesdh-share</module>
