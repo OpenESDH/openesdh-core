@@ -7,7 +7,6 @@
     <!-- The bootstrap-context.xml file is used for patch definitions, importers, 
 		 workflow, and loading custom content models.  -->
 
-
     <!-- Registration of new models -->
     <bean id="${project.artifactId}_dictionaryBootstrap" parent="dictionaryModelBootstrap" depends-on="openesdh-repo_dictionaryBootstrap">
         <property name="models">

@@ -12,7 +12,7 @@
                         "config": {
                             "fieldId": "edb22ed0-ch9a-48f4-8f30-c5atjd748ffb",
                             "name": "alf_destination",
-                            "value": caseContainerNodeRef,
+                            "value": "{casesFolderNodeRef}",
                             "label": "",
                             "unitsLabel": "",
                             "description": "",
@@ -31,7 +31,7 @@
                         "config": {
                             "fieldId": "edb31ed0-c74a-48f4-8f30-c5atbd748ffb",
                             "name": "caseType",
-                            "value": caseType,
+                            "value": "simple",
                             "label": "",
                             "unitsLabel": "",
                             "description": "",
@@ -61,7 +61,7 @@
                             "fieldId": "edb19ed0-c74a-48f4-8f30-c5aabd74fffb",
                             "name": "prop_cm_title",
                             "value": "",
-                            "label": "",
+                            "label": "Case Title/Name", //TODO localise
                             "unitsLabel": "",
                             "description": "",
                             "visibilityConfig": {
@@ -90,9 +90,9 @@
                         "name": "openesdh/common/widgets/controls/Select",
                         "config": {
                             "id": "prop_oe_status",
-                            "label": "",
+                            "label": "Case Status", //TODO localise
                             "optionsConfig": {
-                                "fixed": ""
+                                "fixed": "{caseConstraintsList.simple.caseStatusConstraint}"
                             },
                             "unitsLabel": "",
                             "description": "",
@@ -116,11 +116,12 @@
                         "id": "create_case_dialog_auth_picker",
                         "config": {
                             "label": "create-case.label.button.case-owner",
-                            "name": "assoc_case_owners_added",
+                            "name": "assoc_base_owners_added",
                             "itemKey": "nodeRef",
+                            "currentUser": "{currentUser}",
                             "singleItemMode": false,
                             "setDefaultPickedItems": true,
-                            "defaultPickedItems": this.currentUser,
+                            "defaultPickedItems": "{currentUser}",
                             "widgetsForControl": [
                                 {
                                     "name": "alfresco/layout/VerticalWidgets",
@@ -192,25 +193,25 @@
                     {
                         "name": "openesdh/common/widgets/controls/DojoDateExt",
                         "config": {
-                            "id": "prop_case_startDate",
+                            "id": "prop_base_startDate",
                             "unitsLabel": "dd/mm/\u00e5\u00e5\u00e5\u00e5",
                             "description": "",
                             "label": "",
-                            "name": "prop_case_startDate",
+                            "name": "prop_base_startDate",
                             "fieldId": "b4bd606f-66ae-4f06-847d-dfdc77f5abc2",
-                            "value": new Date()
+                            "value": null
                         }
                     },
                     {
                         "name": "openesdh/common/widgets/controls/DojoDateExt",
                         "config": {
-                            "id": "prop_case_endDate",
+                            "id": "prop_base_endDate",
                             "unitsLabel": "dd/mm/\u00e5\u00e5\u00e5\u00e5",
                             "description": "",
                             "label": "",
-                            "name": "prop_case_endDate",
+                            "name": "prop_base_endDate",
                             "fieldId": "69707d94-0f8c-4966-832a-a1adbc53b74f",
-                            "value": new Date()
+                            "value": null
                         }
                     }
                 ]
