@@ -99,6 +99,19 @@ function getCaseIdFromNodeRef(nodeRef){
     return caseInfo.caseId;
 }
 
+//We use this for the authority picker as the  user is returned in the required format
+function getCurrentUser(){
+    var connector = remote.connect("alfresco");
+    var currentUser = connector.get("/api/openesdh/currentUser");
+    return eval('(' + currentUser + ')');
+}
+function getCaseConstraints(){
+    var connector = remote.connect("alfresco");
+    var constraints = connector.get("/api/openesdh/case/constraints");
+    constraints = eval('(' + constraints + ')');
+    return constraints;
+}
+
 /*
 function getCreateCaseWidgets(){
     var caseContainerNodeRef = getNewCaseFolderNodeRef();

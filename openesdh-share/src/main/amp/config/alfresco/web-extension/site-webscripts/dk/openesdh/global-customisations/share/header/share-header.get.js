@@ -108,7 +108,9 @@ var caseService= {
         caseId: caseId,
         casesFolderNodeRef: getNewCaseFolderNodeRef(),
         createCaseWidgets: createFormsArray,
-        nodeRef: (nodeRef != null) ? nodeRef : args.destination
+        nodeRef: (nodeRef != null) ? nodeRef : args.destination,
+        currentUser: getCurrentUser(),
+        caseConstraintsList: getCaseConstraints()
     }
 };
 model.jsonModel.services.push(caseService);

@@ -10,8 +10,63 @@ define(["dojo/_base/declare",
         "dojo/_base/lang",
         "alfresco/core/ObjectProcessingMixin"],
     function(declare, lang, ObjectProcessingMixin) {
-
         return declare([ObjectProcessingMixin], {
 
+            /**
+             * This utility function will perform token substitution on the supplied string value using the
+             * values from the calling object. If the token cannot be found in the calling object then it will be left
+             * as is (including the curly braces).
+             *
+             * @param value {String} - the token to replace
+             * @param object {Object} - the object containing the token
+             * @return {*}
+             */
+            processTokens: function alfresco_core_ObjectProcessingMixin__processTokens(value, object) {
+                // Default to returning the input value if it doesn't match.
+                var processedValue = value;
+
+                // Regular expression to match token in curly braces
+                var re = /^{[a-zA-Z_$][0-9a-zA-Z_$]*}$/g; //Does adding the . break something elsewhere? like a default alfresco functionality?
+                var sc = /^{[a-zA-Z]+(\.[0-9a-zA-Z]+)+}$/g; //Does adding the . break something elsewhere? like a default alfresco functionality?
+
+                // If the whole string is the token, replace it if it matches
+                if (re.test(value)) {
+                    // Strip off curly braces
+                    var tokenWithoutBraces = value.slice(1, -1);
+
+                    // If token exists in object, replace it.
+                    if (typeof object[tokenWithoutBraces] !== "undefined") {
+                        processedValue = object[tokenWithoutBraces];
+                    }
+                }
+                else if (sc.test(value)){
+                    // Strip off curly braces
+                    var tokenWithoutBraces = value.slice(1, -1);
+                    var keysArray = tokenWithoutBraces.split(".");
+
+                    processedValue = keysArray.reduce( function(memo, key){return memo[key]}, object);
+                }
+                else {
+                    // Deal with multiple tokens in the string.
+                    processedValue = lang.replace(value, lang.hitch(this, this.safeReplace, object));
+                }
+                return processedValue;
+            },
+
+            /**
+             * Wrapper for processTokens, searching within this
+             *
+             * @instance
+             * @param {string} v The value to process.
+             * @returns {*} The processed value
+             */
+            processInstanceTokens: function alfresco_core_ObjectProcessingMixin__processInstanceTokens(v) {
+                // Search for tokens in the current scope
+                if(v=="{caseConstraintsList.simple.caseStatusConstraint}")
+                console.log("\n\n\nprocessing the required tokens\n\n\n");
+                return this.processTokens(v, this);
+            }
+
         });
-    });
+    }
+);

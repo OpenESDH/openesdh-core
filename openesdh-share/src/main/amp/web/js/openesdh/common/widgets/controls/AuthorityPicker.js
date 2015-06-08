@@ -9,12 +9,11 @@ define(["dojo/_base/declare",
         "dojo/_base/lang",
         "alfresco/core/ObjectTypeUtils",
         "alfresco/forms/controls/Picker",
-        "openesdh/extensions/core/ObjectProcessingMixin",
         "openesdh/common/widgets/picker/PickerWithHeader"
     ],
-        function(declare, lang, ObjectTypeUtils, Picker, ObjectProcessingMixin, PickerWithHeader) {
+        function(declare, lang, ObjectTypeUtils, Picker, PickerWithHeader) {
 
-   return declare([Picker, ObjectProcessingMixin], {
+   return declare([Picker], {
        /**
         * An array of the i18n files to use with this widget.
         *
