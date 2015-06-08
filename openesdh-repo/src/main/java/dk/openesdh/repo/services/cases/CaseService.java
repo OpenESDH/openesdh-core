@@ -1,16 +1,16 @@
 package dk.openesdh.repo.services.cases;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
+
 import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
 import org.json.JSONArray;
 import org.json.JSONException;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
 
 /**
  * Created by torben on 19/08/14.
@@ -241,4 +241,6 @@ public interface CaseService {
     public Map<String, Object> getSearchDefinition(QName caseType);
 
     public JSONArray buildConstraintsJSON(ConstraintDefinition constraint) throws JSONException;
+
+    public void checkCaseCreatorPermissions(QName caseTypeQName);
 }

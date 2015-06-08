@@ -50,7 +50,9 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.util.StringUtils;
 
 import dk.openesdh.repo.actions.AssignCaseIdActionExecuter;
 import dk.openesdh.repo.model.OpenESDHModel;
@@ -59,6 +61,10 @@ import dk.openesdh.repo.model.OpenESDHModel;
  * Created by torben on 19/08/14.
  */
 public class CaseServiceImpl implements CaseService {
+
+    private static final String MSG_NO_CASE_CREATOR_PERMISSION_DEFINED = "security.permission.err_no_case_creator_permission_defined";
+    private static final String MSG_NO_CASE_CREATOR_GROUP_DEFINED = "security.permission.err_no_case_creator_group_defined";
+    private static final String MSG_CASE_CREATOR_PERMISSION_VIOLATION = "security.permission.err_case_creator_permission_violation";
 
     private static Logger LOGGER = Logger.getLogger(CaseServiceImpl.class);
 
@@ -926,5 +932,45 @@ public class CaseServiceImpl implements CaseService {
             result.put(lvPair);
         }
         return result;
+    }
+
+    @Override
+    public void checkCaseCreatorPermissions(QName caseTypeQName) {
+        String caseCreatorPermissionName = getCaseCreatorPermissionForCaseType(caseTypeQName);
+        if (StringUtils.isEmpty(caseCreatorPermissionName)) {
+            throw new AccessDeniedException(I18NUtil.getMessage(MSG_NO_CASE_CREATOR_PERMISSION_DEFINED,
+                    caseTypeQName.getLocalName()));
+        }
+
+        String caseCreatorGroup = PermissionService.GROUP_PREFIX + caseCreatorPermissionName;
+        if (!caseCreatorGroupExists(caseCreatorGroup)) {
+            throw new AccessDeniedException(I18NUtil.getMessage(MSG_NO_CASE_CREATOR_GROUP_DEFINED,
+                    caseTypeQName.getLocalName()));
+        }
+
+        if (AuthenticationUtil.isRunAsUserTheSystemUser()) {
+            return;
+        }
+
+        Set<String> currentUserAuthorities = authorityService.getAuthorities();
+
+        if (!currentUserAuthorities.contains(caseCreatorGroup)) {
+            throw new AccessDeniedException(I18NUtil.getMessage(MSG_CASE_CREATOR_PERMISSION_VIOLATION,
+                    caseTypeQName.getLocalName()));
+        }
+    }
+
+    private String getCaseCreatorPermissionForCaseType(QName caseTypeQName) {
+        Set<String> settablePermissions = permissionService.getSettablePermissions(caseTypeQName);
+        for (String permission : settablePermissions) {
+            if (permission.startsWith("Case") && permission.endsWith("Creator")) {
+                return permission;
+            }
+        }
+        return null;
+    }
+
+    private boolean caseCreatorGroupExists(String caseCreatorGroup) {
+        return authorityService.authorityExists(caseCreatorGroup);
     }
 }
