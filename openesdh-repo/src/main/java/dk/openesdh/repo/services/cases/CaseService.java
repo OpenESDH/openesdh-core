@@ -49,6 +49,15 @@ public interface CaseService {
     public Set<String> getRoles(NodeRef caseNodeRef);
 
     /**
+     * Get readers and writers roles that are possible to set for the given
+     * case.
+     *
+     * @param caseNodeRef
+     * @return Set containing the role names
+     */
+    public Set<String> getReadWriteRoles(NodeRef caseNodeRef);
+
+    /**
      * Get all roles for the given case (including owners role).
      *
      * @param caseNodeRef

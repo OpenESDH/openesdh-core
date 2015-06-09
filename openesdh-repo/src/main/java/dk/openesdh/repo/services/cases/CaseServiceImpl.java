@@ -66,6 +66,11 @@ public class CaseServiceImpl implements CaseService {
     private static final String MSG_NO_CASE_CREATOR_GROUP_DEFINED = "security.permission.err_no_case_creator_group_defined";
     private static final String MSG_CASE_CREATOR_PERMISSION_VIOLATION = "security.permission.err_case_creator_permission_violation";
 
+    private static final String CASE = "Case";
+    private static final String CREATOR = "Creator";
+    private static final String READER = "Reader";
+    private static final String WRITER = "Writer";
+
     private static Logger LOGGER = Logger.getLogger(CaseServiceImpl.class);
 
     /**
@@ -207,6 +212,18 @@ public class CaseServiceImpl implements CaseService {
     @Override
     public Set<String> getRoles(NodeRef caseNodeRef) {
         return permissionService.getSettablePermissions(caseNodeRef);
+    }
+
+    @Override
+    public Set<String> getReadWriteRoles(NodeRef caseNodeRef) {
+        Set<String> settablePermissions = permissionService.getSettablePermissions(caseNodeRef);
+        Set<String> readWriteRoles = new HashSet<String>();
+        for(String permission : settablePermissions){
+            if (permission.startsWith(CASE) && (permission.endsWith(READER) || permission.endsWith(WRITER))) {
+                readWriteRoles.add(permission);
+            }
+        }
+        return readWriteRoles;
     }
 
     @Override
@@ -963,7 +980,7 @@ public class CaseServiceImpl implements CaseService {
     private String getCaseCreatorPermissionForCaseType(QName caseTypeQName) {
         Set<String> settablePermissions = permissionService.getSettablePermissions(caseTypeQName);
         for (String permission : settablePermissions) {
-            if (permission.startsWith("Case") && permission.endsWith("Creator")) {
+            if (permission.startsWith(CASE) && permission.endsWith(CREATOR)) {
                 return permission;
             }
         }

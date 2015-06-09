@@ -1,6 +1,9 @@
 package dk.openesdh.repo.webscripts.cases;
 
-import dk.openesdh.repo.services.cases.CaseService;
+import java.io.IOException;
+import java.util.Map;
+import java.util.Set;
+
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -8,13 +11,11 @@ import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
-import java.io.IOException;
-import java.util.Map;
-import java.util.Set;
+import dk.openesdh.repo.services.cases.CaseService;
 
 public class CaseRoles extends AbstractWebScript {
 
-    private CaseService caseService;
+    protected CaseService caseService;
 
     public void setCaseService(CaseService caseService) {
         this.caseService = caseService;
@@ -28,13 +29,17 @@ public class CaseRoles extends AbstractWebScript {
         if(caseNodeRef == null)
             caseNodeRef = new NodeRef(req.getParameter("nodeRef"));
 
-        Set<String> roles = caseService.getRoles(caseNodeRef);
+        Set<String> roles = getRoles(caseNodeRef);
         try {
             JSONArray json = buildJSON(roles);
             json.write(res.getWriter());
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    protected Set<String> getRoles(NodeRef caseNodeRef) {
+        return caseService.getRoles(caseNodeRef);
     }
 
     JSONArray buildJSON(Set<String> roles) throws

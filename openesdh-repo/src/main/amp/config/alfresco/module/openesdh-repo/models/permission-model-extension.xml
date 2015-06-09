@@ -90,7 +90,7 @@
     </permissionSet>
     
     <permissionSet type="case:complaint" expose="selected">
-    	<permissionGroup name="CaseOwners" expose="true" requiresType="true">
+    	<permissionGroup name="CaseOwners" expose="false" requiresType="true">
     	    	<includePermissionGroup permissionGroup="Coordinator"
                                     type="cm:cmobject"/>
     	</permissionGroup>

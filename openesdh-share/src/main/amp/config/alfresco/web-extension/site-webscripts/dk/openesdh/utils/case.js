@@ -56,6 +56,15 @@ function getCaseRoleTypes (nodeRef, caseId) {
     return roleTypes;
 }
 
+/**
+ * Get reader and writer role types for a case
+ */
+function getCaseReadWriteRoleTypes(nodeRef, caseId){
+	var connector = remote.connect("alfresco");
+    var roleTypes = connector.get("/api/openesdh/"+caseId+"/casereadwriteroles?nodeRef=" + encodeURIComponent(nodeRef));
+    roleTypes = eval('(' + roleTypes + ')');
+    return roleTypes;
+}
 
 /**
  * Get the permitted role types for cases. Used for the contact roles
