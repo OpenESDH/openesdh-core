@@ -128,7 +128,7 @@ public class CaseServiceImpl implements CaseService {
         if (casesRootNodeRef == null)
             throw new AlfrescoRuntimeException("The openESDH \"CASES\" root folder has not been initialised.");
 
-        setupAssignCaseIdRule(casesRootNodeRef);
+//        setupAssignCaseIdRule(casesRootNodeRef);
         return casesRootNodeRef;
     }
 
