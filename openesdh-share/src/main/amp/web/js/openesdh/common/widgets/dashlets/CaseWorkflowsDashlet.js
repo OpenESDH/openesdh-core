@@ -106,8 +106,9 @@ define(["dojo/_base/declare",
                 // Pass in the nodeRef to the widget
                 lang.setObject("config.caseId", this.caseId, this.widgetsForBody[0]);
                 lang.setObject("config.caseNodeRef", this.caseNodeRef, this.widgetsForBody[0]);
-
-                console.log("This caseId: "+ this.caseId);
+                if(this.isReadOnly){
+                	this.widgetsForTitleBarActions[0].config.visibilityConfig = {initialValue: false};
+                }
             },
 
             postCreate: function () {
