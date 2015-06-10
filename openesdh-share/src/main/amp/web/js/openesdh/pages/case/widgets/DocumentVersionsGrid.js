@@ -43,11 +43,6 @@ define(["dojo/_base/declare",
                     "label" : "grid.actions.version.download",
                     "key" : "68", // Shift+D
                     "shift": true
-                },
-                {
-                    "callback" : "onRevert",
-                    "id" : "version-revert",
-                    "label" : "grid.actions.version.revert"
                 }
             ],
 
@@ -60,6 +55,23 @@ define(["dojo/_base/declare",
              * The target URI for the store
              */
             targetURI: "api/version",
+            
+            constructor: function (args) {
+                lang.mixin(this, args);
+                this.initActions();
+            },
+            
+            initActions: function(){
+            	if(this.isReadOnly){
+            		return;
+            	}
+            	
+            	this.actions.push({
+                    "callback" : "onRevert",
+                    "id" : "version-revert",
+                    "label" : "grid.actions.version.revert"
+                });
+            },
 
             onRevert: function (item) {
                 this.alfPublish(this.DocumentVersionRevertDialog, {
