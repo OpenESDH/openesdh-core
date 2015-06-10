@@ -1,7 +1,21 @@
 package dk.openesdh.repo.services.cases;
 
-import dk.openesdh.repo.actions.AssignCaseIdActionExecuter;
-import dk.openesdh.repo.model.OpenESDHModel;
+import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
@@ -10,7 +24,12 @@ import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.action.ActionService;
-import org.alfresco.service.cmr.dictionary.*;
+import org.alfresco.service.cmr.dictionary.AspectDefinition;
+import org.alfresco.service.cmr.dictionary.AssociationDefinition;
+import org.alfresco.service.cmr.dictionary.ClassDefinition;
+import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
+import org.alfresco.service.cmr.dictionary.DictionaryService;
+import org.alfresco.service.cmr.dictionary.PropertyDefinition;
 import org.alfresco.service.cmr.lock.LockService;
 import org.alfresco.service.cmr.lock.LockType;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
@@ -20,6 +39,8 @@ import org.alfresco.service.cmr.rule.Rule;
 import org.alfresco.service.cmr.rule.RuleService;
 import org.alfresco.service.cmr.rule.RuleType;
 import org.alfresco.service.cmr.search.SearchService;
+import org.alfresco.service.cmr.security.AccessPermission;
+import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.OwnableService;
@@ -32,12 +53,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.security.access.AccessDeniedException;
 
-import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import dk.openesdh.repo.actions.AssignCaseIdActionExecuter;
+import dk.openesdh.repo.model.OpenESDHModel;
 
 /**
  * Created by torben on 19/08/14.
@@ -873,5 +890,38 @@ public class CaseServiceImpl implements CaseService {
             result.put(lvPair);
         }
         return result;
+    }
+
+    @Override
+    public List<String> getCaseUserPermissions(String caseId) {
+
+        final NodeRef caseNodeRef = getCaseById(caseId);
+
+        // Consumer doesn't have _ReadPermissions permission therefore run as
+        // system
+        Set<AccessPermission> allSetPermissions = AuthenticationUtil.runAsSystem(
+            new AuthenticationUtil.RunAsWork<Set<AccessPermission>>() {            
+                    @Override
+                    public Set<AccessPermission> doWork() {
+                        return permissionService.getAllSetPermissions(caseNodeRef);
+                    }
+        });
+
+        Set<String> currentUserAuthorities = AuthenticationUtil.runAsSystem(
+            new AuthenticationUtil.RunAsWork<Set<String>>() {            
+                    @Override
+                    public Set<String> doWork() {
+                        return authorityService.getAuthoritiesForUser(AuthenticationUtil.getFullyAuthenticatedUser());
+                    }
+        });
+
+        ArrayList<String> currentUserPermissions = new ArrayList<String>();
+        for(AccessPermission permission : allSetPermissions){
+            if (permission.getAccessStatus() == AccessStatus.ALLOWED
+                    && currentUserAuthorities.contains(permission.getAuthority())) {
+                currentUserPermissions.add(permission.getPermission());
+            }
+        }
+        return currentUserPermissions;
     }
 }
