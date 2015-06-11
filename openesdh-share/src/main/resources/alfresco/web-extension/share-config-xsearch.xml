@@ -7,6 +7,7 @@
             <type name="d:date" control="FilterDateRangeWidget"/>
             <type name="d:datetime" control="FilterDateRangeWidget"/>
             <type name="d:category" control="openesdh/common/widgets/controls/category/CategoryPickerControl"/>
+            <type name="cm:authority" control="FilterAuthorityWidget"/>
             <type name="LIST:*" control="FilterSelectWidget"/>
         </default-controls>
         <searches>
