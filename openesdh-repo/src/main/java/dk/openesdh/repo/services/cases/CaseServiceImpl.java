@@ -13,8 +13,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
@@ -895,33 +897,20 @@ public class CaseServiceImpl implements CaseService {
     @Override
     public List<String> getCaseUserPermissions(String caseId) {
 
-        final NodeRef caseNodeRef = getCaseById(caseId);
-
         // Consumer doesn't have _ReadPermissions permission therefore run as
         // system
-        Set<AccessPermission> allSetPermissions = AuthenticationUtil.runAsSystem(
-            new AuthenticationUtil.RunAsWork<Set<AccessPermission>>() {            
-                    @Override
-                    public Set<AccessPermission> doWork() {
-                        return permissionService.getAllSetPermissions(caseNodeRef);
-                    }
-        });
+        Set<AccessPermission> allPermissionsSetToCase = 
+                AuthenticationUtil.runAsSystem(() -> permissionService.getAllSetPermissions(getCaseById(caseId)));
 
-        Set<String> currentUserAuthorities = AuthenticationUtil.runAsSystem(
-            new AuthenticationUtil.RunAsWork<Set<String>>() {            
-                    @Override
-                    public Set<String> doWork() {
-                        return authorityService.getAuthoritiesForUser(AuthenticationUtil.getFullyAuthenticatedUser());
-                    }
-        });
+        Set<String> currentUserAuthorities = 
+                AuthenticationUtil.runAsSystem(() -> authorityService.getAuthoritiesForUser(AuthenticationUtil.getFullyAuthenticatedUser()));
 
-        ArrayList<String> currentUserPermissions = new ArrayList<String>();
-        for(AccessPermission permission : allSetPermissions){
-            if (permission.getAccessStatus() == AccessStatus.ALLOWED
-                    && currentUserAuthorities.contains(permission.getAuthority())) {
-                currentUserPermissions.add(permission.getPermission());
-            }
-        }
-        return currentUserPermissions;
+        Predicate<AccessPermission> isPermissionGrantedForCurrentUser = 
+                (permission) -> permission.getAccessStatus() == AccessStatus.ALLOWED && currentUserAuthorities.contains(permission.getAuthority());
+        
+        return allPermissionsSetToCase.stream()
+            .filter(permission -> isPermissionGrantedForCurrentUser.test(permission))
+            .map(permission -> permission.getPermission())
+            .collect(Collectors.toList());
     }
 }
