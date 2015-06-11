@@ -120,7 +120,8 @@ define(["dojo/_base/declare",
                         postCode : party.postCode,
                         postBox : party.postBox,
                         contactType: party.contactType,
-                        roleTypes: _this.roleTypes
+                        roleTypes: _this.roleTypes,
+                        isReadOnly: _this.isReadOnly
                     });
                     _this.widgets.push(partyRoleWidget);
                     partyRoleWidget.placeAt(_this.containerNode);

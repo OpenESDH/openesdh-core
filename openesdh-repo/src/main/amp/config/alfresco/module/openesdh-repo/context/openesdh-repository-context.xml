@@ -279,6 +279,11 @@
         <property name="dictionaryService" ref="dictionaryService"/>
         <property name="caseService" ref="CaseService" />
     </bean>
+    
+    <bean id="webscript.dk.openesdh.case.caseUserPermissions.get" parent="webscript"
+          class="dk.openesdh.repo.webscripts.cases.CaseUserPermissions">
+        <property name="caseService" ref="CaseService" />
+    </bean>
 
     <!--Workflows-->
 <!--

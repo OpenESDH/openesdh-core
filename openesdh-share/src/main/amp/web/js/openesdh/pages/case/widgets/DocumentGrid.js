@@ -24,37 +24,53 @@ define(["dojo/_base/declare",
              * @instance
              * @type {object[]}
              */
-            actions: [
-                {"callback" : "onPreviewDoc",
+            actions: [],
+            
+            constructor: function (args) {
+                lang.mixin(this, args);
+                this.initActions();
+            },
+            
+            initActions: function(){
+            	
+            	var actions = [{"callback" : "onPreviewDoc",
                     "id" : "doc-preview",
                     "label" : "grid.actions.preview_doc",
-                    "key" : "13"},
-                    
-                // TODO: use widgets!
-                {"href" : "edit-metadata?nodeRef={nodeRef}",
+                    "key" : "13"}];
+            	
+            	if(this.isReadOnly){
+            		this.actions = actions;
+            		return;
+            	}
+            	
+            	actions.push({"href" : "edit-metadata?nodeRef={nodeRef}",
                     "id" : "case-edit",
                     "label" : "grid.actions.edit_doc",
                     "key" : "69", // Shift+E
-                    "shift": true},
-                {"href" : "document-details?nodeRef={mainDocNodeRef}",
+                    "shift": true});
+            	
+            	actions.push({"href" : "document-details?nodeRef={mainDocNodeRef}",
                     "id" : "doc-details",
                     "label" : "grid.actions.doc_details",
                     "key" : "68", // Shift+D
-                    "shift": true},
-                
-                {"callback" : "onMoveDoc",
+                    "shift": true});
+            	
+            	actions.push({"callback" : "onMoveDoc",
                     "id" : "doc-move",
                     "label" : "grid.actions.move_doc",
                     "key"	: "77", // Shift+M
                     "shift" : true
-                },                
-                {"callback" : "onCopyDoc",
+                });
+            	
+            	actions.push({"callback" : "onCopyDoc",
                     "id" : "doc-copy",
                     "label" : "grid.actions.copy_doc",
                     "key"	: "67", // Shift+C
                     "shift" : true
-                },
-            ],
+                });
+            	
+            	this.actions = actions;
+            },
 
             onPreviewDoc: function (item) {
                 // TODO: Use the nodeRef of the main document

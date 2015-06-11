@@ -2,6 +2,7 @@
 
 var caseId = url.templateArgs.caseId;
 var caseNodeRef = getCaseNodeRefFromId(caseId);
+var isReadOnly = !hasWritePermission(caseId);
 
 var caseWorkflowService= {
     name: "openesdh/common/services/CaseWorkflowService",
@@ -41,8 +42,8 @@ model.jsonModel = {
                                     id: "CASE_NOTES_DASHLET",
                                     name: "openesdh/common/widgets/dashlets/NotesDashlet",
                                     config: {
-                                        nodeRef: caseNodeRef
-
+                                        nodeRef: caseNodeRef,
+                                        isReadOnly: isReadOnly
                                     }
                                 }
                             ]
@@ -64,7 +65,8 @@ model.jsonModel = {
                                     name: "openesdh/common/widgets/dashlets/CaseWorkflowsDashlet",
                                     config: {
                                         caseId : caseId,
-                                        caseNodeRef: caseNodeRef
+                                        caseNodeRef: caseNodeRef,
+                                        isReadOnly: isReadOnly
                                     }
                                 }
                             ]

@@ -18,6 +18,7 @@ function getCaseDocumentNodeRef(nodeRef) {
 
 var caseId = url.templateArgs.caseId;
 var caseNodeRef = getCaseNodeRefFromId(caseId);
+var isReadOnly = !hasWritePermission(caseId);
 
 var documentNode = getCaseDocumentNodeRef(caseNodeRef);
 var services = [
@@ -57,12 +58,16 @@ model.jsonModel = {
                                     id:"CASE_DOCUMENTS_DASHLET",
                                     name: "openesdh/common/widgets/dashlets/CaseDocumentsDashlet",
                                     config: {
-                                        nodeRef: caseNodeRef
+                                        nodeRef: caseNodeRef,
+                                        isReadOnly: isReadOnly
                                     }
                                 },
                                 {
                                     id:"CASE_DOCUMENTS_ATTACHMENTS_DASHLET",
-                                    name: "openesdh/common/widgets/dashlets/DocumentAttachmentsDashlet"
+                                    name: "openesdh/common/widgets/dashlets/DocumentAttachmentsDashlet",
+                                    config: {
+                                    	isReadOnly: isReadOnly
+                                    }
                                 }
                             ]
                         }
@@ -78,7 +83,10 @@ model.jsonModel = {
                                 },
                                 {
                                     id:"DOCUMENT_VERSIONS_DASHLET",
-                                    name: "openesdh/common/widgets/dashlets/DocVersionsDashlet"
+                                    name: "openesdh/common/widgets/dashlets/DocVersionsDashlet",
+                                    config: {
+                                    	isReadOnly: isReadOnly
+                                    }
                                 }
                             ]
                         }
