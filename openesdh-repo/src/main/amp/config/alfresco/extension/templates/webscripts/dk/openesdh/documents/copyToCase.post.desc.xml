@@ -1,0 +1,11 @@
+<webscript>
+    <shortname>Copy document to case</shortname>
+    <description>
+        Copy provided document to the target case
+    </description>
+    <url>/api/openesdh/documents/copy-to/case</url>
+    <format default="json"></format>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+    <family>Case Document Tools</family>
+</webscript>

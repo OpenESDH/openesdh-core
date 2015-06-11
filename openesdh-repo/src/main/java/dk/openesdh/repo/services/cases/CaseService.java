@@ -1,5 +1,10 @@
 package dk.openesdh.repo.services.cases;
 
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
+
 import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -7,20 +12,25 @@ import org.alfresco.service.namespace.QName;
 import org.json.JSONArray;
 import org.json.JSONException;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
-
 /**
  * Created by torben on 19/08/14.
  */
 public interface CaseService {
     static final String DATE_FORMAT = "yyyyMMdd";
 
-    static final String CASES = "openesdh_cases";
+    static final String OPENESDH_ROOT_CONTEXT = "OpenESDH";
+
+    static final String CASES_ROOT = "cases";
 
     static final Pattern CASE_ID_PATTERN = Pattern.compile("\\d+-(\\d+)");
+
+
+    /**
+     * Get the root folder for the openESDH context
+     *
+     * @return NodeRef for the openESDH root folder
+     */
+    public NodeRef getOpenESDHRootFolder();
 
 
     /**
@@ -231,4 +241,10 @@ public interface CaseService {
     public Map<String, Object> getSearchDefinition(QName caseType);
 
     public JSONArray buildConstraintsJSON(ConstraintDefinition constraint) throws JSONException;
+
+    /**
+     * Get current user permissions for the case
+     * 
+     */
+    public List<String> getCaseUserPermissions(String caseId);
 }

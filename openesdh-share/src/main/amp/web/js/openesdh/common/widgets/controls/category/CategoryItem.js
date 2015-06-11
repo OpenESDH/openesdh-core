@@ -47,6 +47,16 @@ define(["dojo/_base/declare",
             itemName: "",
 
             /**
+             * The title of the item.
+             */
+            itemTitle: "",
+
+            /**
+             * The description of the item.
+             */
+            itemDescription: "",
+
+            /**
              * The nodeRef of the item.
              *
              * @instance
@@ -124,7 +134,7 @@ define(["dojo/_base/declare",
             },
 
             getItem: function () {
-                return {name: this.itemName, nodeRef: this.nodeRef, hasChildren: this.hasChildren};
+                return {name: this.itemName, title: this.itemTitle, description: this.itemDescription, nodeRef: this.nodeRef, hasChildren: this.hasChildren};
             },
 
             _onLabelClick: function (e) {

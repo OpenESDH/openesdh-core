@@ -1,0 +1,11 @@
+<webscript>
+    <shortname>Move document to case</shortname>
+    <description>
+        Moves provided document from one case to another
+    </description>
+    <url>/api/openesdh/documents/move-to/case</url>
+    <format default="json"></format>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+    <family>Case Document Tools</family>
+</webscript>

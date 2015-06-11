@@ -20,7 +20,7 @@
         </property>
         <property name="models">
             <list>
-                <value>alfresco/extension/model/oeWorkflowModel.xml</value>
+                <value>alfresco/extension/workflows/model/oeWorkflowModel.xml</value>
             </list>
         </property>
         <property name="labels">

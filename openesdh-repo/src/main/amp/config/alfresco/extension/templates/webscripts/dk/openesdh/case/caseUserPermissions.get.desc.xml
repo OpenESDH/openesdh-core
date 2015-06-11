@@ -1,0 +1,9 @@
+<webscript>
+    <shortname>Current User Permissions for the Case</shortname>
+    <description>Retrieve current user permissions for the case</description>
+    <url>/api/openesdh/case/{caseId}/user/permissions</url>
+    <format default="json"></format>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+    <family>Case Tools</family>
+</webscript>

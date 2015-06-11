@@ -61,6 +61,7 @@ function getPermittedRoleTypes () {
 /**
  * Get the permitted status types for cases. Used for the case status select control input(s)
  */
+//TODO Don't think we need this any longer
 function getCaseStatusTypes () {
     var connector = remote.connect("alfresco");
     var states = connector.get("/api/openesdh/case/party/permittedStates");
@@ -94,6 +95,50 @@ function getCaseIdFromNodeRef(nodeRef){
     caseInfo = eval('(' + caseInfo + ')');
 
     return caseInfo.caseId;
+}
+
+function startsWith(str, prefix) {
+	if(!(prefix instanceof Array)){
+		return str.lastIndexOf(prefix, 0) === 0;
+	}
+	for(var i in prefix){
+		var p = prefix[i];
+		if(str.lastIndexOf(p, 0) === 0){
+			return true;
+		}
+	}
+    return false;
+}
+ 
+function endsWith(str, suffix) {
+	if(!(suffix instanceof Array)){
+		return str.indexOf(suffix, str.length - suffix.length) !== -1;
+	}
+	for(var i in suffix){
+		var s = suffix[i];
+		if(str.indexOf(s, str.length - s.length) !== -1){
+			return true;
+		}
+	}
+    return false;
+}
+
+/**
+ * Checks whether current user has write permissions for the case
+ */
+function hasWritePermission(caseId){
+	var connector = remote.connect("alfresco");
+    var userPermissions = connector.get("/api/openesdh/case/"+caseId+"/user/permissions");
+    userPermissions = eval('(' + userPermissions + ')');
+    
+    for(var i in userPermissions){
+    	var permission = userPermissions[i]
+    	if(startsWith(permission, "Case") && endsWith(permission, ["Writer", "Owners"])){
+    		return true;
+    	}
+    }
+    
+    return false;
 }
 
 /*

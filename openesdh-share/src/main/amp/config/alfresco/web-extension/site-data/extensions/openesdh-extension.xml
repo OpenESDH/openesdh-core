@@ -5,6 +5,19 @@
       <version>1.0</version>
       <auto-deploy>true</auto-deploy>
 
+	<components>
+		<component>
+          <scope>global</scope>
+          <region-id>footer</region-id>
+          <source-id>global</source-id>
+          <sub-components>
+              <sub-component id="default">
+                  <url>/openesdh/components/hide-footer</url>
+              </sub-component>
+          </sub-components>
+		</component>
+	</components>
+
       <customizations>
         <customization>
           <targetPackageRoot>org.alfresco</targetPackageRoot>

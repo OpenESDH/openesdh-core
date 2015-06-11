@@ -1,6 +1,6 @@
 package dk.openesdh.repo.model;
 
-import org.alfresco.service.namespace.*;
+import org.alfresco.service.namespace.QName;
 
 /**
  * Created by torben on 15/08/14.
@@ -24,7 +24,12 @@ public interface OpenESDHModel {
     public static final String NOTE_URI = "http://openesdh.dk/model/note/1.0/";
 
 
-
+    /**
+     * Permissions
+     */
+    public static final String PERMISSION_NAME_CASE_OWNERS = "CaseOwners";
+    public static final String PERMISSION_NAME_CASE_SIMPLE_READER = "CaseSimpleReader";
+    public static final String PERMISSION_NAME_CASE_SIMPLE_WRITER = "CaseSimpleWriter";
 
     /**
      * Models

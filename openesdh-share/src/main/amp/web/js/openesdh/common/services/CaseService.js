@@ -80,6 +80,7 @@ define(["dojo/_base/declare",
                     formSubmissionPayload: {
                         publishOnSuccessTopic: publishOnSuccessTopic
                     },
+                    fixedWidth: true,
                     widgets: this._getCreateCaseWidgets(payload.caseType)
                 });
                 this.createCaseDialog.show();
@@ -147,7 +148,11 @@ define(["dojo/_base/declare",
             _onCaseInfoInitialLoadSuccess: function (response, config) {
                 this._allWidgetsProcessedFunction = lang.hitch(this, function () {
                     this.alfPublish(this.CaseInfoTopic, response);
-                    this.alfPublish("ALF_UPDATE_PAGE_TITLE", {title: response.allProps.properties["cm:title"].value});
+                    
+                    var caseProps  = response.allProps.properties;
+                    var caseTitle = caseProps["cm:title"].value;
+                    caseTitle += " (" + caseProps["cm:name"].value + ")"
+                    this.alfPublish("ALF_UPDATE_PAGE_TITLE", {title: caseTitle});
                 });
                 // Call it immediately after we receive the response, and let
                 // it be called each time we get an ALF_WIDGETS_READY.
@@ -182,9 +187,9 @@ define(["dojo/_base/declare",
                                 label: this.message("journal.key"),
                                 requirementConfig: {
                                     initialValue: true
-                                }
+                                },
                                 // TODO: Set the root category for the journal key
-//                                rootNodeRef: "workspace://SpacesStore/abc/"
+                                initialPath: "kle_emneplan"
                             }
                         }
                     ]
@@ -200,14 +205,7 @@ define(["dojo/_base/declare",
                     return false;
                 }
 
-                var journalKey;
-                // Get the one key from the category picker widget which contains
-                // the nodeRef of the journalKey
-                for (var property in payload.journalKey) {
-                    if (!payload.journalKey.hasOwnProperty(property)) continue;
-                    journalKey = property;
-                }
-
+                var journalKey = payload.journalKey;
                 var nodeRef = payload.nodeRef;
 
                 var url = Alfresco.constants.PROXY_URI + "api/openesdh/" + NodeUtils.processNodeRef(nodeRef).uri + "/journalize?journalKey=" + journalKey;
@@ -473,7 +471,7 @@ define(["dojo/_base/declare",
                                                                         label: "picker.add.label",
                                                                         publishTopic: "ALF_CREATE_DIALOG_REQUEST",
                                                                         publishPayload: {
-                                                                            dialogTitle: "picker.select.title",
+                                                                            dialogTitle: "auth-picker.select.title",
                                                                             handleOverflow: false,
                                                                             widgetsContent: [
                                                                                 {

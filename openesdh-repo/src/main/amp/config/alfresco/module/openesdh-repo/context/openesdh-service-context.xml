@@ -64,6 +64,10 @@
         <property name="caseService">
             <ref bean="CaseService"/>
         </property>
+        
+        <property name="copyService">
+            <ref bean="CopyService"/>
+        </property>
 
         <property name="nodeService">
             <ref bean="NodeService"/>
@@ -101,6 +105,12 @@
     <bean id="AuditSearchService" class="dk.openesdh.repo.services.audit.AuditSearchServiceImpl">
         <property name="auditService">
             <ref bean="AuditService"/>
+        </property>
+        <property name="authorityService">
+            <ref bean="AuthorityService"/>
+        </property>
+        <property name="permissionService">
+            <ref bean="PermissionService"/>
         </property>
     </bean>
 

@@ -1,0 +1,56 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+<beans>
+    <!--&lt;!&ndash; The Classification Sync Cron Job &ndash;&gt;-->
+    <!--<bean id="${project.artifactId}_classificationSyncTrigger"-->
+          <!--class="org.alfresco.util.CronTriggerBean">-->
+        <!--<property name="jobDetail">-->
+            <!--<bean id="${project.artifactId}_classificationJobDetail"-->
+                  <!--class="org.springframework.scheduling.quartz.JobDetailBean">-->
+                <!--<property name="jobClass">-->
+                    <!--<value>dk.openesdh.repo.classification.sync.ClassificationSynchronizerJob</value>-->
+                <!--</property>-->
+                <!--<property name="jobDataAsMap">-->
+                    <!--<map>-->
+                        <!--<entry key="classificationSynchronizer">-->
+                            <!--<ref bean="kleClassificationSynchronizer" />-->
+                        <!--</entry>-->
+                        <!--<entry key="jobLockService">-->
+                            <!--<ref bean="jobLockService" />-->
+                        <!--</entry>-->
+                    <!--</map>-->
+                <!--</property>-->
+            <!--</bean>-->
+        <!--</property>-->
+        <!--<property name="scheduler">-->
+            <!--<ref bean="schedulerFactory" />-->
+        <!--</property>-->
+        <!--<property name="cronExpression">-->
+            <!--<value>${openesdh.classification.sync.cron}</value>-->
+        <!--</property>-->
+    <!--</bean>-->
+
+    <!-- The Classification Synchronizer (using KLE) -->
+   <!-- <bean id="kleClassificationSynchronizer"
+          class="dk.openesdh.repo.classification.sync.kle.KLEClassificationSynchronizer"
+          init-method="init">
+        <property name="transactionService">
+            <ref bean="transactionService" />
+        </property>
+        <property name="categoryService">
+            <ref bean="CategoryService" />
+        </property>
+        <property name="repositoryHelper">
+            <ref bean="repositoryHelper" />
+        </property>
+        <property name="nodeService">
+            <ref bean="NodeService" />
+        </property>
+        <property name="kleEmneplanURL">
+            <value>${openesdh.classification.kle.emneplan.url}</value>
+        </property>
+        <property name="syncOnStartupIfMissing">
+            <value>${openesdh.classification.kle.syncOnStartupIfMissing}</value>
+        </property>
+    </bean>-->
+</beans>

@@ -1,9 +1,26 @@
 package dk.openesdh.repo.services.cases;
 
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
-import dk.openesdh.repo.helper.CaseHelper;
-import dk.openesdh.repo.model.OpenESDHModel;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.core.IsCollectionContaining.hasItem;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -17,14 +34,17 @@ import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.rule.RuleService;
 import org.alfresco.service.cmr.search.CategoryService;
 import org.alfresco.service.cmr.search.SearchService;
-import org.alfresco.service.cmr.security.*;
+import org.alfresco.service.cmr.security.AuthorityService;
+import org.alfresco.service.cmr.security.AuthorityType;
+import org.alfresco.service.cmr.security.OwnableService;
+import org.alfresco.service.cmr.security.PermissionService;
+import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.DynamicNamespacePrefixResolver;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,12 +52,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
 
-import static org.junit.Assert.*;
+import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.model.OpenESDHModel;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -102,12 +121,12 @@ public class CaseServiceImplIT {
     @Autowired
     private RuleService ruleService;
 
-    private CaseServiceImpl caseService = null;
+    protected CaseServiceImpl caseService = null;
     private DynamicNamespacePrefixResolver namespacePrefixResolver = new DynamicNamespacePrefixResolver(null);
     private NodeRef temporaryRepoNodeRef;
-    private NodeRef temporaryCaseNodeRef;
+    protected NodeRef temporaryCaseNodeRef;
     private NodeRef dummyUser;
-    private NodeRef behaviourOnCaseNodeRef;
+    protected NodeRef behaviourOnCaseNodeRef;
 
     @Before
     public void setUp() throws Exception {
@@ -612,6 +631,14 @@ public class CaseServiceImplIT {
         // Delete test journal key categories
 //        categoryService.deleteCategory(journalKey);
         categoryService.deleteCategory(rootCategory);
+    }
+
+    @Test
+    public void shouldReturnWritePermissionsForOwner() {
+        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
+        String caseId = caseService.getCaseId(behaviourOnCaseNodeRef);
+        List<String> permissions = caseService.getCaseUserPermissions(caseId);
+        assertThat("Case owner should contain permissions for the case", permissions, hasItem("CaseOwners"));
     }
 
     private NodeRef createDocument(NodeRef parent, String name) {

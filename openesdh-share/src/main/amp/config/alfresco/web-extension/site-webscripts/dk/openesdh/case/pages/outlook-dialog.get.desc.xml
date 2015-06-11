@@ -1,6 +1,0 @@
-<webscript>
-    <shortname>Outlook Dialog</shortname>
-    <description>Dialog to view in Outlook for attaching email to a case.</description>
-    <family>OpenESDH case</family>
-    <url>/dk-openesdh-case-pages-outlook-dialog</url>
-</webscript>

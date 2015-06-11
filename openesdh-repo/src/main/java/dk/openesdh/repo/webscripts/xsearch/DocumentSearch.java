@@ -6,6 +6,7 @@ import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.namespace.RegexQNamePattern;
+import org.apache.commons.io.FilenameUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,6 +33,11 @@ public class DocumentSearch extends XSearchWebscript {
             //Get the main document version string
             String mainDocVersion = (String) nodeService.getProperty(mainDocNodeRef, ContentModel.PROP_VERSION_LABEL);
             json.put("mainDocVersion", mainDocVersion);
+
+            //also return the filename extension
+            String fileName = (String) nodeService.getProperty(mainDocNodeRef, ContentModel.PROP_NAME);
+            String extension = FilenameUtils.getExtension(fileName);
+            json.put("fileType", extension);
         }
         return json;
     }

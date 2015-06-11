@@ -1,7 +1,24 @@
 package dk.openesdh.repo.services.cases;
 
-import dk.openesdh.repo.actions.AssignCaseIdActionExecuter;
-import dk.openesdh.repo.model.OpenESDHModel;
+import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
+import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
 import org.alfresco.repo.model.Repository;
@@ -9,7 +26,12 @@ import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.action.ActionService;
-import org.alfresco.service.cmr.dictionary.*;
+import org.alfresco.service.cmr.dictionary.AspectDefinition;
+import org.alfresco.service.cmr.dictionary.AssociationDefinition;
+import org.alfresco.service.cmr.dictionary.ClassDefinition;
+import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
+import org.alfresco.service.cmr.dictionary.DictionaryService;
+import org.alfresco.service.cmr.dictionary.PropertyDefinition;
 import org.alfresco.service.cmr.lock.LockService;
 import org.alfresco.service.cmr.lock.LockType;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
@@ -19,6 +41,8 @@ import org.alfresco.service.cmr.rule.Rule;
 import org.alfresco.service.cmr.rule.RuleService;
 import org.alfresco.service.cmr.rule.RuleType;
 import org.alfresco.service.cmr.search.SearchService;
+import org.alfresco.service.cmr.security.AccessPermission;
+import org.alfresco.service.cmr.security.AccessStatus;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.OwnableService;
@@ -31,12 +55,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.security.access.AccessDeniedException;
 
-import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+import dk.openesdh.repo.actions.AssignCaseIdActionExecuter;
+import dk.openesdh.repo.model.OpenESDHModel;
 
 /**
  * Created by torben on 19/08/14.
@@ -108,29 +128,26 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public NodeRef getCasesRootNodeRef() {
-
+    public NodeRef getOpenESDHRootFolder() {
         NodeRef companyHomeNodeRef = repositoryHelper.getCompanyHome();
-        NodeRef casesRootNodeRef = nodeService.getChildByName(companyHomeNodeRef, ContentModel.ASSOC_CONTAINS, CASES);
+        NodeRef openESDH_root_nodeRef = nodeService.getChildByName(companyHomeNodeRef, ContentModel.ASSOC_CONTAINS, OPENESDH_ROOT_CONTEXT);
 
-        if (casesRootNodeRef == null) {
-            //Creating case folder
-            casesRootNodeRef = createCasesRoot(companyHomeNodeRef);
-        }
-        return casesRootNodeRef;
+        //Throw an exception. This should have been created on first boot
+        if (openESDH_root_nodeRef == null)
+            throw new AlfrescoRuntimeException("The openESDH \"ROOT\" context folder has not been initialised.");
+
+        return openESDH_root_nodeRef;
     }
 
-    /**
-     * Creating Case Folder Ref
-     *
-     * @param companyHomeNodeRef
-     * @return
-     */
-    protected NodeRef createCasesRoot(NodeRef companyHomeNodeRef) {
-        Map<QName, Serializable> properties = new HashMap<>();
-        properties.put(ContentModel.PROP_NAME, CASES);
-        NodeRef casesRootNodeRef = nodeService.createNode(companyHomeNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, CASES), ContentModel.TYPE_FOLDER, properties).getChildRef();
-        setupAssignCaseIdRule(casesRootNodeRef);
+    @Override
+    public NodeRef getCasesRootNodeRef() {
+        NodeRef casesRootNodeRef = nodeService.getChildByName(getOpenESDHRootFolder(), ContentModel.ASSOC_CONTAINS, CASES_ROOT);
+
+        //Throw an exception. This should have been created on first boot along with the context root folder
+        if (casesRootNodeRef == null)
+            throw new AlfrescoRuntimeException("The openESDH \"CASES\" root folder has not been initialised.");
+
+//        setupAssignCaseIdRule(casesRootNodeRef);
         return casesRootNodeRef;
     }
 
@@ -260,16 +277,12 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public void removeAuthorityFromRole(final NodeRef authorityNodeRef,
-                                        final String role,
-                                        final NodeRef caseNodeRef) {
+    public void removeAuthorityFromRole(final NodeRef authorityNodeRef, final String role, final NodeRef caseNodeRef) {
         removeAuthorityFromRole(getAuthorityName(authorityNodeRef), role, caseNodeRef);
     }
 
     @Override
-    public void addAuthorityToRole(final String authorityName,
-                                   final String role,
-                                   final NodeRef caseNodeRef) {
+    public void addAuthorityToRole(final String authorityName, final String role, final NodeRef caseNodeRef) {
         checkCanUpdateCaseRoles(caseNodeRef);
 
         AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Object>() {
@@ -284,17 +297,13 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public void addAuthorityToRole(final NodeRef authorityNodeRef,
-                                   final String role,
-                                   final NodeRef caseNodeRef) {
+    public void addAuthorityToRole(final NodeRef authorityNodeRef, final String role, final NodeRef caseNodeRef) {
         addAuthorityToRole(getAuthorityName(authorityNodeRef), role,
                 caseNodeRef);
     }
 
     @Override
-    public void addAuthoritiesToRole(final List<NodeRef> authorities,
-                                     final String role,
-                                     final NodeRef caseNodeRef) {
+    public void addAuthoritiesToRole(final List<NodeRef> authorities, final String role, final NodeRef caseNodeRef) {
         checkCanUpdateCaseRoles(caseNodeRef);
 
         AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Object>() {
@@ -324,9 +333,7 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public void changeAuthorityRole(final String authorityName,
-                                    final String fromRole,
-                                    final String toRole,
+    public void changeAuthorityRole(final String authorityName, final String fromRole, final String toRole,
                                     final NodeRef caseNodeRef) {
         checkCanUpdateCaseRoles(caseNodeRef);
 
@@ -348,8 +355,7 @@ public class CaseServiceImpl implements CaseService {
         }, "admin");
     }
 
-    public void checkCanUpdateCaseRoles(NodeRef caseNodeRef) throws
-            AccessDeniedException {
+    public void checkCanUpdateCaseRoles(NodeRef caseNodeRef) throws AccessDeniedException {
         String user = AuthenticationUtil.getRunAsUser();
         if (!canUpdateCaseRoles(user, caseNodeRef)) {
             throw new AccessDeniedException(user + " is not allowed to " +
@@ -399,8 +405,7 @@ public class CaseServiceImpl implements CaseService {
         }
     }
 
-    String setupPermissionGroup(NodeRef caseNodeRef, String caseId,
-                                String permission) {
+    String setupPermissionGroup(NodeRef caseNodeRef, String caseId, String permission) {
         String groupSuffix = getCaseRoleGroupAuthorityName(caseId, permission);
         String groupName = getCaseRoleGroupName(caseId, permission);
 
@@ -670,9 +675,11 @@ public class CaseServiceImpl implements CaseService {
                 }
                 ownableService.setOwner(nodeRef, AuthenticationUtil.getSystemUserName());
 
+                nodeService.setProperty(nodeRef, OpenESDHModel
+                        .PROP_OE_JOURNALKEY, journalKey);
+
                 // Add journalized aspect
                 Map<QName, Serializable> props = new HashMap<>();
-                props.put(OpenESDHModel.PROP_OE_JOURNALKEY, journalKey);
                 props.put(OpenESDHModel.PROP_OE_JOURNALIZED_BY, AuthenticationUtil.getFullyAuthenticatedUser());
                 props.put(OpenESDHModel.PROP_OE_JOURNALIZED_DATE, new Date());
                 // Save the original owner, or null if there wasn't any
@@ -873,8 +880,7 @@ public class CaseServiceImpl implements CaseService {
         return result;
     }
 
-    public JSONArray buildConstraintsJSON(ConstraintDefinition constraint) throws
-            JSONException {
+    public JSONArray buildConstraintsJSON(ConstraintDefinition constraint) throws JSONException {
         org.json.JSONArray result = new org.json.JSONArray();
         org.json.JSONObject lvPair;
 
@@ -886,5 +892,25 @@ public class CaseServiceImpl implements CaseService {
             result.put(lvPair);
         }
         return result;
+    }
+
+    @Override
+    public List<String> getCaseUserPermissions(String caseId) {
+
+        // Consumer doesn't have _ReadPermissions permission therefore run as
+        // system
+        Set<AccessPermission> allPermissionsSetToCase = 
+                AuthenticationUtil.runAsSystem(() -> permissionService.getAllSetPermissions(getCaseById(caseId)));
+
+        Set<String> currentUserAuthorities = 
+                AuthenticationUtil.runAsSystem(() -> authorityService.getAuthoritiesForUser(AuthenticationUtil.getFullyAuthenticatedUser()));
+
+        Predicate<AccessPermission> isPermissionGrantedForCurrentUser = 
+                (permission) -> permission.getAccessStatus() == AccessStatus.ALLOWED && currentUserAuthorities.contains(permission.getAuthority());
+        
+        return allPermissionsSetToCase.stream()
+            .filter(permission -> isPermissionGrantedForCurrentUser.test(permission))
+            .map(permission -> permission.getPermission())
+            .collect(Collectors.toList());
     }
 }
