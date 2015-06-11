@@ -108,7 +108,8 @@ define(["dojo/_base/declare",
                         authority: member.authority,
                         displayName: member.displayName,
                         authorityRole: member.role,
-                        roleTypes: _this.roleTypes
+                        roleTypes: _this.roleTypes,
+                        isReadOnly: _this.isReadOnly
                     });
                     _this.widgets.push(memberRoleWidget);
                     memberRoleWidget.placeAt(_this.containerNode);

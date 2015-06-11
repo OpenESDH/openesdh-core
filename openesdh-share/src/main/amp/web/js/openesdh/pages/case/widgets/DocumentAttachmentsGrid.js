@@ -25,13 +25,26 @@ define(["dojo/_base/declare",
                     "id" : "doc-preview",
                     "label" : "grid.actions.preview_doc",
                     "key" : "13"
-                },
-                {"href" : "document-details?nodeRef={nodeRef}",
-                    "id" : "doc-details",
-                    "label" : "grid.actions.doc_details",
-                    "key" : "68", // Shift+D
-                    "shift": true}
+                }
             ],
+            
+            constructor: function (args) {
+                lang.mixin(this, args);
+                this.initActions();
+            },
+            
+            initActions: function(){
+            	if(this.isReadOnly){
+            		return;
+            	}
+            	this.actions.push(
+	    			{"href" : "document-details?nodeRef={nodeRef}",
+	                    "id" : "doc-details",
+	                    "label" : "grid.actions.doc_details",
+	                    "key" : "68", // Shift+D
+	                    "shift": true}
+    			);
+            },
 
             /**
              * The nodeRef of the document for which we want to retrieve its attachments

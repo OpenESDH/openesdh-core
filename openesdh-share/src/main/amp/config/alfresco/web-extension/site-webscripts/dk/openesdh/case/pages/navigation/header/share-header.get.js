@@ -3,6 +3,8 @@
 
 var args = page.url.args;
 var caseId = url.templateArgs.caseId;
+var isReadOnly = !hasWritePermission(caseId);
+
 //In the case of some pages (e.g. document details) we need to get the caseId in reverse
 // i.e. from the nodeRef
 if (caseId == null){
@@ -57,104 +59,113 @@ navMenu.config.widgets.push({
     }
 });
 
-// Create the basic site configuration menu...
-var caseConfig = {
-    id: "HEADER_CASE_CONFIGURATION_DROPDOWN",
-    name: "alfresco/menus/AlfMenuBarPopup",
-    config: {
-        label: "",
-        iconClass: "alf-configure-icon",
-        iconAltText: "header.case.config.altText",
-  //      title: "header.case.config.title", does not work :-(
-        widgets: []
+
+function initCaseConfigDropdown(){
+    if(isReadOnly){
+        return;
     }
-};
-
-
-caseConfig.config.widgets.push({
-    id: "HEADER_CASE_EDIT",
-    name: "alfresco/menus/AlfMenuBarItem",
-    config: {
-        label: "header.case.edit" ,
-        iconClass: "alf-cog-icon",
-        targetUrl: "edit-metadata?nodeRef=" + nodeRef,
-        visibilityConfig: {
-            initialValue: false,
-            rules: [
-                {
-                    topic: "CASE_INFO",
-                    attribute: "isJournalized",
-                    isNot: [true]
-                }
-            ]
+    
+    // Create the basic site configuration menu...
+    var caseConfig = {
+        id: "HEADER_CASE_CONFIGURATION_DROPDOWN",
+        name: "alfresco/menus/AlfMenuBarPopup",
+        config: {
+            label: "",
+            iconClass: "alf-configure-icon",
+            iconAltText: "header.case.config.altText",
+      //      title: "header.case.config.title", does not work :-(
+            widgets: []
         }
-    }
-});
+    };
 
-caseConfig.config.widgets.push({
-    id: "HEADER_CASE_JOURNALIZE",
-    name: "alfresco/menus/AlfMenuBarItem",
-    config: {
-        label: "header.case.journalize",
-        iconClass: "alf-cog-icon",
 
-        publishTopic: "OPENESDH_JOURNALIZE",
-        publishPayload: {},
-        visibilityConfig: {
-            initialValue: false,
-            rules: [
-                {
-                    topic: "CASE_INFO",
-                    attribute: "canJournalize",
-                    is: [true]
-                }
-            ]
+    caseConfig.config.widgets.push({
+        id: "HEADER_CASE_EDIT",
+        name: "alfresco/menus/AlfMenuBarItem",
+        config: {
+            label: "header.case.edit" ,
+            iconClass: "alf-cog-icon",
+            targetUrl: "edit-metadata?nodeRef=" + nodeRef,
+            visibilityConfig: {
+                initialValue: false,
+                rules: [
+                    {
+                        topic: "CASE_INFO",
+                        attribute: "isJournalized",
+                        isNot: [true]
+                    }
+                ]
+            }
         }
-    }
-});
+    });
 
-caseConfig.config.widgets.push({
-    id: "HEADER_CASE_UNJOURNALIZE",
-    name: "alfresco/menus/AlfMenuBarItem",
-    config: {
-        label: "header.case.unjournalize",
-        iconClass: "alf-cog-icon",
+    caseConfig.config.widgets.push({
+        id: "HEADER_CASE_JOURNALIZE",
+        name: "alfresco/menus/AlfMenuBarItem",
+        config: {
+            label: "header.case.journalize",
+            iconClass: "alf-cog-icon",
 
-        publishTopic: "OPENESDH_UNJOURNALIZE",
-        publishPayload: {},
-        visibilityConfig: {
-            initialValue: false,
-            rules: [
-                {
-                    topic: "CASE_INFO",
-                    attribute: "canUnJournalize",
-                    is: [true]
-                }
-            ]
+            publishTopic: "OPENESDH_JOURNALIZE",
+            publishPayload: {},
+            visibilityConfig: {
+                initialValue: false,
+                rules: [
+                    {
+                        topic: "CASE_INFO",
+                        attribute: "canJournalize",
+                        is: [true]
+                    }
+                ]
+            }
         }
-    }
-});
-var verticalLayout = widgetUtils.findObject(model.jsonModel, "id", "SHARE_VERTICAL_LAYOUT");
+    });
 
-verticalLayout.config.widgets.push({
-    id: "HEADER_CASE_JOURNALIZED_WARNING",
-    name: "alfresco/header/Warning",
-    config: {
-        warnings: [{
-            message: msg.get("warning.case.journalized"),
-            level: 1
-        }],
-        visibilityConfig: {
-            initialValue: false,
-            rules: [
-                {
-                    topic: "CASE_INFO",
-                    attribute: "isJournalized",
-                    is: [true]
-                }
-            ]
+    caseConfig.config.widgets.push({
+        id: "HEADER_CASE_UNJOURNALIZE",
+        name: "alfresco/menus/AlfMenuBarItem",
+        config: {
+            label: "header.case.unjournalize",
+            iconClass: "alf-cog-icon",
+
+            publishTopic: "OPENESDH_UNJOURNALIZE",
+            publishPayload: {},
+            visibilityConfig: {
+                initialValue: false,
+                rules: [
+                    {
+                        topic: "CASE_INFO",
+                        attribute: "canUnJournalize",
+                        is: [true]
+                    }
+                ]
+            }
         }
-    }
-});
+    });
+    var verticalLayout = widgetUtils.findObject(model.jsonModel, "id", "SHARE_VERTICAL_LAYOUT");
 
-navMenu.config.widgets.push(caseConfig);
+    verticalLayout.config.widgets.push({
+        id: "HEADER_CASE_JOURNALIZED_WARNING",
+        name: "alfresco/header/Warning",
+        config: {
+            warnings: [{
+                message: msg.get("warning.case.journalized"),
+                level: 1
+            }],
+            visibilityConfig: {
+                initialValue: false,
+                rules: [
+                    {
+                        topic: "CASE_INFO",
+                        attribute: "isJournalized",
+                        is: [true]
+                    }
+                ]
+            }
+        }
+    });
+
+    navMenu.config.widgets.push(caseConfig);
+}
+
+initCaseConfigDropdown();
