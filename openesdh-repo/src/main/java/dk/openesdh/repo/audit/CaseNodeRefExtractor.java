@@ -1,16 +1,22 @@
 package dk.openesdh.repo.audit;
 
+import java.io.Serializable;
+import java.util.regex.Matcher;
+
 import org.alfresco.repo.audit.extractor.AbstractDataExtractor;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.Path;
 import org.alfresco.service.cmr.search.SearchService;
+import org.springframework.util.StringUtils;
 
-import java.io.Serializable;
+import dk.openesdh.repo.services.cases.CaseService;
 
 public final class CaseNodeRefExtractor extends AbstractDataExtractor {
-  private NodeService nodeService;
-  private SearchService searchService;
+
+    private NodeService nodeService;
+    private SearchService searchService;
+    private CaseService caseService;
 
   public void setNodeService(NodeService nodeService) {
     this.nodeService = nodeService;
@@ -20,7 +26,11 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
     this.searchService = searchService;
   }
 
-  public boolean isSupported(Serializable data) {
+    public void setCaseService(CaseService caseService) {
+        this.caseService = caseService;
+    }
+
+    public boolean isSupported(Serializable data) {
     return true;
   /*
         if (data == null || !(data instanceof NodeRef))
@@ -61,27 +71,39 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
     return result;
   }
 
-  private String getNodeRefFromPath(String path) {
+    protected String getNodeRefFromPath(String path) {
 
-//      System.out.println("inside getNodeRefFromPath" + path);
-    String prefix = "/app:company_home/case:openesdh_cases/";
-    if (path.startsWith(prefix)) {
-
-
-        String[] parts = path.split("/");
-
-        if (parts.length >= 7) {
-            String node_db_id = parts[6].split("-")[1];
-            NodeRef nodeRef = nodeService.getNodeRef(Long.parseLong(node_db_id));
-//            System.out.println(nodeRef);
-            if (nodeRef != null) {
-              return nodeRef.toString();
-            }
+        String prefix = caseService.getOpenEsdhCasesRootFolderPath();
+        if (!path.startsWith(prefix)) {
+            return null;
+        }
+        
+        String caseId = getCaseIdFromPath(path);
+        if (StringUtils.isEmpty(caseId)) {
+            return null;
         }
 
+        NodeRef caseNodeRef = caseService.getCaseById(caseId);
+        if (caseNodeRef != null) {
+            return caseNodeRef.toString();
+        }
+        return null;
     }
-    return null;
-  }
+
+    /**
+     * Retrieves case id from the provided path of the following format:
+     *      /app:company_home/oe:OpenESDH/oe:cases/case:2015/case:6/case:15/case:20150615-916
+     * 
+     * @param path the path to retrieve a case id from
+     * @return case id
+     */
+    protected String getCaseIdFromPath(String path) {
+        Matcher m = CaseService.CASE_ID_PATTERN.matcher(path);
+        if (m.find()) {
+            return m.group();
+        }
+        return null;
+    }
 
   private String getNodeRefFromCaseID(String caseID) {
 //    System.out.println( "EXTRACT DATA: getNodeRefFromCaseID:" + caseID + "\n\n" );
