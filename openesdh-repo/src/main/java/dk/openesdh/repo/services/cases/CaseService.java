@@ -247,4 +247,9 @@ public interface CaseService {
      * 
      */
     public List<String> getCaseUserPermissions(String caseId);
+
+    /**
+     * Get the path of the openESDH cases root folder
+     */
+    public String getOpenEsdhCasesRootFolderPath();
 }

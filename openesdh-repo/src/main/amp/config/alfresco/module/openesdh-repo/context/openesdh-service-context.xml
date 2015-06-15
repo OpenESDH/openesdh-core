@@ -45,6 +45,10 @@
         <property name="actionService">
             <ref bean="ActionService"/>
         </property>
+        
+        <property name="namespaceService">
+            <ref bean="namespaceService"/>
+        </property>
     </bean>
 
     <bean id="NodeInfoService" class="dk.openesdh.repo.services.NodeInfoServiceImpl">

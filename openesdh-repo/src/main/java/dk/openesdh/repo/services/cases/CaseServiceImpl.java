@@ -12,6 +12,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
@@ -47,6 +48,7 @@ import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.OwnableService;
 import org.alfresco.service.cmr.security.PermissionService;
+import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
 import org.apache.log4j.Logger;
@@ -81,6 +83,8 @@ public class CaseServiceImpl implements CaseService {
     private RuleService ruleService;
     private ActionService actionService;
     private OwnableService ownableService;
+    private NamespaceService namespaceService;
+
     //<editor-fold desc="Service setters">
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
@@ -127,6 +131,10 @@ public class CaseServiceImpl implements CaseService {
         this.actionService = actionService;
     }
 
+    public void setNamespaceService(NamespaceService namespaceService) {
+        this.namespaceService = namespaceService;
+    }
+
     @Override
     public NodeRef getOpenESDHRootFolder() {
         NodeRef companyHomeNodeRef = repositoryHelper.getCompanyHome();
@@ -149,6 +157,12 @@ public class CaseServiceImpl implements CaseService {
 
 //        setupAssignCaseIdRule(casesRootNodeRef);
         return casesRootNodeRef;
+    }
+
+    @Override
+    public String getOpenEsdhCasesRootFolderPath() {
+        NodeRef casesRootNodeRef = getCasesRootNodeRef();
+        return nodeService.getPath(casesRootNodeRef).toPrefixString(namespaceService);
     }
 
     /**
@@ -199,9 +213,8 @@ public class CaseServiceImpl implements CaseService {
                     }
                 });
 
-                // Check that it exists and is really a case node (extending type
                 // "case:base")
-                if (nodeService.exists(caseNodeRef) && isCaseNode(caseNodeRef)) {
+                if (!Objects.isNull(caseNodeRef) && nodeService.exists(caseNodeRef) && isCaseNode(caseNodeRef)) {
                     return caseNodeRef;
                 }
             } catch (NumberFormatException e) {
