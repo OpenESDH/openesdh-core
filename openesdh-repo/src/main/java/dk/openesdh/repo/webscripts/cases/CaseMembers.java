@@ -1,10 +1,13 @@
 package dk.openesdh.repo.webscripts.cases;
 
-import dk.openesdh.repo.services.cases.CaseService;
-import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import java.io.IOException;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.alfresco.service.cmr.repository.DuplicateChildNodeNameException;
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.json.JSONArray;
@@ -15,11 +18,7 @@ import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
-import java.io.IOException;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import dk.openesdh.repo.services.cases.CaseService;
 
 public class CaseMembers extends AbstractWebScript {
 
@@ -58,7 +57,7 @@ public class CaseMembers extends AbstractWebScript {
     private void get(WebScriptRequest req, WebScriptResponse res) throws
             IOException, JSONException {
         NodeRef caseNodeRef = new NodeRef(req.getParameter("nodeRef"));
-        Map<String, Set<String>> membersByRole = caseService.getMembersByRole(caseNodeRef, true, false);
+        Map<String, Set<String>> membersByRole = caseService.getMembersByRole(caseNodeRef, true, true);
         JSONArray json = buildJSON(membersByRole);
         json.write(res.getWriter());
     }
