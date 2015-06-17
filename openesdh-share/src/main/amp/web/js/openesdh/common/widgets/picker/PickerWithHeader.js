@@ -29,7 +29,7 @@
  * @mixes module:alfresco/core/Core
  * @mixes module:alfresco/core/CoreWidgetProcessing
  * @author Lanre Abiwon
- * @based on alfresco/pickers/Picker by Dave Draper & David Webster
+ * @basedOn alfresco/pickers/Picker by Dave Draper & David Webster
  */
 define(["dojo/_base/declare",
         "alfresco/pickers/Picker",

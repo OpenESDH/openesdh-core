@@ -308,7 +308,6 @@ define(["dojo/_base/declare",
        updateLoadDataPayload: function alfresco_lists_AlfSortablePaginatedList__updateLoadDataPayload(payload) {
            payload.searchTerm = this.searchTerm;
            payload.authorityType = this.authorityType;
-           console.log("AuthorityListPicker (254): "+this.searchTerm);
        },
 
       /**

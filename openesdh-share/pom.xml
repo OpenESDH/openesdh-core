@@ -44,6 +44,20 @@
             <!--<version>1.0-SNAPSHOT</version>-->
             <!--<type>amp</type>-->
         <!--</dependency>-->
+        <!--Aikau dependency-->
+        <dependency>
+            <groupId>org.alfresco</groupId>
+            <artifactId>aikau</artifactId>
+            <version>1.0.22-SNAPSHOT</version>
+            <!-- Exclude Aikau's dependency from the AMP -->
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
         <dependency>
             <groupId>${alfresco.groupId}</groupId>
             <artifactId>share</artifactId>
