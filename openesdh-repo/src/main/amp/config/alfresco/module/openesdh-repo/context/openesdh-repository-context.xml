@@ -105,12 +105,6 @@
         <property name="caseService" ref="CaseService"/>
     </bean>
     
-    <bean id="webscript.dk.openesdh.casereadwriteroles.get"
-          class="dk.openesdh.repo.webscripts.cases.CaseReadWriteRoles"
-          parent="webscript">
-        <property name="caseService" ref="CaseService"/>
-    </bean>
-
     <bean id="webscript.dk.openesdh.documents.get"
           class="dk.openesdh.repo.webscripts.documents.Documents"
           parent="webscript">

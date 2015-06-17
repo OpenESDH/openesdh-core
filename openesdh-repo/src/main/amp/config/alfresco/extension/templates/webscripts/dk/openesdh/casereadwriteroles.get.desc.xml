@@ -1,8 +1,0 @@
-<webscript>
-    <shortname>Case Readers and Writers Roles</shortname>
-    <description>Retrieve settable roles for a case readers and writers</description>
-    <url>/api/openesdh/{caseId}/casereadwriteroles</url>
-    <format default="json"></format>
-    <authentication>user</authentication>
-    <transaction>required</transaction>
-</webscript>

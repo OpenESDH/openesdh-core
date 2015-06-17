@@ -13,6 +13,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,6 +22,8 @@ import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.repo.security.permissions.PermissionReference;
+import org.alfresco.repo.security.permissions.impl.ModelDAO;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.action.ActionService;
@@ -84,6 +87,7 @@ public class CaseServiceImpl implements CaseService {
     private AuthorityService authorityService;
 
     private PermissionService permissionService;
+    private ModelDAO permissionsModelDAO;
     private TransactionService transactionService;
     private DictionaryService dictionaryService;
     private RuleService ruleService;
@@ -133,6 +137,10 @@ public class CaseServiceImpl implements CaseService {
 
     public void setActionService(ActionService actionService) {
         this.actionService = actionService;
+    }
+
+    public void setPermissionsModelDAO(ModelDAO permissionsModelDAO) {
+        this.permissionsModelDAO = permissionsModelDAO;
     }
 
     @Override
@@ -212,18 +220,6 @@ public class CaseServiceImpl implements CaseService {
     @Override
     public Set<String> getRoles(NodeRef caseNodeRef) {
         return permissionService.getSettablePermissions(caseNodeRef);
-    }
-
-    @Override
-    public Set<String> getReadWriteRoles(NodeRef caseNodeRef) {
-        Set<String> settablePermissions = permissionService.getSettablePermissions(caseNodeRef);
-        Set<String> readWriteRoles = new HashSet<String>();
-        for(String permission : settablePermissions){
-            if (permission.startsWith(CASE) && (permission.endsWith(READER) || permission.endsWith(WRITER))) {
-                readWriteRoles.add(permission);
-            }
-        }
-        return readWriteRoles;
     }
 
     @Override
@@ -978,12 +974,18 @@ public class CaseServiceImpl implements CaseService {
     }
 
     private String getCaseCreatorPermissionForCaseType(QName caseTypeQName) {
-        Set<String> settablePermissions = permissionService.getSettablePermissions(caseTypeQName);
-        for (String permission : settablePermissions) {
-            if (permission.startsWith(CASE) && permission.endsWith(CREATOR)) {
-                return permission;
+
+        Set<PermissionReference> allPermissions = permissionsModelDAO.getAllPermissions(caseTypeQName);
+
+        Predicate<PermissionReference> isCaseCreatorPermission = p -> p.getName().startsWith(CASE)
+                && p.getName().endsWith(CREATOR);
+
+        for (PermissionReference permission : allPermissions) {
+            if (isCaseCreatorPermission.test(permission)) {
+                return permission.getName();
             }
         }
+
         return null;
     }
 

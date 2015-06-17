@@ -5,7 +5,7 @@ var args = page.url.args;
 var caseId = url.templateArgs.caseId;
 var caseNodeRef = getCaseNodeRefFromId(caseId);
 
-var roleTypes = getCaseReadWriteRoleTypes(caseNodeRef, caseId);
+var roleTypes = getCaseRoleTypes(caseNodeRef, caseId);
 var addAuthorityToRoleDropdownItems = [];
 for (var i = 0; i < roleTypes.length; i++) {
     var roleType = roleTypes[i];
