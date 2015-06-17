@@ -3,7 +3,6 @@
 
 var args = page.url.args;
 var caseId = url.templateArgs.caseId;
-var isReadOnly = !hasWritePermission(caseId);
 
 //In the case of some pages (e.g. document details) we need to get the caseId in reverse
 // i.e. from the nodeRef
@@ -11,6 +10,8 @@ if (caseId == null){
     if ( (caseId = getCaseIdFromNodeRef(args.nodeRef)) ) ;
     else if ( (caseId = getCaseIdFromNodeRef(args.targetCase)) ) ;// from start-workflow page
 }
+
+var isReadOnly = !hasWritePermission(caseId);
 
 var nodeRef = getCaseNodeRefFromId(caseId);
 var navMenu = widgetUtils.findObject(model.jsonModel, "id", "HEADER_NAVIGATION_MENU_BAR");
