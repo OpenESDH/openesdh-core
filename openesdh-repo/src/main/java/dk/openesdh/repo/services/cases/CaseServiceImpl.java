@@ -153,9 +153,8 @@ public class CaseServiceImpl implements CaseService {
 
         //Throw an exception. This should have been created on first boot along with the context root folder
         if (casesRootNodeRef == null)
-            throw new AlfrescoRuntimeException("The openESDH \"CASES\" root folder has not been initialised.");
+            throw new AlfrescoRuntimeException("The openESDH \"CASES\" root context directory has not been initialised.");
 
-//        setupAssignCaseIdRule(casesRootNodeRef);
         return casesRootNodeRef;
     }
 
@@ -180,8 +179,7 @@ public class CaseServiceImpl implements CaseService {
         // GROUP_EVERYONE set to Consumer, which we do not want)
         permissionService.setInheritParentPermissions(caseNodeRef, false);
 
-        String ownersPermissionGroupName = setupPermissionGroup(caseNodeRef,
-                caseId, "CaseOwners");
+        String ownersPermissionGroupName = setupPermissionGroup(caseNodeRef, caseId, "CaseOwners");
         setupPermissionGroups(caseNodeRef, caseId);
         // The CaseOwnersBehaviour takes care of adding the owners to the
         // CaseOwners group
@@ -428,8 +426,7 @@ public class CaseServiceImpl implements CaseService {
             shareZones.add(AuthorityService.ZONE_AUTH_ALFRESCO);
             // Add the authority group to the Share zone so that it is not
             // searchable from the authority picker.
-            groupName = authorityService.createAuthority(AuthorityType
-                    .GROUP, groupSuffix, groupSuffix, shareZones);
+            groupName = authorityService.createAuthority(AuthorityType.GROUP, groupSuffix, groupSuffix, shareZones);
         }
         permissionService.setPermission(caseNodeRef, groupName, permission, true);
         NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef(groupName);
