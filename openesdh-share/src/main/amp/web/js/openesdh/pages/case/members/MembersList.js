@@ -9,11 +9,10 @@ define(["dojo/_base/declare",
         "alfresco/core/NotificationUtils",
         "alfresco/core/CoreWidgetProcessing",
         "openesdh/pages/case/members/MemberRoleWidget",
-        "openesdh/common/widgets/picker/PickerWithHeader",
         "openesdh/common/services/_CaseMembersServiceTopicsMixin"
     ],
     function (declare, lang, array, template, _Widget, _Templated, Core, AlfFormDialog, NotificationUtils, CoreWidgetProcessing,
-              MemberRoleWidget, PickerWithHeader, _CaseMembersServiceTopicsMixin) {
+              MemberRoleWidget, _CaseMembersServiceTopicsMixin) {
         return declare([_Widget, Core, CoreWidgetProcessing, _Templated, _CaseMembersServiceTopicsMixin, NotificationUtils], {
             templateString: template,
 
@@ -41,7 +40,7 @@ define(["dojo/_base/declare",
 
                 this.widgets = [];
                 this.alfSubscribe(this.CaseMembersTopic, lang.hitch(this, "_onCaseMembers"));
-                this.alfSubscribe(this.caseMembersSelected, lang.hitch(this, "_addMemberToRole"));
+                this.alfSubscribe(this.CaseMembersSelected, lang.hitch(this, "_addMemberToRole"));
                 this.alfSubscribe("CASE_MEMBERS_ADD_TO_ROLE_CLICK", lang.hitch(this, "_onAddCaseMembersToRoleClick"));
                 this.alfSubscribe("ALF_WIDGETS_READY", lang.hitch(this, "onAllWidgetsReady"));
             },
@@ -62,7 +61,7 @@ define(["dojo/_base/declare",
                     dialogTitle: this.message("members.list.dialog.title"),
                     dialogConfirmationButtonTitle: this.message("members.list.dialog.button.label.ok"),
                     dialogCancellationButtonTitle: this.message("members.list.dialog.button.label.cancel"),
-                    formSubmissionTopic: this.caseMembersSelected,
+                    formSubmissionTopic: this.CaseMembersSelected,
                     fixedWidth: true,
                     widgetsContent: [
                         {
