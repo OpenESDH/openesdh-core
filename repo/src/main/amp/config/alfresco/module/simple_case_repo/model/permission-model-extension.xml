@@ -45,11 +45,6 @@
             <includePermissionGroup permissionGroup="Collaborator"
                                     type="cm:cmobject" />
         </permissionGroup>
-        
-        <permissionGroup name="CaseOwners" expose="true" requiresType="true">
-            <includePermissionGroup permissionGroup="Coordinator"
-                                    type="cm:cmobject"/>
-        </permissionGroup>
     </permissionSet>
 
 </permissions>
