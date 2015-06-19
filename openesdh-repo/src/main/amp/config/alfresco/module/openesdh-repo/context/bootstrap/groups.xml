@@ -5,36 +5,6 @@
 	<view:reference view:pathref="${system.authorities_container.childname}">
         <view:associations>
           <sys:children>
-            <cm:authorityContainer view:childName="cm:GROUP_CaseSimpleCreator">
-              <view:aspects>
-                <sys:referenceable />
-              </view:aspects>
-              <view:properties>
-                <sys:node-uuid>GROUP_CaseSimpleCreator</sys:node-uuid>
-                <cm:name>GROUP_CaseSimpleCreator</cm:name>
-                <cm:authorityName>GROUP_CaseSimpleCreator</cm:authorityName>
-              </view:properties>
-            </cm:authorityContainer>
-            <cm:authorityContainer view:childName="cm:GROUP_CaseSimpleWriter">
-              <view:aspects>
-                <sys:referenceable />
-              </view:aspects>
-              <view:properties>
-                <sys:node-uuid>GROUP_CaseSimpleWriter</sys:node-uuid>
-                <cm:name>GROUP_CaseSimpleWriter</cm:name>
-                <cm:authorityName>GROUP_CaseSimpleWriter</cm:authorityName>
-              </view:properties>
-            </cm:authorityContainer>
-            <cm:authorityContainer view:childName="cm:GROUP_CaseSimpleReader">
-              <view:aspects>
-                <sys:referenceable />
-              </view:aspects>
-              <view:properties>
-                <sys:node-uuid>GROUP_CaseSimpleReader</sys:node-uuid>
-                <cm:name>GROUP_CaseSimpleReader</cm:name>
-                <cm:authorityName>GROUP_CaseSimpleReader</cm:authorityName>
-              </view:properties>
-            </cm:authorityContainer>
             <cm:authorityContainer view:childName="cm:GROUP_CaseComplaintCreator">
               <view:aspects>
                 <sys:referenceable />
@@ -73,15 +43,6 @@
         <view:associations>
           <cm:inZone>
             <view:reference
-              view:pathref="${system.authorities_container.childname}/cm:GROUP_CaseSimpleCreator"
-              view:childName="cm:GROUP_CaseSimpleCreator" />
-            <view:reference
-              view:pathref="${system.authorities_container.childname}/cm:GROUP_CaseSimpleWriter"
-              view:childName="cm:GROUP_CaseSimpleWriter" />
-            <view:reference
-              view:pathref="${system.authorities_container.childname}/cm:GROUP_CaseSimpleReader"
-              view:childName="cm:GROUP_CaseSimpleReader" />
-            <view:reference
               view:pathref="${system.authorities_container.childname}/cm:GROUP_CaseComplaintCreator"
               view:childName="cm:GROUP_CaseComplaintCreator" />
             <view:reference
@@ -98,15 +59,6 @@
         <view:associations>
           <cm:inZone>
             <view:reference
-              view:pathref="${system.authorities_container.childname}/cm:GROUP_CaseSimpleCreator"
-              view:childName="cm:GROUP_CaseSimpleCreator" />
-            <view:reference
-              view:pathref="${system.authorities_container.childname}/cm:GROUP_CaseSimpleWriter"
-              view:childName="cm:GROUP_CaseSimpleWriter" />
-            <view:reference
-              view:pathref="${system.authorities_container.childname}/cm:GROUP_CaseSimpleReader"
-              view:childName="cm:GROUP_CaseSimpleReader" />
-            <view:reference
               view:pathref="${system.authorities_container.childname}/cm:GROUP_CaseComplaintCreator"
               view:childName="cm:GROUP_CaseComplaintCreator" />
             <view:reference
@@ -120,13 +72,6 @@
       </view:reference>
 
     <!-- Add admin user into CaseSimpleCreator --> 
-	<view:reference view:pathref="${system.authorities_container.childname}/cm:GROUP_CaseSimpleCreator">
-	    <view:associations>
-	        <cm:member>
-	            <view:reference view:pathref="/sys:system/sys:people/cm:admin" view:childName="cm:admin"></view:reference>           
-	        </cm:member>
-	    </view:associations>
-	</view:reference>
 	
 	<view:reference view:pathref="${system.authorities_container.childname}/cm:GROUP_CaseComplaintCreator">
 	    <view:associations>

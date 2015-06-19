@@ -38,7 +38,7 @@
 	<bean id="${project.artifactId}_bootstrapGroups" class="org.alfresco.repo.module.ImporterModuleComponent" parent="module.baseComponent">
       <property name="moduleId" value="${project.artifactId}" />
       <property name="name" value="${project.artifactId}_bootstrapGroups" />
-      <property name="description" value="Import Case Simple and Case Complaint groups" />
+      <property name="description" value="Import Case Complaint groups" />
       <property name="sinceVersion" value="${noSnapshotVersion}" />        
       <property name="appliesFromVersion" value="1.0" />   
       <property name="importer" ref="spacesBootstrap"/>
