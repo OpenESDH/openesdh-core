@@ -7,7 +7,6 @@ import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
-import org.alfresco.service.cmr.action.ActionService;
 import org.alfresco.service.cmr.dictionary.*;
 import org.alfresco.service.cmr.lock.LockService;
 import org.alfresco.service.cmr.lock.LockType;
@@ -575,7 +574,6 @@ public class CaseServiceImpl implements CaseService {
         return nodeService.getChildByName(caseNodeRef, ContentModel.ASSOC_CONTAINS, OpenESDHModel.DOCUMENTS_FOLDER_NAME);
     }
 
-
     //<editor-fold desc="Journalization methods">
     public void checkCanJournalize(NodeRef nodeRef) throws
             AccessDeniedException {
@@ -787,7 +785,6 @@ public class CaseServiceImpl implements CaseService {
         });
     }
     //</editor-fold>
-
 
     @Override
     public Map<String, Object> getSearchDefinition(QName caseType) {

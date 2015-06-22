@@ -22,6 +22,7 @@ public interface CaseService {
     String OPENESDH_ROOT_CONTEXT = "OpenESDH";
     String CASES_ROOT = "cases";
     String CASES_TYPES_ROOT = "types";
+    String OPENESDH_ROOT_CONTEXT_PATH = "/app:company_home/oe:OpenESDH/oe:cases/";
 
     Pattern CASE_ID_PATTERN = Pattern.compile("\\d+-(\\d+)");
 
