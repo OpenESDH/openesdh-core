@@ -121,7 +121,6 @@ public class CaseServiceImpl implements CaseService {
     public void setDictionaryService(DictionaryService dictionaryService) {
         this.dictionaryService = dictionaryService;
     }
-    //</editor-fold>
 
     public void setRuleService(RuleService ruleService) {
         this.ruleService = ruleService;
@@ -134,6 +133,7 @@ public class CaseServiceImpl implements CaseService {
     public void setNamespaceService(NamespaceService namespaceService) {
         this.namespaceService = namespaceService;
     }
+    //</editor-fold>
 
     @Override
     public NodeRef getOpenESDHRootFolder() {
