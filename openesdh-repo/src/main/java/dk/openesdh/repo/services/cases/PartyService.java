@@ -1,15 +1,9 @@
 package dk.openesdh.repo.services.cases;
 
 import dk.openesdh.repo.model.ContactInfo;
-import org.alfresco.api.AlfrescoPublicApi;
-import org.alfresco.repo.security.permissions.PermissionCheckValue;
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.security.PersonService;
-import org.alfresco.service.namespace.QName;
 import org.alfresco.util.Pair;
 
-import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;

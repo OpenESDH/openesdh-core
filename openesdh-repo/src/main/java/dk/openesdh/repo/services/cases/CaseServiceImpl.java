@@ -791,48 +791,18 @@ public class CaseServiceImpl implements CaseService {
 
     @Override
     public Map<String, Object> getSearchDefinition(QName caseType) {
-//        JSONObject model = new JSONObject();
-//        List<Object> types = new ArrayList<>();
-//        model.put("types", types);
-
         Map<String, Object> model = new HashMap<>();
-
         Map<QName, ClassDefinition> classDefs = new HashMap<>();
-
-//        Map<QName, Collection> propertyDefs = new HashMap<>();
-
         List<PropertyDefinition> propertyDefs = new ArrayList<>();
 
         for (QName classType: dictionaryService.getSubTypes(caseType, true)) {
             ClassDefinition classDefinition = dictionaryService.getClass(classType);
             classDefs.put(classType, classDefinition);
-
-//            String name = classDefinition.getName().toPrefixString();
-//            String title = classDefinition.getTitle(dictionaryService);
-
-//            Map<String, Object> type = new HashMap<>();
-//            type.put("name", name);
-//            type.put("title", title);
-//            types.add(type);
-
-
-//            propertyDefs.put(classDefinition.getName(), classDefinition.getProperties().values());
-//            propertyDefs.addAll(classDefinition.getProperties().values());
             Map<QName, PropertyDefinition> classProperties = classDefinition.getProperties();
-//            handleProperties(properties);
             for (QName propertyName: classProperties.keySet()) {
                 PropertyDefinition p = classProperties.get(propertyName);
                 propertyDefs.addAll(classProperties.values());
 
-//                String pname = propertyName.toPrefixString();
-//                properties.add(handleProperty(classProperties.get(propertyName)));
-//                PropertyDefinition propertyDefinition = dictionaryService.getProperty(propertyName);
-//                showProperty(propertyDefinition);
-//                List<ConstraintDefinition> constraints = propertyDefinition.getConstraints();
-//                for (ConstraintDefinition def: p.getConstraints()) {
-//                    def.getConstraint().getType()
-//                    System.out.println("constraint: " + def.getName());
-//                }
             }
 
             for (AspectDefinition aspect: classDefinition.getDefaultAspects()) {
@@ -844,20 +814,9 @@ public class CaseServiceImpl implements CaseService {
             }
 
             Map<QName, AssociationDefinition> associations = classDefinition.getAssociations();
-//            for (QName assocName: associations.keySet()) {
-//                classDefinition.
-//            }
         }
 
-//        System.out.println("classTypes: " + classTypes);
-//        List<AspectDefinition> defaultAspects = cls.getDefaultAspects();
-//        cls.getName()
-
         JSONObject availableFilters = new JSONObject();
-
-
-//        model.put("model", model);
-
         ArrayList classDefinitions1 = new ArrayList(classDefs.values());
         model.put("classdefs", classDefinitions1);
         model.put("propertydefs", propertyDefs);
