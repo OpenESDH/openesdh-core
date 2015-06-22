@@ -1,15 +1,12 @@
 package dk.openesdh.repo.services.cases;
 
-import dk.openesdh.exceptions.contacts.GenericContactException;
 import dk.openesdh.exceptions.contacts.InvalidContactTypeException;
-import dk.openesdh.exceptions.contacts.NoSuchContactException;
 import dk.openesdh.repo.model.ContactInfo;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.contacts.ContactService;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
-import org.alfresco.repo.security.authority.UnknownAuthorityException;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -124,7 +121,6 @@ public class PartyServiceImpl implements PartyService {
         String errorList = contactErrorList.toString();
         if(StringUtils.isNotBlank(errorList))
             logger.warn("\n\n***** The following contacts were not found or no longer exist: "+ errorList+"\n");
-//            throw new GenericContactException("The following contacts were not found or no longer exist: "+ errorList);
 
         return result;
     }
@@ -184,7 +180,6 @@ public class PartyServiceImpl implements PartyService {
      */
     @Override
     public Map<String, Set<String>> getContactsByRole(String caseId) {
-//        NodeRef caseNodeRef = caseService.getCaseById(caseId);
         List<String> roles = (List<String>) dictionaryService.getConstraint(OpenESDHModel.CONSTRAINT_CASE_ALLOWED_PARTY_ROLES).getConstraint().getParameters().get(ListOfValuesConstraint.ALLOWED_VALUES_PARAM);
         Map<String, Set<String>> contactRoleMap = new HashMap<>();
         for(String role : roles){
