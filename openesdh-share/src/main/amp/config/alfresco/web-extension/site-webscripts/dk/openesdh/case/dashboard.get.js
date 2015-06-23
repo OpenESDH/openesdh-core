@@ -32,13 +32,6 @@ model.jsonModel = {
                                     name: "openesdh/common/widgets/dashlets/CaseInfoDashlet"
                                 },
                                 {
-                                    id: "CASE_MEMBERS_DASHLET",
-                                    name: "openesdh/common/widgets/dashlets/CaseMembersDashlet",
-                                    config:{
-                                        caseId : caseId
-                                    }
-                                },
-                                {
                                     id: "CASE_NOTES_DASHLET",
                                     name: "openesdh/common/widgets/dashlets/NotesDashlet",
                                     config: {
@@ -54,12 +47,19 @@ model.jsonModel = {
                         config: {
                             widgets: [
                                 {
+                                    id: "CASE_MEMBERS_DASHLET",
+                                    name: "openesdh/common/widgets/dashlets/CaseMembersDashlet",
+                                    config:{
+                                        caseId : caseId
+                                    }
+                                },
+                                {
                                     id: "CASE_HISTORY_DASHLET",
                                     name: "openesdh/common/widgets/dashlets/CaseHistoryDashlet",
                                     config: {
                                         nodeRef: caseNodeRef
                                     }
-                                },
+                                }/*,
                                 {
                                     id: "CASE_WORKFLOW_DASHLET",
                                     name: "openesdh/common/widgets/dashlets/CaseWorkflowsDashlet",
@@ -68,7 +68,7 @@ model.jsonModel = {
                                         caseNodeRef: caseNodeRef,
                                         isReadOnly: isReadOnly
                                     }
-                                }
+                                }*/
                             ]
                         }
                     }

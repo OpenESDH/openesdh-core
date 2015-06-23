@@ -59,6 +59,19 @@
         </dependency>
 
         <dependency>
+            <groupId>org.alfresco</groupId>
+            <artifactId>aikau</artifactId>
+            <version>1.0.20-SNAPSHOT</version>
+            <!-- Exclude Aikau's dependency from the AMP -->
+            <exclusions>
+                <exclusion>
+                    <groupId>*</groupId>
+                    <artifactId>*</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
             <groupId>${alfresco.groupId}</groupId>
             <artifactId>share</artifactId>
             <version>${alfresco.version}</version>
@@ -99,6 +112,12 @@
             <artifactId>share_da_dk</artifactId>
             <version>5.0.0-SNAPSHOT</version>
             <type>amp</type>
+        </dependency>
+
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.2</version>
         </dependency>
 
     </dependencies>

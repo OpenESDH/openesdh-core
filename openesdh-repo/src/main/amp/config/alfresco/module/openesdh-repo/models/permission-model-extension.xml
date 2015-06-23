@@ -8,7 +8,7 @@
         <namespace uri="http://www.alfresco.org/model/system/1.0" prefix="sys"/>
         <namespace uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>
         <namespace uri="http://openesdh.dk/model/openesdh/1.0/" prefix="oe" />
-        <namespace uri="http://openesdh.dk/model/case/1.0/" prefix="case"/>
+        <namespace uri="http://openesdh.dk/model/case/base/1.0/" prefix="base"/>
     </namespaces>
     <!-- ============================================ -->
     <!-- Permissions specific to the ESDH Case module -->
@@ -30,7 +30,7 @@
     -->
 
 
-    <permissionSet type="case:simple" expose="selected">
+    <permissionSet type="base:simple" expose="selected">
         <permissionGroup name="CaseSimpleReader" expose="true"
                          requiresType="true">
             <includePermissionGroup permissionGroup="Consumer" type="cm:cmobject"/>
@@ -70,7 +70,7 @@
         </permissionGroup>
     </permissionSet>
 
-    <permissionSet type="case:base" expose="selected">
+    <permissionSet type="base:case" expose="selected">
         <permissionGroup name="CaseOwners" expose="false" requiresType="true">
             <includePermissionGroup permissionGroup="Coordinator"
                                     type="cm:cmobject"/>

@@ -41,9 +41,7 @@ define(["dojo/_base/declare",
             selectedCaseDocument: null,
             
             docMoveToCaseGridRowSelectedTopic : "DOC_MOVE_TO_CASE_GRID_ROW_SELECTED",
-            
             docCopyToCaseGridRowSelectedTopic : "DOC_COPY_TO_CASE_GRID_ROW_SELECTED",
-            
             docMoveCopyActionConfirmedTopic : "DOC_MOVE_COPY_ACTION_CONFIRMED",
             
             _docMoveCopySuccessSubscription : null,

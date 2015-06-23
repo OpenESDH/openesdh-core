@@ -5,11 +5,13 @@ import java.util.Collection;
 import java.util.Iterator;
 import java.util.Map;
 
+import dk.openesdh.repo.services.cases.CaseService;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.dictionary.ModelDefinition;
 import org.alfresco.service.cmr.dictionary.PropertyDefinition;
 import org.alfresco.service.cmr.dictionary.TypeDefinition;
 import org.alfresco.service.namespace.QName;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptException;
@@ -24,9 +26,12 @@ import org.json.JSONObject;
 public class CaseTypes extends AbstractWebScript {
 
     // Dependencies
+    private CaseService caseService;
     private DictionaryService dictionaryService;
 
-
+    public void setCaseService(CaseService caseService) {
+        this.caseService = caseService;
+    }
     public void setDictionaryService(DictionaryService dictionaryService) {
         this.dictionaryService = dictionaryService;
     }
@@ -41,15 +46,17 @@ public class CaseTypes extends AbstractWebScript {
         for (QName caseType : caseTypes) {
 
             // skip the basetype - getSubTypes returns it together with the subtypes
-            if (!caseType.getLocalName().equals(OpenESDHModel.TYPE_BASE_NAME)) {
+            if (!caseType.equals(OpenESDHModel.TYPE_CASE_BASE)) {
                 //System.out.println(caseType.getLocalName());
                 JSONObject c = new JSONObject();
                 try {
+                    String type = StringUtils.substringBefore(caseType.getPrefixString(), ":");
                     c.put("NamespaceURI", caseType.getNamespaceURI());
                     c.put("Prefix", caseType.getPrefixString());
+                    c.put("Type", type);
                     c.put("Name", caseType.getLocalName());
-                    c.put("Title", dictionaryService.getType(caseType)
-                            .getTitle(dictionaryService));
+                    c.put("Title", dictionaryService.getType(caseType).getTitle(dictionaryService));
+                    c.put("createFormWidgets", caseService.getCaseCreateFormWidgets(type));
 
                     arr.put(c);
                 } catch (JSONException e) {

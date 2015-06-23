@@ -1,46 +1,16 @@
 package dk.openesdh.repo.services.cases;
 
-import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
+import dk.openesdh.repo.model.OpenESDHModel;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
-import org.alfresco.service.cmr.action.Action;
-import org.alfresco.service.cmr.action.ActionService;
-import org.alfresco.service.cmr.dictionary.AspectDefinition;
-import org.alfresco.service.cmr.dictionary.AssociationDefinition;
-import org.alfresco.service.cmr.dictionary.ClassDefinition;
-import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
-import org.alfresco.service.cmr.dictionary.DictionaryService;
-import org.alfresco.service.cmr.dictionary.PropertyDefinition;
+import org.alfresco.service.cmr.dictionary.*;
 import org.alfresco.service.cmr.lock.LockService;
 import org.alfresco.service.cmr.lock.LockType;
-import org.alfresco.service.cmr.repository.ChildAssociationRef;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.rule.Rule;
-import org.alfresco.service.cmr.rule.RuleService;
-import org.alfresco.service.cmr.rule.RuleType;
+import org.alfresco.service.cmr.repository.*;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AccessPermission;
 import org.alfresco.service.cmr.security.AccessStatus;
@@ -48,17 +18,23 @@ import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.OwnableService;
 import org.alfresco.service.cmr.security.PermissionService;
-import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.security.access.AccessDeniedException;
 
-import dk.openesdh.repo.actions.AssignCaseIdActionExecuter;
-import dk.openesdh.repo.model.OpenESDHModel;
+import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Created by torben on 19/08/14.
@@ -72,6 +48,7 @@ public class CaseServiceImpl implements CaseService {
      */
     private Repository repositoryHelper;
     private NodeService nodeService;
+    private ContentService contentService;
     private SearchService searchService;
     private LockService lockService;
 
@@ -80,14 +57,14 @@ public class CaseServiceImpl implements CaseService {
     private PermissionService permissionService;
     private TransactionService transactionService;
     private DictionaryService dictionaryService;
-    private RuleService ruleService;
-    private ActionService actionService;
     private OwnableService ownableService;
-    private NamespaceService namespaceService;
-
     //<editor-fold desc="Service setters">
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
+    }
+
+    public void setContentService(ContentService contentService) {
+        this.contentService = contentService;
     }
 
     public void setSearchService(SearchService searchService) {
@@ -122,17 +99,6 @@ public class CaseServiceImpl implements CaseService {
         this.dictionaryService = dictionaryService;
     }
 
-    public void setRuleService(RuleService ruleService) {
-        this.ruleService = ruleService;
-    }
-
-    public void setActionService(ActionService actionService) {
-        this.actionService = actionService;
-    }
-
-    public void setNamespaceService(NamespaceService namespaceService) {
-        this.namespaceService = namespaceService;
-    }
     //</editor-fold>
 
     @Override
@@ -153,15 +119,19 @@ public class CaseServiceImpl implements CaseService {
 
         //Throw an exception. This should have been created on first boot along with the context root folder
         if (casesRootNodeRef == null)
-            throw new AlfrescoRuntimeException("The openESDH \"CASES\" root context directory has not been initialised.");
-
+            throw new AlfrescoRuntimeException("The openESDH \"CASES\" root folder has not been initialised.");
         return casesRootNodeRef;
     }
 
     @Override
-    public String getOpenEsdhCasesRootFolderPath() {
-        NodeRef casesRootNodeRef = getCasesRootNodeRef();
-        return nodeService.getPath(casesRootNodeRef).toPrefixString(namespaceService);
+    public NodeRef getCasesTypeStorageRootNodeRef() {
+        NodeRef typesRootNodeRef = nodeService.getChildByName(getCasesRootNodeRef(), ContentModel.ASSOC_CONTAINS, CASES_TYPES_ROOT);
+
+        //Throw an exception. This should have been created on first boot along with the context root folder
+        if (typesRootNodeRef == null)
+            throw new AlfrescoRuntimeException("The openESDH folder for case types storage doesn't exist.");
+
+        return typesRootNodeRef;
     }
 
     /**
@@ -179,7 +149,8 @@ public class CaseServiceImpl implements CaseService {
         // GROUP_EVERYONE set to Consumer, which we do not want)
         permissionService.setInheritParentPermissions(caseNodeRef, false);
 
-        String ownersPermissionGroupName = setupPermissionGroup(caseNodeRef, caseId, "CaseOwners");
+        String ownersPermissionGroupName = setupPermissionGroup(caseNodeRef,
+                caseId, "CaseOwners");
         setupPermissionGroups(caseNodeRef, caseId);
         // The CaseOwnersBehaviour takes care of adding the owners to the
         // CaseOwners group
@@ -211,8 +182,9 @@ public class CaseServiceImpl implements CaseService {
                     }
                 });
 
+                // Check that it exists and is really a case node (extending type
                 // "case:base")
-                if (!Objects.isNull(caseNodeRef) && nodeService.exists(caseNodeRef) && isCaseNode(caseNodeRef)) {
+                if (nodeService.exists(caseNodeRef) && isCaseNode(caseNodeRef)) {
                     return caseNodeRef;
                 }
             } catch (NumberFormatException e) {
@@ -224,6 +196,37 @@ public class CaseServiceImpl implements CaseService {
 
     public String getCaseId(NodeRef caseNodeRef) {
         return (String) nodeService.getProperty(caseNodeRef, OpenESDHModel.PROP_OE_ID);
+    }
+
+    @Override
+    public JSONArray getCaseCreateFormWidgets(String caseType) {
+        JSONArray widgets = null;
+        Pattern modelPattern = Pattern.compile("(\\w+):(\\w+)");
+        Matcher matcher = modelPattern.matcher(caseType);
+        if(matcher.find()){ // then get the folder name from the postfix
+            caseType = StringUtils.substringAfter(caseType, ":");
+        }
+        //Recursively step 2 levels down to get the file
+        NodeRef typesFolder;
+        NodeRef caseFolder;
+        NodeRef caseFormsFolder;
+        try{
+            typesFolder = getCasesTypeStorageRootNodeRef();
+            caseFolder = nodeService.getChildByName(typesFolder, ContentModel.ASSOC_CONTAINS, caseType);
+            caseFormsFolder = nodeService.getChildByName(caseFolder, ContentModel.ASSOC_CONTAINS, "forms");
+            //Now read the file
+            NodeRef formWidgetsFile = nodeService.getChildByName(caseFormsFolder, ContentModel.ASSOC_CONTAINS, "create-form.js");
+            //Read the file contents
+            ContentReader contentReader = contentService.getReader(formWidgetsFile,ContentModel.PROP_CONTENT);
+            String tmp =  contentReader.getContentString();
+            JSONObject unparsedJSON = new JSONObject(tmp);
+            widgets = unparsedJSON.getJSONArray("widgets");
+        }
+        catch(Exception ge){
+            LOGGER.warn("\n\n\n====>\nerror with retrieving widgets: "+ ge.getMessage()+"\n\n");
+        }
+
+        return widgets;
     }
 
     long getCaseUniqueId(NodeRef caseNodeRef) {
@@ -426,7 +429,8 @@ public class CaseServiceImpl implements CaseService {
             shareZones.add(AuthorityService.ZONE_AUTH_ALFRESCO);
             // Add the authority group to the Share zone so that it is not
             // searchable from the authority picker.
-            groupName = authorityService.createAuthority(AuthorityType.GROUP, groupSuffix, groupSuffix, shareZones);
+            groupName = authorityService.createAuthority(AuthorityType
+                    .GROUP, groupSuffix, groupSuffix, shareZones);
         }
         permissionService.setPermission(caseNodeRef, groupName, permission, true);
         NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef(groupName);
@@ -469,18 +473,6 @@ public class CaseServiceImpl implements CaseService {
         // TODO: Test
         NodeRef documentsNodeRef = createNode(caseNodeRef, OpenESDHModel.DOCUMENTS_FOLDER_NAME);
         nodeService.addAspect(documentsNodeRef, OpenESDHModel.ASPECT_DOCUMENT_CONTAINER, null);
-    }
-
-    protected void setupAssignCaseIdRule(final NodeRef folderNodeRef) {
-        Action action = actionService.createAction(AssignCaseIdActionExecuter.NAME);
-        action.setTitle("Assign caseId");
-        action.setExecuteAsynchronously(true);
-        Rule rule = new Rule();
-        rule.setRuleType(RuleType.INBOUND);
-        rule.setTitle("Assign caseId to case documents");
-        rule.applyToChildren(true);
-        rule.setAction(action);
-        ruleService.saveRule(folderNodeRef, rule);
     }
 
     String getCaseId(long uniqueNumber) {
@@ -685,11 +677,9 @@ public class CaseServiceImpl implements CaseService {
                 }
                 ownableService.setOwner(nodeRef, AuthenticationUtil.getSystemUserName());
 
-                nodeService.setProperty(nodeRef, OpenESDHModel
-                        .PROP_OE_JOURNALKEY, journalKey);
-
                 // Add journalized aspect
                 Map<QName, Serializable> props = new HashMap<>();
+                props.put(OpenESDHModel.PROP_OE_JOURNALKEY, journalKey);
                 props.put(OpenESDHModel.PROP_OE_JOURNALIZED_BY, AuthenticationUtil.getFullyAuthenticatedUser());
                 props.put(OpenESDHModel.PROP_OE_JOURNALIZED_DATE, new Date());
                 // Save the original owner, or null if there wasn't any
@@ -800,51 +790,20 @@ public class CaseServiceImpl implements CaseService {
     }
     //</editor-fold>
 
-
     @Override
     public Map<String, Object> getSearchDefinition(QName caseType) {
-//        JSONObject model = new JSONObject();
-//        List<Object> types = new ArrayList<>();
-//        model.put("types", types);
-
         Map<String, Object> model = new HashMap<>();
-
         Map<QName, ClassDefinition> classDefs = new HashMap<>();
-
-//        Map<QName, Collection> propertyDefs = new HashMap<>();
-
         List<PropertyDefinition> propertyDefs = new ArrayList<>();
 
         for (QName classType: dictionaryService.getSubTypes(caseType, true)) {
             ClassDefinition classDefinition = dictionaryService.getClass(classType);
             classDefs.put(classType, classDefinition);
-
-//            String name = classDefinition.getName().toPrefixString();
-//            String title = classDefinition.getTitle(dictionaryService);
-
-//            Map<String, Object> type = new HashMap<>();
-//            type.put("name", name);
-//            type.put("title", title);
-//            types.add(type);
-
-
-//            propertyDefs.put(classDefinition.getName(), classDefinition.getProperties().values());
-//            propertyDefs.addAll(classDefinition.getProperties().values());
             Map<QName, PropertyDefinition> classProperties = classDefinition.getProperties();
-//            handleProperties(properties);
             for (QName propertyName: classProperties.keySet()) {
                 PropertyDefinition p = classProperties.get(propertyName);
                 propertyDefs.addAll(classProperties.values());
 
-//                String pname = propertyName.toPrefixString();
-//                properties.add(handleProperty(classProperties.get(propertyName)));
-//                PropertyDefinition propertyDefinition = dictionaryService.getProperty(propertyName);
-//                showProperty(propertyDefinition);
-//                List<ConstraintDefinition> constraints = propertyDefinition.getConstraints();
-//                for (ConstraintDefinition def: p.getConstraints()) {
-//                    def.getConstraint().getType()
-//                    System.out.println("constraint: " + def.getName());
-//                }
             }
 
             for (AspectDefinition aspect: classDefinition.getDefaultAspects()) {
@@ -856,20 +815,9 @@ public class CaseServiceImpl implements CaseService {
             }
 
             Map<QName, AssociationDefinition> associations = classDefinition.getAssociations();
-//            for (QName assocName: associations.keySet()) {
-//                classDefinition.
-//            }
         }
 
-//        System.out.println("classTypes: " + classTypes);
-//        List<AspectDefinition> defaultAspects = cls.getDefaultAspects();
-//        cls.getName()
-
         JSONObject availableFilters = new JSONObject();
-
-
-//        model.put("model", model);
-
         ArrayList classDefinitions1 = new ArrayList(classDefs.values());
         model.put("classdefs", classDefinitions1);
         model.put("propertydefs", propertyDefs);
@@ -909,15 +857,15 @@ public class CaseServiceImpl implements CaseService {
 
         // Consumer doesn't have _ReadPermissions permission therefore run as
         // system
-        Set<AccessPermission> allPermissionsSetToCase = 
+        Set<AccessPermission> allPermissionsSetToCase =
                 AuthenticationUtil.runAsSystem(() -> permissionService.getAllSetPermissions(getCaseById(caseId)));
 
-        Set<String> currentUserAuthorities = 
+        Set<String> currentUserAuthorities =
                 AuthenticationUtil.runAsSystem(() -> authorityService.getAuthoritiesForUser(AuthenticationUtil.getFullyAuthenticatedUser()));
 
-        Predicate<AccessPermission> isPermissionGrantedForCurrentUser = 
+        Predicate<AccessPermission> isPermissionGrantedForCurrentUser =
                 (permission) -> permission.getAccessStatus() == AccessStatus.ALLOWED && currentUserAuthorities.contains(permission.getAuthority());
-        
+
         return allPermissionsSetToCase.stream()
             .filter(permission -> isPermissionGrantedForCurrentUser.test(permission))
             .map(permission -> permission.getPermission())

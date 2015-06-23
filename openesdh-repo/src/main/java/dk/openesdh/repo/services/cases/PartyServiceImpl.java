@@ -1,13 +1,9 @@
 package dk.openesdh.repo.services.cases;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-
+import dk.openesdh.exceptions.contacts.InvalidContactTypeException;
+import dk.openesdh.repo.model.ContactInfo;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.contacts.ContactService;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
@@ -19,15 +15,13 @@ import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.namespace.NamespacePrefixResolver;
 import org.alfresco.service.namespace.QName;
+import org.alfresco.util.Pair;
 import org.alfresco.util.PropertyCheck;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import dk.openesdh.exceptions.contacts.InvalidContactTypeException;
-import dk.openesdh.repo.model.ContactInfo;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.contacts.ContactService;
+import java.util.*;
 
 /**
  * @author Lanre Abiwon.
@@ -64,7 +58,7 @@ public class PartyServiceImpl implements PartyService {
             String dbid = Objects.toString(this.nodeService.getProperty(caseNodeRef, ContentModel.PROP_NODE_DBID).toString(), null);
             String partyName = PartyService.PARTY_PREFIX  + dbid + "_" + role;
             String createdGroup;
-            if (isRoleExists(caseId, role)) {
+            if(roleExists(caseId, role).getFirst()){
                 createdGroup = "GROUP_"+partyName;
             }
             else
@@ -127,7 +121,6 @@ public class PartyServiceImpl implements PartyService {
         String errorList = contactErrorList.toString();
         if(StringUtils.isNotBlank(errorList))
             logger.warn("\n\n***** The following contacts were not found or no longer exist: "+ errorList+"\n");
-//            throw new GenericContactException("The following contacts were not found or no longer exist: "+ errorList);
 
         return result;
     }
@@ -138,20 +131,31 @@ public class PartyServiceImpl implements PartyService {
     @Override
     public boolean removePartyRole(String caseId, String partyId, String role) {
 
-        NodeRef roleNodeRef = getCaseRole(caseId, role);
-        if (roleNodeRef == null) {
+        Pair<Boolean, NodeRef> caseRole = roleExists(caseId, role);
+        if(!caseRole.getFirst())
             return false;
-        }
-
         try {
             NodeRef partyRef = this.contactService.getContactById(partyId);
-            this.nodeService.removeChild(roleNodeRef, partyRef);
+            this.nodeService.removeChild(caseRole.getSecond(), partyRef);
         }
         catch (Exception ge){
             throw new AlfrescoRuntimeException("Unable to remove contact from group for the following reason: " + ge.getMessage());
         }
-
         return true;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Pair<Boolean, NodeRef> roleExists(String caseId, String roleName) {
+        NodeRef caseNodeRef = this.caseService.getCaseById(caseId);
+        String dbid = Objects.toString(this.nodeService.getProperty(caseNodeRef, ContentModel.PROP_NODE_DBID), null);
+        if(StringUtils.isNotBlank(dbid)) {
+            final String roleGroup = "GROUP_PARTY_" + dbid + "_" + roleName;
+            return new Pair<>(this.authorityService.authorityExists(roleGroup), this.authorityService.getAuthorityNodeRef(roleGroup));
+        }
+        else return new Pair<>(false, null);
     }
 
     /**
@@ -165,34 +169,52 @@ public class PartyServiceImpl implements PartyService {
         if(caseNodeRef == null){ //then get the nodeRef of the case by case id.
             caseNodeRef = this.caseService.getCaseById(caseId);
         }
-        return getCaseRole(caseId, partyRole);
+        Pair<Boolean, NodeRef> nbPartyRolePair = roleExists(caseId,partyRole);
+        if(nbPartyRolePair.getFirst())
+            return nbPartyRolePair.getSecond();
+        else return null;
     }
 
     /**
      * {@inheritDoc}
      */
     @Override
-    public Map<String, Set<ContactInfo>> getContactsByRole(String caseId) {
+    public Map<String, Set<String>> getContactsByRole(String caseId) {
         List<String> roles = (List<String>) dictionaryService.getConstraint(OpenESDHModel.CONSTRAINT_CASE_ALLOWED_PARTY_ROLES).getConstraint().getParameters().get(ListOfValuesConstraint.ALLOWED_VALUES_PARAM);
-        Map<String, Set<ContactInfo>> contactRoleMap = new HashMap<>();
+        Map<String, Set<String>> contactRoleMap = new HashMap<>();
         for(String role : roles){
-            NodeRef roleNodeRef = getCaseRole(caseId, role);
-            if (roleNodeRef == null) {
-                continue;
+            Pair<Boolean, NodeRef> temp = roleExists(caseId, role);
+            if(temp.getFirst()){
+                //We don't bother specify the type of assoc name because there should only ever be contact types in these groups.
+                List<ChildAssociationRef> contacts = this.nodeService.getChildAssocs(temp.getSecond());
+                Set<String> parties = new HashSet<>();
+                for(ChildAssociationRef associationRef: contacts) {
+                    NodeRef childRef = associationRef.getChildRef();
+                    ContactInfo contact = new ContactInfo(childRef, this.contactService.getContactType(childRef), this.nodeService.getProperties(childRef));
+                    parties.add(contact.getEmail());
+                }
+                contactRoleMap.put(role, parties);
             }
-            // We don't bother specify the type of assoc name because there
-            // should only ever be contact types in these groups.
-            List<ChildAssociationRef> contacts = this.nodeService.getChildAssocs(roleNodeRef);
-            Set<ContactInfo> parties = new HashSet<>();
-            for (ChildAssociationRef associationRef : contacts) {
-                NodeRef childRef = associationRef.getChildRef();
-                ContactInfo contact = this.contactService.getContactInfo(childRef);
-                parties.add(contact);
-            }
-            contactRoleMap.put(role, parties);
         }
 
         return contactRoleMap;
+    }
+
+    @Override
+    public List<ContactInfo> getPartiesInCase(String caseId) {
+        Map<String, Set<String>> partiesWithRoles = getContactsByRole(caseId);
+        List<ContactInfo> parties = new ArrayList<>();
+
+        for(Map.Entry<String, Set<String>> role : partiesWithRoles.entrySet()){
+            Set<String> value = role.getValue();
+            for (String contact : value) {
+                NodeRef contactRef = this.contactService.getContactById(contact);
+                ContactInfo contactInfo = new ContactInfo(contactRef, this.contactService.getContactType(contactRef),
+                        this.nodeService.getProperties(contactRef));
+                parties.add(contactInfo);
+            }
+        }
+        return parties;
     }
 
     //<editor-fold desc="Injected service bean setters">
@@ -226,23 +248,5 @@ public class PartyServiceImpl implements PartyService {
         PropertyCheck.mandatory(this, "nodeService", nodeService);
         PropertyCheck.mandatory(this, "caseService", caseService);
         PropertyCheck.mandatory(this, "contactService", contactService);
-    }
-
-    private boolean isRoleExists(String caseId, String roleName) {
-        return getCaseRole(caseId, roleName) != null;
-    }
-
-    private NodeRef getCaseRole(String caseId, String roleName) {
-        NodeRef caseNodeRef = this.caseService.getCaseById(caseId);
-        String dbid = Objects.toString(
-                this.nodeService.getProperty(caseNodeRef, ContentModel.PROP_NODE_DBID), null);
-        if (StringUtils.isBlank(dbid)) {
-            return null;
-        }
-        final String roleGroup = "GROUP_PARTY_" + dbid + "_" + roleName;
-        if (!this.authorityService.authorityExists(roleGroup)) {
-            return null;
-        }
-        return this.authorityService.getAuthorityNodeRef(roleGroup);
     }
 }

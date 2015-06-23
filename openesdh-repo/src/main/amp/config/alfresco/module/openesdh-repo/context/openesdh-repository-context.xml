@@ -8,6 +8,9 @@
         <property name="dictionaryService">
             <ref bean="dictionaryService"/>
         </property>
+        <property name="caseService">
+            <ref bean="CaseService"/>
+        </property>
     </bean>
 
     <bean id="webscript.dk.openesdh.case.permittedStates.get" parent="webscript"
@@ -155,7 +158,6 @@
     <bean id="webscript.dk.openesdh.CaseIDExtractor" class="dk.openesdh.repo.audit.CaseNodeRefExtractor">
         <property name="registry" ref="auditModel.extractorRegistry" />
         <property name="nodeService" ref="NodeService" />
-        <property name="searchService" ref="SearchService" />
         <property name="caseService" ref="CaseService" />
     </bean>
 
@@ -185,6 +187,14 @@
     <bean id="webscript.dk.openesdh.casedocument.post" class="dk.openesdh.repo.webscripts.cases.CaseDocument" parent="webscript">
         <property name="caseService" ref="CaseService" />
         <property name="documentService" ref="DocumentService" />
+        <property name="nodeService" ref="NodeService"/>
+        <property name="contentService" ref="ContentService" />
+    </bean>
+
+    <bean id="webscript.dk.openesdh.caseemail.post" class="dk.openesdh.repo.webscripts.documents.EmailDocument" parent="webscript">
+        <property name="caseService" ref="CaseService" />
+        <property name="documentService" ref="DocumentService" />
+        <property name="personService" ref="PersonService" />
         <property name="nodeService" ref="NodeService"/>
         <property name="contentService" ref="ContentService" />
     </bean>
@@ -280,25 +290,10 @@
         <property name="dictionaryService" ref="dictionaryService"/>
         <property name="caseService" ref="CaseService" />
     </bean>
-    
+
     <bean id="webscript.dk.openesdh.case.caseUserPermissions.get" parent="webscript"
           class="dk.openesdh.repo.webscripts.cases.CaseUserPermissions">
         <property name="caseService" ref="CaseService" />
     </bean>
-
-    <!--Workflows-->
-<!--
-
-    <bean id="webscript.dk.openesdh.workflows.workflowsearch.get" class="dk.openesdh.repo.webscripts.workflows.WorkflowSearch"
-          parent="webscript">
-        <property name="serviceRegistry" ref="ServiceRegistry"/>
-    </bean>
-    <bean id="webscript.dk.openesdh.workflows.caseWorkflowDefinitions.get" class="dk.openesdh.repo.webscripts.workflows.CaseWorkflowsDefinitionGet"
-          parent="abstractWorkflowWebScript">
-        <property name="casePrefix">
-            <value>openE-</value>
-        </property>
-    </bean>
--->
 
 </beans>

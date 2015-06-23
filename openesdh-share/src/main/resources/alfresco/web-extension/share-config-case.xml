@@ -1,5 +1,5 @@
 <alfresco-config>
-    <config evaluator="model-type" condition="case:simple">
+    <config evaluator="model-type" condition="simple:case">
         <forms>
             <!-- Default create content form configuration for a simple case -->
             <form>
@@ -7,9 +7,9 @@
                     <show id="cm:title" force="true"/>
                     <show id="cm:description" force="true"/>
                     <show id="oe:status" />
-                    <show id="case:owners" />
-                    <show id="case:startDate" />
-                    <show id="case:endDate" />
+                    <show id="base:owners" />
+                    <show id="base:startDate" />
+                    <show id="base:endDate" />
                 </field-visibility>
                 <appearance>
                     <field id="cm:title">
@@ -24,7 +24,7 @@
             </form>
         </forms>
     </config>
-    <config evaluator="node-type" condition="case:simple">
+    <config evaluator="node-type" condition="simple:case">
         <forms>
             <!-- Default edit properties form configuration for a simple case -->
             <form>
@@ -32,9 +32,9 @@
                     <show id="cm:title" force="true"/>
                     <show id="cm:description" force="true"/>
                     <show id="oe:status" />
-                    <show id="case:owners" />
-                    <show id="case:startDate" />
-                    <show id="case:endDate" />
+                    <show id="base:owners" />
+                    <show id="base:startDate" />
+                    <show id="base:endDate" />
                 </field-visibility>
                 <appearance>
                     <field id="cm:title" mandatory="true">

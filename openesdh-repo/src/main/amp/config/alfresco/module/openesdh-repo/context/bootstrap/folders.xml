@@ -72,7 +72,7 @@
                             <cm:titled />
                             <cm:auditable />
                             <app:uifacets />
-                            <sys:hidden/>
+                            <!--<sys:hidden/>-->
                             <sys:referenceable />
                         </view:aspects>
                         <view:acl view:inherit="false">

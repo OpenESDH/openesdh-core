@@ -6,48 +6,44 @@
             <type name="d:long" control="FilterTextWidget"/>
             <type name="d:date" control="FilterDateRangeWidget"/>
             <type name="d:datetime" control="FilterDateRangeWidget"/>
-            <type name="d:category" control="openesdh/common/widgets/controls/category/CategoryPickerControl"/>
             <type name="cm:authority" control="FilterAuthorityWidget"/>
             <type name="LIST:*" control="FilterSelectWidget"/>
         </default-controls>
         <searches>
-            <search type="case:base">
+            <search type="base:case">
                 <column-visibility>
                     <show id="TYPE"/>
                     <show id="oe:id"/>
                     <show id="cm:title"/>
-                    <show id="case:owners"/>
+                    <show id="base:owners"/>
                     <show id="cm:modified"/>
                     <show id="cm:created"/>
                     <show id="oe:status"/>
-                    <show id="case:startDate"/>
-                    <show id="case:endDate"/>
-                    <show id="oe:journalKey"/>
+                    <show id="base:startDate"/>
+                    <show id="base:endDate"/>
                 </column-visibility>
                 <column-availability>
                     <show id="TYPE"/>
                     <show id="oe:id"/>
                     <show id="cm:title"/>
-                    <show id="case:owners"/>
+                    <show id="base:owners"/>
                     <show id="cm:modified"/>
                     <show id="cm:created"/>
                     <show id="oe:status"/>
-                    <show id="case:startDate"/>
-                    <show id="case:endDate"/>
-                    <show id="oe:journalKey"/>
+                    <show id="base:startDate"/>
+                    <show id="base:endDate"/>
                 </column-availability>
                 <filters-availability>
                     <show id="ALL"/>
                     <show id="TYPE"/>
                     <show id="oe:id"/>
                     <show id="cm:title"/>
-                    <show id="case:owners"/>
+                    <show id="base:owners"/>
                     <show id="cm:modified"/>
                     <show id="cm:created"/>
                     <show id="oe:status"/>
-                    <show id="case:startDate"/>
-                    <show id="case:endDate"/>
-                    <show id="oe:journalKey"/>
+                    <show id="base:startDate"/>
+                    <show id="base:endDate"/>
                 </filters-availability>
                 <actions>
                     <action id="case-dashboard"

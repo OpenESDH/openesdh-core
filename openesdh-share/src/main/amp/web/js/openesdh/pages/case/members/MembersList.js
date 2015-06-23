@@ -59,6 +59,7 @@ define(["dojo/_base/declare",
                     this.authorityPickerDialog.destroy();
                 }
                 this.authorityPickerDialog = new AlfFormDialog({
+                    id: "members_picker_dialog",
                     dialogTitle: this.message("members.list.dialog.title"),
                     dialogConfirmationButtonTitle: this.message("members.list.dialog.button.label.ok"),
                     dialogCancellationButtonTitle: this.message("members.list.dialog.button.label.cancel"),
@@ -162,7 +163,7 @@ define(["dojo/_base/declare",
                                                 {
                                                     name: "openesdh/common/widgets/picker/AuthorityListPicker",
                                                     config: {
-                                                        authorityType: "{authorityType}"
+                                                        authorityType: "cm:authority"
                                                     }
                                                 }
                                             ]

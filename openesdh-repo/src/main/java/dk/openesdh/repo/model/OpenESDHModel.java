@@ -1,20 +1,21 @@
 package dk.openesdh.repo.model;
 
-import org.alfresco.service.namespace.QName;
+import org.alfresco.service.namespace.*;
 
 /**
  * Created by torben on 15/08/14.
  */
 public interface OpenESDHModel {
 
-    public static final String CASE_URI = "http://openesdh.dk/model/case/1.0/";
-    public static final String CASE_PREFIX = "case";
+    public static final String CASE_URI = "http://openesdh.dk/model/case/base/1.0/";
+    public static final String CASE_PREFIX = "base";
     public static final String DOC_URI = "http://openesdh.dk/model/document/1.0/";
     public static final String DOC_PREFIX = "doc";
     public static final String OE_URI = "http://openesdh.dk/model/openesdh/1.0/";
     public static final String OE_PREFIX = "oe";
     public static final String TYPE_SIMPLE_NAME = "simple";
     public static final String TYPE_BASE_NAME = "base";
+    public static final String CASE_MODEL_NAME = "caseModel";
 
     public static final String CONTACT_PREFIX = "contact";
     public static final String CONTACT_URI = "http://openesdh.dk/model/contact/1.0/";
@@ -35,15 +36,14 @@ public interface OpenESDHModel {
      * Models
      */
     public static final QName DOCUMENT_MODEL = QName.createQName(DOC_URI, "documentModel");
-    public static final QName CASE_MODEL = QName.createQName(CASE_URI, "caseModel");
-
+    public static final QName CASE_MODEL = QName.createQName(CASE_URI, CASE_MODEL_NAME);
 
     /**
      * Types
      */
     public static final QName TYPE_OE_BASE = QName.createQName(OE_URI, TYPE_BASE_NAME);
 
-    public static final QName TYPE_CASE_BASE = QName.createQName(CASE_URI, TYPE_BASE_NAME);
+    public static final QName TYPE_CASE_BASE = QName.createQName(CASE_URI, "case");
     public static final QName TYPE_CASE_SIMPLE = QName.createQName(CASE_URI, TYPE_SIMPLE_NAME);
     public static final QName TYPE_CASE_COMPLAINT = QName.createQName(CASE_URI, "complaint");
 
