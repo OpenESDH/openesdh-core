@@ -126,8 +126,7 @@ public class ContactServiceImpl implements ContactService {
         params.put("term", id);
         List<ContactInfo> contacts = new ArrayList<>();
         try {
-            XResultSet results = contactSearchService.getNodes(params, 0, -1,
-                    "cm:name", true);
+            XResultSet results = contactSearchService.getNodes(params, 0, -1, "cm:name", true);
             for(NodeRef contactNode : results.getNodeRefs()){
                 contacts.add(new ContactInfo(contactNode, getContactType(contactNode), this.nodeService.getProperties(contactNode)) );
             }
