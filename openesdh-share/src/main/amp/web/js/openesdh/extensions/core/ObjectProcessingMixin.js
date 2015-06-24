@@ -64,7 +64,6 @@ define(["dojo/_base/declare",
              */
             processInstanceTokens: function alfresco_core_ObjectProcessingMixin__processInstanceTokens(v) {
                 // Search for tokens in the current scope
-                if(v=="{caseConstraintsList.simple.caseStatusConstraint}")
                 return this.processTokens(v, this);
             }
 
