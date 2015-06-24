@@ -127,6 +127,7 @@ define(["dojo/_base/declare",
                        widgets: [
                            {
                                name: "openesdh/common/widgets/forms/SingleTextFieldForm",
+                               id: "authPicker_search_field",
                                config: {
                                    useHash: false,
                                    showOkButton: true,

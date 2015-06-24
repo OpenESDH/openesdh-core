@@ -1,10 +1,11 @@
 package dk.openesdh.share.selenium;
 
-import dk.openesdh.share.selenium.framework.Browser;
+import dk.magenta.share.selenium.framework.Browser;
+import dk.openesdh.share.selenium.framework.BasePageAdminLoginTestIT;
 import dk.openesdh.share.selenium.framework.Pages;
 import dk.openesdh.share.selenium.framework.enums.User;
-import dk.openesdh.share.selenium.framework.pages.BasePage;
 import dk.openesdh.share.selenium.framework.pages.CreateCasePage;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -24,13 +25,9 @@ import static org.junit.Assert.assertTrue;
  * @author Søren Kirkegård
  *
  */
-public class CaseMenuTestIT {
+public class CaseMenuTestIT extends BasePageAdminLoginTestIT {
 
-    @BeforeClass
-    public static void setUpBeforeClass() {
-        Browser.initialize();
-    }
-
+    
     @Test
     public void testCaseMenuIsVisibleAndClickable() {
         Pages.Login.loginWith(User.ADMIN);
@@ -41,17 +38,13 @@ public class CaseMenuTestIT {
         assertTrue(Pages.Search.isAt());
         Pages.Search.clickCasesMenuItem();
         Pages.Search.clickCreateSimpleCaseItem();
-        assertTrue(Pages.CreateCase.isAt());
+        // assertTrue(Pages.CreateCase.isAt()); //The dialog is now displayed in a pop-up
+        WebElement createCaseDialogElem = Browser.Driver
+                .findElement(By
+                        .xpath("//div[div[span[@role='heading' and (text()='Opret sag' or text()='Create case' )]]]"));
+        assertTrue(createCaseDialogElem != null);
     }
 
-    @After
-    public void tearDown() {
-        Pages.Login.logout();
-    }
-
-    @AfterClass
-    public static void tearDownAfterClass() {
-        Browser.Driver.close();
-    }
+   
 
 }

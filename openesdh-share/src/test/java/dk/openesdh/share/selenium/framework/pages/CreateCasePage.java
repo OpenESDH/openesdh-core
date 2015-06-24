@@ -1,7 +1,10 @@
 package dk.openesdh.share.selenium.framework.pages;
 
-import dk.openesdh.share.selenium.framework.Browser;
+
+import dk.magenta.share.selenium.framework.Browser;
+import dk.magenta.share.selenium.framework.pages.BasePage;
 import dk.openesdh.share.selenium.framework.Pages;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
@@ -32,8 +35,8 @@ public class CreateCasePage extends BasePage {
     @FindBy(id = "create_case_dialog_auth_picker_button")
     WebElement ownersFieldButton;
 
-    @FindBy(css = ".buttons .confirmationButton .dijitButtonNode")
-    WebElement createButton;
+	@FindBy(xpath = "//div[div[span[@role='heading' and (text()='Opret sag' or text()='Create case' ) ]] and contains(@class,'alfresco-dialog-AlfDialog') ]//span[span[span/text()= 'Opret' or span/text()='Create'] and contains(@class,'dijitButtonNode') ]")
+	WebElement createButton;
 
     public boolean isAt() {
         return Browser.Driver.getCurrentUrl().startsWith(URL);
@@ -79,9 +82,10 @@ public class CreateCasePage extends BasePage {
         startDateField.sendKeys(startDate);
         endDateField.sendKeys(endDate);
 
+        if (owners != null && owners.size() > 0) {
         ownersFieldButton.click();
-        //selectAuthoritiesInPicker("assoc_case_owners_added", owners);
-
+        selectAuthoritiesInPicker("assoc_case_owners_added", owners);
+        }
         createButton.click();
 
         // Wait for the case dashboard to load

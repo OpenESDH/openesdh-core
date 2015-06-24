@@ -101,6 +101,12 @@
             <type>amp</type>
         </dependency>
 
+		<dependency>
+            <groupId>dk.magenta.share.selenium</groupId>
+            <artifactId>magenta-selenium-framework</artifactId>
+            <version>0.1-SNAPSHOT</version>
+            <scope>test</scope>
+		</dependency>
         <dependency>
             <groupId>commons-logging</groupId>
             <artifactId>commons-logging</artifactId>

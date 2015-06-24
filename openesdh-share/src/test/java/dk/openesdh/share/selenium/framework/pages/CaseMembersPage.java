@@ -1,6 +1,8 @@
 package dk.openesdh.share.selenium.framework.pages;
 
-import dk.openesdh.share.selenium.framework.Browser;
+import dk.magenta.share.selenium.framework.Browser;
+import dk.magenta.share.selenium.framework.pages.BasePage;
+
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
@@ -34,6 +36,8 @@ public class CaseMembersPage extends BasePage {
                         "_text"));
         addAuthorityToRole.click();
 
+       
+       //This will trigger the old authority-picker, and the selenium test code currently works with the new one. 
         selectAuthoritiesInPicker("alf-id1_wrapper-authority", authorities);
     }
 }

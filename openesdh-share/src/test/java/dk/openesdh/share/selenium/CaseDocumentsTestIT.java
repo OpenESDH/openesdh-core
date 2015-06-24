@@ -1,8 +1,9 @@
 package dk.openesdh.share.selenium;
 
-import dk.openesdh.share.selenium.framework.Browser;
+import dk.openesdh.share.selenium.framework.BasePageAdminLoginTestIT;
 import dk.openesdh.share.selenium.framework.Pages;
 import dk.openesdh.share.selenium.framework.enums.User;
+
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.*;
 import org.openqa.selenium.Alert;
@@ -16,7 +17,7 @@ import java.util.List;
 
 import static org.junit.Assert.*;
 
-public class CaseDocumentsTestIT {
+public class CaseDocumentsTestIT extends BasePageAdminLoginTestIT {
 
     String testCaseTitle;
     String testCaseStatus;
@@ -24,10 +25,7 @@ public class CaseDocumentsTestIT {
 
     String testCaseID;
 
-    @BeforeClass
-    public static void setUpBeforeClass() {
-        Browser.initialize();
-    }
+  //TKR: Test comment
 
     @Before
     public void setup() {
@@ -37,7 +35,7 @@ public class CaseDocumentsTestIT {
         Pages.CreateCase.gotoPage();
         testCaseTitle = RandomStringUtils.randomAlphanumeric(24);
         testCaseStatus = "Planlagt";
-        testCaseOwners = Arrays.asList("admin");
+        testCaseOwners = new LinkedList<String>(); // Arrays.asList("admin"); current user is set as owner as default now
         String testCaseStartDate = "";
         String testCaseEndDate = "";
 
@@ -56,14 +54,6 @@ public class CaseDocumentsTestIT {
     }
 
 
-    @After
-    public void tearDown() {
-        Pages.Login.logout();
-    }
-
-    @AfterClass
-    public static void tearDownAfterClass() {
-        Browser.Driver.close();
-    }
+ 
 
 }

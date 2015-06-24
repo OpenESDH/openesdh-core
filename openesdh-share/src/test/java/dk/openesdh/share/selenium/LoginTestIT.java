@@ -1,10 +1,10 @@
 package dk.openesdh.share.selenium;
 
 import static org.junit.Assert.*;
-
-import dk.openesdh.share.selenium.framework.Browser;
+import dk.magenta.share.selenium.framework.Browser;
 import dk.openesdh.share.selenium.framework.Pages;
 import dk.openesdh.share.selenium.framework.enums.User;
+
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -16,6 +16,7 @@ public class LoginTestIT {
     @BeforeClass
     public static void setUpBeforeClass() {
         Browser.initialize();
+    	Pages.initialize();
     }
 
     @Test
