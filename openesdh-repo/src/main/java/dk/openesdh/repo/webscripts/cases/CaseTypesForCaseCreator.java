@@ -44,7 +44,7 @@ public class CaseTypesForCaseCreator extends AbstractWebScript {
             }
 
             try {
-                arr.put(Utils.getCaseTypeJson(caseType, dictionaryService));
+                arr.put(Utils.getCaseTypeJson(caseType, dictionaryService, caseService));
             } catch (JSONException e) {
                 throw new WebScriptException("Unable to serialize JSON");
             }

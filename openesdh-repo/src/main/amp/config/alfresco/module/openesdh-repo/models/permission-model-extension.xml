@@ -79,7 +79,7 @@
         </permissionGroup>
     </permissionSet>
     
-    <permissionSet type="case:complaint" expose="selected">
+    <permissionSet type="base:complaint" expose="selected">
     	<permissionGroup name="CaseComplaintCreator" expose="false"
                          requiresType="true">
             <includePermissionGroup permissionGroup="Collaborator"
