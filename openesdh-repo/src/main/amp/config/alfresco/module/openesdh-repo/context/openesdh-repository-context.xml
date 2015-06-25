@@ -9,6 +9,19 @@
             <ref bean="dictionaryService"/>
         </property>
     </bean>
+    
+    <bean id="webscript.dk.openesdh.casetypes.casecreator.get"
+          class="dk.openesdh.repo.webscripts.cases.CaseTypesForCaseCreator"
+          parent="webscript">
+
+        <property name="dictionaryService">
+            <ref bean="dictionaryService"/>
+        </property>
+        
+        <property name="caseService">
+            <ref bean="CaseService"/>
+        </property>
+    </bean>
 
     <bean id="webscript.dk.openesdh.case.permittedStates.get" parent="webscript"
           class="dk.openesdh.repo.webscripts.cases.PermittedStates">
@@ -91,7 +104,7 @@
           parent="webscript">
         <property name="caseService" ref="CaseService"/>
     </bean>
-
+    
     <bean id="webscript.dk.openesdh.documents.get"
           class="dk.openesdh.repo.webscripts.documents.Documents"
           parent="webscript">

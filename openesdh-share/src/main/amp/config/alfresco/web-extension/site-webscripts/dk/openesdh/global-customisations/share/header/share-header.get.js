@@ -12,7 +12,7 @@ var nodeRef = getCaseNodeRefFromId(caseId);
 
 //try {null.ex;} catch(e) {logger.log("\n\n(global-customisations/share/header/share-header.get.js) Linenumber: " + e.lineNumber)+"\n\n";}
 
-var caseTypes = getCaseTypes();
+var caseTypes = getCaseTypesForCaseCreator();
 
 /**
  * Return an array of create case menu items.
@@ -42,48 +42,54 @@ var createCasesWidgets = getCreateCaseMenuWidgets(caseTypes);
 
 var headerMenu = widgetUtils.findObject(model.jsonModel, "id", "HEADER_APP_MENU_BAR");
 if (headerMenu != null) {
+
+	var casesMenuWidgets = [{
+        name: "alfresco/menus/AlfMenuGroup",
+        config: {
+            label: msg.get("header.cases.menu.search.group"),
+            widgets: [
+                {
+                    name: "alfresco/menus/AlfMenuBarItem",
+                    config: {
+                        id: "CASE_MENU_SEARCH_LINK",
+                        label: msg.get("header.cases.menu.search"),
+                        targetUrl: "oe/case/search"
+                    }
+                },
+                {
+                    name: "alfresco/menus/AlfMenuBarItem",
+                    config: {
+                        label: msg.get("header.cases.menu.savedsearch"),
+                        disabled: true
+                    }
+                }
+            ]
+        }
+    }];
+	
+	//show create case menu items only if user is permitted
+	if(createCasesWidgets && createCasesWidgets.length > 0){
+		casesMenuWidgets.push({
+	        name: "alfresco/menus/AlfMenuGroup",
+	        config: {
+	            id: "CASE_MENU_CREATE_CASE_GROUP",
+	            label: msg.get("header.cases.menu.create.group"),
+	            widgets: createCasesWidgets
+	        }
+	    });
+	}
+    
+    // This widget is required to handle ALF_UPLOAD_REQUEST topics
+	casesMenuWidgets.push({
+        name: "openesdh/common/services/UploadService"
+    });
+	
     headerMenu.config.widgets.push({
         id: "HEADER_CASES_DROPDOWN",
         name: "alfresco/header/AlfMenuBarPopup",
         config: {
             label: msg.get("header.cases.menu.label"),
-            widgets: [
-                {
-                    name: "alfresco/menus/AlfMenuGroup",
-                    config: {
-                        label: msg.get("header.cases.menu.search.group"),
-                        widgets: [
-                            {
-                                name: "alfresco/menus/AlfMenuBarItem",
-                                config: {
-                                    id: "CASE_MENU_SEARCH_LINK",
-                                    label: msg.get("header.cases.menu.search"),
-                                    targetUrl: "oe/case/search"
-                                }
-                            },
-                            {
-                                name: "alfresco/menus/AlfMenuBarItem",
-                                config: {
-                                    label: msg.get("header.cases.menu.savedsearch"),
-                                    disabled: true
-                                }
-                            }
-                        ]
-                    }
-                },
-                {
-                    name: "alfresco/menus/AlfMenuGroup",
-                    config: {
-                        id: "CASE_MENU_CREATE_CASE_GROUP",
-                        label: msg.get("header.cases.menu.create.group"),
-                        widgets: createCasesWidgets
-                    }
-                },
-                // This widget is required to handle ALF_UPLOAD_REQUEST topics
-                {
-                    name: "openesdh/common/services/UploadService"
-                }
-            ]
+            widgets: casesMenuWidgets
         }
     });
 

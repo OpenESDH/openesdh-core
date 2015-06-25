@@ -22,20 +22,6 @@
                 </list>
             </parameter>
         </constraint>
-        <constraint name="case:simpleStatusConstraint" type="LIST">
-            <parameter name="allowedValues">
-                <list>
-                    <!-- TODO: localize (check localisation in /src/main/amp/config/alfresco/module/openesdh-repo/messages/case-model.properties) -->
-                    <value>planned</value>
-                    <value>in-progress</value>
-                    <value>existing</value>
-                    <value>pending</value>
-                    <value>archived</value>
-                    <value>cancelled</value>
-                    <value>closed</value>
-                </list>
-            </parameter>
-        </constraint>
         <!--for testing-->
         <constraint name="case:complaintStatusConstraint" type="LIST">
             <parameter name="allowedValues">
@@ -81,18 +67,6 @@
             <mandatory-aspects>
                 <aspect>oe:journalizable</aspect>
             </mandatory-aspects>
-        </type>
-
-        <type name="case:simple">
-            <parent>case:base</parent>
-
-            <overrides>
-                <property name="oe:status">
-                    <constraints>
-                        <constraint ref="case:simpleStatusConstraint"/>
-                    </constraints>
-                </property>
-            </overrides>
         </type>
 
         <type name="case:complaint">

@@ -15,7 +15,7 @@ import dk.openesdh.repo.services.cases.CaseService;
 
 public class CaseRoles extends AbstractWebScript {
 
-    private CaseService caseService;
+    protected CaseService caseService;
 
     public void setCaseService(CaseService caseService) {
         this.caseService = caseService;
@@ -28,7 +28,6 @@ public class CaseRoles extends AbstractWebScript {
         NodeRef caseNodeRef = caseService.getCaseById(caseId);
         if(caseNodeRef == null)
             caseNodeRef = new NodeRef(req.getParameter("nodeRef"));
-
         Set<String> roles = caseService.getAllRoles(caseNodeRef);
         try {
             JSONArray json = buildJSON(roles);
@@ -36,6 +35,10 @@ public class CaseRoles extends AbstractWebScript {
         } catch (JSONException e) {
             e.printStackTrace();
         }
+    }
+
+    protected Set<String> getRoles(NodeRef caseNodeRef) {
+        return caseService.getRoles(caseNodeRef);
     }
 
     JSONArray buildJSON(Set<String> roles) throws

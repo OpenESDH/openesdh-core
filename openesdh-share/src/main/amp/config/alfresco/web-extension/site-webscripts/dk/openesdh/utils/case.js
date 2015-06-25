@@ -17,9 +17,19 @@ function getNewCaseFolderNodeRef () {
  * Get the case types
  */
 function getCaseTypes () {
+	return retrieveCaseTypes("/api/openesdh/casetypes");
+}
 
-    var connector = remote.connect("alfresco");
-    var caseTypes = connector.get("/api/openesdh/casetypes");
+/**
+ * Get case types for current case creator 
+ */
+function getCaseTypesForCaseCreator(){
+	return retrieveCaseTypes("/api/openesdh/casetypes/casecreator");
+}
+
+function retrieveCaseTypes(url){
+	var connector = remote.connect("alfresco");
+    var caseTypes = connector.get(url);
 
     caseTypes = eval('(' + caseTypes + ')');
     var casesArr = new Array();
@@ -45,7 +55,6 @@ function getCaseRoleTypes (nodeRef, caseId) {
     roleTypes = eval('(' + roleTypes + ')');
     return roleTypes;
 }
-
 
 /**
  * Get the permitted role types for cases. Used for the contact roles

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<view:view xmlns:view="http://www.alfresco.org/view/repository/1.0" xmlns:cm="http://www.alfresco.org/model/content/1.0" 
+	xmlns:sys="http://www.alfresco.org/model/system/1.0" >
+	
+	<view:reference view:pathref="${system.authorities_container.childname}">
+        <view:associations>
+          <sys:children>
+            <cm:authorityContainer view:childName="cm:GROUP_CaseComplaintCreator">
+              <view:aspects>
+                <sys:referenceable />
+              </view:aspects>
+              <view:properties>
+                <sys:node-uuid>GROUP_CaseComplaintCreator</sys:node-uuid>
+                <cm:name>GROUP_CaseComplaintCreator</cm:name>
+                <cm:authorityName>GROUP_CaseComplaintCreator</cm:authorityName>
+              </view:properties>
+            </cm:authorityContainer>
+            <cm:authorityContainer view:childName="cm:GROUP_CaseComplaintWriter">
+              <view:aspects>
+                <sys:referenceable />
+              </view:aspects>
+              <view:properties>
+                <sys:node-uuid>GROUP_CaseComplaintWriter</sys:node-uuid>
+                <cm:name>GROUP_CaseComplaintWriter</cm:name>
+                <cm:authorityName>GROUP_CaseComplaintWriter</cm:authorityName>
+              </view:properties>
+            </cm:authorityContainer>
+            <cm:authorityContainer view:childName="cm:GROUP_CaseComplaintReader">
+              <view:aspects>
+                <sys:referenceable />
+              </view:aspects>
+              <view:properties>
+                <sys:node-uuid>GROUP_CaseComplaintReader</sys:node-uuid>
+                <cm:name>GROUP_CaseComplaintReader</cm:name>
+                <cm:authorityName>GROUP_CaseComplaintReader</cm:authorityName>
+              </view:properties>
+            </cm:authorityContainer>
+          </sys:children>
+        </view:associations>        
+      </view:reference>
+
+      <view:reference view:pathref="${system.zones_container.childname}/cm:AUTH.ALF">
+        <view:associations>
+          <cm:inZone>
+            <view:reference
+              view:pathref="${system.authorities_container.childname}/cm:GROUP_CaseComplaintCreator"
+              view:childName="cm:GROUP_CaseComplaintCreator" />
+            <view:reference
+              view:pathref="${system.authorities_container.childname}/cm:GROUP_CaseComplaintWriter"
+              view:childName="cm:GROUP_CaseComplaintWriter" />
+            <view:reference
+              view:pathref="${system.authorities_container.childname}/cm:GROUP_CaseComplaintReader"
+              view:childName="cm:GROUP_CaseComplaintReader" />  
+          </cm:inZone>
+        </view:associations>
+      </view:reference>
+      
+      <view:reference view:pathref="${system.zones_container.childname}/cm:APP.DEFAULT">
+        <view:associations>
+          <cm:inZone>
+            <view:reference
+              view:pathref="${system.authorities_container.childname}/cm:GROUP_CaseComplaintCreator"
+              view:childName="cm:GROUP_CaseComplaintCreator" />
+            <view:reference
+              view:pathref="${system.authorities_container.childname}/cm:GROUP_CaseComplaintWriter"
+              view:childName="cm:GROUP_CaseComplaintWriter" />
+            <view:reference
+              view:pathref="${system.authorities_container.childname}/cm:GROUP_CaseComplaintReader"
+              view:childName="cm:GROUP_CaseComplaintReader" />
+          </cm:inZone>
+        </view:associations>
+      </view:reference>
+
+    <!-- Add admin user into CaseSimpleCreator --> 
+	
+	<view:reference view:pathref="${system.authorities_container.childname}/cm:GROUP_CaseComplaintCreator">
+	    <view:associations>
+	        <cm:member>
+	            <view:reference view:pathref="/sys:system/sys:people/cm:admin" view:childName="cm:admin"></view:reference>           
+	        </cm:member>
+	    </view:associations>
+	</view:reference>
+	
+</view:view>
