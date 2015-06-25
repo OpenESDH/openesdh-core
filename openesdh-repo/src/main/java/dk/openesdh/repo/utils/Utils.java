@@ -67,6 +67,8 @@ public class Utils {
     public static JSONObject getCaseTypeJson(QName caseType, DictionaryService dictionaryService)
             throws JSONException {
         JSONObject c = new JSONObject();
+        String type = StringUtils.substringBefore(caseType.getPrefixString(), ":");
+        c.put("Type", type);
         c.put("NamespaceURI", caseType.getNamespaceURI());
         c.put("Prefix", caseType.getPrefixString());
         c.put("Name", caseType.getLocalName());

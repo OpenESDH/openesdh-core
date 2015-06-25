@@ -1,9 +1,10 @@
 package dk.openesdh.share.selenium;
 
-import dk.openesdh.share.selenium.framework.Browser;
+import dk.magenta.share.selenium.framework.Browser;
+import dk.openesdh.share.selenium.framework.BasePageAdminLoginTestIT;
 import dk.openesdh.share.selenium.framework.Pages;
 import dk.openesdh.share.selenium.framework.enums.User;
-import dk.openesdh.share.selenium.framework.pages.BasePage;
+
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.*;
 import org.openqa.selenium.By;
@@ -12,12 +13,14 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class SearchTestIT {
+
+public class SearchTestIT extends BasePageAdminLoginTestIT  {
 
     String testCaseTitle;
     String testCaseStatus;
@@ -25,15 +28,6 @@ public class SearchTestIT {
 
     String testCaseNodeRef;
 
-    @BeforeClass
-    public static void setUpBeforeClass() {
-        Browser.initialize();
-    }
-
-    @Before
-    public void login() {
-        Pages.Login.loginWith(User.ADMIN);
-    }
 
     @Before
     public void createTestCase() {
@@ -41,7 +35,7 @@ public class SearchTestIT {
         Pages.CreateCase.gotoPage();
         testCaseTitle = RandomStringUtils.randomAlphanumeric(24);
         testCaseStatus = "Planlagt";
-        testCaseOwners = Arrays.asList("admin");
+        testCaseOwners = new LinkedList<String>();
         String testCaseStartDate = "";
         String testCaseEndDate = "";
         testCaseNodeRef = Pages.CreateCase.createCase(testCaseTitle, testCaseStatus,
@@ -92,15 +86,5 @@ public class SearchTestIT {
         assertTrue(firstRowTitleCell.getText().contains(testCaseTitle));
     }
 
-
-    @After
-    public void tearDown() {
-        Pages.Login.logout();
-    }
-
-    @AfterClass
-    public static void tearDownAfterClass() {
-        Browser.Driver.close();
-    }
 
 }

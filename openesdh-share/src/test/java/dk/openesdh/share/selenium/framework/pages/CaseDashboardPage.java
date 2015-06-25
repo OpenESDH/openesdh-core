@@ -1,6 +1,8 @@
 package dk.openesdh.share.selenium.framework.pages;
 
-import dk.openesdh.share.selenium.framework.Browser;
+import dk.magenta.share.selenium.framework.Browser;
+import dk.magenta.share.selenium.framework.pages.BasePage;
+
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -25,7 +27,17 @@ public class CaseDashboardPage extends BasePage {
 
     @FindBy(id = "HEADER_CASE_UNJOURNALIZE_text")
     WebElement headerUnJournalizeItem;
-
+    
+    
+	@FindBy(xpath = "//div[div[span[@role='heading' and (text()='Journalisér...' or text()='Journalize...' ) ]] and contains(@class,'alfresco-dialog-AlfDialog') ]//span[span[span/text()= 'Vælg' or span/text()='Choose'] and contains(@class,'dijitButtonNode') ]")
+	WebElement chooseJounalizeKeyButton;
+    
+	@FindBy(xpath = "//div[div[span[@role='heading' and (text()='Vælg...' or text()='Choose...' ) ]] and contains(@class,'alfresco-dialog-AlfDialog') ]//a[contains(@class,'item-label') and (text()='Languages' or text()='Sprog')]")
+	WebElement selectLanguagesAsJounalizeKeyLbl;
+	
+	
+	@FindBy(xpath = "//div[div[span[@role='heading' and (text()='Journalisér...' or text()='Journalize...' ) ]] and contains(@class,'alfresco-dialog-AlfDialog') ]//span[span[span/text()= 'Ok'] and contains(@class,'dijitButtonNode') ]")
+	WebElement confirmJounalizeButton;
 
     public void gotoPage(String caseId) {
         Browser.open(URL.replace("@@ID@@", caseId) );
@@ -43,52 +55,14 @@ public class CaseDashboardPage extends BasePage {
 
 
     public void journalize(String journalKey) {
-        headerCaseConfigDropdown.click();
+        headerCaseConfigDropdown.click();        
         headerJournalizeItem.click();
-
-
-        // TODO: Use more robust method of handling the category picker than
-        // keyboard shortcuts
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-//        Browser.Driver.findElement(By.cssSelector("*[role='dialog'] input")).click();
-
-        // Click the select button
-        Browser.Driver.switchTo().activeElement().click();
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        // Choose the first category
-        Browser.Driver.switchTo().activeElement().click();
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        // Tab over to the OK button
-        Browser.Driver.switchTo().activeElement().sendKeys("\t");
-
-        try {
-            Thread.sleep(1000);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        // Click OK
-        Browser.Driver.switchTo().activeElement().click();
-
-        // Accept the confirmation dialog
+        chooseJounalizeKeyButton.click();	
+        selectLanguagesAsJounalizeKeyLbl.click();
+        confirmJounalizeButton.click();
+         
+        Browser.waitForAlert();
+        
         Alert alert = Browser.Driver.switchTo().alert();
         alert.accept();
     }
@@ -96,7 +70,8 @@ public class CaseDashboardPage extends BasePage {
     public void unJournalize() {
         headerCaseConfigDropdown.click();
         headerUnJournalizeItem.click();
-
+       
+        Browser.waitForAlert();
         // Accept the confirmation dialog
         Alert alert = Browser.Driver.switchTo().alert();
         alert.accept();

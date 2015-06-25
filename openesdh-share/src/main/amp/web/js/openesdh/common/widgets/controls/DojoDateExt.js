@@ -6,7 +6,7 @@
 define(["dojo/_base/declare",
         "dojo/_base/lang",
         "dojo/date/stamp",
-        "alfresco/forms/controls/DojoDateTextBox"],
+        "alfresco/forms/controls/DateTextBox"],
     function(declare, lang, stamp, DateTextBox) {
         return declare([DateTextBox], {
 
@@ -15,7 +15,7 @@ define(["dojo/_base/declare",
              */
             getWidgetConfig: function alfresco_forms_controls_DojoDateTextBox__getWidgetConfig() {
                 // Return the configuration for the widget
-                var value = ( this.value == "") ? this.value = new Date() : this.value ;
+                var value = (!this.value) ? this.value = new Date() : this.value ;
                 if (this.value instanceof Date)
                 {
                     value = this.value;
@@ -24,6 +24,7 @@ define(["dojo/_base/declare",
                 {
                     value = stamp.fromISOString(this.value, { selector: "date" })
                 }
+                this.initialValue = value;
                 return {
                     id : this.id + "_CONTROL",
                     name: this.name,

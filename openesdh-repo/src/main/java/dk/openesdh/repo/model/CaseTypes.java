@@ -3,8 +3,10 @@ package dk.openesdh.repo.model;
 import java.io.IOException;
 import java.util.Collection;
 
+import dk.openesdh.repo.services.cases.CaseService;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.namespace.QName;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.springframework.extensions.webscripts.AbstractWebScript;
@@ -20,9 +22,12 @@ import dk.openesdh.repo.utils.Utils;
 public class CaseTypes extends AbstractWebScript {
 
     // Dependencies
+    private CaseService caseService;
     private DictionaryService dictionaryService;
 
-
+    public void setCaseService(CaseService caseService) {
+        this.caseService = caseService;
+    }
     public void setDictionaryService(DictionaryService dictionaryService) {
         this.dictionaryService = dictionaryService;
     }
@@ -39,9 +44,10 @@ public class CaseTypes extends AbstractWebScript {
             if (caseType.getLocalName().equals(OpenESDHModel.TYPE_BASE_NAME)) {
                 continue;
             }
-
             try {
-                arr.put(Utils.getCaseTypeJson(caseType, dictionaryService));
+                JSONObject c = Utils.getCaseTypeJson(caseType, dictionaryService);
+                c.put("createFormWidgets", caseService.getCaseCreateFormWidgets(type));
+                arr.put(c);
             } catch (JSONException e) {
                 throw new WebScriptException("Unable to serialize JSON");
             }

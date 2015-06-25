@@ -1,7 +1,8 @@
 package dk.openesdh.share.selenium.framework.pages;
 
 
-import dk.openesdh.share.selenium.framework.Browser;
+import dk.magenta.share.selenium.framework.Browser;
+import dk.magenta.share.selenium.framework.pages.BasePage;
 import dk.openesdh.share.selenium.framework.enums.User;
 
 public class DashboardPage extends BasePage {

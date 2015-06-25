@@ -30,6 +30,11 @@ define(["dojo/_base/declare",
        authorityType: "cm:authority",
 
        /**
+        * The current logged in user
+        */
+       currentUser: null,
+
+       /**
         * This is used to determine whether to set default picked items for the picker
         * for instance if one wants the current logged in user to be set by default.
         */
@@ -101,6 +106,11 @@ define(["dojo/_base/declare",
        },
 
        /**
+        * Set this if you we want to process the default picker when set as tokens
+        */
+       processDefaultPickerTokens: false,
+
+       /**
         * This should be overridden to define the widget model for rendering the picker that appears within the
         * dialog.
         *
@@ -117,6 +127,7 @@ define(["dojo/_base/declare",
                        widgets: [
                            {
                                name: "openesdh/common/widgets/forms/SingleTextFieldForm",
+                               id: "authPicker_search_field",
                                config: {
                                    useHash: false,
                                    showOkButton: true,
@@ -222,6 +233,9 @@ define(["dojo/_base/declare",
        postCreate: function alfresco_forms_controls_Picker__postCreate(config) {
            this.inherited(arguments);
            if(this.setDefaultPickedItems){
+               if(this.processDefaultPickerTokens){
+                   this.defaultPickedItems = this.processInstanceTokens(this.defaultPickedItems);
+               }
                //If it's a single object then change it into an array containing a single object
                if(!ObjectTypeUtils.isArray(this.defaultPickedItems)) {
                    this.defaultPickedItems = [this.defaultPickedItems];
@@ -245,6 +259,5 @@ define(["dojo/_base/declare",
            lang.setObject("0.config.widgets.1.config.publishPayload.widgetsContent.0.name", "openesdh/common/widgets/picker/PickerWithHeader", widgetsForControl);
            this.processObject(["processInstanceTokens"], widgetsForControl);
        }
-
    });
 });

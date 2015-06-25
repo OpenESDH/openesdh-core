@@ -1,21 +1,25 @@
 package dk.openesdh.share.selenium;
 
-import dk.openesdh.share.selenium.framework.Browser;
+
+import dk.openesdh.share.selenium.framework.BasePageAdminLoginTestIT;
 import dk.openesdh.share.selenium.framework.Pages;
 import dk.openesdh.share.selenium.framework.enums.User;
+
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.*;
+
 import static org.junit.Assert.assertTrue;
 
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.assertNotNull;
 
-public class EditCaseTestIT {
+public class EditCaseTestIT extends BasePageAdminLoginTestIT {
 
     String testCaseTitle;
     String testCaseStatus;
@@ -31,15 +35,6 @@ public class EditCaseTestIT {
     @FindBy(id = "HEADER_CASES_DROPDOWN_text")
     protected WebElement headerCaseMenu;
 
-    @BeforeClass
-    public static void setUpBeforeClass() {
-        Browser.initialize();
-    }
-
-    @Before
-    public void login() {
-        Pages.Login.loginWith(User.ADMIN);
-    }
 
     public String createCase() {
         // Create a test "case" with a random title
@@ -52,7 +47,7 @@ public class EditCaseTestIT {
     public void editCase() {
         testCaseTitle = RandomStringUtils.randomAlphanumeric(24);
         testCaseStatus = "Planlagt";
-        testCaseOwners = Arrays.asList("admin");
+        testCaseOwners = new LinkedList<String>(); // Arrays.asList("admin"); current user is set as owner as default now
         testCaseStartDate = "";
         testCaseEndDate = "";
         caseId = createCase();
@@ -65,16 +60,6 @@ public class EditCaseTestIT {
         assertTrue(Pages.CaseDashboard.isAt());
 
         // TODO: Check that case dashboard is updated
-    }
-
-    @After
-    public void tearDown() {
-        Pages.Login.logout();
-    }
-
-    @AfterClass
-    public static void tearDownAfterClass() {
-        Browser.Driver.close();
     }
 
 }

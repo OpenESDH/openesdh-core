@@ -52,6 +52,13 @@
             <artifactId>alfresco-repository</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>dk.openesdh</groupId>
+            <artifactId>simple_case_repo</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>amp</type>
+        </dependency>
+
         <!-- Test dependencies -->
         <dependency>
             <groupId>junit</groupId>

@@ -48,7 +48,7 @@
         <dependency>
             <groupId>org.alfresco</groupId>
             <artifactId>aikau</artifactId>
-            <version>1.0.22-SNAPSHOT</version>
+            <version>1.0.20-SNAPSHOT</version>
             <!-- Exclude Aikau's dependency from the AMP -->
             <exclusions>
                 <exclusion>
@@ -99,6 +99,18 @@
             <artifactId>share_da_dk</artifactId>
             <version>5.0.0-SNAPSHOT</version>
             <type>amp</type>
+        </dependency>
+
+		<dependency>
+            <groupId>dk.magenta.share.selenium</groupId>
+            <artifactId>magenta-selenium-framework</artifactId>
+            <version>0.1-SNAPSHOT</version>
+            <scope>test</scope>
+		</dependency>
+        <dependency>
+            <groupId>commons-logging</groupId>
+            <artifactId>commons-logging</artifactId>
+            <version>1.2</version>
         </dependency>
 
     </dependencies>

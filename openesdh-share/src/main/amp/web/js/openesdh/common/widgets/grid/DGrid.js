@@ -391,8 +391,6 @@ define(["dojo/_base/declare",
              * Renders a list of actions given the case item
              */
             _renderIconsCell: function (item, value, node) {
-                console.log("ping");
-
                 var fileIcon = item.name ? Alfresco.util.getFileIcon(item.name) : "generic-file-32.png";
 
                 var div = domConstruct.toDom('<div style="white-space: nowrap;" class="icon32">' +

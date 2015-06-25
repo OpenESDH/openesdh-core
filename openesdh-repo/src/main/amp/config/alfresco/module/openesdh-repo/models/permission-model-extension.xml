@@ -8,7 +8,7 @@
         <namespace uri="http://www.alfresco.org/model/system/1.0" prefix="sys"/>
         <namespace uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>
         <namespace uri="http://openesdh.dk/model/openesdh/1.0/" prefix="oe" />
-        <namespace uri="http://openesdh.dk/model/case/1.0/" prefix="case"/>
+        <namespace uri="http://openesdh.dk/model/case/base/1.0/" prefix="base"/>
     </namespaces>
     <!-- ============================================ -->
     <!-- Permissions specific to the ESDH Case module -->
@@ -29,6 +29,31 @@
     5.Consumer: read
     -->
 
+
+    <permissionSet type="base:simple" expose="selected">
+        <permissionGroup name="CaseSimpleReader" expose="true"
+                         requiresType="true">
+            <includePermissionGroup permissionGroup="Consumer" type="cm:cmobject"/>
+        </permissionGroup>
+        <permissionGroup name="CaseSimpleWriter" expose="true"
+                         requiresType="true">
+            <includePermissionGroup permissionGroup="Collaborator"
+                                    type="cm:cmobject" />
+        </permissionGroup>
+        <!--
+        <permission name="_SimpleReader" expose="false" >
+            <grantedToGroup permissionGroup="SimpleReader" />
+            <requiredPermission on="parent" name="_ReadChildren" implies="false"/>
+        </permission>
+
+        <permission name="_SimpleWriter" expose="false" >
+            <grantedToGroup permissionGroup="SimpleWriter" />
+            <requiredPermission on="parent" name="_ReadChildren" implies="false"/>
+            <requiredPermission on="parent" name="_WriteChildren" implies="false"/>
+        </permission>
+-->
+    </permissionSet>
+
     <permissionSet type="oe:journalized" expose="selected">
         <!-- Groups used in denying, when journalizing -->
         <permissionGroup name="Journalized" requiresType="true" expose="false">
@@ -45,7 +70,9 @@
         </permissionGroup>
     </permissionSet>
 
-    <permissionSet type="case:base" expose="selected">
+
+    <permissionSet type="base:case" expose="selected">
+
         <permissionGroup name="CaseOwners" expose="true" requiresType="true">
             <includePermissionGroup permissionGroup="Coordinator"
                                     type="cm:cmobject"/>

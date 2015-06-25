@@ -104,7 +104,7 @@ public class CaseNodeRefExtractorIT {
     }
 
     private String createPathOfTestCase1() {
-        String casesRootFolder = caseService.getOpenEsdhCasesRootFolderPath();
+        String casesRootFolder = caseService.OPENESDH_ROOT_CONTEXT_PATH;
         String caseId = caseService.getCaseId(testCase1);
         Calendar c = Calendar.getInstance();
         String casePath = String.join("/case:", 

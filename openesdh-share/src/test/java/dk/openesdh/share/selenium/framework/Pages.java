@@ -2,7 +2,10 @@ package dk.openesdh.share.selenium.framework;
 
 import java.util.concurrent.TimeUnit;
 
+import dk.magenta.share.selenium.framework.Browser;
+import dk.magenta.share.selenium.framework.pages.BasePage;
 import dk.openesdh.share.selenium.framework.pages.*;
+
 import org.openqa.selenium.support.PageFactory;
 
 /**

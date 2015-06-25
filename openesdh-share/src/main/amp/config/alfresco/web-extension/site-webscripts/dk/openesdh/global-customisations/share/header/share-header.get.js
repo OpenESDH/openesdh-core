@@ -14,6 +14,9 @@ var nodeRef = getCaseNodeRefFromId(caseId);
 
 var caseTypes = getCaseTypesForCaseCreator();
 
+//This object is initialised when the above variable is also initialised in the getCaseTypes() function.
+var createFormsArray = {};
+
 /**
  * Return an array of create case menu items.
  * @param caseTypes An array of case types to create menu items for
@@ -28,12 +31,13 @@ function getCreateCaseMenuWidgets (caseTypes) {
                 name: "alfresco/menus/AlfMenuBarItem",
                 config: {
                     publishTopic: "OE_SHOW_CREATE_CASE_DIALOG",
-                    publishPayload: {caseType : c.type.substr(c.type.indexOf(":")+1, c.type.length )},
+                    publishPayload: {caseType : c.type.substr(0, c.type.indexOf(":")) },
                     id: "CASE_MENU_CREATE_CASE_" + c.type.replace(":", "_").toUpperCase(),
                     label: label
                 }
             }
         );
+        createFormsArray[c.typeName] = c.createForm;
     });
     return widgets;
 }
@@ -109,7 +113,10 @@ var caseService= {
     config:{
         caseId: caseId,
         casesFolderNodeRef: getNewCaseFolderNodeRef(),
-        nodeRef: (nodeRef != null) ? nodeRef : args.destination
+        createCaseWidgets: createFormsArray,
+        nodeRef: (nodeRef != null) ? nodeRef : args.destination,
+        currentUser: getCurrentUser(),
+        caseConstraintsList: getCaseConstraints()
     }
 };
 
