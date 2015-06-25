@@ -41,18 +41,7 @@
         <property name="dictionaryService">
             <ref bean="DictionaryService"/>
         </property>
-
-        <property name="ruleService">
-            <ref bean="RuleService"/>
-        </property>
-
-        <property name="actionService">
-            <ref bean="ActionService"/>
-        </property>
-        <property name="namespaceService">
-            <ref bean="namespaceService"/>
-        </property>
-
+        
         <property name="permissionsModelDAO">
             <ref bean="permissionsModelDAO"/>
         </property>
