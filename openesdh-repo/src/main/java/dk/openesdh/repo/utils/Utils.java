@@ -16,6 +16,7 @@ import org.json.JSONObject;
 import org.springframework.extensions.surf.util.I18NUtil;
 
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CaseService;
 
 /**
  * Created by syastrov on 8/26/14.
@@ -64,11 +65,19 @@ public class Utils {
         return StringUtils.isEmpty(displayRoleName) ? role : displayRoleName;
     }
 
+    public static JSONObject getCaseTypeJson(QName caseType, DictionaryService dictionaryService,
+            CaseService caseService) throws JSONException {
+        JSONObject c = getCaseTypeJson(caseType, dictionaryService);
+        String type = StringUtils.substringBefore(caseType.getPrefixString(), ":");
+        c.put("Type", type);
+        c.put("createFormWidgets", caseService.getCaseCreateFormWidgets(type));
+        return c;
+    }
+
     public static JSONObject getCaseTypeJson(QName caseType, DictionaryService dictionaryService)
             throws JSONException {
         JSONObject c = new JSONObject();
-        String type = StringUtils.substringBefore(caseType.getPrefixString(), ":");
-        c.put("Type", type);
+
         c.put("NamespaceURI", caseType.getNamespaceURI());
         c.put("Prefix", caseType.getPrefixString());
         c.put("Name", caseType.getLocalName());
