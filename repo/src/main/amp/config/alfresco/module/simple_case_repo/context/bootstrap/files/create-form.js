@@ -61,7 +61,7 @@
                             "fieldId": "edb19ed0-c74a-48f4-8f30-c5aabd74fffb",
                             "name": "prop_cm_title",
                             "value": "",
-                            "label": "Case Title/Name", //TODO localise
+                            "label": "Case Title/Name",
                             "unitsLabel": "",
                             "description": "",
                             "visibilityConfig": {
@@ -90,7 +90,7 @@
                         "name": "openesdh/common/widgets/controls/Select",
                         "config": {
                             "id": "prop_oe_status",
-                            "label": "Case Status", //TODO localise
+                            "label": "Case Status",
                             "optionsConfig": {
                                 "fixed": "{caseConstraintsList.simple.caseStatusConstraint}"
                             },
