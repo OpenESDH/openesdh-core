@@ -505,6 +505,7 @@ public class CaseServiceImpl implements CaseService {
             shareZones.add(AuthorityService.ZONE_AUTH_ALFRESCO);
             // Add the authority group to the Share zone so that it is not
             // searchable from the authority picker.
+            groupName = authorityService.createAuthority(AuthorityType.GROUP, groupSuffix, groupSuffix, shareZones);
         }
         permissionService.setPermission(caseNodeRef, groupName, permission, true);
         NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef(groupName);
