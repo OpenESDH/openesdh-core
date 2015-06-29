@@ -206,7 +206,7 @@
                     {
                         "name": "openesdh/common/widgets/controls/DojoDateExt",
                         "config": {
-                            "id": "CREATE_CASE_DIALOG_END_DATE",
+                            "id": "prop_base_endDate",
                             "unitsLabel": "dd/mm/\u00e5\u00e5\u00e5\u00e5",
                             "description": "",
                             "label": "",
