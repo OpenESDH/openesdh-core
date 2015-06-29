@@ -58,10 +58,11 @@
                     {
                         "name": "alfresco/forms/controls/DojoValidationTextBox",
                         "config": {
+                            "id":"CREATE_CASE_DIALOG_TITLE_INPUT_FIELD",
                             "fieldId": "edb19ed0-c74a-48f4-8f30-c5aabd74fffb",
                             "name": "prop_cm_title",
                             "value": "",
-                            "label": "Case Title/Name", //TODO localise
+                            "label": "Case Title/Name",
                             "unitsLabel": "",
                             "description": "",
                             "visibilityConfig": {
@@ -89,8 +90,8 @@
                     {
                         "name": "openesdh/common/widgets/controls/Select",
                         "config": {
-                            "id": "prop_oe_status",
-                            "label": "Case Status", //TODO localise
+                            "id": "CREATE_CASE_DIALOG_STATUS_SELECT_CONTROL",
+                            "label": "Case Status",
                             "optionsConfig": {
                                 "fixed": "{caseConstraintsList.simple.caseStatusConstraint}"
                             },
@@ -113,7 +114,7 @@
                 "widgets": [
                     {
                         "name": "openesdh/common/widgets/controls/AuthorityPicker",
-                        "id": "create_case_dialog_auth_picker",
+                        "id": "CREATE_CASE_DIALOG_AUTH_PICKER",
                         "config": {
                             "label": "create-case.label.button.case-owner",
                             "name": "assoc_base_owners_added",
@@ -193,7 +194,7 @@
                     {
                         "name": "openesdh/common/widgets/controls/DojoDateExt",
                         "config": {
-                            "id": "prop_base_startDate",
+                            "id": "CREATE_CASE_DIALOG_START_DATE",
                             "unitsLabel": "dd/mm/\u00e5\u00e5\u00e5\u00e5",
                             "description": "",
                             "label": "",
@@ -205,7 +206,7 @@
                     {
                         "name": "openesdh/common/widgets/controls/DojoDateExt",
                         "config": {
-                            "id": "prop_base_endDate",
+                            "id": "CREATE_CASE_DIALOG_END_DATE",
                             "unitsLabel": "dd/mm/\u00e5\u00e5\u00e5\u00e5",
                             "description": "",
                             "label": "",
@@ -227,6 +228,7 @@
                     {
                         "name": "alfresco/forms/controls/DojoTextarea",
                         "config": {
+                            id:"CREATE_CASE_DIALOG_DESCRIPTION_FIELD",
                             "fieldId": "63854d9e-295a-454d-8c0d-685de6f68d71",
                             "name": "prop_cm_description",
                             "value": "",

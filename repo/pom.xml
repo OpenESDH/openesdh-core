@@ -55,6 +55,17 @@
         </dependencies>
     </dependencyManagement>
 
+    <distributionManagement>
+        <repository>
+            <id>Alfresco-RELEASES</id>
+            <url>http://nexus.magenta-aps.dk/nexus/content/repositories/Alfresco-RELEASES</url>
+        </repository>
+        <snapshotRepository>
+            <id>Alfresco-SNAPSHOTS</id>
+            <url>http://nexus.magenta-aps.dk/nexus/content/repositories/Alfresco-SNAPSHOTS</url>
+        </snapshotRepository>
+    </distributionManagement>
+    
     <dependencies>
         <!-- Following dependencies are needed for compiling Java code in src/main/java;
              <scope>provided</scope> is inherited for each of the following;
