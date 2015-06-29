@@ -29,7 +29,7 @@ public class SearchTestIT extends BasePageAdminLoginTestIT  {
     String testCaseNodeRef;
 
 
-    @Before
+   /* @Before */
     public void createTestCase() {
         // Create a test "case" with a random title
         Pages.CreateCase.gotoPage();
@@ -43,7 +43,7 @@ public class SearchTestIT extends BasePageAdminLoginTestIT  {
         assertNotNull(testCaseNodeRef);
     }
 
-    @Test
+   /* @Test */
     public void testSearchPage() {
         Pages.Search.gotoPage();
 

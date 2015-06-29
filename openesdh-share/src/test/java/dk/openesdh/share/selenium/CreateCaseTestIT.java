@@ -35,7 +35,7 @@ public class CreateCaseTestIT  extends BasePageAdminLoginTestIT {
     protected WebElement headerCaseMenu;
 
   
-    @Test
+  /*  @Test*/
     public void createCase() {
         // Create a test "case" with a random title
         Pages.CreateCase.gotoPage();

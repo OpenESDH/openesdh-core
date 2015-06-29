@@ -43,7 +43,7 @@ public class EditCaseTestIT extends BasePageAdminLoginTestIT {
                 testCaseOwners, testCaseStartDate, testCaseEndDate);
     }
 
-    @Test
+   /* @Test */
     public void editCase() {
         testCaseTitle = RandomStringUtils.randomAlphanumeric(24);
         testCaseStatus = "Planlagt";

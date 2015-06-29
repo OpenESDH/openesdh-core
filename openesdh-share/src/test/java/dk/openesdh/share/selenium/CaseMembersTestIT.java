@@ -28,7 +28,7 @@ public class CaseMembersTestIT extends BasePageAdminLoginTestIT {
     String testCaseID;
 
     
-    // @Before --TODO : Re-enable this when the code uses the new authority-picker
+    /* @Before --TODO : Re-enable this when the code uses the new authority-picker */
     public void setup() {
 
         // Create a test "case" with a random title

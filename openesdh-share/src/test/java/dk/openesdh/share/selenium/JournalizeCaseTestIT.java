@@ -28,7 +28,7 @@ public class JournalizeCaseTestIT extends BasePageAdminLoginTestIT {
     String testCaseNodeRef;
 
     
-    @Before
+    /*@Before*/
     public void setup()  {
         // Create a test "case" with a random title
         Pages.CreateCase.gotoPage();

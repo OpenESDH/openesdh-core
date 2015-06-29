@@ -27,7 +27,7 @@ public class CaseDocumentsTestIT extends BasePageAdminLoginTestIT {
 
   //TKR: Test comment
 
-    @Before
+    /*@Before All tests are disabled for now */
     public void setup() {
         Pages.Login.loginWith(User.ADMIN);
 
@@ -47,7 +47,7 @@ public class CaseDocumentsTestIT extends BasePageAdminLoginTestIT {
         assertTrue(Pages.CaseDocumentsPage.isAt());
     }
 
-    @Test
+    /*@Test  //All tests are disabled for now */
     public void checkAllDashletsExist(){
         Pages.CaseDocumentsPage.addDocRecordClick();
         Pages.CaseDocumentsPage.closeDialogClick();
