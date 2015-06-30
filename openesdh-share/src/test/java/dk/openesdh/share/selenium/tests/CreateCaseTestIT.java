@@ -1,4 +1,4 @@
-package dk.openesdh.share.selenium;
+package dk.openesdh.share.selenium.tests;
 
 
 import dk.magenta.share.selenium.framework.Browser;

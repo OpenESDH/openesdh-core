@@ -1,15 +1,9 @@
 package dk.openesdh.share.selenium.framework.pages;
 
 import dk.magenta.share.selenium.framework.Browser;
-import dk.openesdh.share.selenium.framework.pages.BasePage;
-
 import org.openqa.selenium.Alert;
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
-
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class CaseDashboardPage extends BasePage {
 
@@ -23,7 +17,6 @@ public class CaseDashboardPage extends BasePage {
 
     @FindBy(id = "HEADER_CASE_EDIT_text")
     WebElement headerCaseEditButton;
-
 
     @FindBy(id = "HEADER_CASE_UNJOURNALIZE_text")
     WebElement headerUnJournalizeItem;

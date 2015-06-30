@@ -36,7 +36,7 @@ define(["dojo/_base/declare",
             },
 
             loadContactList: function (payload) {
-                this.searchTerm = payload.term;
+                this.searchTerm = payload.searchTerm;
                 this.loadData();
             },
 
