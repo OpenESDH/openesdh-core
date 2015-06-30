@@ -1,7 +1,7 @@
 package dk.openesdh.share.selenium.framework.pages;
 
 import dk.magenta.share.selenium.framework.Browser;
-import dk.magenta.share.selenium.framework.pages.BasePage;
+import dk.openesdh.share.selenium.framework.pages.BasePage;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;

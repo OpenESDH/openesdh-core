@@ -2,7 +2,7 @@ package dk.openesdh.share.selenium.framework.pages;
 
 
 import dk.magenta.share.selenium.framework.Browser;
-import dk.magenta.share.selenium.framework.pages.BasePage;
+import dk.openesdh.share.selenium.framework.pages.BasePage;
 import dk.openesdh.share.selenium.framework.enums.User;
 
 public class DashboardPage extends BasePage {
@@ -26,7 +26,6 @@ public class DashboardPage extends BasePage {
     public void gotoPage(User user) {
         String userURL = BASE_URL + "/page/user/" + user.username() + "/dashboard";
         Browser.open(userURL);
-
     }
 
 }

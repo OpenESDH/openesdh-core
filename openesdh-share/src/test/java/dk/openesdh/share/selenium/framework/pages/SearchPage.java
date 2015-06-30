@@ -1,7 +1,7 @@
 package dk.openesdh.share.selenium.framework.pages;
 
 import dk.magenta.share.selenium.framework.Browser;
-import dk.magenta.share.selenium.framework.pages.BasePage;
+import dk.openesdh.share.selenium.framework.pages.BasePage;
 import dk.openesdh.share.selenium.framework.Pages;
 import dk.openesdh.share.selenium.framework.enums.User;
 

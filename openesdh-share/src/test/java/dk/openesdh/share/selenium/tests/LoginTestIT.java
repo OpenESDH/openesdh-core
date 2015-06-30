@@ -1,23 +1,17 @@
-package dk.openesdh.share.selenium;
+package dk.openesdh.share.selenium.tests;
 
 import static org.junit.Assert.*;
 import dk.magenta.share.selenium.framework.Browser;
 import dk.openesdh.share.selenium.framework.Pages;
 import dk.openesdh.share.selenium.framework.enums.User;
 
+import dk.openesdh.share.selenium.framework.pages.BasePage;
 import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
-
-public class LoginTestIT {
-
-    @BeforeClass
-    public static void setUpBeforeClass() {
-        Browser.initialize();
-    	Pages.initialize();
-    }
+public class LoginTestIT extends BasePage {
 
     @Test
     public void testCanGoToLoginPage() {
@@ -32,10 +26,17 @@ public class LoginTestIT {
         Pages.Login.logout();
     }
 
+    @Test
+    public void testCanLoginWithNormalUser() {
+        Pages.Login.loginWith(User.ALICE);
+        assertTrue(Pages.Dashboard.isAt(User.ALICE));
+        Pages.Login.logout();
+    }
 
     @AfterClass
     public static void tearDownAfterClass() {
         Browser.Driver.close();
     }
+
 
 }

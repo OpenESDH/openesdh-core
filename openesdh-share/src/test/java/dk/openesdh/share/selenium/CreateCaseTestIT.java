@@ -1,58 +1,89 @@
 package dk.openesdh.share.selenium;
 
 
-import dk.openesdh.share.selenium.framework.BasePageAdminLoginTestIT;
+import dk.magenta.share.selenium.framework.Browser;
 import dk.openesdh.share.selenium.framework.Pages;
 import dk.openesdh.share.selenium.framework.enums.User;
-
-import org.apache.commons.lang.RandomStringUtils;
-import org.junit.*;
+import dk.openesdh.share.selenium.framework.pages.BasePage;
+import org.apache.commons.lang3.RandomStringUtils;
+import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
+import org.openqa.selenium.support.ui.ExpectedConditions;
+import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
-
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class CreateCaseTestIT  extends BasePageAdminLoginTestIT {
+public class CreateCaseTestIT  extends BasePage {
 
-    String testCaseTitle;
-    String testCaseStatus;
-    List<String> testCaseOwners;
-    String testCaseStartDate;
-    String testCaseEndDate;
 
-    String testCaseNodeRef;
+    @FindBy(id="CREATE_CASE_DIALOG")
+    WebElement createCaseDialog;
 
-    /**
-     * Headermenu item "Cases"
-     */
-    @FindBy(id = "HEADER_CASES_DROPDOWN_text")
-    protected WebElement headerCaseMenu;
+    @FindBy(name = "prop_cm_title")
+    WebElement caseTitleTextBox;
 
-  
+    @FindBy(id="CREATE_CASE_DIALOG_STATUS_SELECT_CONTROL")
+    WebElement caseStatusSelectButton;
+
+    @FindBy(id="CREATE_CASE_DIALOG_AUTH_PICKER")
+    WebElement caseAuthPickerButton;
+
+    @FindBy(name = "prop_base_startDate")
+    WebElement caseStartDateField;
+
+    @FindBy(name = "prop_base_endDate")
+    WebElement caseEndDateField;
+
+    @FindBy(name = "prop_cm_description")
+    WebElement caseDescriptionField;
+
+    @FindBy(css="#CREATE_CASE_DIALOG .dijitDialogPaneContent .footer .confirmation .dijitButtonNode")
+    WebElement createCaseDialogConfirmButton;
+
+    @FindBy(css="#CREATE_CASE_DIALOG .dijitDialogPaneContent .footer .cancellation .dijitButtonNode")
+    WebElement createCaseDialogCancelButton;
+
+    //
     @Test
-    public void createCase() {
-        // Create a test "case" with a random title
-        Pages.CreateCase.gotoPage();
-        testCaseTitle = RandomStringUtils.randomAlphanumeric(24);
-        testCaseStatus = "Planlagt";
-        testCaseOwners = new LinkedList<String>();//the current user is now add as owner as default 
-        testCaseStartDate = "";
-        testCaseEndDate = "";
-        testCaseNodeRef = Pages.CreateCase.createCase(testCaseTitle, testCaseStatus,
-                testCaseOwners, testCaseStartDate, testCaseEndDate);
-        assertNotNull(testCaseNodeRef);
+    public void createCaseAsAdmin() {
+        this.loginAsUser(User.ADMIN);
+        WebDriverWait wait = new WebDriverWait(Browser.Driver,10);
+        String caseTitleText = RandomStringUtils.randomAlphanumeric(12);
+        this.clickCasesMenuItem();
+        assertTrue(createCaseDialog != null);
+        this.clickCreateCaseMenuItem();
+        this.caseTitleTextBox.clear();
+        this.caseTitleTextBox.sendKeys(caseTitleText);
+        this.caseDescriptionField.sendKeys(caseTitleText);
+        assert createCaseDialogConfirmButton != null;
+        createCaseDialogConfirmButton.click();
+
+        WebElement caseDashboardMenuButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("HEADER_CASE_DASHBOARD")));
+        caseDashboardMenuButton.click();
 
         assertTrue(Pages.CaseDashboard.isAt());
-
-        // TODO: Check that case dashboard appears as desired
     }
 
-   
+    @Test
+    public void createCaseAsNonAdminUser() {
+        this.loginAsUser(User.ALICE);
+        WebDriverWait wait = new WebDriverWait(Browser.Driver,10);
+        String caseTitleText = RandomStringUtils.randomAlphanumeric(12);
+        this.clickCasesMenuItem();
+        assertTrue(createCaseDialog != null);
+        this.clickCreateCaseMenuItem();
+        this.caseTitleTextBox.clear();
+        this.caseTitleTextBox.sendKeys(caseTitleText);
+        this.caseDescriptionField.sendKeys(caseTitleText);
+        assert createCaseDialogConfirmButton != null;
+        createCaseDialogConfirmButton.click();
+
+        WebElement caseDashboardMenuButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("HEADER_CASE_DASHBOARD")));
+        caseDashboardMenuButton.click();
+
+        assertTrue(Pages.CaseDashboard.isAt());
+    }
 
 }

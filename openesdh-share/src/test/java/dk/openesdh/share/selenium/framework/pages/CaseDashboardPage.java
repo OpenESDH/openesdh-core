@@ -1,7 +1,7 @@
 package dk.openesdh.share.selenium.framework.pages;
 
 import dk.magenta.share.selenium.framework.Browser;
-import dk.magenta.share.selenium.framework.pages.BasePage;
+import dk.openesdh.share.selenium.framework.pages.BasePage;
 
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
@@ -27,7 +27,6 @@ public class CaseDashboardPage extends BasePage {
 
     @FindBy(id = "HEADER_CASE_UNJOURNALIZE_text")
     WebElement headerUnJournalizeItem;
-    
     
 	@FindBy(xpath = "//div[div[span[@role='heading' and (text()='Journalisér...' or text()='Journalize...' ) ]] and contains(@class,'alfresco-dialog-AlfDialog') ]//span[span[span/text()= 'Vælg' or span/text()='Choose'] and contains(@class,'dijitButtonNode') ]")
 	WebElement chooseJounalizeKeyButton;

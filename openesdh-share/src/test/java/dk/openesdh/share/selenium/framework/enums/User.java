@@ -13,8 +13,9 @@ import java.util.Map;
  */
 public enum User {
     ADMIN("admin", "admin", "admin", "admin"),
-    ALICE("alice", "alice", "Alice", "Doe"), // Alias for default user
-    BOB("bob", "bob", "Bob", "Doe"), // Assign CUSTOMER, CUSTOMER_CASES, CUSTOMER_STAFF
+    ALICE("abeecher", "test", "Alice", "Beecher"), // Alias for default user
+    MIKE_JACKSON("mjackson", "test", "Mike", "Jackson"), // Alias for default user
+    BOB("bob", "test", "Bob", "Bygherren"), // Assign CUSTOMER, CUSTOMER_CASES, CUSTOMER_STAFF
     CAROL("carol", "carol", "Carol", "Doe"), // Assign JOB, JOB_CASES, JOB_STAFF
     DAVE("dave", "dave", "Dave", "Doe"), // Assign OPERATIONS, OPERATIONS_CASES, OPERATIONS_STAFF
     INVALID("invalid", "invalid", "", ""), // This user should *NOT* be made
@@ -22,39 +23,39 @@ public enum User {
 
     private final String username;
     private final String password;
-    private final String firstname;
-    private final String lastname;
+    private final String firstName;
+    private final String lastName;
 
     private static final Map<String, User> fullnameStringToEnum = new HashMap<String, User>();
 
     static {
         for(User user : values()) {
-            fullnameStringToEnum.put(user.fullname(), user);
+            fullnameStringToEnum.put(user.fullName(), user);
         }
     }
 
     private User(final String newUsername,
                  final String newPassword,
-                 final String newFirstname,
-                 final String newLastname) {
+                 final String newFirstName,
+                 final String newLastName) {
         this.username = newUsername;
         this.password = newPassword;
-        this.firstname = newFirstname;
-        this.lastname = newLastname;
+        this.firstName = newFirstName;
+        this.lastName = newLastName;
     }
 
     public String username() { return username; }
     public String password() { return password; }
-    public String firstname() { return firstname; }
-    public String lastname() { return lastname; }
-    public String fullname() { return firstname + " " + lastname; }
+    public String firstName() { return firstName; }
+    public String lastName() { return lastName; }
+    public String fullName() { return firstName + " " + lastName; }
 
     /**
      * Convert fullname String to User
-     * @param fullname String with the users fullname
+     * @param fullName String with the users fullname
      * @return
      */
-    public static User fromFullnameString(String fullname) {
-        return fullnameStringToEnum.get(fullname);
+    public static User fromFullNameString(String fullName) {
+        return fullnameStringToEnum.get(fullName);
     }
 }
