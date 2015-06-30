@@ -83,7 +83,11 @@ define(["dojo/_base/declare",
 
             _showCreateCaseDialog: function dk_openesdh__showCreateCaseDialog(payload) {
                 var publishOnSuccessTopic = (payload.publishOnSuccessTopic != null ? payload.publishOnSuccessTopic : this.CreateCaseSuccess);
+                if(this.createCaseDialog){
+                    this.createCaseDialog.destroy();
+                }
                 this.createCaseDialog = new AlfFormDialog({
+                    id:"CREATE_CASE_DIALOG",
                     dialogTitle: this.message("create-case.dialog.title"),
                     dialogConfirmationButtonTitle: this.message("create-case.label.button.create"),
                     dialogCancellationButtonTitle: this.message("create-case.label.button.cancel"),

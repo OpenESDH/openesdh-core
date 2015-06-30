@@ -1,14 +1,9 @@
 package dk.openesdh.share.selenium;
 
 import dk.magenta.share.selenium.framework.Browser;
-import dk.openesdh.share.selenium.framework.BasePageAdminLoginTestIT;
+import dk.openesdh.share.selenium.framework.pages.BasePage;
 import dk.openesdh.share.selenium.framework.Pages;
-import dk.openesdh.share.selenium.framework.enums.User;
-import dk.openesdh.share.selenium.framework.pages.CreateCasePage;
 
-import org.junit.After;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -25,19 +20,16 @@ import static org.junit.Assert.assertTrue;
  * @author Søren Kirkegård
  *
  */
-public class CaseMenuTestIT extends BasePageAdminLoginTestIT {
+public class CaseMenuTestIT extends BasePage {
 
     
     @Test
     public void testCaseMenuIsVisibleAndClickable() {
-        Pages.Login.loginWith(User.ADMIN);
-        assertTrue(Pages.Dashboard.isAt(User.ADMIN));
-
         Pages.Dashboard.clickCasesMenuItem();
         Pages.Dashboard.clickCasesMenuSearchItem();
         assertTrue(Pages.Search.isAt());
         Pages.Search.clickCasesMenuItem();
-        Pages.Search.clickCreateSimpleCaseItem();
+//        Pages.Search.clickCreateSimpleCaseItem();
         // assertTrue(Pages.CreateCase.isAt()); //The dialog is now displayed in a pop-up
         WebElement createCaseDialogElem = Browser.Driver
                 .findElement(By
