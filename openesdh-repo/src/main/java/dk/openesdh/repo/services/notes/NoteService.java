@@ -1,25 +1,52 @@
 package dk.openesdh.repo.services.notes;
 
-import dk.openesdh.repo.model.OpenESDHModel;
-import org.alfresco.model.ContentModel;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.namespace.NamespaceService;
-import org.alfresco.service.namespace.QName;
-
-import java.io.Serializable;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+
+import org.alfresco.service.cmr.repository.NodeRef;
 
 /**
  * Created by syastrov on 2/6/15.
  */
 public interface NoteService {
-    public NodeRef createNote(NodeRef nodeRef, String content, String author);
+    /**
+     * Creates a note for the provided parent node
+     * 
+     * @param parentNodeRef
+     *            Parent node to create a new note for
+     * @param content
+     *            note message
+     * @param author
+     *            note author
+     * @return node ref of the newly created note
+     */
+    public NodeRef createNote(NodeRef parentNodeRef, String content, String author);
 
-    public void updateNote(NodeRef nodeRef, String content, String author);
+    /**
+     * Updates note info
+     * 
+     * @param noteRef
+     *            node ref of the note to update
+     * @param content
+     *            a new content of the note
+     * @param author
+     *            a new author of the note
+     */
+    public void updateNote(NodeRef noteRef, String content, String author);
 
-    public List<NodeRef> getNotes(NodeRef nodeRef);
+    /**
+     * Retrieves all notes of the provided parent node
+     * 
+     * @param parentNodeRef
+     *            Parent node to retrieve the notes for
+     * @return a list of notes for the provide parent node
+     */
+    public List<NodeRef> getNotes(NodeRef parentNodeRef);
 
-    public void deleteNote(NodeRef nodeRef);
+    /**
+     * Deletes note
+     * 
+     * @param noteRef
+     *            node ref of the note to delete
+     */
+    public void deleteNote(NodeRef noteRef);
 }

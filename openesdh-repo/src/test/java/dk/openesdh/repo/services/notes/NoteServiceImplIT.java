@@ -1,8 +1,11 @@
 package dk.openesdh.repo.services.notes;
 
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
-import dk.openesdh.repo.model.OpenESDHModel;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+
+import java.util.List;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -19,9 +22,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.util.List;
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
 
-import static org.junit.Assert.*;
+import dk.openesdh.repo.model.OpenESDHModel;
 
 /**
  * Created by syastrov on 2/6/15.
@@ -42,14 +46,14 @@ public class NoteServiceImplIT {
     @Qualifier("repositoryHelper")
     protected Repository repositoryHelper;
 
-    NodeRef nodeRef;
+    NodeRef parentNodeRef;
 
     @Before
     public void setUp() throws Exception {
         AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();
 
-        // Create a node to test with
-        nodeRef = nodeService.createNode(repositoryHelper.getCompanyHome(),
+        // Create a parent node to test notes with
+        parentNodeRef = nodeService.createNode(repositoryHelper.getCompanyHome(),
                 ContentModel.ASSOC_CONTAINS, QName.createQName
                         (NamespaceService.CONTENT_MODEL_1_0_URI, "testNode"),
                 ContentModel.TYPE_CONTENT).getChildRef();
@@ -58,27 +62,43 @@ public class NoteServiceImplIT {
     @After
     public void tearDown() throws Exception {
         AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();
-        nodeService.deleteNode(nodeRef);
+        nodeService.deleteNode(parentNodeRef);
     }
 
     @Test
     public void testCreateNote() throws Exception {
-        assertTrue("Notes list is empty", noteService.getNotes(nodeRef).isEmpty());
+        assertTrue("Notes list is empty", noteService.getNotes(parentNodeRef).isEmpty());
 
-        NodeRef noteNodeRef = noteService.createNote(nodeRef, "My note",
-                "Author");
+        NodeRef noteNodeRef = createNote();
 
-        assertTrue("Created note nodeRef exists", nodeService.exists(noteNodeRef));
-        assertTrue("Notes list contains newly created note", noteService.getNotes(nodeRef).contains(noteNodeRef));
+        assertTrue("A nodeRef of the created note should exist, but it doesn't", nodeService.exists(noteNodeRef));
+        assertTrue("Notes list should contain newly created note",
+                noteService.getNotes(parentNodeRef).contains(noteNodeRef));
     }
 
     @Test
     public void testUpdateNote() throws Exception {
-        NodeRef noteNodeRef = noteService.createNote(nodeRef, "My note", "Author");
+        NodeRef noteNodeRef = createNote();
         noteService.updateNote(noteNodeRef, "My updated note", "Updated author");
-        List<NodeRef> notes = noteService.getNotes(nodeRef);
-        assertEquals("Updated note contains updated content", "My updated note",
-                nodeService.getProperty(
-                        notes.get(0), OpenESDHModel.PROP_NOTE_CONTENT));
+        List<NodeRef> notes = noteService.getNotes(parentNodeRef);
+
+        assertEquals("Updated note should contain updated content", "My updated note",
+                nodeService.getProperty(notes.get(0), OpenESDHModel.PROP_NOTE_CONTENT));
+
+        assertEquals("Updated note should contain updated author", "Updated author",
+                nodeService.getProperty(notes.get(0), ContentModel.PROP_AUTHOR));
+    }
+
+    @Test
+    public void testDeleteNote() throws Exception {
+        NodeRef noteNodeRef = createNote();
+        assertTrue("A nodeRef of the created note should exist, but it doesn't", nodeService.exists(noteNodeRef));
+
+        noteService.deleteNote(noteNodeRef);
+        assertFalse("A nodeRef of the deleted note shouldn't exist", nodeService.exists(noteNodeRef));
+    }
+
+    private NodeRef createNote() {
+        return noteService.createNote(parentNodeRef, "My note", "Author");
     }
 }
