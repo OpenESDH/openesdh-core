@@ -41,6 +41,10 @@
         <property name="dictionaryService">
             <ref bean="DictionaryService"/>
         </property>
+        
+        <property name="permissionsModelDAO">
+            <ref bean="permissionsModelDAO"/>
+        </property>
     </bean>
 
     <bean id="NodeInfoService" class="dk.openesdh.repo.services.NodeInfoServiceImpl">

@@ -5,14 +5,18 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.i18n.MessageLookup;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.extensions.surf.util.I18NUtil;
 
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CaseService;
 
 /**
  * Created by syastrov on 8/26/14.
@@ -59,5 +63,25 @@ public class Utils {
     public static String getRoleDisplayLabel(String role, MessageLookup messageLookup) {
         String displayRoleName = messageLookup.getMessage(ROLE_NAME_MESSAGE_PREFIX + role, I18NUtil.getLocale());
         return StringUtils.isEmpty(displayRoleName) ? role : displayRoleName;
+    }
+
+    public static JSONObject getCaseTypeJson(QName caseType, DictionaryService dictionaryService,
+            CaseService caseService) throws JSONException {
+        JSONObject c = getCaseTypeJson(caseType, dictionaryService);
+        String type = StringUtils.substringBefore(caseType.getPrefixString(), ":");
+        c.put("Type", type);
+        c.put("createFormWidgets", caseService.getCaseCreateFormWidgets(type));
+        return c;
+    }
+
+    public static JSONObject getCaseTypeJson(QName caseType, DictionaryService dictionaryService)
+            throws JSONException {
+        JSONObject c = new JSONObject();
+
+        c.put("NamespaceURI", caseType.getNamespaceURI());
+        c.put("Prefix", caseType.getPrefixString());
+        c.put("Name", caseType.getLocalName());
+        c.put("Title", dictionaryService.getType(caseType).getTitle(dictionaryService));
+        return c;
     }
 }

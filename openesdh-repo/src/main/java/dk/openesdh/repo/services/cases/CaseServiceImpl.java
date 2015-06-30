@@ -1,16 +1,45 @@
 package dk.openesdh.repo.services.cases;
 
-import dk.openesdh.repo.model.OpenESDHModel;
+import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.repo.security.permissions.PermissionReference;
+import org.alfresco.repo.security.permissions.impl.ModelDAO;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
-import org.alfresco.service.cmr.dictionary.*;
+import org.alfresco.service.cmr.dictionary.AspectDefinition;
+import org.alfresco.service.cmr.dictionary.AssociationDefinition;
+import org.alfresco.service.cmr.dictionary.ClassDefinition;
+import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
+import org.alfresco.service.cmr.dictionary.DictionaryService;
+import org.alfresco.service.cmr.dictionary.PropertyDefinition;
 import org.alfresco.service.cmr.lock.LockService;
 import org.alfresco.service.cmr.lock.LockType;
-import org.alfresco.service.cmr.repository.*;
+import org.alfresco.service.cmr.repository.ChildAssociationRef;
+import org.alfresco.service.cmr.repository.ContentReader;
+import org.alfresco.service.cmr.repository.ContentService;
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AccessPermission;
 import org.alfresco.service.cmr.security.AccessStatus;
@@ -25,21 +54,24 @@ import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.security.access.AccessDeniedException;
 
-import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import dk.openesdh.repo.model.OpenESDHModel;
 
 /**
  * Created by torben on 19/08/14.
  */
 public class CaseServiceImpl implements CaseService {
+
+    private static final String MSG_NO_CASE_CREATOR_PERMISSION_DEFINED = "security.permission.err_no_case_creator_permission_defined";
+    private static final String MSG_NO_CASE_CREATOR_GROUP_DEFINED = "security.permission.err_no_case_creator_group_defined";
+    private static final String MSG_CASE_CREATOR_PERMISSION_VIOLATION = "security.permission.err_case_creator_permission_violation";
+
+    private static final String CASE = "Case";
+    private static final String CREATOR = "Creator";
+    private static final String READER = "Reader";
+    private static final String WRITER = "Writer";
 
     private static Logger LOGGER = Logger.getLogger(CaseServiceImpl.class);
 
@@ -55,6 +87,7 @@ public class CaseServiceImpl implements CaseService {
     private AuthorityService authorityService;
 
     private PermissionService permissionService;
+    private ModelDAO permissionsModelDAO;
     private TransactionService transactionService;
     private DictionaryService dictionaryService;
     private OwnableService ownableService;
@@ -100,6 +133,10 @@ public class CaseServiceImpl implements CaseService {
     }
 
     //</editor-fold>
+
+    public void setPermissionsModelDAO(ModelDAO permissionsModelDAO) {
+        this.permissionsModelDAO = permissionsModelDAO;
+    }
 
     @Override
     public NodeRef getOpenESDHRootFolder() {
@@ -151,9 +188,37 @@ public class CaseServiceImpl implements CaseService {
 
         String ownersPermissionGroupName = setupPermissionGroup(caseNodeRef,
                 caseId, "CaseOwners");
+
+        setupCaseTypePermissionGroups(caseNodeRef, caseId);
+
         setupPermissionGroups(caseNodeRef, caseId);
+
         // The CaseOwnersBehaviour takes care of adding the owners to the
         // CaseOwners group
+    }
+
+    protected void setupCaseTypePermissionGroups(NodeRef caseNodeRef, String caseId) {
+
+        Set<String> settablePermissions = permissionService.getSettablePermissions(caseNodeRef);
+
+        List<String> authoritiesWithSetPermissions = getAllAuthoritiesWithSetPermissions(caseNodeRef);
+
+        for(String permission : settablePermissions){
+            String groupNameToGrant = PermissionService.GROUP_PREFIX + permission;
+            if (authorityService.authorityExists(groupNameToGrant)
+                    && !authoritiesWithSetPermissions.contains(groupNameToGrant)) {
+                permissionService.setPermission(caseNodeRef, groupNameToGrant, permission, true);
+            }
+        }
+    }
+
+    protected List<String> getAllAuthoritiesWithSetPermissions(NodeRef caseNodeRef) {
+        ArrayList<String> authorities = new ArrayList<String>();
+        Set<AccessPermission> permissions = permissionService.getAllSetPermissions(caseNodeRef);
+        for (AccessPermission permission : permissions) {
+            authorities.add(permission.getAuthority());
+        }
+        return authorities;
     }
 
     @Override
@@ -184,7 +249,7 @@ public class CaseServiceImpl implements CaseService {
 
                 // Check that it exists and is really a case node (extending type
                 // "case:base")
-                if (nodeService.exists(caseNodeRef) && isCaseNode(caseNodeRef)) {
+                if (!Objects.isNull(caseNodeRef) && nodeService.exists(caseNodeRef) && isCaseNode(caseNodeRef)) {
                     return caseNodeRef;
                 }
             } catch (NumberFormatException e) {
@@ -232,6 +297,10 @@ public class CaseServiceImpl implements CaseService {
     long getCaseUniqueId(NodeRef caseNodeRef) {
         // We are using node-dbid, as it is unique across nodes in a cluster
         return (long) nodeService.getProperty(caseNodeRef, ContentModel.PROP_NODE_DBID);
+    }
+
+    protected String getCaseRoleGroupName(String role) {
+        return PermissionService.GROUP_PREFIX + role;
     }
 
     protected String getCaseRoleGroupName(String caseId, String role) {
@@ -410,6 +479,13 @@ public class CaseServiceImpl implements CaseService {
         return name;
     }
 
+    /**
+     * Creates individual groups for provided case and sets appropriate
+     * permissions
+     * 
+     * @param caseNodeRef
+     * @param caseId
+     */
     void setupPermissionGroups(NodeRef caseNodeRef, String caseId) {
         Set<String> settablePermissions = permissionService.getSettablePermissions(caseNodeRef);
 
@@ -429,8 +505,7 @@ public class CaseServiceImpl implements CaseService {
             shareZones.add(AuthorityService.ZONE_AUTH_ALFRESCO);
             // Add the authority group to the Share zone so that it is not
             // searchable from the authority picker.
-            groupName = authorityService.createAuthority(AuthorityType
-                    .GROUP, groupSuffix, groupSuffix, shareZones);
+            groupName = authorityService.createAuthority(AuthorityType.GROUP, groupSuffix, groupSuffix, shareZones);
         }
         permissionService.setPermission(caseNodeRef, groupName, permission, true);
         NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef(groupName);
@@ -792,14 +867,18 @@ public class CaseServiceImpl implements CaseService {
 
     @Override
     public Map<String, Object> getSearchDefinition(QName caseType) {
+
         Map<String, Object> model = new HashMap<>();
         Map<QName, ClassDefinition> classDefs = new HashMap<>();
+
         List<PropertyDefinition> propertyDefs = new ArrayList<>();
 
         for (QName classType: dictionaryService.getSubTypes(caseType, true)) {
             ClassDefinition classDefinition = dictionaryService.getClass(classType);
             classDefs.put(classType, classDefinition);
+
             Map<QName, PropertyDefinition> classProperties = classDefinition.getProperties();
+
             for (QName propertyName: classProperties.keySet()) {
                 PropertyDefinition p = classProperties.get(propertyName);
                 propertyDefs.addAll(classProperties.values());
@@ -857,8 +936,10 @@ public class CaseServiceImpl implements CaseService {
 
         // Consumer doesn't have _ReadPermissions permission therefore run as
         // system
+
         Set<AccessPermission> allPermissionsSetToCase =
                 AuthenticationUtil.runAsSystem(() -> permissionService.getAllSetPermissions(getCaseById(caseId)));
+
 
         Set<String> currentUserAuthorities =
                 AuthenticationUtil.runAsSystem(() -> authorityService.getAuthoritiesForUser(AuthenticationUtil.getFullyAuthenticatedUser()));
@@ -870,5 +951,51 @@ public class CaseServiceImpl implements CaseService {
             .filter(permission -> isPermissionGrantedForCurrentUser.test(permission))
             .map(permission -> permission.getPermission())
             .collect(Collectors.toList());
+    }
+
+    @Override
+    public void checkCaseCreatorPermissions(QName caseTypeQName) {
+        String caseCreatorPermissionName = getCaseCreatorPermissionForCaseType(caseTypeQName);
+        if (StringUtils.isEmpty(caseCreatorPermissionName)) {
+            throw new AccessDeniedException(I18NUtil.getMessage(MSG_NO_CASE_CREATOR_PERMISSION_DEFINED,
+                    caseTypeQName.getLocalName()));
+        }
+
+        String caseCreatorGroup = PermissionService.GROUP_PREFIX + caseCreatorPermissionName;
+        if (!caseCreatorGroupExists(caseCreatorGroup)) {
+            throw new AccessDeniedException(I18NUtil.getMessage(MSG_NO_CASE_CREATOR_GROUP_DEFINED,
+                    caseTypeQName.getLocalName()));
+        }
+
+        if (AuthenticationUtil.isRunAsUserTheSystemUser()) {
+            return;
+        }
+
+        Set<String> currentUserAuthorities = authorityService.getAuthorities();
+
+        if (!currentUserAuthorities.contains(caseCreatorGroup)) {
+            throw new AccessDeniedException(I18NUtil.getMessage(MSG_CASE_CREATOR_PERMISSION_VIOLATION,
+                    caseTypeQName.getLocalName()));
+        }
+    }
+
+    private String getCaseCreatorPermissionForCaseType(QName caseTypeQName) {
+
+        Set<PermissionReference> allPermissions = permissionsModelDAO.getAllPermissions(caseTypeQName);
+
+        Predicate<PermissionReference> isCaseCreatorPermission = p -> p.getName().startsWith(CASE)
+                && p.getName().endsWith(CREATOR);
+
+        for (PermissionReference permission : allPermissions) {
+            if (isCaseCreatorPermission.test(permission)) {
+                return permission.getName();
+            }
+        }
+
+        return null;
+    }
+
+    private boolean caseCreatorGroupExists(String caseCreatorGroup) {
+        return authorityService.authorityExists(caseCreatorGroup);
     }
 }

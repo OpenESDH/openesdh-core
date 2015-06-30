@@ -2,6 +2,7 @@
  * Get the nodeRef of the folder to store new cases in.
  * @returns {string}
  */
+
 function getNewCaseFolderNodeRef() {
 
     var connector = remote.connect("alfresco");
@@ -17,9 +18,18 @@ function getNewCaseFolderNodeRef() {
  * Get the case types
  */
 function getCaseTypes() {
+	return retrieveCaseTypes("/api/openesdh/casetypes");
+}
+/**
+ * Get case types for current case creator 
+ */
+function getCaseTypesForCaseCreator(){
+	return retrieveCaseTypes("/api/openesdh/casetypes/casecreator");
+}
 
-    var connector = remote.connect("alfresco");
-    var caseTypes = connector.get("/api/openesdh/casetypes");
+function retrieveCaseTypes(url){
+	var connector = remote.connect("alfresco");
+    var caseTypes = connector.get(url);
 
     caseTypes = eval('(' + caseTypes + ')');
     var casesArr = new Array();
@@ -48,11 +58,10 @@ function getCaseRoleTypes(nodeRef, caseId) {
     return roleTypes;
 }
 
-
 /**
  * Get the permitted role types for cases. Used for the contact roles
  */
-function getPermittedRoleTypes() {
+function getPermittedRoleTypes () {
 
     var connector = remote.connect("alfresco");
     var roleTypes = connector.get("/api/openesdh/case/party/permittedRoles");
@@ -64,7 +73,7 @@ function getPermittedRoleTypes() {
  * Get the permitted status types for cases. Used for the case status select control input(s)
  */
 //TODO Don't think we need this any longer
-function getCaseStatusTypes() {
+function getCaseStatusTypes () {
     var connector = remote.connect("alfresco");
     var states = connector.get("/api/openesdh/case/party/permittedStates");
     states = eval('(' + states + ')');
@@ -74,7 +83,7 @@ function getCaseStatusTypes() {
 /**
  * Get the case nodeRef from caseId
  */
-function getCaseNodeRefFromId(caseId) {
+function getCaseNodeRefFromId(caseId){
     //When we're not within the case context this will always be null as CaseService is included in the
     if (caseId == null || caseId == undefined)
         return null;
@@ -91,8 +100,10 @@ function getCaseNodeRefFromId(caseId) {
 function getCaseIdFromNodeRef(nodeRef) {
     if (nodeRef == null || nodeRef == undefined)
         return null;
+
     var caseId = nodeRef.replace(":/", "");
     var connector = remote.connect("alfresco");
+
     var caseInfo = connector.get("/api/openesdh/documents/isCaseDoc/" + caseId);
     caseInfo = eval('(' + caseInfo + ')');
 
@@ -139,7 +150,6 @@ function hasWritePermission(caseId) {
             return true;
         }
     }
-
     return false;
 }
 
@@ -149,6 +159,7 @@ function getCurrentUser() {
     var currentUser = connector.get("/api/openesdh/currentUser");
     return eval('(' + currentUser + ')');
 }
+
 function getCaseConstraints() {
     var connector = remote.connect("alfresco");
     var constraints = connector.get("/api/openesdh/case/constraints");
