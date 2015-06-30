@@ -5,6 +5,7 @@ import dk.openesdh.share.selenium.framework.Pages;
 import dk.openesdh.share.selenium.framework.enums.User;
 import org.junit.*;
 import org.openqa.selenium.By;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
@@ -29,6 +30,9 @@ public abstract class BasePage {
     public static final String BASE_URL = "http://localhost:8081/share";
 
     //<editor-fold desc="WebElements Global to all pages">
+    @FindBy(id = "HEADER_HOME")
+    WebElement headerMenuHomeButton;
+
     @FindBy(id = "HEADER_CASES_DROPDOWN_text")
     WebElement headerMenuCasesButton;
 
@@ -80,7 +84,6 @@ public abstract class BasePage {
         } else {
             return null;
         }
-
     }
 
     public void clickCasesMenuItem() {
@@ -96,6 +99,37 @@ public abstract class BasePage {
     public void clickCreateCaseMenuItem() {
         Assert.assertNotNull(this.casesMenuSimpleCaseButton);
         this.casesMenuSimpleCaseButton.click();
+    }
+
+    public boolean createCaseMenuItemNotVisible() {
+        return !elementExists(this.casesMenuSimpleCaseButton);
+    }
+
+    /**
+     * To check if an element exists. According to the docs (see link below), the use of findeElements(By by) is the
+     * recommended way to check for the existence of an element, however this always throws the exception with which
+     * we're catching and using to return the false condition. So for now it is recommended to use this way to test for
+     * existence of an element.
+     * https://selenium.googlecode.com/git/docs/api/java/org/openqa/selenium/WebDriver.html#findElement-org.openqa.selenium.By-
+     *
+     * IMPORTANT => This test results in a wait time of around 10 seconds due to the wait before the exception is thrown
+     *
+     * @param element
+     * @return true/false
+     */
+    public boolean elementExists(WebElement element){
+        try{
+            element.getLocation();
+            return true;
+        }
+        catch (NoSuchElementException nse){
+            return false;
+        }
+    }
+
+    public void clickHomeMenuButton() {
+        Assert.assertNotNull(this.headerMenuHomeButton);
+        this.headerMenuHomeButton.click();
     }
 
     public static void selectAuthoritiesInPicker(String id, List<String> authorities) {

@@ -13,11 +13,12 @@ import java.util.Map;
  */
 public enum User {
     ADMIN("admin", "admin", "admin", "admin"),
-    ALICE("abeecher", "test", "Alice", "Beecher"), // Alias for default user
-    MIKE_JACKSON("mjackson", "test", "Mike", "Jackson"), // Alias for default user
-    BOB("bob", "test", "Bob", "Bygherren"), // Assign CUSTOMER, CUSTOMER_CASES, CUSTOMER_STAFF
-    CAROL("carol", "carol", "Carol", "Doe"), // Assign JOB, JOB_CASES, JOB_STAFF
-    DAVE("dave", "dave", "Dave", "Doe"), // Assign OPERATIONS, OPERATIONS_CASES, OPERATIONS_STAFF
+    ALICE("abeecher", "test", "Alice", "Beecher"), // Assign to CaseSimpleCreator Group
+    MIKE_JACKSON("mjackson", "test", "Mike", "Jackson"), // Assign to CaseSimpleReader Group
+    BOB("bob", "test", "Bob", "Bygherren"), // Assign to CaseSimpleWriter Group
+    CAROL("carol", "test", "Carol", "Doe"), // Normal user
+    HELENA("helena", "test", "Helena", "Christensen"), // Normal user
+    BRIGITTE("brigitte", "test", "Brigitte", "Nielsen"), // Normal user
     INVALID("invalid", "invalid", "", ""), // This user should *NOT* be made
     NONE("", "", "", "");	// This is a blank user for special cases
 

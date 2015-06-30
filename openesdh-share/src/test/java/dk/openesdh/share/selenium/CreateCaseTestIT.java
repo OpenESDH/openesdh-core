@@ -52,8 +52,8 @@ public class CreateCaseTestIT  extends BasePage {
         WebDriverWait wait = new WebDriverWait(Browser.Driver,10);
         String caseTitleText = RandomStringUtils.randomAlphanumeric(12);
         this.clickCasesMenuItem();
-        assertTrue(createCaseDialog != null);
         this.clickCreateCaseMenuItem();
+        assertTrue(createCaseDialog != null);
         this.caseTitleTextBox.clear();
         this.caseTitleTextBox.sendKeys(caseTitleText);
         this.caseDescriptionField.sendKeys(caseTitleText);
@@ -66,14 +66,17 @@ public class CreateCaseTestIT  extends BasePage {
         assertTrue(Pages.CaseDashboard.isAt());
     }
 
+    /**
+     * Remember that the user abeecher must be added to the CaseSimpleCreator Group.
+     */
     @Test
     public void createCaseAsNonAdminUser() {
         this.loginAsUser(User.ALICE);
         WebDriverWait wait = new WebDriverWait(Browser.Driver,10);
         String caseTitleText = RandomStringUtils.randomAlphanumeric(12);
         this.clickCasesMenuItem();
-        assertTrue(createCaseDialog != null);
         this.clickCreateCaseMenuItem();
+        assertTrue(createCaseDialog != null);
         this.caseTitleTextBox.clear();
         this.caseTitleTextBox.sendKeys(caseTitleText);
         this.caseDescriptionField.sendKeys(caseTitleText);
@@ -84,6 +87,16 @@ public class CreateCaseTestIT  extends BasePage {
         caseDashboardMenuButton.click();
 
         assertTrue(Pages.CaseDashboard.isAt());
+    }
+
+    //Attempt to create case a a non permitted user
+    @Test
+    public void createCaseAsNonPermittedUser() {
+        this.loginAsUser(User.BOB);
+        WebDriverWait wait = new WebDriverWait(Browser.Driver,10);
+        this.clickCasesMenuItem();
+        assertTrue(this.createCaseMenuItemNotVisible());
+        this.clickHomeMenuButton();
     }
 
 }
