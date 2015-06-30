@@ -13,6 +13,7 @@ import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 public class CreateCaseTestIT  extends BasePage {
@@ -53,11 +54,11 @@ public class CreateCaseTestIT  extends BasePage {
         String caseTitleText = RandomStringUtils.randomAlphanumeric(12);
         this.clickCasesMenuItem();
         this.clickCreateCaseMenuItem();
-        assertTrue(createCaseDialog != null);
+        assertNotNull(createCaseDialog);
         this.caseTitleTextBox.clear();
         this.caseTitleTextBox.sendKeys(caseTitleText);
         this.caseDescriptionField.sendKeys(caseTitleText);
-        assert createCaseDialogConfirmButton != null;
+        assertNotNull(createCaseDialogConfirmButton);
         createCaseDialogConfirmButton.click();
 
         WebElement caseDashboardMenuButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("HEADER_CASE_DASHBOARD")));
@@ -76,11 +77,11 @@ public class CreateCaseTestIT  extends BasePage {
         String caseTitleText = RandomStringUtils.randomAlphanumeric(12);
         this.clickCasesMenuItem();
         this.clickCreateCaseMenuItem();
-        assertTrue(createCaseDialog != null);
+        assertNotNull(createCaseDialog);
         this.caseTitleTextBox.clear();
         this.caseTitleTextBox.sendKeys(caseTitleText);
         this.caseDescriptionField.sendKeys(caseTitleText);
-        assert createCaseDialogConfirmButton != null;
+        assertNotNull(createCaseDialogConfirmButton);
         createCaseDialogConfirmButton.click();
 
         WebElement caseDashboardMenuButton = wait.until(ExpectedConditions.elementToBeClickable(By.id("HEADER_CASE_DASHBOARD")));
