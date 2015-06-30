@@ -23,6 +23,7 @@
         <!--This will build a jar with a “classes” classifier containing the classes, for use in other modules where
         we may need to extend openESDH classes-->
         <maven.alfresco.attachClasses>true</maven.alfresco.attachClasses>
+        <maven.alfresco.attachConfig>true</maven.alfresco.attachConfig>
     </properties>
 
     <!-- Following dependencies are needed for compiling Java code in src/main/java; 
