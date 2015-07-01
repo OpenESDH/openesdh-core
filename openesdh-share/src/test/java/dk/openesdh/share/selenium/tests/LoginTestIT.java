@@ -1,15 +1,13 @@
 package dk.openesdh.share.selenium.tests;
 
-import static org.junit.Assert.*;
 import dk.magenta.share.selenium.framework.Browser;
 import dk.openesdh.share.selenium.framework.Pages;
 import dk.openesdh.share.selenium.framework.enums.User;
-
 import dk.openesdh.share.selenium.framework.pages.BasePage;
-import org.junit.After;
 import org.junit.AfterClass;
-import org.junit.BeforeClass;
 import org.junit.Test;
+
+import static org.junit.Assert.assertTrue;
 
 public class LoginTestIT extends BasePage {
 

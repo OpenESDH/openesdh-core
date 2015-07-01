@@ -624,6 +624,7 @@ function generateContactPageWidgets(contactType, cType) {
                                 name: "openesdh/common/widgets/forms/SingleTextFieldForm",
                                 widthPc : 85,
                                 config: {
+                                    id:"CONTACT"+cType.toUpperCase()+"_SEARCH_FORM",
                                     useHash: false,
                                     showOkButton: true,
                                     okButtonLabel: msg.get("contacts.tool.search.button"),
@@ -631,9 +632,9 @@ function generateContactPageWidgets(contactType, cType) {
                                     okButtonPublishTopic: "CONTACT_LIST_SEARCH",
                                     okButtonPublishGlobal: true,
                                     textBoxLabel: msg.get("contacts.tool.search.button"),
-                                    textFieldName: "term",
+                                    textFieldName: "searchTerm",
                                     okButtonIconClass: "alf-white-search-icon",
-                                    okButtonClass: "call-to-action",
+                                    okButtonClass: "call-to-action contact-search-ok-button",
                                     textBoxIconClass: "alf-search-icon",
                                     textBoxCssClasses: "long",
                                     textBoxRequirementConfig: {
@@ -645,12 +646,14 @@ function generateContactPageWidgets(contactType, cType) {
                                 name: "alfresco/buttons/AlfButton",
                                 widthPc : 10,
                                 config: {
+                                    id:"CREATE_"+cType.toUpperCase()+"_BTN",
                                     label: msg.get("contacts.tool.create.contact_"+cType.toLowerCase()),
                                     additionalCssClasses: "call-to-action",
                                     publishTopic: "ALF_CREATE_FORM_DIALOG_REQUEST",
                                     publishPayloadType: "PROCESS",
                                     publishPayloadModifiers: ["processCurrentItemTokens"],
                                     publishPayload: {
+                                        dialogId:"CREATE_"+cType.toUpperCase()+"_DIALOG",
                                         dialogTitle: "contacts.tool.create-dialog.label",
                                         dialogConfirmationButtonTitle: msg.get("create.button.label"),
                                         dialogCancellationButtonTitle: msg.get("cancel.button.label"),
