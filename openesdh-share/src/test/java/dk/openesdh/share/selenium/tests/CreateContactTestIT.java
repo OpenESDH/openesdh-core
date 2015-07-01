@@ -28,6 +28,12 @@ public class CreateContactTestIT extends AdminToolsPage {
     @FindBy(id="CREATE_PERSON_DIALOG")
     WebElement createPersonContactDialog;
 
+    @FindBy(name="searchTerm")
+    WebElement contactSearchFieldInput;
+
+    @FindBy(css=".contact-search-ok-button .dijitButtonNode")
+    WebElement contactSearchOkBtn;
+
     @FindBy(css="#CREATE_ORGANIZATION_DIALOG .dijitDialogPaneContent .footer .confirmationButton .dijitButtonNode")
     WebElement createContactDialogConfirmButton;
 
@@ -38,27 +44,40 @@ public class CreateContactTestIT extends AdminToolsPage {
     WebDriver driver = Browser.Driver;
     WebDriverWait wait = new WebDriverWait(Browser.Driver,7);
 
-    //
     @Test
     public void createContactAsAdmin() {
         this.loginAsUser(User.ADMIN);
-        WebDriverWait wait = new WebDriverWait(Browser.Driver,7);
         this.gotoContactsTypePage("organisation");
         this.clickCreateContactBtnType("organisation");
         assertNotNull(createOrgContactDialog);
 
-        contactDetails = this.generateRandomContactDetails("organisation");
-        driver.findElement(By.name("organizationName")).sendKeys(contactDetails.get("organizationName").toString());
-        driver.findElement(By.name("cvrNumber")).sendKeys(contactDetails.get("cvrNumber").toString());
-        driver.findElement(By.name("email")).sendKeys(contactDetails.get("email").toString());
-        driver.findElement(By.name("streetName")).sendKeys(contactDetails.get("streetName").toString());
-        driver.findElement(By.name("houseNumber")).sendKeys(contactDetails.get("houseNumber").toString());
-        driver.findElement(By.name("postCode")).sendKeys(contactDetails.get("postCode").toString());
-        driver.findElement(By.name("city")).sendKeys(contactDetails.get("city").toString());
-        driver.findElement(By.name("countryCode")).sendKeys(contactDetails.get("countryCode").toString());
+        String contactEmail = this.createContact("organization");
 
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[@class='value' and (text()='" + contactEmail + "'  ) ]")) );
+    }
+
+    @Test
+    public void searchContact() {
+        this.loginAsUser(User.ADMIN); WebDriverWait wait = new WebDriverWait(Browser.Driver,7);
+        this.gotoContactsTypePage("organisation");
+        this.clickCreateContactBtnType("organisation");
+        assertNotNull(createOrgContactDialog);
+        String contactEmail = this.createContact("organisation");
+
+        contactSearchFieldInput.sendKeys(contactEmail);
+        assertNotNull(contactSearchOkBtn);
+        contactSearchOkBtn.click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[@class='value' and (text()='"+contactEmail+"'  ) ]")) );
+
+    }
+
+    protected String createContact(String contactType){
+        contactDetails = this.generateRandomContactDetails(contactType);
+        for(String key : contactDetails.keySet()){
+            driver.findElement(By.name(key)).sendKeys(contactDetails.get(key).toString());
+        }
         createContactDialogConfirmButton.click();
-//        wait.until();
+        return contactDetails.get("email").toString();
     }
 
 

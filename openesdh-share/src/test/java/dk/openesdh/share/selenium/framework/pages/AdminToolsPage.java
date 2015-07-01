@@ -2,7 +2,6 @@ package dk.openesdh.share.selenium.framework.pages;
 
 import dk.magenta.share.selenium.framework.Browser;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.openqa.selenium.Alert;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.ExpectedConditions;
@@ -34,6 +33,7 @@ public class AdminToolsPage extends BasePage {
     public void gotoPage() {
         this.clickAdminToolsMenuItem();
     }
+
     public boolean isAt() {
         return Browser.Driver.getCurrentUrl().startsWith(URL);
     }
@@ -48,7 +48,6 @@ public class AdminToolsPage extends BasePage {
         contactTypeMenuItem.click();
         wait.until(ExpectedConditions.elementToBeClickable(contactTypeBtn));
     }
-
 
     public void clickContactsOrganisationBtn() {
         assertNotNull(contactsOrgMenuItem);
@@ -80,7 +79,7 @@ public class AdminToolsPage extends BasePage {
             details.put("cvrNumber", RandomStringUtils.randomNumeric(8));
         }
 
-        String email = details.get("firstName") +"@openESDH.org";
+        String email = RandomStringUtils.randomAlphabetic(9) +"@openESDH.org";
         details.put("email", email);
         details.put("streetName", RandomStringUtils.randomAlphabetic(15));
         details.put("houseNumber", RandomStringUtils.randomNumeric(2));

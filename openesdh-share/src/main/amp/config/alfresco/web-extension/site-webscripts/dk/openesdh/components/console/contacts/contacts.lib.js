@@ -634,7 +634,7 @@ function generateContactPageWidgets(contactType, cType) {
                                     textBoxLabel: msg.get("contacts.tool.search.button"),
                                     textFieldName: "searchTerm",
                                     okButtonIconClass: "alf-white-search-icon",
-                                    okButtonClass: "call-to-action",
+                                    okButtonClass: "call-to-action contact-search-ok-button",
                                     textBoxIconClass: "alf-search-icon",
                                     textBoxCssClasses: "long",
                                     textBoxRequirementConfig: {
