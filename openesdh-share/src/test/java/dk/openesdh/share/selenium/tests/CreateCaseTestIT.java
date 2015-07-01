@@ -45,8 +45,7 @@ public class CreateCaseTestIT  extends BasePage {
 
     @FindBy(css="#CREATE_CASE_DIALOG .dijitDialogPaneContent .footer .cancellation .dijitButtonNode")
     WebElement createCaseDialogCancelButton;
-
-
+    
     @Test
     public void createCaseAsAdmin() {
         this.loginAsUser(User.ADMIN);
@@ -71,7 +70,7 @@ public class CreateCaseTestIT  extends BasePage {
     /**
      * Remember that the user abeecher must be added to the CaseSimpleCreator Group.
      */
-    @Test
+//    @Test
     public void createCaseAsNonAdminUser() {
         this.loginAsUser(User.ALICE);
         WebDriverWait wait = new WebDriverWait(Browser.Driver,10);
@@ -92,7 +91,7 @@ public class CreateCaseTestIT  extends BasePage {
     }
 
     //Attempt to create case a a non permitted user
-    @Test
+//    @Test
     public void createCaseAsNonPermittedUser() {
         this.loginAsUser(User.BOB);
         WebDriverWait wait = new WebDriverWait(Browser.Driver,10);
