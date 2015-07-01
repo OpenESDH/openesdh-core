@@ -25,7 +25,7 @@ public class LoginTestIT extends BasePage {
     }
 
 //    @Test
-    public  souvoid testCanLoginWithNormalUser() {
+    public void testCanLoginWithNormalUser() {
         Pages.Login.loginWith(User.ALICE);
         assertTrue(Pages.Dashboard.isAt(User.ALICE));
         Pages.Login.logout();
