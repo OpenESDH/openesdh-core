@@ -1,7 +1,7 @@
 package dk.openesdh.share.selenium.framework.pages;
 
 import dk.magenta.share.selenium.framework.Browser;
-import dk.magenta.share.selenium.framework.pages.BasePage;
+import dk.openesdh.share.selenium.framework.pages.BasePage;
 import dk.openesdh.share.selenium.framework.Pages;
 import dk.openesdh.share.selenium.framework.enums.User;
 
@@ -60,21 +60,12 @@ public class LoginPage extends BasePage {
     }
 
     public void logout() {
-        //WebElement userMenuPopup = Browser.Driver.findElement(By.id("HEADER_USER_MENU_POPUP"));
-        //userMenuPopup.click();
-
         WebElement userMenuPopup1 = Browser.Driver.findElement(By.id("HEADER_USER_MENU_POPUP_text"));
         userMenuPopup1.click();
-
 
         WebElement userMenuLogout = (new WebDriverWait(Browser.Driver, 10))
                 .until(ExpectedConditions.presenceOfElementLocated(By.id("HEADER_USER_MENU_LOGOUT_text")));
         userMenuLogout.click();
-
-
-        //WebElement userMenuLogout = Browser.Driver.findElement();
-
-        //Browser.open(URL_LOGOUT);
     }
 
 }

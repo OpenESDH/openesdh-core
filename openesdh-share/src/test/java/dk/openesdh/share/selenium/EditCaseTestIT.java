@@ -1,25 +1,19 @@
 package dk.openesdh.share.selenium;
 
 
-import dk.openesdh.share.selenium.framework.BasePageAdminLoginTestIT;
 import dk.openesdh.share.selenium.framework.Pages;
-import dk.openesdh.share.selenium.framework.enums.User;
-
+import dk.openesdh.share.selenium.framework.pages.BasePage;
 import org.apache.commons.lang.RandomStringUtils;
-import org.junit.*;
-
-import static org.junit.Assert.assertTrue;
-
+import org.junit.Test;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
-public class EditCaseTestIT extends BasePageAdminLoginTestIT {
+public class EditCaseTestIT extends BasePage {
 
     String testCaseTitle;
     String testCaseStatus;

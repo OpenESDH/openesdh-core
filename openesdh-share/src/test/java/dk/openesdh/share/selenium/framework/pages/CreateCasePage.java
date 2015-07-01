@@ -2,7 +2,7 @@ package dk.openesdh.share.selenium.framework.pages;
 
 
 import dk.magenta.share.selenium.framework.Browser;
-import dk.magenta.share.selenium.framework.pages.BasePage;
+import dk.openesdh.share.selenium.framework.pages.BasePage;
 import dk.openesdh.share.selenium.framework.Pages;
 
 import org.openqa.selenium.By;
@@ -45,7 +45,7 @@ public class CreateCasePage extends BasePage {
     public void gotoPage() {
         // TODO: Take parameter for case type
         clickCasesMenuItem();
-        clickCreateSimpleCaseItem();
+//        clickCreateSimpleCaseItem();
     }
 
 

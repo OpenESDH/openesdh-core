@@ -2,24 +2,21 @@ package dk.openesdh.share.selenium;
 
 
 import dk.magenta.share.selenium.framework.Browser;
-import dk.openesdh.share.selenium.framework.BasePageAdminLoginTestIT;
+import dk.openesdh.share.selenium.framework.pages.BasePage;
 import dk.openesdh.share.selenium.framework.Pages;
-import dk.openesdh.share.selenium.framework.enums.User;
 
 import org.apache.commons.lang.RandomStringUtils;
-import org.junit.*;
 import org.openqa.selenium.Alert;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.WebElement;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
 import static org.junit.Assert.*;
 
-public class CaseMembersTestIT extends BasePageAdminLoginTestIT {
+public class CaseMembersTestIT extends BasePage {
 
     String testCaseTitle;
     String testCaseStatus;
