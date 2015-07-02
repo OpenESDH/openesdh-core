@@ -1,32 +1,32 @@
 package dk.openesdh.repo.services.cases;
 
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
-import dk.openesdh.exceptions.contacts.InvalidContactTypeException;
-import dk.openesdh.repo.helper.CaseHelper;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.contacts.ContactServiceImpl;
-import dk.openesdh.repo.services.documents.DocumentService;
-import org.alfresco.error.AlfrescoRuntimeException;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.alfresco.model.ContentModel;
-import org.alfresco.repo.content.MimetypeMap;
-import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.service.cmr.repository.*;
-import org.alfresco.service.cmr.search.ResultSet;
-import org.alfresco.service.cmr.search.SearchService;
+import org.alfresco.repo.transaction.RetryingTransactionHelper;
+import org.alfresco.service.cmr.dictionary.DictionaryService;
+import org.alfresco.service.cmr.repository.ChildAssociationRef;
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
-import org.alfresco.service.cmr.security.OwnableService;
-import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.DynamicNamespacePrefixResolver;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
-import org.apache.commons.lang3.StringUtils;
+import org.alfresco.service.transaction.TransactionService;
 import org.apache.log4j.Logger;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,15 +34,19 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
+
+import dk.openesdh.repo.helper.CaseDocumentTestHelper;
+import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.model.ContactInfo;
+import dk.openesdh.repo.model.ContactType;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.contacts.ContactServiceImpl;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:alfresco/application-context.xml")
-@Ignore
 public class PartyServiceImplIT {
     private static Logger logger = Logger.getLogger(PartyServiceImplIT.class);
 
@@ -51,28 +55,19 @@ public class PartyServiceImplIT {
     private static final String ADMIN_USER_NAME = "admin";
     private static final String ABEECHER = "abeecher";
     private static final String MJACKSON = "mjackson";
-    private static final String fileName = "Test_case";
-    private static final String fileContentTxt = "Mary havde et lille lam";
+    private static final String TEST_CASE_NAME = "Test_case";
+    private static final String SENDER_ROLE = "Afsender";
+    private static final String RECEIVER_ROLE = "Modtager";
+    private static final String TEST_PERSON_CONTACT_EMAIL = "person@openesdh.org";
+    private static final String TEST_ORG_CONTACT_EMAIL = "org@openesdh.org";
 
     @Autowired
     @Qualifier("NodeService")
-    protected NodeService nodeService;
-
-    @Autowired
-    @Qualifier("SearchService")
-    protected SearchService searchService;
+    private NodeService nodeService;
 
     @Autowired
     @Qualifier("AuthorityService")
-    protected AuthorityService authorityService;
-
-    @Autowired
-    @Qualifier("OwnableService")
-    protected OwnableService ownableService;
-
-    @Autowired
-    @Qualifier("repositoryHelper")
-    protected Repository repositoryHelper;
+    private AuthorityService authorityService;
 
     @Autowired
     @Qualifier("ContactService")
@@ -83,35 +78,27 @@ public class PartyServiceImplIT {
     private CaseServiceImpl caseService = null;
 
     @Autowired
-    @Qualifier("ContentService")
-    protected ContentService contentService;
+    @Qualifier("DictionaryService")
+    private DictionaryService dictionaryService;
 
     @Autowired
-    @Qualifier("DocumentService")
-    protected DocumentService documentService;
+    @Qualifier("transactionService")
+    protected TransactionService transactionService;
 
     @Autowired
-    @Qualifier("PersonService")
-    protected PersonService personService;
-
-    @Autowired
-    @Qualifier("TestCaseHelper")
-    protected CaseHelper caseHelper;
+    @Qualifier("CaseDocumentTestHelper")
+    private CaseDocumentTestHelper caseTestHelper;
 
     private DynamicNamespacePrefixResolver namespacePrefixResolver = new DynamicNamespacePrefixResolver(null);
-    private NodeRef dummyUser;
-    private NodeRef casesRootNodeRef;
     private PartyServiceImpl partyService = null;
     private NodeRef caseNodeRef;
-    private NodeRef companyHomeNodeRef;
+    private NodeRef partyGroupNodeRef;
+    private NodeRef testPersonContact;
+    private NodeRef testOrgContact;
 
     @Before
     public void setUp() throws Exception {
         AuthenticationUtil.setFullyAuthenticatedUser(ADMIN_USER_NAME);
-
-        dummyUser = caseHelper.createDummyUser();
-
-        getCompanyHomeNodeRef();
 
         //Services that are needed
         partyService = new PartyServiceImpl();
@@ -119,105 +106,218 @@ public class PartyServiceImplIT {
         partyService.setCaseService(caseService);
         partyService.setContactService(contactService);
         partyService.setAuthorityService(authorityService);
+        partyService.setDictionaryService(dictionaryService);
 
         namespacePrefixResolver.registerNamespace(NamespaceService.APP_MODEL_PREFIX, NamespaceService.APP_MODEL_1_0_URI);
         namespacePrefixResolver.registerNamespace(OpenESDHModel.CONTACT_PREFIX, OpenESDHModel.CONTACT_URI);
+        namespacePrefixResolver.registerNamespace(NamespaceService.CONTENT_MODEL_PREFIX,
+                NamespaceService.CONTENT_MODEL_1_0_URI);
 
-        /**
-         * Create a new temporary case
-         */
-        //1. Get the cases storage rootNode
-        casesRootNodeRef = caseService.getCasesRootNodeRef();
+        partyService.setNamespacePrefixResolver(namespacePrefixResolver);
 
-        logger.warn("\n\n===> The case root storage nodeRef: "+ companyHomeNodeRef+ "<===\n\n");
+        caseNodeRef = caseTestHelper.createCaseBehaviourOn(TEST_CASE_NAME, caseService.getCasesRootNodeRef(),
+                CaseHelper.ADMIN_USER_NAME);
+
+        
+        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Void>() {
+                    @Override
+                    public Void execute() throws Throwable {
+
+                        HashMap<QName, Serializable> personProps = new HashMap<QName, Serializable>();
+                        personProps.put(OpenESDHModel.PROP_CONTACT_EMAIL, TEST_PERSON_CONTACT_EMAIL);
+                        testPersonContact = contactService.createContact(TEST_PERSON_CONTACT_EMAIL,
+                                ContactType.PERSON.name(), personProps);
+
+                        HashMap<QName, Serializable> orgProps = new HashMap<QName, Serializable>();
+                        orgProps.put(OpenESDHModel.PROP_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL);
+                        testOrgContact = contactService.createContact(TEST_ORG_CONTACT_EMAIL,
+                                ContactType.ORGANIZATION.name(), orgProps);
+
+                        return null;
+                    }
+                });
+
         logger.warn("\n\n===> The case nodeRef: "+ caseNodeRef+ "<===\n\n");
-
-        //2. Create a temp case NodeRef. Cases are created on a behavioural trigger from the creation of a content in the caseFolder storage root.
-        NodeRef mainDocNode = createCaseContentNode(repositoryHelper.getCompanyHome(), fileName, fileContentTxt);
-        caseNodeRef = documentService.getCaseNodeRef(mainDocNode);
 
         AuthenticationUtil.setFullyAuthenticatedUser(ADMIN_USER_NAME);
     }
 
     @After
     public void tearDown() throws Exception {
+        ArrayList<NodeRef> nodes = new ArrayList<NodeRef>();
+        if (partyGroupNodeRef != null) {
+            nodes.add(partyGroupNodeRef);
+        }
 
+        if (testPersonContact != null) {
+            nodes.add(testPersonContact);
+        }
+
+        if (testOrgContact != null) {
+            nodes.add(testOrgContact);
+        }
+
+        List<NodeRef> cases = new ArrayList<NodeRef>();
+        if (caseNodeRef != null) {
+            cases.add(caseNodeRef);
+        }
+        caseTestHelper.removeNodesAndDeleteUsersInTransaction(nodes, cases, new ArrayList<String>());
     }
 
     @Test
-    public void createParty() {
-        String role = "Sender"; List<String> contacts;
-        try {
-            String dbid = (String) this.nodeService.getProperty(caseNodeRef, ContentModel.PROP_NODE_DBID);
-            String partyName = PartyService.PARTY_PREFIX + "_" + dbid + "_" + role;
-            String createdGroup = this.authorityService.createAuthority(AuthorityType.GROUP, partyName, role, partyService.PARTY_ZONES);
-            /*if (!contacts.isEmpty() && StringUtils.isNotEmpty(contacts.get(0))) {
-                for (String contact : contacts) {
+    public void shouldCreateSenderPartyGroup() throws Exception {
 
-                }
-            }*/
-            assert(this.authorityService.getAuthorityNodeRef(createdGroup) != null);
-        } catch (Exception ge) {
-            throw new AlfrescoRuntimeException("Unable to create party due to the following reason(s): " + ge.getMessage());
-        }
+        String caseId = caseService.getCaseId(caseNodeRef);
+        createPartyAssertNotNUll(caseId, SENDER_ROLE);
+
+        String dbid = this.nodeService.getProperty(caseNodeRef, ContentModel.PROP_NODE_DBID).toString();
+        String expectedPartyGroupName = AuthorityType.GROUP.getPrefixString() + PartyService.PARTY_PREFIX
+                + dbid + "_" + SENDER_ROLE;
+
+        String resultPartyGroupName = (String) nodeService.getProperty(partyGroupNodeRef,
+                ContentModel.PROP_AUTHORITY_NAME);
+
+        Assert.assertEquals("Created party group name differs from expected", expectedPartyGroupName,
+                resultPartyGroupName);
     }
 
-    /**
-     * Creates a new content node setting the content provided.
-     *
-     * @param  parent   the parent node reference
-     * @param  name     the name of the newly created content object
-     * @param  text     the content text to be set on the newly created node
-     * @return NodeRef  node reference to the newly created content node
-     */
-    private NodeRef createCaseContentNode(NodeRef parent, String name, String text) {
+    @Test
+    public void shouldCreateReceiverPartyWithPersonAndOrgContacts() {
+        String caseId = caseService.getCaseId(caseNodeRef);
+        partyGroupNodeRef = partyService.createParty(caseId, RECEIVER_ROLE,
+                Arrays.asList(TEST_PERSON_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL));
+        Assert.assertNotNull("The nodeRef of the created party group cannot be null", partyGroupNodeRef);
 
-        // Create a map to contain the values of the properties of the node
+        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(partyGroupNodeRef, new HashSet<QName>(
+                Arrays.asList(OpenESDHModel.TYPE_CONTACT_PERSON, OpenESDHModel.TYPE_CONTACT_ORGANIZATION)));
 
-        Map<QName, Serializable> props = new HashMap<QName, Serializable>(1);
-        props.put(ContentModel.PROP_NAME, name);
+        Assert.assertFalse("Created party shouldn't be empty", childAssocs.isEmpty());
 
-        // use the node service to create a new node
-        NodeRef node = this.nodeService.createNode(
-                parent,
-                ContentModel.ASSOC_CONTAINS,
-                QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, name),
-                OpenESDHModel.TYPE_CASE_SIMPLE,
-                props).getChildRef();
+        List<NodeRef> resultContacts = childAssocs.stream().map(assoc -> assoc.getChildRef())
+                .collect(Collectors.toList());
 
-        // Use the content service to set the content onto the newly created node
-        ContentWriter writer = this.contentService.getWriter(node, ContentModel.PROP_CONTENT, true);
-        writer.setMimetype(MimetypeMap.MIMETYPE_TEXT_PLAIN);
-        writer.setEncoding("UTF-8");
-        writer.putContent(text);
+        Assert.assertTrue("Created party should contain test person contact",
+                resultContacts.contains(testPersonContact));
 
-        // Return a node reference to the newly created node
-        return node;
+        Assert.assertTrue("Created party should contain test organization contact",
+                resultContacts.contains(testOrgContact));
     }
 
-    private NodeRef getUserNodeRef(String userName){
-        return personService.getPerson(userName);
+    @Test
+    public void shouldCreatePartyAddPersonContact() {
+        String caseId = caseService.getCaseId(caseNodeRef);
+        createPartyAssertNotNUll(caseId, SENDER_ROLE);
+
+        boolean result = partyService.addContactToParty(caseId, partyGroupNodeRef, SENDER_ROLE,
+                TEST_PERSON_CONTACT_EMAIL);
+        Assert.assertTrue("Should return true if successfully added a contact to the party", result);
+
+        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(partyGroupNodeRef, new HashSet<QName>(
+                Arrays.asList(OpenESDHModel.TYPE_CONTACT_PERSON)));
+
+        Assert.assertFalse("Created party shouldn't be empty", childAssocs.isEmpty());
+
+        List<NodeRef> resultContacts = childAssocs.stream().map(assoc -> assoc.getChildRef())
+                .collect(Collectors.toList());
+
+        Assert.assertTrue("Created party should contain added test person contact",
+                resultContacts.contains(testPersonContact));
     }
 
-    public void setContentService(ContentService contentService) {
-        this.contentService = contentService;
+    @Test
+    public void shouldCreatePartyAddPersonAndOrgContacts() {
+        String caseId = caseService.getCaseId(caseNodeRef);
+        createPartyAssertNotNUll(caseId, SENDER_ROLE);
+
+        boolean result = partyService.addContactsToParty(caseId, partyGroupNodeRef, SENDER_ROLE,
+                Arrays.asList(TEST_PERSON_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL));
+
+        Assert.assertTrue("Should return true if successfully added contacts to the party", result);
+
+        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(partyGroupNodeRef, new HashSet<QName>(
+                Arrays.asList(OpenESDHModel.TYPE_CONTACT_PERSON, OpenESDHModel.TYPE_CONTACT_ORGANIZATION)));
+
+        Assert.assertFalse("Created party shouldn't be empty", childAssocs.isEmpty());
+
+        List<NodeRef> resultContacts = childAssocs.stream().map(assoc -> assoc.getChildRef())
+                .collect(Collectors.toList());
+
+        Assert.assertTrue("Created party should contain added test person contact",
+                resultContacts.contains(testPersonContact));
+
+        Assert.assertTrue("Created party should contain added test organization contact",
+                resultContacts.contains(testOrgContact));
     }
 
-    public void getCompanyHomeNodeRef(){
-        StoreRef storeRef = new StoreRef(StoreRef.PROTOCOL_WORKSPACE, "SpacesStore");
-        ResultSet rs = searchService.query(storeRef, SearchService.LANGUAGE_XPATH, "/app:company_home");
-        NodeRef companyHomeNodeRef = null;
-        try
-        {
-            if (rs.length() == 0)
-            {
-                throw new AlfrescoRuntimeException("Didn't find Company Home");
-            }
-            companyHomeNodeRef = rs.getNodeRef(0);
-        }
-        finally
-        {
-            rs.close();
-        }
+    @Test
+    public void shouldCreatePartyAndRetrieveVia_getCaseParty(){
+        
+        String caseId = caseService.getCaseId(caseNodeRef);
+        createPartyAssertNotNUll(caseId, RECEIVER_ROLE);
+        
+        NodeRef resultPartyGroupNodeRef = partyService.getCaseParty(caseNodeRef, caseId, RECEIVER_ROLE);
+        Assert.assertEquals("The retrieved party is not equal to the created party", partyGroupNodeRef,
+                resultPartyGroupNodeRef);
     }
+
+    @Test
+    public void shouldCreatePartyWithContactsAndGetContactsByRole(){
+        String caseId = caseService.getCaseId(caseNodeRef);
+        partyGroupNodeRef = partyService.createParty(caseId, RECEIVER_ROLE,
+                Arrays.asList(TEST_PERSON_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL));
+        Assert.assertNotNull("The nodeRef of the created party group cannot be null", partyGroupNodeRef);
+
+        Map<String, Set<String>> contactsByRoleMap = partyService.getContactsByRole(caseId);
+        Assert.assertNotNull("The retrieved contacts by role map cannot be null", contactsByRoleMap);
+
+        Assert.assertTrue("The retrieved contacts by role map should contain RECEIVER_ROLE contacts",
+                contactsByRoleMap.keySet().contains(RECEIVER_ROLE));
+
+        Set<String> receivers = contactsByRoleMap.get(RECEIVER_ROLE);
+        Assert.assertTrue("The retrieved map should contain receiver test person contact",
+                receivers.contains(TEST_PERSON_CONTACT_EMAIL));
+        Assert.assertTrue("The retrieved map should contain receiver test organization contact",
+                receivers.contains(TEST_ORG_CONTACT_EMAIL));
+    }
+
+    @Test
+    public void shouldCreatePartyWithContactsAndGetContactsByCaseId() {
+        String caseId = caseService.getCaseId(caseNodeRef);
+        partyGroupNodeRef = partyService.createParty(caseId, RECEIVER_ROLE,
+                Arrays.asList(TEST_PERSON_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL));
+        Assert.assertNotNull("The nodeRef of the created party group cannot be null", partyGroupNodeRef);
+
+        List<ContactInfo> addedContacts = partyService.getPartiesInCase(caseId);
+        Assert.assertNotNull("The retrieved parties contacts list should not be null", addedContacts);
+
+        List<String> resultContactsEmails = addedContacts.stream().map(contact -> contact.getEmail())
+                .collect(Collectors.toList());
+        Assert.assertTrue("The retrieved parties contacts should contain person contact email",
+                resultContactsEmails.contains(TEST_PERSON_CONTACT_EMAIL));
+        Assert.assertTrue("The retrieved parties contacts should contain organization contact email",
+                resultContactsEmails.contains(TEST_ORG_CONTACT_EMAIL));
+    }
+
+    @Test
+    public void shouldCreatePartyThenRemoveParty() {
+        String caseId = caseService.getCaseId(caseNodeRef);
+        partyGroupNodeRef = partyService.createParty(caseId, RECEIVER_ROLE,
+                Arrays.asList(TEST_PERSON_CONTACT_EMAIL));
+        Assert.assertNotNull("The nodeRef of the created party group cannot be null", partyGroupNodeRef);
+
+        boolean result = partyService.removePartyRole(caseId, TEST_PERSON_CONTACT_EMAIL, RECEIVER_ROLE);
+        Assert.assertTrue("The removePartyRole method should return true if successfully removed party", result);
+
+        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(partyGroupNodeRef, new HashSet<QName>(
+                Arrays.asList(OpenESDHModel.TYPE_CONTACT_PERSON)));
+
+        Assert.assertTrue("The party shouldn't contain removed person contact", childAssocs.isEmpty());
+
+    }
+
+    private void createPartyAssertNotNUll(String caseId, String role) {
+        partyGroupNodeRef = partyService.createParty(caseId, role);
+        Assert.assertNotNull("The nodeRef of the created party group cannot be null", partyGroupNodeRef);
+    }
+
 }
