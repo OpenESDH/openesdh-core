@@ -1,15 +1,15 @@
 package dk.openesdh.repo.services.contacts;
 
-import dk.openesdh.repo.model.OpenESDHModel;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Set;
+
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.node.SystemNodeUtils;
-import org.alfresco.repo.security.authority.AuthorityDAOImpl;
-import org.alfresco.repo.security.authority.UnknownAuthorityException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.namespace.NamespacePrefixResolver;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.PropertyCheck;
@@ -17,11 +17,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import dk.openesdh.repo.model.OpenESDHModel;
 
 /**
  * Some of these methods will come  from the org.alfresco.repo.security.authority.AuthorityDAOImpl class
@@ -41,13 +37,19 @@ public class ContactDAOImpl {
 
     NodeRef createContact(String email, String contactType, HashMap<QName, Serializable> typeProps,  Set<String>  authorityZones) {
 
-        typeProps.put(ContentModel.PROP_NAME, DigestUtils.md5Hex(email));
+        HashMap<QName, Serializable> props = new HashMap<QName, Serializable>();
+        props.put(ContentModel.PROP_NAME, DigestUtils.md5Hex(email));
+
+        if (typeProps != null) {
+            props.putAll(typeProps);
+        }
+
         QName cType = contactType.equalsIgnoreCase("organization")? OpenESDHModel.TYPE_CONTACT_ORGANIZATION : OpenESDHModel.TYPE_CONTACT_PERSON;
 
         NodeRef childRef;
         NodeRef authorityContainerRef = getAuthorityContainerRef();
         childRef = nodeService.createNode(authorityContainerRef, ContentModel.ASSOC_CHILDREN, QName.createQName("cm", email, namespacePrefixResolver),
-                cType, typeProps).getChildRef();
+                cType, props).getChildRef();
         //TODO NOTE - Look at org.alfresco.repo.security.authority.AuthorityDAOImpl lines 379 - 391 to add the authority to zones. (Currently an issue)
 
         return childRef;
