@@ -3,11 +3,11 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>dk.openesdh</groupId>
-    <artifactId>simple_case_repo</artifactId>
+    <artifactId>simple-case-repo</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>simple_case_repo Repository AMP project</name>
+    <name>simple-case-repo Repository AMP project</name>
     <packaging>amp</packaging>
-    <description>Manages the lifecycle of the simple_case_repo Repository AMP (Alfresco Module Package)</description>
+    <description>Manages the lifecycle of the simple-case-repo Repository AMP (Alfresco Module Package)</description>
 
     <parent>
         <groupId>org.alfresco.maven</groupId>
@@ -34,6 +34,8 @@
              for embedded run, defaults to the 'local' environment. See SDK Parent POM for more info.
         <env>local</env>
         -->
+        <maven.alfresco.attachClasses>true</maven.alfresco.attachClasses>
+        <maven.alfresco.attachConfig>true</maven.alfresco.attachConfig>
     </properties>
 
     <!-- Here we realize the connection with the Alfresco selected platform 

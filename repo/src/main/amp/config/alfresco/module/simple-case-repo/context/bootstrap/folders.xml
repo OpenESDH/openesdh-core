@@ -63,7 +63,7 @@
                                     <cm:name>create-form.js</cm:name>
                                     <cm:title>Simple case Aikau create form</cm:title>
                                     <cm:description>The Aikau create form widget for the case.</cm:description>
-                                    <cm:content>contentUrl=classpath:alfresco/module/simple_case_repo/context/bootstrap/files/create-form.js|mimetype=application/x-javascript|size=|encoding=UTF-8</cm:content>
+                                    <cm:content>contentUrl=classpath:alfresco/module/simple-case-repo/context/bootstrap/files/create-form.js|mimetype=application/x-javascript|size=|encoding=UTF-8</cm:content>
                                     <sys:node-uuid>KK8EJ9C4-Dafq-334I-Te47-Nm3cLe9KJ524</sys:node-uuid>
                                 </view:properties>
                                 <view:associations/>
