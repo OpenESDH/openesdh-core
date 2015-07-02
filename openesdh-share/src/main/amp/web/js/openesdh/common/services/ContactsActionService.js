@@ -1,16 +1,25 @@
 define(["dojo/_base/declare",
-        "alfresco/services/ActionService",
         "dojo/_base/lang",
-        "dojo/_base/array"],
-    function(declare, ActionService, lang, array) {
-        return declare([ActionService], {
+        "dojo/_base/array",
+        "alfresco/core/NodeUtils",
+        "alfresco/dialogs/AlfFormDialog",
+        "alfresco/services/ActionService",
+        "openesdh/extensions/core/ObjectProcessingMixin"],
+    function(declare, lang, array, NodeUtils, AlfFormDialog, ActionService, ObjectProcessingMixin) {
+        return declare([ActionService, ObjectProcessingMixin], {
 
             i18nRequirements: [{i18nFile: "./i18n/ContactsActionService.properties"}],
 
             deleteMultipleTopic: "CONTACTS_DELETE_MULTIPLE",
 
+            contactData: null,
+
+            editFormWidgets: null,
+
             constructor: function (args) {
                 this.alfSubscribe(this.deleteMultipleTopic, lang.hitch(this, this.onDeleteMultipleContacts));
+                this.alfSubscribe("EDIT_CONTACT_FORM_DIALOG", lang.hitch(this, this.onEditDialogRequest));
+                this.alfSubscribe("SHOW_EDIT_CONTACT_DIALOG", lang.hitch(this, this.onShowEditDialog));
             },
 
             /**
@@ -57,6 +66,55 @@ define(["dojo/_base/declare",
                         successMessage: successMessage
                     });
                 }
+            },
+
+            onEditDialogRequest: function (payload){
+                var contactNodeRefURI = NodeUtils.processNodeRef(payload.nodeRef).uri;
+                var url = Alfresco.constants.PROXY_URI + "api/openesdh/contact/"+contactNodeRefURI;
+                this.editFormWidgets = payload.widgetsForEdit;
+                var _this = this;
+
+                this.serviceXhr({
+                    url: url,
+                    method: "GET",
+                    successCallback:function (response) {
+                        _this.contactData = response;
+                        this.alfPublish("SHOW_EDIT_CONTACT_DIALOG", payload)
+                    },
+                    failureCallback: function(response){
+                        _this.contactData = null;
+                        alert("Error: verifying contact information. Please contact systems' administrator");
+                    },
+                    callbackScope: this});
+            },
+
+            onShowEditDialog: function (payload){
+                var publishOnSuccessTopic = (payload.successResponseTopic);
+                if(this.editContactDialog){
+                    this.editContactDialog.destroy();
+                }
+                console.log("\n\n ==>ContactsActionService payload received.\n\n");
+                this.editContactDialog = new AlfFormDialog({
+                    id:"EDIT_CONTACT_DIALOG",
+                    dialogTitle: "dialog.title.edit",
+                    dialogConfirmationButtonTitle: this.message("dialog.button.label.update"),
+                    dialogCancellationButtonTitle: this.message("dialog.button.label.cancel"),
+                    formSubmissionTopic: "EDIT_CONTACT",
+                    formSubmissionPayload: {
+                        publishOnSuccessTopic: publishOnSuccessTopic
+                    },
+                    fixedWidth: true,
+                    widgets: this._fillFields(payload)
+                });
+                this.editContactDialog.show();
+            },
+
+            _fillFields: function(payload){
+                var formWidgets = lang.clone(this.editFormWidgets);
+                this.processObject([ "processInstanceTokens"], formWidgets );
+                console.log("=====> Hopefully object is processed.");
+                return formWidgets;
             }
+
         });
     });
