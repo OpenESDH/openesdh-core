@@ -97,7 +97,6 @@ define(["dojo/_base/declare",
                 if(this.editContactDialog){
                     this.editContactDialog.destroy();
                 }
-                console.log("\n\n ==>ContactsActionService payload received.\n\n");
                 this.editContactDialog = new AlfFormDialog({
                     id:"EDIT_CONTACT_DIALOG",
                     dialogTitle: "dialog.title.edit",
@@ -123,7 +122,6 @@ define(["dojo/_base/declare",
                     method: "PUT",
                     data: payload,
                     successCallback:function (response) {
-                        console.log("===> Contact updated <===\n");
                         _this.contactData = null;
                         this.alfPublish(payload.publishOnSuccessTopic ,response);
                     },
