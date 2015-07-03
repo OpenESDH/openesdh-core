@@ -166,7 +166,7 @@ function getAddressWidgets(initTokens){
                         config: {
                             fieldId: "city",
                             name: "city",
-                            value:(initTokens) ? "{contactData.city}" : "",
+                            value:(initTokens) ? "{contactData.cityName}" : "",
                             label: "City",
                             description: "The city",
                             placeHolder: "Århus",

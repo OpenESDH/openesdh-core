@@ -12,12 +12,15 @@ define(["dojo/_base/declare",
 
             deleteMultipleTopic: "CONTACTS_DELETE_MULTIPLE",
 
+            contactNoderef: null,
+
             contactData: null,
 
             editFormWidgets: null,
 
             constructor: function (args) {
                 this.alfSubscribe(this.deleteMultipleTopic, lang.hitch(this, this.onDeleteMultipleContacts));
+                this.alfSubscribe("EDIT_CONTACT", lang.hitch(this, this._updateContact));
                 this.alfSubscribe("EDIT_CONTACT_FORM_DIALOG", lang.hitch(this, this.onEditDialogRequest));
                 this.alfSubscribe("SHOW_EDIT_CONTACT_DIALOG", lang.hitch(this, this.onShowEditDialog));
             },
@@ -69,10 +72,11 @@ define(["dojo/_base/declare",
             },
 
             onEditDialogRequest: function (payload){
+                var _this = this;
+                this.contactNoderef = payload.nodeRef;
+                this.editFormWidgets = payload.widgetsForEdit;
                 var contactNodeRefURI = NodeUtils.processNodeRef(payload.nodeRef).uri;
                 var url = Alfresco.constants.PROXY_URI + "api/openesdh/contact/"+contactNodeRefURI;
-                this.editFormWidgets = payload.widgetsForEdit;
-                var _this = this;
 
                 this.serviceXhr({
                     url: url,
@@ -109,10 +113,30 @@ define(["dojo/_base/declare",
                 this.editContactDialog.show();
             },
 
+            _updateContact: function (payload){
+                var contactNodeRefURI = NodeUtils.processNodeRef(this.contactNoderef).uri;
+                var url = Alfresco.constants.PROXY_URI + "api/openesdh/contact/"+contactNodeRefURI;
+                var _this = this;
+
+                this.serviceXhr({
+                    url: url,
+                    method: "PUT",
+                    data: payload,
+                    successCallback:function (response) {
+                        console.log("===> Contact updated <===\n");
+                        _this.contactData = null;
+                        this.alfPublish(payload.publishOnSuccessTopic ,response);
+                    },
+                    failureCallback: function(response){
+                        _this.contactData = null;
+                        alert("Error: unable to update contact information. Please contact systems' administrator");
+                    },
+                    callbackScope: this});
+            },
+
             _fillFields: function(payload){
                 var formWidgets = lang.clone(this.editFormWidgets);
                 this.processObject([ "processInstanceTokens"], formWidgets );
-                console.log("=====> Hopefully object is processed.");
                 return formWidgets;
             }
 
