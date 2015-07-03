@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import dk.openesdh.repo.services.cases.CaseService;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -65,6 +66,10 @@ public class NoteServiceImplIT {
     protected AuthorityService authorityService;
 
     @Autowired
+    @Qualifier("CaseService")
+    protected CaseService caseService;
+
+    @Autowired
     @Qualifier("CaseDocumentTestHelper")
     protected CaseDocumentTestHelper docTestHelper;
 
@@ -93,19 +98,11 @@ public class NoteServiceImplIT {
     public void setUp() throws Exception {
         AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();
 
-        // Create a parent node to test notes with
-        parentNodeRef = nodeService.createNode(repositoryHelper.getCompanyHome(),
-                ContentModel.ASSOC_CONTAINS, QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, TEST_FOLDER_NAME),
-                ContentModel.TYPE_FOLDER).getChildRef();
-
-        caseNodeRef = docTestHelper
-                .createCaseBehaviourOn(TEST_CASE_NAME, parentNodeRef, CaseHelper.ADMIN_USER_NAME);
-
+        parentNodeRef = caseService.getCasesRootNodeRef();
+        caseNodeRef = docTestHelper.createCaseBehaviourOn(TEST_CASE_NAME, parentNodeRef, CaseHelper.ADMIN_USER_NAME);
         caseHelper.createDummyUser(NON_CASE_READER_USER_NAME);
-
         caseHelper.createDummyUser();
         authorityService.addAuthority(CASE_SIMPLE_WRITER_GROUP_NAME, CaseHelper.DEFAULT_USERNAME);
-
         caseHelper.createDummyUser(CASE_READER_USER_NAME);
         authorityService.addAuthority(CASE_SIMPLE_READER_GROUP_NAME, CASE_READER_USER_NAME);
     }
@@ -118,7 +115,6 @@ public class NoteServiceImplIT {
         if (noteNodeRef != null) {
             nodes.add(noteNodeRef);
         }
-        nodes.add(parentNodeRef);
         docTestHelper.removeNodesAndDeleteUsersInTransaction(nodes, Arrays.asList(caseNodeRef),
                 Arrays.asList(NON_CASE_READER_USER_NAME, CaseHelper.DEFAULT_USERNAME, CASE_READER_USER_NAME));
     }

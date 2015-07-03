@@ -127,24 +127,15 @@ public class CaseHelper {
      * @param disableBehaviour
      * @return
      */
-    public NodeRef createCase(String username,
-                              final NodeRef parent,
-                              final String name,
-                              final QName caseType,
-                              final Map<QName, Serializable> properties,
-                              final List<NodeRef> owners,
-                              boolean disableBehaviour) {
+    public NodeRef createCase(String username, final NodeRef parent, final String name,  final QName caseType,
+                              final Map<QName, Serializable> properties, final List<NodeRef> owners, boolean disableBehaviour) {
         ChildAssociationRef assocRef = createCaseNode(username, parent, name, caseType, properties, owners, disableBehaviour);
         return assocRef.getChildRef();
     }
 
-    private ChildAssociationRef createCaseNode(String username,
-                                               final NodeRef parent,
-                                               final String name,
-                                               final QName caseType,
-                                               final Map<QName, Serializable> properties,
-                                               final List<NodeRef> owners,
-                                               final boolean disableBehaviour) {
+    private ChildAssociationRef createCaseNode(String username, final NodeRef parent, final String name,
+                                               final QName caseType, final Map<QName, Serializable> properties,
+                                               final List<NodeRef> owners, final boolean disableBehaviour) {
         return AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<ChildAssociationRef>() {
             @Override
             public ChildAssociationRef doWork() throws Exception {
@@ -195,9 +186,8 @@ public class CaseHelper {
      * @param owners
      * @return
      */
-    public NodeRef createCase(String username, NodeRef parent, String cmName,
-                              QName caseType, Map<QName, Serializable> properties,
-                              List<NodeRef> owners) {
+    public NodeRef createCase(String username, NodeRef parent, String cmName, QName caseType,
+                              Map<QName, Serializable> properties, List<NodeRef> owners) {
         return createCase(username, parent, cmName, caseType, properties, owners, false);
     }
 
