@@ -19,6 +19,7 @@ import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
 
+import dk.openesdh.SimpleCaseModel;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.DocumentService;
@@ -90,10 +91,16 @@ public class CaseDocumentTestHelper {
         return folder;
     }
 
+    /**
+     * Creates a simple case with behavior turned off
+     */
     public NodeRef createCaseBehaviourOff(final String caseName, NodeRef parentNodeRef, String userName) {
         return createCase(caseName, parentNodeRef, userName, true);
     }
 
+    /**
+     * Creates a simple case with behavior turned on
+     */
     public NodeRef createCaseBehaviourOn(final String caseName, NodeRef parentNodeRef, String userName) {
         return createCase(caseName, parentNodeRef, userName, false);
     }
@@ -113,7 +120,7 @@ public class CaseDocumentTestHelper {
         properties.put(ContentModel.PROP_NAME, getNodePropertyString(parentNodeRef, ContentModel.PROP_NAME));
 
         caseFolder = caseHelper.createCase(AuthenticationUtil.getAdminUserName(), parentNodeRef,
-                caseName, OpenESDHModel.TYPE_CASE_SIMPLE, properties, owners, disableBehaviour);
+                caseName, SimpleCaseModel.TYPE_CASE_SIMPLE, properties, owners, disableBehaviour);
 
         return caseFolder;
     }
