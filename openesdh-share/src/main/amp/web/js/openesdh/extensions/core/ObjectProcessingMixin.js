@@ -44,9 +44,18 @@ define(["dojo/_base/declare",
                     var tokenWithoutBraces = value.slice(1, -1);
                     var keysArray = tokenWithoutBraces.split(".");
                     //Array reduction to traverse the object to get the property
-                    var uncheckedObj = keysArray.reduce( function(memo, key){return memo[key]}, object);
-                    if(typeof uncheckedObj !== "undefined")
-                        processedValue = uncheckedObj;
+                    try {
+                        var uncheckedObj = keysArray.reduce(function (memo, key) {
+                            return memo[key]
+                        }, object);
+
+                        if(typeof uncheckedObj !== "undefined")
+                            processedValue = uncheckedObj;
+                        else processedValue = "";
+                    }
+                    catch (error){
+                        console.log("====> Error <====\n\n\t"+error.message+"\n\n");
+                    }
                 }
                 else {
                     // Deal with multiple tokens in the string.
