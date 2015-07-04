@@ -79,7 +79,7 @@ public class CreateContactTestIT extends AdminToolsPage {
     }
 
     @Test
-    public void editContact() {
+    public void editContactAsAdmin() {
         this.loginAsUser(User.ADMIN);
         this.gotoContactsTypePage("organisation");
         this.clickCreateContactBtnType("organisation");
@@ -108,6 +108,33 @@ public class CreateContactTestIT extends AdminToolsPage {
         contactSearchOkBtn.click();
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[@class='value' and (text()='" + email + "'  ) ]")));
 
+    }
+
+    @Test
+    public void deleteContactAsAdmin() {
+        this.loginAsUser(User.ADMIN);
+        this.gotoContactsTypePage("organisation");
+        this.clickCreateContactBtnType("organisation");
+        assertNotNull(createOrgContactDialog);
+        String contactEmail = this.createContact("organisation");
+
+        //Reduce the list down to the one contact so that we can be sure to target the edit icon button
+        contactSearchFieldInput.sendKeys(contactEmail);
+        assertNotNull(contactSearchOkBtn);
+        contactSearchOkBtn.click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[@class='value' and (text()='" + contactEmail + "'  ) ]")));
+        //The delete button
+        WebElement deleteContactBtn = driver.findElement(By.xpath("//tr/td[last()]/span[@class='alfresco-renderers-PublishAction alfresco-debug-Info highlight'][2]"));
+        deleteContactBtn.click();
+        WebElement deleteConfirmationDialogBtn = driver.findElement(By.xpath("//div[contains(@class, 'dialogDisplayed')]//div[@class='footer']/span[1]//span[contains(@class,'dijitButtonNode')]"));
+        wait.until(ExpectedConditions.elementToBeClickable(deleteConfirmationDialogBtn));
+        deleteConfirmationDialogBtn.click();
+
+        contactSearchFieldInput.clear();
+        contactSearchFieldInput.sendKeys(contactEmail);
+        assertNotNull(contactSearchOkBtn);
+        contactSearchOkBtn.click();
+        wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//div[@class='alfresco-lists-views-AlfListView bordered alfresco-debug-Info highlight']//div[text()='No results' or text()='Ingen resultater']")));
     }
 
     protected String createContact(String contactType){
