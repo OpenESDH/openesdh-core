@@ -96,10 +96,6 @@
                     <show id="contact:email" />
 
                     <show id="contact:cvrNumber" />
-
-                    <!--<show id="contact:members" />-->
-
-                    <!-- TODO: Better appearance of address fields -->
                     <show id="contact:streetName" />
                     <show id="contact:houseNumber" />
                     <show id="contact:floorIdentifier" />

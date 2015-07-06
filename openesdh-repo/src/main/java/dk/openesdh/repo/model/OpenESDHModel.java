@@ -1,6 +1,6 @@
 package dk.openesdh.repo.model;
 
-import org.alfresco.service.namespace.*;
+import org.alfresco.service.namespace.QName;
 
 /**
  * Created by torben on 15/08/14.

@@ -52,13 +52,6 @@
             <groupId>${alfresco.groupId}</groupId>
             <artifactId>alfresco-repository</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>dk.openesdh</groupId>
-            <artifactId>simple-case-repo</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <type>amp</type>
-        </dependency>
         
         <dependency>
             <groupId>dk.openesdh</groupId>
@@ -73,7 +66,7 @@
             <version>1.0-SNAPSHOT</version>
             <classifier>config</classifier>
         </dependency>
-
+        
         <!-- Test dependencies -->
         <dependency>
             <groupId>junit</groupId>
@@ -95,6 +88,7 @@
             <version>5.0.0-SNAPSHOT</version>
             <type>amp</type>
         </dependency>
+        
     </dependencies>
 
     <build>
@@ -119,31 +113,4 @@
             </plugin>
         </plugins>
     </build>
-    
-    <profiles>
-    	<profile>
-    		<id>jenkins-integration-test-compile</id>
-    		<properties>
-    			<maven.alfresco.attachClasses>true</maven.alfresco.attachClasses>
-        		<maven.alfresco.attachConfig>true</maven.alfresco.attachConfig>
-    		</properties>
-    	</profile>
-    	<profile>
-    		<id>jenkins-integration-all-modules</id>
-    		<dependencies>
-    			<dependency>
-            		<groupId>dk.openesdh.aoi</groupId>
-            		<artifactId>aoi-repo</artifactId>
-            		<version>1.0-SNAPSHOT</version>
-            		<type>amp</type>
-        		</dependency>
-        		<dependency>
-            	<groupId>dk.openesdh.office</groupId>
-            		<artifactId>office-repo</artifactId>
-            		<version>1.0-SNAPSHOT</version>
-            		<type>amp</type>
-        		</dependency>
-    		</dependencies>
-    	</profile>
-    </profiles>
 </project>
