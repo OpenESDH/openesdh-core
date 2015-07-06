@@ -33,6 +33,9 @@ public abstract class BasePage {
     @FindBy(id = "HEADER_HOME")
     WebElement headerMenuHomeButton;
 
+    @FindBy(id = "HEADER_ADMIN_CONSOLE")
+    WebElement headerMenuAdminToolsButton;
+
     @FindBy(id = "HEADER_CASES_DROPDOWN_text")
     WebElement headerMenuCasesButton;
 
@@ -105,6 +108,16 @@ public abstract class BasePage {
         return !elementExists(this.casesMenuSimpleCaseButton);
     }
 
+    public void clickHomeMenuButton() {
+        Assert.assertNotNull(this.headerMenuHomeButton);
+        this.headerMenuHomeButton.click();
+    }
+
+    public void clickAdminToolsMenuItem() {
+        assertNotNull(headerMenuAdminToolsButton);
+        headerMenuAdminToolsButton.click();
+    }
+
     /**
      * To check if an element exists. According to the docs (see link below), the use of findeElements(By by) is the
      * recommended way to check for the existence of an element, however this always throws the exception with which
@@ -125,11 +138,6 @@ public abstract class BasePage {
         catch (NoSuchElementException nse){
             return false;
         }
-    }
-
-    public void clickHomeMenuButton() {
-        Assert.assertNotNull(this.headerMenuHomeButton);
-        this.headerMenuHomeButton.click();
     }
 
     public static void selectAuthoritiesInPicker(String id, List<String> authorities) {
