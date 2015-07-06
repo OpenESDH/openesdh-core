@@ -118,7 +118,6 @@ public class CaseDocumentTestHelper {
 
         final Map<QName, Serializable> properties = new HashMap<>();
         properties.put(ContentModel.PROP_NAME, getNodePropertyString(parentNodeRef, ContentModel.PROP_NAME));
-
         caseFolder = caseHelper.createCase(AuthenticationUtil.getAdminUserName(), parentNodeRef,
                 caseName, SimpleCaseModel.TYPE_CASE_SIMPLE, properties, owners, disableBehaviour);
 
