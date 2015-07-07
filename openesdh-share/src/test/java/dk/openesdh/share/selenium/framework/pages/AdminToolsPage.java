@@ -22,6 +22,12 @@ public class AdminToolsPage extends BasePage {
     @FindBy(xpath = "//a[@href='contacts-people']")
     WebElement contactsPersonMenuItem;
 
+    @FindBy(xpath = "//a[@href='users']")
+    WebElement usersMenuItem;
+
+    @FindBy(xpath = "//span[@class='newuser-button']/span/span/button']")
+    WebElement newUserBtn;
+
     @FindBy(xpath = "//span[@widgetid='CREATE_ORGANIZATION_BTN']//span[contains(@class,'dijitButtonNode')]")
     WebElement createOrgBtn;
 
