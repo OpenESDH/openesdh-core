@@ -7,7 +7,6 @@ import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.transaction.TransactionService;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -49,10 +48,6 @@ public class DocumentServiceImplIT {
     @Qualifier("DocumentService")
     protected DocumentService documentService;
 
-    @Autowired
-    @Qualifier("TransactionService")
-    protected TransactionService transactionService;
-
     private static final String TEST_FOLDER_NAME = "DocumentServiceImpIT";
     private static final String TEST_CASE_NAME1 = "TestCase1";
     private static final String TEST_CASE_NAME2 = "TestCase2";
@@ -61,6 +56,7 @@ public class DocumentServiceImplIT {
 
     private NodeRef testFolder;
     private NodeRef testCase1;
+
     private NodeRef testCase2;
     private NodeRef testDocument;
 
@@ -75,6 +71,7 @@ public class DocumentServiceImplIT {
         testCase2 = docTestHelper.createCaseBehaviourOn(TEST_CASE_NAME2, testFolder, CaseHelper.DEFAULT_USERNAME);
 
         testDocument = docTestHelper.createCaseDocument(TEST_DOCUMENT_FILE_NAME, testCase1);
+        
     }
 
     @After
@@ -174,4 +171,5 @@ public class DocumentServiceImplIT {
             Assert.assertTrue("The exception is thrown which is OK", true);
         }
     }
+
 }

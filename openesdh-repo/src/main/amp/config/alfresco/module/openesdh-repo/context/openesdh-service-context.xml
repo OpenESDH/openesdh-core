@@ -45,6 +45,14 @@
         <property name="permissionsModelDAO">
             <ref bean="permissionsModelDAO"/>
         </property>
+        
+        <property name="actionService">
+            <ref bean="ActionService"/>
+        </property>
+        
+        <property name="ruleService">
+            <ref bean="RuleService"/>
+        </property>
     </bean>
 
     <bean id="NodeInfoService" class="dk.openesdh.repo.services.NodeInfoServiceImpl">
