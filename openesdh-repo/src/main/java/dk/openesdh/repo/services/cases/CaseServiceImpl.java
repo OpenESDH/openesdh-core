@@ -522,11 +522,10 @@ public class CaseServiceImpl implements CaseService {
      * @param name
      * @return
      */
-    private NodeRef createNode(NodeRef parentFolderNodeRef, String name) {
+    private NodeRef createNode(final NodeRef parentFolderNodeRef, final String name) {
         Map<QName, Serializable> properties = new HashMap<>();
         properties.put(ContentModel.PROP_NAME, name);
         return nodeService.createNode(parentFolderNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, name), ContentModel.TYPE_FOLDER, properties).getChildRef();
-
     }
 
     void setupCase(NodeRef caseNodeRef, NodeRef caseFolderNodeRef, long caseUniqueNumber) {
@@ -593,9 +592,11 @@ public class CaseServiceImpl implements CaseService {
      */
     @Override
     public NodeRef getCaseFolderNodeRef(NodeRef casesRootNodeRef) {
-        NodeRef casesYearNodeRef = getCasePathNodeRef(casesRootNodeRef, Calendar.YEAR);
-        NodeRef casesMonthNodeRef = getCasePathNodeRef(casesYearNodeRef, Calendar.MONTH);
-        return getCasePathNodeRef(casesMonthNodeRef, Calendar.DATE);
+        return AuthenticationUtil.runAsSystem(() -> {
+            NodeRef casesYearNodeRef = getCasePathNodeRef(casesRootNodeRef, Calendar.YEAR);
+            NodeRef casesMonthNodeRef = getCasePathNodeRef(casesYearNodeRef, Calendar.MONTH);
+            return getCasePathNodeRef(casesMonthNodeRef, Calendar.DATE);
+        });
     }
 
     /**
