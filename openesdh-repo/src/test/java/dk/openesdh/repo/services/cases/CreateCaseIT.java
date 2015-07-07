@@ -2,12 +2,11 @@ package dk.openesdh.repo.services.cases;
 
 import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
+import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.OpenESDHModel;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
-import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
-import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthorityService;
@@ -15,7 +14,10 @@ import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,7 +30,10 @@ import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.*;
 
+import static org.alfresco.repo.security.authentication.AuthenticationUtil.*;
 import static org.hamcrest.core.Is.isA;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by rasmutor on 6/30/15.
@@ -64,6 +69,14 @@ public class CreateCaseIT {
     @Autowired
     private AuthorityService authorityService;
 
+    private static final String CREATOR_ROLE = "CaseTestCreator";
+    private static final String READER_ROLE = "CaseTestReader";
+    private static final String WRITER_ROLE = "CaseTestWriter";
+
+    @Autowired
+    @Qualifier("TestCaseHelper")
+    private CaseHelper caseHelper;
+
     @Before
     public void setUp() throws Exception {
     }
@@ -74,22 +87,22 @@ public class CreateCaseIT {
 
     @Test
     public void getCaseFolderShouldCreateTheYearMonthDayFolderHierarchy() throws Exception {
-        AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
+        setFullyAuthenticatedUser(getAdminUserName());
         NodeRef casesRootNode = retryingTransactionHelper.doInTransaction(() -> {
             NodeRef root = caseService.getCasesRootNodeRef();
-            Assert.assertNotNull(root);
+            assertNotNull(root);
             NodeRef c = caseService.getCaseFolderNodeRef(root);
-            Assert.assertNotNull(c);
+            assertNotNull(c);
             return root;
         });
 
         LocalDate today = LocalDate.now();
         NodeRef year = nodeService.getChildByName(casesRootNode, ContentModel.ASSOC_CONTAINS, Integer.toString(today.getYear()));
-        Assert.assertNotNull(year);
+        assertNotNull(year);
         NodeRef month = nodeService.getChildByName(year, ContentModel.ASSOC_CONTAINS, Integer.toString(today.getMonthValue()));
-        Assert.assertNotNull(month);
+        assertNotNull(month);
         NodeRef day = nodeService.getChildByName(month, ContentModel.ASSOC_CONTAINS, Integer.toString(today.getDayOfMonth()));
-        Assert.assertNotNull(day);
+        assertNotNull(day);
     }
 
     @Rule
@@ -99,67 +112,42 @@ public class CreateCaseIT {
     public void shouldFailCausedByMissingPermissions() throws Exception {
         expectedException.expectCause(isA(AccessDeniedException.class));
 
-        AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
+        setFullyAuthenticatedUser(getAdminUserName());
 
         retryingTransactionHelper.doInTransaction(() -> {
-            authorityService.removeAuthority(PermissionService.GROUP_PREFIX + "CaseTestCreator", AuthenticationUtil.getAdminUserName());
+            authorityService.removeAuthority(PermissionService.GROUP_PREFIX + CREATOR_ROLE, getAdminUserName());
             final String name = UUID.randomUUID().toString();
             final Map<QName, Serializable> properties = new HashMap<>();
-            properties.put(ContentModel.PROP_NAME, name);
 
-            ChildAssociationRef childAssocRef = nodeService.createNode(
-                    repository.getCompanyHome(),
-                    ContentModel.ASSOC_CONTAINS,
-                    QName.createQName(OpenESDHModel.CASE_URI, name),
-                    OpenESDHModel.TYPE_CASE_BASE,
-                    properties);
-            NodeRef child = childAssocRef.getChildRef();
-            List<NodeRef> owners = new ArrayList<>();
-            NodeRef person = personService.getPerson(AuthenticationUtil.getAdminUserName());
-            owners.add(person);
-            nodeService.setAssociations(child, OpenESDHModel.ASSOC_CASE_OWNERS, owners);
+            List<NodeRef> owners = Arrays.asList(personService.getPerson(getAdminUserName()));
+
+            caseHelper.createCase(getAdminUserName(), repository.getCompanyHome(), name, OpenESDHModel.TYPE_CASE_BASE, properties, owners);
             return null;
         });
     }
 
     @Test
     public void aCreatedCaseNodeShallHaveAnIdPropertyAndADocumentsFolder() throws Exception {
-        AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
+        setFullyAuthenticatedUser(getAdminUserName());
 
         NodeRef caseNode = retryingTransactionHelper.doInTransaction(() -> {
-            if (!authorityService.authorityExists(PermissionService.GROUP_PREFIX + "CaseTestCreator")) {
-                authorityService.createAuthority(AuthorityType.GROUP, "CaseTestCreator");
-            }
-            if (!authorityService.getAuthoritiesForUser(AuthenticationUtil.getAdminUserName()).contains(PermissionService.GROUP_PREFIX + "CaseTestCreator")) {
-                authorityService.addAuthority(PermissionService.GROUP_PREFIX + "CaseTestCreator", AuthenticationUtil.getAdminUserName());
-            }
+            giveUserCreateAccess(getAdminUserName());
 
             final String name = UUID.randomUUID().toString();
             final Map<QName, Serializable> properties = new HashMap<>();
-            properties.put(ContentModel.PROP_NAME, name);
 
-            ChildAssociationRef childAssocRef = nodeService.createNode(
-                    repository.getCompanyHome(),
-                    ContentModel.ASSOC_CONTAINS,
-                    QName.createQName(OpenESDHModel.CASE_URI, name),
-                    OpenESDHModel.TYPE_CASE_BASE,
-                    properties);
+            List<NodeRef> owners = Arrays.asList(personService.getPerson(getAdminUserName()));
 
-            NodeRef child = childAssocRef.getChildRef();
-            List<NodeRef> owners = new ArrayList<>();
-            NodeRef person = personService.getPerson(AuthenticationUtil.getAdminUserName());
-            owners.add(person);
-            nodeService.setAssociations(child, OpenESDHModel.ASSOC_CASE_OWNERS, owners);
-            return child;
+            return caseHelper.createCase(getAdminUserName(), repository.getCompanyHome(), name, OpenESDHModel.TYPE_CASE_BASE, properties, owners);
         });
 
         Map<QName, Serializable> childProps = nodeService.getProperties(caseNode);
-        Assert.assertTrue(childProps.containsKey(OpenESDHModel.PROP_OE_ID));
+        assertTrue(childProps.containsKey(OpenESDHModel.PROP_OE_ID));
 
         NodeRef documentsFolder = nodeService.getChildByName(caseNode, ContentModel.ASSOC_CONTAINS, OpenESDHModel.DOCUMENTS_FOLDER_NAME);
-        Assert.assertNotNull(documentsFolder);
+        assertNotNull(documentsFolder);
         Set<QName> aspects = nodeService.getAspects(documentsFolder);
-        Assert.assertTrue(aspects.contains(OpenESDHModel.ASPECT_DOCUMENT_CONTAINER));
+        assertTrue(aspects.contains(OpenESDHModel.ASPECT_DOCUMENT_CONTAINER));
     }
 
     @Test
@@ -167,62 +155,90 @@ public class CreateCaseIT {
         String userName = "abeecher";
         enableTestUser(userName);
 
-        AuthenticationUtil.runAs(() -> retryingTransactionHelper.doInTransaction(() -> {
-            if (!authorityService.authorityExists(PermissionService.GROUP_PREFIX + "CaseTestReader")) {
-                authorityService.createAuthority(AuthorityType.GROUP, "CaseTestReader");
-            }
-            if (!authorityService.getAuthoritiesForUser(userName).contains(PermissionService.GROUP_PREFIX + "CaseTestReader")) {
-                authorityService.addAuthority(PermissionService.GROUP_PREFIX + "CaseTestReader", userName);
-            }
-            return null;
-        }), AuthenticationUtil.getAdminUserName());
+        giveUserCreateAccess(userName);
+        giveUserReadAccess(userName);
 
-        AuthenticationUtil.setFullyAuthenticatedUser(userName);
+        setFullyAuthenticatedUser(userName);
 
         NodeRef caseNode = retryingTransactionHelper.doInTransaction(() -> {
-            if (!authorityService.authorityExists(PermissionService.GROUP_PREFIX + "CaseTestCreator")) {
-                authorityService.createAuthority(AuthorityType.GROUP, "CaseTestCreator");
-            }
-            if (!authorityService.getAuthoritiesForUser(userName).contains(PermissionService.GROUP_PREFIX + "CaseTestCreator")) {
-                authorityService.addAuthority(PermissionService.GROUP_PREFIX + "CaseTestCreator", userName);
-            }
-
             final String name = UUID.randomUUID().toString();
             final Map<QName, Serializable> properties = new HashMap<>();
-            properties.put(ContentModel.PROP_NAME, name);
 
             NodeRef personNode = personService.getPerson(userName);
-            NodeRef homeFolder = (NodeRef) nodeService.getProperty(personNode, ContentModel.PROP_HOMEFOLDER);
-            ChildAssociationRef childAssocRef = nodeService.createNode(
-                    homeFolder,
-                    ContentModel.ASSOC_CONTAINS,
-                    QName.createQName(OpenESDHModel.CASE_URI, name),
-                    OpenESDHModel.TYPE_CASE_BASE,
-                    properties);
 
-            NodeRef child = childAssocRef.getChildRef();
-            List<NodeRef> owners = new ArrayList<>();
-            NodeRef person = personService.getPerson(AuthenticationUtil.getAdminUserName());
-            owners.add(person);
-            nodeService.setAssociations(child, OpenESDHModel.ASSOC_CASE_OWNERS, owners);
-            return child;
+            List<NodeRef> owners = Arrays.asList(personNode);
+            NodeRef homeFolder = (NodeRef) nodeService.getProperty(personNode, ContentModel.PROP_HOMEFOLDER);
+
+            return caseHelper.createCase(userName, homeFolder, name, OpenESDHModel.TYPE_CASE_BASE, properties, owners);
         });
 
         String id = (String) nodeService.getProperty(caseNode, OpenESDHModel.PROP_OE_ID);
 
         NodeRef caseFolderNodeRef = caseService.getCaseFolderNodeRef(caseService.getCasesRootNodeRef());
         NodeRef caseFolder = nodeService.getChildByName(caseFolderNodeRef, ContentModel.ASSOC_CONTAINS, id);
-        Assert.assertNotNull(caseFolder);
-        Assert.assertTrue(caseService.isCaseNode(caseFolder));
+        assertNotNull(caseFolder);
+        assertTrue(caseService.isCaseNode(caseFolder));
+    }
+
+    @Test
+    public void givenWriteAccessANormalUserCanChangeCaseStatus() throws Exception {
+        String testUser = "abeecher";
+        enableTestUser(testUser);
+        giveUserWriteAccess(testUser);
+        giveUserCreateAccess(getAdminUserName());
+
+        NodeRef personNode = personService.getPerson(getAdminUserName());
+        List<NodeRef> owners = Arrays.asList(personNode);
+        final Map<QName, Serializable> properties = new HashMap<>();
+        NodeRef caseNode = caseHelper.createCase(getAdminUserName(), repository.getCompanyHome(), "my test case", OpenESDHModel.TYPE_CASE_BASE, properties, owners);
+
+        setFullyAuthenticatedUser(testUser);
+
+        nodeService.setProperty(caseNode, OpenESDHModel.PROP_OE_STATUS, "pending");
     }
 
     private void enableTestUser(String userName) {
         retryingTransactionHelper.doInTransaction(() -> {
-            NodeRef person = personService.getPerson(userName);
             Map<QName,Serializable> properties = new HashMap<>();
             properties.put(ContentModel.PROP_ENABLED, true);
             personService.setPersonProperties(userName, properties, true);
             return null;
         });
+    }
+
+    private void giveUserReadAccess(final String userName) {
+        runAs(() -> retryingTransactionHelper.doInTransaction(() -> {
+            if (!authorityService.authorityExists(PermissionService.GROUP_PREFIX + READER_ROLE)) {
+                authorityService.createAuthority(AuthorityType.GROUP, READER_ROLE);
+            }
+            if (!authorityService.getAuthoritiesForUser(userName).contains(PermissionService.GROUP_PREFIX + READER_ROLE)) {
+                authorityService.addAuthority(PermissionService.GROUP_PREFIX + READER_ROLE, userName);
+            }
+            return null;
+        }), getAdminUserName());
+    }
+
+    private void giveUserWriteAccess(final String userName) {
+        runAs(() -> retryingTransactionHelper.doInTransaction(() -> {
+            if (!authorityService.authorityExists(PermissionService.GROUP_PREFIX + WRITER_ROLE)) {
+                authorityService.createAuthority(AuthorityType.GROUP, WRITER_ROLE);
+            }
+            if (!authorityService.getAuthoritiesForUser(userName).contains(PermissionService.GROUP_PREFIX + WRITER_ROLE)) {
+                authorityService.addAuthority(PermissionService.GROUP_PREFIX + WRITER_ROLE, userName);
+            }
+            return null;
+        }), getAdminUserName());
+    }
+
+    private void giveUserCreateAccess(final String userName) {
+        runAs(() -> retryingTransactionHelper.doInTransaction(() -> {
+            if (!authorityService.authorityExists(PermissionService.GROUP_PREFIX + CREATOR_ROLE)) {
+                authorityService.createAuthority(AuthorityType.GROUP, CREATOR_ROLE);
+            }
+            if (!authorityService.getAuthoritiesForUser(userName).contains(PermissionService.GROUP_PREFIX + CREATOR_ROLE)) {
+                authorityService.addAuthority(PermissionService.GROUP_PREFIX + CREATOR_ROLE, userName);
+            }
+            return null;
+        }), getAdminUserName());
     }
 }
