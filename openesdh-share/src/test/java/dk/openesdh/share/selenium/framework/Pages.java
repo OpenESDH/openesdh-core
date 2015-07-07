@@ -18,6 +18,7 @@ public class Pages {
 
     public static LoginPage Login;
     public static DashboardPage Dashboard;
+    public static AdminToolsPage AdminToolsPage;
     public static SearchPage Search;
     public static CreateCasePage CreateCase;
     public static EditCasePage EditCase;

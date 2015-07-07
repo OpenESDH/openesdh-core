@@ -958,13 +958,13 @@ public class CaseServiceImpl implements CaseService {
         String caseCreatorPermissionName = getCaseCreatorPermissionForCaseType(caseTypeQName);
         if (StringUtils.isEmpty(caseCreatorPermissionName)) {
             throw new AccessDeniedException(I18NUtil.getMessage(MSG_NO_CASE_CREATOR_PERMISSION_DEFINED,
-                    caseTypeQName.getLocalName()));
+                    caseTypeQName.toString()));
         }
 
         String caseCreatorGroup = PermissionService.GROUP_PREFIX + caseCreatorPermissionName;
         if (!caseCreatorGroupExists(caseCreatorGroup)) {
             throw new AccessDeniedException(I18NUtil.getMessage(MSG_NO_CASE_CREATOR_GROUP_DEFINED,
-                    caseTypeQName.getLocalName()));
+                    caseTypeQName.toString()));
         }
 
         if (AuthenticationUtil.isRunAsUserTheSystemUser()) {
@@ -975,7 +975,7 @@ public class CaseServiceImpl implements CaseService {
 
         if (!currentUserAuthorities.contains(caseCreatorGroup)) {
             throw new AccessDeniedException(I18NUtil.getMessage(MSG_CASE_CREATOR_PERMISSION_VIOLATION,
-                    caseTypeQName.getLocalName()));
+                    caseTypeQName.toString()));
         }
     }
 
