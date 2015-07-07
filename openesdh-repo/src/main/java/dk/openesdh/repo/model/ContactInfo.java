@@ -2,6 +2,7 @@ package dk.openesdh.repo.model;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.StringJoiner;
 
 import org.alfresco.repo.security.permissions.PermissionCheckValue;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -54,10 +55,29 @@ public class ContactInfo implements PermissionCheckValue {
     }
 
     public String getName(){
-        if( this.type.equalsIgnoreCase("PERSON"))
-            return this.allProps.get(OpenESDHModel.PROP_CONTACT_FIRST_NAME) +" " +this.allProps.get(OpenESDHModel.PROP_CONTACT_LAST_NAME);
-        else
+        if (!this.type.equalsIgnoreCase("PERSON")) {
             return (String) this.allProps.get(OpenESDHModel.PROP_CONTACT_ORGANIZATION_NAME);
+        }
+
+        StringJoiner sj = new StringJoiner(" ");
+
+        Serializable firstName = this.allProps.get(OpenESDHModel.PROP_CONTACT_FIRST_NAME);
+        if (firstName != null) {
+            sj.add(firstName.toString());
+        }
+
+        Serializable middleName = this.allProps.get(OpenESDHModel.PROP_CONTACT_MIDDLE_NAME);
+        if (middleName != null) {
+            sj.add(middleName.toString());
+        }
+
+        Serializable lastName = this.allProps.get(OpenESDHModel.PROP_CONTACT_LAST_NAME);
+        if (lastName != null) {
+            sj.add(lastName.toString());
+        }
+
+        return sj.toString();
+
     }
 
     public String getStreetName() {
