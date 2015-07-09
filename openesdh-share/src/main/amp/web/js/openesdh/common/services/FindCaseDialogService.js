@@ -16,7 +16,7 @@ define(["dojo/_base/declare",
         	
         	retrieveSearchDefinition: function() {
                 this.serviceXhr({
-                    url: Alfresco.constants.PROXY_URI + "api/openesdh/case/searchDefinition/case_simple",
+                    url: Alfresco.constants.PROXY_URI + "api/openesdh/case/searchDefinition/simple_case",
                     method: "GET",
                     handleAs: "json",
                     successCallback: function (response, config) {
@@ -53,7 +53,7 @@ define(["dojo/_base/declare",
                                         {
                                             name: "openesdh/xsearch/FilterPane",
                                             config: {
-                                                baseType: "case:base",
+                                                baseType: "base:case",
                                                 types: this.searchDefinition.model.types,
                                                 properties: this.searchDefinition.model.properties,
                                                 availableFilters: ["cm:title", "oe:status", "cm:created"],
@@ -63,7 +63,7 @@ define(["dojo/_base/declare",
                                         {
                                             name: "openesdh/xsearch/Grid",
                                             config: {
-                                                baseType: "case:base",
+                                                baseType: "base:case",
                                                 types: this.searchDefinition.model.types,
                                                 properties: this.searchDefinition.model.properties,
                                                 visibleColumns: ["oe:id", "cm:title", "oe:status", "cm:created"],
