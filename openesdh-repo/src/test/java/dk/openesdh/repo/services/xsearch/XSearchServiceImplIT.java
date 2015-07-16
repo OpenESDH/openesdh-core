@@ -68,7 +68,7 @@ public class XSearchServiceImplIT {
 
     private static final String ADMIN_USER_NAME = "admin";
 
-    private static final String baseType = "case:base";
+    private static final String baseType = "base:case";
 
     private NodeRef caseNode;
     private String testCaseTitle;
