@@ -2,7 +2,6 @@ package dk.openesdh.share.selenium.tests;
 
 
 import dk.magenta.share.selenium.framework.Browser;
-import dk.openesdh.share.selenium.framework.Pages;
 import dk.openesdh.share.selenium.framework.enums.User;
 import dk.openesdh.share.selenium.framework.pages.AdminToolsPage;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -18,7 +17,6 @@ import java.io.Serializable;
 import java.util.HashMap;
 
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 
 public class CreateContactTestIT extends AdminToolsPage {
 
@@ -54,7 +52,7 @@ public class CreateContactTestIT extends AdminToolsPage {
     @Test
     public void createContactAsAdmin() {
         this.loginAsUser(User.ADMIN);
-        this.gotoContactsTypePage("organisation");
+        this.gotoAdminConsoleAppPage("contactOrganisation");
         this.clickCreateContactBtnType("organisation");
         assertNotNull(createOrgContactDialog);
 
@@ -66,7 +64,7 @@ public class CreateContactTestIT extends AdminToolsPage {
     @Test
     public void searchContact() {
         this.loginAsUser(User.ADMIN);
-        this.gotoContactsTypePage("organisation");
+        this.gotoAdminConsoleAppPage("contactOrganisation");
         this.clickCreateContactBtnType("organisation");
         assertNotNull(createOrgContactDialog);
         String contactEmail = this.createContact("organisation");
@@ -75,13 +73,12 @@ public class CreateContactTestIT extends AdminToolsPage {
         assertNotNull(contactSearchOkBtn);
         contactSearchOkBtn.click();
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[@class='value' and (text()='"+contactEmail+"'  ) ]")) );
-
     }
 
     @Test
     public void editContactAsAdmin() {
         this.loginAsUser(User.ADMIN);
-        this.gotoContactsTypePage("organisation");
+        this.gotoAdminConsoleAppPage("contactOrganisation");
         this.clickCreateContactBtnType("organisation");
         assertNotNull(createOrgContactDialog);
         String contactEmail = this.createContact("organisation");
@@ -93,8 +90,8 @@ public class CreateContactTestIT extends AdminToolsPage {
         wait.until(ExpectedConditions.visibilityOfElementLocated(By.xpath("//span[@class='value' and (text()='"+contactEmail+"'  ) ]")) );
         //The edit button
         WebElement editContactBtn = driver.findElement(By.xpath("//tr/td[last()]/span[@class='alfresco-renderers-PublishAction alfresco-debug-Info highlight'][1]"));
-//        wait.until(ExpectedConditions.elementToBeClickable(editContactBtn));
         editContactBtn.click();
+
         assertNotNull(editContactDialog);
         String email = RandomStringUtils.randomAlphabetic(9) +"@openESDH.org";
         WebElement emailFieldInput = driver.findElement(By.xpath("//div[@id='EDIT_CONTACT_DIALOG']//input[@name='email']"));
@@ -113,7 +110,7 @@ public class CreateContactTestIT extends AdminToolsPage {
     @Test
     public void deleteContactAsAdmin() {
         this.loginAsUser(User.ADMIN);
-        this.gotoContactsTypePage("organisation");
+        this.gotoAdminConsoleAppPage("contactOrganisation");
         this.clickCreateContactBtnType("organisation");
         assertNotNull(createOrgContactDialog);
         String contactEmail = this.createContact("organisation");

@@ -1,7 +1,6 @@
 package dk.openesdh.share.selenium.framework.pages;
 
 import dk.magenta.share.selenium.framework.Browser;
-import dk.openesdh.share.selenium.framework.pages.BasePage;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -9,7 +8,7 @@ import org.openqa.selenium.support.FindBy;
 
 import java.util.List;
 
-public class CaseMembersPage extends BasePage {
+public class CaseMembersCasePage extends BaseCasePage {
     private static final String URL = BASE_URL + "/page/oe/case/@@ID@@/members";
 
     /**
@@ -18,6 +17,16 @@ public class CaseMembersPage extends BasePage {
     @FindBy(id = "CASE_MEMBERS_ADD_AUTHORITIES_text")
     WebElement addAuthoritiesButton;
 
+    @FindBy(id = "CASE_MEMBERS_ADD_AUTHORITY_CASESIMPLEREADER_text")
+    WebElement addSimpleCaseReadersButton;
+
+    @FindBy(id = "CASE_MEMBERS_ADD_AUTHORITY_CASESIMPLEWRITER_text")
+    WebElement addSimpleCaseWritesButton;
+
+    @FindBy(id = "CASE_MEMBERS_ADD_AUTHORITY_CASEOWNERS_text")
+    WebElement addSimpleCaseOwnersButton;
+
+    // //div[@id='admin-CaseOwners']/div[@class='remove-button']//span[@role='presentation']
 
     public void gotoPage(String caseId) {
         Browser.open(URL.replace("@@ID@@", caseId) );

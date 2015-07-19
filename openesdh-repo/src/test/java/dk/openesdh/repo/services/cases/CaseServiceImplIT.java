@@ -63,7 +63,8 @@ import dk.openesdh.repo.model.OpenESDHModel;
 @ContextConfiguration("classpath:alfresco/application-context.xml")
 public class CaseServiceImplIT {
 
-//    private static final String ADMIN_USER_NAME = "admin";
+    //<editor-fold desc="Injected services">
+    //    private static final String ADMIN_USER_NAME = "admin";
     private static final String USER_NAME_1 = "abeecher";
     private static final String USER_NAME_2 = "mjackson";
 
@@ -120,6 +121,7 @@ public class CaseServiceImplIT {
 
     @Autowired
     private RuleService ruleService;
+    //</editor-fold>
 
     protected CaseServiceImpl caseService = null;
     private DynamicNamespacePrefixResolver namespacePrefixResolver = new DynamicNamespacePrefixResolver(null);
@@ -299,20 +301,6 @@ public class CaseServiceImplIT {
         }
     }
 
-
-    /*
-    @Test
-    public void testBehaviourOnAddOwnersToPermissionGroup() throws Exception {
-        String caseId = caseService.getCaseId(behaviourOnCaseNodeRef);
-        String groupName = caseService.getCaseRoleGroupName(caseId, "CaseOwners");
-
-        Set<String> auth = authorityService.getContainedAuthorities(AuthorityType.USER, groupName, false);
-        assertTrue("Creating a case should add the users in case owners " +
-                "association to the CaseOwners group", auth.contains(CaseHelper.DEFAULT_USERNAME));
-    }
-    */
-
-
     @Test
     public void testBehaviourOnAddRemoveOwner() throws Exception {
 //        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
@@ -385,7 +373,6 @@ public class CaseServiceImplIT {
         assertTrue(permissionGroups.contains("CaseSimpleWriter"));
     }
 
-
     @Test
     public void testAddRemoveAuthorityRole() throws Exception {
         caseService.setupPermissionGroups(temporaryCaseNodeRef,
@@ -403,7 +390,6 @@ public class CaseServiceImplIT {
         assertFalse(membersByRoles.get("CaseSimpleReader").contains
                 (AuthenticationUtil.getAdminUserName()));
     }
-
 
     @Test
     public void testAddAuthoritiesToRole() throws Exception {

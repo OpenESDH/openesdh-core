@@ -2,6 +2,7 @@ package dk.openesdh.share.selenium.tests;
 
 import dk.magenta.share.selenium.framework.Browser;
 import dk.openesdh.share.selenium.framework.enums.User;
+import dk.openesdh.share.selenium.framework.pages.BaseCasePage;
 import dk.openesdh.share.selenium.framework.pages.BasePage;
 import org.junit.Test;
 import org.openqa.selenium.support.ui.WebDriverWait;

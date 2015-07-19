@@ -1,7 +1,6 @@
 package dk.openesdh.share.selenium.framework.pages;
 
 import dk.magenta.share.selenium.framework.Browser;
-import dk.openesdh.share.selenium.framework.pages.BasePage;
 import dk.openesdh.share.selenium.framework.Pages;
 import dk.openesdh.share.selenium.framework.enums.User;
 
@@ -17,7 +16,7 @@ import org.openqa.selenium.support.ui.WebDriverWait;
  * @author Søren Kirkegård
  *
  */
-public class LoginPage extends BasePage {
+public class LoginCasePage extends BaseCasePage {
 
     private static final String URL = BASE_URL + "/page/type/login";
     private static final String URL_ERROR = URL + "?error=true";
@@ -45,7 +44,7 @@ public class LoginPage extends BasePage {
     public void loginWith(User user) {
         Pages.Login.gotoPage();
         userNameInput.clear();
-        userNameInput.sendKeys(user.username());
+        userNameInput.sendKeys(user.userName());
         passwordInput.clear();
         passwordInput.sendKeys(user.password());
         submitButton.click();

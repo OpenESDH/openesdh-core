@@ -1,12 +1,11 @@
 package dk.openesdh.share.selenium.framework.pages;
 
 import dk.magenta.share.selenium.framework.Browser;
-import dk.openesdh.share.selenium.framework.pages.BasePage;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 
-public class DocumentDetailsPage extends BasePage {
+public class DocumentDetailsCasePage extends BaseCasePage {
     private static final String URL = BASE_URL + "/page/document-details";
 
     public boolean isAt() {

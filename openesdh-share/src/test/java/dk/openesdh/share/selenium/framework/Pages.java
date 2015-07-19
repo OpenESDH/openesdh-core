@@ -3,7 +3,7 @@ package dk.openesdh.share.selenium.framework;
 import java.util.concurrent.TimeUnit;
 
 import dk.magenta.share.selenium.framework.Browser;
-import dk.openesdh.share.selenium.framework.pages.BasePage;
+import dk.openesdh.share.selenium.framework.pages.BaseCasePage;
 import dk.openesdh.share.selenium.framework.pages.*;
 
 import org.openqa.selenium.support.PageFactory;
@@ -16,16 +16,16 @@ import org.openqa.selenium.support.PageFactory;
  */
 public class Pages {
 
-    public static LoginPage Login;
-    public static DashboardPage Dashboard;
+    public static LoginCasePage Login;
+    public static DashboardCasePage Dashboard;
     public static AdminToolsPage AdminToolsPage;
-    public static SearchPage Search;
-    public static CreateCasePage CreateCase;
-    public static EditCasePage EditCase;
-    public static CaseDashboardPage CaseDashboard;
-    public static CaseDocumentsPage CaseDocumentsPage;
-    public static DocumentDetailsPage DocumentDetails;
-    public static CaseMembersPage CaseMembers;
+    public static SearchCasePage Search;
+    public static CreateCaseCasePage CreateCase;
+    public static EditCaseCasePage EditCase;
+    public static CaseDashboardCasePage CaseDashboard;
+    public static CaseDocumentsCasePage CaseDocumentsPage;
+    public static DocumentDetailsCasePage DocumentDetails;
+    public static CaseMembersCasePage CaseMembers;
 
     /**
      * helper method to initElements on a page
@@ -46,14 +46,15 @@ public class Pages {
      * whenever you're creating a new Driver.
      */
     public static void initialize() {
-        Login = (LoginPage) initializePage(new LoginPage());
-        Dashboard = (DashboardPage) initializePage(new DashboardPage());
-        Search = (SearchPage) initializePage(new SearchPage());
-        CreateCase = (CreateCasePage) initializePage(new CreateCasePage());
-        EditCase = (EditCasePage) initializePage(new EditCasePage());
-        CaseDashboard = (CaseDashboardPage) initializePage(new CaseDashboardPage());
-        DocumentDetails = (DocumentDetailsPage) initializePage(new DocumentDetailsPage());
-        CaseMembers = (CaseMembersPage) initializePage(new CaseMembersPage());
-        CaseDocumentsPage = (CaseDocumentsPage) initializePage(new CaseDocumentsPage());
+        Login = (LoginCasePage) initializePage(new LoginCasePage());
+        AdminToolsPage = (AdminToolsPage) initializePage(new AdminToolsPage());
+        Dashboard = (DashboardCasePage) initializePage(new DashboardCasePage());
+        Search = (SearchCasePage) initializePage(new SearchCasePage());
+        CreateCase = (CreateCaseCasePage) initializePage(new CreateCaseCasePage());
+        EditCase = (EditCaseCasePage) initializePage(new EditCaseCasePage());
+        CaseDashboard = (CaseDashboardCasePage) initializePage(new CaseDashboardCasePage());
+        DocumentDetails = (DocumentDetailsCasePage) initializePage(new DocumentDetailsCasePage());
+        CaseMembers = (CaseMembersCasePage) initializePage(new CaseMembersCasePage());
+        CaseDocumentsPage = (CaseDocumentsCasePage) initializePage(new CaseDocumentsCasePage());
     }
 }

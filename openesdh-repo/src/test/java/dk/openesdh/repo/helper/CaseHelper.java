@@ -37,6 +37,7 @@ public class CaseHelper {
     public static final String ADMIN_USER_NAME = "admin";
     public final static String DEFAULT_USERNAME = "username12";
 
+    //<editor-fold desc="Injected services">
     @Autowired
     @Qualifier("NodeService")
     protected NodeService nodeService;
@@ -76,7 +77,9 @@ public class CaseHelper {
 
     @Autowired
     private CaseService caseService;
+    //</editor-fold>
 
+    //<editor-fold desc="Service setters">
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
     }
@@ -112,6 +115,7 @@ public class CaseHelper {
     public void setNodeLocatorService(NodeLocatorService nodeLocatorService) {
         this.nodeLocatorService = nodeLocatorService;
     }
+    //</editor-fold>
 
     /**
      * Create a case. If disableBehaviour is true, transaction is run with
