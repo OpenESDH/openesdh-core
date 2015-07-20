@@ -26,11 +26,7 @@ public class CaseMembersCasePage extends BaseCasePage {
     @FindBy(id = "CASE_MEMBERS_ADD_AUTHORITY_CASEOWNERS_text")
     WebElement addSimpleCaseOwnersButton;
 
-    // //div[@id='admin-CaseOwners']/div[@class='remove-button']//span[@role='presentation']
 
-    public void gotoPage(String caseId) {
-        Browser.open(URL.replace("@@ID@@", caseId) );
-    }
 
     public boolean isAt() {
         String tmpUrl = URL.replace("@@ID@@", this.getCaseId());

@@ -23,6 +23,14 @@ import static org.junit.Assert.assertTrue;
 public class BaseCasePage extends BasePage{
     private static final String URL = BASE_URL + "/page/oe/case/@@ID@@/";
 
+    @Before
+    public void userSetup() {
+        Pages.Login.loginWith(User.ADMIN);
+        Pages.AdminToolsPage.addUserToGroup(User.BRIGITTE, "CaseSimpleCreator");
+        Pages.Login.logout();
+    }
+
+
     //<editor-fold desc="WebElements Global to all case pages">
     @FindBy(xpath = "//div[@id='HEADER_CASE_DASHBOARD']//a")
     WebElement navCaseDashboardMenuItem;
@@ -60,16 +68,6 @@ public class BaseCasePage extends BasePage{
     private User caseCreator;
     WebDriverWait wait = new WebDriverWait(Browser.Driver,10);
 
-    //This allows us to create a user (if not already created) and add the user to the case creator group
-    protected void initAsCaseCreator(User user) {
-        this.loginAsUser(User.ADMIN);
-        Pages.AdminToolsPage.createAlfrescoUser(user);
-        //TODO Second parameter is hard coded for the time being. Change later.
-        Pages.AdminToolsPage.addUserToGroup(user, "CaseSimpleCreator");
-        Pages.Login.logout();
-        Pages.Login.loginAsUser(user);
-    }
-
     //Find the case ID from the URL with the new /page/oe/case/<id>/page scheme
     public String getCaseId() {
         Pattern p = Pattern.compile("\\/oe\\/case\\/(.+)/");
@@ -80,6 +78,7 @@ public class BaseCasePage extends BasePage{
             return null;
         }
     }
+
     public User getCaseCreator(){
         return this.caseCreator;
     }
@@ -107,13 +106,13 @@ public class BaseCasePage extends BasePage{
     }
 
 
-    protected String createCaseAsUser(User user, boolean initAsCaseCreator){
-        if(initAsCaseCreator) {
+    protected String createCaseAsUser(User user){
+        /*if(initAsCaseCreator) {
             initAsCaseCreator(user);
             //set the user that has now been set as the case creator so that we can easily
             // retrieve it elsewhere
             this.caseCreator = user;
-        }
+        }*/
         this.loginAsUser(user);
         String caseTitleText = RandomStringUtils.randomAlphanumeric(12);
         this.clickCasesMenuItem();

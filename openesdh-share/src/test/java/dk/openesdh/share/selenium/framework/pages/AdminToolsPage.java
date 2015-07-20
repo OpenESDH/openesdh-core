@@ -45,11 +45,14 @@ public class AdminToolsPage extends BasePage {
     @FindBy(xpath = "//span[@widgetid='CREATE_PERSON_BTN']//span[contains(@class,'dijitButtonNode')]")
     WebElement createPersonBtn;
 
-    @FindBy(xpath ="//input[@type='checkbox' and @name='-']")
-    WebElement showAllGroupsCheckbox;
+    @FindBy(id="CREATE_ORGANIZATION_DIALOG")
+    WebElement createOrgContactDialog;
 
-    @FindBy(xpath ="//input[@type='text' and @name='-']")
-    WebElement defaultSearchInput;
+    @FindBy(id="CREATE_PERSON_DIALOG")
+    WebElement createPersonContactDialog;
+
+    @FindBy(css="#CREATE_ORGANIZATION_DIALOG .dijitDialogPaneContent .footer .confirmationButton .dijitButtonNode")
+    WebElement createContactDialogConfirmButton;
 
     WebDriverWait wait = new WebDriverWait(Browser.Driver,7);
     WebDriver driver = Browser.Driver;
@@ -75,17 +78,8 @@ public class AdminToolsPage extends BasePage {
             case "contactPerson" : this.clickContactsPersonMenuItem(); break;
             case "contactOrganisation" : this.clickContactsOrganisationMenuItem(); break;
         }
-
     }
 
-    public void clickContactsPersonMenuItem() {
-        assertNotNull(contactsPersonMenuItem);
-        contactsPersonMenuItem.click();
-    }
-    public void clickContactsOrganisationMenuItem() {
-        assertNotNull(contactsOrgMenuItem);
-        contactsOrgMenuItem.click();
-    }
     public void clickGroupsMenuItem() {
         assertNotNull(groupsMenuItem);
         groupsMenuItem.click();
@@ -94,12 +88,18 @@ public class AdminToolsPage extends BasePage {
         assertNotNull(usersMenuItem);
         usersMenuItem.click();
     }
-
     public void clickNewUserBtn() {
         assertNotNull(newUserBtn);
         newUserBtn.click();
     }
-
+    public void clickContactsPersonMenuItem() {
+        assertNotNull(contactsPersonMenuItem);
+        contactsPersonMenuItem.click();
+    }
+    public void clickContactsOrganisationMenuItem() {
+        assertNotNull(contactsOrgMenuItem);
+        contactsOrgMenuItem.click();
+    }
     public void clickCreateContactBtnType(String contactType){
         WebElement contactTypeBtn = contactType.equalsIgnoreCase("person") ? createPersonBtn : createOrgBtn;
         assertNotNull(contactTypeBtn);
@@ -227,5 +227,29 @@ public class AdminToolsPage extends BasePage {
             else
                 throw new NoSuchElementException("Unable to add user to group because: "+ toe.getMessage());
         }
+    }
+
+    public String createContact(String contactType){
+        WebElement createContactDialog;
+
+        if(contactType.equalsIgnoreCase("organisation")){
+            this.gotoAdminConsoleAppPage("contactOrganisation");
+            this.clickCreateContactBtnType("organisation");
+            createContactDialog =  driver.findElement(By.id("CREATE_ORGANIZATION_DIALOG"));
+        }
+        else{
+            this.gotoAdminConsoleAppPage("contactPerson");
+            this.clickCreateContactBtnType("person");
+            createContactDialog =  driver.findElement(By.id("CREATE_PERSON_DIALOG"));
+        }
+        assertNotNull(createContactDialog);
+        HashMap<String, Serializable> contactDetails;
+        contactDetails = this.generateRandomContactDetails(contactType);
+        for(String key : contactDetails.keySet()){
+            driver.findElement(By.name(key)).sendKeys(contactDetails.get(key).toString());
+        }
+        WebElement createContactDialogConfirmButton = createContactDialog.findElement(By.xpath(".//div[@class='footer']//span[1]//span[contains(@class, 'dijitButtonNode')]"));
+        createContactDialogConfirmButton.click();
+        return contactDetails.get("email").toString();
     }
 }

@@ -1,4 +1,4 @@
-package dk.openesdh.share.selenium;
+package dk.openesdh.share.selenium.tests;
 
 import dk.openesdh.share.selenium.framework.enums.User;
 import dk.openesdh.share.selenium.framework.pages.AdminToolsPage;
