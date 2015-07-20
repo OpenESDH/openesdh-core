@@ -46,9 +46,9 @@
 .action-case-documents {
     background-position: -14px -95px;
 }
-.dgrid-row-odd{
+/*.dgrid-row-odd{
     background-color: #dddddd;
-}
+}*/
 
 .dgrid-no-data{
 	padding-top:.5em;

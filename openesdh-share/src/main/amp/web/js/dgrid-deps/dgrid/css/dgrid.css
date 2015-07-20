@@ -5,6 +5,10 @@
 	border: 1px solid #ddd;
 	height: 30em;
 	display: block;
+	background-color: white;
+	
+	max-width: 1200px;
+	margin: 0 auto;
 }
 
 .dgrid-header {
@@ -69,14 +73,25 @@ html.has-quirks .dgrid-header-hidden .dgrid-cell {
 	width: 100%; /* this becomes 'auto' for IE7 (non-quirks) */
 	height: 100%;
 }
+
+.dgrid-row-table > tr {
+	border-bottom: 1px solid #ddd;
+}
+
+.dgrid th.dgrid-cell {
+	font-weight: normal;
+	font-size: 12px;
+	background-color: white;
+	border: none;
+	color: #777777;
+}
+
+
 .dgrid-cell {
 	padding: 0px;
 	text-align: left;
 	overflow: hidden;
-	vertical-align: top;
-	border: 1px solid #ddd;
-	border-top-style: none;
-	
+	vertical-align: middle;
 	box-sizing: border-box;
 	-moz-box-sizing: border-box;
 	-ms-box-sizing: border-box;

@@ -1,0 +1,25 @@
+<extension>
+	<modules>
+		<module>
+			<id>Share visual customizations</id>
+			<auto-deploy>true</auto-deploy>
+			<customizations>
+				<customization>
+					<targetPackageRoot>org.alfresco</targetPackageRoot>
+					<sourcePackageRoot>br.com.teste</sourcePackageRoot>
+				</customization>
+			</customizations>
+			<!-- <configurations>
+				<config evaluator="string-compare" condition="WebFramework" replace="false">
+					<web-framework>
+						<dojo-pages>
+							<packages>
+								<package name="dgcloud" location="js/DGCloud"/>
+							</packages>
+						</dojo-pages>
+					</web-framework>
+				</config>
+			</configurations> -->
+		</module>
+	</modules>
+</extension>

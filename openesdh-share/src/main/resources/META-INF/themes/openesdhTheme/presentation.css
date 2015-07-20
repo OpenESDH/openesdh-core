@@ -36,7 +36,7 @@ input[type="file"] > input[type="button"]::-moz-focus-inner
 .sticky-wrapper,
 .sticky-footer
 {
-   font-family: Roboto, Arial, sans-serif;
+   /*font-family: Roboto, Arial, sans-serif;*/
    color: #333;
 }
 
@@ -45,7 +45,7 @@ input[type="file"] > input[type="button"]::-moz-focus-inner
    font-size: 81%;
 }
 
-.sticky-wrapper a,
+/*.sticky-wrapper a,
 .sticky-wrapper a:visited,
 .sticky-wrapper a:hover,
 .sticky-footer a,
@@ -59,7 +59,7 @@ input[type="file"] > input[type="button"]::-moz-focus-inner
    text-decoration: none;
 }
 
-/*.sticky-wrapper a:hover,
+.sticky-wrapper a:hover,
 .sticky-footer a:hover,
 .yui-overlay a:hover
 {
@@ -69,7 +69,7 @@ input[type="file"] > input[type="button"]::-moz-focus-inner
 .sticky-wrapper h1,
 .yui-overlay h1
 {
-   font-family: Roboto Condensed, Arial, sans-serif;
+   /*font-family: Roboto Condensed, Arial, sans-serif;*/
    font-size: 185%;
    font-weight: normal;
    top: -4px;
@@ -145,14 +145,14 @@ h4 .lighter
    font-weight: normal;
 }
 
-.alfresco-share .sticky-wrapper
+/*.alfresco-share .sticky-wrapper
 {
    background-color: #fff;
 }
 
 .label
 {
-}
+}*/
 
 .error
 {
@@ -237,17 +237,18 @@ h4 .lighter
 {
    border: 1px solid #ccc;
    background-color: #fff;
-   border-top-left-radius: 6px;
-   border-top-right-radius: 6px;
+   border-radius: 3px;
 }
 
 .dashlet .title
 {
    border-bottom: 1px solid #ccc;
-   background-color: #eee;
-   border-top-left-radius: 6px;
-   border-top-right-radius: 6px;
+   /*background-color: #eee;*/
+   border-top-left-radius: 3px;
+   border-top-right-radius: 3px;
    color: #333;
+   font-weight: bold;
+   padding: 10px;
 }
 
 .dashlet .feed
