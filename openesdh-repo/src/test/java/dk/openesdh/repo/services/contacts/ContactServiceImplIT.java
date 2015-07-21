@@ -157,7 +157,7 @@ public class ContactServiceImplIT {
         );
 
         Assert.assertEquals(wrongPropValueMessage(OpenESDHModel.PROP_CONTACT_CPR_NUMBER),
-                TEST_PERSON_CONTACT_CPR_NUMBER, contactInfo.getCPRNumber());
+                TEST_PERSON_CONTACT_CPR_NUMBER, contactInfo.getIDNumebr());
     }
 
     @Test
@@ -177,7 +177,7 @@ public class ContactServiceImplIT {
                 TEST_ORG_CONTACT_NAME, contactInfo.getName());
 
         Assert.assertEquals(wrongPropValueMessage(OpenESDHModel.PROP_CONTACT_CVR_NUMBER),
-                TEST_ORG_CONTACT_CVR_NUMBER, contactInfo.getCVRNumber());
+                TEST_ORG_CONTACT_CVR_NUMBER, contactInfo.getIDNumebr());
     }
 
     @Test

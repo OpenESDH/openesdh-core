@@ -105,14 +105,8 @@ public class ContactInfo implements PermissionCheckValue {
     }
 
     //Some other common properties that we might want to access on a regular basis when working with contacts
-    public String getCPRNumber(){
-        return getStringProp(OpenESDHModel.PROP_CONTACT_CPR_NUMBER);
-    }
-    public String getCVRNumber(){
-        return getStringProp(OpenESDHModel.PROP_CONTACT_CVR_NUMBER);
-    }
-    public boolean isRegistered(){
-        return (boolean)this.allProps.get(OpenESDHModel.PROP_CONTACT_REGISTERED);
+    public String getIDNumebr(){
+       return this.type.equalsIgnoreCase("PERSON") ?  getStringProp(OpenESDHModel.PROP_CONTACT_CPR_NUMBER): getStringProp(OpenESDHModel.PROP_CONTACT_CVR_NUMBER);
     }
     public boolean isInternal(){
         return (boolean)this.allProps.get(OpenESDHModel.PROP_CONTACT_INTERNAL) && (boolean)this.allProps.get(OpenESDHModel.PROP_CONTACT_REGISTERED);
@@ -121,7 +115,6 @@ public class ContactInfo implements PermissionCheckValue {
     private String getStringProp(QName qName) {
         return (String) this.allProps.get(qName);
     }
-
     private String getIntPropString(QName qName) {
         Integer value = (Integer) this.allProps.get(qName);
         if(value != null){
