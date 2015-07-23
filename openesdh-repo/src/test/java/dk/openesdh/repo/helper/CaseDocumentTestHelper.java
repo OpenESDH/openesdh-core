@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import dk.openesdh.SimpleCaseModel;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -113,7 +114,7 @@ public class CaseDocumentTestHelper {
         properties.put(ContentModel.PROP_NAME, getNodePropertyString(parentNodeRef, ContentModel.PROP_NAME));
 
         caseFolder = caseHelper.createCase(AuthenticationUtil.getAdminUserName(), parentNodeRef,
-                caseName, OpenESDHModel.TYPE_CASE_SIMPLE, properties, owners, disableBehaviour);
+                caseName, SimpleCaseModel.TYPE_CASE_SIMPLE, properties, owners, disableBehaviour);
 
         return caseFolder;
     }
