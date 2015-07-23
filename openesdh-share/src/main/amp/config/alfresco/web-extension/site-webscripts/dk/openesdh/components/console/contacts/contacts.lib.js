@@ -32,7 +32,7 @@ var userAccountWidgets = {
     ]
 };
 
-function getAddressWidgets(){
+function getAddressWidgets(initTokens){
     return [
         {
             name: "alfresco/html/Spacer",
@@ -59,6 +59,7 @@ function getAddressWidgets(){
                         config: {
                             fieldId: "streetName",
                             name: "streetName",
+                            value:(initTokens) ? "{contactData.streetName}" : "",
                             label: "Street",
                             description: "The name of the street",
                             placeHolder: "Street Name",
@@ -72,6 +73,7 @@ function getAddressWidgets(){
                             width:"4",
                             maxLength: 3,
                             name: "houseNumber",
+                            value:(initTokens) ? "{contactData.houseNumber}" : "",
                             label: "House Number",
                             description: "House number of the address",
                             placeHolder: "42",
@@ -94,6 +96,7 @@ function getAddressWidgets(){
                         config: {
                             fieldId: "floorNumber",
                             name: "floorNumber",
+                            value:(initTokens) ? "{contactData.floorNumber}" : "",
                             label: "Floor",
                             width:"4",
                             maxLength: 3,
@@ -107,6 +110,7 @@ function getAddressWidgets(){
                         config: {
                             fieldId: "suite",
                             name: "suite",
+                            value:(initTokens) ? "{contactData.suite}" : "",
                             label: "Suite",
                             description: "The suite if applicable",
                             placeHolder: "Suite"
@@ -117,6 +121,7 @@ function getAddressWidgets(){
                         config: {
                             fieldId: "postBox",
                             name: "postBox",
+                            value:(initTokens) ? "{contactData.postBox}" : "",
                             label: "Post Box",
                             width:"7",
                             maxLength: 4,
@@ -140,6 +145,7 @@ function getAddressWidgets(){
                         config: {
                             fieldId: "postCode",
                             name: "postCode",
+                            value:(initTokens) ? "{contactData.postCode}" : "",
                             label: "Post Code",
                             width:"4",
                             maxLength: 4,
@@ -160,6 +166,7 @@ function getAddressWidgets(){
                         config: {
                             fieldId: "city",
                             name: "city",
+                            value:(initTokens) ? "{contactData.cityName}" : "",
                             label: "City",
                             description: "The city",
                             placeHolder: "Århus",
@@ -175,7 +182,7 @@ function getAddressWidgets(){
                             width:"4",
                             maxLength: 2,
                             description: "The two digit country code e.g. DK",
-                            value: "DK",
+                            value:(initTokens) ? "{contactData.countryCode}" : "DK",
                             placeHolder: "DK",
                             requirementConfig: { initialValue: false},
                             validationConfig: [
@@ -193,7 +200,7 @@ function getAddressWidgets(){
     ]
 }
 
-function getFormDefinition(contactType) {
+function getFormDefinition(contactType, initTokens) {
 
     var formWidgets = [
         {
@@ -208,6 +215,7 @@ function getFormDefinition(contactType) {
                         config: {
                             fieldId: "firstName",
                             name: "firstName",
+                            value:(initTokens) ? "{contactData.firstName}" : "",
                             label: "First Name",
                             description: "Your first name",
                             placeHolder: "First name",
@@ -222,6 +230,7 @@ function getFormDefinition(contactType) {
                         config: {
                             fieldId: "MiddleName",
                             name: "middleName",
+                            value:(initTokens) ? "{contactData.middleName}" : "",
                             label: "Middle Name",
                             description: "Your middle name",
                             placeHolder: "Middle Name",
@@ -243,6 +252,7 @@ function getFormDefinition(contactType) {
                         config: {
                             fieldId: "lastName",
                             name: "lastName",
+                            value:(initTokens) ? "{contactData.lastName}" : "",
                             label: "Last Name",
                             description: "Sur/Family name",
                             placeHolder: "Surname/Family Name",
@@ -257,6 +267,7 @@ function getFormDefinition(contactType) {
                         config: {
                             fieldId: "cprNumber",
                             name: "cprNumber",
+                            value:(initTokens) ? "{contactData.cprNumber}" : "",
                             label: "CPR Number",
                             width: "7",
                             maxLength: 10,
@@ -284,6 +295,7 @@ function getFormDefinition(contactType) {
                         config: {
                             fieldId: "email",
                             name: "email",
+                            value:(initTokens) ? "{contactData.email}" : "",
                             label: "E-mail",
                             description: "User email",
                             placeHolder: "user_email@example.com",
@@ -293,49 +305,6 @@ function getFormDefinition(contactType) {
                                 regex: "^[a-zA-Z0-9\\._%+-]+@[a-zA-Z0-9\\.-]+\\.[a-zA-Z]{2,4}$",
                                 errorMessage: "Valid E-mail Address Required"
                             }]
-                        }
-                    },
-                    {
-                        name: "alfresco/forms/controls/DojoCheckBox",
-                        config: {
-                            fieldId: "USER_ACCOUNT_CREATION",
-                            name: "createUserAccount",
-                            label: "Create User Account",
-                            description: "Tick this field to create a corresponding user account",
-                            value: false,
-                            visibilityConfig: {initialValue: false}
-                        }
-                    }
-                ]
-            }
-        },
-        {
-            name: "alfresco/forms/ControlRow",
-            id: "PASSWORD_ROW",
-            config: {
-                widgetMarginLeft: 5,
-                widgetMarginRight: 10,
-                widgets: [
-                    {
-                        name: "alfresco/forms/controls/DojoValidationTextBox",
-                        config: {
-                            fieldId: "password",
-                            name: "password",
-                            label: "Password",
-                            description: "Psssword",
-                            placeHolder: "",
-                            visibilityConfig: userAccountWidgets
-                        }
-                    },
-                    {
-                        name: "alfresco/forms/controls/DojoValidationTextBox",
-                        config: {
-                            fieldId: "validate_password",
-                            name: "validate_password",
-                            label: "Validate Password",
-                            description: "retype your password to validate",
-                            placeHolder: "",
-                            visibilityConfig: userAccountWidgets
                         }
                     }
                 ]
@@ -360,6 +329,7 @@ function getFormDefinition(contactType) {
                             config: {
                                 fieldId: "organizationName",
                                 name: "organizationName",
+                                value:(initTokens) ? "{contactData.organizationName}" : "",
                                 label: "Company Name",
                                 description: "The company's name",
                                 placeHolder: "Magenta Aps",
@@ -384,6 +354,7 @@ function getFormDefinition(contactType) {
                             config: {
                                 fieldId: "cvrNumber",
                                 name: "cvrNumber",
+                                value:(initTokens) ? "{contactData.cvrNumber}" : "",
                                 label: "CVR Number",
                                 width: "7",
                                 maxLength: 8,
@@ -411,6 +382,7 @@ function getFormDefinition(contactType) {
                             config: {
                                 fieldId: "email",
                                 name: "email",
+                                value:(initTokens) ? "{contactData.email}" : "",
                                 label: "E-mail",
                                 description: "User email",
                                 placeHolder: "firma@example.com",
@@ -428,7 +400,7 @@ function getFormDefinition(contactType) {
         ]
     }
 
-    return formWidgets.concat(getAddressWidgets());;
+    return formWidgets.concat(getAddressWidgets(initTokens));
 }
 
 function getSelectedItemActions(contactType) {
@@ -472,7 +444,7 @@ function getMultiSelectActions(contactType) {
     return actionSet;
 }
 
-function generateContactTableView(contactType) {
+function generateContactTableView(contactType, cType) {
     var contactTypeId = contactType.replace(":", "_");
     return {
         name: "openesdh/common/widgets/lists/views/DynamicColumnsTableView",
@@ -529,11 +501,13 @@ function generateContactTableView(contactType) {
                                 config: {
                                     iconClass: "edit-16",
                                     altText: msg.get("contacts.tool.edit." + contactTypeId + ".action"),
-                                    publishTopic: "LEGACY_EDIT_FORM_DIALOG",
+                                    publishTopic: "EDIT_CONTACT_FORM_DIALOG",
                                     publishPayloadType: "PROCESS",
                                     publishPayload: {
+                                        contactType: contactType,
                                         dialogTitle: msg.get("contacts.tool.edit." + contactTypeId),
                                         nodeRef: "{nodeRef}",
+                                        widgetsForEdit: getFormDefinition(cType, true),
                                         successResponseTopic: "CONTACT_LIST_RELOAD"
                                     },
                                     publishGlobal: true,
@@ -571,7 +545,7 @@ function generateContactTableView(contactType) {
 function generateContactPageWidgets(contactType, cType) {
     var contactTypeId = contactType.replace(":", "_");
 
-    var contactListViews = [generateContactTableView(contactType)];
+    var contactListViews = [generateContactTableView(contactType, cType)];
 
     // TODO: Add browse hierarchy view for Organizations contacts
 
