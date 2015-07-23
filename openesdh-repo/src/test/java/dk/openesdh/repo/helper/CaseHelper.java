@@ -6,6 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import dk.openesdh.SimpleCaseModel;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.nodelocator.CompanyHomeNodeLocator;
@@ -37,6 +38,7 @@ public class CaseHelper {
     public static final String ADMIN_USER_NAME = "admin";
     public final static String DEFAULT_USERNAME = "username12";
 
+    //<editor-fold desc="Autowired services">
     @Autowired
     @Qualifier("NodeService")
     protected NodeService nodeService;
@@ -112,12 +114,12 @@ public class CaseHelper {
     public void setNodeLocatorService(NodeLocatorService nodeLocatorService) {
         this.nodeLocatorService = nodeLocatorService;
     }
+    //</editor-fold>
 
     /**
      * Create a case. If disableBehaviour is true, transaction is run with
      * behaviours disabled.
      * when creating the case.
-     *
      *
      * @param parent
      * @param name
@@ -127,13 +129,8 @@ public class CaseHelper {
      * @param disableBehaviour
      * @return
      */
-    public NodeRef createCase(String username,
-                              final NodeRef parent,
-                              final String name,
-                              final QName caseType,
-                              final Map<QName, Serializable> properties,
-                              final List<NodeRef> owners,
-                              boolean disableBehaviour) {
+    public NodeRef createCase(String username, final NodeRef parent, final String name, final QName caseType,
+                              final Map<QName, Serializable> properties, final List<NodeRef> owners, boolean disableBehaviour) {
         ChildAssociationRef assocRef = createCaseNode(username, parent, name, caseType, properties, owners, disableBehaviour);
         return assocRef.getChildRef();
     }
@@ -155,7 +152,6 @@ public class CaseHelper {
                             // Disable behaviour for txn
                             behaviourFilter.disableBehaviour();
                         }
-
                         properties.put(ContentModel.PROP_NAME, name);
 
                         // Create test case
@@ -168,7 +164,6 @@ public class CaseHelper {
                         );
 
                         nodeService.setAssociations(childAssoc.getChildRef(), OpenESDHModel.ASSOC_CASE_OWNERS, owners);
-
                         if (disableBehaviour) {
                             // Re-enable behaviour
                             behaviourFilter.enableBehaviour();
@@ -178,14 +173,13 @@ public class CaseHelper {
                     }
                 });
             }
-        }, username);
+        }, AuthenticationUtil.getAdminUserName());
         // We have to do in a transaction because we must set the case:owner
         // association before commit, to avoid an integrity error.
     }
 
     /**
      * Create a case without disabling the behaviour.
-     *
      *
      * @param username
      * @param parent
@@ -202,13 +196,12 @@ public class CaseHelper {
     }
 
     public NodeRef createSimpleCase(String title, String userName, NodeRef owner) {
-        NodeRef companyHome = nodeLocatorService.getNode(CompanyHomeNodeLocator.NAME, null, null);
+        NodeRef casesRootNode = this.caseService.getCasesRootNodeRef();
         Map<QName, Serializable> properties = new HashMap<>();
         properties.put(ContentModel.PROP_TITLE, title);
         List<NodeRef> owners = new LinkedList<>();
         owners.add(owner);
-        ChildAssociationRef assocRef = this.createCaseNode(userName, companyHome, title, OpenESDHModel.TYPE_CASE_SIMPLE, properties, owners, false);
-
+        ChildAssociationRef assocRef = this.createCaseNode(userName, casesRootNode, title, SimpleCaseModel.TYPE_CASE_SIMPLE, properties, owners, false);
         return assocRef.getChildRef();
     }
 
@@ -241,7 +234,6 @@ public class CaseHelper {
 
     public NodeRef createDummyUser(final String userName) {
         NodeRef result = transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<NodeRef>(){
-
             public NodeRef execute() throws Throwable {
                         return createDummyUser(userName,
                         "firstname",
@@ -251,7 +243,6 @@ public class CaseHelper {
 
             }
         });
-
         return result;
     }
 

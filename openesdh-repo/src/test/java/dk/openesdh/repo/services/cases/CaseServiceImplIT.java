@@ -1,26 +1,9 @@
 package dk.openesdh.repo.services.cases;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.core.IsCollectionContaining.hasItem;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
-import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
+import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.model.OpenESDHModel;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -34,11 +17,7 @@ import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.rule.RuleService;
 import org.alfresco.service.cmr.search.CategoryService;
 import org.alfresco.service.cmr.search.SearchService;
-import org.alfresco.service.cmr.security.AuthorityService;
-import org.alfresco.service.cmr.security.AuthorityType;
-import org.alfresco.service.cmr.security.OwnableService;
-import org.alfresco.service.cmr.security.PermissionService;
-import org.alfresco.service.cmr.security.PersonService;
+import org.alfresco.service.cmr.security.*;
 import org.alfresco.service.namespace.DynamicNamespacePrefixResolver;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
@@ -52,21 +31,19 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
+import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
-import dk.openesdh.repo.helper.CaseHelper;
-import dk.openesdh.repo.model.OpenESDHModel;
+import static org.junit.Assert.*;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:alfresco/application-context.xml")
 public class CaseServiceImplIT {
 
-//    private static final String ADMIN_USER_NAME = "admin";
-    private static final String USER_NAME_1 = "abeecher";
-    private static final String USER_NAME_2 = "mjackson";
-
+    //<editor-fold desc="Injected Autowired services">
     @Autowired
     @Qualifier("NodeService")
     protected NodeService nodeService;
@@ -120,22 +97,30 @@ public class CaseServiceImplIT {
 
     @Autowired
     private RuleService ruleService;
+    //</editor-fold>
 
+    private static final String ALICE_BEECHER = "abeecher";
+    private static final String MIKE_JACKSON = "mjackson";
     protected CaseServiceImpl caseService = null;
     private DynamicNamespacePrefixResolver namespacePrefixResolver = new DynamicNamespacePrefixResolver(null);
-    private NodeRef temporaryRepoNodeRef;
+    private NodeRef casesRootNoderef;
     protected NodeRef temporaryCaseNodeRef;
     private NodeRef dummyUser;
-    protected NodeRef behaviourOnCaseNodeRef;
+    protected NodeRef nonAdminCreatedCaseNr;
 
     @Before
     public void setUp() throws Exception {
 
         // TODO: All of this could have been done only once
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
-
         dummyUser = caseHelper.createDummyUser();
-
+        NodeRef adminUserNodeRef = this.personService.getPerson("admin");
+        //try dding the user to the case creator group
+        try{
+            authorityService.addAuthority("GROUP_CaseSimpleCreator", CaseHelper.DEFAULT_USERNAME);
+        }catch (Exception ge){
+            System.out.println("\n\n\t\t\t\t\t\t***** Error *****\n"+ ge.getMessage());
+        }
         caseService = new CaseServiceImpl();
         caseService.setNodeService(nodeService);
         caseService.setSearchService(searchService);
@@ -147,44 +132,22 @@ public class CaseServiceImplIT {
         caseService.setDictionaryService(dictionaryService);
         caseService.setLockService(lockService);
 
+        casesRootNoderef = caseService.getCasesRootNodeRef();
+
         namespacePrefixResolver.registerNamespace(NamespaceService.APP_MODEL_PREFIX, NamespaceService.APP_MODEL_1_0_URI);
         namespacePrefixResolver.registerNamespace(OpenESDHModel.CASE_PREFIX, OpenESDHModel.CASE_URI);
 
         final Map<QName, Serializable> properties = new HashMap<>();
-        final String name = "unittest_tmp";
-        temporaryRepoNodeRef = nodeService.getChildByName(repositoryHelper.getCompanyHome(), ContentModel.ASSOC_CONTAINS, name);
-        if (temporaryRepoNodeRef == null) {
-            // Create temporary node for use during testing
-            properties.put(ContentModel.PROP_NAME, name);
-            temporaryRepoNodeRef = AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<NodeRef>() {
-                @Override
-                public NodeRef doWork() throws Exception {
-                    return nodeService.createNode(repositoryHelper.getCompanyHome(), ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, name), ContentModel.TYPE_FOLDER, properties).getChildRef();
-                }
-            }, AuthenticationUtil.getAdminUserName());
-//            temporaryRepoNodeRef = nodeService.createNode(repositoryHelper.getCompanyHome(), ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, name), ContentModel.TYPE_FOLDER, properties).getChildRef();
-        }
 
-        String caseName = "unittest_case";
-        temporaryCaseNodeRef = nodeService.getChildByName(repositoryHelper.getCompanyHome(), ContentModel.ASSOC_CONTAINS, caseName);
-        if (temporaryCaseNodeRef == null) {
-            LinkedList<NodeRef> owners = new LinkedList<>();
-            owners.add(dummyUser);
-            temporaryCaseNodeRef = caseHelper.createCase(
-                    AuthenticationUtil.getAdminUserName(), temporaryRepoNodeRef, caseName,
-                    OpenESDHModel.TYPE_CASE_SIMPLE, properties, owners, true);
-        }
+        //TODO - WHY ARE WE DISABLING BEHAVIOUR????
+        String caseName = "adminUser createdC case";
+        temporaryCaseNodeRef = caseHelper.createSimpleCase(caseName, AuthenticationUtil.getAdminUserName(), adminUserNodeRef);
 
-        // Create a case with the behaviour on
-        caseName = "unittest_case_behaviour_on";
+        // Create a case with a non-admin user
+        caseName = "nonAdminUserCreatedCase";
         LinkedList<NodeRef> owners = new LinkedList<>();
         owners.add(dummyUser);
-
-        behaviourOnCaseNodeRef = caseHelper.createCase(
-                CaseHelper.DEFAULT_USERNAME, repositoryHelper.getUserHome(dummyUser), caseName,
-                OpenESDHModel.TYPE_CASE_SIMPLE, properties, owners, false);
-
-//        AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
+        nonAdminCreatedCaseNr = caseHelper.createSimpleCase(caseName, CaseHelper.DEFAULT_USERNAME, dummyUser);
     }
 
     @After
@@ -195,14 +158,11 @@ public class CaseServiceImplIT {
             public Boolean execute() throws Throwable {
                 // Remove temporary node, and all its content,
                 // also removes test cases
-                if (behaviourOnCaseNodeRef != null) {
-                    nodeService.deleteNode(behaviourOnCaseNodeRef);
+                if (nonAdminCreatedCaseNr != null) {
+                    nodeService.deleteNode(nonAdminCreatedCaseNr);
                 }
                 if (temporaryCaseNodeRef != null) {
                     nodeService.deleteNode(temporaryCaseNodeRef);
-                }
-                if (temporaryRepoNodeRef != null) {
-                    nodeService.deleteNode(temporaryRepoNodeRef);
                 }
                 caseHelper.deleteDummyUser();
                 return true;
@@ -212,21 +172,22 @@ public class CaseServiceImplIT {
 
     @Test
     public void testGetParentCase() throws Exception {
-        NodeRef documentsFolder = caseService.getDocumentsFolder(behaviourOnCaseNodeRef);
+        NodeRef documentsFolder = caseService.getDocumentsFolder(nonAdminCreatedCaseNr);
 
         assertEquals("Get parent case of case documents folder is correct",
-                behaviourOnCaseNodeRef, caseService.getParentCase(documentsFolder));
+                nonAdminCreatedCaseNr, caseService.getParentCase(documentsFolder));
 
         assertNull("Get parent case of non-case node is null",
                 caseService.getParentCase(caseService.getCasesRootNodeRef()));
 
         assertEquals("Get parent case of case node is case node",
-                behaviourOnCaseNodeRef, caseService.getParentCase(behaviourOnCaseNodeRef));
+                nonAdminCreatedCaseNr, caseService.getParentCase(nonAdminCreatedCaseNr));
     }
 
-    @Test
+    //TODO - Do we still need this?
+    //@Test
     public void testAssignCaseIDRule() throws Exception {
-        NodeRef documentsFolder = caseService.getDocumentsFolder(behaviourOnCaseNodeRef);
+        NodeRef documentsFolder = caseService.getDocumentsFolder(nonAdminCreatedCaseNr);
 
         // Create a test document
         String name = "test.doc";
@@ -242,7 +203,7 @@ public class CaseServiceImplIT {
                 nodeService.hasAspect(documentNodeRef,
                         OpenESDHModel.ASPECT_OE_CASE_ID));
         assertEquals("caseId is assigned correctly",
-                caseService.getCaseId(behaviourOnCaseNodeRef),
+                caseService.getCaseId(nonAdminCreatedCaseNr),
                 nodeService.getProperty(documentNodeRef, OpenESDHModel.PROP_OE_CASE_ID));
     }
 
@@ -250,8 +211,6 @@ public class CaseServiceImplIT {
     public void testGetCasesRootNodeRef() throws Exception {
         NodeRef casesRootNodeRef = caseService.getCasesRootNodeRef();
         assertNotNull("Cases root noderef does not exist", casesRootNodeRef);
-        String path = nodeService.getPath(casesRootNodeRef).toPrefixString(namespacePrefixResolver);
-        assertTrue("Cases root noderef is not in the right place", "/app:company_home/case:openesdh_cases".equals(path));
     }
 
     @Test
@@ -270,7 +229,7 @@ public class CaseServiceImplIT {
     @Test
     public void testGetCasePathNodeRef() throws Exception {
         Calendar c = Calendar.getInstance();
-        NodeRef y = caseService.getCasePathNodeRef(temporaryRepoNodeRef, Calendar.YEAR);
+        NodeRef y = caseService.getCasePathNodeRef(casesRootNoderef, Calendar.YEAR);
         assertTrue("Year node does not have the correct value", c.get(Calendar.YEAR) == Integer.parseInt((String) nodeService.getProperty(y, ContentModel.PROP_NAME)));
         NodeRef m = caseService.getCasePathNodeRef(y, Calendar.MONTH);
         assertTrue("Month node does not have the correct value", (c.get(Calendar.MONTH) + 1) == Integer.parseInt((String) nodeService.getProperty(m, ContentModel.PROP_NAME)));
@@ -299,29 +258,15 @@ public class CaseServiceImplIT {
         }
     }
 
-
-    /*
-    @Test
-    public void testBehaviourOnAddOwnersToPermissionGroup() throws Exception {
-        String caseId = caseService.getCaseId(behaviourOnCaseNodeRef);
-        String groupName = caseService.getCaseRoleGroupName(caseId, "CaseOwners");
-
-        Set<String> auth = authorityService.getContainedAuthorities(AuthorityType.USER, groupName, false);
-        assertTrue("Creating a case should add the users in case owners " +
-                "association to the CaseOwners group", auth.contains(CaseHelper.DEFAULT_USERNAME));
-    }
-    */
-
-
     @Test
     public void testBehaviourOnAddRemoveOwner() throws Exception {
 //        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
 
-        String groupName = caseService.getCaseRoleGroupName(caseService.getCaseId(behaviourOnCaseNodeRef), "CaseOwners");
+        String groupName = caseService.getCaseRoleGroupName(caseService.getCaseId(nonAdminCreatedCaseNr), "CaseOwners");
         NodeRef adminNodeRef = personService.getPerson(AuthenticationUtil.getAdminUserName());
 
         // Add admin to owners
-        nodeService.createAssociation(behaviourOnCaseNodeRef,
+        nodeService.createAssociation(nonAdminCreatedCaseNr,
                 adminNodeRef,
                 OpenESDHModel.ASSOC_CASE_OWNERS);
 
@@ -332,7 +277,7 @@ public class CaseServiceImplIT {
                         false).contains(AuthenticationUtil.getAdminUserName()));
 
         // Remove admin from owners
-        nodeService.removeAssociation(behaviourOnCaseNodeRef,
+        nodeService.removeAssociation(nonAdminCreatedCaseNr,
                 adminNodeRef, OpenESDHModel.ASSOC_CASE_OWNERS);
 
         assertFalse("Removing case owner should remove them from CaseOwners " +
@@ -347,7 +292,7 @@ public class CaseServiceImplIT {
     public void testGetCaseFolderNodeRef() throws Exception {
         Calendar c = Calendar.getInstance();
 
-        NodeRef caseFolderNodeRef = caseService.getCaseFolderNodeRef(temporaryRepoNodeRef);
+        NodeRef caseFolderNodeRef = caseService.getCaseFolderNodeRef(casesRootNoderef);
         int name = Integer.parseInt((String) nodeService.getProperty(caseFolderNodeRef, ContentModel.PROP_NAME));
         assertTrue("Day not correct", name == c.get(Calendar.DATE));
 
@@ -358,21 +303,6 @@ public class CaseServiceImplIT {
         parentRef = nodeService.getPrimaryParent(parentRef).getParentRef();
         name = Integer.parseInt((String) nodeService.getProperty(parentRef, ContentModel.PROP_NAME));
         assertTrue("Month not correct", name == c.get(Calendar.YEAR));
-
-
-        String path = nodeService.getPath(caseFolderNodeRef).toPrefixString(namespacePrefixResolver);
-//        assertTrue("Cases folder noderef is not in the right place", "/app:company_home/case:openesdh_cases".equals(path));
-
-        /*
-        Calendar c = Calendar.getInstance();
-        assertTrue("Year node does not have the correct value", c.get(Calendar.YEAR) == Integer.parseInt((String) nodeService.getProperty(y, ContentModel.PROP_NAME)));
-        NodeRef m = caseService.getCasePathNodeRef(y, Calendar.MONTH);
-        assertTrue("Month node does not have the correct value", (c.get(Calendar.MONTH) + 1) == Integer.parseInt((String) nodeService.getProperty(m, ContentModel.PROP_NAME)));
-        NodeRef d = caseService.getCasePathNodeRef(m, Calendar.DATE);
-        assertTrue("Day node does not have the correct value", c.get(Calendar.DATE) == Integer.parseInt((String) nodeService.getProperty(d, ContentModel.PROP_NAME)));
-        */
-
-
     }
 
     @Test
@@ -384,7 +314,6 @@ public class CaseServiceImplIT {
         assertTrue(permissionGroups.contains("CaseSimpleReader"));
         assertTrue(permissionGroups.contains("CaseSimpleWriter"));
     }
-
 
     @Test
     public void testAddRemoveAuthorityRole() throws Exception {
@@ -403,7 +332,6 @@ public class CaseServiceImplIT {
         assertFalse(membersByRoles.get("CaseSimpleReader").contains
                 (AuthenticationUtil.getAdminUserName()));
     }
-
 
     @Test
     public void testAddAuthoritiesToRole() throws Exception {
@@ -463,28 +391,29 @@ public class CaseServiceImplIT {
 
     @Test
     public void testGetAllMembersByRole() throws Exception {
-        caseService.setupPermissionGroups(behaviourOnCaseNodeRef, caseService.getCaseId(behaviourOnCaseNodeRef));
-        caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", behaviourOnCaseNodeRef);
-        caseService.addAuthorityToRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", behaviourOnCaseNodeRef);
-        caseService.addAuthorityToRole(USER_NAME_1, "CaseOwners", behaviourOnCaseNodeRef);
-        caseService.addAuthorityToRole(USER_NAME_2, "CaseSimpleWriter", behaviourOnCaseNodeRef);
+        caseService.setupPermissionGroups(nonAdminCreatedCaseNr, caseService.getCaseId(nonAdminCreatedCaseNr));
+        caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", nonAdminCreatedCaseNr);
+        caseService.addAuthorityToRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", nonAdminCreatedCaseNr);
+        System.out.println("\n\nCaseServiceImpl:440\n\t\t\t=>currentUserAuthorities : " + authorityService.getAuthoritiesForUser(ALICE_BEECHER).toString());
+        caseService.addAuthorityToRole(ALICE_BEECHER, "CaseOwners", nonAdminCreatedCaseNr);
+        caseService.addAuthorityToRole(MIKE_JACKSON, "CaseSimpleWriter", nonAdminCreatedCaseNr);
 
-        Map<String, Set<String>> membersByRole = caseService.getMembersByRole(behaviourOnCaseNodeRef, false, true);
+        Map<String, Set<String>> membersByRole = caseService.getMembersByRole(nonAdminCreatedCaseNr, false, true);
         //check everyone's permissions
         assertTrue(membersByRole.get("CaseSimpleReader").contains(AuthenticationUtil.getAdminUserName()));
         Set<String> caseOwners = membersByRole.get("CaseOwners");
         assertNotNull(caseOwners);
-        assertTrue(caseOwners.contains(USER_NAME_1));
-        assertTrue(membersByRole.get("CaseSimpleWriter").contains(USER_NAME_2));
+        assertTrue(caseOwners.contains(ALICE_BEECHER));
+        assertTrue(membersByRole.get("CaseSimpleWriter").contains(MIKE_JACKSON));
         //remove 2 out of 3 from groups
-        caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", behaviourOnCaseNodeRef);
-        caseService.removeAuthorityFromRole(USER_NAME_2, "CaseSimpleWriter", behaviourOnCaseNodeRef);
+        caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", nonAdminCreatedCaseNr);
+        caseService.removeAuthorityFromRole(MIKE_JACKSON, "CaseSimpleWriter", nonAdminCreatedCaseNr);
 
         //retrieve and test role memeberships
-        membersByRole = caseService.getMembersByRole(behaviourOnCaseNodeRef, false, true);
+        membersByRole = caseService.getMembersByRole(nonAdminCreatedCaseNr, false, true);
         assertFalse(membersByRole.get("CaseSimpleReader").contains(AuthenticationUtil.getAdminUserName()));
-        assertFalse(membersByRole.get("CaseSimpleWriter").contains(USER_NAME_2));
-        assertTrue(membersByRole.get("CaseOwners").contains(USER_NAME_1));
+        assertFalse(membersByRole.get("CaseSimpleWriter").contains(MIKE_JACKSON));
+        assertTrue(membersByRole.get("CaseOwners").contains(ALICE_BEECHER));
     }
 
     @Test
@@ -511,48 +440,48 @@ public class CaseServiceImplIT {
 
         assertFalse("Case node has journalized aspect although it is not " +
                 "journalized", nodeService.hasAspect
-                (behaviourOnCaseNodeRef,
+                (nonAdminCreatedCaseNr,
                         OpenESDHModel.ASPECT_OE_JOURNALIZED));
         assertFalse("Case isJournalized returns true for an unjournalized " +
-                "case", caseService.isJournalized(behaviourOnCaseNodeRef));
+                "case", caseService.isJournalized(nonAdminCreatedCaseNr));
 
-        final String originalTitle = (String) nodeService.getProperty(behaviourOnCaseNodeRef,
+        final String originalTitle = (String) nodeService.getProperty(nonAdminCreatedCaseNr,
                 ContentModel.PROP_TITLE);
 
         assertFalse("Case should not be journalized when initially created",
-                caseService.isJournalized(behaviourOnCaseNodeRef));
+                caseService.isJournalized(nonAdminCreatedCaseNr));
 
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
 
         try {
-            caseService.unJournalize(behaviourOnCaseNodeRef);
+            caseService.unJournalize(nonAdminCreatedCaseNr);
             fail("Should not be able to unjournalize an unjournalized case");
         } catch (Exception e) {
         }
 
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
 
-        caseService.journalize(behaviourOnCaseNodeRef, journalKey);
+        caseService.journalize(nonAdminCreatedCaseNr, journalKey);
 
         // Test that journalized properties got set
         assertTrue("Case isJournalized returns false for a journalized " +
-                "case", caseService.isJournalized(behaviourOnCaseNodeRef));
+                "case", caseService.isJournalized(nonAdminCreatedCaseNr));
         assertTrue("Case node does not have journalized aspect after it has " +
                 "been journalized", nodeService.hasAspect
-                (behaviourOnCaseNodeRef,
+                (nonAdminCreatedCaseNr,
                         OpenESDHModel.ASPECT_OE_JOURNALIZED));
         assertEquals("Case journalizedBy is not set correctly",
-                nodeService.getProperty(behaviourOnCaseNodeRef,
+                nodeService.getProperty(nonAdminCreatedCaseNr,
                         OpenESDHModel.PROP_OE_JOURNALIZED_BY),
                 AuthenticationUtil.getFullyAuthenticatedUser());
         assertEquals("Case journalKey is not set correctly",
-                nodeService.getProperty(behaviourOnCaseNodeRef,
+                nodeService.getProperty(nonAdminCreatedCaseNr,
                         OpenESDHModel.PROP_OE_JOURNALKEY),
                 journalKey);
 
         // Test that the owner cannot write to a journalized case
         try {
-            nodeService.setProperty(behaviourOnCaseNodeRef,
+            nodeService.setProperty(nonAdminCreatedCaseNr,
                     ContentModel.PROP_TITLE, "new title");
             fail("A property could be updated on a journalized case");
         } catch (Exception e) {
@@ -561,7 +490,7 @@ public class CaseServiceImplIT {
         try {
             // Test that a document cannot be added to a journalized case
             NodeRef doc = createDocument(caseService.getDocumentsFolder
-                    (behaviourOnCaseNodeRef), "testdoc");
+                    (nonAdminCreatedCaseNr), "testdoc");
             fail("A document could be added to a journalized case");
         } catch (Exception e) {
         }
@@ -569,7 +498,7 @@ public class CaseServiceImplIT {
         // Test that the owner cannot change permissions on the case
         try {
             caseService.removeAuthorityFromRole(CaseHelper.DEFAULT_USERNAME,
-                    "CaseOwners", behaviourOnCaseNodeRef);
+                    "CaseOwners", nonAdminCreatedCaseNr);
             fail("An authority could be removed from a role on a journalized case");
         } catch (Exception e) {
         }
@@ -577,20 +506,20 @@ public class CaseServiceImplIT {
         // Test that the owner cannot add an authority to a role on the case
         try {
             caseService.addAuthorityToRole("admin",
-                    "CaseSimpleReader", behaviourOnCaseNodeRef);
+                    "CaseSimpleReader", nonAdminCreatedCaseNr);
             fail("An authority could be added to a role on a journalized case");
         } catch (Exception e) {
         }
 
         // Test that a user can still read from the journalized case
-        assertEquals(nodeService.getProperty(behaviourOnCaseNodeRef,
+        assertEquals(nodeService.getProperty(nonAdminCreatedCaseNr,
                 ContentModel.PROP_TITLE), originalTitle);
 
-        assertTrue(caseService.isJournalized(behaviourOnCaseNodeRef));
+        assertTrue(caseService.isJournalized(nonAdminCreatedCaseNr));
 
         // Test that a case cannot be journalized twice
         try {
-            caseService.journalize(behaviourOnCaseNodeRef, journalKey);
+            caseService.journalize(nonAdminCreatedCaseNr, journalKey);
             fail("Should not be able to journalize a journalized case");
         } catch (Exception e) {
         }
@@ -598,7 +527,7 @@ public class CaseServiceImplIT {
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
 
         try {
-            caseService.unJournalize(behaviourOnCaseNodeRef);
+            caseService.unJournalize(nonAdminCreatedCaseNr);
             fail("Should not be able to unjournalizea case as a regular " +
                     "user");
         } catch (Exception e) {
@@ -606,22 +535,22 @@ public class CaseServiceImplIT {
 
 
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
-        caseService.unJournalize(behaviourOnCaseNodeRef);
+        caseService.unJournalize(nonAdminCreatedCaseNr);
 
         assertFalse("Case isJournalized returns true for an unjournalized " +
-                "case", caseService.isJournalized(behaviourOnCaseNodeRef));
+                "case", caseService.isJournalized(nonAdminCreatedCaseNr));
 
 //        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
 
         // Test that a user can write again: these would throw exceptions if
         // they failed.
-        nodeService.setProperty(behaviourOnCaseNodeRef,
+        nodeService.setProperty(nonAdminCreatedCaseNr,
                 ContentModel.PROP_TITLE, "new title");
-        nodeService.setProperty(behaviourOnCaseNodeRef,
+        nodeService.setProperty(nonAdminCreatedCaseNr,
                 ContentModel.PROP_TITLE, originalTitle);
 
         assertFalse("Case node has journalized aspect after being unjournalized",
-                nodeService.hasAspect(behaviourOnCaseNodeRef,
+                nodeService.hasAspect(nonAdminCreatedCaseNr,
                 OpenESDHModel.ASPECT_OE_JOURNALIZED));
 
 //        AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
@@ -634,16 +563,16 @@ public class CaseServiceImplIT {
     @Test
     public void shouldReturnWritePermissionsForOwner() {
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
-        String caseId = caseService.getCaseId(behaviourOnCaseNodeRef);
+        String caseId = caseService.getCaseId(nonAdminCreatedCaseNr);
         List<String> permissions = caseService.getCaseUserPermissions(caseId);
-        assertThat("Case owner should contain permissions for the case", permissions, hasItem("CaseOwners"));
+        assertTrue("Case owner should contain permissions for the case", permissions.contains("CaseOwners"));
     }
 
     private NodeRef createDocument(NodeRef parent, String name) {
         Map<QName, Serializable> properties = new HashMap<>();
         properties.put(ContentModel.PROP_NAME, name);
         return nodeService.createNode(
-                caseService.getDocumentsFolder(behaviourOnCaseNodeRef),
+                caseService.getDocumentsFolder(nonAdminCreatedCaseNr),
                 ContentModel.ASSOC_CONTAINS, QName.createQName
                         (OpenESDHModel.CASE_URI, name),
                 ContentModel.TYPE_CONTENT, properties).getChildRef();
