@@ -2,6 +2,7 @@ package dk.openesdh.repo.model;
 
 import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
+import dk.openesdh.SimpleCaseModel;
 import dk.openesdh.repo.helper.CaseHelper;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
@@ -81,7 +82,7 @@ public class OpenESDHModelIT {
         owners.add(repositoryHelper.getPerson());
         NodeRef caseNode = caseHelper.createCase(ADMIN_USER_NAME,
                 companyHome,
-                name, OpenESDHModel.TYPE_CASE_SIMPLE, properties, owners,
+                name, SimpleCaseModel.TYPE_CASE_SIMPLE, properties, owners,
                 true);
         String caseName = (String) nodeService.getProperty(caseNode, ContentModel.PROP_NAME);
 //        assertEquals(name, caseName);

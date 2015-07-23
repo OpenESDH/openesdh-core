@@ -2,6 +2,7 @@ package dk.openesdh.repo.services.cases;
 
 import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
+import dk.openesdh.SimpleCaseModel;
 import dk.openesdh.exceptions.contacts.InvalidContactTypeException;
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.OpenESDHModel;
@@ -182,7 +183,7 @@ public class PartyServiceImplIT {
                 parent,
                 ContentModel.ASSOC_CONTAINS,
                 QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, name),
-                OpenESDHModel.TYPE_CASE_SIMPLE,
+                SimpleCaseModel.TYPE_CASE_SIMPLE,
                 props).getChildRef();
 
         // Use the content service to set the content onto the newly created node

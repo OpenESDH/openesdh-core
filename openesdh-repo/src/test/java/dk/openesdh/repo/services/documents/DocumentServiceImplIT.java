@@ -30,8 +30,7 @@ import dk.openesdh.repo.services.cases.CaseService;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "classpath:alfresco/application-context.xml",
-        "classpath:alfresco/extension/openesdh-test-context.xml" })
+@ContextConfiguration({ "classpath:alfresco/application-context.xml", "classpath:alfresco/extension/openesdh-test-context.xml" })
 public class DocumentServiceImplIT {
 
     @Rule
