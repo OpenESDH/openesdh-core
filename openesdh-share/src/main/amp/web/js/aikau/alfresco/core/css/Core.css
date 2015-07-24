@@ -47,7 +47,7 @@ html {
 
 body {
    font-family: @standard-font;
-   background-color: @primary-background-color;
+   background-color: red;
    color: @general-font-color;
    font-size: 14px;
    line-height: 1.42857143;
@@ -59,10 +59,6 @@ body {
    font:16px/1.231 Arial;
 }*/
 
-.container {
-	max-width: @screen-max;
-    margin: 0 auto;
-}
 
 .clear-both {
    clear: both;
