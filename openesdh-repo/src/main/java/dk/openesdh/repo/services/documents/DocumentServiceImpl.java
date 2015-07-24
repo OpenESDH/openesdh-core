@@ -252,7 +252,7 @@ public class DocumentServiceImpl implements DocumentService {
         NodeRef targetCase = getTargetCase(targetCaseId);
         NodeRef targetCaseDocumentsFolder = caseService.getDocumentsFolder(targetCase);
 
-        if (isCaseContainsDocument(targetCase, targetCaseDocumentsFolder)) {
+        if (isCaseContainsDocument(targetCaseDocumentsFolder, documentRecFolderToMove)) {
             throw new Exception(DocumentService.DOCUMENT_STORED_IN_CASE_MESSAGE + targetCaseId);
         }
 
@@ -274,7 +274,7 @@ public class DocumentServiceImpl implements DocumentService {
         NodeRef targetCase = getTargetCase(targetCaseId);
         NodeRef targetCaseDocumentsFolder = caseService.getDocumentsFolder(targetCase);
 
-        if (isCaseContainsDocument(targetCase, targetCaseDocumentsFolder)) {
+        if (isCaseContainsDocument(targetCaseDocumentsFolder, documentRecFolderToCopy)) {
             throw new Exception(DocumentService.DOCUMENT_STORED_IN_CASE_MESSAGE + targetCaseId);
         }
 
@@ -297,10 +297,10 @@ public class DocumentServiceImpl implements DocumentService {
         }
     }
 
-    private boolean isCaseContainsDocument(NodeRef targetCase, NodeRef targetCaseDocumentsFolder) {
-        return nodeService.getChildAssocs(targetCase)
+    private boolean isCaseContainsDocument(NodeRef targetCaseDocumentsFolder, NodeRef documentRecFolderToCopy) {
+        return nodeService.getChildAssocs(targetCaseDocumentsFolder)
                 .stream()
-                .filter(assoc -> assoc.getChildRef().equals(targetCaseDocumentsFolder))
+                .filter(assoc -> assoc.getChildRef().equals(documentRecFolderToCopy))
                 .findAny()
                 .isPresent();
     }
