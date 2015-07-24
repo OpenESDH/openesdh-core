@@ -67,24 +67,33 @@ public interface DocumentService {
     List<NodeRef> getAttachments(NodeRef docRecordNodeRef);
     
     /**
-	 * Moves provided document to the target case
-	 * 
-	 * @param documentToMove
-	 *            NodeRef of the document to move
-	 * @param targetCaseId
-	 *            Id of the case to move the document into
-	 */
-	public void moveDocumentToCase(final NodeRef documentToMove,
-			final String targetCaseId) throws Exception;
+     * Moves provided document to the target case
+     * 
+     * @param documentToMove
+     *            NodeRef of the record folder of the document to move
+     * @param targetCaseId
+     *            Id of the case to move the document into
+     */
+    public void moveDocumentToCase(final NodeRef documentToMove, final String targetCaseId) throws Exception;
 
-	/**
-	 * Copies provided document to the target case
-	 * 
-	 * @param documentToCopy
-	 *            NodeRef of the document to copy
-	 * @param targetCaseId
-	 *            Id of the case to copy the document into
-	 */
-	public void copyDocumentToCase(final NodeRef documentToMove,
-			final String targetCaseId) throws Exception;
+    /**
+     * Copies provided document to the target case
+     * 
+     * @param documentToCopy
+     *            NodeRef of the record folder of the document to copy
+     * @param targetCaseId
+     *            Id of the case to copy the document into
+     */
+    public void copyDocumentToCase(final NodeRef documentToMove, final String targetCaseId) throws Exception;
+
+    /**
+     * Copies provided case document to the target folder
+     * 
+     * @param caseDocument
+     *            the document record folder node ref to copy
+     * @param targetFolder
+     *            the folder to copy the document to
+     * @throws Exception
+     */
+    public void copyDocumentToFolder(NodeRef caseDocument, NodeRef targetFolder) throws Exception;
 }
