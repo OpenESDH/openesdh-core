@@ -94,9 +94,8 @@
 
                     <show id="contact:organizationName" />
                     <show id="contact:email" />
-                    <show id="contact:cvrNumber" />
 
-                    <!-- TODO: Better appearance of address fields -->
+                    <show id="contact:cvrNumber" />
                     <show id="contact:streetName" />
                     <show id="contact:houseNumber" />
                     <show id="contact:floorIdentifier" />

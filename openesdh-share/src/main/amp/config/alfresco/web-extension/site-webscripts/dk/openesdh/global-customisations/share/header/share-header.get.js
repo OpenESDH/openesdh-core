@@ -1,6 +1,14 @@
 <import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/utils/case.js">
 <import resource="classpath:/alfresco/web-extension/site-webscripts/dk/openesdh/utils/oe.js">
 
+//Rearrange the menu
+var shareHeaderMenuBar = widgetUtils.findObject(model.jsonModel, "id", "SHARE_HEADER");
+var shareHeaderWidgets = shareHeaderMenuBar.config.widgets;
+
+var tmpArray = [shareHeaderWidgets[0],shareHeaderWidgets[2],shareHeaderWidgets[1]];
+shareHeaderMenuBar.config.widgets = tmpArray;
+
+
 var args = page.url.args;
 var caseId = url.templateArgs.caseId;
 //In the case of some pages (e.g. document details) we need to get the caseId in reverse
@@ -88,7 +96,7 @@ if (headerMenu != null) {
         name: "openesdh/common/services/UploadService"
     });
 	
-    headerMenu.config.widgets.push({
+    headerMenu.config.widgets.splice(1,1, {
         id: "HEADER_CASES_DROPDOWN",
         name: "alfresco/header/AlfMenuBarPopup",
         config: {
