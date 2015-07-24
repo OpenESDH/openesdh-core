@@ -27,7 +27,6 @@ import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.permissions.PermissionReference;
 import org.alfresco.repo.security.permissions.impl.ModelDAO;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
-import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.action.ActionService;
 import org.alfresco.service.cmr.dictionary.AspectDefinition;
 import org.alfresco.service.cmr.dictionary.AssociationDefinition;
@@ -42,9 +41,7 @@ import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.rule.Rule;
 import org.alfresco.service.cmr.rule.RuleService;
-import org.alfresco.service.cmr.rule.RuleType;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AccessPermission;
 import org.alfresco.service.cmr.security.AccessStatus;
@@ -62,7 +59,6 @@ import org.json.JSONObject;
 import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.security.access.AccessDeniedException;
 
-import dk.openesdh.repo.actions.AssignCaseIdActionExecuter;
 import dk.openesdh.repo.model.OpenESDHModel;
 
 /**
@@ -176,8 +172,6 @@ public class CaseServiceImpl implements CaseService {
         //Throw an exception. This should have been created on first boot along with the context root folder
         if (casesRootNodeRef == null)
             throw new AlfrescoRuntimeException("The openESDH \"CASES\" root folder has not been initialised.");
-
-        setupAssignCaseIdRule(casesRootNodeRef);
 
         return casesRootNodeRef;
     }
@@ -1021,23 +1015,4 @@ public class CaseServiceImpl implements CaseService {
         return authorityService.authorityExists(caseCreatorGroup);
     }
 
-    protected void setupAssignCaseIdRule(final NodeRef folderNodeRef) {
-
-        List<Rule> rules = ruleService.getRules(folderNodeRef);
-        for (Rule rul : rules) {
-            if (rul.getRuleTypes().contains(RuleType.INBOUND) && rul.getTitle().equals(ASSIGN_CASE_ID_RULE_TITLE)) {
-                return;
-            }
-        }
-
-        Action action = actionService.createAction(AssignCaseIdActionExecuter.NAME);
-        action.setTitle("Assign caseId");
-        action.setExecuteAsynchronously(true);
-        Rule rule = new Rule();
-        rule.setRuleType(RuleType.INBOUND);
-        rule.setTitle("Assign caseId to case documents");
-        rule.applyToChildren(true);
-        rule.setAction(action);
-        ruleService.saveRule(folderNodeRef, rule);
-    }
 }
