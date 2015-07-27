@@ -24,8 +24,14 @@
  * @extends alfresco/dashlet/Dashlet
  * @author Torben Lauritzen
  */
-define(["dojo/_base/declare", "alfresco/core/Core", "alfresco/dashlets/Dashlet"],
-      function(declare, AlfCore, Dashlet) {
+//"alfresco/dashlets/Dashlet"
+define(["dojo/_base/declare", 
+        "alfresco/core/Core", 
+        "alfresco/core/I18nUtils", 
+        "openesdh/common/widgets/dashlets/Dashlet"],
+      function(declare, AlfCore, I18nUtils, Dashlet) {
+        
+        var i18nScope = "openesdh.case.CaseInfoDashlet";
 
          return declare([Dashlet], {
 
@@ -34,7 +40,7 @@ define(["dojo/_base/declare", "alfresco/core/Core", "alfresco/dashlets/Dashlet"]
              *
              * @instance
              */
-            i18nScope: "openesdh.case.CaseInfoDashlet",
+            i18nScope: i18nScope,
 
             /**
              * An array of the i18n files to use with this widget.
@@ -56,6 +62,48 @@ define(["dojo/_base/declare", "alfresco/core/Core", "alfresco/dashlets/Dashlet"]
                {
                   name: "openesdh/pages/case/widgets/InfoWidget"
                }
+            ]
+            
+            ,widgetsForFooterBarActions: [
+                 {
+                     name: "alfresco/buttons/AlfButton",
+                     config: {
+                         label: I18nUtils.msg(i18nScope, "case.dashlet.edit.case.info"),
+                         publishTopic: "OPENESDH_CASE_INFO_EDIT"
+                     }
+                 },
+                 {
+                     name: "alfresco/buttons/AlfButton",
+                     config: {
+                         label: I18nUtils.msg(i18nScope, "case.dashlet.print.case"),
+                         publishTopic: "OPENESDH_CASE_INFO_PRINT"
+                     }
+                 },
+                 {
+                     name: "alfresco/buttons/AlfButton",
+                     config: {
+                         label: I18nUtils.msg(i18nScope, "case.dashlet.start.workflow"),
+                         publishTopic: "OPENESDH_CASE_INFO_START_WORKFLOW"
+                     }
+                 },
+                 {
+                     name: "alfresco/buttons/AlfButton",
+                     config: {
+                         label: I18nUtils.msg(i18nScope, "case.dashlet.create.site"),
+                         publishTopic: "OPENESDH_CASE_INFO_CREATE_SITE"
+                     }
+                 }
+            ],
+            
+            widgetsForTitleBarActions: [
+                {
+                    name: "alfresco/buttons/AlfButton",
+                    config: {
+                        iconClass: "favorite-icon-16",
+                        label: "favorite",
+                        publishTopic: "OPENESDH_CASE_INFO_TOGGLE_FAVORITE",
+                    }
+                },
             ]
 
          });

@@ -29,11 +29,13 @@
         <config evaluator="string-compare" condition="WebFramework" replace="false">
           <web-framework>
             <dojo-pages>
+              <default-less-configuration>/js/aikau/alfresco/css/less/defaults.less</default-less-configuration><messages-object>Alfresco</messages-object>
               <packages>
                   <package name="openesdh" location="js/openesdh"/>
                   <package name="dgrid" location="js/dgrid-deps/dgrid"/>
                   <package name="put-selector" location="js/dgrid-deps/put-selector"/>
                   <package name="xstyle" location="js/dgrid-deps/xstyle"/>
+                  <package name="alfresco" location="js/aikau/alfresco"/>
               </packages>
             </dojo-pages>
           </web-framework>
