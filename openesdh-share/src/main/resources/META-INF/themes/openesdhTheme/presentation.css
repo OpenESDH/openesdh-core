@@ -242,11 +242,12 @@ h4 .lighter
 
 .dashlet .title
 {
-   border-bottom: 1px solid #ccc;
+   /*border-bottom: 1px solid #ccc;*/
    /*background-color: #eee;*/
    border-top-left-radius: 3px;
    border-top-right-radius: 3px;
    color: #333;
+   font-size: 15px;
    font-weight: bold;
    padding: 10px;
 }
