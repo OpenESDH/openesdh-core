@@ -99,8 +99,8 @@ define(["dojo/_base/declare",
                 {
                     name: "alfresco/buttons/AlfButton",
                     config: {
-                        iconClass: "favorite-icon-16",
-                        label: "favorite",
+                        iconClass: "fa fa-star fa-2x",
+                        //label: "favorite",
                         publishTopic: "OPENESDH_CASE_INFO_TOGGLE_FAVORITE",
                     }
                 },

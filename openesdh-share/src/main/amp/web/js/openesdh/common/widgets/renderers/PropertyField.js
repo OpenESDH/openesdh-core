@@ -14,7 +14,21 @@ define(["dojo/_base/declare",
     function (declare, Property, TemporalUtils, UrlUtils, lang, template) {
 
         return declare([Property, UrlUtils], {
+        	
+        	/**
+             * An array of the CSS files to use with this widget.
+             *
+             * @instance
+             * @type {object[]}
+             * @default [{cssFile:"./css/Property"}]
+             */
+            cssRequirements: [{cssFile:"./css/Property.css"}],
 
+            /**
+             * The HTML template to use for the widget.
+             * @instance
+             * @type {string}
+             */
             templateString: template,
             
             /**
