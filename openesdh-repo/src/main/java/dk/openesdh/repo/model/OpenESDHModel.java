@@ -193,5 +193,6 @@ public interface OpenESDHModel {
     public static final String MYCASES_DAYS_IN_THE_PAST = "604800000";
 
     public static final int AUDIT_LOG_MAX = 1000;
+    public static final String ADMIN_USER_NAME = "admin";
 
 }
