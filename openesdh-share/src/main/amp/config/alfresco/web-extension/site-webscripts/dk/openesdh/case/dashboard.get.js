@@ -33,31 +33,33 @@ model.jsonModel = {
 	                            widgets: [{
 	                                id: "CASE_INFO_DASHLET",
 	                                name: "openesdh/common/widgets/dashlets/CaseInfoDashlet"
-	                            }, {
-	                                id: "CASE_NOTES_DASHLET",
-	                                name: "openesdh/common/widgets/dashlets/NotesDashlet",
-	                                config: {
-	                                    nodeRef: caseNodeRef,
-	                                    isReadOnly: isReadOnly
-	                                }
-	                            }]
+	                            }, ]
 	                        }
 	                    }, {
 	                        name: "alfresco/layout/VerticalWidgets",
 	                        config: {
 	                            widgets: [{
-	                                id: "CASE_MEMBERS_DASHLET",
-	                                name: "openesdh/common/widgets/dashlets/CaseMembersDashlet",
-	                                config: {
-	                                    caseId: caseId
-	                                }
-	                            }, {
-	                                id: "CASE_HISTORY_DASHLET",
-	                                name: "openesdh/common/widgets/dashlets/CaseHistoryDashlet",
-	                                config: {
-	                                    nodeRef: caseNodeRef
-	                                }
-	                            }]
+                                    id: "CASE_NOTES_DASHLET",
+                                    name: "openesdh/common/widgets/dashlets/NotesDashlet",
+                                    config: {
+                                        nodeRef: caseNodeRef,
+                                        isReadOnly: isReadOnly
+                                    }
+                                }
+//	                            {
+//	                                id: "CASE_MEMBERS_DASHLET",
+//	                                name: "openesdh/common/widgets/dashlets/CaseMembersDashlet",
+//	                                config: {
+//	                                    caseId: caseId
+//	                                }
+//	                            }, {
+//	                                id: "CASE_HISTORY_DASHLET",
+//	                                name: "openesdh/common/widgets/dashlets/CaseHistoryDashlet",
+//	                                config: {
+//	                                    nodeRef: caseNodeRef
+//	                                }
+//	                            }
+	                            ]
 	                        }
 	                    }]
 	                }
