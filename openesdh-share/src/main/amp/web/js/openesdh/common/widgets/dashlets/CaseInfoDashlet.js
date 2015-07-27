@@ -97,11 +97,12 @@ define(["dojo/_base/declare",
             
             widgetsForTitleBarActions: [
                 {
-                    name: "alfresco/buttons/AlfButton",
+                    name: "alfresco/renderers/Favourite",
                     config: {
-                        iconClass: "fa fa-star fa-2x",
+                        //iconClass: "fa fa-star fa-2x",
                         //label: "favorite",
-                        publishTopic: "OPENESDH_CASE_INFO_TOGGLE_FAVORITE",
+                        //publishTopic: "OPENESDH_CASE_INFO_TOGGLE_FAVORITE",
+                    	offLabel: ""
                     }
                 },
             ]

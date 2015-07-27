@@ -2038,3 +2038,8 @@ table td.thumbnail img
 .hide-label label {
    opacity: 0;
 }
+
+.dashlet-case-info .titleBarActions {
+	top: 10px;
+	right: 10px;
+}
