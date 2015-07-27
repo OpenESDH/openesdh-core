@@ -9,11 +9,14 @@ define(["dojo/_base/declare",
         "alfresco/renderers/Property",
         "alfresco/core/TemporalUtils",
         "alfresco/core/UrlUtils",
-        "dojo/_base/lang"],
-    function (declare, Property, TemporalUtils, UrlUtils, lang) {
+        "dojo/_base/lang",
+        "dojo/text!./templates/Property.html"],
+    function (declare, Property, TemporalUtils, UrlUtils, lang, template) {
 
         return declare([Property, UrlUtils], {
 
+            templateString: template,
+            
             /**
              * The i18n scope to use for this widget.
              *
