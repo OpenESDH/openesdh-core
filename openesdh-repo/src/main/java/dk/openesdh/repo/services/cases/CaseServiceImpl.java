@@ -24,6 +24,7 @@ import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
 import org.alfresco.repo.security.permissions.PermissionReference;
 import org.alfresco.repo.security.permissions.impl.ModelDAO;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
@@ -142,15 +143,12 @@ public class CaseServiceImpl implements CaseService {
     public void addAuthorityToRole(final String authorityName, final String role, final NodeRef caseNodeRef) {
         checkCanUpdateCaseRoles(caseNodeRef);
 
-        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Object>() {
-            @Override
-            public Object doWork() throws Exception {
-                String caseId = getCaseId(caseNodeRef);
-                String groupName = getCaseRoleGroupName(caseId, role);
-                authorityService.addAuthority(groupName, authorityName);
-                return null;
-            }
-        }, "admin");
+        runAsAdmin(() -> {
+            String caseId = getCaseId(caseNodeRef);
+            String groupName = getCaseRoleGroupName(caseId, role);
+            authorityService.addAuthority(groupName, authorityName);
+            return null;
+        });
     }
 
     @Override
@@ -163,30 +161,27 @@ public class CaseServiceImpl implements CaseService {
     public void addAuthoritiesToRole(final List<NodeRef> authorities, final String role, final NodeRef caseNodeRef) {
         checkCanUpdateCaseRoles(caseNodeRef);
 
-        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Object>() {
-            @Override
-            public Object doWork() throws Exception {
-                String caseId = getCaseId(caseNodeRef);
-                final String groupName = getCaseRoleGroupName(caseId, role);
-                if (!authorityService.authorityExists(groupName)) {
-                    return null;
-                }
-                transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper
-                        .RetryingTransactionCallback<Object>() {
-                    @Override
-                    public Object execute() throws Throwable {
-                        for (NodeRef authorityNodeRef : authorities) {
-                            String authority = getAuthorityName(authorityNodeRef);
-                            if (authority != null) {
-                                authorityService.addAuthority(groupName, authority);
-                            }
-                        }
-                        return null;
-                    }
-                });
+        runAsAdmin(() -> {
+            String caseId = getCaseId(caseNodeRef);
+            final String groupName = getCaseRoleGroupName(caseId, role);
+            if (!authorityService.authorityExists(groupName)) {
                 return null;
             }
-        }, "admin");
+            transactionService.getRetryingTransactionHelper().doInTransaction(
+                    new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
+                        @Override
+                        public Object execute() throws Throwable {
+                            for (NodeRef authorityNodeRef : authorities) {
+                                String authority = getAuthorityName(authorityNodeRef);
+                                if (authority != null) {
+                                    authorityService.addAuthority(groupName, authority);
+                                }
+                            }
+                    return null;
+                }
+                    });
+            return null;
+        });
     }
 
     @Override
@@ -202,9 +197,7 @@ public class CaseServiceImpl implements CaseService {
     public void changeAuthorityRole(final String authorityName, final String fromRole, final String toRole, final NodeRef caseNodeRef) {
         checkCanUpdateCaseRoles(caseNodeRef);
 
-        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Object>() {
-            @Override
-            public Object doWork() throws Exception {
+        runAsAdmin(() -> {
                 // Do in transaction
                 transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper
                         .RetryingTransactionCallback<Object>() {
@@ -216,8 +209,7 @@ public class CaseServiceImpl implements CaseService {
                     }
                 });
                 return null;
-            }
-        }, "admin");
+        });
     }
 
     @Override
@@ -525,18 +517,18 @@ public class CaseServiceImpl implements CaseService {
     @Override
     public void removeAuthorityFromRole(final String authorityName, final String role, final NodeRef caseNodeRef) {
         checkCanUpdateCaseRoles(caseNodeRef);
-        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Object>() {
-            @Override
-            public Object doWork() throws Exception {
-                String caseId = getCaseId(caseNodeRef);
-                String groupName = getCaseRoleGroupName(caseId, role);
-                if (authorityService.authorityExists(groupName) &&
-                        authorityService.authorityExists(authorityName)) {
-                    authorityService.removeAuthority(groupName, authorityName);
-                }
-                return null;
+        runAsAdmin(() -> {
+            String caseId = getCaseId(caseNodeRef);
+            String groupName = getCaseRoleGroupName(caseId, role);
+            if (authorityService.authorityExists(groupName) && authorityService.authorityExists(authorityName)) {
+                authorityService.removeAuthority(groupName, authorityName);
             }
-        }, "admin");
+            return null;
+        });
+    }
+
+    protected <R> R runAsAdmin(RunAsWork<R> r) {
+        return AuthenticationUtil.runAs(r, OpenESDHModel.ADMIN_USER_NAME);
     }
 
     @Override

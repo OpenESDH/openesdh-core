@@ -1,13 +1,27 @@
 package dk.openesdh.repo.services.cases;
 
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
-import dk.openesdh.repo.helper.CaseHelper;
-import dk.openesdh.repo.model.OpenESDHModel;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
+import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.action.ActionService;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.lock.LockService;
@@ -17,7 +31,11 @@ import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.rule.RuleService;
 import org.alfresco.service.cmr.search.CategoryService;
 import org.alfresco.service.cmr.search.SearchService;
-import org.alfresco.service.cmr.security.*;
+import org.alfresco.service.cmr.security.AuthorityService;
+import org.alfresco.service.cmr.security.AuthorityType;
+import org.alfresco.service.cmr.security.OwnableService;
+import org.alfresco.service.cmr.security.PermissionService;
+import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.DynamicNamespacePrefixResolver;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
@@ -31,12 +49,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
 
-import static org.junit.Assert.*;
+import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.model.OpenESDHModel;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -114,7 +131,7 @@ public class CaseServiceImplIT {
         // TODO: All of this could have been done only once
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
         dummyUser = caseHelper.createDummyUser();
-        NodeRef adminUserNodeRef = this.personService.getPerson("admin");
+        NodeRef adminUserNodeRef = this.personService.getPerson(OpenESDHModel.ADMIN_USER_NAME);
         //try dding the user to the case creator group
         try{
             authorityService.addAuthority("GROUP_CaseSimpleCreator", CaseHelper.DEFAULT_USERNAME);
@@ -154,8 +171,7 @@ public class CaseServiceImplIT {
     public void tearDown() throws Exception {
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
 
-        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Boolean>() {
-            public Boolean execute() throws Throwable {
+        transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
                 // Remove temporary node, and all its content,
                 // also removes test cases
                 if (nonAdminCreatedCaseNr != null) {
@@ -166,7 +182,6 @@ public class CaseServiceImplIT {
                 }
                 caseHelper.deleteDummyUser();
                 return true;
-            }
         });
     }
 
@@ -505,7 +520,8 @@ public class CaseServiceImplIT {
 
         // Test that the owner cannot add an authority to a role on the case
         try {
-            caseService.addAuthorityToRole("admin",
+            caseService
+                    .addAuthorityToRole(OpenESDHModel.ADMIN_USER_NAME,
                     "CaseSimpleReader", nonAdminCreatedCaseNr);
             fail("An authority could be added to a role on a journalized case");
         } catch (Exception e) {

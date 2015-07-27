@@ -42,8 +42,6 @@ import static org.junit.Assert.assertEquals;
 @ContextConfiguration("classpath:alfresco/application-context.xml")
 public class OpenESDHModelIT {
 
-    private static final String ADMIN_USER_NAME = "admin";
-
     @Autowired
     @Qualifier("NodeService")
     protected NodeService nodeService;
@@ -71,7 +69,7 @@ public class OpenESDHModelIT {
 
     @Test
     public void testCreateSimpleCase() {
-        AuthenticationUtil.setFullyAuthenticatedUser(ADMIN_USER_NAME);
+        AuthenticationUtil.setFullyAuthenticatedUser(OpenESDHModel.ADMIN_USER_NAME);
 
         NodeRef companyHome = nodeLocatorService.getNode(CompanyHomeNodeLocator.NAME, null, null);
 
@@ -80,7 +78,7 @@ public class OpenESDHModelIT {
         properties.put(ContentModel.PROP_NAME, name);
         List<NodeRef> owners = new LinkedList<>();
         owners.add(repositoryHelper.getPerson());
-        NodeRef caseNode = caseHelper.createCase(ADMIN_USER_NAME,
+        NodeRef caseNode = caseHelper.createCase(OpenESDHModel.ADMIN_USER_NAME,
                 companyHome,
                 name, SimpleCaseModel.TYPE_CASE_SIMPLE, properties, owners,
                 true);
