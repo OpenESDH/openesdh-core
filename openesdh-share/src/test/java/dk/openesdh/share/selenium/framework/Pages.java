@@ -20,12 +20,10 @@ public class Pages {
     public static DashboardCasePage Dashboard;
     public static AdminToolsPage AdminToolsPage;
     public static SearchCasePage Search;
-    public static CreateCaseCasePage CreateCase;
     public static EditCaseCasePage EditCase;
     public static CaseDashboardCasePage CaseDashboard;
     public static CaseDocumentsCasePage CaseDocumentsPage;
     public static DocumentDetailsCasePage DocumentDetails;
-    public static CaseMembersCasePage CaseMembers;
 
     /**
      * helper method to initElements on a page
@@ -50,11 +48,9 @@ public class Pages {
         AdminToolsPage = (AdminToolsPage) initializePage(new AdminToolsPage());
         Dashboard = (DashboardCasePage) initializePage(new DashboardCasePage());
         Search = (SearchCasePage) initializePage(new SearchCasePage());
-        CreateCase = (CreateCaseCasePage) initializePage(new CreateCaseCasePage());
         EditCase = (EditCaseCasePage) initializePage(new EditCaseCasePage());
         CaseDashboard = (CaseDashboardCasePage) initializePage(new CaseDashboardCasePage());
         DocumentDetails = (DocumentDetailsCasePage) initializePage(new DocumentDetailsCasePage());
-        CaseMembers = (CaseMembersCasePage) initializePage(new CaseMembersCasePage());
         CaseDocumentsPage = (CaseDocumentsCasePage) initializePage(new CaseDocumentsCasePage());
     }
 }

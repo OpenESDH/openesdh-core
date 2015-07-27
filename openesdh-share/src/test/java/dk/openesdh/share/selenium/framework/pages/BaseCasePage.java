@@ -48,7 +48,7 @@ public class BaseCasePage extends BasePage{
     WebElement navCogMenuItem;
     //</editor-fold>
 
-    //<editor-fold desc="Some webelements that we need">
+    //<editor-fold desc="Some web elements that we need">
     @FindBy(id="CASE_INFO_DASHLET")
     WebElement caseInfoDashlet;
 
@@ -63,6 +63,9 @@ public class BaseCasePage extends BasePage{
 
     @FindBy(css="#CREATE_CASE_DIALOG .dijitDialogPaneContent .footer .confirmation .dijitButtonNode")
     WebElement createCaseDialogConfirmButton;
+
+    @FindBy(xpath="//div[@class='buttons']//span[1]//span[contains(@class,'dijitButtonNode')]")
+    WebElement pickerDialogSearchButton;
     //</editor-fold>
 
     private User caseCreator;
@@ -105,14 +108,12 @@ public class BaseCasePage extends BasePage{
 
     }
 
+    public void clickPickerDialogSearchBtn(){
+        assertNotNull(pickerDialogSearchButton);
+        pickerDialogSearchButton.click();
+    }
 
     protected String createCaseAsUser(User user){
-        /*if(initAsCaseCreator) {
-            initAsCaseCreator(user);
-            //set the user that has now been set as the case creator so that we can easily
-            // retrieve it elsewhere
-            this.caseCreator = user;
-        }*/
         this.loginAsUser(user);
         String caseTitleText = RandomStringUtils.randomAlphanumeric(12);
         this.clickCasesMenuItem();
@@ -131,34 +132,5 @@ public class BaseCasePage extends BasePage{
         return this.getCaseId();
     }
 
-    public static void selectAuthoritiesInPicker(String id, List<String> authorities) {
-
-        WebElement searchInput = Browser.Driver
-                .findElement(By
-                        .xpath("//div[div[span[@role='heading' and (text()='Select...'  ) ]] and contains(@class,'alfresco-dialog-AlfDialog') ]//input[@name='searchTerm']"));
-        WebElement searchButton = Browser.Driver
-                .findElement(By
-                        .xpath("//span[contains(@class,'confirmationButton')]/span[contains(@class,'dijitButtonNode')]"));
-        for (String authority : authorities) {
-            searchInput.clear();
-            searchInput.sendKeys(authority);
-            searchButton.click();
-            // Wonderfully complicated XPath way to get the Add button for
-            // adding the particular authority we want to add.
-            WebElement addAuthority = Browser.Driver
-                    .findElement(By
-                            .xpath("//td[contains(@class, 'yui-dt-col-name') and "
-                                    + "contains(., "
-                                    + "'"
-                                    + authority
-                                    + "')]/following-sibling::td[contains(@class, 'yui-dt-col-add')]/descendant::a"));
-            addAuthority.click();
-        }
-
-        WebElement authorityPickerOkButton = Browser.Driver.findElement(By
-                .cssSelector("button[id$='" + id + "-cntrl-ok-button']"));
-        authorityPickerOkButton.click();
-
-    }
 
 }

@@ -43,8 +43,7 @@ public class AddMemberToCaseTestIT extends BaseCasePage {
         wait.until(ExpectedConditions.visibilityOf(membersPickerDialog));
         WebElement dialogSearchInput = membersPickerDialog.findElement(By.name("searchTerm"));
         clearAndEnter(dialogSearchInput, User.BRIGITTE.userName());
-        WebElement dialogSearchButton = membersPickerDialog.findElement(By.xpath("//div[@class='buttons']//span[1]//span[contains(@class,'dijitButtonNode')]"));
-        dialogSearchButton.click();
+        clickPickerDialogSearchBtn();
         //the left window where the search result should be displayed
         //The add button which adds the button to the right window where picked items are displayed
         WebElement resultSelector = membersPickerDialog.findElement(By.xpath("//div[@class='sub-pickers']//table//tbody//tr//td[last()]//span"));
@@ -69,8 +68,7 @@ public class AddMemberToCaseTestIT extends BaseCasePage {
         wait.until(ExpectedConditions.visibilityOf(membersPickerDialog));
         WebElement dialogSearchInput = membersPickerDialog.findElement(By.name("searchTerm"));
         clearAndEnter(dialogSearchInput, User.BOB.userName());
-        WebElement dialogSearchButton = membersPickerDialog.findElement(By.xpath("//div[@class='buttons']//span[1]//span[contains(@class,'dijitButtonNode')]"));
-        dialogSearchButton.click();
+        clickPickerDialogSearchBtn();
         //the left window where the search result should be displayed
         //The add button which adds the button to the right window where picked items are displayed
         WebElement resultSelector = membersPickerDialog.findElement(By.xpath("//div[@class='sub-pickers']//table//tbody//tr//td[last()]//span"));
@@ -95,8 +93,7 @@ public class AddMemberToCaseTestIT extends BaseCasePage {
         wait.until(ExpectedConditions.visibilityOf(membersPickerDialog));
         WebElement dialogSearchInput = membersPickerDialog.findElement(By.name("searchTerm"));
         clearAndEnter(dialogSearchInput, User.BRIGITTE.userName());
-        WebElement dialogSearchButton = membersPickerDialog.findElement(By.xpath("//div[@class='buttons']//span[1]//span[contains(@class,'dijitButtonNode')]"));
-        dialogSearchButton.click();
+        clickPickerDialogSearchBtn();
         //the left window where the search result should be displayed
         //The add button which adds the button to the right window where picked items are displayed
         WebElement resultSelector = membersPickerDialog.findElement(By.xpath("//div[@class='sub-pickers']//table//tbody//tr//td[last()]//span"));

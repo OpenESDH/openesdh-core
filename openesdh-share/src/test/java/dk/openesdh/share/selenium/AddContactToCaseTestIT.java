@@ -3,9 +3,7 @@ package dk.openesdh.share.selenium;
 import dk.magenta.share.selenium.framework.Browser;
 import dk.openesdh.share.selenium.framework.Pages;
 import dk.openesdh.share.selenium.framework.enums.User;
-import dk.openesdh.share.selenium.framework.pages.AdminToolsPage;
 import dk.openesdh.share.selenium.framework.pages.BaseCasePage;
-import dk.openesdh.share.selenium.framework.pages.CaseMembersCasePage;
 import org.junit.Before;
 import org.junit.Test;
 import org.openqa.selenium.By;
@@ -14,9 +12,6 @@ import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
-import org.springframework.jdbc.support.nativejdbc.WebLogicNativeJdbcExtractor;
-
-import static org.junit.Assert.assertNotNull;
 
 public class AddContactToCaseTestIT extends BaseCasePage {
     String orgContact, personContact;
@@ -63,8 +58,7 @@ public class AddContactToCaseTestIT extends BaseCasePage {
         wait.until(ExpectedConditions.visibilityOf(partyPickerDialog));
         WebElement dialogSearchInput = partyPickerDialog.findElement(By.name("searchTerm"));
         clearAndEnter(dialogSearchInput, personContact);
-        WebElement dialogSearchButton = partyPickerDialog.findElement(By.xpath("//div[@class='buttons']//span[1]//span[contains(@class,'dijitButtonNode')]"));
-        dialogSearchButton.click();
+        clickPickerDialogSearchBtn();
         //The add button which adds the button to the right window where picked items are displayed
         WebElement resultSelector = partyPickerDialog.findElement(By.xpath("//div[@class='sub-pickers']//table//tbody//tr//td[last()]//span"));
         resultSelector.click();
@@ -90,8 +84,7 @@ public class AddContactToCaseTestIT extends BaseCasePage {
         wait.until(ExpectedConditions.visibilityOf(partyPickerDialog));
         WebElement dialogSearchInput = partyPickerDialog.findElement(By.name("searchTerm"));
         clearAndEnter(dialogSearchInput, orgContact);
-        WebElement dialogSearchButton = partyPickerDialog.findElement(By.xpath(".//div[@class='buttons']//span[1]//span[contains(@class,'dijitButtonNode')]"));
-        dialogSearchButton.click();
+        clickPickerDialogSearchBtn();
         //the left window where the search result should be displayed
         //The add button which adds the button to the right window where picked items are displayed
         WebElement resultSelector = partyPickerDialog.findElement(By.xpath(".//div[@class='sub-pickers']//table//tbody//tr//td[last()]//span"));
