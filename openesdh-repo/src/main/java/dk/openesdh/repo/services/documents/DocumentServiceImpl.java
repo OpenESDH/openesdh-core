@@ -88,7 +88,8 @@ public class DocumentServiceImpl implements DocumentService {
     public void setCopyService(CopyService copyService) {
         this.copyService = copyService;
     }
-	// </editor-fold>
+
+    // </editor-fold>
 
     @Override
     public List<ChildAssociationRef> getDocumentsForCase(NodeRef nodeRef) {
@@ -246,23 +247,20 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public void moveDocumentToCase(NodeRef documentToMove, String targetCaseId) throws Exception {
+    public void moveDocumentToCase(NodeRef documentRecFolderToMove, String targetCaseId) throws Exception {
 
-        ChildAssociationRef docToFolderAssoc = getDocumentPrimaryParent(documentToMove);
+        NodeRef targetCase = getTargetCase(targetCaseId);
+        NodeRef targetCaseDocumentsFolder = caseService.getDocumentsFolder(targetCase);
 
-        if (isCaseContainsDocument(targetCaseId, documentToMove)) {
+        if (isCaseContainsDocument(targetCaseDocumentsFolder, documentRecFolderToMove)) {
             throw new Exception(DocumentService.DOCUMENT_STORED_IN_CASE_MESSAGE + targetCaseId);
         }
 
-        NodeRef targetCase = getTargetCase(targetCaseId);
+        String documentFolderName = (String) nodeService.getProperty(documentRecFolderToMove,
+                ContentModel.PROP_NAME);
 
-        NodeRef documentFolderToMove = docToFolderAssoc.getParentRef();
-
-        String documentFolderName = (String) nodeService.getProperty(documentFolderToMove, ContentModel.PROP_NAME);
-
-        NodeRef targetCaseDocumentsFolder = caseService.getDocumentsFolder(targetCase);
-
-        nodeService.moveNode(documentFolderToMove, targetCaseDocumentsFolder, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.DOC_URI, documentFolderName));
+        nodeService.moveNode(documentRecFolderToMove, targetCaseDocumentsFolder, ContentModel.ASSOC_CONTAINS,
+                QName.createQName(OpenESDHModel.DOC_URI, documentFolderName));
 
         // Refer to CaseServiceImpl.setupAssignCaseIdRule and
         // AssignCaseIdActionExecuter
@@ -271,32 +269,24 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-	public void copyDocumentToCase(NodeRef documentToCopy, String targetCaseId)
-			throws Exception {
-		ChildAssociationRef docToFolderAssoc = getDocumentPrimaryParent(documentToCopy);
+    public void copyDocumentToCase(NodeRef documentRecFolderToCopy, String targetCaseId) throws Exception {
 
-		if (isCaseContainsDocument(targetCaseId, documentToCopy)) {
-			throw new Exception(DocumentService.DOCUMENT_STORED_IN_CASE_MESSAGE + targetCaseId);
-		}
-
-		NodeRef targetCase = getTargetCase(targetCaseId);
+        NodeRef targetCase = getTargetCase(targetCaseId);
         NodeRef targetCaseDocumentsFolder = caseService.getDocumentsFolder(targetCase);
 
-		NodeRef documentFolderToCopy = docToFolderAssoc.getParentRef();
-		
-		String documentFolderName = (String) nodeService.getProperty(documentFolderToCopy, ContentModel.PROP_NAME);
-
-        copyService.copy(documentFolderToCopy, targetCaseDocumentsFolder, ContentModel.ASSOC_CONTAINS,
-                QName.createQName(OpenESDHModel.DOC_URI, documentFolderName), true);
-		
-	}
-
-    private ChildAssociationRef getDocumentPrimaryParent(NodeRef document) throws Exception {
-        ChildAssociationRef docToFolderAssoc = nodeService.getPrimaryParent(document);
-        if (docToFolderAssoc == null) {
-            throw new Exception("No primary parent was found for node ref: " + document.toString());
+        if (isCaseContainsDocument(targetCaseDocumentsFolder, documentRecFolderToCopy)) {
+            throw new Exception(DocumentService.DOCUMENT_STORED_IN_CASE_MESSAGE + targetCaseId);
         }
-        return docToFolderAssoc;
+
+        copyDocumentToFolder(documentRecFolderToCopy, targetCaseDocumentsFolder);
+    }
+
+    @Override
+    public void copyDocumentToFolder(NodeRef documentRecFolderToCopy, NodeRef targetFolder) throws Exception {
+        String documentFolderName = (String) nodeService.getProperty(documentRecFolderToCopy,
+                ContentModel.PROP_NAME);
+        copyService.copy(documentRecFolderToCopy, targetFolder, ContentModel.ASSOC_CONTAINS,
+                QName.createQName(OpenESDHModel.DOC_URI, documentFolderName), true);
     }
 
     private NodeRef getTargetCase(String targetCaseId) throws Exception {
@@ -307,8 +297,11 @@ public class DocumentServiceImpl implements DocumentService {
         }
     }
 
-    private boolean isCaseContainsDocument(String caseId, NodeRef document) {
-        String documentCurrentCaseId = (String) nodeService.getProperty(document, OpenESDHModel.PROP_OE_CASE_ID);
-        return StringUtils.equals(documentCurrentCaseId, caseId);
+    private boolean isCaseContainsDocument(NodeRef targetCaseDocumentsFolder, NodeRef documentRecFolderToCopy) {
+        return nodeService.getChildAssocs(targetCaseDocumentsFolder)
+                .stream()
+                .filter(assoc -> assoc.getChildRef().equals(documentRecFolderToCopy))
+                .findAny()
+                .isPresent();
     }
 }

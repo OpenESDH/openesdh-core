@@ -7,6 +7,8 @@ import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.transaction.TransactionService;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -37,6 +39,10 @@ public class DocumentServiceImplIT {
     public ExpectedException thrown = ExpectedException.none();
 
     @Autowired
+    @Qualifier("NodeService")
+    protected NodeService nodeService;
+
+    @Autowired
     @Qualifier("CaseService")
     protected CaseService caseService;
 
@@ -48,6 +54,10 @@ public class DocumentServiceImplIT {
     @Qualifier("DocumentService")
     protected DocumentService documentService;
 
+    @Autowired
+    @Qualifier("TransactionService")
+    protected TransactionService transactionService;
+
     private static final String TEST_FOLDER_NAME = "DocumentServiceImpIT";
     private static final String TEST_CASE_NAME1 = "TestCase1";
     private static final String TEST_CASE_NAME2 = "TestCase2";
@@ -56,9 +66,9 @@ public class DocumentServiceImplIT {
 
     private NodeRef testFolder;
     private NodeRef testCase1;
-
     private NodeRef testCase2;
     private NodeRef testDocument;
+    private NodeRef testDocumentRecFolder;
 
     @Before
     public void setUp() throws Exception {
@@ -71,7 +81,7 @@ public class DocumentServiceImplIT {
         testCase2 = docTestHelper.createCaseBehaviourOn(TEST_CASE_NAME2, testFolder, CaseHelper.DEFAULT_USERNAME);
 
         testDocument = docTestHelper.createCaseDocument(TEST_DOCUMENT_FILE_NAME, testCase1);
-        
+        testDocumentRecFolder = nodeService.getPrimaryParent(testDocument).getParentRef();
     }
 
     @After
@@ -87,7 +97,7 @@ public class DocumentServiceImplIT {
     @Test
     public void shouldMoveDocumentFromCase1ToCase2() throws Exception {
         String testCase2Id = caseService.getCaseId(testCase2);
-        documentService.moveDocumentToCase(testDocument, testCase2Id);
+        documentService.moveDocumentToCase(testDocumentRecFolder, testCase2Id);
 
         List<ChildAssociationRef> testCase1DocsList = documentService.getDocumentsForCase(testCase1);
         Assert.assertTrue("Test Case1 shouldn't contain any documents", CollectionUtils.isEmpty(testCase1DocsList));
@@ -108,7 +118,7 @@ public class DocumentServiceImplIT {
         String testCase1Id = caseService.getCaseId(testCase1);
         thrown.expect(Exception.class);
         thrown.expectMessage(DocumentService.DOCUMENT_STORED_IN_CASE_MESSAGE + testCase1Id);
-        documentService.moveDocumentToCase(testDocument, testCase1Id);
+        documentService.moveDocumentToCase(testDocumentRecFolder, testCase1Id);
     }
 
     @Test
@@ -120,7 +130,7 @@ public class DocumentServiceImplIT {
         final String testCase2Id = caseService.getCaseId(testCase2);
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
 
-        documentService.copyDocumentToCase(testDocument, testCase2Id);
+        documentService.copyDocumentToCase(testDocumentRecFolder, testCase2Id);
 
         List<ChildAssociationRef> testCase1DocsList = documentService.getDocumentsForCase(testCase1);
         Assert.assertFalse("Test case1 shouldn't be empty and should still contain documents",
@@ -151,7 +161,7 @@ public class DocumentServiceImplIT {
 
         thrown.expect(Exception.class);
         thrown.expectMessage(DocumentService.DOCUMENT_STORED_IN_CASE_MESSAGE + testCase1Id);
-        documentService.copyDocumentToCase(testDocument, testCase1Id);
+        documentService.copyDocumentToCase(testDocumentRecFolder, testCase1Id);
 
     }
 
@@ -160,10 +170,10 @@ public class DocumentServiceImplIT {
 
         final String testCase2Id = caseService.getCaseId(testCase2);
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
-        documentService.copyDocumentToCase(testDocument, testCase2Id);
+        documentService.copyDocumentToCase(testDocumentRecFolder, testCase2Id);
 
         try {
-            documentService.copyDocumentToCase(testDocument, testCase2Id);
+            documentService.copyDocumentToCase(testDocumentRecFolder, testCase2Id);
             Assert.fail("The copy document should fail here and throw an exception, since a doc with the same name exists.");
         } catch (Exception e) {
             Assert.assertTrue("Unexpected exception throw while copying document to the same case.", e.getCause()
@@ -171,5 +181,4 @@ public class DocumentServiceImplIT {
             Assert.assertTrue("The exception is thrown which is OK", true);
         }
     }
-
 }

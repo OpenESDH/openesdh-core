@@ -1,6 +1,24 @@
 package dk.openesdh.repo.services.cases;
 
-import dk.openesdh.repo.model.OpenESDHModel;
+import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
@@ -9,12 +27,28 @@ import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.permissions.PermissionReference;
 import org.alfresco.repo.security.permissions.impl.ModelDAO;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
-import org.alfresco.service.cmr.dictionary.*;
+import org.alfresco.service.cmr.action.ActionService;
+import org.alfresco.service.cmr.dictionary.AspectDefinition;
+import org.alfresco.service.cmr.dictionary.AssociationDefinition;
+import org.alfresco.service.cmr.dictionary.ClassDefinition;
+import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
+import org.alfresco.service.cmr.dictionary.DictionaryService;
+import org.alfresco.service.cmr.dictionary.PropertyDefinition;
 import org.alfresco.service.cmr.lock.LockService;
 import org.alfresco.service.cmr.lock.LockType;
-import org.alfresco.service.cmr.repository.*;
+import org.alfresco.service.cmr.repository.ChildAssociationRef;
+import org.alfresco.service.cmr.repository.ContentReader;
+import org.alfresco.service.cmr.repository.ContentService;
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.rule.RuleService;
 import org.alfresco.service.cmr.search.SearchService;
-import org.alfresco.service.cmr.security.*;
+import org.alfresco.service.cmr.security.AccessPermission;
+import org.alfresco.service.cmr.security.AccessStatus;
+import org.alfresco.service.cmr.security.AuthorityService;
+import org.alfresco.service.cmr.security.AuthorityType;
+import org.alfresco.service.cmr.security.OwnableService;
+import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
 import org.apache.commons.lang3.StringUtils;
@@ -25,14 +59,7 @@ import org.json.JSONObject;
 import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.security.access.AccessDeniedException;
 
-import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
+import dk.openesdh.repo.model.OpenESDHModel;
 
 /**
  * Created by torben on 19/08/14.
@@ -42,6 +69,8 @@ public class CaseServiceImpl implements CaseService {
     private static final String MSG_NO_CASE_CREATOR_PERMISSION_DEFINED = "security.permission.err_no_case_creator_permission_defined";
     private static final String MSG_NO_CASE_CREATOR_GROUP_DEFINED = "security.permission.err_no_case_creator_group_defined";
     private static final String MSG_CASE_CREATOR_PERMISSION_VIOLATION = "security.permission.err_case_creator_permission_violation";
+
+    private static final String ASSIGN_CASE_ID_RULE_TITLE = "Assign caseId to case documents";
 
     private static final String CASE = "Case";
     private static final String CREATOR = "Creator";
@@ -66,6 +95,9 @@ public class CaseServiceImpl implements CaseService {
     private TransactionService transactionService;
     private DictionaryService dictionaryService;
     private OwnableService ownableService;
+    private RuleService ruleService;
+    private ActionService actionService;
+
     //<editor-fold desc="Service setters">
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
@@ -113,6 +145,14 @@ public class CaseServiceImpl implements CaseService {
         this.permissionsModelDAO = permissionsModelDAO;
     }
 
+    public void setRuleService(RuleService ruleService) {
+        this.ruleService = ruleService;
+    }
+
+    public void setActionService(ActionService actionService) {
+        this.actionService = actionService;
+    }
+
     @Override
     public NodeRef getOpenESDHRootFolder() {
         NodeRef companyHomeNodeRef = repositoryHelper.getCompanyHome();
@@ -132,6 +172,7 @@ public class CaseServiceImpl implements CaseService {
         //Throw an exception. This should have been created on first boot along with the context root folder
         if (casesRootNodeRef == null)
             throw new AlfrescoRuntimeException("The openESDH \"CASES\" root folder has not been initialised.");
+
         return casesRootNodeRef;
     }
 
@@ -933,13 +974,13 @@ public class CaseServiceImpl implements CaseService {
         String caseCreatorPermissionName = getCaseCreatorPermissionForCaseType(caseTypeQName);
         if (StringUtils.isEmpty(caseCreatorPermissionName)) {
             throw new AccessDeniedException(I18NUtil.getMessage(MSG_NO_CASE_CREATOR_PERMISSION_DEFINED,
-                    caseTypeQName.toString()));
+                    caseTypeQName.getLocalName()));
         }
 
         String caseCreatorGroup = PermissionService.GROUP_PREFIX + caseCreatorPermissionName;
         if (!caseCreatorGroupExists(caseCreatorGroup)) {
             throw new AccessDeniedException(I18NUtil.getMessage(MSG_NO_CASE_CREATOR_GROUP_DEFINED,
-                    caseTypeQName.toString()));
+                    caseTypeQName.getLocalName()));
         }
 
         if (AuthenticationUtil.isRunAsUserTheSystemUser()) {
@@ -950,7 +991,7 @@ public class CaseServiceImpl implements CaseService {
 
         if (!currentUserAuthorities.contains(caseCreatorGroup)) {
             throw new AccessDeniedException(I18NUtil.getMessage(MSG_CASE_CREATOR_PERMISSION_VIOLATION,
-                    caseTypeQName.toString()));
+                    caseTypeQName.getLocalName()));
         }
     }
 
@@ -973,4 +1014,5 @@ public class CaseServiceImpl implements CaseService {
     private boolean caseCreatorGroupExists(String caseCreatorGroup) {
         return authorityService.authorityExists(caseCreatorGroup);
     }
+
 }
