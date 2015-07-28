@@ -11,6 +11,7 @@
 /* Set tge line-height of all spans in the button to be 2px greater than the standard font size */
 .alfresco-buttons-AlfButton span {
    line-height: @standard-button-font-size + 2;
+   color: @standard-button-font-color;
 }
 
 /* Convert the HEX color to RGBA so that an opacity can be set on the font color */

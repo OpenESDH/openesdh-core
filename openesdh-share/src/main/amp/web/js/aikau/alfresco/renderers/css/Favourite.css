@@ -1,8 +1,18 @@
+.alfresco-renderers-Toggle a.on.favourite,
+.alfresco-renderers-Toggle a.off.favourite {
+	width: 20px;
+	height: 20px;
+	display: inline-block;
+	padding: 0;
+}
+
 .alfresco-renderers-Toggle a.on.favourite
 {
-   background-image: url(./images/star-selected_16x16.png);
+  background: transparent url(../../../../../../openesdh/images/favourite.png) no-repeat center center;
+  
 }
 .alfresco-renderers-Toggle a.off.favourite
 {
-   background-image: url(./images/star-deselected_16x16.png);
+   background: transparent url(../../../../../../openesdh/images/favourite.png) no-repeat center center;
+   opacity: 0.5;
 }

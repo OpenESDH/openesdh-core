@@ -32,7 +32,11 @@ model.jsonModel = {
 	                        config: {
 	                            widgets: [{
 	                                id: "CASE_INFO_DASHLET",
-	                                name: "openesdh/common/widgets/dashlets/CaseInfoDashlet"
+	                                name: "openesdh/common/widgets/dashlets/CaseInfoDashlet",
+	                                config: {
+	                                	additionalCssClasses: "dashlet-case-info"
+	                                }
+	                          
 	                            }, ]
 	                        }
 	                    }, {
