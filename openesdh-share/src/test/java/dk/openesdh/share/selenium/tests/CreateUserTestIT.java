@@ -42,7 +42,7 @@ public class CreateUserTestIT extends AdminToolsPage {
     @Test
     public void createNewUserAsAdmin() {
         this.loginAsUser(User.ADMIN);
-        String newUserName = this.createAlfrescoUser(User.BOB);
+        String newUserName = this.createAlfrescoUser(User.CAROL);
     }
 
     @Test
