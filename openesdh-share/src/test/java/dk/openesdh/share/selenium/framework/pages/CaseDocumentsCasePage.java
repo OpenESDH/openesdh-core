@@ -1,7 +1,6 @@
 package dk.openesdh.share.selenium.framework.pages;
 
 import dk.magenta.share.selenium.framework.Browser;
-import dk.openesdh.share.selenium.framework.pages.BasePage;
 
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
@@ -9,7 +8,7 @@ import org.openqa.selenium.support.FindBy;
 
 import java.util.List;
 
-public class CaseDocumentsPage extends BasePage {
+public class CaseDocumentsCasePage extends BaseCasePage {
     private static final String URL = BASE_URL + "/page/oe/case/@@ID@@/documents";
 
     /**

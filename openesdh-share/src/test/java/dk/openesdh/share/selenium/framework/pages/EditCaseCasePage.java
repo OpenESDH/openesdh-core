@@ -1,19 +1,11 @@
 package dk.openesdh.share.selenium.framework.pages;
 
 import dk.magenta.share.selenium.framework.Browser;
-import dk.openesdh.share.selenium.framework.pages.BasePage;
 
-import org.openqa.selenium.By;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.ui.ExpectedConditions;
-import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.util.List;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-public class EditCasePage extends BasePage {
+public class EditCaseCasePage extends BaseCasePage {
     private static final String URL = BASE_URL + "/page/edit-metadata";
 
 @FindBy(id = "template_x002e_edit-metadata_x002e_edit-metadata_x0023_default_prop_cm_title")

@@ -78,7 +78,9 @@ public class CaseHelper {
 
     @Autowired
     private CaseService caseService;
+    //</editor-fold>
 
+    //<editor-fold desc="Service setters">
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
     }
