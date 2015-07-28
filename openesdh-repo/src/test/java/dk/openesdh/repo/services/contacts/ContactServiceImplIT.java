@@ -91,19 +91,10 @@ public class ContactServiceImplIT {
         }
     }
 
-    @Test
-    public void shouldCreatePersonContactEmailPropOnly() {
-        createContactAssertNotNullCheckEmail(TEST_PERSON_CONTACT_EMAIL, ContactType.PERSON);
-    }
-
-    @Test
-    public void shouldCreateOrgContactEmailPropOnly() {
-        createContactAssertNotNullCheckEmail(TEST_PERSON_CONTACT_EMAIL, ContactType.ORGANIZATION);
-    }
-
     private void createContactAssertNotNullCheckEmail(String email, ContactType contactType) {
+        HashMap<QName, Serializable> typeProps = createPersonContactProps();
         testContactNodeRef = transactionHelper().doInTransaction(
-                () -> contactService.createContact(email, contactType.name()));
+                () -> contactService.createContact(email, contactType.name(), typeProps));
         Assert.assertNotNull("A node ref of the created contact should not be null", testContactNodeRef);
 
         String createdContactEmail = nodeService.getProperty(testContactNodeRef, OpenESDHModel.PROP_CONTACT_EMAIL)

@@ -60,11 +60,9 @@ public class ContactInfo implements PermissionCheckValue {
         }
 
         StringJoiner sj = new StringJoiner(" ");
-
+        //First and last names are mandatory in a Person
         Serializable firstName = this.allProps.get(OpenESDHModel.PROP_CONTACT_FIRST_NAME);
-        if (firstName != null) {
-            sj.add(firstName.toString());
-        }
+        sj.add(firstName.toString());
 
         Serializable middleName = this.allProps.get(OpenESDHModel.PROP_CONTACT_MIDDLE_NAME);
         if (middleName != null) {
@@ -72,12 +70,9 @@ public class ContactInfo implements PermissionCheckValue {
         }
 
         Serializable lastName = this.allProps.get(OpenESDHModel.PROP_CONTACT_LAST_NAME);
-        if (lastName != null) {
-            sj.add(lastName.toString());
-        }
+        sj.add(lastName.toString());
 
         return sj.toString();
-
     }
 
     public String getStreetName() {
