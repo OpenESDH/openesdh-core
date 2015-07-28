@@ -144,7 +144,7 @@ public class LastModifiedByMeSearchServiceImplIT {
         });
     }
 
-    @Test
+    //@Test
     public void testGetNodes() {
 
         Map<String, String> params = new HashMap();
