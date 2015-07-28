@@ -47,7 +47,7 @@ function getPartiesHeadingWidgets(){
             widgets: [
                 {
                     name: "alfresco/menus/AlfMenuBarPopup",
-                    id: "CASE_MEMBERS_ADD_AUTHORITIES",
+                    id: "CASE_PARTIES_ADD_PARTY",
                     config: {
                         label: msg.get("case-parties.invite-people"),
                         widgets: addAuthorityToRoleDropdownItems,

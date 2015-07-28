@@ -2,10 +2,9 @@ package dk.openesdh.share.selenium.framework.pages;
 
 
 import dk.magenta.share.selenium.framework.Browser;
-import dk.openesdh.share.selenium.framework.pages.BasePage;
 import dk.openesdh.share.selenium.framework.enums.User;
 
-public class DashboardPage extends BasePage {
+public class DashboardCasePage extends BaseCasePage {
 
 
     /**
@@ -14,7 +13,7 @@ public class DashboardPage extends BasePage {
      * @return
      */
     public boolean isAt(User user) {
-        String userURL = BASE_URL + "/page/user/" + user.username() + "/dashboard";
+        String userURL = BASE_URL + "/page/user/" + user.userName() + "/dashboard";
 
         return userURL.equals(Browser.Driver.getCurrentUrl());
     }
@@ -24,7 +23,7 @@ public class DashboardPage extends BasePage {
      * @param user
      */
     public void gotoPage(User user) {
-        String userURL = BASE_URL + "/page/user/" + user.username() + "/dashboard";
+        String userURL = BASE_URL + "/page/user/" + user.userName() + "/dashboard";
         Browser.open(userURL);
     }
 

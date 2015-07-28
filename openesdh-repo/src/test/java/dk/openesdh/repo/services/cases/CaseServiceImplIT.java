@@ -61,6 +61,10 @@ import dk.openesdh.repo.model.OpenESDHModel;
 public class CaseServiceImplIT {
 
     //<editor-fold desc="Injected Autowired services">
+    //    private static final String ADMIN_USER_NAME = "admin";
+    private static final String USER_NAME_1 = "abeecher";
+    private static final String USER_NAME_2 = "mjackson";
+
     @Autowired
     @Qualifier("NodeService")
     protected NodeService nodeService;

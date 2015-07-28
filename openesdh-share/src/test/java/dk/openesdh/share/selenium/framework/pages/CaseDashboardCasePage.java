@@ -5,7 +5,7 @@ import org.openqa.selenium.Alert;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.FindBy;
 
-public class CaseDashboardPage extends BasePage {
+public class CaseDashboardCasePage extends BaseCasePage {
 
     public static final String URL = BASE_URL + "/page/oe/case/@@ID@@/dashboard";
 

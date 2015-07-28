@@ -22,30 +22,29 @@ public enum User {
     INVALID("invalid", "invalid", "", ""), // This user should *NOT* be made
     NONE("", "", "", "");	// This is a blank user for special cases
 
-    private final String username;
+    private final String userName;
     private final String password;
     private final String firstName;
     private final String lastName;
 
     private static final Map<String, User> fullnameStringToEnum = new HashMap<String, User>();
-
     static {
         for(User user : values()) {
             fullnameStringToEnum.put(user.fullName(), user);
         }
     }
 
-    private User(final String newUsername,
+    private User(final String newUserName,
                  final String newPassword,
                  final String newFirstName,
                  final String newLastName) {
-        this.username = newUsername;
+        this.userName = newUserName;
         this.password = newPassword;
         this.firstName = newFirstName;
         this.lastName = newLastName;
     }
 
-    public String username() { return username; }
+    public String userName() { return userName; }
     public String password() { return password; }
     public String firstName() { return firstName; }
     public String lastName() { return lastName; }
