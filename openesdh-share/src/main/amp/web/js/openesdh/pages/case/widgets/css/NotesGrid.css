@@ -2,16 +2,25 @@
     padding: .5em;
 }
 
+.NotesGrid .note-meta {
+	font-size: 11px;
+	margin-top: 5px;
+}
+
 .NotesGrid .note-header .created {
     display: block;
     float: left;
-    font-weight: bold;
     margin-right: 1em;
+    color: @de-emphasized-font-color;
 }
 
 .NotesGrid .note-header .author {
     display: block;
     margin-left: 13em;
+}
+
+.NotesGrid .note-header .author a {
+	color: @de-emphasized-font-color;
 }
 
 .NotesGrid .note-content {
