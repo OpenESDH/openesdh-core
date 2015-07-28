@@ -1,5 +1,20 @@
+.NotesGrid .dgrid {
+	border: none;	
+	height: 15em;
+}
+
 .NotesGrid .dgrid-row {
-    padding: .5em;
+    padding: .5em 10px;
+}
+
+.NotesGrid .dgrid-header, 
+.NotesGrid .dgrid-header-row, 
+.NotesGrid .dgrid-footer {
+	background-color: white;
+}
+
+.NotesGrid  .dgrid-scroller {
+	overflow-y: auto;
 }
 
 .NotesGrid .note-meta {
