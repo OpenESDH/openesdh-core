@@ -1,0 +1,58 @@
+.alfresco-renderers-Property {
+   color: @general-font-color;
+   font-size: @normal-font-size;
+   line-height: ceil(@normal-font-size/@standard-line-height) * @standard-line-height;
+   &.has-max-width {
+      display: inline-block;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+   }
+   &.alfresco-renderers-Property.block {
+      display: block;
+   }
+   &.alfresco-renderers-Property.deemphasized > span {
+      color: @de-emphasized-font-color;
+   }
+   &.faded {
+      color: @de-emphasized-font-color;
+   }
+   &.small {
+      font-size: @small-font-size;
+      line-height: ceil(@small-font-size/@standard-line-height) * @standard-line-height;
+   }
+   &.medium {
+      font-size: @normal-font-size;
+      line-height: ceil(@normal-font-size/@standard-line-height) * @standard-line-height;
+   }
+   &.large {
+      font-family: @bold-font;
+      font-size: @large-font-size;
+      line-height: ceil(@normal-font-size/@standard-line-height) * @standard-line-height;
+   }
+   &.pointer {
+      cursor: pointer;
+   }
+   > span {
+      color: @general-font-color;
+   }
+   .hidden {
+      display: none;
+   }
+   span.value > a {
+      color: @general-font-color;
+      cursor: pointer;
+      text-decoration: none;
+   }
+}
+
+.alfresco-lists-views-layout-_MultiItemRendererMixin--item {
+   .alfresco-renderers-Property.hover-only > span.inner {
+      visibility: hidden;
+   }
+   &:hover {
+      .alfresco-renderers-Property.hover-only > span.inner {
+         visibility: visible;
+      }
+   }
+}

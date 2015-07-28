@@ -53,10 +53,10 @@ define(["dojo/_base/declare",
             renderRow: function(item, options) {
                 var div = put('div');
                 // TODO: Use widgets instead to render values
-                div.innerHTML = '<div class="note-header"><span class="created">'
+                div.innerHTML = '<div class="note-header"><div class="note-content">' 
+                	+ this.encodeHTML(item.content) + '</div><div class="note-meta"><span class="created">'
                     + this._formatDateTime(item.created) + '</span><span class="author">'
-                    + this.renderUser(item.author) + '</span></div>' +
-                    '<div class="note-content">' + this.encodeHTML(item.content) + '</div>';
+                    + this.renderUser(item.author) + '</span></div></div>';
                 return div;
             },
 

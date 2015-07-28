@@ -1,3 +1,10 @@
 .block {
     display: block;
 }
+
+.table-like {
+	display: table;
+	> span {
+		display: table-cell;
+	}
+}

@@ -43,47 +43,46 @@ define(["dojo/_base/declare", "alfresco/core/Core",
              * @default [{i18nFile: "./i18n/NotesDashlet.properties"}]
              */
             i18nRequirements: [{i18nFile: "./i18n/NotesDashlet.properties"}],
-
-            widgetsForTitleBarActions: [
-                {
-                    name: "alfresco/buttons/AlfButton",
-                    config: {
-                        iconClass: "add-icon-16",
-                        label: I18nUtils.msg(i18nScope, "notes.button.label.add"),
-                        publishTopic: "ALF_CREATE_FORM_DIALOG_REQUEST",
-                        publishPayload: {
-                            i18nScope: "openesdh.dashlet.NotesDashlet",
-                            dialogTitle: I18nUtils.msg(i18nScope, "notes.add.dialog.title"),
-                            dialogConfirmationButtonTitle: I18nUtils.msg(i18nScope, "notes.form.add.label"),
-                            dialogCancellationButtonTitle: I18nUtils.msg(i18nScope, "notes.form.cancel.label"),
-                            formSubmissionTopic: "ALF_CRUD_CREATE",
-                            formSubmissionPayloadMixin: {
-                                // Refresh the notes list
-                                pubSubScope: "OPENESDH_NOTES_DASHLET",
-                                alfResponseTopic: "OPENESDH_NOTES_DASHLETALF_CRUD_CREATE"
-                            },
-                            widgets: [
-                                {
-                                    name: "alfresco/forms/controls/DojoTextarea",
-                                    config: {
-                                        //label: "Content",
-                                        name: "content"
-                                    }
-                                }
-                            ]
-                        },
-                        visibilityConfig: {
-                            initialValue: false,
-                            rules: [
-                                {
-                                    topic: "CASE_INFO",
-                                    attribute: "isJournalized",
-                                    is: [false]
-                                }
-                            ]
-                        }
-                    }
-                }
+            
+            widgetsForFooterBarActions: [
+              {
+                  name: "alfresco/buttons/AlfButton",
+                  config: {
+                      label: I18nUtils.msg(i18nScope, "comments.button.label.new"),
+                      publishTopic: "ALF_CREATE_FORM_DIALOG_REQUEST",
+                      publishPayload: {
+                          i18nScope: "openesdh.dashlet.NotesDashlet",
+                          dialogTitle: I18nUtils.msg(i18nScope, "notes.add.dialog.title"),
+                          dialogConfirmationButtonTitle: I18nUtils.msg(i18nScope, "notes.form.add.label"),
+                          dialogCancellationButtonTitle: I18nUtils.msg(i18nScope, "notes.form.cancel.label"),
+                          formSubmissionTopic: "ALF_CRUD_CREATE",
+                          formSubmissionPayloadMixin: {
+                              // Refresh the notes list
+                              pubSubScope: "OPENESDH_NOTES_DASHLET",
+                              alfResponseTopic: "OPENESDH_NOTES_DASHLETALF_CRUD_CREATE"
+                          },
+                          widgets: [
+                              {
+                                  name: "alfresco/forms/controls/DojoTextarea",
+                                  config: {
+                                      //label: "Content",
+                                      name: "content"
+                                  }
+                              }
+                          ]
+                      },
+                      visibilityConfig: {
+                          initialValue: false,
+                          rules: [
+                              {
+                                  topic: "CASE_INFO",
+                                  attribute: "isJournalized",
+                                  is: [false]
+                              }
+                          ]
+                      }
+                  }
+              }
             ],
 
             widgetsForBody: [
@@ -98,7 +97,7 @@ define(["dojo/_base/declare", "alfresco/core/Core",
 
             constructor: function (args) {
                 lang.mixin(this, args);
-                this.widgetsForTitleBarActions[0].config.publishPayload.formSubmissionPayloadMixin.url = "api/openesdh/node/" + NodeUtils.processNodeRef(this.nodeRef).uri + "/notes";
+                this.widgetsForFooterBarActions[0].config.publishPayload.formSubmissionPayloadMixin.url = "api/openesdh/node/" + NodeUtils.processNodeRef(this.nodeRef).uri + "/notes";
                 this.widgetsForBody[0].config.nodeRef = this.nodeRef;
             }
         });
