@@ -44,52 +44,38 @@ define(["dojo/_base/declare", "alfresco/core/Core",
              */
             i18nRequirements: [{i18nFile: "./i18n/NotesDashlet.properties"}],
             
-            widgetsForFooterBarActions: [
-              {
-                  name: "alfresco/buttons/AlfButton",
-                  config: {
-                      label: I18nUtils.msg(i18nScope, "comments.button.label.new"),
-                      publishTopic: "ALF_CREATE_FORM_DIALOG_REQUEST",
-                      publishPayload: {
-                          i18nScope: "openesdh.dashlet.NotesDashlet",
-                          dialogTitle: I18nUtils.msg(i18nScope, "notes.add.dialog.title"),
-                          dialogConfirmationButtonTitle: I18nUtils.msg(i18nScope, "notes.form.add.label"),
-                          dialogCancellationButtonTitle: I18nUtils.msg(i18nScope, "notes.form.cancel.label"),
-                          formSubmissionTopic: "ALF_CRUD_CREATE",
-                          formSubmissionPayloadMixin: {
-                              // Refresh the notes list
-                              pubSubScope: "OPENESDH_NOTES_DASHLET",
-                              alfResponseTopic: "OPENESDH_NOTES_DASHLETALF_CRUD_CREATE"
-                          },
-                          widgets: [
-                              {
-                                  name: "alfresco/forms/controls/DojoTextarea",
-                                  config: {
-                                      //label: "Content",
-                                      name: "content"
-                                  }
-                              }
-                          ]
-                      },
-                      visibilityConfig: {
-                          initialValue: false,
-                          rules: [
-                              {
-                                  topic: "CASE_INFO",
-                                  attribute: "isJournalized",
-                                  is: [false]
-                              }
-                          ]
-                      }
-                  }
-              }
-            ],
+//            widgetsForFooterBarActions: [
+//              {
+//                  name: "alfresco/buttons/AlfButton",
+//                  config: {
+//                      label: I18nUtils.msg(i18nScope, "comments.button.label.new"),
+//                      publishTopic: "OPENESDH_NOTES_DASHLET_OPENESDH_CASE_COMMENTS_NEW",
+//                      visibilityConfig: {
+//                          initialValue: false,
+//                          rules: [
+//                              {
+//                                  topic: "CASE_INFO",
+//                                  attribute: "isJournalized",
+//                                  is: [false]
+//                              }
+//                          ]
+//                      }
+//                  }
+//              },
+//              {
+//                  name: "alfresco/buttons/AlfButton",
+//                  config: {
+//                      label: I18nUtils.msg(i18nScope, "comments.button.label.print.all"),
+//                      publishTopic: "OPENESDH_CASE_COMMENTS_PRINT_ALL"
+//                  }
+//              }
+//            ],
 
             widgetsForBody: [
                 {
                     name: "openesdh/pages/case/widgets/NotesGrid",
                     config: {
-                        pubSubScope: "OPENESDH_NOTES_DASHLET",
+                        pubSubScope: "OPENESDH_NOTES_DASHLET_",
                         gridRefreshTopic: "ALF_CRUD_CREATE_SUCCESS",
                     }
                 }
@@ -97,8 +83,47 @@ define(["dojo/_base/declare", "alfresco/core/Core",
 
             constructor: function (args) {
                 lang.mixin(this, args);
-                this.widgetsForFooterBarActions[0].config.publishPayload.formSubmissionPayloadMixin.url = "api/openesdh/node/" + NodeUtils.processNodeRef(this.nodeRef).uri + "/notes";
+                //this.widgetsForFooterBarActions[0].config.publishPayload.formSubmissionPayloadMixin.url = "api/openesdh/node/" + NodeUtils.processNodeRef(this.nodeRef).uri + "/notes";
                 this.widgetsForBody[0].config.nodeRef = this.nodeRef;
+                this.alfSubscribe("OPENESDH_NOTES_DASHLET_OPENESDH_CASE_COMMENTS_NEW", lang.hitch(this, "_NewCaseComment"));
+            },
+            
+            _NewCaseComment: function(){
+                this.alfPublish("ALF_CREATE_FORM_DIALOG_REQUEST", {
+                    i18nScope: "openesdh.dashlet.NotesDashlet",
+                    dialogTitle: I18nUtils.msg(i18nScope, "notes.add.dialog.title"),
+                    dialogConfirmationButtonTitle: I18nUtils.msg(i18nScope, "notes.form.add.label"),
+                    dialogCancellationButtonTitle: I18nUtils.msg(i18nScope, "notes.form.cancel.label"),
+                    formSubmissionTopic: "ALF_CRUD_CREATE",
+                    formSubmissionPayloadMixin: {
+                        // Refresh the notes list
+                        url: NodeUtils.processNodeRef(this.nodeRef).uri + "/notes",
+                        pubSubScope: "OPENESDH_NOTES_DASHLET",
+                        alfResponseTopic: "OPENESDH_NOTES_DASHLETALF_CRUD_CREATE"
+                    },
+                    widgets: [{
+                            name: "alfresco/forms/controls/TextBox",
+                            config: {
+                                label: I18nUtils.msg(i18nScope, "comments.form.headline.label"),
+                                name: "headline" 
+                            }
+                        },
+                        {
+                            name: "alfresco/forms/controls/TextBox",
+                            config: {
+                                label: I18nUtils.msg(i18nScope, "comments.form.parties.label"),
+                                name: "relatedParties" 
+                            }
+                        },
+                        {
+                            name: "alfresco/forms/controls/DojoTextarea",
+                            config: {
+                                label: I18nUtils.msg(i18nScope, "comments.form.content.label"),
+                                name: "content"
+                            }
+                        }
+                    ]
+                });
             }
         });
     });

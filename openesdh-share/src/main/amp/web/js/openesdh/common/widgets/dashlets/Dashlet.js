@@ -2,8 +2,9 @@ define(["dojo/_base/declare",
         "dojo/text!./templates/Dashlet.html",
         "alfresco/dashlets/Dashlet",
         "openesdh/pages/case/widgets/_DocumentGridUploadMixin",
-        "dojo/_base/lang"],
-    function(declare, template, Dashlet, _DocumentGridUploadMixin, lang) {
+        "dojo/_base/lang",
+        "dojo/dom-style",],
+    function(declare, template, Dashlet, _DocumentGridUploadMixin, lang, domStyle) {
 
         return declare([Dashlet, _DocumentGridUploadMixin], {
             /**
@@ -57,6 +58,10 @@ define(["dojo/_base/declare",
                 if(this.allowDnD){
                     this.subscribeToCurrentNodeChanges(this.domNode);
                     this.addUploadDragAndDrop(this.domNode);
+                }
+                
+                if(!this.widgetsForFooterBarActions || this.widgetsForFooterBarActions.length == 0){
+                    domStyle.set(this.footerBarActionsNode, "display", "none");
                 }
             }
 

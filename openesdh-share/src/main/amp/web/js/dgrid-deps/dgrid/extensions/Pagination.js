@@ -82,12 +82,17 @@ function(_StoreMixin, declare, arrayUtil, lang, Deferred, on, query, string, has
 			var grid = this,
 				paginationNode = this.paginationNode =
 					put(this.footerNode, "div.dgrid-pagination"),
-				statusNode = this.paginationStatusNode =
-					put(paginationNode, "div.dgrid-status"),
 				i18n = this.i18nPagination,
 				navigationNode,
 				node,
 				i;
+
+			if(this.renderPagingActions){
+                this.renderPagingActions(this.paginationNode);
+            }
+			
+			var statusNode = this.paginationStatusNode =
+                put(paginationNode, "div.dgrid-status");
 			
 			statusNode.tabIndex = 0;
 			

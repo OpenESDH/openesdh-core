@@ -7,9 +7,10 @@ define(["dojo/_base/declare",
         "dojo/on",
         'put-selector/put',
         "alfresco/core/NodeUtils",
-        "alfresco/core/ObjectTypeUtils"
+        "alfresco/core/ObjectTypeUtils",
+        "alfresco/core/I18nUtils"
     ],
-    function(declare, DGrid, lang, on, put, NodeUtils, ObjectTypeUtils) {
+    function(declare, DGrid, lang, on, put, NodeUtils, ObjectTypeUtils, I18nUtils) {
         return declare([DGrid], {
             cssRequirements: [
                 {cssFile: "./css/NotesGrid.css"}
@@ -21,16 +22,36 @@ define(["dojo/_base/declare",
 
             noDataMessage: "notes.grid.no_data_message",
 
-            showPagination: false,
+            showPagination: true,
             showColumnHider: false,
             allowColumnReorder: false,
             showHeader: false,
+            pageSizeOptions: null,
 
             additionalCssClasses: 'NotesGrid',
 
             // TODO: Remove this and use Property widget instead
             nonAmdDependencies: ["/js/yui-common.js",
                                  "/js/alfresco.js"],
+                                 
+           pagingActions: [
+                       {"callback" : "onNewComment",
+                           "id" : "comment-new",
+                           "label" : "comments.button.label.new",
+                       },
+                       {"callback" : "onPrintAllComments",
+                           "id" : "comment-print",
+                           "label" : "comments.button.label.print.all",
+                       }],
+                       
+           onNewComment: function(){
+               this.alfPublish("OPENESDH_CASE_COMMENTS_NEW");
+           },
+           
+           onPrintAllComments: function(){
+               this.alfPublish("OPENESDH_CASE_COMMENTS_PRINT_ALL");
+           },
+                                 
             // TODO: Remove this and use Property widget instead
             renderUser: function (property) {
                 var value = "";
