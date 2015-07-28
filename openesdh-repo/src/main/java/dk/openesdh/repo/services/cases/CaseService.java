@@ -243,7 +243,9 @@ public interface CaseService {
     Map<String, Object> getSearchDefinition(QName caseType);
 
     public JSONArray buildConstraintsJSON(ConstraintDefinition constraint) throws JSONException;
+
     public void checkCaseCreatorPermissions(QName caseTypeQName);
+
     /**
      * Get current user permissions for the case
      *
