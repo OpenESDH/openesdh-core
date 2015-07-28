@@ -33,7 +33,7 @@ public class CreateUserTestIT extends AdminToolsPage {
     @FindBy(name ="-" )
     WebElement userSearchBoxInput;
 
-    @FindBy(xpath="//button[contains(text(),'Search')]")
+    @FindBy(xpath="//button[contains(text(),'Search') or contains(text(),'Søg') ]")
     WebElement defUserSearchButton;
 
     WebDriver driver = Browser.Driver;
@@ -49,7 +49,6 @@ public class CreateUserTestIT extends AdminToolsPage {
     public void deleteUserAsAdmin() {
         this.loginAsUser(User.ADMIN);
         this.gotoAdminConsoleAppPage("users");
-        WebElement userSearchButton = driver.findElement(By.cssSelector("[id$=_default-search-button-button]"));
 
         String newUserName = this.createAlfrescoUser(User.CAROL);
         userSearchBoxInput.clear();
