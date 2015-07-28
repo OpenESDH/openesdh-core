@@ -144,9 +144,6 @@ public class LastModifiedByMeSearchServiceImplIT {
         });
     }
 
-
-
-
     @Test
     public void testGetNodes() {
 

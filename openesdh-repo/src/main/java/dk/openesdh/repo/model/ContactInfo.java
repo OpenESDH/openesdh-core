@@ -2,6 +2,7 @@ package dk.openesdh.repo.model;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.StringJoiner;
 
 import org.alfresco.repo.security.permissions.PermissionCheckValue;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -54,10 +55,24 @@ public class ContactInfo implements PermissionCheckValue {
     }
 
     public String getName(){
-        if( this.type.equalsIgnoreCase("PERSON"))
-            return this.allProps.get(OpenESDHModel.PROP_CONTACT_FIRST_NAME) +" " +this.allProps.get(OpenESDHModel.PROP_CONTACT_LAST_NAME);
-        else
+        if (!this.type.equalsIgnoreCase("PERSON")) {
             return (String) this.allProps.get(OpenESDHModel.PROP_CONTACT_ORGANIZATION_NAME);
+        }
+
+        StringJoiner sj = new StringJoiner(" ");
+        //First and last names are mandatory in a Person
+        Serializable firstName = this.allProps.get(OpenESDHModel.PROP_CONTACT_FIRST_NAME);
+        sj.add(firstName.toString());
+
+        Serializable middleName = this.allProps.get(OpenESDHModel.PROP_CONTACT_MIDDLE_NAME);
+        if (middleName != null) {
+            sj.add(middleName.toString());
+        }
+
+        Serializable lastName = this.allProps.get(OpenESDHModel.PROP_CONTACT_LAST_NAME);
+        sj.add(lastName.toString());
+
+        return sj.toString();
     }
 
     public String getStreetName() {
@@ -85,14 +100,8 @@ public class ContactInfo implements PermissionCheckValue {
     }
 
     //Some other common properties that we might want to access on a regular basis when working with contacts
-    public String getCPRNumber(){
-        return getStringProp(OpenESDHModel.PROP_CONTACT_CPR_NUMBER);
-    }
-    public String getCVRNumber(){
-        return getStringProp(OpenESDHModel.PROP_CONTACT_CVR_NUMBER);
-    }
-    public boolean isRegistered(){
-        return (boolean)this.allProps.get(OpenESDHModel.PROP_CONTACT_REGISTERED);
+    public String getIDNumebr(){
+       return this.type.equalsIgnoreCase("PERSON") ?  getStringProp(OpenESDHModel.PROP_CONTACT_CPR_NUMBER): getStringProp(OpenESDHModel.PROP_CONTACT_CVR_NUMBER);
     }
     public boolean isInternal(){
         return (boolean)this.allProps.get(OpenESDHModel.PROP_CONTACT_INTERNAL) && (boolean)this.allProps.get(OpenESDHModel.PROP_CONTACT_REGISTERED);
@@ -101,7 +110,6 @@ public class ContactInfo implements PermissionCheckValue {
     private String getStringProp(QName qName) {
         return (String) this.allProps.get(qName);
     }
-
     private String getIntPropString(QName qName) {
         Integer value = (Integer) this.allProps.get(qName);
         if(value != null){

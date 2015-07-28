@@ -22,13 +22,10 @@ public interface ContactService {
      */
     public static final String CONTACT_PREFIX = "CONTACT_";
 
-
     /**
      * The CONTACTs zone.
      */
     public static String ZONE_CONTACT = "CONTACT.STORE";
-
-
 
     /**
      * Get the noderef for the storage folder.
@@ -50,14 +47,6 @@ public interface ContactService {
      * @return Map of the address props
      */
     public Map<QName,Serializable> getAddress(NodeRef contactRef);
-
-    /**
-     *
-     * @param email
-     * @param type - Constrained to PERSON or ORGANIZATION.
-     * @return the NodeRef of the newly created contact.
-     */
-    public NodeRef createContact(String email, String type);
 
     /**
      *

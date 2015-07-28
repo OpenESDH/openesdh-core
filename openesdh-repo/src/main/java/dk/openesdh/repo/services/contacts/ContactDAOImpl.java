@@ -36,20 +36,13 @@ public class ContactDAOImpl {
     private static final String contactsRoot = "sys:contacts";
 
     NodeRef createContact(String email, String contactType, HashMap<QName, Serializable> typeProps,  Set<String>  authorityZones) {
-
-        HashMap<QName, Serializable> props = new HashMap<QName, Serializable>();
-        props.put(ContentModel.PROP_NAME, DigestUtils.md5Hex(email));
-
-        if (typeProps != null) {
-            props.putAll(typeProps);
-        }
-
+        typeProps.put(ContentModel.PROP_NAME, DigestUtils.md5Hex(email));
         QName cType = contactType.equalsIgnoreCase("organization")? OpenESDHModel.TYPE_CONTACT_ORGANIZATION : OpenESDHModel.TYPE_CONTACT_PERSON;
 
         NodeRef childRef;
         NodeRef authorityContainerRef = getAuthorityContainerRef();
         childRef = nodeService.createNode(authorityContainerRef, ContentModel.ASSOC_CHILDREN, QName.createQName("cm", email, namespacePrefixResolver),
-                cType, props).getChildRef();
+                cType, typeProps).getChildRef();
         //TODO NOTE - Look at org.alfresco.repo.security.authority.AuthorityDAOImpl lines 379 - 391 to add the authority to zones. (Currently an issue)
 
         return childRef;

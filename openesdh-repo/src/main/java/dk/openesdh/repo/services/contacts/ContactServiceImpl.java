@@ -62,11 +62,6 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public NodeRef createContact(String email, String type) {
-        return createContact(email, type, null, DEFAULT_ZONES);
-    }
-
-    @Override
     public NodeRef createContact(String email, String type, HashMap<QName, Serializable> properties) {
         return createContact(email, type, properties, DEFAULT_ZONES);
     }
