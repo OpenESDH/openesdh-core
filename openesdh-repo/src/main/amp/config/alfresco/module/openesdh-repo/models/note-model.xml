@@ -9,6 +9,7 @@
         <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>
         <import uri="http://www.alfresco.org/model/system/1.0" prefix="sys"/>
         <import uri="http://openesdh.dk/model/openesdh/1.0/" prefix="oe"/>
+        <import uri="http://openesdh.dk/model/contact/1.0/" prefix="contact" />
     </imports>
     <namespaces>
         <namespace uri="http://openesdh.dk/model/note/1.0/" prefix="note"/>
@@ -36,9 +37,21 @@
                     </index>
                 </property>
             </properties>
+            <associations>
+	            <association name="note:concernedParties">
+	                <source>
+	                    <mandatory>false</mandatory>
+	                    <many>true</many>
+	                </source>
+	                <target>
+	                    <class>contact:base</class>
+	                    <mandatory>false</mandatory>
+	                    <many>true</many>
+	                </target>
+	            </association>
+            </associations>
             <mandatory-aspects>
                 <aspect>cm:author</aspect>
-                <aspect>oe:partied</aspect>
             </mandatory-aspects>
         </type>
     </types>

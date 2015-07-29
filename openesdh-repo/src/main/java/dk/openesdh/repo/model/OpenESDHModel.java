@@ -98,6 +98,8 @@ public interface OpenESDHModel {
 
     public static final QName ASSOC_NOTE_NOTES = QName.createQName(NOTE_URI, "notes");
 
+    public static final QName ASSOC_NOTE_CONCERNED_PARTIES = QName.createQName(NOTE_URI, "concernedParties");
+
     /**
      * Properties
      */
@@ -158,6 +160,7 @@ public interface OpenESDHModel {
     public static final QName PROP_CONTACT_REGISTERED = QName.createQName (CONTACT_URI, "registered");
     public static final QName PROP_CONTACT_INTERNAL = QName.createQName (CONTACT_URI, "internal");
 
+    public static final QName PROP_NOTE_HEADLINE = QName.createQName(NOTE_URI, "headline");
     public static final QName PROP_NOTE_CONTENT = QName.createQName(NOTE_URI, "content");
     public static final QName PROP_ATTACHMENT_COUNT = QName.createQName(DOC_URI, "attachmentCount");
 

@@ -46,6 +46,7 @@ model.jsonModel = {
                                     id: "CASE_NOTES_DASHLET",
                                     name: "openesdh/common/widgets/dashlets/NotesDashlet",
                                     config: {
+                                        caseId: caseId,
                                         nodeRef: caseNodeRef,
                                         isReadOnly: isReadOnly
                                     }

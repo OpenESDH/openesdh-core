@@ -1,33 +1,27 @@
 package dk.openesdh.repo.webscripts.notes;
 
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.notes.NoteService;
-import dk.openesdh.repo.webscripts.AbstractRESTWebscript;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.service.cmr.repository.ChildAssociationRef;
-import org.alfresco.service.cmr.repository.DuplicateChildNodeNameException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PersonService;
-import org.alfresco.service.namespace.NamespaceService;
-import org.alfresco.service.namespace.QName;
-import org.alfresco.service.namespace.QNamePattern;
-import org.alfresco.service.namespace.RegexQNamePattern;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.JSONTokener;
-import org.springframework.extensions.webscripts.AbstractWebScript;
-import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.*;
+import dk.openesdh.repo.model.Note;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.notes.NoteService;
+import dk.openesdh.repo.webscripts.AbstractRESTWebscript;
+import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 public class Notes extends AbstractRESTWebscript {
     private NodeService nodeService;
@@ -59,40 +53,31 @@ public class Notes extends AbstractRESTWebscript {
 //        int pageSize = req.getParameter("pageSize ") != null ?
 //                Integer.valueOf(req.getParameter("pageSize ")) : 10;
 
-        List<NodeRef> nodeRefs = noteService.getNotes(nodeRef);
+        // List<NodeRef> nodeRefs = noteService.getNotes(nodeRef);
+
+        List<Note> notes = noteService.getObjectNotes(nodeRef);
 
         if (reverse) {
-            Collections.reverse(nodeRefs);
+            Collections.reverse(notes);
         }
 
-        int resultsEnd = nodeRefs.size();
+        int resultsEnd = notes.size();
         int startIndex = 0;
-        res.setHeader("Content-Range", "items " + startIndex +
-                "-" + resultsEnd + "/" + nodeRefs.size());
-
+        res.setHeader("Content-Range", "items " + startIndex + "-" + resultsEnd + "/" + notes.size());
         res.setContentEncoding("UTF-8");
-        try {
-            JSONArray json = buildJSON(nodeRefs);
-            json.write(res.getWriter());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        WebScriptUtils.writeJson(notes, res);
+
     }
 
     @Override
     protected void post(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
-        JSONObject jsonReq = new JSONObject(new JSONTokener(req.getContent().getContent()));
-        String content = jsonReq.getString("content");
-        String author = AuthenticationUtil.getFullyAuthenticatedUser();
+        Note note = (Note) WebScriptUtils.readJson(Note.class, req);
+        note.setAuthor(AuthenticationUtil.getFullyAuthenticatedUser());
+        NodeRef noteNodeRef = noteService.createNote(note);
 
-        NodeRef noteNodeRef = noteService.createNote(nodeRef, content, author);
+        note.setNodeRef(noteNodeRef);
         res.setContentEncoding("UTF-8");
-        try {
-            JSONObject json = buildJSON(noteNodeRef);
-            json.write(res.getWriter());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        WebScriptUtils.writeJson(noteNodeRef, res);
     }
 
     @Override
