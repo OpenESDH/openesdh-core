@@ -1,14 +1,32 @@
-.dgrid-status {
-	padding: 2px;
+.dgrid-pagination {
+  padding: 0 10px;
 }
 
-.dgrid-pagination .dgrid-status {
+.dgrid-pagination {
+	float: right;
+}
+
+.dgrid-pagination-actions {
 	float: left;
 }
 
-.dgrid-pagination .dgrid-navigation, .dgrid-pagination .dgrid-page-size {
-	float: right;
+.dgrid-pagination-actions > a {
+	font-size: 14px;
+	color: #007999;
 }
+
+.dgrid-status {
+	font-size: 12px;
+	padding: 2px;
+}
+
+.dgrid-status,
+.dgrid-navigation {
+	display: inline-block;
+	color: #999999;
+}
+
+
 .dgrid-navigation .dgrid-page-link {
 	cursor: pointer;
 	font-weight: bold;

@@ -6,14 +6,10 @@
 	height: 30em;
 	display: block;
 	background-color: white;
-	
 	max-width: 1200px;
 	margin: 0 auto;
 }
 
-.dgrid-header {
-	background-color: #eee;
-}
 
 .dgrid-header-row {
 	position: absolute;
@@ -28,9 +24,11 @@
 }
 
 .dgrid-footer {
+	box-sizing: border-box;
 	position: absolute;
 	bottom: 0;
 	width: 100%;
+	padding: 5px 10px;
 }
 
 .dgrid-header-hidden,
@@ -62,7 +60,7 @@ html.has-quirks .dgrid-header-hidden .dgrid-cell {
 }
 .dgrid-header, .dgrid-header-row, .dgrid-footer {
 	overflow: hidden;
-	background-color: #eee;
+	background-color: white;
 }
 
 .dgrid-row-table {

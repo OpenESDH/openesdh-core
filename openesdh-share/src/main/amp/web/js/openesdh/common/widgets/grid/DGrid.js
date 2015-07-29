@@ -331,7 +331,7 @@ define(["dojo/_base/declare",
                         return;
                     }
                     var label = this.message(action.label);
-                    var actionElem = domConstruct.toDom("<span><a class='action-" + action.id + "' href='#' title='" + label + "'>" + label + "</a></span>");
+                    var actionElem = domConstruct.toDom("<a class='action-" + action.id + "' href='#' title='" + label + "'>" + label + "</a>");
                     on(actionElem, "click", lang.hitch(this, function () {
                         this[action.callback].call(this, null);
                     }));

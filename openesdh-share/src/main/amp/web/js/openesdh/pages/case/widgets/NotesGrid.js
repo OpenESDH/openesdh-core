@@ -39,10 +39,11 @@ define(["dojo/_base/declare",
                            "id" : "comment-new",
                            "label" : "comments.button.label.new",
                        },
-                       {"callback" : "onPrintAllComments",
+                       /*{"callback" : "onPrintAllComments",
                            "id" : "comment-print",
                            "label" : "comments.button.label.print.all",
-                       }],
+                       }*/
+                       ],
                        
            onNewComment: function(){
                this.alfPublish("OPENESDH_CASE_COMMENTS_NEW");
