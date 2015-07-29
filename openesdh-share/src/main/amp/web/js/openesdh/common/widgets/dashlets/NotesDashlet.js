@@ -43,33 +43,6 @@ define(["dojo/_base/declare", "alfresco/core/Core",
              * @default [{i18nFile: "./i18n/NotesDashlet.properties"}]
              */
             i18nRequirements: [{i18nFile: "./i18n/NotesDashlet.properties"}],
-            
-//            widgetsForFooterBarActions: [
-//              {
-//                  name: "alfresco/buttons/AlfButton",
-//                  config: {
-//                      label: I18nUtils.msg(i18nScope, "comments.button.label.new"),
-//                      publishTopic: "OPENESDH_NOTES_DASHLET_OPENESDH_CASE_COMMENTS_NEW",
-//                      visibilityConfig: {
-//                          initialValue: false,
-//                          rules: [
-//                              {
-//                                  topic: "CASE_INFO",
-//                                  attribute: "isJournalized",
-//                                  is: [false]
-//                              }
-//                          ]
-//                      }
-//                  }
-//              },
-//              {
-//                  name: "alfresco/buttons/AlfButton",
-//                  config: {
-//                      label: I18nUtils.msg(i18nScope, "comments.button.label.print.all"),
-//                      publishTopic: "OPENESDH_CASE_COMMENTS_PRINT_ALL"
-//                  }
-//              }
-//            ],
 
             widgetsForBody: [
                 {

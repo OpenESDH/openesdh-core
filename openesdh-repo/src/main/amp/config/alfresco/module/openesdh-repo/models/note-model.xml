@@ -8,6 +8,7 @@
         <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>
         <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>
         <import uri="http://www.alfresco.org/model/system/1.0" prefix="sys"/>
+        <import uri="http://openesdh.dk/model/openesdh/1.0/" prefix="oe"/>
     </imports>
     <namespaces>
         <namespace uri="http://openesdh.dk/model/note/1.0/" prefix="note"/>
@@ -16,6 +17,15 @@
         <type name="note:note">
             <parent>cm:cmobject</parent>
             <properties>
+            	<property name="note:headline">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                    <index enabled="true">
+                        <atomic>true</atomic>
+                        <stored>false</stored>
+                        <tokenised>true</tokenised>
+                    </index>
+                </property>
                 <property name="note:content">
                     <type>d:text</type>
                     <mandatory>true</mandatory>
@@ -28,6 +38,7 @@
             </properties>
             <mandatory-aspects>
                 <aspect>cm:author</aspect>
+                <aspect>oe:partied</aspect>
             </mandatory-aspects>
         </type>
     </types>
