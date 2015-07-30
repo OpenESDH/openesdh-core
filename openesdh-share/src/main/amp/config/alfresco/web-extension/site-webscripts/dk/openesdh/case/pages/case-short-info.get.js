@@ -13,9 +13,6 @@ var caseId = parseQueryString(url.queryString)["caseId"];
 var documentNodeRef = parseQueryString(url.queryString)["documentNodeRef"];
 var nodeRef = getCaseNodeRefFromId(caseId);
 
-logger.log("caseId: " + caseId);
-logger.log("nodeRef: " + nodeRef);
-
 model.jsonModel = {
     widgets: [
         {
