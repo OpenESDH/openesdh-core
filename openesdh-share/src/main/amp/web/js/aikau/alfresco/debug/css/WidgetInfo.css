@@ -1,0 +1,71 @@
+.alfresco-developer-mode-Enabled {
+   .alfresco-debug-Info {
+      &.highlight {
+         box-shadow: 0 0 3px red;
+         padding: 20px;
+         position: relative;
+         &:hover {
+            background-color: rgba(255,180,0,.2);
+            box-shadow: 0 0 3px orange;
+         }
+      }
+      > .alfresco-debug-WidgetInfo {
+         display: block;
+      }
+   }
+   .alfresco-debug-PageInfo {
+      display: block;
+   }
+}
+
+.alfresco-debug-Info {
+   &.highlight {
+      transition: padding .5s cubic-bezier(.25, .75, .5, .9);
+   }
+   > .alfresco-debug-WidgetInfo {
+      display: none;
+      position: absolute;
+      right: 3px;
+      top: 3px;
+   }
+}
+
+.alfresco-debug-WidgetInfoDialog {
+   font-size: @large-font-size;
+   outline: none !important;
+   td {
+      &.label {
+         color: @de-emphasized-font-color;
+      }
+      &.value {
+         color: @general-font-color;
+         font-family: @bold-font;
+      }
+   }
+}
+
+.alfresco-debug-WidgetInfoDialogPopup {
+   box-shadow: none !important;
+}
+
+.alfresco-debug-PageInfo {
+   background-color: #ffc800;
+   border: 4px solid #ffb400;
+   display: none;
+   font-size: @large-font-size;
+   height: 20px;
+   padding: 5px;
+   > span.label {
+      color: @de-emphasized-font-color;
+      margin-right: 10px;
+   }
+   > span.value {
+      color: @general-font-color;
+      font-family: @bold-font;
+      margin-right: 10px;
+   }
+   > a {
+      color: @general-font-color;
+      text-decoration: none;
+   }
+}
