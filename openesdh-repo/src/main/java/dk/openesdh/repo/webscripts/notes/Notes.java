@@ -2,23 +2,17 @@ package dk.openesdh.repo.webscripts.notes;
 
 import java.io.IOException;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 
-import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.PersonService;
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
 import dk.openesdh.repo.model.Note;
-import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.notes.NoteService;
 import dk.openesdh.repo.webscripts.AbstractRESTWebscript;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
@@ -55,7 +49,7 @@ public class Notes extends AbstractRESTWebscript {
 
         // List<NodeRef> nodeRefs = noteService.getNotes(nodeRef);
 
-        List<Note> notes = noteService.getObjectNotes(nodeRef);
+        List<Note> notes = noteService.getNotes(nodeRef);
 
         if (reverse) {
             Collections.reverse(notes);
@@ -77,7 +71,7 @@ public class Notes extends AbstractRESTWebscript {
 
         note.setNodeRef(noteNodeRef);
         res.setContentEncoding("UTF-8");
-        WebScriptUtils.writeJson(noteNodeRef, res);
+        WebScriptUtils.writeJson(note, res);
     }
 
     @Override
@@ -87,58 +81,9 @@ public class Notes extends AbstractRESTWebscript {
 
     @Override
     protected void put(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
-        JSONObject jsonReq = new JSONObject(new JSONTokener(req.getContent().getContent()));
-        String content = jsonReq.getString("content");
-        String author = jsonReq.getString("author");
-
-        noteService.updateNote(nodeRef, content, author);
-
+        Note note = (Note) WebScriptUtils.readJson(Note.class, req);
+        noteService.updateNote(note);
         res.setContentEncoding("UTF-8");
-        try {
-            JSONObject json = buildJSON(nodeRef);
-            json.write(res.getWriter());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        WebScriptUtils.writeJson(note, res);
     }
-
-    JSONObject buildJSON(NodeRef nodeRef) throws JSONException {
-        JSONObject obj = new JSONObject();
-        obj.put("nodeRef", nodeRef);
-
-        obj.put("content", nodeService.getProperty(nodeRef, OpenESDHModel.PROP_NOTE_CONTENT));
-
-
-        String author = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_AUTHOR);
-
-        NodeRef personNodeRef = personService.getPersonOrNull(author);
-        if (personNodeRef != null) {
-            // If it's a user who authored the note, output the user object
-            JSONObject userObj = new JSONObject();
-            PersonService.PersonInfo info = personService.getPerson(personNodeRef);
-            userObj.put("userName", author);
-            userObj.put("displayName", info.getFirstName() + " " + info.getLastName());
-            obj.put("author", userObj);
-        } else {
-            // If it's not a user, just output the name
-            obj.put("author", author);
-        }
-
-        obj.put("creator", nodeService.getProperty(nodeRef, ContentModel.PROP_CREATOR));
-        obj.put("created", ((Date)nodeService.getProperty(nodeRef, ContentModel.PROP_CREATED)).getTime());
-        obj.put("modified", ((Date)nodeService.getProperty(nodeRef, ContentModel.PROP_MODIFIED)).getTime());
-        return obj;
-    }
-
-    JSONArray buildJSON(List<NodeRef> nodeRefs) throws JSONException {
-        JSONArray result = new JSONArray();
-
-        for (NodeRef nodeRef : nodeRefs) {
-            result.put(buildJSON(nodeRef));
-        }
-
-        return result;
-    }
-
-
 }

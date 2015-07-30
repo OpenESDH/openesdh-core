@@ -1,7 +1,6 @@
 package dk.openesdh.repo.services.notes;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -37,57 +36,12 @@ public class NoteServiceImpl implements NoteService {
      * {@inheritDoc}
      */
     @Override
-    public NodeRef createNote(NodeRef parentNodeRef, String content, String author) {
-        if (!nodeService.hasAspect(parentNodeRef, OpenESDHModel.ASPECT_NOTE_NOTABLE)) {
-            nodeService.addAspect(parentNodeRef, OpenESDHModel.ASPECT_NOTE_NOTABLE, null);
-        }
-
-        Map<QName, Serializable> properties = new HashMap<>();
-        properties.put(OpenESDHModel.PROP_NOTE_CONTENT, content);
-        properties.put(ContentModel.PROP_AUTHOR, author);
-
-        String name = "note-" + System.currentTimeMillis();
-        return nodeService.createNode(parentNodeRef,
-                OpenESDHModel.ASSOC_NOTE_NOTES,
-                QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, QName.createValidLocalName(name)),
-                OpenESDHModel.TYPE_NOTE_NOTE, properties).getChildRef();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void updateNote(NodeRef noteRef, String content, String author) {
-        Map<QName, Serializable> properties = new HashMap<>();
-        properties.put(OpenESDHModel.PROP_NOTE_CONTENT, content);
-        properties.put(ContentModel.PROP_AUTHOR, author);
-        nodeService.setProperties(noteRef, properties);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public List<NodeRef> getNotes(NodeRef parentNodeRef) {
-        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs
-                (parentNodeRef, OpenESDHModel.ASSOC_NOTE_NOTES, null);
-        List<NodeRef> noteRefs = new ArrayList<>();
-        for (ChildAssociationRef childAssociationRef : childAssocs) {
-            noteRefs.add(childAssociationRef.getChildRef());
-        }
-        return noteRefs;
-    }
-
-    @Override
     public NodeRef createNote(Note note) {
         if (!nodeService.hasAspect(note.getParent(), OpenESDHModel.ASPECT_NOTE_NOTABLE)) {
             nodeService.addAspect(note.getParent(), OpenESDHModel.ASPECT_NOTE_NOTABLE, null);
         }
 
-        Map<QName, Serializable> properties = new HashMap<>();
-        properties.put(OpenESDHModel.PROP_NOTE_HEADLINE, note.getHeadline());
-        properties.put(OpenESDHModel.PROP_NOTE_CONTENT, note.getContent());
-        properties.put(ContentModel.PROP_AUTHOR, note.getAuthor());
+        Map<QName, Serializable> properties = getNoteProperties(note);
 
         String name = "note-" + System.currentTimeMillis();
         NodeRef noteNodeRef = nodeService.createNode(note.getParent(), OpenESDHModel.ASSOC_NOTE_NOTES,
@@ -103,8 +57,11 @@ public class NoteServiceImpl implements NoteService {
         return noteNodeRef;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public List<Note> getObjectNotes(NodeRef parentNodeRef) {
+    public List<Note> getNotes(NodeRef parentNodeRef) {
         List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs
                 (parentNodeRef, OpenESDHModel.ASSOC_NOTE_NOTES, null);
         return childAssocs
@@ -113,6 +70,14 @@ public class NoteServiceImpl implements NoteService {
                 .collect(Collectors.toList());
     }
     
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void updateNote(Note note) {
+        nodeService.setProperties(note.getNodeRef(), getNoteProperties(note));
+    }
+
     private Note getNote(NodeRef parentNodeRef, NodeRef noteNodeRef){
         Map<QName, Serializable> props = nodeService.getProperties(noteNodeRef);
         Note note = new Note();
@@ -139,6 +104,14 @@ public class NoteServiceImpl implements NoteService {
         note.setConcernedPartiesInfo(concernedPartiesInfo);
 
         return note;
+    }
+
+    private Map<QName, Serializable> getNoteProperties(Note note) {
+        Map<QName, Serializable> properties = new HashMap<>();
+        properties.put(OpenESDHModel.PROP_NOTE_HEADLINE, note.getHeadline());
+        properties.put(OpenESDHModel.PROP_NOTE_CONTENT, note.getContent());
+        properties.put(ContentModel.PROP_AUTHOR, note.getAuthor());
+        return properties;
     }
 
     /**
