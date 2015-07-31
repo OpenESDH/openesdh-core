@@ -84,7 +84,7 @@ define(["dojo/_base/declare",
                         alfResponseTopic: "OPENESDH_NOTES_DASHLET_ALF_CRUD_CREATE"
                     },
                     widgets: [{
-                            name: "alfresco/forms/controls/TextBox",
+                            name: "openesdh/common/widgets/controls/form/ValidationTextBox",
                             config: {
                                 label: I18nUtils.msg(i18nScope, "comments.form.headline.label"),
                                 name: "headline",
@@ -112,7 +112,7 @@ define(["dojo/_base/declare",
                             }
                         },
                         {
-                            name: "alfresco/forms/controls/DojoTextarea",
+                            name: "openesdh/common/widgets/controls/form/TextArea",
                             config: {
                                 label: I18nUtils.msg(i18nScope, "comments.form.content.label"),
                                 name: "content",
