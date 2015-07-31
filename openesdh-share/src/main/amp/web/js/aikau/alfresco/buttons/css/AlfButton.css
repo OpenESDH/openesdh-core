@@ -1,7 +1,6 @@
 .alfresco-buttons-AlfButton {
    background-image: none;
    background-color: @standard-button-background-color; 
-   border: @standard-button-border;
    margin: 0;
    margin-right: @standard-column-width;
    border-radius: 0;

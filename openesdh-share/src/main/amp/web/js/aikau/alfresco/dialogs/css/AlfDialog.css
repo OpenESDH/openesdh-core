@@ -1,6 +1,6 @@
 .dijitDialogUnderlay {
-   background-color: #fff !important;
-   opacity: 0.5;
+   background-color: #000 !important;
+   opacity: 0.6;
 }
 
 .alfresco-dialog-AlfDialog.dijitDialog {
@@ -55,7 +55,7 @@
 }
 
 .alfresco-dialog-AlfDialog .dijitDialogPaneContent {
-   border-top: @standard-border;
+   border-top: none;
    padding: 0;
    overflow: hidden !important; /* Wouldn't normally use !important but has to override direct element setting! */
 }
@@ -89,7 +89,6 @@
    background-color: @primary-theme-color;
    background-image: none;
    border: none;
-   border-top: @standard-border;
    text-align: center;
    padding: 8px 0;
    width: 100%;
