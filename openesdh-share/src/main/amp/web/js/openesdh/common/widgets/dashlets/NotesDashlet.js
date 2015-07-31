@@ -96,7 +96,7 @@ define(["dojo/_base/declare",
                             }
                         },
                         {
-                            name: "alfresco/forms/controls/MultiSelectInput",
+                            name: "openesdh/common/widgets/controls/form/MutiSelectInput",
                             config: {
                                 label: I18nUtils.msg(i18nScope, "comments.form.parties.label"),
                                 name: "concernedParties",
