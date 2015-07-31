@@ -4,13 +4,14 @@
 define(["dojo/_base/declare",
         "openesdh/common/widgets/grid/DGrid",
         "dojo/_base/lang",
+        "dojo/_base/array",
         "dojo/on",
         'put-selector/put',
         "alfresco/core/NodeUtils",
         "alfresco/core/ObjectTypeUtils",
         "alfresco/core/I18nUtils"
     ],
-    function(declare, DGrid, lang, on, put, NodeUtils, ObjectTypeUtils, I18nUtils) {
+    function(declare, DGrid, lang, array, on, put, NodeUtils, ObjectTypeUtils, I18nUtils) {
         return declare([DGrid], {
             cssRequirements: [
                 {cssFile: "./css/NotesGrid.css"}
@@ -65,20 +66,50 @@ define(["dojo/_base/declare",
                     value =  this.encodeHTML(property);
                 }
                 else if (ObjectTypeUtils.isObject(property)) {
-                    if (property.hasOwnProperty("userName") && property.hasOwnProperty("displayName")) {
-                        value = Alfresco.util.userProfileLink(property.userName, property.displayName);
+                    if (property.hasOwnProperty("userName") && property.hasOwnProperty("firstName") && property.hasOwnProperty("lastName")) {
+                        value = Alfresco.util.userProfileLink(property.userName, property.firstName + " " + property.lastName);
                     }
                 }
                 return value;
+            },
+            
+            renderParties: function(parties){
+                if(parties == null){
+                    return "";
+                }
+                
+                if (ObjectTypeUtils.isString(parties))
+                {
+                    return parties;
+                }
+                
+                if (ObjectTypeUtils.isArray(parties)) {
+                    var result = "";
+                    var first = true;
+                    array.forEach(parties, lang.hitch(this, function(party, i){
+                        if(!first){
+                            result += ", "
+                        }
+                        first = false;
+                        result += party.name
+                    }));
+                    
+                    return result;
+                }
+                
+                return "";
             },
 
             renderRow: function(item, options) {
                 var div = put('div');
                 // TODO: Use widgets instead to render values
-                div.innerHTML = '<div class="note-header"><div class="note-content">' 
+                div.innerHTML = '<div class="note-header"><div class="note-headline">'
+                    + item.headline + '</div><div class="note-content">' 
                 	+ this.encodeHTML(item.content) + '</div><div class="note-meta"><span class="created">'
                     + this._formatDateTime(item.created) + '</span><span class="author">'
-                    + this.renderUser(item.author) + '</span></div></div>';
+                    + this.renderUser(item.authorInfo) + '</span><span class="concerned-parties">'
+                    + this.renderParties(item.concernedPartiesInfo) 
+                    +'</span></div></div>';
                 return div;
             },
 
