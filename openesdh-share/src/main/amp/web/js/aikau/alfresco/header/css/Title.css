@@ -22,11 +22,12 @@
    
    .share-header-title {
       border-bottom: @standard-border;
-      > div {
-         background-color: @shareTitleBG;
+      background-color: @shareTitleBG;
+      /*> div {
+         
          .right-widgets {
             height: 67px;
          }
-      }
+      }*/
    }
 }

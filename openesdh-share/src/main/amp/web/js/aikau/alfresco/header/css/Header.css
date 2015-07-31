@@ -15,8 +15,11 @@
    margin-top: 23px;
 }
 
+.alfrescoHeader {
+	 background-color: @header-primary-background-color;
+}
+
 .alfresco-share .alfresco-header-Header {
-   background-color: @header-primary-background-color;
    color: @header-primary-font-color;
    padding: 0;
    width: auto;
