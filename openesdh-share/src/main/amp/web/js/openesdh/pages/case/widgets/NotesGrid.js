@@ -105,9 +105,9 @@ define(["dojo/_base/declare",
                 // TODO: Use widgets instead to render values
                 div.innerHTML = '<div class="note-header"><div class="note-headline">'
                     + item.headline + '</div><div class="note-content">' 
-                	+ this.encodeHTML(item.content) + '</div><div class="note-meta"><span class="created">'
+                	+ this.encodeHTML(item.content) + '</div><div class="note-meta"><div class="note-meta-td"><span class="created">'
                     + this._formatDateTime(item.created) + '</span><span class="author">'
-                    + this.renderUser(item.authorInfo) + '</span><span class="concerned-parties">'
+                    + this.renderUser(item.authorInfo) + '</span></div><span class="note-meta-td concerned-parties">'
                     + this.renderParties(item.concernedPartiesInfo) 
                     +'</span></div></div>';
                 return div;

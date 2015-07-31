@@ -14,18 +14,24 @@
 .NotesGrid .note-meta {
 	font-size: 11px;
 	margin-top: 5px;
+	display: table;
+	width: 100%;
 }
 
-.NotesGrid .note-header .created {
-    display: block;
-    float: left;
-    margin-right: 1em;
+.NotesGrid .note-meta-td {
+	display: table-cell;
+	color: @de-emphasized-font-color;
+	width: 50%;
+}
+
+.NotesGrid .note-header .created,
+.NotesGrid .note-header .author {
+    display: inline-block;
     color: @de-emphasized-font-color;
 }
 
-.NotesGrid .note-header .author {
-    display: block;
-    margin-left: 13em;
+.NotesGrid .note-header .created {
+	margin-right: 5px;
 }
 
 .NotesGrid .note-header .author a {
