@@ -49,6 +49,7 @@ navMenu.config.widgets.push({
         selected: isOnCasePage("members")
     }
 });
+
 navMenu.config.widgets.push({
     id: "HEADER_CASE_PARTIES",
     name: "alfresco/menus/AlfMenuBarItem",
@@ -60,6 +61,16 @@ navMenu.config.widgets.push({
     }
 });
 
+navMenu.config.widgets.push({
+    id: "HEADER_CASE_HISTORY",
+    name: "alfresco/menus/AlfMenuBarItem",
+    config: {
+        label: "header.case.history.title",
+        title: "header.case.history.altText",
+        targetUrl: "oe/case/"+caseId+"/history",
+        selected: isOnCasePage("history")
+    }
+});
 
 function initCaseConfigDropdown(){
     if(isReadOnly){

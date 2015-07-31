@@ -1,0 +1,6 @@
+<webscript>
+    <shortname>Page for case history</shortname>
+    <description>A for displaying case audit log information</description>
+    <family>OpenESDH case</family>
+    <url>/history</url>
+</webscript>
