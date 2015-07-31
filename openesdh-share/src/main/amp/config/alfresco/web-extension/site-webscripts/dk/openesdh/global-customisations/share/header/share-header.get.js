@@ -170,33 +170,34 @@ model.jsonModel.services.push("alfresco/services/DialogService");
 
 
 var verticalLayout = widgetUtils.findObject(model.jsonModel, "id", "SHARE_VERTICAL_LAYOUT");
-var HEADER_TITLE_BAR = widgetUtils.findObject(model.jsonModel, "id", "HEADER_TITLE_BAR");
-
-verticalLayout.config.widgets.pop();
-verticalLayout.config.widgets.push({
-    id: "HEADER_TITLE_BAR",
-    name: "alfresco/layout/HorizontalWidgets",
-    config: {
-        additionalCssClasses: "share-header-title",
-        widgets: [{
-            name: "alfresco/layout/BootstrapContainer",
-            config: {
-                widgets: HEADER_TITLE_BAR.config.widgets
-            }
-        }]
-    }
-});
-
-var SHARE_HEADER = widgetUtils.findObject(model.jsonModel, "id", "SHARE_HEADER");
-verticalLayout.config.widgets.shift();
-verticalLayout.config.widgets.unshift({
-            name: "alfresco/layout/BootstrapContainer",
-            config: {
-                additionalCssClasses: "alfrescoHeader",
-                widgets: [SHARE_HEADER]
-            }
-});
-
+if(verticalLayout){
+    var HEADER_TITLE_BAR = widgetUtils.findObject(model.jsonModel, "id", "HEADER_TITLE_BAR");
+    
+    verticalLayout.config.widgets.pop();
+    verticalLayout.config.widgets.push({
+        id: "HEADER_TITLE_BAR",
+        name: "alfresco/layout/HorizontalWidgets",
+        config: {
+            additionalCssClasses: "share-header-title",
+            widgets: [{
+                name: "alfresco/layout/BootstrapContainer",
+                config: {
+                    widgets: HEADER_TITLE_BAR.config.widgets
+                }
+            }]
+        }
+    });
+    
+    var SHARE_HEADER = widgetUtils.findObject(model.jsonModel, "id", "SHARE_HEADER");
+    verticalLayout.config.widgets.shift();
+    verticalLayout.config.widgets.unshift({
+                name: "alfresco/layout/BootstrapContainer",
+                config: {
+                    additionalCssClasses: "alfrescoHeader",
+                    widgets: [SHARE_HEADER]
+                }
+    });
+}
 //var shareVerticalLayout = widgetUtils.findObject(model.jsonModel, "id", "SHARE_VERTICAL_LAYOUT");
 
 //model.jsonModel.widgets = [{
