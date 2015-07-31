@@ -15,78 +15,95 @@ var isReadOnly = !hasWritePermission(caseId);
 
 var nodeRef = getCaseNodeRefFromId(caseId);
 var navMenu = widgetUtils.findObject(model.jsonModel, "id", "HEADER_NAVIGATION_MENU_BAR");
+navMenu.align = "left";
+navMenu.config.widgets.push({
+           id: "CASE_NAVIGATION_MENU_BAR",
+           name: "alfresco/header/AlfMenuBar",
+           align: "left",
+           className: "navigation-menu",
+           config: {
+              widgets: [
+                    {
+                        id: "HEADER_CASE_DASHBOARD",
+                        name: "alfresco/menus/AlfMenuBarItem",
+                        config: {
+                            label: "header.document.case.dashboard" ,
+                            title: "header.document.case.dashboard.altText",
+                            targetUrl: "oe/case/"+caseId+"/dashboard",
+                            selected: isOnCasePage("dashboard")
+                        }
+                    },
+                    {
+                        id: "HEADER_CASE_DOCUMENTS",
+                        name: "alfresco/menus/AlfMenuBarItem",
+                        config: {
+                            label: "header.case.documents" ,
+                            title: "header.case.documents.altText",
+                            targetUrl: "oe/case/"+caseId+"/documents",
+                            selected: isOnCasePage("documents")
+                        }
+                    },
+                    {
+                        id: "HEADER_CASE_DOCUMENTS",
+                        name: "alfresco/menus/AlfMenuBarItem",
+                        config: {
+                            label: "header.case.documents" ,
+                            title: "header.case.documents.altText",
+                            targetUrl: "oe/case/"+caseId+"/documents",
+                            selected: isOnCasePage("documents")
+                        }
+                    },
+                    {
+                        id: "HEADER_CASE_MEMBERS",
+                        name: "alfresco/menus/AlfMenuBarItem",
+                        config: {
+                            label: "header.case.members.title",
+                            title: "header.case.members.altText",
+                            targetUrl: "oe/case/"+caseId+"/members",
+                            selected: isOnCasePage("members")
+                        }
+                    },
+                    {
+                          id: "HEADER_CASE_PARTIES",
+                          name: "alfresco/menus/AlfMenuBarItem",
+                          config: {
+                              label: "header.case.parties.title",
+                              title: "header.case.parties.altText",
+                              targetUrl: "oe/case/"+caseId+"/parties",
+                              selected: isOnCasePage("parties")
+                          }
+                    }
+              ]
+           }
+        });
 
 var verticalLayout = widgetUtils.findObject(model.jsonModel, "id", "SHARE_VERTICAL_LAYOUT");
+var HEADER_TITLE_BAR = widgetUtils.findObject(model.jsonModel, "id", "HEADER_TITLE_BAR");
 
+verticalLayout.config.widgets.pop();
 verticalLayout.config.widgets.push({
-            id: "CASE_NAVIGATION_BAR",
-            name: "alfresco/layout/LeftAndRight",
-            className: "case-navigation-bar",
-            config:
-            {
-               widgets:[{
-                   id: "CASE_NAVIGATION_MENU_BAR",
-                   name: "alfresco/header/AlfMenuBar",
-                   align: "left",
-                   className: "navigation-menu",
-                   config: {
-                      widgets: [
-                            {
-                                id: "HEADER_CASE_DASHBOARD",
-                                name: "alfresco/menus/AlfMenuBarItem",
-                                config: {
-                                    label: "header.document.case.dashboard" ,
-                                    title: "header.document.case.dashboard.altText",
-                                    targetUrl: "oe/case/"+caseId+"/dashboard",
-                                    selected: isOnCasePage("dashboard")
-                                }
-                            },
-                            {
-                                id: "HEADER_CASE_DOCUMENTS",
-                                name: "alfresco/menus/AlfMenuBarItem",
-                                config: {
-                                    label: "header.case.documents" ,
-                                    title: "header.case.documents.altText",
-                                    targetUrl: "oe/case/"+caseId+"/documents",
-                                    selected: isOnCasePage("documents")
-                                }
-                            },
-                            {
-                                id: "HEADER_CASE_DOCUMENTS",
-                                name: "alfresco/menus/AlfMenuBarItem",
-                                config: {
-                                    label: "header.case.documents" ,
-                                    title: "header.case.documents.altText",
-                                    targetUrl: "oe/case/"+caseId+"/documents",
-                                    selected: isOnCasePage("documents")
-                                }
-                            },
-                            {
-                                id: "HEADER_CASE_MEMBERS",
-                                name: "alfresco/menus/AlfMenuBarItem",
-                                config: {
-                                    label: "header.case.members.title",
-                                    title: "header.case.members.altText",
-                                    targetUrl: "oe/case/"+caseId+"/members",
-                                    selected: isOnCasePage("members")
-                                }
-                            },
-                            {
-                                  id: "HEADER_CASE_PARTIES",
-                                  name: "alfresco/menus/AlfMenuBarItem",
-                                  config: {
-                                      label: "header.case.parties.title",
-                                      title: "header.case.parties.altText",
-                                      targetUrl: "oe/case/"+caseId+"/parties",
-                                      selected: isOnCasePage("parties")
-                                  }
-                            }
-                      ]
-                   }
-                }]
+    id: "HEADER_TITLE_BAR",
+    name: "alfresco/layout/HorizontalWidgets",
+    config: {
+        additionalCssClasses: "share-header-title",
+        widgets: [{
+            name: "alfresco/layout/BootstrapContainer",
+            config: {
+                widgets: HEADER_TITLE_BAR.config.widgets
             }
+        }]
+    }
 });
 
+var SHARE_HEADER = widgetUtils.findObject(model.jsonModel, "id", "SHARE_HEADER");
+verticalLayout.config.widgets.shift();
+verticalLayout.config.widgets.unshift({
+            name: "alfresco/layout/BootstrapContainer",
+            config: {
+                additionalCssClasses: "alfrescoHeader",
+                widgets: [SHARE_HEADER]
+            }
+});
 
 function initCaseConfigDropdown(){
     if(isReadOnly){

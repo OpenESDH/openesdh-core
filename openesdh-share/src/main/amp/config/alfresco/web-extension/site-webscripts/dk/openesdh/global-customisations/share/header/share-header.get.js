@@ -167,3 +167,12 @@ model.jsonModel.services.push(caseService);
 model.jsonModel.services.push("openesdh/common/services/AuthorityService");
 model.jsonModel.services.push("alfresco/services/OptionsService");
 model.jsonModel.services.push("alfresco/services/DialogService");
+
+//var shareVerticalLayout = widgetUtils.findObject(model.jsonModel, "id", "SHARE_VERTICAL_LAYOUT");
+
+//model.jsonModel.widgets = [{
+//    name: "alfresco/layout/BootstrapContainer",
+//    config: {
+//        widgets: [shareVerticalLayout]
+//    }
+//}];
