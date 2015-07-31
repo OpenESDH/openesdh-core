@@ -14,6 +14,7 @@ if (caseId == null){
 var isReadOnly = !hasWritePermission(caseId);
 
 var nodeRef = getCaseNodeRefFromId(caseId);
+var verticalLayout = widgetUtils.findObject(model.jsonModel, "id", "SHARE_VERTICAL_LAYOUT");
 var navMenu = widgetUtils.findObject(model.jsonModel, "id", "HEADER_NAVIGATION_MENU_BAR");
 navMenu.align = "left";
 navMenu.config.widgets.push({
