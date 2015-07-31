@@ -1,6 +1,5 @@
 .alfresco-forms-controls-MultiSelect {
-   border: @standard-border;
-   box-shadow: @inset-box-shadow;
+   border-bottom: @standard-border;
    box-sizing: border-box;
    padding: 5px 5px 0;
    position: relative;

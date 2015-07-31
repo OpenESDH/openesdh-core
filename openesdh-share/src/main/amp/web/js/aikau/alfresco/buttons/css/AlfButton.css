@@ -13,6 +13,10 @@
    color: @standard-button-font-color;
 }
 
+.dijitDisabled.alfresco-buttons-AlfButton span {
+	color: @de-emphasized-font-color;
+}
+
 /* Convert the HEX color to RGBA so that an opacity can be set on the font color */
 .alfresco-buttons-AlfButton.dijitButtonDisabled .dijitReset.dijitInline.dijitButtonNode{
    color: rgba(red(@standard-button-font-color), green(@standard-button-font-color), blue(@standard-button-font-color), 0.4);

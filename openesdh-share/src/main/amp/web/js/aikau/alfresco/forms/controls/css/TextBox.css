@@ -7,7 +7,8 @@
 }
 
 .alfresco-forms-controls-TextBox div.control div.dijitValidationTextBox {
-   border-color: @standard-border-color;
+	border: none;
+    border-bottom: @standard-border;
 }
 
 .alfresco-forms-controls-TextBox div.control div.dijitValidationTextBox.dijitTextBoxHover {

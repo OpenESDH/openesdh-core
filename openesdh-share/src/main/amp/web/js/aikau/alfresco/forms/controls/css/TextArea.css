@@ -1,5 +1,6 @@
 .alfresco-forms-controls-TextArea div.control .dijitTextArea {
-   border-color: @standard-border-color;
+   border: none;
+   border-bottom: @standard-border;
 }
 
 .alfresco-forms-controls-TextArea div.control .dijitTextAreaHover {

@@ -34,10 +34,10 @@
    max-width: 472px;
 }
 
-.alfresco-forms-controls-BaseFormControl > .control-row > .control {
+/* .alfresco-forms-controls-BaseFormControl > .control-row > .control {
    margin-right: 5px;
    display: inline-block;
-}
+}*/
 
 .alfresco-forms-controls-BaseFormControl > .title-row > .requirementIndicator {
    display: none;
