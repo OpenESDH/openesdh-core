@@ -6,7 +6,7 @@ define(["dojo/_base/declare",
 
         return declare([TextBox], {
             
-            _updatePlaceHolder: function(){
+            _updatePlaceHolder: function(){                
                 if(!this._phspan){
                     return;
                 }
@@ -16,6 +16,6 @@ define(["dojo/_base/declare",
                 } else {
                     domClass.remove(this._phspan, "active"); 
                 }
-            }
+            },
         });
     });

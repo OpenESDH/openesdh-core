@@ -5,7 +5,7 @@ define(["dojo/_base/declare",
         ],
     function(declare, SimpleTextarea, DijitTextBox, template) {
 
-        return declare([DijitTextBox, SimpleTextarea], { 
+        return declare([SimpleTextarea, DijitTextBox], { 
             
             templateString: template,
             

@@ -88,6 +88,7 @@ define(["dojo/_base/declare",
                             config: {
                                 label: I18nUtils.msg(i18nScope, "comments.form.headline.label"),
                                 name: "headline",
+                                placeHolder: "something...",
                                 validationConfig: {
                                     validation: "regex",
                                     regex: ".+",
@@ -116,6 +117,7 @@ define(["dojo/_base/declare",
                             config: {
                                 label: I18nUtils.msg(i18nScope, "comments.form.content.label"),
                                 name: "content",
+                                placeHolder: "joxoxo",
                                 validationConfig: {
                                     validation: "regex",
                                     regex: ".+",

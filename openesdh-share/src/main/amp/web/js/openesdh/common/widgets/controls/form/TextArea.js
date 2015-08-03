@@ -8,9 +8,22 @@ define(["dojo/_base/declare",
 
         return declare([DojoTextarea, BaseFormControl], {
             
+            placeHolder: null,
+            
             constructor: function(){
                 this.inherited(arguments);
             },
+            
+            getWidgetConfig: function alfresco_forms_controls_TextArea__getWidgetConfig() {
+                // Return the configuration for the widget
+                return {
+                   id : this.generateUuid(),
+                   name: this.name,
+                   rows: this.rows,
+                   cols: this.cols,
+                   placeHolder: this.placeHolder,
+                };
+             },
             
             createFormControl: function alfresco_forms_controls_TextArea__createFormControl(config, domNode) {
                 var textArea = new DijitTextArea(config);
