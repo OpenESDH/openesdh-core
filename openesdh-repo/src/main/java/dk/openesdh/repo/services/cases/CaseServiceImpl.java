@@ -10,10 +10,12 @@ import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
 import org.alfresco.repo.security.permissions.PermissionReference;
 import org.alfresco.repo.security.permissions.impl.ModelDAO;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
+import org.alfresco.service.cmr.action.ActionService;
 import org.alfresco.service.cmr.dictionary.*;
 import org.alfresco.service.cmr.lock.LockService;
 import org.alfresco.service.cmr.lock.LockType;
 import org.alfresco.service.cmr.repository.*;
+import org.alfresco.service.cmr.rule.RuleService;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.*;
 import org.alfresco.service.namespace.QName;
@@ -44,6 +46,8 @@ public class CaseServiceImpl implements CaseService {
     private static final String MSG_NO_CASE_CREATOR_GROUP_DEFINED = "security.permission.err_no_case_creator_group_defined";
     private static final String MSG_CASE_CREATOR_PERMISSION_VIOLATION = "security.permission.err_case_creator_permission_violation";
 
+    private static final String ASSIGN_CASE_ID_RULE_TITLE = "Assign caseId to case documents";
+
     private static final String CASE = "Case";
     private static final String CREATOR = "Creator";
     private static final String READER = "Reader";
@@ -67,6 +71,9 @@ public class CaseServiceImpl implements CaseService {
     private TransactionService transactionService;
     private DictionaryService dictionaryService;
     private OwnableService ownableService;
+    private RuleService ruleService;
+    private ActionService actionService;
+
     //<editor-fold desc="Service setters">
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
@@ -112,6 +119,14 @@ public class CaseServiceImpl implements CaseService {
 
     public void setPermissionsModelDAO(ModelDAO permissionsModelDAO) {
         this.permissionsModelDAO = permissionsModelDAO;
+    }
+
+    public void setRuleService(RuleService ruleService) {
+        this.ruleService = ruleService;
+    }
+
+    public void setActionService(ActionService actionService) {
+        this.actionService = actionService;
     }
 
     @Override
@@ -891,7 +906,7 @@ public class CaseServiceImpl implements CaseService {
         // We are using node-dbid, as it is unique across nodes in a cluster
         return (long) nodeService.getProperty(caseNodeRef, ContentModel.PROP_NODE_DBID);
     }
-
+    
     protected String getCaseRoleGroupName(String role) {
         return PermissionService.GROUP_PREFIX + role;
     }
@@ -965,5 +980,4 @@ public class CaseServiceImpl implements CaseService {
         }
         return authorities;
     }
-
 }

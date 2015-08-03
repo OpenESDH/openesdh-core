@@ -30,7 +30,7 @@
           parent="evaluator.doclib.action.nodeType">
         <property name="types">
             <list>
-                <value>case:base</value>
+                <value>base:case</value>
             </list>
         </property>
     </bean>

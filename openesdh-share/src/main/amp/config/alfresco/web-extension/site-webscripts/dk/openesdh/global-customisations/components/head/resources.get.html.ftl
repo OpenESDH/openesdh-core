@@ -11,3 +11,7 @@
    </link>
  
 </@markup>
+
+<@markup id="roboto-font" action="before" target="resources">
+	<link href='http://fonts.googleapis.com/css?family=Roboto:400,300,500,700,100,100italic,300italic,400italic,500italic,700italic,900,900italic&subset=latin,latin-ext' rel='stylesheet' type='text/css'>
+</@markup>
