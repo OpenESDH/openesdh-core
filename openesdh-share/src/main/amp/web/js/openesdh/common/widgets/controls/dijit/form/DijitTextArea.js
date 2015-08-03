@@ -1,11 +1,11 @@
 define(["dojo/_base/declare",
-        "dijit/form/ValidationTextBox",
+        "dijit/form/SimpleTextarea",
         "openesdh/common/widgets/controls/dijit/form/DijitTextBox",
-        "dojo/text!./templates/DijitValidationTextBox.html"
+        "dojo/text!./templates/DijitTextArea.html"
         ],
-    function(declare, ValidationTextBox, DijitTextBox, template) {
+    function(declare, SimpleTextarea, DijitTextBox, template) {
 
-        return declare([DijitTextBox, ValidationTextBox], {
+        return declare([DijitTextBox, SimpleTextarea], { 
             
             templateString: template,
             
