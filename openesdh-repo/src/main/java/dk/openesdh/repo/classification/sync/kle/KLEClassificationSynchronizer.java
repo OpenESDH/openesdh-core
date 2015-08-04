@@ -4,6 +4,7 @@ import dk.klexml.EmneKomponent;
 import dk.klexml.GruppeKomponent;
 import dk.klexml.HovedgruppeKomponent;
 import dk.openesdh.repo.classification.sync.ClassificationSynchronizer;
+import dk.openesdh.repo.utils.ClassPathURLHandler;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
@@ -16,15 +17,8 @@ import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
 import org.alfresco.util.PropertyCheck;
 import org.alfresco.util.XMLUtil;
-import org.apache.commons.httpclient.HttpStatus;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.http.HttpEntity;
-import org.apache.http.StatusLine;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.extensions.surf.util.AbstractLifecycleBean;
 import org.w3c.dom.Document;
@@ -37,7 +31,7 @@ import javax.xml.bind.*;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
-import java.io.StringWriter;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
@@ -61,12 +55,38 @@ public class KLEClassificationSynchronizer extends AbstractLifecycleBean impleme
     protected boolean syncOnStartupIfMissing;
     protected boolean syncEnabled;
 
+    /**
+     * Return a URL object. Supports URLs starting with "classpath:" to load
+     * resources from the classpath.
+     * @param url URL
+     * @return
+     */
+    protected URL asURL(String url) throws MalformedURLException {
+        if (url.startsWith("classpath:")) {
+            return new URL(null, url, new ClassPathURLHandler());
+        } else {
+            return new URL(url);
+        }
+    }
+
     @Override
     public void synchronize() {
+        Thread t = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                AuthenticationUtil.setRunAsUser(AuthenticationUtil.getSystemUserName());
+                synchronizeInternal();
+                AuthenticationUtil.clearCurrentSecurityContext();
+            }
+        });
+        t.start();
+    }
+
+    public void synchronizeInternal() {
         logger.info("KLE synchronization");
 
         try {
-            URL url = new URL(kleEmneplanURL);
+            URL url = asURL(kleEmneplanURL);
             InputStream inputStream = url.openStream();
             logger.info("Loading KLE Emneplan XML file from " + url);
             loadEmneplanXML(inputStream);
