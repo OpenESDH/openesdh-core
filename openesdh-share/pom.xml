@@ -32,23 +32,10 @@
          <scope>provided</scope> is inherited for each of the following; 
          for more info, please refer to alfresco-platform-distribution POM -->
     <dependencies>
-        <!--<dependency>-->
-            <!--<groupId>dk.openesdh.aoi</groupId>-->
-            <!--<artifactId>aoi-share</artifactId>-->
-            <!--<version>1.0-SNAPSHOT</version>-->
-            <!--<type>amp</type>-->
-        <!--</dependency>-->
-        <!--<dependency>-->
-            <!--<groupId>dk.openesdh</groupId>-->
-            <!--<artifactId>office-share</artifactId>-->
-            <!--<version>1.0-SNAPSHOT</version>-->
-            <!--<type>amp</type>-->
-        <!--</dependency>-->
-        <!--Aikau dependency-->
         <dependency>
             <groupId>org.alfresco</groupId>
             <artifactId>aikau</artifactId>
-            <version>1.0.20-SNAPSHOT</version>
+            <version>1.0.28</version>
             <!-- Exclude Aikau's dependency from the AMP -->
             <exclusions>
                 <exclusion>
