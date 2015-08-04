@@ -187,6 +187,24 @@
         {
             "name": "alfresco/forms/ControlRow",
             "config": {
+                "widgets": [
+                    {
+                        name: "openesdh/common/widgets/controls/category/CategoryPickerControl",
+                        config: {
+                            name: "prop_oe_journalKey",
+                            label: "journal.key",
+                            requirementConfig: {
+                                initialValue: true
+                            },
+                            initialPath: "kle_emneplan"
+                        }
+                    }
+                ]
+            }
+        },
+        {
+            "name": "alfresco/forms/ControlRow",
+            "config": {
                 "description": "",
                 "title": "",
                 "fieldId": "b0632dac-002e-4860-884b-b9237246075c",
