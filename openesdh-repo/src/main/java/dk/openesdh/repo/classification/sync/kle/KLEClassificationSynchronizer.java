@@ -38,6 +38,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.io.StringWriter;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -64,21 +65,13 @@ public class KLEClassificationSynchronizer extends AbstractLifecycleBean impleme
     public void synchronize() {
         logger.info("KLE synchronization");
 
-        CloseableHttpClient httpClient = HttpClients.createDefault();
-        HttpGet httpGet = new HttpGet(kleEmneplanURL);
         try {
-            logger.info("Fetching KLE Emneplan XML file");
-            CloseableHttpResponse response = httpClient.execute(httpGet);
-            HttpEntity entity = response.getEntity();
-            StatusLine statusLine = response.getStatusLine();
-            if (statusLine.getStatusCode() != HttpStatus.SC_OK) {
-                throw new AlfrescoRuntimeException("KLE data is not available from '" +
-                        kleEmneplanURL + "'. HTTP Response code: " + statusLine.getStatusCode());
-            } else {
-                loadEmneplanXML(entity.getContent());
-            }
+            URL url = new URL(kleEmneplanURL);
+            InputStream inputStream = url.openStream();
+            logger.info("Loading KLE Emneplan XML file from " + url);
+            loadEmneplanXML(inputStream);
         } catch (IOException e) {
-            throw new AlfrescoRuntimeException("Error fetching KLE emneplan XML file", e);
+            throw new AlfrescoRuntimeException("Error loading KLE emneplan XML file", e);
         } catch (JAXBException | SAXException e) {
             throw new AlfrescoRuntimeException("Error parsing KLE emneplan XML file", e);
         }
@@ -241,9 +234,5 @@ public class KLEClassificationSynchronizer extends AbstractLifecycleBean impleme
 
     public void setSyncEnabled(boolean syncEnabled) {
         this.syncEnabled = syncEnabled;
-    }
-
-    public boolean getSyncEnabled() {
-        return syncEnabled;
     }
 }
