@@ -2043,3 +2043,108 @@ table td.thumbnail img
 	top: 10px;
 	right: 10px;
 }
+
+.input-field {
+	position: relative;
+	/*padding: 0 0.75rem;*/
+    /*margin-top: 1rem;*/
+}
+
+.input-field input[type=text], 
+.input-field input[type=password], 
+.input-field input[type=email], 
+.input-field input[type=url], 
+.input-field input[type=time], 
+.input-field input[type=date], 
+.input-field input[type=datetime-local], 
+.input-field input[type=tel], 
+.input-field input[type=number], 
+.input-field input[type=search], 
+.input-field textarea {
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid #d3d3d3;
+    border-radius: 0;
+    outline: none;
+    height: 3rem;
+    width: 100%;
+    font-size: 1rem;
+    margin: 0 0 15px 0;
+    padding: 0;
+    box-shadow: none;
+   /* -webkit-box-sizing: content-box;
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;*/
+    transition: all .3s;
+}
+
+.input-field .dijitPlaceHolder {
+    color: #9e9e9e;
+    position: absolute;
+    top: 0.8rem;
+    left: 0;
+    font-size: 1rem;
+    cursor: text;
+    -webkit-transition: .2s ease-out;
+    -moz-transition: .2s ease-out;
+    -o-transition: .2s ease-out;
+    -ms-transition: .2s ease-out;
+    transition: .2s ease-out;
+}
+
+.active .dijitPlaceHolder,
+.active.dijitPlaceHolder {
+    font-size: 0.8rem;
+    -webkit-transform: translateY(-140%);
+    -moz-transform: translateY(-140%);
+    -ms-transform: translateY(-140%);
+    -o-transform: translateY(-140%);
+    transform: translateY(-140%);
+}
+
+.input-field textarea {
+    overflow-y: hidden;
+    padding: 1.6rem 0;
+    resize: none;
+    height: auto;
+}
+
+.validation-message {
+	font-size: 0.9em;
+	margin: 0 !important;
+	position: relative;
+	top: -10px;
+}
+
+.validation,
+.validation-message  {
+	/* display: none !important; */
+}
+
+.validation-message {
+	display: none;
+}
+
+.validation-error .validation-message {
+   display: none;
+   color: #ED2525;
+   font-weight: bold;
+   margin: 0 5px;
+}
+
+.validation-error .validation-message.display {
+   display: inline-block;
+}
+
+.alfresco-dialog-AlfDialog.dijitDialog .validation-error input,
+.alfresco-dialog-AlfDialog.dijitDialog .validation-error textarea {
+	border-bottom: 1px solid #ED2525;
+}
+
+.alfresco-forms-controls-MultiSelect {
+	padding-top: 10px;
+}
+
+.active .alfresco-forms-controls-MultiSelect input {
+	height: auto;
+}

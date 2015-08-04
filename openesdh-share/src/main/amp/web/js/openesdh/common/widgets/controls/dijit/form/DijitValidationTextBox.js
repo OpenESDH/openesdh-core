@@ -9,6 +9,8 @@ define(["dojo/_base/declare",
             
             templateString: template,
             
+            baseClass: "",
+            
             constructor: function(){
                 this.inherited(arguments);
             }

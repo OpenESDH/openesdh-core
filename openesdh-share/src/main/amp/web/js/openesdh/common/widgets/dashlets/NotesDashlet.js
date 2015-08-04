@@ -86,9 +86,9 @@ define(["dojo/_base/declare",
                     widgets: [{
                             name: "openesdh/common/widgets/controls/form/ValidationTextBox",
                             config: {
-                                label: I18nUtils.msg(i18nScope, "comments.form.headline.label"),
+                                //label: I18nUtils.msg(i18nScope, "comments.form.headline.label"),
                                 name: "headline",
-                                placeHolder: "something...",
+                                placeHolder: I18nUtils.msg(i18nScope, "comments.form.headline.label"),
                                 validationConfig: {
                                     validation: "regex",
                                     regex: ".+",
@@ -99,8 +99,8 @@ define(["dojo/_base/declare",
                         {
                             name: "openesdh/common/widgets/controls/form/MutiSelectInput",
                             config: {
-                                label: I18nUtils.msg(i18nScope, "comments.form.parties.label"),
                                 name: "concernedParties",
+                                placeHolder: I18nUtils.msg(i18nScope, "comments.form.parties.label"),
                                 optionsConfig:{
                                     labelAttribute: "displayName",
                                     queryAttribute: "displayName",
@@ -115,9 +115,9 @@ define(["dojo/_base/declare",
                         {
                             name: "openesdh/common/widgets/controls/form/TextArea",
                             config: {
-                                label: I18nUtils.msg(i18nScope, "comments.form.content.label"),
+                                //label: I18nUtils.msg(i18nScope, "comments.form.content.label"),
                                 name: "content",
-                                placeHolder: "joxoxo",
+                                placeHolder: I18nUtils.msg(i18nScope, "comments.form.content.label"),
                                 validationConfig: {
                                     validation: "regex",
                                     regex: ".+",

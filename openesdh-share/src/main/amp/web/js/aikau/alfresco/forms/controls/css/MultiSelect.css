@@ -1,7 +1,7 @@
 .alfresco-forms-controls-MultiSelect {
-   border-bottom: @standard-border;
+  /*border-bottom: @standard-border;
+   padding: 5px 5px 0;*/
    box-sizing: border-box;
-   padding: 5px 5px 0;
    position: relative;
    * {
       box-sizing: inherit;
@@ -169,8 +169,8 @@
       outline: 1px solid #faa;
    }
    &--focused {
-      border-color: #09c;
-      outline: 1px solid #0cf;
+      /*border-color: #09c;
+      outline: 1px solid #0cf;*/
    }
    &--choices-nowrap {
       .alfresco-forms-controls-MultiSelect__choice__content {
@@ -179,10 +179,10 @@
    }
 }
 
-.alfresco-dialog-AlfDialog.dijitDialog {
+/*.alfresco-dialog-AlfDialog.dijitDialog {
    .alfresco-forms-controls-MultiSelect {
       &__search-box {
          border: 0;
       }
    }
-}
+}*/

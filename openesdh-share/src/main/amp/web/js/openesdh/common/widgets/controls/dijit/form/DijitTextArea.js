@@ -1,5 +1,5 @@
 define(["dojo/_base/declare",
-        "dijit/form/SimpleTextarea",
+        "dijit/form/Textarea",
         "openesdh/common/widgets/controls/dijit/form/DijitTextBox",
         "dojo/text!./templates/DijitTextArea.html"
         ],
@@ -9,8 +9,20 @@ define(["dojo/_base/declare",
             
             templateString: template,
             
+            baseClass: "",
+            
             constructor: function(){
                 this.inherited(arguments);
-            }
+            },
+            
+            _onInput: function(/*Event*/ evt){
+    			// summary:
+    			//		Called AFTER the input event has happened
+    			//		See if the placeHolder text should be removed or added while editing.
+    			this.inherited(arguments);
+    			//this._updatePlaceHolder();
+    			
+    			console.log('wsup');
+    		},
         });
     });

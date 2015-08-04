@@ -6,16 +6,21 @@ define(["dojo/_base/declare",
 
         return declare([TextBox], {
             
-            _updatePlaceHolder: function(){                
-                if(!this._phspan){
-                    return;
-                }
-                
-                if (!this.textbox.value) {
-                    domClass.add(this._phspan, "active");
-                } else {
-                    domClass.remove(this._phspan, "active"); 
-                }
-            },
+        	/* disabling default behaviour */
+            _updatePlaceHolder: function(){},
+            
+            _onBlur: function(e){
+            	if(this.disabled || this.getValue().length){ return; }
+    			this.inherited(arguments);
+            	
+            	domClass.remove(this.domNode, "active");
+    		},
+            
+            _onFocus: function(/*String*/ by ){
+            	if(this.disabled || this.readOnly){ return; }
+    			this.inherited(arguments);
+    			
+            	domClass.add(this.domNode, "active");
+            }
         });
     });
