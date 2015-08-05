@@ -2148,3 +2148,7 @@ table td.thumbnail img
 .active .alfresco-forms-controls-MultiSelect input {
 	height: auto;
 }
+
+.share-header-title {
+	padding-top: 20px;
+}

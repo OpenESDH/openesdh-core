@@ -22,13 +22,13 @@ model.jsonModel = {
 	        name: "alfresco/layout/BootstrapContainer",
 	        config: {
 	            widgets: [{
-	                name: "alfresco/layout/HorizontalWidgets",
+	                name: "openesdh/common/widgets/layout/BootstrapGrid",
 	                config: {
-	                    widgetMarginLeft: 10,
-	                    widgetMarginRight: 10,
-	                    widgetWidth: 50,
+	                    //widgetMarginLeft: 5,
+	                    //widgetMarginRight: 5,
 	                    widgets: [{
 	                        name: "alfresco/layout/VerticalWidgets",
+	                        columnSize: 6,
 	                        config: {
 	                            widgets: [{
 	                                id: "CASE_INFO_DASHLET",
@@ -41,6 +41,7 @@ model.jsonModel = {
 	                        }
 	                    }, {
 	                        name: "alfresco/layout/VerticalWidgets",
+	                        columnSize: 6,
 	                        config: {
 	                            widgets: [{
                                     id: "CASE_NOTES_DASHLET",
@@ -50,13 +51,14 @@ model.jsonModel = {
                                         nodeRef: caseNodeRef,
                                         isReadOnly: isReadOnly
                                     }
-                                }
-//	                            {
-//	                                id: "CASE_MEMBERS_DASHLET",
-//	                                name: "openesdh/common/widgets/dashlets/CaseMembersDashlet",
-//	                                config: {
-//	                                    caseId: caseId
-//	                                }
+                                },
+	                            {
+	                                id: "CASE_MEMBERS_DASHLET",
+	                                name: "openesdh/common/widgets/dashlets/CaseMembersDashlet",
+	                                config: {
+	                                    caseId: caseId
+	                                }
+	                            }
 //	                            }, {
 //	                                id: "CASE_HISTORY_DASHLET",
 //	                                name: "openesdh/common/widgets/dashlets/CaseHistoryDashlet",

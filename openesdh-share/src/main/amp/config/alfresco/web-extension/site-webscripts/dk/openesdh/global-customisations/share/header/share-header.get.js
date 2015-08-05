@@ -176,15 +176,10 @@ if(verticalLayout){
     verticalLayout.config.widgets.pop();
     verticalLayout.config.widgets.push({
         id: "HEADER_TITLE_BAR",
-        name: "alfresco/layout/HorizontalWidgets",
+        name: "alfresco/layout/BootstrapContainer",
         config: {
             additionalCssClasses: "share-header-title",
-            widgets: [{
-                name: "alfresco/layout/BootstrapContainer",
-                config: {
-                    widgets: HEADER_TITLE_BAR.config.widgets
-                }
-            }]
+            widgets: HEADER_TITLE_BAR.config.widgets
         }
     });
     
