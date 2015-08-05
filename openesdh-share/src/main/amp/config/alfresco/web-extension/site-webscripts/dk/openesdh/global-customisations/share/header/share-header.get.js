@@ -173,6 +173,25 @@ var verticalLayout = widgetUtils.findObject(model.jsonModel, "id", "SHARE_VERTIC
 if(verticalLayout){
     var HEADER_TITLE_BAR = widgetUtils.findObject(model.jsonModel, "id", "HEADER_TITLE_BAR");
     
+    
+    var HEADER_TITLE = widgetUtils.findObject(model.jsonModel, "id", "HEADER_TITLE"),
+    	HEADER_NAVIGATION_MENU_BAR = widgetUtils.findObject(model.jsonModel, "id", "HEADER_NAVIGATION_MENU_BAR"),
+    	HEADER_TITLE_MENU = widgetUtils.findObject(model.jsonModel, "id", "HEADER_TITLE_MENU");
+    
+    HEADER_TITLE_BAR.config.widgets.length = 0;
+    HEADER_TITLE_BAR.config.widgets.push({
+    	  name: "alfresco/layout/LeftAndRight",
+    	  config: {
+    	    widgets: [
+    	      HEADER_TITLE,
+    	      HEADER_TITLE_MENU
+    	    ]
+    	  }
+    	});
+    
+    HEADER_TITLE_BAR.config.widgets.push(HEADER_NAVIGATION_MENU_BAR);
+    
+    
     verticalLayout.config.widgets.pop();
     verticalLayout.config.widgets.push({
         id: "HEADER_TITLE_BAR",

@@ -2152,3 +2152,29 @@ table td.thumbnail img
 .share-header-title {
 	padding-top: 20px;
 }
+
+.alfresco-share .title-menu.horizontal-widget {
+	margin-top: 0;
+}
+
+
+/* case navigation */
+#Share .navigation-menu .dijitMenuItem {
+	background-color: transparent;
+	text-transform: uppercase;
+	font-size: 14px;
+	border: none;
+	border-bottom-width: 2px;
+	border-bottom-color: transparent;
+	border-bottom-style: solid;
+	transition: opacity 0.2s ease;
+}
+
+.navigation-menu .dijitMenuItem:hover { opacity: 0.8; }
+
+#Share .navigation-menu .dijitMenuItem { padding: 2px 10px; }
+
+#Share .navigation-menu .dijitMenuItem.dijitSelected {
+	color: #2075a8;
+	border-bottom-color: #2075a8;	
+}

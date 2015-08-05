@@ -22,19 +22,20 @@
 .alfresco-share .alfresco-menus-AlfMenuBar .dijitMenuBar .dijitMenuPassive .dijitMenuItemHover,
 .alfresco-share .alfresco-menus-AlfMenuBar .dijitMenuBar .dijitMenuItemHover,
 .alfresco-share .alfresco-menus-AlfMenuBar .dijitMenuBar .dijitMenuItemSelected {
-    background-color: #ddd;
+   /* background-color: #ddd;*/
+    border: none;
     background-image: none;
     background-repeat: no-repeat;
-    border: none;
     padding: 2px 5px;
 }
 
 .alfresco-share .alf-menu-group .dijitMenuPassive .dijitMenuItemHover,
 .alfresco-share .alf-menu-group .dijitMenuItemHover 
 .alfresco-share .alf-menu-group .dijitMenuItemSelected {
+	border: none;
     background-image: none;
     background-repeat: no-repeat;
-    background-color: #ddd;
+    /*background-color: #ddd;*/
     color: #717171;
 }
 
