@@ -14,69 +14,63 @@ if (caseId == null){
 var isReadOnly = !hasWritePermission(caseId);
 
 var nodeRef = getCaseNodeRefFromId(caseId);
-var verticalLayout = widgetUtils.findObject(model.jsonModel, "id", "SHARE_VERTICAL_LAYOUT");
 var navMenu = widgetUtils.findObject(model.jsonModel, "id", "HEADER_NAVIGATION_MENU_BAR");
-navMenu.align = "left";
+
 navMenu.config.widgets.push({
-           id: "CASE_NAVIGATION_MENU_BAR",
-           name: "alfresco/header/AlfMenuBar",
-           align: "left",
-           className: "navigation-menu",
-           config: {
-              widgets: [
-                    {
-                        id: "HEADER_CASE_DASHBOARD",
-                        name: "alfresco/menus/AlfMenuBarItem",
-                        config: {
-                            label: "header.document.case.dashboard" ,
-                            title: "header.document.case.dashboard.altText",
-                            targetUrl: "oe/case/"+caseId+"/dashboard",
-                            selected: isOnCasePage("dashboard")
-                        }
-                    },
-                    {
-                        id: "HEADER_CASE_DOCUMENTS",
-                        name: "alfresco/menus/AlfMenuBarItem",
-                        config: {
-                            label: "header.case.documents" ,
-                            title: "header.case.documents.altText",
-                            targetUrl: "oe/case/"+caseId+"/documents",
-                            selected: isOnCasePage("documents")
-                        }
-                    },
-                    {
-                        id: "HEADER_CASE_DOCUMENTS",
-                        name: "alfresco/menus/AlfMenuBarItem",
-                        config: {
-                            label: "header.case.documents" ,
-                            title: "header.case.documents.altText",
-                            targetUrl: "oe/case/"+caseId+"/documents",
-                            selected: isOnCasePage("documents")
-                        }
-                    },
-                    {
-                        id: "HEADER_CASE_MEMBERS",
-                        name: "alfresco/menus/AlfMenuBarItem",
-                        config: {
-                            label: "header.case.members.title",
-                            title: "header.case.members.altText",
-                            targetUrl: "oe/case/"+caseId+"/members",
-                            selected: isOnCasePage("members")
-                        }
-                    },
-                    {
-                          id: "HEADER_CASE_PARTIES",
-                          name: "alfresco/menus/AlfMenuBarItem",
-                          config: {
-                              label: "header.case.parties.title",
-                              title: "header.case.parties.altText",
-                              targetUrl: "oe/case/"+caseId+"/parties",
-                              selected: isOnCasePage("parties")
-                          }
-                    }
-              ]
-           }
-        });
+    id: "HEADER_CASE_DASHBOARD",
+    name: "alfresco/menus/AlfMenuBarItem",
+    config: {
+        label: "header.document.case.dashboard" ,
+        title: "header.document.case.dashboard.altText",
+        targetUrl: "oe/case/"+caseId+"/dashboard",
+        selected: isOnCasePage("dashboard")
+    }
+});
+
+navMenu.config.widgets.push({
+    id: "HEADER_CASE_DOCUMENTS",
+    name: "alfresco/menus/AlfMenuBarItem",
+    config: {
+        label: "header.case.documents" ,
+        title: "header.case.documents.altText",
+        targetUrl: "oe/case/"+caseId+"/documents",
+        selected: isOnCasePage("documents")
+    }
+});
+
+//TODO The link to this page does not work. The service call for the data is not correct. Why is this so?
+navMenu.config.widgets.push({
+    id: "HEADER_CASE_MEMBERS",
+    name: "alfresco/menus/AlfMenuBarItem",
+    config: {
+        label: "header.case.members.title",
+        title: "header.case.members.altText",
+        targetUrl: "oe/case/"+caseId+"/members",
+        selected: isOnCasePage("members")
+    }
+});
+
+navMenu.config.widgets.push({
+    id: "HEADER_CASE_PARTIES",
+    name: "alfresco/menus/AlfMenuBarItem",
+    config: {
+        label: "header.case.parties.title",
+        title: "header.case.parties.altText",
+        targetUrl: "oe/case/"+caseId+"/parties",
+        selected: isOnCasePage("parties")
+    }
+});
+
+navMenu.config.widgets.push({
+    id: "HEADER_CASE_HISTORY",
+    name: "alfresco/menus/AlfMenuBarItem",
+    config: {
+        label: "header.case.history.title",
+        title: "header.case.history.altText",
+        targetUrl: "oe/case/"+caseId+"/history",
+        selected: isOnCasePage("history")
+    }
+});
 
 function initCaseConfigDropdown(){
     if(isReadOnly){
@@ -160,7 +154,8 @@ function initCaseConfigDropdown(){
             }
         }
     });
-    
+    var verticalLayout = widgetUtils.findObject(model.jsonModel, "id", "SHARE_VERTICAL_LAYOUT");
+
     verticalLayout.config.widgets.push({
         id: "HEADER_CASE_JOURNALIZED_WARNING",
         name: "alfresco/header/Warning",
@@ -181,9 +176,8 @@ function initCaseConfigDropdown(){
             }
         }
     });
-    
-    var caseNavigationMenu = widgetUtils.findObject(model.jsonModel, "id", "CASE_NAVIGATION_MENU_BAR");
-    caseNavigationMenu.config.widgets.push(caseConfig);
+
+    navMenu.config.widgets.push(caseConfig);
 }
 
 initCaseConfigDropdown();
