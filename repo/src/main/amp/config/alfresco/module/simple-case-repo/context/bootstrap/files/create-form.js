@@ -191,6 +191,7 @@
                     {
                         name: "openesdh/common/widgets/controls/category/CategoryPickerControl",
                         config: {
+                            id: "CREATE_CASE_DIALOG_JOURNAL_KEY",
                             name: "prop_oe_journalKey",
                             label: "journal.key",
                             requirementConfig: {
