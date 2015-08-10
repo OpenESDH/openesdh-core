@@ -1,12 +1,16 @@
 th.alfresco-lists-views-layouts-HeaderCell {
-   background-color: @docListHeaderBgColour;
+  /* background-color: @docListHeaderBgColour;
    border-top: 1px solid @docListBorderColour;
    border-bottom: 1px solid @docListBorderColour;
-   border-right: 1px solid @docListBorderColour;
+   border-right: 1px solid @docListBorderColour;*/
+   border-bottom: 1px solid @docListBorderColour;
    padding: 10px;
    margin: 0;
    vertical-align: middle;
    text-align: left;
+   font-weight: normal;
+   font-size: 0.9em;
+   .de-emphasized-font;
 }
 
 th.alfresco-lists-views-layouts-HeaderCell.last,

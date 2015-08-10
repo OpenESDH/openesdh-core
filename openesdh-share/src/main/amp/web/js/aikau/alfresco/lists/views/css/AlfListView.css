@@ -40,7 +40,7 @@
 
 /* bordered table modifiers */
 
-.alfresco-lists-views-AlfListView.bordered > table {
+/*.alfresco-lists-views-AlfListView.bordered > table {
    border-bottom: 1px solid @docListBorderColour; 
 }
 
@@ -48,6 +48,10 @@
    border-top: 1px dashed @docListBorderColour;
    border-bottom: 1px dashed @docListBorderColour;
    border-right: 1px solid @docListBorderColour;
+}*/
+
+.alfresco-lists-views-AlfListView.bordered > table > tbody > tr > td {
+   border-bottom: 1px solid @docListBorderColour;	
 }
 
 .alfresco-lists-views-AlfListView.bordered > table > tbody > tr > td.last,
