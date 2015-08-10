@@ -90,7 +90,7 @@ define(["dojo/_base/declare",
                         dialogConfirmationButtonTitle: this.message("create-case.label.button.create"),
                         dialogCancellationButtonTitle: this.message("create-case.label.button.cancel"),
                         formSubmissionTopic: this.CreateCaseTopic,
-                        formSubmissionPayload: {
+                        formSubmissionPayloadMixin: {
                             publishOnSuccessTopic: publishOnSuccessTopic
                         },
                         fixedWidth: true,
