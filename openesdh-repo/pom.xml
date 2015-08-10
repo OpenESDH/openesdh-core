@@ -19,7 +19,6 @@
         <alfresco.data.location>alf_data_dev</alfresco.data.location>
         <alfresco.client.war>alfresco</alfresco.client.war>
         <alfresco.client.contextPath>/alfresco</alfresco.client.contextPath>
-        <openesdh.classification.sync.enabled>true</openesdh.classification.sync.enabled>
 
         <!--This will build a jar with a “classes” classifier containing the classes, for use in other modules where
         we may need to extend openESDH classes-->
@@ -136,12 +135,13 @@
             </properties>
         </profile>
         <profile>
-            <id>disable-classification-sync</id>
+            <id>enable-classification-sync</id>
             <properties>
-                <!-- Don't automatically do KLE sync when running on Jenkins.
-                     A test KLE sync based on a test XML file will be done by
-                     one of the unit tests instead. -->
-                <openesdh.classification.sync.enabled>false</openesdh.classification.sync.enabled>
+                <!-- Enable sync of KLE data, overriding any settings in
+                     alfresco-global.properties. Sync is normally disabled
+                     during testing, but can be enabled by activating this
+                     profile. -->
+                <openesdh.classification.sync.enabled>true</openesdh.classification.sync.enabled>
             </properties>
         </profile>
         <profile>
