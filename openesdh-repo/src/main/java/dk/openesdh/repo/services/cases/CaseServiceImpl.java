@@ -1,24 +1,8 @@
 package dk.openesdh.repo.services.cases;
 
-import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collection;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
-import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
+import dk.openesdh.repo.model.CaseInfo;
+import dk.openesdh.repo.model.CaseInfoImpl;
+import dk.openesdh.repo.model.OpenESDHModel;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
@@ -29,27 +13,14 @@ import org.alfresco.repo.security.permissions.PermissionReference;
 import org.alfresco.repo.security.permissions.impl.ModelDAO;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.action.ActionService;
-import org.alfresco.service.cmr.dictionary.AspectDefinition;
-import org.alfresco.service.cmr.dictionary.AssociationDefinition;
-import org.alfresco.service.cmr.dictionary.ClassDefinition;
-import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
-import org.alfresco.service.cmr.dictionary.DictionaryService;
-import org.alfresco.service.cmr.dictionary.PropertyDefinition;
+import org.alfresco.service.cmr.dictionary.*;
 import org.alfresco.service.cmr.lock.LockService;
 import org.alfresco.service.cmr.lock.LockType;
-import org.alfresco.service.cmr.repository.ChildAssociationRef;
-import org.alfresco.service.cmr.repository.ContentReader;
-import org.alfresco.service.cmr.repository.ContentService;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.repository.*;
+import org.alfresco.service.cmr.repository.datatype.DefaultTypeConverter;
 import org.alfresco.service.cmr.rule.RuleService;
 import org.alfresco.service.cmr.search.SearchService;
-import org.alfresco.service.cmr.security.AccessPermission;
-import org.alfresco.service.cmr.security.AccessStatus;
-import org.alfresco.service.cmr.security.AuthorityService;
-import org.alfresco.service.cmr.security.AuthorityType;
-import org.alfresco.service.cmr.security.OwnableService;
-import org.alfresco.service.cmr.security.PermissionService;
+import org.alfresco.service.cmr.security.*;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
 import org.apache.commons.lang3.StringUtils;
@@ -60,7 +31,14 @@ import org.json.JSONObject;
 import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.security.access.AccessDeniedException;
 
-import dk.openesdh.repo.model.OpenESDHModel;
+import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.*;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Created by torben on 19/08/14.
@@ -192,8 +170,8 @@ public class CaseServiceImpl implements CaseService {
                                     authorityService.addAuthority(groupName, authority);
                                 }
                             }
-                    return null;
-                }
+                            return null;
+                        }
                     });
             return null;
         });
@@ -213,17 +191,17 @@ public class CaseServiceImpl implements CaseService {
         checkCanUpdateCaseRoles(caseNodeRef);
 
         runAsAdmin(() -> {
-                // Do in transaction
-                transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper
-                        .RetryingTransactionCallback<Object>() {
-                    @Override
-                    public Object execute() throws Throwable {
-                        removeAuthorityFromRole(authorityName, fromRole, caseNodeRef);
-                        addAuthorityToRole(authorityName, toRole, caseNodeRef);
-                        return null;
-                    }
-                });
-                return null;
+            // Do in transaction
+            transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper
+                    .RetryingTransactionCallback<Object>() {
+                @Override
+                public Object execute() throws Throwable {
+                    removeAuthorityFromRole(authorityName, fromRole, caseNodeRef);
+                    addAuthorityToRole(authorityName, toRole, caseNodeRef);
+                    return null;
+                }
+            });
+            return null;
         });
     }
 
@@ -352,31 +330,56 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
+    public CaseInfo getCaseInfo(NodeRef caseNodeRef) {
+        CaseInfo caseInfo;
+
+        // Get the properties
+        Map<QName, Serializable> properties = this.getCaseProperties(caseNodeRef);
+        String caseId = this.getCaseId(caseNodeRef);
+        String title = (String) properties.get(ContentModel.PROP_TITLE);
+        String description = (String) properties.get(ContentModel.PROP_DESCRIPTION);
+
+        // Create and return the site information
+        caseInfo = new CaseInfoImpl(caseNodeRef, caseId, title, description, properties);
+
+        caseInfo.setCreatedDate(DefaultTypeConverter.INSTANCE.convert(Date.class, properties.get(ContentModel.PROP_CREATED)));
+        caseInfo.setLastModifiedDate(DefaultTypeConverter.INSTANCE.convert(Date.class, properties.get(ContentModel.PROP_MODIFIED)));
+        caseInfo.setStartDate(DefaultTypeConverter.INSTANCE.convert(Date.class, properties.get(OpenESDHModel.PROP_CASE_STARTDATE)));
+        caseInfo.setEndDate(DefaultTypeConverter.INSTANCE.convert(Date.class, properties.get(OpenESDHModel.PROP_CASE_ENDDATE)));
+
+        return caseInfo;
+    }
+
+    @Override
+    public CaseInfo getCaseInfo(String caseId) {
+        return getCaseInfo(getCaseById(caseId));
+    }
+
+    @Override
     public JSONArray getCaseCreateFormWidgets(String caseType) {
         JSONArray widgets = null;
         Pattern modelPattern = Pattern.compile("(\\w+):(\\w+)");
         Matcher matcher = modelPattern.matcher(caseType);
-        if(matcher.find()){ // then get the folder name from the postfix
+        if (matcher.find()) { // then get the folder name from the postfix
             caseType = StringUtils.substringAfter(caseType, ":");
         }
         //Recursively step 2 levels down to get the file
         NodeRef typesFolder;
         NodeRef caseFolder;
         NodeRef caseFormsFolder;
-        try{
+        try {
             typesFolder = getCasesTypeStorageRootNodeRef();
             caseFolder = nodeService.getChildByName(typesFolder, ContentModel.ASSOC_CONTAINS, caseType);
             caseFormsFolder = nodeService.getChildByName(caseFolder, ContentModel.ASSOC_CONTAINS, "forms");
             //Now read the file
             NodeRef formWidgetsFile = nodeService.getChildByName(caseFormsFolder, ContentModel.ASSOC_CONTAINS, "create-form.js");
             //Read the file contents
-            ContentReader contentReader = contentService.getReader(formWidgetsFile,ContentModel.PROP_CONTENT);
-            String tmp =  contentReader.getContentString();
+            ContentReader contentReader = contentService.getReader(formWidgetsFile, ContentModel.PROP_CONTENT);
+            String tmp = contentReader.getContentString();
             JSONObject unparsedJSON = new JSONObject(tmp);
             widgets = unparsedJSON.getJSONArray("widgets");
-        }
-        catch(Exception ge){
-            LOGGER.warn("\n\n\n====>\nerror with retrieving widgets: "+ ge.getMessage()+"\n\n");
+        } catch (Exception ge) {
+            LOGGER.warn("\n\n\n====>CaseServiceImpl - 379:\nerror with retrieving widgets: " + ge.getMessage() + "\n\n");
         }
 
         return widgets;
@@ -463,22 +466,22 @@ public class CaseServiceImpl implements CaseService {
 
         List<PropertyDefinition> propertyDefs = new ArrayList<>();
 
-        for (QName classType: dictionaryService.getSubTypes(caseType, true)) {
+        for (QName classType : dictionaryService.getSubTypes(caseType, true)) {
             ClassDefinition classDefinition = dictionaryService.getClass(classType);
             classDefs.put(classType, classDefinition);
 
             Map<QName, PropertyDefinition> classProperties = classDefinition.getProperties();
 
-            for (QName propertyName: classProperties.keySet()) {
+            for (QName propertyName : classProperties.keySet()) {
                 PropertyDefinition p = classProperties.get(propertyName);
                 propertyDefs.addAll(classProperties.values());
 
             }
 
-            for (AspectDefinition aspect: classDefinition.getDefaultAspects()) {
+            for (AspectDefinition aspect : classDefinition.getDefaultAspects()) {
                 ClassDefinition aspectClassDefinition = dictionaryService.getClass(aspect.getName());
                 Map<QName, PropertyDefinition> aspectProperties = aspectClassDefinition.getProperties();
-                for (QName propertyName: aspectProperties.keySet()) {
+                for (QName propertyName : aspectProperties.keySet()) {
                     propertyDefs.addAll(aspectProperties.values());
                 }
             }
@@ -499,12 +502,10 @@ public class CaseServiceImpl implements CaseService {
     public List<String> getCaseUserPermissions(String caseId) {
 
         // Consumer doesn't have _ReadPermissions permission therefore run as
-        // system
-        System.out.println("\n\n\t\t\t=>CaseServiceImpl - 495: "+caseId);
+        // syste
 
         Set<AccessPermission> allPermissionsSetToCase =
                 AuthenticationUtil.runAsSystem(() -> permissionService.getAllSetPermissions(getCaseById(caseId)));
-
 
         Set<String> currentUserAuthorities =
                 AuthenticationUtil.runAsSystem(() -> authorityService.getAuthoritiesForUser(AuthenticationUtil.getFullyAuthenticatedUser()));
@@ -869,12 +870,13 @@ public class CaseServiceImpl implements CaseService {
 
         return caseId.toString();
     }
+
     private <T> Collection<T> reorderedValues(List<ClassDefinition> sortedClassDefs, Map<QName, T> dependent) {
         ArrayList result = new ArrayList(sortedClassDefs.size());
         Iterator i$ = sortedClassDefs.iterator();
 
-        while(i$.hasNext()) {
-            ClassDefinition classDef = (ClassDefinition)i$.next();
+        while (i$.hasNext()) {
+            ClassDefinition classDef = (ClassDefinition) i$.next();
             result.add(dependent.get(classDef.getName()));
         }
 
@@ -885,10 +887,10 @@ public class CaseServiceImpl implements CaseService {
         org.json.JSONArray result = new org.json.JSONArray();
         org.json.JSONObject lvPair;
 
-        List<String> constraintValues = (List<String>)constraint.getConstraint().getParameters().get(ListOfValuesConstraint.ALLOWED_VALUES_PARAM);
+        List<String> constraintValues = (List<String>) constraint.getConstraint().getParameters().get(ListOfValuesConstraint.ALLOWED_VALUES_PARAM);
         for (String constraintValue : constraintValues) {
             lvPair = new org.json.JSONObject();
-            lvPair.put("label", ((ListOfValuesConstraint)constraint.getConstraint()).getDisplayLabel(constraintValue, dictionaryService));
+            lvPair.put("label", ((ListOfValuesConstraint) constraint.getConstraint()).getDisplayLabel(constraintValue, dictionaryService));
             lvPair.put("value", constraintValue);
             result.put(lvPair);
         }
@@ -926,6 +928,21 @@ public class CaseServiceImpl implements CaseService {
             casePathNodeRef = createNode(parent, casePathName);
         }
         return casePathNodeRef;
+    }
+
+    /**
+     * Gets a map containing all the case's properties
+     *
+     * @return Map<QName, Serializable>    map containing all the properties of the case
+     */
+    private Map<QName, Serializable> getCaseProperties(NodeRef caseNodeRef) {
+        Map<QName, Serializable> allProperties = new HashMap<QName, Serializable>();
+        Map<QName, Serializable> properties = this.nodeService.getProperties(caseNodeRef);
+
+        for (Map.Entry<QName, Serializable> entry : properties.entrySet()) {
+            allProperties.put(entry.getKey(), entry.getValue());
+        }
+        return allProperties;
     }
 
     long getCaseUniqueId(NodeRef caseNodeRef) {
@@ -989,7 +1006,7 @@ public class CaseServiceImpl implements CaseService {
 
         List<String> authoritiesWithSetPermissions = getAllAuthoritiesWithSetPermissions(caseNodeRef);
 
-        for(String permission : settablePermissions){
+        for (String permission : settablePermissions) {
             String groupNameToGrant = PermissionService.GROUP_PREFIX + permission;
             if (authorityService.authorityExists(groupNameToGrant)
                     && !authoritiesWithSetPermissions.contains(groupNameToGrant)) {
