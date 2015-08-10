@@ -1,5 +1,6 @@
 package dk.openesdh.repo.webscripts;
 
+import com.google.common.net.MediaType;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.PersonService;
@@ -28,6 +29,7 @@ public class CurrentUser extends AbstractRESTWebscript{
             obj.put("name", personInfo.getFirstName()+" "+personInfo.getLastName() +" ("+ personInfo.getUserName()+")");
             obj.put("userName", personInfo.getUserName());
             obj.put("selectable", true);
+            res.setContentType(MediaType.JSON_UTF_8.toString());
             obj.write(res.getWriter());
         }
         catch (Exception joe){
