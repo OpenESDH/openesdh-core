@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-public class BaseCasePage extends BasePage{
+public class BaseCasePage extends BasePage {
     private static final String URL = BASE_URL + "/page/oe/case/@@ID@@/";
 
     @Before
@@ -61,8 +61,23 @@ public class BaseCasePage extends BasePage{
     @FindBy(name = "prop_cm_description")
     WebElement caseDescriptionField;
 
-    @FindBy(css="#CREATE_CASE_DIALOG .dijitDialogPaneContent .footer .confirmation .dijitButtonNode")
+    @FindBy(id="CREATE_CASE_DIALOG_STATUS_SELECT_CONTROL")
+    WebElement caseStatusSelectButton;
+
+    @FindBy(id="CREATE_CASE_DIALOG_AUTH_PICKER")
+    WebElement caseAuthPickerButton;
+
+    @FindBy(css="#CREATE_CASE_DIALOG_JOURNAL_KEY .category-picker-control .dijitButtonNode")
+    WebElement caseJournalKeyChooseButton;
+
+    @FindBy(css="#CATEGORY_PICKER_DIALOG .category-item:first-child")
+    WebElement categoryPickerDialogFirstCategoryItem;
+
+    @FindBy(css="#CREATE_CASE_DIALOG .dijitDialogPaneContent .footer .confirmationButton .dijitButtonNode")
     WebElement createCaseDialogConfirmButton;
+
+    @FindBy(css="#CREATE_CASE_DIALOG .dijitDialogPaneContent .footer .cancellationButton .dijitButtonNode")
+    WebElement createCaseDialogCancelButton;
 
     @FindBy(xpath="//div[@class='buttons']//span[1]//span[contains(@class,'dijitButtonNode')]")
     WebElement pickerDialogSearchButton;
@@ -113,7 +128,7 @@ public class BaseCasePage extends BasePage{
         pickerDialogSearchButton.click();
     }
 
-    protected String createCaseAsUser(User user){
+    public String createCaseAsUser(User user){
         this.loginAsUser(user);
         String caseTitleText = RandomStringUtils.randomAlphanumeric(12);
         this.clickCasesMenuItem();
@@ -121,6 +136,12 @@ public class BaseCasePage extends BasePage{
         assertNotNull(createCaseDialog);
         this.caseTitleTextBox.clear();
         this.caseTitleTextBox.sendKeys(caseTitleText);
+
+        this.caseJournalKeyChooseButton.click();
+        // Pick the first category in the category picker dialog
+        wait.until(ExpectedConditions.elementToBeClickable(categoryPickerDialogFirstCategoryItem));
+        categoryPickerDialogFirstCategoryItem.click();
+
         this.caseDescriptionField.sendKeys(caseTitleText);
         assertNotNull(createCaseDialogConfirmButton);
         createCaseDialogConfirmButton.click();

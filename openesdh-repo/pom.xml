@@ -135,16 +135,6 @@
             </properties>
         </profile>
         <profile>
-            <id>enable-classification-sync</id>
-            <properties>
-                <!-- Enable sync of KLE data, overriding any settings in
-                     alfresco-global.properties. Sync is normally disabled
-                     during testing, but can be enabled by activating this
-                     profile. -->
-                <openesdh.classification.sync.enabled>true</openesdh.classification.sync.enabled>
-            </properties>
-        </profile>
-        <profile>
             <id>jenkins-integration-all-modules</id>
             <dependencies>
                 <dependency>
