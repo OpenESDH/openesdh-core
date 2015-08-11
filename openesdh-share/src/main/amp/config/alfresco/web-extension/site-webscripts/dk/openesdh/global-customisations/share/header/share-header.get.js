@@ -195,7 +195,7 @@ if(verticalLayout){
     verticalLayout.config.widgets.pop();
     verticalLayout.config.widgets.push({
         id: "HEADER_TITLE_BAR",
-        name: "alfresco/layout/BootstrapContainer",
+        name: "openesdh/common/widgets/layout/BootstrapContainer",
         config: {
             additionalCssClasses: "share-header-title",
             widgets: HEADER_TITLE_BAR.config.widgets
@@ -205,7 +205,7 @@ if(verticalLayout){
     var SHARE_HEADER = widgetUtils.findObject(model.jsonModel, "id", "SHARE_HEADER");
     verticalLayout.config.widgets.shift();
     verticalLayout.config.widgets.unshift({
-                name: "alfresco/layout/BootstrapContainer",
+                name: "openesdh/common/widgets/layout/BootstrapContainer",
                 config: {
                     additionalCssClasses: "alfrescoHeader",
                     widgets: [SHARE_HEADER]
@@ -215,7 +215,7 @@ if(verticalLayout){
 //var shareVerticalLayout = widgetUtils.findObject(model.jsonModel, "id", "SHARE_VERTICAL_LAYOUT");
 
 //model.jsonModel.widgets = [{
-//    name: "alfresco/layout/BootstrapContainer",
+//    name: "openesdh/common/widgets/layout/BootstrapContainer",
 //    config: {
 //        widgets: [shareVerticalLayout]
 //    }

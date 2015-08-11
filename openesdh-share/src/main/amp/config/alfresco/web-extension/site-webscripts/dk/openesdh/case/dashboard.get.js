@@ -18,7 +18,7 @@ model.jsonModel = {
 	               "openesdh/common/services/CaseMembersService"],
 	           widgets: [{
 
-	               name: "alfresco/layout/BootstrapContainer",
+	               name: "openesdh/common/widgets/layout/BootstrapContainer",
 	               config: {
 	                   widgets: [{
 	                       name: "openesdh/common/widgets/layout/BootstrapGrid",
