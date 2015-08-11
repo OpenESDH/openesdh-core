@@ -9,6 +9,7 @@ import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -27,14 +28,17 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import javax.xml.bind.*;
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBElement;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.net.MalformedURLException;
 import java.net.URL;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -48,6 +52,7 @@ public class KLEClassificationSynchronizer extends AbstractLifecycleBean impleme
     protected String kleEmneplanURL;
     protected Repository repositoryHelper;
     protected NodeService nodeService;
+    protected ServiceRegistry serviceRegistry;
 
     public final static String KLE_EMNEPLAN_ROOT_CATEGORY_NAME = "kle_emneplan";
 
@@ -97,28 +102,44 @@ public class KLEClassificationSynchronizer extends AbstractLifecycleBean impleme
         }
     }
 
+    /**
+     * Get the root category, below cm:generalclassifiable. This avoids
+     * using CategoryService's getRootCategories, because it relies on Solr,
+     * which is not available during bootstrap.
+     * @param rootCategoryName
+     * @param create
+     * @return
+     */
+    NodeRef getRootCategory(String rootCategoryName, boolean create) {
+        NodeRef rootNode = nodeService.getRootNode(repositoryHelper.getCompanyHome().getStoreRef());
+        List<NodeRef> nodeRefs = serviceRegistry.getSearchService().selectNodes(rootNode,
+                "/cm:categoryRoot/cm:generalclassifiable",
+                null, serviceRegistry.getNamespaceService(), false);
+        NodeRef rootCategoryNodeRef = nodeRefs.get(0);
+        ChildAssociationRef category = categoryService.getCategory(rootCategoryNodeRef, ContentModel.ASPECT_GEN_CLASSIFIABLE, rootCategoryName);
+        if (category != null) {
+            return category.getChildRef();
+        } else {
+            if (create) {
+                return categoryService.createCategory(rootCategoryNodeRef, rootCategoryName);
+            } else {
+                return null;
+            }
+        }
+    }
+
     boolean rootCategoryExists(String rootCategoryName) {
-        return !categoryService.getRootCategories(
-                repositoryHelper.getCompanyHome().getStoreRef(),
-                ContentModel.ASPECT_GEN_CLASSIFIABLE,
-                rootCategoryName).isEmpty();
+        return getRootCategory(rootCategoryName, false) != null;
     }
 
     NodeRef getOrCreateRootCategory(String rootCategoryName) {
-        Collection<ChildAssociationRef> rootCategories = categoryService.getRootCategories(
-                repositoryHelper.getCompanyHome().getStoreRef(),
-                ContentModel.ASPECT_GEN_CLASSIFIABLE,
-                rootCategoryName, true);
-        return rootCategories.iterator().next().getChildRef();
+        return getRootCategory(rootCategoryName, true);
     }
 
     void deleteRootCategoryIfExists(String rootCategoryName) {
-        Collection<ChildAssociationRef> rootCategories = categoryService.getRootCategories(
-                repositoryHelper.getCompanyHome().getStoreRef(),
-                ContentModel.ASPECT_GEN_CLASSIFIABLE,
-                rootCategoryName, false);
-        if (!rootCategories.isEmpty()) {
-            nodeService.deleteNode(rootCategories.iterator().next().getChildRef());
+        NodeRef rootCategory = getRootCategory(rootCategoryName, false);
+        if (rootCategory != null) {
+            nodeService.deleteNode(rootCategory);
         }
     }
 
@@ -209,6 +230,34 @@ public class KLEClassificationSynchronizer extends AbstractLifecycleBean impleme
         PropertyCheck.mandatory(this, "kleEmneplanURL", kleEmneplanURL);
     }
 
+
+    @Override
+    protected void onBootstrap(ApplicationEvent event) {
+        if (!syncEnabled || !syncOnStartupIfMissing) {
+            return;
+        }
+        AuthenticationUtil.runAsSystem(
+                new AuthenticationUtil.RunAsWork<Object>() {
+                    @Override
+                    public Object doWork() throws Exception {
+                        // Sync on application startup, if there has never been a sync before
+                        if (!rootCategoryExists(KLE_EMNEPLAN_ROOT_CATEGORY_NAME)) {
+                            logger.info("KLE categories have never been synced. Performing " +
+                                    "initial sync.");
+
+                            synchronize();
+                        }
+                        return null;
+                    }
+                }
+        );
+    }
+
+    @Override
+    protected void onShutdown(ApplicationEvent event) {
+
+    }
+
     public void setCategoryService(CategoryService categoryService) {
         this.categoryService = categoryService;
     }
@@ -220,32 +269,8 @@ public class KLEClassificationSynchronizer extends AbstractLifecycleBean impleme
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
     }
-
-    @Override
-    protected void onBootstrap(ApplicationEvent event) {
-        if (!syncEnabled || !syncOnStartupIfMissing) {
-            return;
-        }
-        AuthenticationUtil.runAsSystem(
-            new AuthenticationUtil.RunAsWork<Object>() {
-                @Override
-                public Object doWork() throws Exception {
-                    // Sync on application startup, if there has never been a sync before
-                    if (!rootCategoryExists(KLE_EMNEPLAN_ROOT_CATEGORY_NAME)) {
-                        logger.info("KLE categories have never been synced. Performing " +
-                                "initial sync.");
-
-                        synchronize();
-                    }
-                    return null;
-                }
-            }
-        );
-    }
-
-    @Override
-    protected void onShutdown(ApplicationEvent event) {
-
+    public void setServiceRegistry(ServiceRegistry serviceRegistry) {
+        this.serviceRegistry = serviceRegistry;
     }
 
     public void setSyncOnStartupIfMissing(boolean syncOnStartupIfMissing) {
