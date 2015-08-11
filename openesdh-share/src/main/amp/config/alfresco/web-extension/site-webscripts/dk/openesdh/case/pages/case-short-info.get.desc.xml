@@ -1,0 +1,7 @@
+<webscript>
+    <shortname>Case Short Info</shortname>
+    <description>Page to show short information about a case</description>
+    <family>OpenESDH case</family>
+    <url>/case-short-info</url>
+    <url>/case-short-info/{caseId}</url>
+</webscript>

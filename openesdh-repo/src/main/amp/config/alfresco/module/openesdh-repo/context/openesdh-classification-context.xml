@@ -1,37 +1,40 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
 <beans>
-    <!--&lt;!&ndash; The Classification Sync Cron Job &ndash;&gt;-->
-    <!--<bean id="${project.artifactId}_classificationSyncTrigger"-->
-          <!--class="org.alfresco.util.CronTriggerBean">-->
-        <!--<property name="jobDetail">-->
-            <!--<bean id="${project.artifactId}_classificationJobDetail"-->
-                  <!--class="org.springframework.scheduling.quartz.JobDetailBean">-->
-                <!--<property name="jobClass">-->
-                    <!--<value>dk.openesdh.repo.classification.sync.ClassificationSynchronizerJob</value>-->
-                <!--</property>-->
-                <!--<property name="jobDataAsMap">-->
-                    <!--<map>-->
-                        <!--<entry key="classificationSynchronizer">-->
-                            <!--<ref bean="kleClassificationSynchronizer" />-->
-                        <!--</entry>-->
-                        <!--<entry key="jobLockService">-->
-                            <!--<ref bean="jobLockService" />-->
-                        <!--</entry>-->
-                    <!--</map>-->
-                <!--</property>-->
-            <!--</bean>-->
-        <!--</property>-->
-        <!--<property name="scheduler">-->
-            <!--<ref bean="schedulerFactory" />-->
-        <!--</property>-->
-        <!--<property name="cronExpression">-->
-            <!--<value>${openesdh.classification.sync.cron}</value>-->
-        <!--</property>-->
-    <!--</bean>-->
+    <!-- The Classification Sync Cron Job -->
+    <bean id="${project.artifactId}_classificationSyncTrigger"
+          class="org.alfresco.util.CronTriggerBean">
+        <property name="jobDetail">
+            <bean id="${project.artifactId}_classificationJobDetail"
+                  class="org.springframework.scheduling.quartz.JobDetailBean">
+                <property name="jobClass">
+                    <value>dk.openesdh.repo.classification.sync.ClassificationSynchronizerJob</value>
+                </property>
+                <property name="jobDataAsMap">
+                    <map>
+                        <entry key="classificationSynchronizer">
+                            <ref bean="kleClassificationSynchronizer" />
+                        </entry>
+                        <entry key="jobLockService">
+                            <ref bean="jobLockService" />
+                        </entry>
+                        <entry key="syncEnabled">
+                            <value>${openesdh.classification.sync.enabled}</value>
+                        </entry>
+                    </map>
+                </property>
+            </bean>
+        </property>
+        <property name="scheduler">
+            <ref bean="schedulerFactory" />
+        </property>
+        <property name="cronExpression">
+            <value>${openesdh.classification.sync.cron}</value>
+        </property>
+    </bean>
 
     <!-- The Classification Synchronizer (using KLE) -->
-   <!-- <bean id="kleClassificationSynchronizer"
+   <bean id="kleClassificationSynchronizer"
           class="dk.openesdh.repo.classification.sync.kle.KLEClassificationSynchronizer"
           init-method="init">
         <property name="transactionService">
@@ -52,5 +55,8 @@
         <property name="syncOnStartupIfMissing">
             <value>${openesdh.classification.kle.syncOnStartupIfMissing}</value>
         </property>
-    </bean>-->
+       <property name="syncEnabled">
+           <value>${openesdh.classification.sync.enabled}</value>
+       </property>
+    </bean>
 </beans>
