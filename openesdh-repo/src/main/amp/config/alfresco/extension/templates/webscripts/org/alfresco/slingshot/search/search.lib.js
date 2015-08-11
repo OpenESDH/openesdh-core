@@ -136,10 +136,11 @@ function getRepositoryItem(folderPath, node, populate) {
 /**
  * Returns an item of the case document.
  */
-function getCaseDocumentItem(caseId, containerId, pathParts, node, populate) {
-    // PENDING: how to handle comments? the document should
-    //          be returned instead
+function getCaseOrCaseDocumentItem(caseId, containerId, pathParts, node, populate) {
+    //We want to know whether we've just returned the case  if what we're seeing here is a folder.
+    var isCaseType = node.typeShort.substring(node.typeShort.indexOf(":")+1) == "case";
 
+    logger.log("\t\t\t===> search.lib.js - 143  Is a case item? : "+isCaseType+" <===\n");
     // check whether we already processed this document
     if (checkProcessedCache("" + node.nodeRef.toString())) {
         return null;
@@ -152,12 +153,12 @@ function getCaseDocumentItem(caseId, containerId, pathParts, node, populate) {
         item =
         {
             //case: node.properties["oe:id"],
-            case: caseUtils.getCaseInfo(caseId),
+            case: isCaseType? node : caseUtils.getCaseInfo(caseId),
             container: containerId,
             nodeRef: node.nodeRef.toString(),
             tags: ((t = node.tags) !== null) ? t : [],
             name: node.name,
-            displayName: node.name,
+            displayName: node.properties["cm:title"]? node.properties["cm:title"] : node.name,
             title: node.properties["cm:title"],
             description: node.properties["cm:description"],
             modifiedOn: node.properties["cm:modified"],
@@ -172,7 +173,7 @@ function getCaseDocumentItem(caseId, containerId, pathParts, node, populate) {
         item.createdBy = getPersonDisplayName(item.createdByUser);
     }
     if (node.isContainer) {
-        item.type = "folder";
+        item.type = isCaseType? "case" : "folder";
         item.size = -1;
     }
     else if (node.isDocument) {
@@ -504,7 +505,7 @@ function getItem(caseId, siteId, containerId, pathParts, node, populate) {
     }
     else if (caseId != null) {
         //We want a document within the case and contacts
-        item = getCaseDocumentItem(caseId, containerId, pathParts,node,populate);
+        item = getCaseOrCaseDocumentItem(caseId, containerId, pathParts,node,populate);
     }
     else {
         switch ("" + containerId.toLowerCase()) {
@@ -617,6 +618,15 @@ function splitQNamePath(node, rootNodeDisplayPath, rootNodeQNamePath, qnameOnly)
                 displayPath = substituteDisplayPath;
                 logger.log("\t\t\t===> search.lib.js - 617  The path after substitution: " + displayPath.toString() + " <===\n\n\n");
             }
+        }
+        else{
+            //We have matched the case itself
+            containerId = qpathUnderCasesFolder;
+            logger.log("\t\t\t===> search.lib.js - 625  containerId 1st treatment: " + containerId + " <===\n");
+            containerId = containerId.substring(containerId.indexOf(":") + 1);
+            logger.log("\t\t\t===> search.lib.js - 627  containerId 2nd treatment: " + containerId + " <===\n");
+
+            displayPath = substituteDisplayPath.concat(caseId).concat("dashboard");
         }
     }
     else {
