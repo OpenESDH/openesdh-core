@@ -592,15 +592,12 @@ function splitQNamePath(node, rootNodeDisplayPath, rootNodeQNamePath, qnameOnly)
         var decodedCasePath = Packages.org.alfresco.util.ISO9075.decode(qpathUnderCasesFolder);
         caseId = decodedCasePath.match(/([0-9]{8})-([0-9]*)/g);
 
-        logger.log("\t\t\t===> search.lib.js 585: qpathUnderCasesFolder - " + qpathUnderCasesFolder + " <===\n");
-
         if (postContainerPosition !== -1) {
             // Decode the Case ID from the qname path using the util method - as we may not have displayPath
             // the displayPath will look something like this: ["", "Company Home", "Sites", "MySite", "documentLibrary", "MyFolder"]
 
             var qpathContainer = qpathUnderCasesFolder.substring(positionContainer + 1);
             var positionUnderContainer = qpathContainer.indexOf("/");
-            logger.log("\t\t\t===> search.lib.js - 592  qpathContainer: " + qpathContainer + " <===\n");
             if (positionUnderContainer !== -1) {
                 // extract container id from the qname path - strip off namespace
                 containerId = qpathContainer.substring(0, positionUnderContainer);
@@ -622,10 +619,7 @@ function splitQNamePath(node, rootNodeDisplayPath, rootNodeQNamePath, qnameOnly)
         else{
             //We have matched the case itself
             containerId = qpathUnderCasesFolder;
-            logger.log("\t\t\t===> search.lib.js - 625  containerId 1st treatment: " + containerId + " <===\n");
             containerId = containerId.substring(containerId.indexOf(":") + 1);
-            logger.log("\t\t\t===> search.lib.js - 627  containerId 2nd treatment: " + containerId + " <===\n");
-
             displayPath = substituteDisplayPath.concat(caseId).concat("dashboard");
         }
     }
@@ -1180,6 +1174,7 @@ function getSearchResults(params) {
             rs.meta);
     }
     else {
+        logger.log("\r\n===> Rs.meta prop value: "+ rs.meta.toString());
         return processResultsSinglePage(
             nodes,
             params.startIndex,

@@ -221,7 +221,6 @@ define(["dojo/_base/declare",
              */
             createTitleRenderer: function alfresco_search_AlfSearchResult__createTitleRenderer() {
                 var isCase = this.currentItem.type == "case";
-                console.log("is case = "+isCase);
                 // jshint nonew:false
                 if (!this.currentItem.title)
                 {
