@@ -1,17 +1,41 @@
+.NotesGrid .dgrid {
+	border: none;	
+	height: 15em;
+}
+
 .NotesGrid .dgrid-row {
-    padding: .5em;
+    padding: .5em 10px;
+}
+
+.NotesGrid  .dgrid-scroller {
+	overflow-y: auto;
+}
+
+.NotesGrid .note-meta {
+	font-size: 11px;
+	margin-top: 5px;
+	display: table;
+	width: 100%;
+}
+
+.NotesGrid .note-meta-td {
+	display: table-cell;
+	color: @de-emphasized-font-color;
+	width: 50%;
+}
+
+.NotesGrid .note-header .created,
+.NotesGrid .note-header .author {
+    display: inline-block;
+    color: @de-emphasized-font-color;
 }
 
 .NotesGrid .note-header .created {
-    display: block;
-    float: left;
-    font-weight: bold;
-    margin-right: 1em;
+	margin-right: 5px;
 }
 
-.NotesGrid .note-header .author {
-    display: block;
-    margin-left: 13em;
+.NotesGrid .note-header .author a {
+	color: @de-emphasized-font-color;
 }
 
 .NotesGrid .note-content {

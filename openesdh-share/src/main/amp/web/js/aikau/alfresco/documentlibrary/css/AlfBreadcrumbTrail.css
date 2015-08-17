@@ -1,0 +1,20 @@
+.alfresco-documentlibrary-AlfBreadcrumbTrail {
+   margin-bottom: @standard-line-height;
+   margin-top: @standard-line-height;
+   font-family: @bold-font;
+   color: @breadcrumb-font-color;
+   font-size: @normal-font-size;
+   border: 1px solid @standard-border-color;
+}
+
+.alfresco-documentlibrary-AlfBreadcrumbTrail.hidden {
+   display: none;
+}
+
+.alfresco-documentlibrary-AlfBreadcrumbTrail ul { 
+   list-style: none; 
+   overflow: hidden; 
+   padding-left: 0;
+   margin-top: 0;
+   margin-bottom: 0;
+}

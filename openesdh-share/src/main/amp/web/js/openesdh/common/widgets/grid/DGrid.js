@@ -138,6 +138,8 @@ define(["dojo/_base/declare",
             renderRow: null,
 
             showHeader: true,
+            
+            pagingActions: [],
 
             constructor: function (args) {
                 lang.mixin(this, args);
@@ -292,7 +294,8 @@ define(["dojo/_base/declare",
                     cellNavigation: false,
                     showFooter: this.showFooter,
                     className: this.autoHeight ? "dgrid-autoheight" : "",
-                    showHeader: this.showHeader
+                    showHeader: this.showHeader,
+                    renderPagingActions: lang.hitch(this, "renderPagingActions")
                 };
 
                 if (this.renderRow != null) {
@@ -313,6 +316,28 @@ define(["dojo/_base/declare",
 
                 this.grid.placeAt(this.containerNode);
                 this.grid.startup();
+            },
+            
+            renderPagingActions: function(node){
+                
+                if(!this.pagingActions || this.pagingActions.length == 0){
+                    return;
+                }
+                
+                var div = domConstruct.toDom('<div class="dgrid-pagination-actions" style="white-space: nowrap;"></div>');
+                
+                array.forEach(this.pagingActions, lang.hitch(this, function (action, i){
+                    if (action.callback == null || !(typeof this[action.callback] === "function")) {
+                        return;
+                    }
+                    var label = this.message(action.label);
+                    var actionElem = domConstruct.toDom("<a class='action-" + action.id + "' href='#' title='" + label + "'>" + label + "</a>");
+                    on(actionElem, "click", lang.hitch(this, function () {
+                        this[action.callback].call(this, null);
+                    }));
+                    domConstruct.place(actionElem, div);
+                }));
+                domConstruct.place(div, node);
             },
 
             addKeyHandlers: function() {

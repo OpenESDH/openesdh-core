@@ -1,13 +1,15 @@
 .alfresco-renderers-Property.alfresco-renderers-Property.block{
     margin: 0px 0px 0.5em;
+    padding: 10px 10px 0 10px;
 }
+
 .alfresco-renderers-Property .inner .label{
-    font-weight: bold;
     font-size: 1em;
-    margin: 0 0.3em 0 0.3em;
+    /*margin: 0 0.3em 0 0.3em;*/
+    color: @label-color;
 }
 
 .case-info-widget .alfresco-renderers-Property .inner .label{
-	display: inline-block;
+	/* display: inline-block;*/
 	width: 120px;
 }
