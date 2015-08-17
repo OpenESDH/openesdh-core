@@ -1174,7 +1174,6 @@ function getSearchResults(params) {
             rs.meta);
     }
     else {
-        logger.log("\r\n===> Rs.meta prop value: "+ rs.meta.toString());
         return processResultsSinglePage(
             nodes,
             params.startIndex,

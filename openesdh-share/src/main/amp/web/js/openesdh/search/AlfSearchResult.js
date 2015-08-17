@@ -16,7 +16,8 @@ define(["dojo/_base/declare",
         "dojo/text!./templates/AlfSearchResult.html",
         "alfresco/renderers/Property",
         "alfresco/renderers/PropertyLink",
-        "alfresco/search/SearchThumbnail",
+        "openesdh/search/SearchThumbnail",
+        //"alfresco/search/SearchThumbnail",
         "alfresco/search/AlfSearchResult",
         "alfresco/renderers/Date",
         //"openesdh/common/widgets/renderers/Date",
@@ -237,6 +238,22 @@ define(["dojo/_base/declare",
                         renderedValueSuffix: ")"
                     }, this.titleNode);
                 }
+            },
+
+            /**
+             * This function is called to create a [SearchThumbnail widget]{@link module:alfresco/renderers/SearchThumbnail}.
+             * It can be overridden to replace the default widget with a reconfigured version.
+             *
+             * @instance
+             */
+            createThumbnailRenderer: function alfresco_search_AlfSearchResult__createThumbnailRenderer() {
+                // jshint nonew:false
+                new SearchThumbnail({
+                    currentItem: this.currentItem,
+                    pubSubScope: this.pubSubScope,
+                    showDocumentPreview: true,
+                    publishTopic: "ALF_NAVIGATE_TO_PAGE"
+                }, this.thumbnailNode);
             }
         });
     });
