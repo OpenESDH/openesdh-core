@@ -167,3 +167,56 @@ model.jsonModel.services.push(caseService);
 model.jsonModel.services.push("openesdh/common/services/AuthorityService");
 model.jsonModel.services.push("alfresco/services/OptionsService");
 model.jsonModel.services.push("alfresco/services/DialogService");
+
+
+var verticalLayout = widgetUtils.findObject(model.jsonModel, "id", "SHARE_VERTICAL_LAYOUT");
+if(verticalLayout){
+    var HEADER_TITLE_BAR = widgetUtils.findObject(model.jsonModel, "id", "HEADER_TITLE_BAR");
+    
+    
+    var HEADER_TITLE = widgetUtils.findObject(model.jsonModel, "id", "HEADER_TITLE"),
+    	HEADER_NAVIGATION_MENU_BAR = widgetUtils.findObject(model.jsonModel, "id", "HEADER_NAVIGATION_MENU_BAR"),
+    	HEADER_TITLE_MENU = widgetUtils.findObject(model.jsonModel, "id", "HEADER_TITLE_MENU");
+    
+    HEADER_TITLE_BAR.config.widgets.length = 0;
+    HEADER_TITLE_BAR.config.widgets.push({
+    	  name: "alfresco/layout/LeftAndRight",
+    	  config: {
+    	    widgets: [
+    	      HEADER_TITLE,
+    	      HEADER_TITLE_MENU
+    	    ]
+    	  }
+    	});
+    
+    HEADER_TITLE_BAR.config.widgets.push(HEADER_NAVIGATION_MENU_BAR);
+    
+    
+    verticalLayout.config.widgets.pop();
+    verticalLayout.config.widgets.push({
+        id: "HEADER_TITLE_BAR",
+        name: "openesdh/common/widgets/layout/BootstrapContainer",
+        config: {
+            additionalCssClasses: "share-header-title",
+            widgets: HEADER_TITLE_BAR.config.widgets
+        }
+    });
+    
+    var SHARE_HEADER = widgetUtils.findObject(model.jsonModel, "id", "SHARE_HEADER");
+    verticalLayout.config.widgets.shift();
+    verticalLayout.config.widgets.unshift({
+                name: "openesdh/common/widgets/layout/BootstrapContainer",
+                config: {
+                    additionalCssClasses: "alfrescoHeader",
+                    widgets: [SHARE_HEADER]
+                }
+    });
+}
+//var shareVerticalLayout = widgetUtils.findObject(model.jsonModel, "id", "SHARE_VERTICAL_LAYOUT");
+
+//model.jsonModel.widgets = [{
+//    name: "openesdh/common/widgets/layout/BootstrapContainer",
+//    config: {
+//        widgets: [shareVerticalLayout]
+//    }
+//}];

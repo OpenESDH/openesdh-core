@@ -55,11 +55,6 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
 
     public OpenESDHAuditQueryCallBack() {
         super();
-//        try {
-//            result.put("entries", new JSONArray());
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
         this.DefaultValidKeysSetup();
     }
 
@@ -168,7 +163,7 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
                                     auditEntry.put("type", I18NUtil
                                             .getMessage("auditlog.label.type.note"));
                                 } else {
-                                    auditEntry.put("action", I18NUtil.getMessage("auditlog.label.case.created") + " " + pArray[6].split(":")[1]);
+                                    auditEntry.put("action", I18NUtil.getMessage("auditlog.label.case.created") + " " + pArray[pArray.length-1].split(":")[1]);
                                     auditEntry.put("type", getTypeMessageSystem());
                                     result.add(auditEntry);
                                 }
