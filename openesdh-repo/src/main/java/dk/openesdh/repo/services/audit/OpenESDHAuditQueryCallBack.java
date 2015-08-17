@@ -55,11 +55,6 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
 
     public OpenESDHAuditQueryCallBack() {
         super();
-//        try {
-//            result.put("entries", new JSONArray());
-//        } catch (JSONException e) {
-//            e.printStackTrace();
-//        }
         this.DefaultValidKeysSetup();
     }
 
