@@ -162,8 +162,7 @@ define(["dojo/_base/declare",
                     this.alfPublish(this.CaseInfoTopic, response);
 
                     var caseProps  = response.allProps.properties;
-                    var caseTitle = caseProps["cm:title"].value;
-                    caseTitle += " (" + caseProps["cm:name"].value + ")"
+                    var caseTitle = caseProps["cm:name"].value + "      " + caseProps["cm:title"].value;
                     this.alfPublish("ALF_UPDATE_PAGE_TITLE", {title: caseTitle});
                 });
                 // Call it immediately after we receive the response, and let

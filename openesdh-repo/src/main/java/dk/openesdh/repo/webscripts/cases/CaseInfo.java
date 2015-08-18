@@ -53,8 +53,8 @@ public class CaseInfo extends AbstractWebScript {
             caseNodeRef = caseService.getCaseById(caseId);
 
         NodeInfoService.NodeInfo nodeInfo = nodeInfoService.getNodeInfo(caseNodeRef);
-        List<QName> requiredProps = Arrays.asList(ContentModel.PROP_TITLE, OpenESDHModel.ASSOC_CASE_OWNERS,
-                OpenESDHModel.PROP_OE_STATUS, OpenESDHModel.PROP_OE_CASE_ID,
+        List<QName> requiredProps = Arrays.asList(OpenESDHModel.PROP_OE_ID, ContentModel.PROP_TITLE,
+                OpenESDHModel.ASSOC_CASE_OWNERS, OpenESDHModel.PROP_OE_STATUS,
                 ContentModel.PROP_CREATOR, ContentModel.PROP_CREATED, ContentModel.PROP_MODIFIED,
                 ContentModel.PROP_MODIFIER, ContentModel.PROP_DESCRIPTION,
                 OpenESDHModel.PROP_OE_JOURNALKEY, OpenESDHModel.PROP_OE_JOURNALIZED_BY, OpenESDHModel.PROP_OE_JOURNALIZED_DATE
