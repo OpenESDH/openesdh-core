@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<KLE-Handlingsfacetter xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://www.klxml.dk/download/XSD-ver-2-0/KLE-Handlingsfacetter-version-2-0.xsd">
+	<UdgivelsesDato>2015-05-01</UdgivelsesDato>
+	<HandlingsfacetKategori>
+		<HandlingsfacetKategoriNr>A</HandlingsfacetKategoriNr>
+		<HandlingsfacetKategoriTitel>Organisering mv.</HandlingsfacetKategoriTitel>
+		<HandlingsfacetKategoriVejledning>
+			<VejledningTekst>
+				<p>A kategorien dækker sager om myndighedens organisering og tilrettelæggelse, fx:
+<ul>
+						<li>organisationsopbygning</li>
+						<li>tilrettelæggelse</li>
+						<li>kompetence og delegation</li>
+						<li>procedurefastlæggelse</li>
+					</ul>
+Facetterne bruges til søgning efter bestemte sagstyper, ledelsesinformation eller søgning på tværs, i forhold til emner.</p>
+			</VejledningTekst>
+		</HandlingsfacetKategoriVejledning>
+		<HandlingsfacetKategoriAdministrativInfo>
+			<OprettetDato>1988-01-01</OprettetDato>
+			<RettetDato>2005-02-01</RettetDato>
+		</HandlingsfacetKategoriAdministrativInfo>
+		<Handlingsfacet>
+			<HandlingsfacetNr>A00</HandlingsfacetNr>
+			<HandlingsfacetTitel>Organisering mv. i almindelighed</HandlingsfacetTitel>
+			<BevaringJaevnfoerArkivloven>B</BevaringJaevnfoerArkivloven>
+			<HandlingsfacetVejledning>
+				<VejledningTekst>
+					<p>A00 anvendes når en sag dækker flere A handlingsfacetter.</p>
+				</VejledningTekst>
+			</HandlingsfacetVejledning>
+			<HandlingsfacetAdministrativInfo>
+				<OprettetDato>1988-01-01</OprettetDato>
+			</HandlingsfacetAdministrativInfo>
+		</Handlingsfacet>
+	</HandlingsfacetKategori>
+</KLE-Handlingsfacetter>
