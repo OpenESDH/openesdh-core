@@ -9,6 +9,7 @@
          text-decoration: none;
          font-weight: 300;
          text-transform: uppercase;
+         white-space: pre;
          &.has-max-width {
             overflow: hidden;
             text-overflow: ellipsis;
