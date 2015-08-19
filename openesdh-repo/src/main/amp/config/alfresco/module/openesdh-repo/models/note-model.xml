@@ -10,7 +10,7 @@
         <import uri="http://www.alfresco.org/model/system/1.0" prefix="sys"/>
     </imports>
     <namespaces>
-        <namespace uri="http://openesdh.dk/model/note/1.0/" prefix="note"/>
+        <namespace uri="http://openesdh.dk/model/note/1.0" prefix="note"/>
     </namespaces>
     <types>
         <type name="note:note">
