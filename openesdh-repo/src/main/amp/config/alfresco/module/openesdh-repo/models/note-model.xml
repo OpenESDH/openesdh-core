@@ -12,7 +12,7 @@
         <import uri="http://openesdh.dk/model/contact/1.0/" prefix="contact" />
     </imports>
     <namespaces>
-        <namespace uri="http://openesdh.dk/model/note/1.0/" prefix="note"/>
+        <namespace uri="http://openesdh.dk/model/note/1.0" prefix="note"/>
     </namespaces>
     <types>
         <type name="note:note">

@@ -11,7 +11,7 @@
         <import uri="http://www.alfresco.org/model/datalist/1.0" prefix="dl"/>
     </imports>
     <namespaces>
-        <namespace uri="http://openesdh.dk/model/contact/1.0/" prefix="contact"/>
+        <namespace uri="http://openesdh.dk/model/contact/1.0" prefix="contact"/>
     </namespaces>
     <constraints>
         <constraint name="contact:cprConstraint" type="REGEX">
