@@ -185,127 +185,127 @@ define(["dojo/_base/declare",
          // jshint maxcomplexity:false,unused:false,maxstatements:false
          var totalRecords = lang.getObject(this.totalResultsProperty, false, payload);
          var startIndex = lang.getObject(this.startIndexProperty, false, payload);
-         if (payload && 
-             (totalRecords || totalRecords === 0) && 
-             (startIndex || startIndex === 0))
-         {
-            if (totalRecords === 0)
-            {
-               // Hide pagination controls when there are no results...
-               // domClass.add(this.domNode, "hidden");
-               if (this.pageSelector)
-               {
-                  domClass.add(this.pageSelector.domNode, "hidden");
-               }
-               domClass.add(this.pageBack.domNode, "hidden");
-               //domClass.add(this.pageMarker.domNode, "hidden");
-               domClass.add(this.pageForward.domNode, "hidden");
-               if (this.resultsPerPageGroup)
-               {
-                  domClass.add(this.resultsPerPageGroup.domNode, "hidden");
-               }
-            }
-            else
-            {
-               // Make sure the pagination controls aren't hidden...
-               // domClass.remove(this.domNode, "hidden");
-               if (this.pageSelector)
-               {
-                  domClass.remove(this.pageSelector.domNode, "hidden");
-               }
-               domClass.remove(this.pageBack.domNode, "hidden");
-               //domClass.remove(this.pageMarker.domNode, "hidden");
-               domClass.remove(this.pageForward.domNode, "hidden");
-               if (this.resultsPerPageGroup)
-               {
-                  domClass.remove(this.resultsPerPageGroup.domNode, "hidden");
-               }
-               
-               this.totalRecords = totalRecords;
-               this.totalPages = Math.ceil(totalRecords/this.documentsPerPage);
-               this.currentPage = ((startIndex - (startIndex % this.documentsPerPage))/this.documentsPerPage) + 1;
-
-               // Update the page back action to disable if on the first page...
-               if (this.pageBack)
-               {
-                  this.pageBack.set("disabled", this.currentPage === 1);
-               }
-               
-               // Update the page forward action to disable if on the last page...
-               if (this.pageForward)
-               {
-                  this.pageForward.set("disabled", this.currentPage === this.totalPages);
-               }
-               
-               // Update the page marker to show the current page...
-//               if (this.pageMarker)
-//               {
-//                  this.pageMarker.set("label", this.currentPage.toString());
-//                  domClass.remove(this.pageMarker.domNode, "dijitDisabled dijitMenuItemDisabled");
-//               }
-               
-               // Delete the previous page selector group contents...
-               if (this.pageSelectorGroup !== null)
-               {
-                  var _this = this;
-                  array.forEach(this.pageSelectorGroup.getChildren(), function(widget) {
-                     _this.pageSelectorGroup.removeChild(widget);
-                     widget.destroy();
-                  });
-               }
-               
-               // Create the page labels, which for English will be along the lines of 1-25
-               if (this.compactMode === false)
-               {
-                  var pageLabels = [];
-                  var pageStart = 1;
-                  for (var i=0; i<this.totalPages; i++)
-                  {
-                     // Comments below assume 25 docs per page...
-                     var pageEnd;
-                     if (i+1 !== this.totalPages)
-                     {
-                        // If we're not getting the labels for the last page...
-                        pageEnd = pageStart + parseInt(this.documentsPerPage, 10) - 1; // Deduct 1 because it's 1 - 25 (not 1 - 26!)
-                     }
-                     else
-                     {
-                        // ...for the last page just count up to the last document
-                        pageEnd = this.totalRecords;
-                     }
-                     
-                     var label = this.message("list.paginator.page.label", {0: pageStart, 1: pageEnd, 2: this.totalRecords});
-                     var menuItem = new AlfCheckableMenuItem({
-                        label: label,
-                        value: i+1,
-                        group: "PAGE_SELECTION_GROUP",
-                        checked: this.currentPage === i+1,
-                        publishTopic: this.pubSubScope + this.pageSelectionTopic,
-                        publishPayload: {
-                           label: label,
-                           value: i+1
-                        }
-                     });
-
-                     if (this.pageSelectorGroup !== null)
-                     {
-                        this.pageSelectorGroup.addChild(menuItem);
-                     }
-                     else
-                     {
-                        if (this.__initialPageSelectorItems === null)
-                        {
-                           this.__initialPageSelectorItems = [];
-                        }
-                        this.__initialPageSelectorItems.push(menuItem);
-                     }
-                     
-                     pageLabels.push();
-                     pageStart = pageEnd + 1; // Add the 1 back on because the next page starts at 26
-                  }
-               }
-            }
+         
+         if (!payload || 
+             !(totalRecords || totalRecords === 0) || 
+             !(startIndex || startIndex === 0)){
+             return;
          }
+         
+         if (totalRecords === 0){
+            // Hide pagination controls when there are no results...
+            // domClass.add(this.domNode, "hidden");
+            if (this.pageSelector)
+            {
+               domClass.add(this.pageSelector.domNode, "hidden");
+            }
+            domClass.add(this.pageBack.domNode, "hidden");
+            //domClass.add(this.pageMarker.domNode, "hidden");
+            domClass.add(this.pageForward.domNode, "hidden");
+            if (this.resultsPerPageGroup)
+            {
+               domClass.add(this.resultsPerPageGroup.domNode, "hidden");
+            }
+            return;
+         }
+         
+            // Make sure the pagination controls aren't hidden...
+            // domClass.remove(this.domNode, "hidden");
+            if (this.pageSelector)
+            {
+               domClass.remove(this.pageSelector.domNode, "hidden");
+            }
+            domClass.remove(this.pageBack.domNode, "hidden");
+            //domClass.remove(this.pageMarker.domNode, "hidden");
+            domClass.remove(this.pageForward.domNode, "hidden");
+            if (this.resultsPerPageGroup)
+            {
+               domClass.remove(this.resultsPerPageGroup.domNode, "hidden");
+            }
+            
+            this.totalRecords = totalRecords;
+            this.totalPages = Math.ceil(totalRecords/this.documentsPerPage);
+            this.currentPage = ((startIndex - (startIndex % this.documentsPerPage))/this.documentsPerPage) + 1;
+            
+            // Update the page back action to disable if on the first page...
+            if (this.pageBack)
+            {
+               this.pageBack.set("disabled", this.currentPage === 1);
+            }
+            
+            // Update the page forward action to disable if on the last page...
+            if (this.pageForward)
+            {
+               this.pageForward.set("disabled", this.currentPage === this.totalPages);
+            }
+            
+            // Update the page marker to show the current page...
+//            if (this.pageMarker)
+//            {
+//               this.pageMarker.set("label", this.currentPage.toString());
+//               domClass.remove(this.pageMarker.domNode, "dijitDisabled dijitMenuItemDisabled");
+//            }
+            
+            // Delete the previous page selector group contents...
+            if (this.pageSelectorGroup !== null)
+            {
+               var _this = this;
+               array.forEach(this.pageSelectorGroup.getChildren(), function(widget) {
+                  _this.pageSelectorGroup.removeChild(widget);
+                  widget.destroy();
+               });
+            }
+            
+            // Create the page labels, which for English will be along the lines of 1-25
+            if (this.compactMode === false)
+            {
+               var pageLabels = [];
+               var pageStart = 1;
+               for (var i=0; i<this.totalPages; i++)
+               {
+                  // Comments below assume 25 docs per page...
+                  var pageEnd;
+                  if (i+1 !== this.totalPages)
+                  {
+                     // If we're not getting the labels for the last page...
+                     pageEnd = pageStart + parseInt(this.documentsPerPage, 10) - 1; // Deduct 1 because it's 1 - 25 (not 1 - 26!)
+                  }
+                  else
+                  {
+                     // ...for the last page just count up to the last document
+                     pageEnd = this.totalRecords;
+                  }
+                  
+                  var label = this.message("list.paginator.page.label", {0: pageStart, 1: pageEnd, 2: this.totalRecords});
+                  var menuItem = new AlfCheckableMenuItem({
+                     label: label,
+                     value: i+1,
+                     group: "PAGE_SELECTION_GROUP",
+                     checked: this.currentPage === i+1,
+                     publishTopic: this.pubSubScope + this.pageSelectionTopic,
+                     publishPayload: {
+                        label: label,
+                        value: i+1
+                     }
+                  });
+
+                  if (this.pageSelectorGroup !== null)
+                  {
+                     this.pageSelectorGroup.addChild(menuItem);
+                  }
+                  else
+                  {
+                     if (this.__initialPageSelectorItems === null)
+                     {
+                        this.__initialPageSelectorItems = [];
+                     }
+                     this.__initialPageSelectorItems.push(menuItem);
+                  }
+                  
+                  pageLabels.push();
+                  pageStart = pageEnd + 1; // Add the 1 back on because the next page starts at 26
+               }
+            }
       },
       
       /**
@@ -448,20 +448,20 @@ define(["dojo/_base/declare",
          array.forEach(this.pageSizes, lang.hitch(this, this.createPageSizeMenuItem, pageSizeMenuItems));
 
          this.widgets = [
-{
-    name: "alfresco/menus/AlfMenuBarSelect",
-    config: {
-       id: this.id + "_PAGE_SELECTOR",
-       label: this.message("list.paginator.pageSelect.label"),
-       className: "dropdown",
-       selectionTopic: this.pageSelectionTopic,
-       widgets: [
-          {
-             name: "alfresco/menus/AlfMenuGroup"
-          }
-       ]
-    }
- },
+            {
+                name: "alfresco/menus/AlfMenuBarSelect",
+                config: {
+                   id: this.id + "_PAGE_SELECTOR",
+                   label: this.message("list.paginator.pageSelect.label"),
+                   className: "dropdown",
+                   selectionTopic: this.pageSelectionTopic,
+                   widgets: [
+                      {
+                         name: "alfresco/menus/AlfMenuGroup"
+                      }
+                   ]
+                }
+             },
             {
                name: "alfresco/menus/AlfMenuBarItem",
                config: {

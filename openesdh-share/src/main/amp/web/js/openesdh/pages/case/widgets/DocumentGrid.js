@@ -110,7 +110,7 @@ define(["dojo/_base/declare",
                     { field: "doc:state", label: this.message("table.header.label.state"), renderCell: lang.hitch(this, '_renderDocState')  },
                     { field: "cm:title", label: this.message("table.header.label.title"), renderCell: lang.hitch(this, '_renderTitleCell') },
                     { field: "mainDocVersion", label: this.message("table.header.label.version"), formatter: lang.hitch(this, "_formatVersion") },
-                    { field: "doc:owner", label: this.message("table.header.label.owner") },
+                    { field: "doc:owner", label: this.message("table.header.label.owner"), renderCell: lang.hitch(this, '_renderUserName') },
                     { field: "cm:created", label: this.message("table.header.label.created"), formatter: lang.hitch(this, "_formatDate") },
                     { field: "cm:modified", label: this.message("table.header.label.modified"), formatter: lang.hitch(this, "_formatDate") }
                 ];
@@ -151,6 +151,25 @@ define(["dojo/_base/declare",
             _renderDocCategory: function (item, value, node, options) {
                 if(value && value != undefined && value != "")
                     node.innerHTML = this.message("document.category.constraint.label."+value);
+            },
+            
+            _renderUserName: function(item, users, node, options){
+                if(!lang.isArray(users)){
+                    node.innerHTML = users.fullname;
+                    return;
+                }
+                
+                var notFirst = false;
+                var html = "";
+                for(var i in users){
+                   var user = users[i];
+                   if(notFirst){
+                       html += " ";                           
+                   }
+                   html += user.fullname;
+                   notFirst = true;
+                }
+                node.innerHTML = html;
             }
         });
     });

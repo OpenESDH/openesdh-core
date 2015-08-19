@@ -33,11 +33,16 @@ var caseNodeRef = getCaseNodeRefFromId(caseId);
 model.jsonModel = {
 	    services: [
 	        "alfresco/services/CrudService",
-	        "openesdh/common/services/PaginationService"
+	        {
+	            name: "openesdh/common/services/PaginationService",
+	            config:{
+	                loadItemsTopic: "GET_HISTORY_ROWS"
+	            }
+	        }
+	        
 	    ],
+	    
 	    widgets: [{
-
-
 	        name: "openesdh/common/widgets/layout/BootstrapContainer",
 	        config: {
 
@@ -53,10 +58,6 @@ model.jsonModel = {
 	                                loadDataPublishPayload: {
 	                                    url: "api/openesdh/casehistory?nodeRef=" + caseNodeRef
 	                                },
-	                                itemsProperty: "data",
-	                                //currentPageSize: 5,
-	                                startIndexProperty: "paging.skipCount",
-	                                totalResultsProperty: "paging.totalItems",
 	                                widgets: [{
 	                                    name: "alfresco/lists/views/AlfListView",
 	                                    config: {
@@ -156,7 +157,6 @@ model.jsonModel = {
 	                            config: {
 	                                widgets: [{
 	                                        name: "openesdh/common/widgets/lists/CustomPaginator",
-	                                        //name: "alfresco/lists/Paginator",
 	                                        align: "right"
 	                                    }
 

@@ -53,7 +53,7 @@ define(["dojo/_base/declare",
              */
             postMixInProperties: function alfresco_renderers_Date__postMixInProperties() {
                 var property = lang.getObject(this.propertyToRender, false, this.currentItem);
-                var date = new Date(property.value);
+                var date = (typeof property === "object") ? new Date(property.value) : new Date(property);
                 this.renderedValue = this.getRelativeTime(date);
                 this.renderedValueClass = this.renderedValueClass + " " + this.renderSize + " block";
             }

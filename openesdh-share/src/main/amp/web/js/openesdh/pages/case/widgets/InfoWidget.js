@@ -71,7 +71,8 @@ define(["dojo/_base/declare",
                             currentItem: currentItem,
                             propertyToRender: "cm:creator",
                             label: this.message("createdBy"),
-                            renderOnNewLine: true
+                            renderOnNewLine: true,
+                            valueBlockClass: true
                         }
                     },
                     {
@@ -89,7 +90,8 @@ define(["dojo/_base/declare",
                             currentItem: currentItem,
                             propertyToRender: "base:owners",
                             label: this.message("caseOwners"),
-                            renderOnNewLine: true
+                            renderOnNewLine: true,
+                            valueBlockClass: true
                         }
                     },
                     {

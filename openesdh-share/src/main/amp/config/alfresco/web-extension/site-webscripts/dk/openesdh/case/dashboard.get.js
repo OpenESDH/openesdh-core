@@ -36,7 +36,8 @@ model.jsonModel = {
 
 	                                   }]
 	                               }
-	                           }, {
+	                           }, 
+	                           {
 	                               name: "alfresco/layout/VerticalWidgets",
 	                               columnSize: 6,
 	                               config: {
@@ -48,17 +49,19 @@ model.jsonModel = {
 	                                           nodeRef: caseNodeRef,
 	                                           isReadOnly: isReadOnly
 	                                       }
-	                                   }, {
-	                                       id: "CASE_MEMBERS_DASHLET",
-	                                       name: "openesdh/common/widgets/dashlets/CaseMembersDashlet",
-	                                       config: {
-	                                           caseId: caseId
-	                                       }
 	                                   }
 
 	                                   ]
 	                               }
-	                           }]
+	                           },
+	                           {
+	                               id: "CASE_DOCUMENTS_DASHLET",
+	                               name: "openesdh/common/widgets/dashlets/CaseDocumentsListDashlet",
+	                               config: {
+	                                   nodeRef: caseNodeRef
+	                               }
+	                           }
+	                           ]
 	                       }
 
 	                   }]
