@@ -34,6 +34,8 @@ define(["dojo/_base/declare",
         var i18nScope = "openesdh.case.CaseInfoDashlet";
 
          return declare([Dashlet], {
+             
+            title: I18nUtils.msg(i18nScope, "dashlet.title"),
 
             /**
              * The i18n scope to use for this widget.
