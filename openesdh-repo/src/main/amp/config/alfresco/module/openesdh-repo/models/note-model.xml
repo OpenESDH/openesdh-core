@@ -8,8 +8,8 @@
         <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>
         <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>
         <import uri="http://www.alfresco.org/model/system/1.0" prefix="sys"/>
-        <import uri="http://openesdh.dk/model/openesdh/1.0/" prefix="oe"/>
-        <import uri="http://openesdh.dk/model/contact/1.0/" prefix="contact" />
+        <import uri="http://openesdh.dk/model/openesdh/1.0" prefix="oe"/>
+        <import uri="http://openesdh.dk/model/contact/1.0" prefix="contact" />
     </imports>
     <namespaces>
         <namespace uri="http://openesdh.dk/model/note/1.0" prefix="note"/>
