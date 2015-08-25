@@ -1,0 +1,8 @@
+<webscript>
+    <shortname>Get Version Info</shortname>
+    <description>Get version info - get commit id (and branch) that this particular amp is built of.</description>
+    <url>/api/openesdh/getversion</url>
+    <format default="html"></format>
+    <authentication>none</authentication>
+    <transaction>none</transaction>
+</webscript>
