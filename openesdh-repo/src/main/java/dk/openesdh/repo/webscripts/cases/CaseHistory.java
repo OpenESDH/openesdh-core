@@ -1,24 +1,16 @@
 package dk.openesdh.repo.webscripts.cases;
 
-import dk.openesdh.repo.services.audit.AuditSearchService;
-import dk.openesdh.repo.services.NodeInfoService;
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.webscripts.xsearch.XSearchWebscript;
-import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.service.cmr.dictionary.DictionaryService;
+import java.io.IOException;
+import java.util.List;
+
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.json.simple.JSONArray;
-import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
-import org.springframework.extensions.surf.util.I18NUtil;
-
-
-import java.io.IOException;
-import java.util.List;
+import dk.openesdh.repo.services.audit.AuditSearchService;
+import dk.openesdh.repo.webscripts.PageableWebScript;
+import dk.openesdh.repo.webscripts.xsearch.XSearchWebscript;
 
 /**
  * Created by flemming on 19/09/14.
@@ -40,7 +32,7 @@ public class CaseHistory extends XSearchWebscript {
         int pageSize = defaultPageSize;
 
         String rangeHeader = req.getHeader("x-range");
-        int[] range = parseRangeHeader(rangeHeader);
+        int[] range = PageableWebScript.parseRangeHeader(rangeHeader);
         if (range != null) {
             logger.debug("Range: " + range[0] + " - " + range[1]);
             startIndex = range[0];

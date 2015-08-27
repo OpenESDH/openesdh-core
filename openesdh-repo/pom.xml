@@ -218,7 +218,28 @@
                             <includeWebResources>false</includeWebResources>
                         </configuration>
                     </plugin>
-                    <!-- Replaces values in Solr config -->
+                    <!-- Replaces backslashes for windows paths -->
+				      <plugin>
+				        <groupId>org.codehaus.mojo</groupId>
+				        <artifactId>build-helper-maven-plugin</artifactId>
+				        <version>1.9.1</version>
+				        <executions>
+				          <execution>
+				            <id>regex-property</id>
+				            <goals>
+				              <goal>regex-property</goal>
+				            </goals>
+				            <configuration>
+				              <name>alfresco_solr_home</name>
+				              <value>${alfresco.solr.home}</value>
+				              <regex>\\</regex>
+				              <replacement>/</replacement>
+				              <failIfNoMatch>false</failIfNoMatch>
+				            </configuration>
+				          </execution>
+				        </executions>
+				      </plugin>
+				      <!-- Replaces values in Solr config -->
                     <plugin>
                         <groupId>com.google.code.maven-replacer-plugin</groupId>
                         <artifactId>replacer</artifactId>
@@ -241,19 +262,19 @@
                             <replacements>
                                 <replacement>
                                     <token>@@ALFRESCO_SOLR4_DIR@@</token>
-                                    <value>${alfresco.solr.home}/</value>
+                                    <value>${alfresco_solr_home}/</value>
                                 </replacement>
                                 <replacement>
                                     <token>@@ALFRESCO_SOLR4_MODEL_DIR@@</token>
-                                    <value>${alfresco.solr.home}/alfrescoModels/</value>
+                                    <value>${alfresco_solr_home}/alfrescoModels/</value>
                                 </replacement>
                                 <replacement>
                                     <token>@@ALFRESCO_SOLR4_CONTENT_DIR@@</token>
-                                    <value>${alfresco.solr.home}/data/content/</value>
+                                    <value>${alfresco_solr_home}/data/content/</value>
                                 </replacement>
                                 <replacement>
                                     <token>@@ALFRESCO_SOLR4_DATA_DIR@@</token>
-                                    <value>${alfresco.solr.home}/data/index/</value>
+                                    <value>${alfresco_solr_home}/data/index/</value>
                                 </replacement>
                                 <replacement>
                                     <token><![CDATA[<!-- Toggle securecomms placeholder start -->]]></token>
