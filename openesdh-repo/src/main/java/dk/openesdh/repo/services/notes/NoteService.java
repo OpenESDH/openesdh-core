@@ -5,6 +5,7 @@ import java.util.List;
 import org.alfresco.service.cmr.repository.NodeRef;
 
 import dk.openesdh.repo.model.Note;
+import dk.openesdh.repo.model.ResultSet;
 
 /**
  * Created by syastrov on 2/6/15.
@@ -36,6 +37,17 @@ public interface NoteService {
      * @return a list of notes for the provide parent node
      */
     public List<Note> getNotes(NodeRef parentNodeRef);
+
+    /**
+     * Retrieves notes of the provided parent node
+     * 
+     * @param parentNodeRef
+     *            Parent node to retrieve the notes for
+     * @param startIndex
+     * @param pageSize
+     * @return a list of notes for the provide parent node
+     */
+    public ResultSet<Note> getNotes(NodeRef parentNodeRef, int startIndex, int pageSize);
 
     /**
      * Deletes note
