@@ -1,5 +1,6 @@
 package dk.openesdh.repo.services.cases;
 
+import dk.openesdh.repo.model.CaseInfo;
 import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -109,6 +110,20 @@ public interface CaseService {
      * @return the nodeRef for a case corresponding with the ID supplied or null
      */
     NodeRef getCaseById(String caseId);
+
+    /**
+     * returns case info data structure given a nodeRef
+     * @param caseNodeRef
+     * @return
+     */
+    CaseInfo getCaseInfo(NodeRef caseNodeRef);
+
+    /**
+     * Returns a case info data structure given a case id string
+     * @param caseId
+     * @return
+     */
+    CaseInfo getCaseInfo(String caseId);
 
     /**
      * Remove the authority from the given role group on the case.

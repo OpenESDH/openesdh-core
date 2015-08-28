@@ -93,6 +93,7 @@ public class NoteServiceImplIT {
     private NodeRef parentNodeRef;
     private NodeRef caseNodeRef;
     private NodeRef noteNodeRef;
+    private List<NodeRef> notes = new ArrayList<NodeRef>();
 
     @Before
     public void setUp() throws Exception {
@@ -115,6 +116,8 @@ public class NoteServiceImplIT {
         if (noteNodeRef != null) {
             nodes.add(noteNodeRef);
         }
+        nodes.addAll(notes);
+        
         docTestHelper.removeNodesAndDeleteUsersInTransaction(nodes, Arrays.asList(caseNodeRef),
                 Arrays.asList(NON_CASE_READER_USER_NAME, CaseHelper.DEFAULT_USERNAME, CASE_READER_USER_NAME));
     }
@@ -156,6 +159,27 @@ public class NoteServiceImplIT {
 
         assertEquals("Updated note should contain updated author", "Updated author",
                 nodeService.getProperty(updatedNote, ContentModel.PROP_AUTHOR));
+    }
+    
+    @Test
+    public void testGetNotesPaging()throws Exception{
+        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
+        NodeRef firstNote = createCaseNote(CaseHelper.DEFAULT_USERNAME, "first note", "first note content");
+        NodeRef secondNote = createCaseNote(CaseHelper.DEFAULT_USERNAME, "second note", "second note content");
+        notes.addAll(Arrays.asList(firstNote, secondNote));
+
+        List<Note> firstNoteList = noteService.getNotes(caseNodeRef, 0, 1).getResultList();
+        Assert.assertEquals("Result notes list should contain only 1 element", 1, firstNoteList.size());
+        Assert.assertEquals("Result notes list should contain first note", "first note", firstNoteList.get(0)
+                .getHeadline());
+
+        List<Note> secondNoteList = noteService.getNotes(caseNodeRef, 1, 1).getResultList();
+        Assert.assertEquals("Result notes list should contain only 1 element", 1, secondNoteList.size());
+        Assert.assertEquals("Result notes list should contain second note", "second note", secondNoteList.get(0)
+                .getHeadline());
+
+        List<Note> twoNotesList = noteService.getNotes(caseNodeRef, 0, 3).getResultList();
+        Assert.assertEquals("Result notes list should contain 2 elements", 2, twoNotesList.size());
     }
 
     @Test
@@ -284,11 +308,14 @@ public class NoteServiceImplIT {
     }
 
     private NodeRef createCaseNote(String noteAuthor) {
-
+        return createCaseNote(noteAuthor, TEST_NOTE_HEADLINE, TEST_NOTE_CONTENT);
+    }
+    
+    private NodeRef createCaseNote(String noteAuthor, String headline, String content) {
         Note note = new Note();
         note.setParent(caseNodeRef);
-        note.setHeadline(TEST_NOTE_HEADLINE);
-        note.setContent(TEST_NOTE_CONTENT);
+        note.setHeadline(headline);
+        note.setContent(content);
         note.setAuthor(noteAuthor);
 
         return noteService.createNote(note);

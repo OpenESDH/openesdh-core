@@ -19,6 +19,7 @@ import org.alfresco.service.namespace.RegexQNamePattern;
 import dk.openesdh.repo.model.ContactInfo;
 import dk.openesdh.repo.model.Note;
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.model.ResultSet;
 import dk.openesdh.repo.services.contacts.ContactService;
 
 /**
@@ -64,12 +65,35 @@ public class NoteServiceImpl implements NoteService {
     public List<Note> getNotes(NodeRef parentNodeRef) {
         List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs
                 (parentNodeRef, OpenESDHModel.ASSOC_NOTE_NOTES, null);
-        return childAssocs
-                .stream()
+        return getNotesFromChildAssociations(parentNodeRef, childAssocs);
+    }
+    
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ResultSet<Note> getNotes(NodeRef parentNodeRef, int startIndex, int pageSize) {
+        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(parentNodeRef,
+                OpenESDHModel.ASSOC_NOTE_NOTES, null);
+        int totalItems = childAssocs.size();
+        int resultEnd = startIndex + pageSize;
+        if (totalItems < resultEnd) {
+            resultEnd = totalItems;
+        }
+        List<Note> resultList = getNotesFromChildAssociations(parentNodeRef,
+                childAssocs.subList(startIndex, resultEnd));
+        ResultSet<Note> result = new ResultSet<Note>();
+        result.setTotalItems(totalItems);
+        result.setResultList(resultList);
+        return result;
+    }
+
+    protected List<Note> getNotesFromChildAssociations(NodeRef parentNodeRef, List<ChildAssociationRef> childAssocs) {
+        return childAssocs.stream()
                 .map(assoc -> getNote(parentNodeRef, assoc.getChildRef()))
                 .collect(Collectors.toList());
     }
-    
+
     /**
      * {@inheritDoc}
      */

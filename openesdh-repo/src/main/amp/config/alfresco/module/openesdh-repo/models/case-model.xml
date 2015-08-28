@@ -7,10 +7,10 @@
         <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d" />
         <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm" />
         <import uri="http://www.alfresco.org/model/system/1.0" prefix="sys" />
-        <import uri="http://openesdh.dk/model/openesdh/1.0/" prefix="oe" />
+        <import uri="http://openesdh.dk/model/openesdh/1.0" prefix="oe" />
     </imports>
     <namespaces>
-        <namespace uri="http://openesdh.dk/model/case/base/1.0/" prefix="base" />
+        <namespace uri="http://openesdh.dk/model/case/base/1.0" prefix="base" />
     </namespaces>
     <constraints>
         <constraint name="base:allowedPartyRoles" type="LIST">
@@ -31,11 +31,23 @@
                 <property name="base:startDate">
                     <type>d:date</type>
                     <mandatory>false</mandatory>
+                    <index enabled="true">
+                        <atomic>true</atomic>
+                        <stored>false</stored>
+                        <tokenised>both</tokenised>
+                        <facetable>true</facetable>
+                    </index>
                 </property>
 
                 <property name="base:endDate">
                     <type>d:date</type>
                     <mandatory>false</mandatory>
+                    <index enabled="true">
+                        <atomic>true</atomic>
+                        <stored>false</stored>
+                        <tokenised>both</tokenised>
+                        <facetable>true</facetable>
+                    </index>
                 </property>
             </properties>
 

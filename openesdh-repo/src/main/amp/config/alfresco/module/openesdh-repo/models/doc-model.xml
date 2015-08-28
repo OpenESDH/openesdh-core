@@ -7,11 +7,11 @@
         <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d" />
         <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm" />
         <import uri="http://www.alfresco.org/model/system/1.0" prefix="sys" />
-        <import uri="http://openesdh.dk/model/openesdh/1.0/" prefix="oe" />
-        <import uri="http://openesdh.dk/model/case/base/1.0/" prefix="base" />
+        <import uri="http://openesdh.dk/model/openesdh/1.0" prefix="oe" />
+        <import uri="http://openesdh.dk/model/case/base/1.0" prefix="base" />
     </imports>
     <namespaces>
-        <namespace uri="http://openesdh.dk/model/document/1.0/" prefix="doc" />
+        <namespace uri="http://openesdh.dk/model/document/1.0" prefix="doc" />
     </namespaces>
     <constraints>
         <constraint name="doc:statusConstraint" type="LIST">
