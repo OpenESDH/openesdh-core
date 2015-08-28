@@ -66,6 +66,7 @@
             <artifactId>simple-case-repo</artifactId>
             <version>1.0-SNAPSHOT</version>
             <classifier>classes</classifier>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
@@ -73,6 +74,7 @@
             <artifactId>simple-case-repo</artifactId>
             <version>1.0-SNAPSHOT</version>
             <classifier>config</classifier>
+            <scope>compile</scope>
         </dependency>
 
         <dependency>
