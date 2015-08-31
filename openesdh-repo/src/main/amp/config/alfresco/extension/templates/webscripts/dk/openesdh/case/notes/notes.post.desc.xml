@@ -1,0 +1,8 @@
+<webscript>
+    <shortname>Add case notes</shortname>
+    <description>Adds a new note for a case</description>
+    <url>/api/openesdh/case/{caseId}/notes</url>
+    <format default="json"></format>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+</webscript>
