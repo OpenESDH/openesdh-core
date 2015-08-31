@@ -1,0 +1,8 @@
+<webscript>
+    <shortname>Case notes</shortname>
+    <description>Retrieve notes for a case</description>
+    <url>/api/openesdh/case/{caseId}/notes</url>
+    <format default="json"></format>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+</webscript>

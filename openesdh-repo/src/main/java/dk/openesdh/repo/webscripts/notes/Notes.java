@@ -49,6 +49,7 @@ public class Notes extends AbstractRESTWebscript {
     protected void post(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
         Note note = (Note) WebScriptUtils.readJson(Note.class, req);
         note.setAuthor(AuthenticationUtil.getFullyAuthenticatedUser());
+        note.setParent(nodeRef);
         NodeRef noteNodeRef = noteService.createNote(note);
 
         note.setNodeRef(noteNodeRef);

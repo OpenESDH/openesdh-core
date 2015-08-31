@@ -231,6 +231,21 @@
     <bean id="webscript.dk.openesdh.notes.note.delete"
           parent="openesdhNotesWebscript">
     </bean>
+    
+    <bean id="openeCaseNotesWebscript"
+          class="dk.openesdh.repo.webscripts.cases.CaseNotes"
+          parent="webscript">
+        <property name="nodeService" ref="NodeService"/>
+        <property name="noteService" ref="NoteService"/>
+        <property name="personService" ref="PersonService"/>
+        <property name="caseService" ref="CaseService" />
+    </bean>
+    <bean id="webscript.dk.openesdh.case.notes.notes.get"
+          parent="openeCaseNotesWebscript">
+    </bean>
+    <bean id="webscript.dk.openesdh.case.notes.notes.post"
+          parent="openeCaseNotesWebscript">
+    </bean>
 
     <!--Contacts-->
     <bean id="contactAbstractWebscript" class="dk.openesdh.repo.webscripts.contacts.Contact"
