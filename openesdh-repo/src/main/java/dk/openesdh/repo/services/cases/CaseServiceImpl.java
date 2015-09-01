@@ -179,7 +179,7 @@ public class CaseServiceImpl implements CaseService {
 
     @Override
     public boolean canUpdateCaseRoles(String user, NodeRef caseNodeRef) {
-        if (isJournalized(caseNodeRef)) {
+        if (isClosed(caseNodeRef)) {
             return false;
         }
         return authorityService.isAdminAuthority(user) ||
@@ -553,81 +553,48 @@ public class CaseServiceImpl implements CaseService {
         removeAuthorityFromRole(getAuthorityName(authorityNodeRef), role, caseNodeRef);
     }
 
-    //<editor-fold desc="Journalization methods">
-    public void checkCanJournalize(NodeRef nodeRef) throws
+    public void checkCanClose(NodeRef nodeRef) throws
             AccessDeniedException {
         String user = AuthenticationUtil.getRunAsUser();
-        if (!canJournalize(user, nodeRef)) {
+        if (!canClose(user, nodeRef)) {
             throw new AccessDeniedException(user + " is not allowed to " +
-                    "journalize the node " + nodeRef);
+                    "close the case " + nodeRef);
         }
     }
 
-    public void checkCanUnJournalize(NodeRef nodeRef) throws
+    public void checkCanReopen(NodeRef nodeRef) throws
             AccessDeniedException {
         String user = AuthenticationUtil.getRunAsUser();
-        if (!canUnJournalize(user, nodeRef)) {
+        if (!canReopen(user, nodeRef)) {
             throw new AccessDeniedException(user + " is not allowed to " +
-                    "unjournalize the node " + nodeRef);
-        }
-    }
-
-    private boolean isJournalizableType(NodeRef nodeRef) {
-        return isCaseNode(nodeRef) || isCaseDocNode(nodeRef);
-    }
-
-    @Override
-    public boolean canJournalize(String user, NodeRef nodeRef) {
-        if (!isJournalizableType(nodeRef) || isJournalized(nodeRef)) {
-            return false;
-        }
-        if (authorityService.isAdminAuthority(user)) {
-            return true;
-        }
-        if (isCaseNode(nodeRef)) {
-            // Type: Case
-            // Only case owners can journalize a case
-            return isCaseOwner(user, nodeRef);
-        } else {
-            // Type: Case doc
-            // Only doc owners and case owners can journalize a case doc
-            return ownableService.getOwner(nodeRef).equals(user) ||
-                    isCaseOwner(user, getParentCase(nodeRef));
+                    "reopen the case " + nodeRef);
         }
     }
 
     @Override
-    public boolean canUnJournalize(String user, NodeRef nodeRef) {
-        if (!isJournalizableType(nodeRef) || !isJournalized(nodeRef)) {
-            return false;
-        }
-        if (isCaseDocNode(nodeRef) && isJournalized(getParentCase(nodeRef))) {
-            // Cannot unjournalize documents from a case that is journalized
-            // Must unjournalize the case instead.
-            return false;
-        }
-        // Only admins can unjournalize anything (for now)
-        return authorityService.isAdminAuthority(user);
+    public boolean canClose(String user, NodeRef nodeRef) {
+        return isCaseNode(nodeRef) && !isClosed(nodeRef);
     }
 
     @Override
-    public boolean isJournalized(NodeRef nodeRef) {
-        return nodeService.hasAspect(nodeRef,
-                OpenESDHModel.ASPECT_OE_JOURNALIZED);
+    public boolean canReopen(String user, NodeRef nodeRef) {
+        return isCaseNode(nodeRef) && authorityService.isAdminAuthority(user);
     }
 
     @Override
-    public void journalize(final NodeRef nodeRef,
-                           final NodeRef journalKey) {
-        checkCanJournalize(nodeRef);
+    public boolean isClosed(NodeRef nodeRef) {
+        return nodeService.hasAspect(nodeRef, OpenESDHModel.ASPECT_OE_LOCKED);
+    }
+
+    @Override
+    public void close(final NodeRef nodeRef) {
+        checkCanClose(nodeRef);
         // Run it in a transaction
         transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
             @Override
             public Object execute() throws Throwable {
-                journalizeImpl(nodeRef, journalKey);
-                if (isCaseNode(nodeRef)) {
-                    journalizeCaseGroups(nodeRef);
-                }
+                lockImpl(nodeRef);
+                lockCaseGroups(nodeRef);
                 return null;
             }
         });
@@ -635,10 +602,10 @@ public class CaseServiceImpl implements CaseService {
 
     // Suppress warning about READ_ONLY_LOCK being deprecated
     @SuppressWarnings("deprecation")
-    private void journalizeImpl(final NodeRef nodeRef, final NodeRef journalKey) {
-        if (nodeService.hasAspect(nodeRef, OpenESDHModel.ASPECT_OE_JOURNALIZED)) {
-            // Don't touch, already journalized
-            LOGGER.warn("Node already has journalized aspect when journalizing: " + nodeRef);
+    private void lockImpl(final NodeRef nodeRef) {
+        if (nodeService.hasAspect(nodeRef, OpenESDHModel.ASPECT_OE_LOCKED)) {
+            // Don't touch, already locked
+            LOGGER.warn("Node already has locked aspect when locking: " + nodeRef);
             return;
         }
         AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Void>() {
@@ -652,17 +619,16 @@ public class CaseServiceImpl implements CaseService {
                 }
                 ownableService.setOwner(nodeRef, AuthenticationUtil.getSystemUserName());
 
-                // Add journalized aspect
+                // Add locked aspect
                 Map<QName, Serializable> props = new HashMap<>();
-                props.put(OpenESDHModel.PROP_OE_JOURNALKEY, journalKey);
-                props.put(OpenESDHModel.PROP_OE_JOURNALIZED_BY, AuthenticationUtil.getFullyAuthenticatedUser());
-                props.put(OpenESDHModel.PROP_OE_JOURNALIZED_DATE, new Date());
+                props.put(OpenESDHModel.PROP_OE_LOCKED_BY, AuthenticationUtil.getFullyAuthenticatedUser());
+                props.put(OpenESDHModel.PROP_OE_LOCKED_DATE, new Date());
                 // Save the original owner, or null if there wasn't any
                 props.put(OpenESDHModel.PROP_OE_ORIGINAL_OWNER, originalOwner);
-                nodeService.addAspect(nodeRef, OpenESDHModel.ASPECT_OE_JOURNALIZED, props);
+                nodeService.addAspect(nodeRef, OpenESDHModel.ASPECT_OE_LOCKED, props);
 
-                // Add the Journalized permission set to deny everyone
-                permissionService.setPermission(nodeRef, PermissionService.ALL_AUTHORITIES, "Journalized", false);
+                // Add the LockPermissionsToDeny permission set to deny everyone
+                permissionService.setPermission(nodeRef, PermissionService.ALL_AUTHORITIES, "LockPermissionsToDeny", false);
 
                 // Add a never-expiring lock as the system user
                 String authenticatedUser = AuthenticationUtil.getFullyAuthenticatedUser();
@@ -678,11 +644,11 @@ public class CaseServiceImpl implements CaseService {
 
         List<ChildAssociationRef> childAssociationRefs = nodeService.getChildAssocs(nodeRef);
         for (ChildAssociationRef childAssociationRef : childAssociationRefs) {
-            journalizeImpl(childAssociationRef.getChildRef(), journalKey);
+            lockImpl(childAssociationRef.getChildRef());
         }
     }
 
-    private void journalizeCaseGroups(final NodeRef caseNodeRef) {
+    private void lockCaseGroups(final NodeRef caseNodeRef) {
         AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Void>() {
             @Override
             public Void doWork() {
@@ -692,7 +658,7 @@ public class CaseServiceImpl implements CaseService {
                     NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef(
                             getCaseRoleGroupName(getCaseId(caseNodeRef), role));
                     permissionService.setPermission(authorityNodeRef,
-                            PermissionService.ALL_AUTHORITIES, "Journalized", false);
+                            PermissionService.ALL_AUTHORITIES, "LockPermissionsToDeny", false);
                 }
                 return null;
             }
@@ -700,22 +666,20 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public void unJournalize(final NodeRef nodeRef) {
-        checkCanUnJournalize(nodeRef);
+    public void reopen(final NodeRef nodeRef) {
+        checkCanReopen(nodeRef);
         // Run it in a transaction
         transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
             @Override
             public Object execute() throws Throwable {
-                unJournalizeImpl(nodeRef);
-                if (isCaseNode(nodeRef)) {
-                    unJournalizeCaseGroups(nodeRef);
-                }
+                unlockImpl(nodeRef);
+                unlockCaseGroups(nodeRef);
                 return null;
             }
         });
     }
 
-    private void unJournalizeImpl(final NodeRef nodeRef) {
+    private void unlockImpl(final NodeRef nodeRef) {
         AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Void>() {
             @Override
             public Void doWork() {
@@ -724,7 +688,7 @@ public class CaseServiceImpl implements CaseService {
                 // Only delete the permission if permissions are not
                 // inherited (shared)
                 if (!permissionService.getInheritParentPermissions(nodeRef)) {
-                    permissionService.deletePermission(nodeRef, PermissionService.ALL_AUTHORITIES, "Journalized");
+                    permissionService.deletePermission(nodeRef, PermissionService.ALL_AUTHORITIES, "LockPermissionsToDeny");
                 }
 
                 String originalOwner = (String) nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_ORIGINAL_OWNER);
@@ -736,18 +700,18 @@ public class CaseServiceImpl implements CaseService {
                     // begin with
                     nodeService.removeAspect(nodeRef, ContentModel.ASPECT_OWNABLE);
                 }
-                nodeService.removeAspect(nodeRef, OpenESDHModel.ASPECT_OE_JOURNALIZED);
+                nodeService.removeAspect(nodeRef, OpenESDHModel.ASPECT_OE_LOCKED);
                 return null;
             }
         });
 
         List<ChildAssociationRef> childAssociationRefs = nodeService.getChildAssocs(nodeRef);
         for (ChildAssociationRef childAssociationRef : childAssociationRefs) {
-            unJournalizeImpl(childAssociationRef.getChildRef());
+            unlockImpl(childAssociationRef.getChildRef());
         }
     }
 
-    private void unJournalizeCaseGroups(final NodeRef caseNodeRef) {
+    private void unlockCaseGroups(final NodeRef caseNodeRef) {
         AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Void>() {
             @Override
             public Void doWork() {
@@ -757,7 +721,7 @@ public class CaseServiceImpl implements CaseService {
                     NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef(
                             getCaseRoleGroupName(getCaseId(caseNodeRef), role));
                     permissionService.deletePermission(authorityNodeRef,
-                            PermissionService.ALL_AUTHORITIES, "Journalized");
+                            PermissionService.ALL_AUTHORITIES, "LockPermissionsToDeny");
                 }
                 return null;
             }

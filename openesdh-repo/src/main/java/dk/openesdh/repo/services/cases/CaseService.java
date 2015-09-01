@@ -190,41 +190,39 @@ public interface CaseService {
     NodeRef getCaseFolderNodeRef(NodeRef casesFolderNodeRef);
 
     /**
-     * Return whether or not the user can journalize the node.
+     * Return whether or not the user can close the case.
      * @param user
      * @param nodeRef
      * @return
      */
-    boolean canJournalize(String user, NodeRef nodeRef);
+    boolean canClose(String user, NodeRef nodeRef);
 
     /**
-     * Return whether or not the user can unjournalize the node.
+     * Return whether or not the user can reopen the case.
      * @param user
      * @param nodeRef
      * @return
      */
-    boolean canUnJournalize(String user, NodeRef nodeRef);
+    boolean canReopen(String user, NodeRef nodeRef);
 
     /**
      * Return whether a node is journalized or not.
      * @param nodeRef
      * @return
      */
-    boolean isJournalized(NodeRef nodeRef);
+    boolean isClosed(NodeRef nodeRef);
 
     /**
-     * Journalize node and all child nodes
-     * @param nodeRef NodeRef of the node to journalize
-     * @param journalKey
+     * Close the case.
+     * @param nodeRef NodeRef of the case to close
      */
-    void journalize(NodeRef nodeRef, NodeRef journalKey);
+    void close(NodeRef nodeRef);
 
     /**
-     * Unjournalize node and all child nodes
-     *
-     * @param nodeRef NodeRef of the node to unjournalize
+     * Reopen the case.
+     * @param nodeRef NodeRef of the case to reopen
      */
-    void unJournalize(NodeRef nodeRef);
+    void reopen(NodeRef nodeRef);
 
     /**
      * Return whether or not the node is a case node.

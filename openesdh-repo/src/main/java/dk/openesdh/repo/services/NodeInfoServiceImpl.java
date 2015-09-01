@@ -96,7 +96,6 @@ public class NodeInfoServiceImpl implements NodeInfoService {
                 properties.put(propertyQName.toPrefixString(namespaceService), valueObj);
             }
             result.put("properties", properties);
-            result.put("isJournalized", nodeInfo.aspects.contains(OpenESDHModel.ASPECT_OE_JOURNALIZED));
 
         } catch (JSONException e) {
             e.printStackTrace();

@@ -64,7 +64,7 @@ public interface OpenESDHModel {
     /**
      * Aspects
      */
-    public static final QName ASPECT_OE_JOURNALIZED = QName.createQName(OE_URI, "journalized");
+    public static final QName ASPECT_OE_LOCKED = QName.createQName(OE_URI, "locked");
     public static final QName ASPECT_OE_CASE_ID = QName.createQName(OE_URI, "caseId");
 
     public static final QName ASPECT_CASE_COUNTER = QName.createQName(CASE_URI, "counter");
@@ -105,10 +105,10 @@ public interface OpenESDHModel {
      */
     public static final QName PROP_OE_ID = QName.createQName(OE_URI, "id");
     public static final QName PROP_OE_STATUS = QName.createQName(OE_URI, "status");
-    public static final QName PROP_OE_JOURNALIZED_BY = QName.createQName(OE_URI, "journalizedBy");
-    public static final QName PROP_OE_JOURNALIZED_DATE = QName.createQName(OE_URI, "journalizedDate");
-    public static final QName PROP_OE_JOURNALKEY = QName.createQName(OE_URI, "journalKey");
+    public static final QName PROP_OE_LOCKED_BY = QName.createQName(OE_URI, "lockedBy");
+    public static final QName PROP_OE_LOCKED_DATE = QName.createQName(OE_URI, "lockedDate");
     public static final QName PROP_OE_ORIGINAL_OWNER = QName.createQName(OE_URI, "originalOwner");
+    public static final QName PROP_OE_JOURNALKEY = QName.createQName(OE_URI, "journalKey");
     public static final QName PROP_OE_CASE_ID = QName.createQName(OE_URI, "caseId");
 
     public static final QName PROP_CASE_STARTDATE = QName.createQName(CASE_URI, "startDate");
