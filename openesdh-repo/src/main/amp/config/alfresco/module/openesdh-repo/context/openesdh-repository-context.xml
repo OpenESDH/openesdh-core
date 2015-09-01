@@ -66,6 +66,7 @@
           parent="xsearchWebscript">
         <property name="xSearchService" ref="CaseDocumentsSearchService"/>
         <property name="documentService" ref="DocumentService"/>
+        <property name="caseService" ref="CaseService"/>
     </bean>
 
     <bean id="webscript.dk.openesdh.case.documentAttachments.get" class="dk.openesdh.repo.webscripts.xsearch.CaseDocumentAttachements"

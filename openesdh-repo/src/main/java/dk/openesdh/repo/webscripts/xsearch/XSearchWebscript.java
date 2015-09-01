@@ -149,10 +149,13 @@ public class XSearchWebscript extends AbstractWebScript {
         return json;
     }
 
-    private void addAssocToArray(AssociationRef association, JSONArray refs) {
+    private void addAssocToArray(AssociationRef association, JSONArray refs) throws JSONException {
         if (nodeService.getType(association.getTargetRef()).equals( ContentModel.TYPE_PERSON)) {
             PersonService.PersonInfo info = personService.getPerson(association.getTargetRef());
-            refs.put(info.getUserName());
+            JSONObject json = new JSONObject();
+            json.put("value", info.getUserName());
+            json.put("fullname", info.getFirstName() + " " + info.getLastName());
+            refs.put(json);
         }
         else {
             refs.put(association.getTargetRef());
