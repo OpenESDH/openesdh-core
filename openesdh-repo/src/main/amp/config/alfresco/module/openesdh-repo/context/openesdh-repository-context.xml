@@ -159,7 +159,7 @@
         <property name="authorityService" ref="AuthorityService"/>
     </bean>
 
-    <bean id="extendPermissionModel" parent="permissionModelBootstrap">
+    <bean id="${project.artifactId}_permissionModelBootstrap" parent="permissionModelBootstrap">
         <property name="model" value="alfresco/module/openesdh-repo/models/permission-model-extension.xml" />
     </bean>
 
