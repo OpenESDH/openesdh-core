@@ -560,8 +560,6 @@ public class CaseServiceImplIT {
         assertFalse("Case isJournalized returns true for an unjournalized " +
                 "case", caseService.isJournalized(nonAdminCreatedCaseNr));
 
-//        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
-
         // Test that a user can write again: these would throw exceptions if
         // they failed.
         nodeService.setProperty(nonAdminCreatedCaseNr,
@@ -573,10 +571,6 @@ public class CaseServiceImplIT {
                 nodeService.hasAspect(nonAdminCreatedCaseNr,
                 OpenESDHModel.ASPECT_OE_JOURNALIZED));
 
-//        AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
-
-        // Delete test journal key categories
-//        categoryService.deleteCategory(journalKey);
         categoryService.deleteCategory(rootCategory);
     }
 
