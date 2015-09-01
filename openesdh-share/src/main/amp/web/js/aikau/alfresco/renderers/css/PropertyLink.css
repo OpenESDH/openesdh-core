@@ -1,0 +1,6 @@
+.alfresco-renderers-PropertyLink > span.inner {
+   cursor: pointer;
+   .value{
+       color: @standard-button-font-color;
+   }
+}

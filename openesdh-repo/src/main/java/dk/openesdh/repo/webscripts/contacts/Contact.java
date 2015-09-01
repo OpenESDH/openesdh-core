@@ -1,5 +1,6 @@
 package dk.openesdh.repo.webscripts.contacts;
 
+import dk.openesdh.repo.model.ContactInfo;
 import dk.openesdh.repo.model.ContactType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import org.alfresco.error.AlfrescoRuntimeException;
@@ -76,6 +77,62 @@ public class Contact extends ContactAbstractWebscript {
             throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Issue creating contact: " + ge.getMessage());
         }
     }
+
+    @Override
+    public void put(NodeRef contactNodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException {
+        JSONObject parsedRequest;
+        try {
+            //Get the information from the JSON structure from the request
+            HashMap<QName, Serializable> typeProps = new HashMap<QName, Serializable>();
+
+            // Parse the JSON, if supplied
+            JSONParser parser = new JSONParser();
+            try {
+                parsedRequest = (JSONObject) parser.parse(req.getContent().getContent());
+            } catch (IOException io) {
+                throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Invalid JSON: " + io.getMessage());
+            } catch (ParseException pe) {
+                throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Invalid JSON: " + pe.getMessage());
+            }
+
+            String email = getOrNull(parsedRequest, "email");
+            if (StringUtils.isBlank(email))
+                throw new WebScriptException("The contact email is missing. Unable to further proceed.");
+
+            QName contactType = this.nodeService.getType(contactNodeRef);
+            if(contactType.equals(OpenESDHModel.TYPE_CONTACT_PERSON)) {
+                typeProps.put(OpenESDHModel.PROP_CONTACT_EMAIL, getOrNull(parsedRequest, "email"));
+                typeProps.put(OpenESDHModel.PROP_CONTACT_FIRST_NAME, getOrNull(parsedRequest, "firstName"));
+                typeProps.put(OpenESDHModel.PROP_CONTACT_LAST_NAME, getOrNull(parsedRequest, "lastName"));
+                typeProps.put(OpenESDHModel.PROP_CONTACT_MIDDLE_NAME, getOrNull(parsedRequest, "middleName"));
+                typeProps.put(OpenESDHModel.PROP_CONTACT_CPR_NUMBER, getOrNull(parsedRequest, "cprNumber"));
+                //TODO There are 2/4 more props that are boolean types to possibly add.
+            }
+            if(contactType.equals(OpenESDHModel.TYPE_CONTACT_ORGANIZATION)) {
+                typeProps.put(OpenESDHModel.PROP_CONTACT_ORGANIZATION_NAME, getOrNull(parsedRequest, "organizationName"));
+                typeProps.put(OpenESDHModel.PROP_CONTACT_EMAIL, getOrNull(parsedRequest, "email"));
+                typeProps.put(OpenESDHModel.PROP_CONTACT_CVR_NUMBER, getOrNull(parsedRequest, "cvrNumber"));
+            }
+
+            //Populate the map with address properties
+            getAddressProperties(parsedRequest, typeProps);
+
+            this.nodeService.setProperties(contactNodeRef,typeProps);
+            JSONObject obj;
+
+            if (contactNodeRef != null) {
+                obj = buildJSON(contactNodeRef);
+            } else {
+                obj = new JSONObject();
+                obj.put("message", "Contact not updated");
+            }
+            obj.writeJSONString(res.getWriter());
+
+        } catch (Exception ge) { //Any generic exception
+            throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Issue updating contact: " + ge.getMessage());
+        }
+    }
+
 
     @Override
     public void get(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException{

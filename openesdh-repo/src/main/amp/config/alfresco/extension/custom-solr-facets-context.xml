@@ -1,0 +1,60 @@
+<!DOCTYPE beans SYSTEM "http://www.springframework.org/dtd/spring-beans.dtd">
+<beans>
+    <bean id="solrFacetRawProperties" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="locations">
+            <list>
+                <value>classpath*:alfresco/subsystems/Search/solr/facet/solr-facets-config.properties</value>
+                <value>classpath*:alfresco/extension/messages/solr-facets-config-custom.properties</value>
+            </list>
+        </property>
+    </bean>
+
+    <bean id="facet.dateFacetFields" class="org.springframework.beans.factory.config.SetFactoryBean">
+        <property name="sourceSet">
+            <set>
+                <value>@{http://www.alfresco.org/model/content/1.0}created</value>
+                <value>@{http://www.alfresco.org/model/content/1.0}modified</value>
+                <value>@{http://openesdh.dk/model/case/base/1.0}startDate</value>
+                <value>@{http://openesdh.dk/model/case/base/1.0}endDate</value>
+            </set>
+        </property>
+    </bean>
+
+    <bean id="facet.dateBuckets" class="org.springframework.beans.factory.config.MapFactoryBean">
+        <property name="sourceMap">
+            <map>
+                <!-- Bucket => yesterday TO today -->
+                <entry key="[NOW/DAY-1DAY TO NOW/DAY+1DAY]" value="faceted-search.date.one-day.label"/>
+                <!-- Bucket => Last week TO today -->
+                <entry key="[NOW/DAY-7DAYS TO NOW/DAY+1DAY]" value="faceted-search.date.one-week.label"/>
+                <!--  Bucket => Last month TO today -->
+                <entry key="[NOW/DAY-1MONTH TO NOW/DAY+1DAY]" value="faceted-search.date.one-month.label"/>
+                <!--  Bucket => Last 6 months TO today -->
+                <entry key="[NOW/DAY-6MONTHS TO NOW/DAY+1DAY]" value="faceted-search.date.six-months.label"/>
+                <!--  Bucket => Last year TO today -->
+                <entry key="[NOW/DAY-1YEAR TO NOW/DAY+1DAY]" value="faceted-search.date.one-year.label"/>
+            </map>
+        </property>
+    </bean>
+
+    <bean id="facet.solrFacetHelper" class="org.alfresco.repo.search.impl.solr.facet.SolrFacetHelper">
+        <constructor-arg>
+            <list>
+                <ref bean="facet.contentSizeBucketsDisplayHandler"/>
+                <ref bean="facet.dateBucketsDisplayHandler"/>
+            </list>
+        </constructor-arg>
+        <property name="specialFacetIds">
+            <set>
+                <value>SITE</value>
+                <value>CASE</value>
+                <value>TAG</value>
+                <value>ANCESTOR</value>
+                <value>PARENT</value>
+                <value>ASPECT</value>
+                <value>TYPE</value>
+                <value>OWNER</value>
+            </set>
+        </property>
+    </bean>
+</beans>

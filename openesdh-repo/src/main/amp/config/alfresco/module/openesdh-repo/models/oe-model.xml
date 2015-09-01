@@ -8,10 +8,10 @@
         <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>
         <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>
         <import uri="http://www.alfresco.org/model/system/1.0" prefix="sys"/>
-        <import uri="http://openesdh.dk/model/contact/1.0/" prefix="contact" />
+        <import uri="http://openesdh.dk/model/contact/1.0" prefix="contact" />
     </imports>
     <namespaces>
-        <namespace uri="http://openesdh.dk/model/openesdh/1.0/" prefix="oe"/>
+        <namespace uri="http://openesdh.dk/model/openesdh/1.0" prefix="oe"/>
     </namespaces>
     <types>
         <type name="oe:base">
@@ -54,17 +54,9 @@
                 </property>
             </overrides>
         </aspect>
-        <aspect name="oe:journalized">
+        <aspect name="oe:journalizable">
             <parent>cm:classifiable</parent>
             <properties>
-                <property name="oe:journalizedBy">
-                    <type>d:text</type>
-                    <mandatory>true</mandatory>
-                </property>
-                <property name="oe:journalizedDate">
-                    <type>d:datetime</type>
-                    <mandatory>true</mandatory>
-                </property>
                 <property name="oe:journalKey">
                     <type>d:category</type>
                     <mandatory>true</mandatory>
@@ -74,6 +66,19 @@
                         <stored>true</stored>
                         <tokenised>false</tokenised>
                     </index>
+                </property>
+
+            </properties>
+        </aspect>
+        <aspect name="oe:journalized">
+            <properties>
+                <property name="oe:journalizedBy">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
+                <property name="oe:journalizedDate">
+                    <type>d:datetime</type>
+                    <mandatory>true</mandatory>
                 </property>
                 <property name="oe:originalOwner">
                     <!-- This stores the original owner of a node while it is journalized. -->

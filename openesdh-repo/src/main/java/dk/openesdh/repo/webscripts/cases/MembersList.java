@@ -1,7 +1,11 @@
 package dk.openesdh.repo.webscripts.cases;
 
-import dk.openesdh.repo.services.cases.CaseService;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+
 import org.alfresco.model.ContentModel;
+import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthorityService;
@@ -12,11 +16,13 @@ import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.extensions.webscripts.*;
+import org.springframework.extensions.webscripts.Cache;
+import org.springframework.extensions.webscripts.DeclarativeWebScript;
+import org.springframework.extensions.webscripts.Status;
+import org.springframework.extensions.webscripts.WebScriptRequest;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.utils.Utils;
 
 /**
  * @author Lanre Abiwon.
@@ -28,6 +34,7 @@ public class MembersList extends DeclarativeWebScript {
     private AuthorityService authorityService;
     private PersonService personService;
     private NodeService nodeService;
+    private DictionaryService dictionaryService;
 
     @Override
     protected Map<String, Object> executeImpl(WebScriptRequest req, Status status, Cache cache){
@@ -96,10 +103,12 @@ public class MembersList extends DeclarativeWebScript {
                     displayName = authorityService.getAuthorityDisplayName(authority);
                     memberObj.put("avatar", "components/images/group-16.png");
                     memberObj.put("isGroup", true);
-
                 }
+
+                String displayRoleName = Utils.getRoleDisplayLabel(entry.getKey(), dictionaryService);
+                memberObj.put("role", displayRoleName);
+
                 memberObj.put("displayName", displayName);
-                memberObj.put("role", entry.getKey());
                 memberObj.put("nodeRef", authorityNodeRef);
                 result.put(memberObj);
             }
@@ -154,6 +163,10 @@ public class MembersList extends DeclarativeWebScript {
 
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
+    }
+
+    public void setDictionaryService(DictionaryService dictionaryService) {
+        this.dictionaryService = dictionaryService;
     }
 
     //endregion

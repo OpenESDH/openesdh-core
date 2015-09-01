@@ -25,7 +25,7 @@ define(["dojo/_base/declare",
              * Either "user" or "group".
              * @type {string}
              */
-            contactType: "user",
+            contactType: "PERSON",
 
             /**
              * The authority internal name.
@@ -52,34 +52,50 @@ define(["dojo/_base/declare",
 
                 var photoUrl;
                 var alt;
-                if (this.contactType == "user") {
+                if (this.contactType == "PERSON") {
                     photoUrl = Alfresco.constants.URL_CONTEXT + "res/components/images/no-user-photo-64.png";
                     alt = "avatar";
                 } else {
                     photoUrl = Alfresco.constants.URL_CONTEXT + "res/components/images/group-64.png";
                     alt = this.message('case-party.group-img-alt');
                 }
+                
                 domAttr.set(this.authorityPictureNode, "src", photoUrl);
                 domAttr.set(this.authorityPictureNode, "alt", alt);
 
                 domAttr.set(this.authorityUserNameNode, "innerHTML", "("+ this.party +")");
 
+                domAttr.set(this.authorityExtraInfoNode, "innerHTML", this.getExtraInfo());
 
                 var options = array.map(this.roleTypes, function (roleType) {
                     return {label: _this.message("roles." + roleType.toLowerCase()), value: roleType};
                 });
-                this.roleSelectWidget = new Select({ id: this.party + "-" + this.partyRole + "-select", options: options });
+                this.roleSelectWidget = new Select({ id: this.party + "-" + this.partyRole + "-select", options: options, disabled: _this.isReadOnly });
                 this.roleSelectWidget.set('value', this.partyRole, false);
                 this.roleSelectWidget.placeAt(this.roleNode);
 
-                this.roleSelectWidget.on("change", lang.hitch(this, "_onRoleChanged"));
-
-                var removeButton = new AlfButton({
-                    id: this.party + "-" + this.partyRole + "-remove",
-                    label: this.message("case-party.remove"),
-                    onClick: lang.hitch(this, '_onRemoveRoleClick')
-                });
-                removeButton.placeAt(this.removeButtonNode);
+                if(!_this.isReadOnly){
+                    
+                    this.roleSelectWidget.on("change", lang.hitch(this, "_onRoleChanged"));
+                    
+                    var removeButton = new AlfButton({
+                        id: this.party + "-" + this.partyRole + "-remove",
+                        label: this.message("case-party.remove"),
+                        onClick: lang.hitch(this, '_onRemoveRoleClick')
+                    });
+                    removeButton.placeAt(this.removeButtonNode);
+                }
+            },
+            
+            getExtraInfo : function(){
+            	var extraInfo = [];
+            	if(this.postBox && this.postBox.length > 0){
+            		extraInfo.push("PO box " + this.postBox);
+            	}
+            	extraInfo.push(this.streetName + " " + this.houseNumber);
+            	extraInfo.push(this.cityName);            	
+            	extraInfo.push(this.countryCode + " " + this.postCode);
+            	return extraInfo.join(", ");
             },
 
             _onRoleChanged: function () {

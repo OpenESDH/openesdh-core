@@ -35,15 +35,6 @@ define(["dojo/_base/declare",
             ],
 
             /**
-             * The NodeRef of the root category
-             *
-             * @instance
-             * @default null
-             * @type string
-             */
-            rootNodeRef: null,
-
-            /**
              * Whether the picker should allow multiple selections.
              *
              * @instance
@@ -60,6 +51,11 @@ define(["dojo/_base/declare",
              * @type boolean
              */
             canPickFirstLevelItems: true,
+
+            /**
+             * The initial path to use.
+             */
+            initialPath: "",
 
             /**
              * The current path as an array of strings.
@@ -89,13 +85,12 @@ define(["dojo/_base/declare",
                     this.selectedItems = {};
                 }
 
-                if (this.path != null) {
-                    this.initialPath = this.path;
+                if (this.initialPath) {
+                    this.initialPath = this.initialPath.split("/");
+                    this.path = lang.clone(this.initialPath);
                 } else {
-                    this.initialPath = [];
+                    this.path = [];
                 }
-
-                this.path = [];
 
                 // Single-select doesn't have any concept of selected items in
                 // the picker dialog..
@@ -123,7 +118,7 @@ define(["dojo/_base/declare",
                 var bc = new BorderContainer({
                     style: (this.multipleSelect ?
                         "width: 750px; height: 300px;" :
-                        "width: 400px; height: 300px;")
+                        "width: 100%; height: 350px;")
                 });
 
                 // create a ContentPane as the center pane in the BorderContainer
@@ -170,7 +165,7 @@ define(["dojo/_base/declare",
             },
 
             back: function () {
-                if (this.path.length > 0) {
+                if (this.path.length > 0 && this.path.length - 1 >= this.initialPath.length) {
                     this.path.pop();
                     this.browse();
                 }
@@ -259,6 +254,8 @@ define(["dojo/_base/declare",
                         var itemWidget = new CategoryItem({
                             picker: _this,
                             itemName: child.name,
+                            itemTitle: child.title,
+                            itemDescription: child.description,
                             nodeRef: child.nodeRef,
                             hasChildren: child.hasChildren,
                             selected: isSelected,
@@ -282,7 +279,7 @@ define(["dojo/_base/declare",
                 // Update the header
                 this.currentItemNode.innerHTML = this.path.join("/");
 
-                if (this.path.length > 0) {
+                if (this.path.length > 0 && this.path.length > this.initialPath.length) {
                     domClass.remove(this.backButtonNode, "disabled");
                 } else {
                     domClass.add(this.backButtonNode, "disabled");
@@ -301,7 +298,8 @@ define(["dojo/_base/declare",
             },
 
             getChildCategoriesUrl: function (path) {
-                var nodeRef = new Alfresco.util.NodeRef(this.rootNodeRef),
+                // Alfresco's webscript ignores the root noderef
+                var nodeRef = new Alfresco.util.NodeRef("workspace://SpacesStore/abc"),
                     uriTemplate = "slingshot/doclib/categorynode/node/" + encodeURI(nodeRef.uri) + "/" + Alfresco.util.encodeURIPath(path);
                 return Alfresco.constants.PROXY_URI + uriTemplate + "?perms=false&children=true";
             },

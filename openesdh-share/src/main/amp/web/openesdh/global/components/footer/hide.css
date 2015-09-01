@@ -1,0 +1,7 @@
+.sticky-push, .sticky-footer {
+    display: none !important;
+}
+ 
+#bd {
+    padding-bottom: 0px !important; 
+}

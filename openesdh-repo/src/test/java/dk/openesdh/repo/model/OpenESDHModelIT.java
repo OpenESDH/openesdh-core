@@ -2,6 +2,7 @@ package dk.openesdh.repo.model;
 
 import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
+import dk.openesdh.SimpleCaseModel;
 import dk.openesdh.repo.helper.CaseHelper;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
@@ -41,8 +42,6 @@ import static org.junit.Assert.assertEquals;
 @ContextConfiguration("classpath:alfresco/application-context.xml")
 public class OpenESDHModelIT {
 
-    private static final String ADMIN_USER_NAME = "admin";
-
     @Autowired
     @Qualifier("NodeService")
     protected NodeService nodeService;
@@ -70,7 +69,7 @@ public class OpenESDHModelIT {
 
     @Test
     public void testCreateSimpleCase() {
-        AuthenticationUtil.setFullyAuthenticatedUser(ADMIN_USER_NAME);
+        AuthenticationUtil.setFullyAuthenticatedUser(OpenESDHModel.ADMIN_USER_NAME);
 
         NodeRef companyHome = nodeLocatorService.getNode(CompanyHomeNodeLocator.NAME, null, null);
 
@@ -79,9 +78,9 @@ public class OpenESDHModelIT {
         properties.put(ContentModel.PROP_NAME, name);
         List<NodeRef> owners = new LinkedList<>();
         owners.add(repositoryHelper.getPerson());
-        NodeRef caseNode = caseHelper.createCase(ADMIN_USER_NAME,
+        NodeRef caseNode = caseHelper.createCase(OpenESDHModel.ADMIN_USER_NAME,
                 companyHome,
-                name, OpenESDHModel.TYPE_CASE_SIMPLE, properties, owners,
+                name, SimpleCaseModel.TYPE_CASE_SIMPLE, properties, owners,
                 true);
         String caseName = (String) nodeService.getProperty(caseNode, ContentModel.PROP_NAME);
 //        assertEquals(name, caseName);

@@ -3,6 +3,7 @@ package dk.openesdh.repo.actions;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
 import org.alfresco.repo.action.executer.ActionExecuterAbstractBase;
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.action.ParameterDefinition;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
@@ -36,13 +37,20 @@ public class AssignCaseIdActionExecuter extends ActionExecuterAbstractBase {
         if (!nodeService.exists(actionedUponNodeRef)) {
             return;
         }
-        NodeRef caseNodeRef = caseService.getParentCase(actionedUponNodeRef);
-        if (caseNodeRef != null) {
-            String caseId = caseService.getCaseId(caseNodeRef);
-            Map<QName, Serializable> properties = new HashMap<>();
-            properties.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
-            nodeService.addAspect(actionedUponNodeRef, OpenESDHModel.ASPECT_OE_CASE_ID, properties);
-        }
+        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Void>() {
+            @Override
+            public Void doWork() throws Exception {
+                NodeRef caseNodeRef = caseService.getParentCase(actionedUponNodeRef);
+                if (caseNodeRef != null) {
+                    String caseId = caseService.getCaseId(caseNodeRef);
+                    Map<QName, Serializable> properties = new HashMap<>();
+                    properties.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
+                    nodeService.addAspect(actionedUponNodeRef, OpenESDHModel.ASPECT_OE_CASE_ID, properties);
+                }
+                return null;
+            }
+        }, AuthenticationUtil.getAdminUserName());
+
     }
 
     @Override

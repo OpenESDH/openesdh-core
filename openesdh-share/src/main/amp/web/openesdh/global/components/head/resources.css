@@ -1,0 +1,13 @@
+/*.theme-company-logo {
+    background: url("../../../images/openesdh.png") no-repeat scroll 0 0 rgba(0, 0, 0, 0) !important;
+    height: 141px !important;
+    width: 350px !important;
+}*/
+ 
+.form-fields.login .form-field > span.yui-button {
+    border-color: #2598d0 !important;
+}
+.form-fields.login .form-field > span.yui-button > .first-child {
+    border-color: #2598d0 !important;
+    background-color: #2598d0 !important;
+}

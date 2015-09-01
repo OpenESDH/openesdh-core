@@ -8,7 +8,7 @@ define(["dojo/_base/declare",
         "openesdh/common/widgets/dashlets/_DocumentTopicsMixin"
     ],
     function(declare, DGrid, lang, _TopicsMixin) {
-        return declare([DGrid], {
+        return declare([DGrid, _TopicsMixin], {
             cssRequirements: [
                 {cssFile: "./css/DocumentGrid.css"}
             ],
@@ -24,24 +24,53 @@ define(["dojo/_base/declare",
              * @instance
              * @type {object[]}
              */
-            actions: [
-                {"callback" : "onPreviewDoc",
+            actions: [],
+            
+            constructor: function (args) {
+                lang.mixin(this, args);
+                this.initActions();
+            },
+            
+            initActions: function(){
+            	
+            	var actions = [{"callback" : "onPreviewDoc",
                     "id" : "doc-preview",
                     "label" : "grid.actions.preview_doc",
-                    "key" : "13"},
-
-                // TODO: use widgets!
-                {"href" : "edit-metadata?nodeRef={nodeRef}",
+                    "key" : "13"}];
+            	
+            	if(this.isReadOnly){
+            		this.actions = actions;
+            		return;
+            	}
+            	
+            	actions.push({"href" : "edit-metadata?nodeRef={nodeRef}",
                     "id" : "case-edit",
                     "label" : "grid.actions.edit_doc",
                     "key" : "69", // Shift+E
-                    "shift": true},
-                {"href" : "document-details?nodeRef={mainDocNodeRef}",
+                    "shift": true});
+            	
+            	actions.push({"href" : "document-details?nodeRef={mainDocNodeRef}",
                     "id" : "doc-details",
                     "label" : "grid.actions.doc_details",
                     "key" : "68", // Shift+D
-                    "shift": true}
-            ],
+                    "shift": true});
+            	
+            	actions.push({"callback" : "onMoveDoc",
+                    "id" : "doc-move",
+                    "label" : "grid.actions.move_doc",
+                    "key"	: "77", // Shift+M
+                    "shift" : true
+                });
+            	
+            	actions.push({"callback" : "onCopyDoc",
+                    "id" : "doc-copy",
+                    "label" : "grid.actions.copy_doc",
+                    "key"	: "67", // Shift+C
+                    "shift" : true
+                });
+            	
+            	this.actions = actions;
+            },
 
             onPreviewDoc: function (item) {
                 // TODO: Use the nodeRef of the main document
@@ -50,7 +79,25 @@ define(["dojo/_base/declare",
                     displayName: item['cm:title'] ? item['cm:title'] : item['cm:name']
                 });
             },
-
+            
+            onMoveDoc : function (item) {
+            	this.alfPublish(this.MoveDocumentTopic, {
+                    nodeRef: item.mainDocNodeRef,
+                    name: item["cm:name"],
+                    caseId: item["oe:caseId"],
+                    nodeUuid: item["sys:node-uuid"]
+                });
+            },
+            
+            onCopyDoc : function (item) {
+            	this.alfPublish(this.CopyDocumentTopic, {
+                    nodeRef: item.mainDocNodeRef,
+                    name: item["cm:name"],
+                    caseId: item["oe:caseId"],
+                    nodeUuid: item["sys:node-uuid"]
+                });
+            },
+            
             postMixInProperties: function () {
                 this.inherited(arguments);
                 this.targetURI = "api/openesdh/casedocumentssearch?nodeRef=" + this.nodeRef;
@@ -63,7 +110,7 @@ define(["dojo/_base/declare",
                     { field: "doc:state", label: this.message("table.header.label.state"), renderCell: lang.hitch(this, '_renderDocState')  },
                     { field: "cm:title", label: this.message("table.header.label.title"), renderCell: lang.hitch(this, '_renderTitleCell') },
                     { field: "mainDocVersion", label: this.message("table.header.label.version"), formatter: lang.hitch(this, "_formatVersion") },
-                    { field: "doc:owner", label: this.message("table.header.label.owner") },
+                    { field: "doc:owner", label: this.message("table.header.label.owner"), renderCell: lang.hitch(this, '_renderUserName') },
                     { field: "cm:created", label: this.message("table.header.label.created"), formatter: lang.hitch(this, "_formatDate") },
                     { field: "cm:modified", label: this.message("table.header.label.modified"), formatter: lang.hitch(this, "_formatDate") }
                 ];
@@ -104,6 +151,25 @@ define(["dojo/_base/declare",
             _renderDocCategory: function (item, value, node, options) {
                 if(value && value != undefined && value != "")
                     node.innerHTML = this.message("document.category.constraint.label."+value);
+            },
+            
+            _renderUserName: function(item, users, node, options){
+                if(!lang.isArray(users)){
+                    node.innerHTML = users.fullname;
+                    return;
+                }
+                
+                var notFirst = false;
+                var html = "";
+                for(var i in users){
+                   var user = users[i];
+                   if(notFirst){
+                       html += " ";                           
+                   }
+                   html += user.fullname;
+                   notFirst = true;
+                }
+                node.innerHTML = html;
             }
         });
     });

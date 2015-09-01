@@ -80,14 +80,21 @@ function(_StoreMixin, declare, arrayUtil, lang, Deferred, on, query, string, has
 			
 			// add pagination to footer
 			var grid = this,
-				paginationNode = this.paginationNode =
-					put(this.footerNode, "div.dgrid-pagination"),
-				statusNode = this.paginationStatusNode =
-					put(paginationNode, "div.dgrid-status"),
 				i18n = this.i18nPagination,
 				navigationNode,
 				node,
 				i;
+
+			if(this.renderPagingActions){
+                this.renderPagingActions(this.footerNode);
+            }
+			
+			var paginationNode = this.paginationNode =
+				put(this.footerNode, "div.dgrid-pagination");
+			
+			var statusNode = this.paginationStatusNode =
+                put(paginationNode, "div.dgrid-status");
+			
 			
 			statusNode.tabIndex = 0;
 			
@@ -118,7 +125,7 @@ function(_StoreMixin, declare, arrayUtil, lang, Deferred, on, query, string, has
 				node.tabIndex = 0;
 			}
 			
-			this.paginationLinksNode = put(navigationNode, "span.dgrid-pagination-links");
+			//this.paginationLinksNode = put(navigationNode, "span.dgrid-pagination-links");
 			if(this.previousNextArrows){
 				// create a next link
 				node = this.paginationNextNode =

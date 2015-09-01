@@ -7,6 +7,7 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PersonService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.extensions.webscripts.Cache;
@@ -32,11 +33,16 @@ public class DocumentCaseContainers extends DeclarativeWebScript {
         String storeType = templateArgs.get("store_type");
         String storeId = templateArgs.get("store_id");
         String id = templateArgs.get("id");
-        NodeRef documentNode = new NodeRef(storeType, storeId, id);
+        String caseId = templateArgs.get("caseId");
+        NodeRef documentNode = (StringUtils.isNotEmpty(storeId)) ? new NodeRef(storeType, storeId, id) : null;
+        NodeRef caseNodeRef;
 
         Map<String, Object> model = new HashMap<String, Object>();
         try{
-            NodeRef caseNodeRef = caseService.getParentCase(documentNode);
+            if(StringUtils.isNotEmpty(caseId))
+                caseNodeRef = caseService.getCaseById(caseId);
+            else
+                caseNodeRef = caseService.getParentCase(documentNode);
             NodeRef caseDocumentNodeRef  = caseService.getDocumentsFolder(caseNodeRef);
 
             model.put("caseNodeRef", caseNodeRef.toString());

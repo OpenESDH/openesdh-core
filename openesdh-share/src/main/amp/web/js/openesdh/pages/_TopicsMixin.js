@@ -22,6 +22,12 @@ define(["dojo/_base/declare"],
             DocumentVersionRevertFormSubmitTopic: "DOCUMENT_REVERT_FORM_SUBMIT",
             DocumentVersionUploaderTopic: "OE_SHOW_VERSION_UPLOADER",
             VersionReversionSuccess: "VERSION_REVERT_SUCCESS",
-            GetDocumentVersionsTopicClick: "GET_DOCUMENT_VERSIONS_CLICK"
+            GetDocumentVersionsTopicClick: "GET_DOCUMENT_VERSIONS_CLICK",
+            CaseDocumentMoved : "OE_CASE_DOCUMENT_MOVED",
+            MoveDocumentTopic: "OE_MOVE_DOC",
+            CopyDocumentTopic: "OE_COPY_DOC",
+            FindCaseDialogTopic : "OE_CREATE_FIND_CASE_DIALOG",
+            NotesTopicsScope: "OPENESDH_NOTES_DASHLET",
+            NoteCreatedTopic: "ALF_CRUD_CREATE_SUCCESS"
         });
     });

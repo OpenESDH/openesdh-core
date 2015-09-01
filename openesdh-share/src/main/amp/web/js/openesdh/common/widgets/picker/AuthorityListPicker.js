@@ -183,7 +183,6 @@ define(["dojo/_base/declare",
          this.processWidgets(config, this.itemsNode);
       },
 
-
       /**
        * Override the default implementation to call [loadData]{@link module:alfresco/documentlibrary/AlfDocumentList#loadData}
        * with the currently selected folder node.
@@ -309,7 +308,6 @@ define(["dojo/_base/declare",
        updateLoadDataPayload: function alfresco_lists_AlfSortablePaginatedList__updateLoadDataPayload(payload) {
            payload.searchTerm = this.searchTerm;
            payload.authorityType = this.authorityType;
-           console.log("AuthorityListPicker (254): "+this.searchTerm);
        },
 
       /**

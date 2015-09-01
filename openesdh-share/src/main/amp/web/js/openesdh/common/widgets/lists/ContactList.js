@@ -18,7 +18,6 @@ define(["dojo/_base/declare",
              */
             contactType: "",
             searchTerm: "",
-
             sortField: "",
 
             postMixInProperties: function () {
@@ -36,7 +35,7 @@ define(["dojo/_base/declare",
             },
 
             loadContactList: function (payload) {
-                this.searchTerm = payload.term;
+                this.searchTerm = payload.searchTerm;
                 this.loadData();
             },
 
@@ -47,9 +46,7 @@ define(["dojo/_base/declare",
             },
 
             loadData: function () {
-//                if (this.searchTerm != "") {
                     this.inherited(arguments);
-//                }
             },
 
             setDisplayMessages: function () {

@@ -3,3 +3,9 @@
     padding: 1em;
     border: 1px #ccc solid;
 }
+
+#contact_picker_dialog{
+    /*TODO Have to specify the dialog width so that it doesn't appear initially broken
+      Long names still break it, but for now leave for Future fix.*/
+    width: 710px;
+}

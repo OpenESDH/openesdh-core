@@ -1,7 +1,7 @@
 /**
  * Based on alfresco/forms/controls/ContainerPicker
  *
- * @module openesdh/common/widgets/controls/AuthorityPicker.js
+ * @module openesdh/common/widgets/controls/AuthorityPicker
  * @extends module:alfresco/forms/controls/Picker
  * @author Lanre Abiwon
  */
@@ -14,6 +14,13 @@ define(["dojo/_base/declare",
         function(declare, lang, ObjectTypeUtils, Picker, PickerWithHeader) {
 
    return declare([Picker], {
+       /**
+        * An array of the i18n files to use with this widget.
+        *
+        * @instance
+        * @type {Array}
+        */
+       i18nRequirements: [{i18nFile: "./i18n/AuthorityPicker.properties"}],
 
        /**
         * The authority type to scope to. by default all but can be set to:
@@ -21,6 +28,11 @@ define(["dojo/_base/declare",
         *  cm:authorityContainer ==> Groups
         */
        authorityType: "cm:authority",
+
+       /**
+        * The current logged in user
+        */
+       currentUser: null,
 
        /**
         * This is used to determine whether to set default picked items for the picker
@@ -94,6 +106,11 @@ define(["dojo/_base/declare",
        },
 
        /**
+        * Set this if you we want to process the default picker when set as tokens
+        */
+       processDefaultPickerTokens: false,
+
+       /**
         * This should be overridden to define the widget model for rendering the picker that appears within the
         * dialog.
         *
@@ -110,6 +127,7 @@ define(["dojo/_base/declare",
                        widgets: [
                            {
                                name: "openesdh/common/widgets/forms/SingleTextFieldForm",
+                               id: "authPicker_search_field",
                                config: {
                                    useHash: false,
                                    showOkButton: true,
@@ -213,9 +231,11 @@ define(["dojo/_base/declare",
         * @param {object} config The configuration object for instantiating the picker form control
         */
        postCreate: function alfresco_forms_controls_Picker__postCreate(config) {
-
            this.inherited(arguments);
            if(this.setDefaultPickedItems){
+               if(this.processDefaultPickerTokens){
+                   this.defaultPickedItems = this.processInstanceTokens(this.defaultPickedItems);
+               }
                //If it's a single object then change it into an array containing a single object
                if(!ObjectTypeUtils.isArray(this.defaultPickedItems)) {
                    this.defaultPickedItems = [this.defaultPickedItems];
@@ -239,6 +259,5 @@ define(["dojo/_base/declare",
            lang.setObject("0.config.widgets.1.config.publishPayload.widgetsContent.0.name", "openesdh/common/widgets/picker/PickerWithHeader", widgetsForControl);
            this.processObject(["processInstanceTokens"], widgetsForControl);
        }
-
    });
 });

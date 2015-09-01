@@ -1,14 +1,22 @@
 package dk.openesdh.repo.services.documents;
 
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.webscripts.documents.Documents;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
+import org.alfresco.service.cmr.repository.CopyService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.PersonService;
@@ -24,8 +32,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.io.Serializable;
-import java.util.*;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.webscripts.documents.Documents;
 
 /**
  * Created by torben on 11/09/14.
@@ -42,6 +51,7 @@ public class DocumentServiceImpl implements DocumentService {
     private CaseService caseService;
     private NamespaceService namespaceService;
     private BehaviourFilter behaviourFilter;
+    private CopyService copyService;
 
     private MimeTypes allMimeTypes = MimeTypes.getDefaultMimeTypes();
     private MimeTypes types;
@@ -74,7 +84,12 @@ public class DocumentServiceImpl implements DocumentService {
     public void setBehaviourFilter(BehaviourFilter behaviourFilter) {
         this.behaviourFilter = behaviourFilter;
     }
-    //</editor-fold>
+
+    public void setCopyService(CopyService copyService) {
+        this.copyService = copyService;
+    }
+
+    // </editor-fold>
 
     @Override
     public List<ChildAssociationRef> getDocumentsForCase(NodeRef nodeRef) {
@@ -229,5 +244,64 @@ public class DocumentServiceImpl implements DocumentService {
     public static boolean hasFileExtentsion(String filename){
         String fileNameExt =  FilenameUtils.getExtension(filename);
         return StringUtils.isNotEmpty(fileNameExt);
+    }
+
+    @Override
+    public void moveDocumentToCase(NodeRef documentRecFolderToMove, String targetCaseId) throws Exception {
+
+        NodeRef targetCase = getTargetCase(targetCaseId);
+        NodeRef targetCaseDocumentsFolder = caseService.getDocumentsFolder(targetCase);
+
+        if (isCaseContainsDocument(targetCaseDocumentsFolder, documentRecFolderToMove)) {
+            throw new Exception(DocumentService.DOCUMENT_STORED_IN_CASE_MESSAGE + targetCaseId);
+        }
+
+        String documentFolderName = (String) nodeService.getProperty(documentRecFolderToMove,
+                ContentModel.PROP_NAME);
+
+        nodeService.moveNode(documentRecFolderToMove, targetCaseDocumentsFolder, ContentModel.ASSOC_CONTAINS,
+                QName.createQName(OpenESDHModel.DOC_URI, documentFolderName));
+
+        // Refer to CaseServiceImpl.setupAssignCaseIdRule and
+        // AssignCaseIdActionExecuter
+        // for automatic update of the caseId property rule.
+
+    }
+
+    @Override
+    public void copyDocumentToCase(NodeRef documentRecFolderToCopy, String targetCaseId) throws Exception {
+
+        NodeRef targetCase = getTargetCase(targetCaseId);
+        NodeRef targetCaseDocumentsFolder = caseService.getDocumentsFolder(targetCase);
+
+        if (isCaseContainsDocument(targetCaseDocumentsFolder, documentRecFolderToCopy)) {
+            throw new Exception(DocumentService.DOCUMENT_STORED_IN_CASE_MESSAGE + targetCaseId);
+        }
+
+        copyDocumentToFolder(documentRecFolderToCopy, targetCaseDocumentsFolder);
+    }
+
+    @Override
+    public void copyDocumentToFolder(NodeRef documentRecFolderToCopy, NodeRef targetFolder) throws Exception {
+        String documentFolderName = (String) nodeService.getProperty(documentRecFolderToCopy,
+                ContentModel.PROP_NAME);
+        copyService.copy(documentRecFolderToCopy, targetFolder, ContentModel.ASSOC_CONTAINS,
+                QName.createQName(OpenESDHModel.DOC_URI, documentFolderName), true);
+    }
+
+    private NodeRef getTargetCase(String targetCaseId) throws Exception {
+        try {
+            return caseService.getCaseById(targetCaseId);
+        } catch (Exception e) {
+            throw new Exception("Error trying to get target case for the case id: " + targetCaseId, e);
+        }
+    }
+
+    private boolean isCaseContainsDocument(NodeRef targetCaseDocumentsFolder, NodeRef documentRecFolderToCopy) {
+        return nodeService.getChildAssocs(targetCaseDocumentsFolder)
+                .stream()
+                .filter(assoc -> assoc.getChildRef().equals(documentRecFolderToCopy))
+                .findAny()
+                .isPresent();
     }
 }

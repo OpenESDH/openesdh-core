@@ -1,26 +1,41 @@
 <extension>
-  <modules>
-    <module>
-      <id>OpenESDH Extensions</id>
-      <version>1.0</version>
-      <auto-deploy>true</auto-deploy>
+    <modules>
+        <module>
+            <id>OpenESDH Extensions</id>
+            <version>1.0</version>
+            <auto-deploy>true</auto-deploy>
 
-      <customizations>
-        <customization>
-          <targetPackageRoot>org.alfresco</targetPackageRoot>
-          <sourcePackageRoot>dk.openesdh.global-customisations</sourcePackageRoot>
-        </customization>
-      </customizations>
+            <components>
+                <component>
+                    <scope>global</scope>
+                    <region-id>footer</region-id>
+                    <source-id>global</source-id>
+                    <sub-components>
+                        <sub-component id="default">
+                            <url>/openesdh/components/hide-footer</url>
+                        </sub-component>
+                    </sub-components>
+                </component>
+            </components>
+
+            <customizations>
+                <customization>
+                    <targetPackageRoot>org.alfresco</targetPackageRoot>
+                    <sourcePackageRoot>dk.openesdh.global-customisations</sourcePackageRoot>
+                </customization>
+            </customizations>
 
       <configurations>
         <config evaluator="string-compare" condition="WebFramework" replace="false">
           <web-framework>
             <dojo-pages>
+              <default-less-configuration>/js/aikau/alfresco/css/less/defaults.less</default-less-configuration><messages-object>Alfresco</messages-object>
               <packages>
                   <package name="openesdh" location="js/openesdh"/>
                   <package name="dgrid" location="js/dgrid-deps/dgrid"/>
                   <package name="put-selector" location="js/dgrid-deps/put-selector"/>
                   <package name="xstyle" location="js/dgrid-deps/xstyle"/>
+                  <package name="alfresco" location="js/aikau/alfresco"/>
               </packages>
             </dojo-pages>
           </web-framework>
@@ -28,6 +43,6 @@
       </configurations>
     </module>
 
-  </modules>
+    </modules>
 </extension>
 

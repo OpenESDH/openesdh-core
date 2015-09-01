@@ -11,7 +11,7 @@
         <import uri="http://www.alfresco.org/model/datalist/1.0" prefix="dl"/>
     </imports>
     <namespaces>
-        <namespace uri="http://openesdh.dk/model/contact/1.0/" prefix="contact"/>
+        <namespace uri="http://openesdh.dk/model/contact/1.0" prefix="contact"/>
     </namespaces>
     <constraints>
         <constraint name="contact:cprConstraint" type="REGEX">
@@ -164,20 +164,6 @@
                 </property>
 
             </properties>
-
-            <associations>
-                <association name="contact:userLogin">
-                    <source>
-                        <mandatory>false</mandatory>
-                        <many>false</many>
-                    </source>
-                    <target>
-                        <class>cm:person</class>
-                        <mandatory>false</mandatory>
-                        <many>false</many>
-                    </target>
-                </association>
-            </associations>
 
             <overrides>
                 <property name="contact:contactType">

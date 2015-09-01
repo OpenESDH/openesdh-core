@@ -3,11 +3,15 @@
 <beans>
     <bean id="CaseService" class="dk.openesdh.repo.services.cases.CaseServiceImpl">
         <property name="nodeService">
-            <ref bean="NodeService"/>
+            <ref bean="nodeService"/>
         </property>
 
         <property name="searchService">
             <ref bean="SearchService"/>
+        </property>
+
+        <property name="contentService">
+            <ref bean="ContentService"/>
         </property>
 
         <property name="authorityService">
@@ -37,13 +41,9 @@
         <property name="dictionaryService">
             <ref bean="DictionaryService"/>
         </property>
-
-        <property name="ruleService">
-            <ref bean="RuleService"/>
-        </property>
-
-        <property name="actionService">
-            <ref bean="ActionService"/>
+        
+        <property name="permissionsModelDAO">
+            <ref bean="permissionsModelDAO"/>
         </property>
     </bean>
 
@@ -63,6 +63,10 @@
     <bean id="DocumentService" class="dk.openesdh.repo.services.documents.DocumentServiceImpl">
         <property name="caseService">
             <ref bean="CaseService"/>
+        </property>
+        
+        <property name="copyService">
+            <ref bean="CopyService"/>
         </property>
 
         <property name="nodeService">
@@ -101,6 +105,12 @@
     <bean id="AuditSearchService" class="dk.openesdh.repo.services.audit.AuditSearchServiceImpl">
         <property name="auditService">
             <ref bean="AuditService"/>
+        </property>
+        <property name="authorityService">
+            <ref bean="AuthorityService"/>
+        </property>
+        <property name="permissionService">
+            <ref bean="PermissionService"/>
         </property>
     </bean>
 
@@ -178,9 +188,9 @@
 
     <bean id="NoteService"
           class="dk.openesdh.repo.services.notes.NoteServiceImpl">
-        <property name="nodeService">
-            <ref bean="NodeService"/>
-        </property>
+        <property name="nodeService" ref="NodeService" />
+        <property name="personService" ref="PersonService" />
+        <property name="contactService" ref="ContactService" />
     </bean>
 
     <bean id="PartyService" class="dk.openesdh.repo.services.cases.PartyServiceImpl">

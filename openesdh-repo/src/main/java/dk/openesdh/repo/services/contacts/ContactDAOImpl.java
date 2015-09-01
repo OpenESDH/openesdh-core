@@ -1,15 +1,15 @@
 package dk.openesdh.repo.services.contacts;
 
-import dk.openesdh.repo.model.OpenESDHModel;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Set;
+
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.node.SystemNodeUtils;
-import org.alfresco.repo.security.authority.AuthorityDAOImpl;
-import org.alfresco.repo.security.authority.UnknownAuthorityException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.namespace.NamespacePrefixResolver;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.PropertyCheck;
@@ -17,11 +17,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import java.io.Serializable;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Set;
+import dk.openesdh.repo.model.OpenESDHModel;
 
 /**
  * Some of these methods will come  from the org.alfresco.repo.security.authority.AuthorityDAOImpl class
@@ -40,7 +36,6 @@ public class ContactDAOImpl {
     private static final String contactsRoot = "sys:contacts";
 
     NodeRef createContact(String email, String contactType, HashMap<QName, Serializable> typeProps,  Set<String>  authorityZones) {
-
         typeProps.put(ContentModel.PROP_NAME, DigestUtils.md5Hex(email));
         QName cType = contactType.equalsIgnoreCase("organization")? OpenESDHModel.TYPE_CONTACT_ORGANIZATION : OpenESDHModel.TYPE_CONTACT_PERSON;
 
