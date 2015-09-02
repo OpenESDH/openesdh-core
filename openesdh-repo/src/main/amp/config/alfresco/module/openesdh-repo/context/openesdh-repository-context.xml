@@ -253,7 +253,7 @@
     </bean>
 
     <!--Contacts-->
-    <bean id="contactAbstractWebscript" class="dk.openesdh.repo.webscripts.contacts.Contact"
+    <bean id="contactAbstractWebscript" class="dk.openesdh.repo.webscripts.contacts.ContactWebscript"
           parent="webscript">
         <property name="nodeService" ref="nodeService"/>
         <property name="contactService" ref="ContactService"/>
