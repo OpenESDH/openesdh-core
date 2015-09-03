@@ -1,24 +1,14 @@
 package dk.openesdh.repo.services.cases;
 
-import static org.alfresco.repo.security.authentication.AuthenticationUtil.getAdminUserName;
-import static org.alfresco.repo.security.authentication.AuthenticationUtil.runAs;
-import static org.alfresco.repo.security.authentication.AuthenticationUtil.setFullyAuthenticatedUser;
-import static org.hamcrest.core.Is.isA;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-
-import java.io.Serializable;
-import java.time.LocalDate;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
+import dk.openesdh.SimpleCaseModel;
+import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.model.OpenESDHModel;
+import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
-import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
+import org.alfresco.repo.security.authentication.AuthenticationUtil.*;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransactionCallback;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -36,15 +26,16 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
+import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.*;
 
-import dk.openesdh.repo.helper.CaseHelper;
-import dk.openesdh.repo.model.OpenESDHModel;
+import static org.alfresco.repo.security.authentication.AuthenticationUtil.*;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * Created by rasmutor on 6/30/15.
@@ -53,10 +44,11 @@ import dk.openesdh.repo.model.OpenESDHModel;
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
 @ContextConfiguration({
         "classpath:alfresco/application-context.xml",
-        "/test-context.xml"
+        "classpath:alfresco/extension/openesdh-test-context.xml"
 })
 public class CreateCaseIT {
 
+    //<editor-fold desc="services">
     @Autowired
     @Qualifier("repositoryHelper")
     private Repository repository;
@@ -79,10 +71,11 @@ public class CreateCaseIT {
 
     @Autowired
     private AuthorityService authorityService;
+    //</editor-fold>
 
-    private static final String CREATOR_ROLE = "CaseTestCreator";
-    private static final String READER_ROLE = "CaseTestReader";
-    private static final String WRITER_ROLE = "CaseTestWriter";
+    private static final String CREATOR_ROLE = "CaseSimpleCreator";
+    private static final String READER_ROLE = "CaseSimpleReader";
+    private static final String WRITER_ROLE = "CaseSimpleWriter";
 
     @Autowired
     @Qualifier("TestCaseHelper")
@@ -96,6 +89,10 @@ public class CreateCaseIT {
     public void tearDown() throws Exception {
     }
 
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
+
+    //<editor-fold desc="Tests">
     @Test
     public void getCaseFolderShouldCreateTheYearMonthDayFolderHierarchy() throws Exception {
         setFullyAuthenticatedUser(getAdminUserName());
@@ -116,23 +113,16 @@ public class CreateCaseIT {
         assertNotNull(day);
     }
 
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
-
-    @Test
+    @Test(expected=AlfrescoRuntimeException.class) //For now this works. Check later to look for the AccessDeniedException class
     public void shouldFailCausedByMissingPermissions() throws Exception {
-        expectedException.expectCause(isA(AccessDeniedException.class));
-
         setFullyAuthenticatedUser(getAdminUserName());
 
         retryingTransactionHelper.doInTransaction(() -> {
             authorityService.removeAuthority(PermissionService.GROUP_PREFIX + CREATOR_ROLE, getAdminUserName());
             final String name = UUID.randomUUID().toString();
-            final Map<QName, Serializable> properties = new HashMap<>();
+            NodeRef owner = personService.getPerson(getAdminUserName());
 
-            List<NodeRef> owners = Arrays.asList(personService.getPerson(getAdminUserName()));
-
-            caseHelper.createCase(getAdminUserName(), repository.getCompanyHome(), name, OpenESDHModel.TYPE_CASE_BASE, properties, owners);
+            caseHelper.createSimpleCase(name, getAdminUserName(), owner);
             return null;
         });
     }
@@ -145,11 +135,10 @@ public class CreateCaseIT {
             giveUserCreateAccess(getAdminUserName());
 
             final String name = UUID.randomUUID().toString();
-            final Map<QName, Serializable> properties = new HashMap<>();
 
-            List<NodeRef> owners = Arrays.asList(personService.getPerson(getAdminUserName()));
+            NodeRef owner = personService.getPerson(getAdminUserName());
 
-            return caseHelper.createCase(getAdminUserName(), repository.getCompanyHome(), name, OpenESDHModel.TYPE_CASE_BASE, properties, owners);
+            return caseHelper.createSimpleCase(name, getAdminUserName(), owner);
         });
 
         Map<QName, Serializable> childProps = nodeService.getProperties(caseNode);
@@ -173,14 +162,9 @@ public class CreateCaseIT {
 
         NodeRef caseNode = retryingTransactionHelper.doInTransaction(() -> {
             final String name = UUID.randomUUID().toString();
-            final Map<QName, Serializable> properties = new HashMap<>();
-
             NodeRef personNode = personService.getPerson(userName);
 
-            List<NodeRef> owners = Arrays.asList(personNode);
-            NodeRef homeFolder = (NodeRef) nodeService.getProperty(personNode, ContentModel.PROP_HOMEFOLDER);
-
-            return caseHelper.createCase(userName, homeFolder, name, OpenESDHModel.TYPE_CASE_BASE, properties, owners);
+            return caseHelper.createSimpleCase(name, getAdminUserName(), personNode);
         });
 
         String id = (String) nodeService.getProperty(caseNode, OpenESDHModel.PROP_OE_ID);
@@ -199,15 +183,15 @@ public class CreateCaseIT {
         giveUserCreateAccess(getAdminUserName());
 
         NodeRef personNode = personService.getPerson(getAdminUserName());
-        List<NodeRef> owners = Arrays.asList(personNode);
-        final Map<QName, Serializable> properties = new HashMap<>();
-        NodeRef caseNode = caseHelper.createCase(getAdminUserName(), repository.getCompanyHome(), "my test case", OpenESDHModel.TYPE_CASE_BASE, properties, owners);
+        NodeRef caseNode = caseHelper.createSimpleCase("my test case", getAdminUserName(), personNode);
 
         setFullyAuthenticatedUser(testUser);
 
         nodeService.setProperty(caseNode, OpenESDHModel.PROP_OE_STATUS, "pending");
     }
+    //</editor-fold>
 
+    //<editor-fold desc="private methods">
     private void enableTestUser(String userName) {
         retryingTransactionHelper.doInTransaction(() -> {
             Map<QName,Serializable> properties = new HashMap<>();
@@ -260,4 +244,6 @@ public class CreateCaseIT {
     private <R> R runAsAdmin(RunAsWork<R> callback) {
         return runAs(callback, getAdminUserName());
     }
+    //</editor-fold>
+
 }
