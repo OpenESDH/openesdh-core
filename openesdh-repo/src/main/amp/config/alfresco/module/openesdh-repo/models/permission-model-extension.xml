@@ -48,8 +48,7 @@
 
     <permissionSet type="base:case" expose="selected">
         <permissionGroup name="CaseOwners" expose="true" requiresType="false">
-            <includePermissionGroup permissionGroup="Coordinator"
-                                    type="cm:cmobject"/>
+            <includePermissionGroup permissionGroup="Coordinator" type="cm:cmobject"/>
         </permissionGroup>
     </permissionSet>
 </permissions>
