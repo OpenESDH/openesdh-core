@@ -50,17 +50,11 @@
         <property name="caseHelper">
             <ref bean="TestCaseHelper"/>
         </property>
-        <property name="transactionService">
-            <ref bean="TransactionService"/>
-        </property>
         <property name="caseService">
             <ref bean="CaseService"/>
         </property>
         <property name="documentService">
             <ref bean="DocumentService"/>
-        </property>
-        <property name="retryingTransactionHelper">
-            <ref bean="retryingTransactionHelper"/>
         </property>
 	</bean>
 
