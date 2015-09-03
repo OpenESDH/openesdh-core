@@ -43,13 +43,8 @@ import static org.junit.Assert.assertTrue;
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
 @ContextConfiguration({
-        "classpath:alfresco/application-context.xml",
-        "classpath:test-context.xml",
-        "classpath:alfresco/module/openesdh-repo/context/openesdh-repository-context.xml"
+        "classpath:alfresco/application-context.xml"
 })
-
-
-
 public class CreateCaseIT {
 
     //<editor-fold desc="services">
@@ -191,7 +186,7 @@ public class CreateCaseIT {
 
         setFullyAuthenticatedUser(testUser);
 
-        nodeService.setProperty(caseNode, OpenESDHModel.PROP_OE_STATUS, "active");
+        nodeService.setProperty(caseNode, OpenESDHModel.PROP_OE_STATUS, "pending");
     }
     //</editor-fold>
 
