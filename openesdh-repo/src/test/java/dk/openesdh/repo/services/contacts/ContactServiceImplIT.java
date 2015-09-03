@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
+import dk.openesdh.exceptions.contacts.NoSuchContactException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -194,15 +195,54 @@ public class ContactServiceImplIT {
     }
 
     @Test
-    public void shouldCreateContactAndGetContactById() {
+    public void shouldCreateContactAndGetContactById() throws InterruptedException {
         createContactAssertNotNullCheckEmail(TEST_PERSON_CONTACT_EMAIL, ContactType.PERSON);
-        NodeRef contactNodeRef = contactService.getContactById(TEST_PERSON_CONTACT_EMAIL);
+        NodeRef contactNodeRef = null ;
+
+        //we have to wait until the search will return the contact
+        int sleepCount = 0;
+        int maxSleepCount = 120;
+        do {
+            try {
+                 contactNodeRef = contactService.getContactById(TEST_PERSON_CONTACT_EMAIL);
+            } catch (NoSuchContactException e) {
+                sleepCount++;
+                if (sleepCount > maxSleepCount) {
+                    throw e;
+                } else {
+                    Thread.sleep(1000);
+                }
+            }
+
+        }
+        while (contactNodeRef == null);
         Assert.assertNotNull("A node ref of the created contact should not be null", contactNodeRef);
     }
 
     @Test
-    public void shouldCreateContactAndGetByFilter() {
+    public void shouldCreateContactAndGetByFilter() throws InterruptedException {
         createContactAssertNotNullCheckEmail(TEST_PERSON_CONTACT_EMAIL, ContactType.PERSON);
+
+        NodeRef contactNodeRef = null ;
+
+        //we have to wait until the search will return the contact
+        int sleepCount = 0;
+        int maxSleepCount = 120;
+        do {
+            try {
+                contactNodeRef = contactService.getContactById(TEST_PERSON_CONTACT_EMAIL);
+            } catch (NoSuchContactException e) {
+                sleepCount++;
+                if (sleepCount > maxSleepCount) {
+                    throw e;
+                } else {
+                    Thread.sleep(1000);
+                }
+            }
+
+        } while(contactNodeRef==null);
+
+
         List<ContactInfo> resultList = contactService.getContactByFilter(TEST_PERSON_CONTACT_EMAIL,
                 ContactType.PERSON.name());
         Assert.assertFalse("The contact list got by filter shouldn't be empty", resultList.isEmpty());
