@@ -60,7 +60,10 @@ _TopicsMixin) {
             var init = {filterDef: this.filterDef, initialValue: this.filter.value, filterPane: this.filterPane};
 
             // Create filter widget based on the chosen widget type
-            require(["openesdh/xsearch/" + this.filterDef.widgetType], function (FilterWidget) {
+            if (this.filterDef.widgetType.indexOf("/") === -1) {
+                this.filterDef.widgetType = "openesdh/xsearch/" + this.filterDef.widgetType
+            }
+            require([this.filterDef.widgetType], function (FilterWidget) {
                 _this.filterWidget = FilterWidget(init);
             });
             

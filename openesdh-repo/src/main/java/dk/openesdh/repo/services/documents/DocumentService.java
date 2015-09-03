@@ -1,21 +1,25 @@
 package dk.openesdh.repo.services.documents;
 
-import dk.openesdh.repo.webscripts.cases.CaseInfo;
-import dk.openesdh.repo.webscripts.documents.Documents;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
 import org.json.JSONObject;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
+import dk.openesdh.repo.model.CaseDocumentAttachment;
+import dk.openesdh.repo.model.ResultSet;
+import dk.openesdh.repo.webscripts.documents.Documents;
 
 /**
  * Created by torben on 11/09/14.
  */
 public interface DocumentService {
+
+    public static final String DOCUMENT_STORED_IN_CASE_MESSAGE = "The document has already been stored in the case ";
 
     /**
      * Gets the main document node in case document (i.e. The content with the doc:main aspect inside the folder)
@@ -63,4 +67,44 @@ public interface DocumentService {
      * @return
      */
     List<NodeRef> getAttachments(NodeRef docRecordNodeRef);
+    
+    /**
+     * Moves provided document to the target case
+     * 
+     * @param documentToMove
+     *            NodeRef of the record folder of the document to move
+     * @param targetCaseId
+     *            Id of the case to move the document into
+     */
+    public void moveDocumentToCase(final NodeRef documentToMove, final String targetCaseId) throws Exception;
+
+    /**
+     * Copies provided document to the target case
+     * 
+     * @param documentToCopy
+     *            NodeRef of the record folder of the document to copy
+     * @param targetCaseId
+     *            Id of the case to copy the document into
+     */
+    public void copyDocumentToCase(final NodeRef documentToMove, final String targetCaseId) throws Exception;
+
+    /**
+     * Copies provided case document to the target folder
+     * 
+     * @param caseDocument
+     *            the document record folder node ref to copy
+     * @param targetFolder
+     *            the folder to copy the document to
+     * @throws Exception
+     */
+    public void copyDocumentToFolder(NodeRef caseDocument, NodeRef targetFolder) throws Exception;
+
+    /**
+     * Retrieves attachments of the provided case document with versions
+     * 
+     * @param nodeRef
+     * @return list of the case document attachments
+     */
+    public ResultSet<CaseDocumentAttachment> getAttachmentsWithVersions(NodeRef nodeRef, int startIndex,
+            int pageSize);
 }

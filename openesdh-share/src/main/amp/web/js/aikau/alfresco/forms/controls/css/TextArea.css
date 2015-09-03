@@ -1,0 +1,14 @@
+.alfresco-forms-controls-TextArea div.control .dijitTextArea {
+   border: none;
+   border-bottom: @standard-border;
+}
+
+.alfresco-forms-controls-TextArea div.control .dijitTextAreaHover {
+   border-color: @hover-border-color;
+   background-image: none;
+   background-color: inherit;
+}
+
+.alfresco-forms-controls-TextArea div.control .dijitTextAreaFocused {
+   border-color: @focused-border-color;
+}

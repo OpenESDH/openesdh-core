@@ -1,6 +1,10 @@
 /* Some sensible defaults */
 
 /* Type column */
+.field-fileType {
+    width: 3em;
+}
+/* Type column */
 .field-type {
     width: 8em;
 }

@@ -1,0 +1,8 @@
+<webscript>
+    <shortname>Get all casetypes for current case creator</shortname>
+    <description>Returns a list of casetypes that current user is permitted to create instances of</description>
+    <url>/api/openesdh/casetypes/casecreator</url>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+    <family>Case Tools</family>
+</webscript>

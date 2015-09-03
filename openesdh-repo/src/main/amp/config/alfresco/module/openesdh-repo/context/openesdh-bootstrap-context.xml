@@ -1,0 +1,55 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+
+<beans>
+    <!--The initial openESDH folder context-->
+    <bean id="${project.artifactId}_bootstrap" parent="spacesStoreImporter" >
+        <property name="log"> <value>false</value> </property>
+        <property name="useExistingStore"> <value>true</value> </property>
+        <property name="transactionService" ref="transactionService"/>
+        <property name="bootstrapViews">
+            <list>
+                <props>
+                    <prop key="path">app:company_home</prop>
+                    <!--<prop key="uuidBinding">REPLACE_EXISTING</prop>-->
+                    <prop key="uuidBinding">UPDATE_EXISTING</prop>
+                    <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/folders.xml</prop>
+                </props>
+            </list>
+        </property>
+    </bean>
+    <!--Contacts store-->
+    <bean id="${project.artifactId}_contactBootstrap" parent="spacesStoreImporter" >
+        <property name="log"> <value>false</value> </property>
+        <property name="useExistingStore"> <value>true</value> </property>
+        <property name="transactionService" ref="transactionService"/>
+
+        <property name="bootstrapViews">
+            <list>
+                <props>
+                    <prop key="path">sys:system</prop>
+                    <prop key="uuidBinding">UPDATE_EXISTING</prop>
+                    <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/contacts.xml</prop>
+                </props>
+            </list>
+        </property>
+    </bean>
+
+	<!-- The initial openESDH groups context -->
+	<bean id="${project.artifactId}_bootstrapGroups" class="org.alfresco.repo.module.ImporterModuleComponent" parent="module.baseComponent">
+      <property name="moduleId" value="${project.artifactId}" />
+      <property name="name" value="${project.artifactId}_bootstrapGroups" />
+      <property name="description" value="Import Case Complaint groups" />
+      <property name="sinceVersion" value="${noSnapshotVersion}" />        
+      <property name="appliesFromVersion" value="1.0" />   
+      <property name="importer" ref="spacesBootstrap"/>
+      <property name="bootstrapViews">
+        <list>
+          <props>
+            <prop key="path">/${alfresco_user_store.system_container.childname}</prop>
+            <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/groups.xml</prop>
+          </props>
+        </list>
+      </property>
+    </bean>
+</beans>

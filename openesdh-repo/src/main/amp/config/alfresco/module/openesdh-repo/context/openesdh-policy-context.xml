@@ -10,8 +10,7 @@
         </property>
     </bean>
 
-    <bean id="caseOwnersBehaviour"
-          class="dk.openesdh.repo.policy.CaseOwnersBehaviour" init-method="init">
+    <bean id="caseOwnersBehaviour" class="dk.openesdh.repo.policy.CaseOwnersBehaviour" init-method="init">
         <property name="caseService">
             <ref bean="CaseService"/>
         </property>
@@ -20,18 +19,6 @@
         </property>
         <property name="nodeService">
             <ref bean="NodeService"/>
-        </property>
-    </bean>
-
-    <bean id="documentsBehaviour" class="dk.openesdh.repo.policy.DocumentsBehaviour" init-method="init">
-        <property name="documentService">
-            <ref bean="DocumentService"/>
-        </property>
-        <property name="nodeService">
-            <ref bean="NodeService"/>
-        </property>
-        <property name="policyComponent">
-            <ref bean="policyComponent"/>
         </property>
     </bean>
 
@@ -55,7 +42,19 @@
     </bean>
 
     <bean id="documentBehaviour" class="dk.openesdh.repo.policy.DocumentBehaviour" init-method="init">
+        <property name="documentService">
+            <ref bean="DocumentService"/>
+        </property>
         <property name="nodeService" ref="NodeService"/>
         <property name="policyComponent" ref="policyComponent"/>
     </bean>
+
+    <!--  <bean id="documentsBehaviour" class="dk.openesdh.repo.policy.DocumentsBehaviour" init-method="init">
+          <property name="nodeService">
+              <ref bean="NodeService"/>
+          </property>
+          <property name="policyComponent">
+              <ref bean="policyComponent"/>
+          </property>
+      </bean>-->
 </beans>

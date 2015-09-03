@@ -1,7 +1,12 @@
 package dk.openesdh.repo.helper;
 
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.cases.CaseService;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
+import dk.openesdh.SimpleCaseModel;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.nodelocator.CompanyHomeNodeLocator;
@@ -22,11 +27,8 @@ import org.alfresco.service.transaction.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CaseService;
 
 /**
  * Created by ole on 18/08/14.
@@ -36,6 +38,7 @@ public class CaseHelper {
     public static final String ADMIN_USER_NAME = "admin";
     public final static String DEFAULT_USERNAME = "username12";
 
+    //<editor-fold desc="Autowired services">
     @Autowired
     @Qualifier("NodeService")
     protected NodeService nodeService;
@@ -75,7 +78,9 @@ public class CaseHelper {
 
     @Autowired
     private CaseService caseService;
+    //</editor-fold>
 
+    //<editor-fold desc="Service setters">
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
     }
@@ -111,12 +116,12 @@ public class CaseHelper {
     public void setNodeLocatorService(NodeLocatorService nodeLocatorService) {
         this.nodeLocatorService = nodeLocatorService;
     }
+    //</editor-fold>
 
     /**
      * Create a case. If disableBehaviour is true, transaction is run with
      * behaviours disabled.
      * when creating the case.
-     *
      *
      * @param parent
      * @param name
@@ -126,24 +131,15 @@ public class CaseHelper {
      * @param disableBehaviour
      * @return
      */
-    public NodeRef createCase(String username,
-                              final NodeRef parent,
-                              final String name,
-                              final QName caseType,
-                              final Map<QName, Serializable> properties,
-                              final List<NodeRef> owners,
-                              boolean disableBehaviour) {
+    public NodeRef createCase(String username, final NodeRef parent, final String name,  final QName caseType,
+                              final Map<QName, Serializable> properties, final List<NodeRef> owners, boolean disableBehaviour) {
         ChildAssociationRef assocRef = createCaseNode(username, parent, name, caseType, properties, owners, disableBehaviour);
         return assocRef.getChildRef();
     }
 
-    private ChildAssociationRef createCaseNode(String username,
-                                               final NodeRef parent,
-                                               final String name,
-                                               final QName caseType,
-                                               final Map<QName, Serializable> properties,
-                                               final List<NodeRef> owners,
-                                               final boolean disableBehaviour) {
+    private ChildAssociationRef createCaseNode(String username, final NodeRef parent, final String name,
+                                               final QName caseType, final Map<QName, Serializable> properties,
+                                               final List<NodeRef> owners, final boolean disableBehaviour) {
         return AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<ChildAssociationRef>() {
             @Override
             public ChildAssociationRef doWork() throws Exception {
@@ -154,7 +150,6 @@ public class CaseHelper {
                             // Disable behaviour for txn
                             behaviourFilter.disableBehaviour();
                         }
-
                         properties.put(ContentModel.PROP_NAME, name);
 
                         // Create test case
@@ -167,7 +162,6 @@ public class CaseHelper {
                         );
 
                         nodeService.setAssociations(childAssoc.getChildRef(), OpenESDHModel.ASSOC_CASE_OWNERS, owners);
-
                         if (disableBehaviour) {
                             // Re-enable behaviour
                             behaviourFilter.enableBehaviour();
@@ -177,14 +171,13 @@ public class CaseHelper {
                     }
                 });
             }
-        }, username);
+        }, AuthenticationUtil.getAdminUserName());
         // We have to do in a transaction because we must set the case:owner
         // association before commit, to avoid an integrity error.
     }
 
     /**
      * Create a case without disabling the behaviour.
-     *
      *
      * @param username
      * @param parent
@@ -194,20 +187,18 @@ public class CaseHelper {
      * @param owners
      * @return
      */
-    public NodeRef createCase(String username, NodeRef parent, String cmName,
-                              QName caseType, Map<QName, Serializable> properties,
-                              List<NodeRef> owners) {
+    public NodeRef createCase(String username, NodeRef parent, String cmName, QName caseType,
+                              Map<QName, Serializable> properties, List<NodeRef> owners) {
         return createCase(username, parent, cmName, caseType, properties, owners, false);
     }
 
     public NodeRef createSimpleCase(String title, String userName, NodeRef owner) {
-        NodeRef companyHome = nodeLocatorService.getNode(CompanyHomeNodeLocator.NAME, null, null);
+        NodeRef casesRootNode = this.caseService.getCasesRootNodeRef();
         Map<QName, Serializable> properties = new HashMap<>();
         properties.put(ContentModel.PROP_TITLE, title);
         List<NodeRef> owners = new LinkedList<>();
         owners.add(owner);
-        ChildAssociationRef assocRef = this.createCaseNode(userName, companyHome, title, OpenESDHModel.TYPE_CASE_SIMPLE, properties, owners, false);
-
+        ChildAssociationRef assocRef = this.createCaseNode(userName, casesRootNode, title, SimpleCaseModel.TYPE_CASE_SIMPLE, properties, owners, false);
         return assocRef.getChildRef();
     }
 
@@ -235,11 +226,13 @@ public class CaseHelper {
     }
 
     public NodeRef createDummyUser() {
+        return createDummyUser(CaseHelper.DEFAULT_USERNAME);
+    }
 
+    public NodeRef createDummyUser(final String userName) {
         NodeRef result = transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<NodeRef>(){
-
             public NodeRef execute() throws Throwable {
-               return createDummyUser(CaseHelper.DEFAULT_USERNAME,
+                        return createDummyUser(userName,
                         "firstname",
                         "lastname",
                         "email.email.dk",
@@ -247,15 +240,25 @@ public class CaseHelper {
 
             }
         });
-
         return result;
     }
 
     public void deleteDummyUser() {
-        personService.deletePerson(DEFAULT_USERNAME);
+        deleteDummyUser(DEFAULT_USERNAME);
+    }
+
+    public void deleteDummyUser(String userName) {
+        personService.deletePerson(userName);
     }
 
     public void setCaseService(CaseService caseService) {
         this.caseService = caseService;
+    }
+
+    public NodeRef getDummyUser(String userName) {
+        if (personService.personExists(userName)) {
+            return personService.getPerson(userName);
+        }
+        return createDummyUser(userName);
     }
 }

@@ -2,6 +2,7 @@ package dk.openesdh.repo.services.xsearch;
 
 import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
+import dk.openesdh.SimpleCaseModel;
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.OpenESDHModel;
 import org.alfresco.model.ContentModel;
@@ -68,7 +69,7 @@ public class XSearchServiceImplIT {
 
     private static final String ADMIN_USER_NAME = "admin";
 
-    private static final String baseType = "case:base";
+    private static final String baseType = "base:case";
 
     private NodeRef caseNode;
     private String testCaseTitle;
@@ -91,7 +92,7 @@ public class XSearchServiceImplIT {
         owners.add(repositoryHelper.getPerson());
         caseNode = caseHelper.createCase(ADMIN_USER_NAME,
                 companyHome,
-                name, OpenESDHModel.TYPE_CASE_SIMPLE, properties, owners);
+                name, SimpleCaseModel.TYPE_CASE_SIMPLE, properties, owners);
         testCaseTitle = title;
     }
 

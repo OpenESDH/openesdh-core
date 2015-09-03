@@ -1,0 +1,1 @@
+<@link rel="stylesheet" type="text/css" href="${page.url.context}/res/openesdh/global/components/footer/hide.css" />

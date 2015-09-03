@@ -42,15 +42,6 @@ define(["dojo/_base/declare",
             pickerWidget: "openesdh/common/widgets/controls/category/CategoryPicker",
 
             /**
-             * The NodeRef of the root category
-             *
-             * @instance
-             * @default "workspace://SpacesStore/abc/"
-             * @type string
-             */
-            rootNodeRef: "workspace://SpacesStore/abc/",
-
-            /**
              * Whether the picker should allow multiple selections.
              *
              * @instance
@@ -150,7 +141,7 @@ define(["dojo/_base/declare",
 
             _renderItem: function (item) {
                 var iconUrl = Alfresco.constants.URL_CONTEXT + "res/components/images/filetypes/generic-category-16.png";
-                return '<img src="' + iconUrl + '"/> ' + item.name;
+                return '<img src="' + iconUrl + '"/> ' + item.name + " " + item.title;
             },
 
             _onDialogCancel: function (payload) {
@@ -197,13 +188,16 @@ define(["dojo/_base/declare",
                 buttons.push(cancelButton);
 
                 var dialog = new AlfDialog({
+                    id: "CATEGORY_PICKER_DIALOG",
                     pubSubScope: this.pubSubScope,
                     title: this.message(this.titleMessageKey),
+                    contentWidth: "550px",
+                    fixedWidth: true,
                     widgetsContent: [
                         {
                             name: this.pickerWidget,
                             config: {
-                                rootNodeRef: this.rootNodeRef,
+                                initialPath: this.initialPath,
                                 multipleSelect: this.multipleSelect,
                                 canPickFirstLevelItems: this.canPickFirstLevelItems,
                                 path: this.path,

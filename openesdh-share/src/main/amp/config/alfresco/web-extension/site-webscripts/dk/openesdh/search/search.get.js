@@ -110,7 +110,6 @@ function getSearchConfig() {
 
 function getTypeModel(type, subclasses) {
     var connector = remote.connect("alfresco");
-//    var model = connector.get("/api/openesdh/model?type=" + encodeURIComponent(type));
     var fetchSubclasses = false;
     if (typeof subclasses !== 'undefined') {
         fetchSubclasses = subclasses;
@@ -192,35 +191,39 @@ function getSearchDefinition(type) {
         defaultWidget = "FilterTextWidget";
     }
     var defaultSelectWidget = "FilterSelectWidget";
-
-    // Assign default controls
-    for (var key in model.properties) {
-        if (!model.properties.hasOwnProperty(key)) {
-            continue;
-        }
-        var property = model.properties[key];
-        var control = null;
-        if ("constraints" in property && property.constraints.length > 0) {
-            // Check for default constraint control
-            property.constraints.forEach(function (constraint) {
-                var check = constraint.type + ":" + property.dataType;
-                if (check in config.defaultControls) {
-                    property.control = config.defaultControls[check];
-                } else {
-                    check = constraint.type + ":*";
+    try{
+        // Assign default controls
+        for (var key in model.properties) {
+            if (!model.properties.hasOwnProperty(key)) {
+                continue;
+            }
+            var property = model.properties[key];
+            var control = null;
+            if ("constraints" in property && property.constraints.length > 0) {
+                // Check for default constraint control
+                property.constraints.(function (constraint) {
+                    var check = constraint.type + ":" + property.dataType;
                     if (check in config.defaultControls) {
                         property.control = config.defaultControls[check];
+                    } else {
+                        check = constraint.type + ":*";
+                        if (check in config.defaultControls) {
+                            property.control = config.defaultControls[check];
+                        }
                     }
-                }
-            });
-        }
-        if (!property.control) {
+                });
+            }
+            if (!property.control) {
             if (property.dataType in config.defaultControls) {
                 property.control = config.defaultControls[property.dataType];
             } else {
                 property.control = defaultWidget;
             }
         }
+        }
+    }
+    catch(error){
+        logger.warn(error.message+"\n\t\t Line => "+ error.lineNumber);
     }
 
     var availableFilters = Object.keys(model.properties);
@@ -301,7 +304,7 @@ function getSearchDefinition(type) {
 }
 
 // TODO: Make this a parameter
-var baseType = "case:base";
+var baseType = "base:case";
 
 var searchDefinition = getSearchDefinition(baseType);
 

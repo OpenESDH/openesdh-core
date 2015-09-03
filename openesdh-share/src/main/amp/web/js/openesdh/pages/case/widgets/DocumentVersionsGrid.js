@@ -43,11 +43,6 @@ define(["dojo/_base/declare",
                     "label" : "grid.actions.version.download",
                     "key" : "68", // Shift+D
                     "shift": true
-                },
-                {
-                    "callback" : "onRevert",
-                    "id" : "version-revert",
-                    "label" : "grid.actions.version.revert"
                 }
             ],
 
@@ -60,6 +55,23 @@ define(["dojo/_base/declare",
              * The target URI for the store
              */
             targetURI: "api/version",
+            
+            constructor: function (args) {
+                lang.mixin(this, args);
+                this.initActions();
+            },
+            
+            initActions: function(){
+            	if(this.isReadOnly){
+            		return;
+            	}
+            	
+            	this.actions.push({
+                    "callback" : "onRevert",
+                    "id" : "version-revert",
+                    "label" : "grid.actions.version.revert"
+                });
+            },
 
             onRevert: function (item) {
                 this.alfPublish(this.DocumentVersionRevertDialog, {
@@ -114,6 +126,7 @@ define(["dojo/_base/declare",
             postMixInProperties: function () {
                 this.inherited(arguments);
                 this.alfSubscribe(this.GetDocumentVersionsTopic, lang.hitch(this, "_onRefresh"));
+                this.alfSubscribe(this.CaseDocumentMoved, lang.hitch(this, "_onCaseDocumentMoved"));
             },
 
             getColumns: function () {
@@ -122,7 +135,7 @@ define(["dojo/_base/declare",
                     { field: "label", label: this.message("version.label.version"), // TODO: i18n!
                         formatter: lang.hitch(this, "_formatVersion")
                     },
-                    { field: "createdDate", label: this.message("version.label.created"),
+                    { field: "createdDateISO", label: this.message("version.label.created"),
                         formatter: lang.hitch(this, "_formatDate")
                     },
                     { field: "creator", label: this.message("version.label.addedBy"),
@@ -176,6 +189,14 @@ define(["dojo/_base/declare",
                 }
                 this.grid.refresh();
                 this.targetURI = temp; //Revert the URI back to its original state
+            },
+            
+            /**
+             * Empty document versions grid when document has been moved to another case
+             */
+            _onCaseDocumentMoved: function (payload) {
+            	this.grid.store = this.createStore();
+            	this.grid.refresh();
             }
         });
     });

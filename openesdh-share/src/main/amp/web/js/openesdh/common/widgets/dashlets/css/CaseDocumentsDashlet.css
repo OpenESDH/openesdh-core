@@ -8,3 +8,7 @@
     background: transparent url(../../../../../../openesdh/images/preview-16.png) no-repeat center center;
     padding: 8px;
 }
+
+#CASE_DOCUMENTS_DASHLET .field-nodeRef {
+  width: 10em;
+}

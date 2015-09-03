@@ -1,22 +1,26 @@
 package dk.openesdh.repo.webscripts.xsearch;
 
-import dk.openesdh.repo.services.documents.DocumentService;
+import java.util.Map;
+import java.util.Set;
+
 import org.alfresco.model.ContentModel;
-import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.namespace.QName;
-import org.alfresco.service.namespace.RegexQNamePattern;
-import org.json.JSONArray;
+import org.apache.commons.io.FilenameUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.extensions.webscripts.WebScriptRequest;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.utils.Utils;
 
 public class DocumentSearch extends XSearchWebscript {
 
+    private static final String NODE_REF_PARAM_NAME = "nodeRef";
+    private static final String CASE_ID_PARAM_NAME = "caseId";
+
     protected DocumentService documentService;
+    protected CaseService caseService;
 
     /**
      * Adds the main document nodeRef to the results.
@@ -32,12 +36,36 @@ public class DocumentSearch extends XSearchWebscript {
             //Get the main document version string
             String mainDocVersion = (String) nodeService.getProperty(mainDocNodeRef, ContentModel.PROP_VERSION_LABEL);
             json.put("mainDocVersion", mainDocVersion);
+
+            //also return the filename extension
+            String fileName = (String) nodeService.getProperty(mainDocNodeRef, ContentModel.PROP_NAME);
+            String extension = FilenameUtils.getExtension(fileName);
+            json.put("fileType", extension);
         }
         return json;
     }
 
+    protected Map<String, String> getParams(WebScriptRequest req) {
+        
+        Map<String, String> params = Utils.parseParameters(req.getURL());
+        Set<String> paramNames = params.keySet();
+        if (paramNames.contains(NODE_REF_PARAM_NAME) || !paramNames.contains(CASE_ID_PARAM_NAME)) {
+            return params;
+        }
+
+        String caseId = params.get(CASE_ID_PARAM_NAME);
+        params.remove(CASE_ID_PARAM_NAME, caseId);
+        NodeRef caseNodeRef = caseService.getCaseById(caseId);
+        params.put(NODE_REF_PARAM_NAME, caseNodeRef.toString());
+        return params;
+    }
+
     public void setDocumentService(DocumentService documentService) {
         this.documentService = documentService;
+    }
+
+    public void setCaseService(CaseService caseService) {
+        this.caseService = caseService;
     }
 
 }

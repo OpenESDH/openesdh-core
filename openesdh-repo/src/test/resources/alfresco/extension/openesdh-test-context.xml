@@ -39,7 +39,23 @@
         </property>
 
     </bean>
-
-
+	
+	<bean id="CaseDocumentTestHelper" class="dk.openesdh.repo.helper.CaseDocumentTestHelper">
+		<property name="nodeService">
+            <ref bean="NodeService"/>
+        </property>
+        <property name="repositoryHelper">
+            <ref bean="repositoryHelper"/>
+        </property>
+        <property name="caseHelper">
+            <ref bean="TestCaseHelper"/>
+        </property>
+        <property name="caseService">
+            <ref bean="CaseService"/>
+        </property>
+        <property name="documentService">
+            <ref bean="DocumentService"/>
+        </property>
+	</bean>
 
 </beans>

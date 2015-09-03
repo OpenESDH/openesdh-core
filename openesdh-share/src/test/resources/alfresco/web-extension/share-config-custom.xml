@@ -1,48 +1,25 @@
 <alfresco-config>
 
-      <config evaluator="string-compare" condition="WebFramework">
-           <web-framework>
-               <autowire>
-                   <mode>development</mode>
-               </autowire>
-           </web-framework>
-       </config>
+    <config evaluator="string-compare" condition="WebFramework">
+        <web-framework>
+            <autowire>
+                <!-- Changing this to 'development' currently breaks the Admin Console.
+                     Instead we make a POST to clear Share dependency caches, see 'clear-caches-refresh-ws' profile. -->
+                <mode>production</mode> <!-- not really need in the long run, used for YUI - deprecate -->
+            </autowire>
 
-<!--
+            <!--
+                 We don't need to do this when we have the new refresh mojos in the Alfresco plug-in.
 
-    <config evaluator="string-compare" condition="UriTemplate" replace="true">
-        &lt;!&ndash; list of URI based page Id templates used by Share &ndash;&gt;
-        &lt;!&ndash; when pages are requested from the framework, matches are attempted
-             against each uri-template, and the token values returned if matched &ndash;&gt;
-        <uri-templates>
+                 If resource caching has been disabled then all the dependency caches will be cleared
+                 before processing the Aikau jsonModel request...
+                    (i.e. this.dojoDependencyHandler.clearCaches() )
 
-            &lt;!&ndash;  This is intended for use with remotely created pages &ndash;&gt;
-            <uri-template id="remote-node-page">/{pageid}/p/{pagename}/{store_type}/{store_id}/{id}</uri-template>
-            <uri-template id="remote-site-page">/site/{site}/{pageid}/p/{pagename}</uri-template>
-            <uri-template id="remote-page">/{pageid}/p/{pagename}</uri-template>
-
-            &lt;!&ndash;openesdh uri template(s)&ndash;&gt;
-            <uri-template id="casepage">/oe/{pageid}/{webscript}</uri-template>
-            &lt;!&ndash;<uri-template id="casepage">/oe/{pageid}/{webscript}/id/{caseId}</uri-template>&ndash;&gt;
-
-            &lt;!&ndash; This needs to go BEFORE "sitepage" &ndash;&gt;
-            <uri-template id="share-site-page">/{pageid}/ws/{webscript}/{store_type}/{store_id}/{id}</uri-template>
-            <uri-template id="share-site-page">/site/{site}/{pageid}/ws/{webscript}</uri-template>
-
-            <uri-template id="sitedashboardpage">/site/{site}/dashboard</uri-template>
-            <uri-template id="contextpage">/context/{pagecontext}/{pageid}</uri-template>
-            <uri-template id="sitepage">/site/{site}/{pageid}</uri-template>
-            <uri-template id="userdashboardpage">/user/{userid}/dashboard</uri-template>
-            <uri-template id="userpage">/user/{userid}/{pageid}</uri-template>
-            <uri-template id="userprofilepage">/user/{userid}/profile</uri-template>
-            <uri-template id="userdefaultpage">/user/{pageid}</uri-template>
-            <uri-template id="consoletoolpage">/console/{pageid}/{toolid}</uri-template>
-            <uri-template id="consolepage">/console/{pageid}</uri-template>
-            <uri-template id="share-page">/{pageid}/ws/{webscript}</uri-template>
-
-        </uri-templates>
+                 For more information see the Aikau source code: https://github.com/Alfresco/Aikau
+            -->
+            <disable-resource-caching>false</disable-resource-caching>
+        </web-framework>
     </config>
--->
 
     <!-- Global config section -->
     <config replace="true">
@@ -59,10 +36,12 @@
         </flags>
     </config>
 
-    <!-- Disable CSRF completely for now -->
-    <!-- It seems Share has issues on 4.2.x with the embedded tomcat and CSRFPolicy -->
+    <!--
+        Disable CSRF completely for now
+        It seems Share has issues on 4.2.x with the embedded tomcat and CSRFPolicy
+        -->
     <config evaluator="string-compare" condition="CSRFPolicy" replace="true">
-	<filter/>
+	    <filter/>
     </config>
 
     <config evaluator="string-compare" condition="Remote">

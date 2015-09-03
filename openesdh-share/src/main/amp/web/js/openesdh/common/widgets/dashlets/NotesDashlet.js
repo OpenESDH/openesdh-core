@@ -17,16 +17,19 @@
  * along with Alfresco. If not, see <http://www.gnu.org/licenses/>.
  */
 
-define(["dojo/_base/declare", "alfresco/core/Core",
+define(["dojo/_base/declare", 
+        "alfresco/core/Core",
+        "alfresco/core/CoreXhr",
         "alfresco/core/I18nUtils",
         "openesdh/common/widgets/dashlets/Dashlet",
         "dojo/_base/lang",
+        "dojo/_base/array",
         "alfresco/core/NodeUtils"],
-    function (declare, AlfCore, I18nUtils, Dashlet, lang, NodeUtils) {
+    function (declare, AlfCore, CoreXhr, I18nUtils, Dashlet, lang, array, NodeUtils) {
 
         var i18nScope = "openesdh.dashlet.NotesDashlet";
-
-        return declare([Dashlet], {
+        
+        return declare([Dashlet, CoreXhr], {
 
             /**
              * The i18n scope to use for this widget.
@@ -34,6 +37,8 @@ define(["dojo/_base/declare", "alfresco/core/Core",
              * @instance
              */
             i18nScope: i18nScope,
+            
+            caseId: null,
 
             /**
              * An array of the i18n files to use with this widget.
@@ -44,53 +49,11 @@ define(["dojo/_base/declare", "alfresco/core/Core",
              */
             i18nRequirements: [{i18nFile: "./i18n/NotesDashlet.properties"}],
 
-            widgetsForTitleBarActions: [
-                {
-                    name: "alfresco/buttons/AlfButton",
-                    config: {
-                        iconClass: "add-icon-16",
-                        label: I18nUtils.msg(i18nScope, "notes.button.label.add"),
-                        publishTopic: "ALF_CREATE_FORM_DIALOG_REQUEST",
-                        publishPayload: {
-                            i18nScope: "openesdh.dashlet.NotesDashlet",
-                            dialogTitle: I18nUtils.msg(i18nScope, "notes.add.dialog.title"),
-                            dialogConfirmationButtonTitle: I18nUtils.msg(i18nScope, "notes.form.add.label"),
-                            dialogCancellationButtonTitle: I18nUtils.msg(i18nScope, "notes.form.cancel.label"),
-                            formSubmissionTopic: "ALF_CRUD_CREATE",
-                            formSubmissionPayloadMixin: {
-                                // Refresh the notes list
-                                pubSubScope: "OPENESDH_NOTES_DASHLET",
-                                alfResponseTopic: "OPENESDH_NOTES_DASHLETALF_CRUD_CREATE"
-                            },
-                            widgets: [
-                                {
-                                    name: "alfresco/forms/controls/DojoTextarea",
-                                    config: {
-                                        //label: "Content",
-                                        name: "content"
-                                    }
-                                }
-                            ]
-                        },
-                        visibilityConfig: {
-                            initialValue: false,
-                            rules: [
-                                {
-                                    topic: "CASE_INFO",
-                                    attribute: "isJournalized",
-                                    is: [false]
-                                }
-                            ]
-                        }
-                    }
-                }
-            ],
-
             widgetsForBody: [
                 {
                     name: "openesdh/pages/case/widgets/NotesGrid",
                     config: {
-                        pubSubScope: "OPENESDH_NOTES_DASHLET",
+                        pubSubScope: "OPENESDH_NOTES_DASHLET_",
                         gridRefreshTopic: "ALF_CRUD_CREATE_SUCCESS",
                     }
                 }
@@ -98,8 +61,107 @@ define(["dojo/_base/declare", "alfresco/core/Core",
 
             constructor: function (args) {
                 lang.mixin(this, args);
-                this.widgetsForTitleBarActions[0].config.publishPayload.formSubmissionPayloadMixin.url = "api/openesdh/node/" + NodeUtils.processNodeRef(this.nodeRef).uri + "/notes";
+                //this.widgetsForFooterBarActions[0].config.publishPayload.formSubmissionPayloadMixin.url = "api/openesdh/node/" + NodeUtils.processNodeRef(this.nodeRef).uri + "/notes";
                 this.widgetsForBody[0].config.nodeRef = this.nodeRef;
+                this.alfSubscribe("OPENESDH_NOTES_DASHLET_OPENESDH_CASE_COMMENTS_NEW", lang.hitch(this, "_NewCaseComment"));
+                this.alfSubscribe("OPENESDH_CASE_COMMENT_ADD", lang.hitch(this, "_NewCaseCommentSubmit"));
+                
+                this.alfSubscribe("OPENESDH_CASE_NOTE_CONCERNED_PARTIES_RETRIEVE", lang.hitch(this, "_PopulateCaseNoteParties"));
+                
+            },
+            
+            _NewCaseComment: function(){
+                this.alfPublish("ALF_CREATE_FORM_DIALOG_REQUEST", {
+                    i18nScope: "openesdh.dashlet.NotesDashlet",
+                    dialogTitle: I18nUtils.msg(i18nScope, "notes.add.dialog.title"),
+                    dialogConfirmationButtonTitle: I18nUtils.msg(i18nScope, "notes.form.add.label"),
+                    dialogCancellationButtonTitle: I18nUtils.msg(i18nScope, "notes.form.cancel.label"),
+                    formSubmissionTopic: "OPENESDH_CASE_COMMENT_ADD",
+                    formSubmissionPayloadMixin: {
+                        // Refresh the notes list
+                        url: "api/openesdh/node/" + NodeUtils.processNodeRef(this.nodeRef).uri + "/notes",
+                        pubSubScope: "OPENESDH_NOTES_DASHLET_",
+                        alfResponseTopic: "OPENESDH_NOTES_DASHLET_ALF_CRUD_CREATE"
+                    },
+                    widgets: [{
+                            name: "openesdh/common/widgets/controls/form/ValidationTextBox",
+                            config: {
+                                //label: I18nUtils.msg(i18nScope, "comments.form.headline.label"),
+                                name: "headline",
+                                placeHolder: I18nUtils.msg(i18nScope, "comments.form.headline.label"),
+                                validationConfig: {
+                                    validation: "regex",
+                                    regex: ".+",
+                                    errorMessage: I18nUtils.msg(i18nScope, "comments.form.headline.required.validation.error")
+                                }
+                            }
+                        },
+                        {
+                            name: "openesdh/common/widgets/controls/form/MutiSelectInput",
+                            config: {
+                                name: "concernedParties",
+                                placeHolder: I18nUtils.msg(i18nScope, "comments.form.parties.label"),
+                                optionsConfig:{
+                                    labelAttribute: "displayName",
+                                    queryAttribute: "displayName",
+                                    valueAttribute: "nodeRef",
+                                    publishTopic: "OPENESDH_CASE_NOTE_CONCERNED_PARTIES_RETRIEVE",
+                                    publishPayload: {
+                                        resultsProperty: "items"
+                                    }
+                                }
+                            }
+                        },
+                        {
+                            name: "openesdh/common/widgets/controls/form/TextArea",
+                            config: {
+                                //label: I18nUtils.msg(i18nScope, "comments.form.content.label"),
+                                name: "content",
+                                placeHolder: I18nUtils.msg(i18nScope, "comments.form.content.label"),
+                                validationConfig: {
+                                    validation: "regex",
+                                    regex: ".+",
+                                    errorMessage: I18nUtils.msg(i18nScope, "comments.form.content.required.validation.error")
+                                }
+                            }
+                        }
+                    ]
+                });
+            },
+            
+            _NewCaseCommentSubmit: function(payload){
+                var _this = this;
+                var concernedParties = array.map(payload.concernedParties, function(party){
+                    return party.nodeRef;
+                });
+                this.serviceXhr({
+                    url: Alfresco.constants.PROXY_URI + "api/openesdh/node/" + NodeUtils.processNodeRef(this.nodeRef).uri + "/notes",
+                    method: "POST",
+                    handleAs: "json",
+                    data: {
+                        parent: this.nodeRef,
+                        headline: payload.headline,
+                        content: payload.content,
+                        concernedParties: concernedParties
+                    },
+                    successCallback: function(response){
+                        _this.alfPublish(payload.alfResponseTopic + "_SUCCESS", response);
+                    },
+                    callbackScope: this
+                });
+            },
+            
+            _PopulateCaseNoteParties: function(payload){
+                var _this = this;
+                this.serviceXhr({
+                    url: Alfresco.constants.PROXY_URI + "/api/openesdh/case/" + this.caseId + "/parties",
+                    method: "GET",
+                    handleAs: "json",
+                    successCallback: function(response){
+                        _this.alfPublish(payload.alfResponseTopic + "_SUCCESS", {"items" : response});
+                    },
+                    callbackScope: this
+                });
             }
         });
     });

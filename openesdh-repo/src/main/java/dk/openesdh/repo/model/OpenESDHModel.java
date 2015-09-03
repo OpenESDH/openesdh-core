@@ -1,44 +1,49 @@
 package dk.openesdh.repo.model;
 
-import org.alfresco.service.namespace.*;
+import org.alfresco.service.namespace.QName;
 
 /**
  * Created by torben on 15/08/14.
  */
 public interface OpenESDHModel {
 
-    public static final String CASE_URI = "http://openesdh.dk/model/case/1.0/";
-    public static final String CASE_PREFIX = "case";
-    public static final String DOC_URI = "http://openesdh.dk/model/document/1.0/";
+    public static final String CASE_URI = "http://openesdh.dk/model/case/base/1.0";
+    public static final String CASE_PREFIX = "base";
+    public static final String DOC_URI = "http://openesdh.dk/model/document/1.0";
     public static final String DOC_PREFIX = "doc";
-    public static final String OE_URI = "http://openesdh.dk/model/openesdh/1.0/";
+    public static final String OE_URI = "http://openesdh.dk/model/openesdh/1.0";
     public static final String OE_PREFIX = "oe";
     public static final String TYPE_SIMPLE_NAME = "simple";
     public static final String TYPE_BASE_NAME = "base";
+    public static final String CASE_MODEL_NAME = "caseModel";
 
     public static final String CONTACT_PREFIX = "contact";
-    public static final String CONTACT_URI = "http://openesdh.dk/model/contact/1.0/";
+    public static final String CONTACT_URI = "http://openesdh.dk/model/contact/1.0";
 
 
     public static final String NOTE_PREFIX = "note";
-    public static final String NOTE_URI = "http://openesdh.dk/model/note/1.0/";
+    public static final String NOTE_URI = "http://openesdh.dk/model/note/1.0";
 
 
-
+    /**
+     * Permissions
+     */
+    public static final String PERMISSION_NAME_CASE_OWNERS = "CaseOwners";
+    public static final String PERMISSION_NAME_CASE_SIMPLE_READER = "CaseSimpleReader";
+    public static final String PERMISSION_NAME_CASE_SIMPLE_WRITER = "CaseSimpleWriter";
 
     /**
      * Models
      */
     public static final QName DOCUMENT_MODEL = QName.createQName(DOC_URI, "documentModel");
-    public static final QName CASE_MODEL = QName.createQName(CASE_URI, "caseModel");
-
+    public static final QName CASE_MODEL = QName.createQName(CASE_URI, CASE_MODEL_NAME);
 
     /**
      * Types
      */
     public static final QName TYPE_OE_BASE = QName.createQName(OE_URI, TYPE_BASE_NAME);
 
-    public static final QName TYPE_CASE_BASE = QName.createQName(CASE_URI, TYPE_BASE_NAME);
+    public static final QName TYPE_CASE_BASE = QName.createQName(CASE_URI, "case");
     public static final QName TYPE_CASE_SIMPLE = QName.createQName(CASE_URI, TYPE_SIMPLE_NAME);
     public static final QName TYPE_CASE_COMPLAINT = QName.createQName(CASE_URI, "complaint");
 
@@ -92,6 +97,8 @@ public interface OpenESDHModel {
     public static final QName ASSOC_CONTACT_LOGIN = QName.createQName(CONTACT_URI, "userLogin");
 
     public static final QName ASSOC_NOTE_NOTES = QName.createQName(NOTE_URI, "notes");
+
+    public static final QName ASSOC_NOTE_CONCERNED_PARTIES = QName.createQName(NOTE_URI, "concernedParties");
 
     /**
      * Properties
@@ -153,6 +160,7 @@ public interface OpenESDHModel {
     public static final QName PROP_CONTACT_REGISTERED = QName.createQName (CONTACT_URI, "registered");
     public static final QName PROP_CONTACT_INTERNAL = QName.createQName (CONTACT_URI, "internal");
 
+    public static final QName PROP_NOTE_HEADLINE = QName.createQName(NOTE_URI, "headline");
     public static final QName PROP_NOTE_CONTENT = QName.createQName(NOTE_URI, "content");
     public static final QName PROP_ATTACHMENT_COUNT = QName.createQName(DOC_URI, "attachmentCount");
 
@@ -180,6 +188,9 @@ public interface OpenESDHModel {
      * Documents
      */
     public static final String DOCUMENTS_FOLDER_NAME = "documents";
+    public static final String DOCUMENT_PROP_NAME = "name";
+    public static final String DOCUMENT_PROP_MODIFIED = "modified";
+    public static final String DOCUMENT_PROP_MODIFIER = "modifier";
 
     /**
      * Various constants
@@ -188,5 +199,6 @@ public interface OpenESDHModel {
     public static final String MYCASES_DAYS_IN_THE_PAST = "604800000";
 
     public static final int AUDIT_LOG_MAX = 1000;
+    public static final String ADMIN_USER_NAME = "admin";
 
 }

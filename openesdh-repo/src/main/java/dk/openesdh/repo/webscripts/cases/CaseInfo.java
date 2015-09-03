@@ -1,14 +1,14 @@
 package dk.openesdh.repo.webscripts.cases;
 
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.NodeInfoService;
-import dk.openesdh.repo.services.cases.CaseService;
+import java.io.IOException;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.security.AuthorityService;
-import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -16,13 +16,9 @@ import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.lang.reflect.Array;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.NodeInfoService;
+import dk.openesdh.repo.services.cases.CaseService;
 
 /**
  * Created by torben on 11/09/14.
@@ -57,12 +53,13 @@ public class CaseInfo extends AbstractWebScript {
             caseNodeRef = caseService.getCaseById(caseId);
 
         NodeInfoService.NodeInfo nodeInfo = nodeInfoService.getNodeInfo(caseNodeRef);
-        List<QName>requiredProps = Arrays.asList(ContentModel.PROP_NAME, ContentModel.PROP_OWNER,
-                OpenESDHModel.PROP_OE_STATUS, OpenESDHModel.PROP_OE_CASE_ID,
+        List<QName> requiredProps = Arrays.asList(OpenESDHModel.PROP_OE_ID, ContentModel.PROP_TITLE,
+                OpenESDHModel.ASSOC_CASE_OWNERS, OpenESDHModel.PROP_OE_STATUS,
                 ContentModel.PROP_CREATOR, ContentModel.PROP_CREATED, ContentModel.PROP_MODIFIED,
-                ContentModel.PROP_MODIFIER, ContentModel.PROP_DESCRIPTION
+                ContentModel.PROP_MODIFIER, ContentModel.PROP_DESCRIPTION,
+                OpenESDHModel.PROP_OE_JOURNALKEY, OpenESDHModel.PROP_OE_JOURNALIZED_BY, OpenESDHModel.PROP_OE_JOURNALIZED_DATE
         );
-//        JSONObject json = nodeInfoService.buildJSON(nodeInfo, this);
+
         JSONObject json = nodeInfoService.getSelectedProperties(nodeInfo, this, requiredProps);
         String user = AuthenticationUtil.getFullyAuthenticatedUser();
 
