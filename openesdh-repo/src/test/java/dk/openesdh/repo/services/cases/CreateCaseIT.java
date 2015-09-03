@@ -44,7 +44,7 @@ import static org.junit.Assert.assertTrue;
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
 @ContextConfiguration({
         "classpath:alfresco/application-context.xml",
-        "/test-context.xml"
+        "classpath:alfresco/extension/openesdh-test-context.xml"
 })
 public class CreateCaseIT {
 
