@@ -70,14 +70,11 @@ public abstract class ContactAbstractWebscript extends AbstractWebScript {
     public JSONObject buildJSON(NodeRef contactNode) {
         JSONObject result = new JSONObject();
         Map<QName, Serializable> props = this.nodeService.getProperties(contactNode);
-        props.entrySet().stream().forEach((entry) -> {
-            Serializable value = entry.getValue();
-            QName key = entry.getKey();
-            String localName = key.getLocalName();
-            if (value != null && !isKeyOfSystemModelNamepace(key)) {
-                result.put(localName, value);
-            }
-        });
+        props.entrySet().stream()
+                .filter((Map.Entry<QName, Serializable> t)
+                        -> t.getValue() != null && !isKeyOfSystemModelNamepace(t.getKey()))
+                .forEach((entry)
+                        -> result.put(entry.getKey().getLocalName(), entry.getValue()));
         return result;
     }
 
