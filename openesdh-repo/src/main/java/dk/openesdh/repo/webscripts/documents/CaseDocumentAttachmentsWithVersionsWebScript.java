@@ -23,7 +23,7 @@ public class CaseDocumentAttachmentsWithVersionsWebScript extends AbstractWebScr
 
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
-        String nodeRef = Utils.parseParameters(req.getURL()).get(WebScriptUtils.PARAM_NAME_NODE_REF);
+        String nodeRef = Utils.parseParameters(req.getURL()).get(WebScriptUtils.NODE_REF);
         if (nodeRef == null) {
             return;
         }
