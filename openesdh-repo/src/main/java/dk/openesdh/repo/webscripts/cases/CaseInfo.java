@@ -67,7 +67,7 @@ public class CaseInfo extends AbstractWebScript {
         try {
             json.put("allProps", nodeInfoService.buildJSON(nodeInfo, this));
             json.put("canClose", caseService.canClose(user, caseNodeRef));
-            json.put("canReopen", caseService.canReopen(user, caseNodeRef));
+            json.put("canMakeActive", caseService.canMakeActive(user, caseNodeRef));
             json.write(res.getWriter());
         } catch (JSONException e) {
             e.printStackTrace();

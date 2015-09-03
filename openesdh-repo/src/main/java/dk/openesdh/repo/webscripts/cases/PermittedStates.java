@@ -22,7 +22,7 @@ public class PermittedStates extends AbstractWebScript {
 
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
-        List<String> roleConstraints = (List<String>) this.dictionaryService.getConstraint(OpenESDHModel.CONSTRAINT_CASE_SIMPLE_STATUS).getConstraint().getParameters().get(ListOfValuesConstraint.ALLOWED_VALUES_PARAM);
+        List<String> roleConstraints = (List<String>) this.dictionaryService.getConstraint(OpenESDHModel.CONSTRAINT_CASE_BASE_STATUS).getConstraint().getParameters().get(ListOfValuesConstraint.ALLOWED_VALUES_PARAM);
 
         try {
             JSONArray json = buildJSON(roleConstraints);

@@ -10,6 +10,17 @@
         </property>
     </bean>
 
+    <bean id="${project.artifactId}_statusTransitionBehaviour"
+          class="dk.openesdh.repo.policy.StatusTransitionBehaviour"
+          init-method="init">
+        <property name="caseService">
+            <ref bean="CaseService"/>
+        </property>
+        <property name="policyComponent">
+            <ref bean="policyComponent"/>
+        </property>
+    </bean>
+
     <bean id="caseOwnersBehaviour" class="dk.openesdh.repo.policy.CaseOwnersBehaviour" init-method="init">
         <property name="caseService">
             <ref bean="CaseService"/>

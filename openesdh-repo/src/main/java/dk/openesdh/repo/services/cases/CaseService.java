@@ -27,7 +27,6 @@ public interface CaseService {
 
     Pattern CASE_ID_PATTERN = Pattern.compile("\\d+-(\\d+)");
 
-
     /**
      * Get the root folder for the openESDH context
      *
@@ -44,6 +43,7 @@ public interface CaseService {
 
     /**
      * The noderef for the folder where case types are meant to store their data
+     *
      * @return
      */
     NodeRef getCasesTypeStorageRootNodeRef();
@@ -51,6 +51,7 @@ public interface CaseService {
     /**
      * Retrieves the widgets that comprise the create case form and is (or should have been) stored in the
      * OpenESDH/cases/types/[case_type_name]/forms/create-form.js on case module bootstrap.
+     *
      * @param caseType string in the form of case:XXXXXX or just plain string that should be the postfix of the case model
      *                 i.e. case:simple || simple(this is the postfix)
      * @return
@@ -75,6 +76,7 @@ public interface CaseService {
 
     /**
      * Get a list of case db-id's where the given authority has the given role.
+     *
      * @param authorityNodeRef
      * @param role
      * @return
@@ -90,7 +92,7 @@ public interface CaseService {
      *
      * @param caseNodeRef
      * @param noExpandGroups expand subgroups
-     * @param includeOwner inculde case owner
+     * @param includeOwner   inculde case owner
      * @return
      */
     Map<String, Set<String>> getMembersByRole(NodeRef caseNodeRef, boolean noExpandGroups, boolean includeOwner);
@@ -113,6 +115,7 @@ public interface CaseService {
 
     /**
      * returns case info data structure given a nodeRef
+     *
      * @param caseNodeRef
      * @return
      */
@@ -120,6 +123,7 @@ public interface CaseService {
 
     /**
      * Returns a case info data structure given a case id string
+     *
      * @param caseId
      * @return
      */
@@ -168,6 +172,7 @@ public interface CaseService {
 
     /**
      * Return whether a user can update case roles.
+     *
      * @param user
      * @param caseNodeRef
      * @return
@@ -190,7 +195,16 @@ public interface CaseService {
     NodeRef getCaseFolderNodeRef(NodeRef casesFolderNodeRef);
 
     /**
+     * Get the case status.
+     *
+     * @param nodeRef
+     * @return String
+     */
+    String getStatus(NodeRef nodeRef);
+
+    /**
      * Return whether or not the user can close the case.
+     *
      * @param user
      * @param nodeRef
      * @return
@@ -198,34 +212,57 @@ public interface CaseService {
     boolean canClose(String user, NodeRef nodeRef);
 
     /**
-     * Return whether or not the user can reopen the case.
-     * @param user
+     * Return whether a case is locked or not.
+     *
+     * This can be due to either the case being closed or archived.
+     *
      * @param nodeRef
      * @return
      */
-    boolean canReopen(String user, NodeRef nodeRef);
-
-    /**
-     * Return whether a node is journalized or not.
-     * @param nodeRef
-     * @return
-     */
-    boolean isClosed(NodeRef nodeRef);
+    boolean isLocked(NodeRef nodeRef);
 
     /**
      * Close the case.
+     *
      * @param nodeRef NodeRef of the case to close
      */
     void close(NodeRef nodeRef);
 
     /**
-     * Reopen the case.
-     * @param nodeRef NodeRef of the case to reopen
+     * Return whether or not the user can makeActive the case.
+     *
+     * @param user
+     * @param nodeRef
+     * @return
      */
-    void reopen(NodeRef nodeRef);
+    boolean canMakeActive(String user, NodeRef nodeRef);
+
+    /**
+     * Reopen the case.
+     *
+     * @param nodeRef NodeRef of the case to makeActive
+     */
+    void makeActive(NodeRef nodeRef);
+
+    /**
+     * Return whether the user can passivate the case.
+     * @param user
+     * @param nodeRef
+     * @return
+     */
+    boolean canPassivate(String user, NodeRef nodeRef);
+
+    /**
+     * Sets the case to passive status.
+     *
+     * Passive cases and their documents are not searchable by default.
+     * @param nodeRef
+     */
+    void passivate(NodeRef nodeRef);
 
     /**
      * Return whether or not the node is a case node.
+     *
      * @param nodeRef
      * @return
      */
@@ -233,6 +270,7 @@ public interface CaseService {
 
     /**
      * Return whether or not the node is a doc which exists within a case.
+     *
      * @param nodeRef
      * @return
      */
@@ -241,6 +279,7 @@ public interface CaseService {
     /**
      * Get the parent case of the given node, or null if the node does not
      * have a parent which is a case. The parent does not have to be immediate.
+     *
      * @param nodeRef
      * @return
      */
@@ -248,6 +287,7 @@ public interface CaseService {
 
     /**
      * Get the documents folder of the given case.
+     *
      * @param caseNodeRef
      * @return
      */
@@ -261,7 +301,6 @@ public interface CaseService {
 
     /**
      * Get current user permissions for the case
-     *
      */
     public List<String> getCaseUserPermissions(String caseId);
 }

@@ -11,7 +11,6 @@ import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -19,13 +18,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import dk.openesdh.repo.model.CaseStatus;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.action.ActionService;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.lock.LockService;
-import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.rule.RuleService;
@@ -447,23 +446,28 @@ public class CaseServiceImplIT {
                 ContentModel.PROP_TITLE);
 
         assertFalse("Case should not be closed when initially created",
-                caseService.isClosed(nonAdminCreatedCaseNr));
+                caseService.isLocked(nonAdminCreatedCaseNr));
 
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
 
         try {
-            caseService.reopen(nonAdminCreatedCaseNr);
-            fail("Should not be able to reopen an open case");
+            caseService.makeActive(nonAdminCreatedCaseNr);
+            fail("Should not be able to makeActive an open case");
         } catch (Exception e) {
         }
 
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
 
+        assertEquals("Initial status is active", caseService.getStatus(nonAdminCreatedCaseNr), CaseStatus.ACTIVE);
+
         caseService.close(nonAdminCreatedCaseNr);
 
+        assertEquals("Status after closing is closed", caseService.getStatus
+                (nonAdminCreatedCaseNr), CaseStatus.CLOSED);
+
         // Test that locked properties got set
-        assertTrue("Case isClosed returns true for a closed " +
-                "case", caseService.isClosed(nonAdminCreatedCaseNr));
+        assertTrue("Case isLocked returns true for a closed " +
+                "case", caseService.isLocked(nonAdminCreatedCaseNr));
         assertTrue("Case node has locked aspect after it has " +
                 "been closed", nodeService.hasAspect
                 (nonAdminCreatedCaseNr,
@@ -510,7 +514,7 @@ public class CaseServiceImplIT {
         assertEquals(nodeService.getProperty(nonAdminCreatedCaseNr,
                 ContentModel.PROP_TITLE), originalTitle);
 
-        assertTrue(caseService.isClosed(nonAdminCreatedCaseNr));
+        assertTrue(caseService.isLocked(nonAdminCreatedCaseNr));
 
         // Test that a case cannot be closed twice
         try {
@@ -522,18 +526,20 @@ public class CaseServiceImplIT {
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
 
         try {
-            caseService.reopen(nonAdminCreatedCaseNr);
-            fail("Should not be able to reopen a case as a regular " +
+            caseService.makeActive(nonAdminCreatedCaseNr);
+            fail("Should not be able to makeActive a case as a regular " +
                     "user");
         } catch (Exception e) {
         }
 
 
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
-        caseService.reopen(nonAdminCreatedCaseNr);
+        caseService.makeActive(nonAdminCreatedCaseNr);
 
-        assertFalse("Case isClosed returns false for a reopened case" +
-                "case", caseService.isClosed(nonAdminCreatedCaseNr));
+        assertEquals("Status after reopening is active", caseService.getStatus(nonAdminCreatedCaseNr), CaseStatus.ACTIVE);
+
+        assertFalse("Case isLocked returns false for a reopened case" +
+                "case", caseService.isLocked(nonAdminCreatedCaseNr));
 
 //        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
 
@@ -548,6 +554,13 @@ public class CaseServiceImplIT {
                         "reopened",
                 nodeService.hasAspect(nonAdminCreatedCaseNr,
                         OpenESDHModel.ASPECT_OE_LOCKED));
+    }
+
+    @Test
+    public void passivate() {
+        caseService.passivate(nonAdminCreatedCaseNr);
+        assertEquals("Status is passive after being passivated", caseService
+                .getStatus(nonAdminCreatedCaseNr), CaseStatus.PASSIVE);
     }
 
     @Test
