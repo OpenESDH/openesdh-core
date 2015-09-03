@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.NamespaceService;
@@ -61,7 +62,7 @@ public abstract class ContactAbstractWebscript extends AbstractWebScript {
      */
     public String getOrNull(JSONObject json, String key) {
         if (json.containsKey(key)) {
-            return (String) json.get(key);
+            return Objects.toString(json.get(key));
         }
         return null;
     }
@@ -85,26 +86,29 @@ public abstract class ContactAbstractWebscript extends AbstractWebScript {
     }
 
     void addAddressProperties(JSONObject fromObj, HashMap<QName, Serializable> toTypeProps) {
-        toTypeProps.put(OpenESDHModel.PROP_CONTACT_ADDRESS, getOrNull(fromObj, "streetName"));
-        toTypeProps.put(OpenESDHModel.PROP_CONTACT_ADDRESS_LINE1, getOrNull(fromObj, "addressLine1"));
-        toTypeProps.put(OpenESDHModel.PROP_CONTACT_ADDRESS_LINE2, getOrNull(fromObj, "addressLine2"));
-        toTypeProps.put(OpenESDHModel.PROP_CONTACT_ADDRESS_LINE3, getOrNull(fromObj, "addressLine3"));
-        toTypeProps.put(OpenESDHModel.PROP_CONTACT_ADDRESS_LINE4, getOrNull(fromObj, "addressLine4"));
-        toTypeProps.put(OpenESDHModel.PROP_CONTACT_ADDRESS_LINE5, getOrNull(fromObj, "addressLine5"));
-        toTypeProps.put(OpenESDHModel.PROP_CONTACT_ADDRESS_LINE6, getOrNull(fromObj, "addressLine6"));
-        toTypeProps.put(OpenESDHModel.PROP_CONTACT_HOUSE_NUMBER, getOrNull(fromObj, "houseNumber"));
-        toTypeProps.put(OpenESDHModel.PROP_CONTACT_STREET_NAME, getOrNull(fromObj, "streetName"));
-        toTypeProps.put(OpenESDHModel.PROP_CONTACT_STREET_CODE, getOrNull(fromObj, "streetCode"));
-        toTypeProps.put(OpenESDHModel.PROP_CONTACT_SUITE_IDENTIFIER, getOrNull(fromObj, "suite"));
-        toTypeProps.put(OpenESDHModel.PROP_CONTACT_FLOOR_IDENTIFIER, getOrNull(fromObj, "floorNumber"));
-        toTypeProps.put(OpenESDHModel.PROP_CONTACT_CITY_NAME, getOrNull(fromObj, "city"));
-        toTypeProps.put(OpenESDHModel.PROP_CONTACT_POST_CODE, getOrNull(fromObj, "postCode"));
-        toTypeProps.put(OpenESDHModel.PROP_CONTACT_POST_BOX, getOrNull(fromObj, "postBox"));
-        toTypeProps.put(OpenESDHModel.PROP_CONTACT_POST_DISTRICT, getOrNull(fromObj, "postDistrict"));
-        toTypeProps.put(OpenESDHModel.PROP_CONTACT_COUNTRY_CODE, getOrNull(fromObj, "countryCode"));
-        toTypeProps.put(OpenESDHModel.PROP_CONTACT_MUNICIPALITY_CODE, getOrNull(fromObj, "municipalityCode"));
-        toTypeProps.put(OpenESDHModel.PROP_CONTACT_MAIL_SUBLOCATION_ID, getOrNull(fromObj, "mailDeliverySublocationIdentifier"));
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_ADDRESS);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_ADDRESS_LINE1);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_ADDRESS_LINE2);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_ADDRESS_LINE3);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_ADDRESS_LINE4);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_ADDRESS_LINE5);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_ADDRESS_LINE6);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_HOUSE_NUMBER);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_STREET_NAME);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_STREET_CODE);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_SUITE_IDENTIFIER);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_FLOOR_IDENTIFIER);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_CITY_NAME);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_POST_CODE);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_POST_BOX);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_POST_DISTRICT);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_COUNTRY_CODE);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_MUNICIPALITY_CODE);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_MAIL_SUBLOCATION_ID);
+    }
 
+    protected void copyProperty(JSONObject fromObj, HashMap<QName, Serializable> toTypeProps, QName property) {
+        toTypeProps.put(property, getOrNull(fromObj, property.getLocalName()));
     }
 
     protected abstract void get(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException;

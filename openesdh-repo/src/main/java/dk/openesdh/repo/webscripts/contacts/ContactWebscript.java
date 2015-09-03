@@ -106,17 +106,17 @@ public class ContactWebscript extends ContactAbstractWebscript {
 
             QName contactType = this.nodeService.getType(contactNodeRef);
             if (contactType.equals(OpenESDHModel.TYPE_CONTACT_PERSON)) {
-                typeProps.put(OpenESDHModel.PROP_CONTACT_EMAIL, getOrNull(parsedRequest, "email"));
-                typeProps.put(OpenESDHModel.PROP_CONTACT_FIRST_NAME, getOrNull(parsedRequest, "firstName"));
-                typeProps.put(OpenESDHModel.PROP_CONTACT_LAST_NAME, getOrNull(parsedRequest, "lastName"));
-                typeProps.put(OpenESDHModel.PROP_CONTACT_MIDDLE_NAME, getOrNull(parsedRequest, "middleName"));
-                typeProps.put(OpenESDHModel.PROP_CONTACT_CPR_NUMBER, getOrNull(parsedRequest, "cprNumber"));
+                copyProperty(parsedRequest, typeProps, OpenESDHModel.PROP_CONTACT_EMAIL);
+                copyProperty(parsedRequest, typeProps, OpenESDHModel.PROP_CONTACT_FIRST_NAME);
+                copyProperty(parsedRequest, typeProps, OpenESDHModel.PROP_CONTACT_LAST_NAME);
+                copyProperty(parsedRequest, typeProps, OpenESDHModel.PROP_CONTACT_MIDDLE_NAME);
+                copyProperty(parsedRequest, typeProps, OpenESDHModel.PROP_CONTACT_CPR_NUMBER);
                 //TODO There are 2/4 more props that are boolean types to possibly add.
             }
             if (contactType.equals(OpenESDHModel.TYPE_CONTACT_ORGANIZATION)) {
-                typeProps.put(OpenESDHModel.PROP_CONTACT_ORGANIZATION_NAME, getOrNull(parsedRequest, "organizationName"));
-                typeProps.put(OpenESDHModel.PROP_CONTACT_EMAIL, getOrNull(parsedRequest, "email"));
-                typeProps.put(OpenESDHModel.PROP_CONTACT_CVR_NUMBER, getOrNull(parsedRequest, "cvrNumber"));
+                copyProperty(parsedRequest, typeProps, OpenESDHModel.PROP_CONTACT_ORGANIZATION_NAME);
+                copyProperty(parsedRequest, typeProps, OpenESDHModel.PROP_CONTACT_EMAIL);
+                copyProperty(parsedRequest, typeProps, OpenESDHModel.PROP_CONTACT_CVR_NUMBER);
             }
 
             //Populate the map with address properties
