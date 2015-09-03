@@ -1,4 +1,0 @@
-{
-	scmCommitId: "${scmCommitId}",
-	scmBranchName: "${scmBranchName}"
-}
