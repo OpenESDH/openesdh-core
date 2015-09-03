@@ -18,7 +18,9 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 
 public class WebScriptUtils {
 
-    public static final String PARAM_NAME_NODE_REF = "nodeRef";
+    public static final String CASE_ID = "caseId";
+
+    public static final String NODE_REF = "nodeRef";
 
     public static void checkContentTypeJson(WebScriptRequest req) {
         String contentType = req.getContentType();
