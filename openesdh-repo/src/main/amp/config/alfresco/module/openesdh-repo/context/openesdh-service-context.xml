@@ -84,6 +84,8 @@
         </property>
 
         <property name="namespaceService" ref="namespaceService"/>
+        
+        <property name="versionService" ref="VersionService"/>
 
         <property name="behaviourFilter">
             <ref bean="policyBehaviourFilter"/>
