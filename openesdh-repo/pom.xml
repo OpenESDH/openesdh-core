@@ -160,7 +160,10 @@
         <profile>
             <id>amp-with-solr</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <property>
+                    <name>skipTests</name>
+                    <value>true</value>
+                </property>
             </activation>
             <dependencies>
                 <dependency>
@@ -170,7 +173,6 @@
                 </dependency>
             </dependencies>
             <properties>
-                <skipTests>true</skipTests>
                 <alfresco.solr.home>${project.build.directory}/solr/home</alfresco.solr.home>
             </properties>
             <build>
