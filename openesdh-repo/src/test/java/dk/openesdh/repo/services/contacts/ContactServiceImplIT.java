@@ -70,18 +70,14 @@ public class ContactServiceImplIT {
     private static final String TEST_ORG_CONTACT_NAME = "OrgName";
     private static final String TEST_ORG_CONTACT_CVR_NUMBER = "12345678";
 
-    private ContactServiceImpl contactService;
+    @Autowired
+    @Qualifier("ContactService")
+    private ContactService contactService;
     private NodeRef testContactNodeRef;
 
     @Before
     public void setUp() {
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ADMIN_USER_NAME);
-        contactService = new ContactServiceImpl();
-        contactService.setContactDAO(contactDao);
-        contactService.setContactSearchService(contactSearchService);
-        contactService.setNodeService(nodeService);
-        contactService.setSearchService(searchService);
-
     }
 
     @After

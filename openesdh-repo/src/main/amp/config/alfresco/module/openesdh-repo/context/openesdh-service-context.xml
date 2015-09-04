@@ -186,6 +186,7 @@
         <property name="contactDAO" ref="ContactDAO" />
         <property name="searchService" ref="searchService"/>
         <property name="contactSearchService" ref="ContactSearchService"/>
+        <property name="transactionService" ref="TransactionService"/>
     </bean>
 
     <bean id="NoteService"
