@@ -5,7 +5,10 @@ import java.util.List;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
+import org.alfresco.service.cmr.repository.ContentService;
+import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.transaction.TransactionService;
@@ -27,6 +30,8 @@ import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.model.CaseDocumentAttachment;
+import dk.openesdh.repo.model.ResultSet;
 import dk.openesdh.repo.services.cases.CaseService;
 
 @RunWith(RemoteTestRunner.class)
@@ -57,16 +62,28 @@ public class DocumentServiceImplIT {
     @Qualifier("TransactionService")
     protected TransactionService transactionService;
 
+    @Autowired
+    @Qualifier("CheckOutCheckInService")
+    protected CheckOutCheckInService checkOutCheckInService;
+
+    @Autowired
+    @Qualifier("ContentService")
+    protected ContentService contentService;
+
     private static final String TEST_FOLDER_NAME = "DocumentServiceImpIT";
     private static final String TEST_CASE_NAME1 = "TestCase1";
     private static final String TEST_CASE_NAME2 = "TestCase2";
     private static final String TEST_DOCUMENT_NAME = "TestDocument";
     private static final String TEST_DOCUMENT_FILE_NAME = TEST_DOCUMENT_NAME + ".txt";
 
+    private static final String TEST_DOCUMENT_ATTACHMENT_NAME = "TestDocumentAttachment";
+    private static final String TEST_DOCUMENT_ATTACHMENT_FILE_NAME = TEST_DOCUMENT_ATTACHMENT_NAME + ".txt";
+
     private NodeRef testFolder;
     private NodeRef testCase1;
     private NodeRef testCase2;
     private NodeRef testDocument;
+    private NodeRef testDocumentAttachment;
     private NodeRef testDocumentRecFolder;
 
     @Before
@@ -81,6 +98,8 @@ public class DocumentServiceImplIT {
 
         testDocument = docTestHelper.createCaseDocument(TEST_DOCUMENT_FILE_NAME, testCase1);
         testDocumentRecFolder = nodeService.getPrimaryParent(testDocument).getParentRef();
+        testDocumentAttachment = docTestHelper.createCaseDocumentAttachment(TEST_DOCUMENT_ATTACHMENT_FILE_NAME,
+                testDocumentRecFolder);
     }
 
     @After
@@ -179,5 +198,22 @@ public class DocumentServiceImplIT {
                     .getMessage().startsWith("Duplicate child name not allowed"));
             Assert.assertTrue("The exception is thrown which is OK", true);
         }
+    }
+
+    @Test
+    public void shouldCreateDocumentAttachmentVersionAndRetrieveSeveralVersions() {
+        NodeRef workingCopy = checkOutCheckInService.checkout(testDocumentAttachment);
+        ContentWriter writer = contentService.getWriter(workingCopy, ContentModel.PROP_CONTENT, true);
+        writer.setMimetype("text");
+        writer.putContent("some new content");
+        checkOutCheckInService.checkin(workingCopy, null);
+
+        ResultSet<CaseDocumentAttachment> attachments = documentService.getAttachmentsWithVersions(
+                testDocumentRecFolder, 0, 1000);
+        Assert.assertEquals("Wrong number of document attachments retrieved.", 1, attachments.getTotalItems());
+        Assert.assertEquals("Wrong attachment current version.", "1.1", attachments.getResultList().get(0)
+                .getVersionLabel());
+        Assert.assertEquals("Wrong attachment previous version.", "1.0", attachments.getResultList().get(0)
+                .getVersions().get(0).getVersionLabel());
     }
 }

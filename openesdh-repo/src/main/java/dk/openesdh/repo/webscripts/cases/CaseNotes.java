@@ -10,10 +10,9 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
 
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.webscripts.notes.Notes;
+import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 public class CaseNotes extends Notes {
-
-    private static final String CASE_ID = "caseId";
 
     private CaseService caseService;
 
@@ -24,7 +23,7 @@ public class CaseNotes extends Notes {
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
         Map<String, String> templateArgs = req.getServiceMatch().getTemplateVars();
-        String caseId = templateArgs.get(CASE_ID);
+        String caseId = templateArgs.get(WebScriptUtils.CASE_ID);
         NodeRef nodeRef = caseService.getCaseById(caseId);
 
         String method = req.getServiceMatch().getWebScript().getDescription().getMethod();
