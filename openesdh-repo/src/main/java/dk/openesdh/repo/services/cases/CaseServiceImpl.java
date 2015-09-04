@@ -8,6 +8,7 @@ import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
 import org.alfresco.repo.model.Repository;
+import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
 import org.alfresco.repo.security.permissions.PermissionReference;
@@ -67,6 +68,7 @@ public class CaseServiceImpl implements CaseService {
     private ContentService contentService;
     private SearchService searchService;
     private LockService lockService;
+    private BehaviourFilter behaviourFilter;
 
     private AuthorityService authorityService;
 
@@ -93,6 +95,10 @@ public class CaseServiceImpl implements CaseService {
 
     public void setLockService(LockService lockService) {
         this.lockService = lockService;
+    }
+
+    public void setBehaviourFilter(BehaviourFilter behaviourFilter) {
+        this.behaviourFilter = behaviourFilter;
     }
 
     public void setAuthorityService(AuthorityService authorityService) {
@@ -554,59 +560,35 @@ public class CaseServiceImpl implements CaseService {
         removeAuthorityFromRole(getAuthorityName(authorityNodeRef), role, caseNodeRef);
     }
 
-    public void checkCanClose(NodeRef nodeRef) throws
-            AccessDeniedException {
-        String user = AuthenticationUtil.getRunAsUser();
-        if (!canClose(user, nodeRef)) {
-            throw new AccessDeniedException(user + " is not allowed to " +
-                    "close the case " + nodeRef);
-        }
-    }
-
-    public void checkCanMakeActive(NodeRef nodeRef) throws
-            AccessDeniedException {
-        String user = AuthenticationUtil.getRunAsUser();
-        if (!canMakeActive(user, nodeRef)) {
-            throw new AccessDeniedException(user + " is not allowed to " +
-                    "make the case " + nodeRef + " active.");
-        }
-    }
-
     @Override
-    public boolean canClose(String user, NodeRef nodeRef) {
-        return isCaseNode(nodeRef) &&
-                CaseStatus.isValidTransition(getStatus(nodeRef), CaseStatus.CLOSED);
-    }
-
-    @Override
-    public boolean canMakeActive(String user, NodeRef nodeRef) {
-        String status = getStatus(nodeRef);
-        switch (status) {
-            case CaseStatus.ACTIVE:
-                return false;
-            case CaseStatus.PASSIVE:
-                return canUnPassivate(user, nodeRef);
-        }
-        return canUnlock(user, nodeRef) && CaseStatus.isValidTransition(getStatus(nodeRef), CaseStatus.ACTIVE);
-    }
-
     public boolean canSwitchStatus(String fromStatus, String toStatus, String user, NodeRef nodeRef) {
-        return isCaseNode(nodeRef) && CaseStatus.isValidTransition(fromStatus, toStatus) &&
+        return isCaseNode(nodeRef) &&
+                CaseStatus.isValidTransition(fromStatus, toStatus) &&
                 canLeaveStatus(fromStatus, user, nodeRef) && canEnterStatus(toStatus, user, nodeRef);
     }
 
+    public void checkCanSwitchStatus(NodeRef nodeRef, String fromStatus, String toStatus) throws AccessDeniedException {
+        String user = AuthenticationUtil.getRunAsUser();
+        if (!canSwitchStatus(fromStatus, toStatus, user, nodeRef)) {
+            throw new AccessDeniedException(user + " is not allowed to " +
+                    "switch case from status " + fromStatus + " to " +
+                    toStatus + " for case " + nodeRef);
+        }
+    }
+
     @Override
-    public List<Boolean> getValidNextStatuses(NodeRef nodeRef) {
+    public Map<String, Boolean> getValidNextStatuses(NodeRef nodeRef) {
         String user = AuthenticationUtil.getFullyAuthenticatedUser();
         String fromStatus = getStatus(nodeRef);
-        List<Boolean> statuses = new LinkedList<>();
+        Map<String, Boolean> statuses = new HashMap<>();
         for (String toStatus: CaseStatus.getStatuses()) {
-            statuses.add(canSwitchStatus(fromStatus, toStatus, user, nodeRef));
+            statuses.put(toStatus, canSwitchStatus(fromStatus, toStatus, user,
+                    nodeRef));
         }
         return statuses;
     }
 
-    public boolean canLeaveStatus(String status, String user, NodeRef nodeRef) {
+    protected boolean canLeaveStatus(String status, String user, NodeRef nodeRef) {
         switch (status) {
             case CaseStatus.ACTIVE:
                 return true;
@@ -621,14 +603,14 @@ public class CaseServiceImpl implements CaseService {
         }
     }
 
-    public boolean canEnterStatus(String status, String user, NodeRef nodeRef) {
+    protected boolean canEnterStatus(String status, String user, NodeRef nodeRef) {
         switch (status) {
             case CaseStatus.ACTIVE:
                 return true;
             case CaseStatus.PASSIVE:
                 return true;
             case CaseStatus.CLOSED:
-                return canClose(user, nodeRef);
+                return canLock(user, nodeRef);
             case CaseStatus.ARCHIVED:
                 // The system does this.
                 return false;
@@ -637,13 +619,69 @@ public class CaseServiceImpl implements CaseService {
         }
     }
 
-    private boolean canUnlock(String user, NodeRef nodeRef) {
-        return authorityService.isAdminAuthority(user);
+    @Override
+    public void switchStatus(NodeRef nodeRef, String newStatus) throws Exception {
+        String fromStatus = getStatus(nodeRef);
+        checkCanSwitchStatus(nodeRef, fromStatus, newStatus);
+
+        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
+            @Override
+            public Object execute() throws Throwable {
+                // Run in transaction
+                // Disable status behaviour to allow the system to set the
+                // status directly.
+                behaviourFilter.disableBehaviour(nodeRef, OpenESDHModel.ASPECT_OE_STATUS);
+                switchStatusImpl(nodeRef, fromStatus, newStatus);
+                behaviourFilter.enableBehaviour();
+                return null;
+            }
+        });
     }
 
-    @Override
-    public boolean isLocked(NodeRef nodeRef) {
-        return nodeService.hasAspect(nodeRef, OpenESDHModel.ASPECT_OE_LOCKED);
+    protected void switchStatusImpl(NodeRef nodeRef, String fromStatus, String newStatus) throws Exception {
+        switch (fromStatus) {
+            case CaseStatus.ACTIVE:
+                switch (newStatus) {
+                    case CaseStatus.PASSIVE:
+                        passivate(nodeRef);
+                        nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.PASSIVE);
+                        break;
+                    case CaseStatus.CLOSED:
+                        nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.CLOSED);
+                        lock(nodeRef);
+                        break;
+                }
+                break;
+            case CaseStatus.PASSIVE:
+                switch (newStatus) {
+                    case CaseStatus.ACTIVE:
+                        unPassivate(nodeRef);
+                        nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.ACTIVE);
+                        break;
+                    case CaseStatus.CLOSED:
+                        unPassivate(nodeRef);
+                        nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.CLOSED);
+                        lock(nodeRef);
+                        break;
+                }
+                break;
+            case CaseStatus.CLOSED:
+                switch (newStatus) {
+                    case CaseStatus.ACTIVE:
+                        unlock(nodeRef);
+                        nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.ACTIVE);
+                        break;
+                    case CaseStatus.PASSIVE:
+                        unlock(nodeRef);
+                        passivate(nodeRef);
+                        nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.PASSIVE);
+                        break;
+                }
+                break;
+            case CaseStatus.ARCHIVED:
+                // TODO: Check if the user is the system doing the operation.
+                break;
+        }
     }
 
     @Override
@@ -651,32 +689,24 @@ public class CaseServiceImpl implements CaseService {
         return (String) nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS);
     }
 
+    protected boolean canUnlock(String user, NodeRef nodeRef) {
+        return authorityService.isAdminAuthority(user);
+    }
+
+    protected boolean canLock(String user, NodeRef nodeRef) {
+        return true;
+    }
+
     @Override
-    public void close(final NodeRef nodeRef) {
-        checkCanClose(nodeRef);
-        String status = getStatus(nodeRef);
-        switch (status) {
-            case CaseStatus.CLOSED:
-                return;
-            case CaseStatus.PASSIVE:
-                // TODO: Remove passiveness
-            case CaseStatus.ACTIVE:
-                transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
-                    @Override
-                    public Object execute() throws Throwable {
-                        nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.CLOSED);
-                        lock(nodeRef);
-                        return null;
-                    }
-                });
-        }
+    public boolean isLocked(NodeRef nodeRef) {
+        return nodeService.hasAspect(nodeRef, OpenESDHModel.ASPECT_OE_LOCKED);
     }
 
     /**
      * Lock a case node.
      * @param nodeRef
      */
-    private void lock(NodeRef nodeRef) throws Exception {
+    protected void lock(NodeRef nodeRef) throws Exception {
         if (!isCaseNode(nodeRef)) {
             throw new Exception("Cannot lock a non-case node!");
         }
@@ -692,7 +722,7 @@ public class CaseServiceImpl implements CaseService {
 
     // Suppress warning about READ_ONLY_LOCK being deprecated
     @SuppressWarnings("deprecation")
-    private void lockImpl(final NodeRef nodeRef) {
+    protected void lockImpl(final NodeRef nodeRef) {
         if (nodeService.hasAspect(nodeRef, OpenESDHModel.ASPECT_OE_LOCKED)) {
             // Don't touch, already locked
             LOGGER.warn("Node already has locked aspect when locking: " + nodeRef);
@@ -738,7 +768,7 @@ public class CaseServiceImpl implements CaseService {
         }
     }
 
-    private void lockCaseGroups(final NodeRef caseNodeRef) {
+    protected void lockCaseGroups(final NodeRef caseNodeRef) {
         AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Void>() {
             @Override
             public Void doWork() {
@@ -755,77 +785,27 @@ public class CaseServiceImpl implements CaseService {
         });
     }
 
-    @Override
-    public void makeActive(final NodeRef nodeRef) {
-        checkCanMakeActive(nodeRef);
-        String status = getStatus(nodeRef);
-        switch (status) {
-            case CaseStatus.ACTIVE:
-                return;
-            case CaseStatus.PASSIVE:
-                nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.ACTIVE);
-                break;
-            case CaseStatus.CLOSED:
-                transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
-                    @Override
-                    public Object execute() throws Throwable {
-                        unlock(nodeRef);
-                        nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.ACTIVE);
-                        return null;
-                    }
-                });
-                break;
-        }
+    /**
+     * Passivates a case.
+     *
+     * Passive cases and their documents are not searchable by default.
+     * @param nodeRef
+     */
+    protected void passivate(NodeRef nodeRef) {
+        // TODO: Passivate documents in the case by adding an aspect
+        // oe:passive
     }
 
-    public void checkCanPassivate(NodeRef nodeRef) throws
-            AccessDeniedException {
-        String user = AuthenticationUtil.getRunAsUser();
-        if (!canPassivate(user, nodeRef)) {
-            throw new AccessDeniedException(user + " is not allowed to " +
-                    "passivate the case " + nodeRef);
-        }
-    }
-
-    @Override
-    public boolean canPassivate(String user, NodeRef nodeRef) {
-        return CaseStatus.isValidTransition(getStatus(nodeRef), CaseStatus.PASSIVE);
-    }
-
-    @Override
-    public boolean canUnPassivate(String user, NodeRef nodeRef) {
-        return true;
-    }
-
-    @Override
-    public void passivate(NodeRef nodeRef) {
-        checkCanPassivate(nodeRef);
-        String status = getStatus(nodeRef);
-        switch (status) {
-            case CaseStatus.PASSIVE:
-                return;
-            case CaseStatus.ACTIVE:
-                passivateImpl(nodeRef);
-                break;
-            case CaseStatus.CLOSED:
-                // Must reopen first.
-                transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
-                    @Override
-                    public Object execute() throws Throwable {
-                        unlock(nodeRef);
-                        nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.PASSIVE);
-                        return null;
-                    }
-                });
-                break;
-        }
+    protected void unPassivate(NodeRef nodeRef) {
+        // TODO: Unpassivate documents in the case by removing an aspect
+        // oe:passive
     }
 
     /**
      * Unlock a case node.
      * @param nodeRef
      */
-    private void unlock(NodeRef nodeRef) throws Exception {
+    protected void unlock(NodeRef nodeRef) throws Exception {
         if (!isCaseNode(nodeRef)) {
             throw new Exception("Not a case node");
         }
@@ -839,18 +819,7 @@ public class CaseServiceImpl implements CaseService {
         });
     }
 
-    private void passivateImpl(NodeRef nodeRef) {
-        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
-            @Override
-            public Object execute() throws Throwable {
-                nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.PASSIVE);
-                // TODO: Passivate documents, by adding a new aspect oe:passive
-                return null;
-            }
-        });
-    }
-
-    private void unlockImpl(final NodeRef nodeRef) {
+    protected void unlockImpl(final NodeRef nodeRef) {
         AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Void>() {
             @Override
             public Void doWork() {
@@ -882,7 +851,7 @@ public class CaseServiceImpl implements CaseService {
         }
     }
 
-    private void unlockCaseGroups(final NodeRef caseNodeRef) {
+    protected void unlockCaseGroups(final NodeRef caseNodeRef) {
         AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Void>() {
             @Override
             public Void doWork() {

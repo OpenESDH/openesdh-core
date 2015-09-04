@@ -64,6 +64,7 @@ public interface OpenESDHModel {
     /**
      * Aspects
      */
+    public static final QName ASPECT_OE_STATUS = QName.createQName(OE_URI, "status");
     public static final QName ASPECT_OE_LOCKED = QName.createQName(OE_URI, "locked");
     public static final QName ASPECT_OE_CASE_ID = QName.createQName(OE_URI, "caseId");
 

@@ -17,7 +17,7 @@ import java.util.Map;
 
 
 /**
- * Makes sure that transitions between case or document statuses are valid.
+ * Makes sure that users cannot directly set case (TODO: or document) statuses.
  */
 public class StatusTransitionBehaviour implements
         NodeServicePolicies.OnUpdatePropertiesPolicy {
@@ -39,7 +39,7 @@ public class StatusTransitionBehaviour implements
     public void init() {
         this.policyComponent.bindClassBehaviour(
                 NodeServicePolicies.OnUpdatePropertiesPolicy.QNAME,
-                OpenESDHModel.TYPE_OE_BASE,
+                OpenESDHModel.ASPECT_OE_STATUS,
                 new JavaBehaviour(this, "onUpdateProperties", Behaviour.NotificationFrequency.TRANSACTION_COMMIT));
     }
 
@@ -53,22 +53,17 @@ public class StatusTransitionBehaviour implements
         if (beforeStatus.equals(afterStatus)) {
             return;
         }
-
-        if (!isValidStateTransition(nodeRef, beforeStatus, afterStatus)) {
-            throw new AlfrescoRuntimeException(
-                    "Invalid transition for status: {0} to {1}",
-                    new String[]{beforeStatus, afterStatus});
-        }
-    }
-
-    private boolean isValidStateTransition(NodeRef nodeRef, String before, String after) {
         if (caseService.isCaseNode(nodeRef)) {
-            return CaseStatus.isValidTransition(before, after);
-        } else if (caseService.isCaseDocNode(nodeRef)) {
-            return DocumentStatus.isValidTransition(before, after);
-        } else {
-            return true;
+            throw new AlfrescoRuntimeException("Case status cannot be " +
+                    "changed directly. Must call the CaseService" +
+                    ".switchStatus method.");
         }
+        // TODO: Handle for documents as well
+//        else if (caseService.isCaseDocNode(nodeRef)) {
+//            throw new AlfrescoRuntimeException("Document status cannot be " +
+//                    "changed directly. Must call the DocumentService" +
+//                    ".switchStatus method.");
+//        }
     }
 }
 

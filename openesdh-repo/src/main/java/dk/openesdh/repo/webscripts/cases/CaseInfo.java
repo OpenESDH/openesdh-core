@@ -5,6 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
@@ -66,8 +67,7 @@ public class CaseInfo extends AbstractWebScript {
         res.setContentEncoding("UTF-8");
         try {
             json.put("allProps", nodeInfoService.buildJSON(nodeInfo, this));
-            json.put("canClose", caseService.canClose(user, caseNodeRef));
-            json.put("canMakeActive", caseService.canMakeActive(user, caseNodeRef));
+            json.put("statusChoices", caseService.getValidNextStatuses(caseNodeRef));
             json.write(res.getWriter());
         } catch (JSONException e) {
             e.printStackTrace();

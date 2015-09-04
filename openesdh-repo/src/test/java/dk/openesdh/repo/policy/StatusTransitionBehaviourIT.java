@@ -84,60 +84,20 @@ public class StatusTransitionBehaviourIT {
         });
     }
 
-    public void testTransition(String newStatus) {
-        performTransition(newStatus);
-        assertEquals(caseService.getStatus(caseNodeRef), newStatus);
-    }
-
-    private void performTransition(String newStatus) {
-        nodeService.setProperty(caseNodeRef, OpenESDHModel.PROP_OE_STATUS, newStatus);
-    }
-
     @Test
-    public void testValidTransitions() {
+    public void testSetToSameStatus() {
         assertEquals("Case is initially active", caseService.getStatus(caseNodeRef), CaseStatus.ACTIVE);
-        testTransition(CaseStatus.ACTIVE);
-        testTransition(CaseStatus.PASSIVE);
-        testTransition(CaseStatus.ACTIVE);
-        testTransition(CaseStatus.CLOSED);
-        testTransition(CaseStatus.ACTIVE);
-        testTransition(CaseStatus.CLOSED);
-        testTransition(CaseStatus.PASSIVE);
-        testTransition(CaseStatus.CLOSED);
+
+        // This should be ok.
+        nodeService.setProperty(caseNodeRef, OpenESDHModel.PROP_OE_STATUS,
+                CaseStatus.ACTIVE);
     }
 
     @Test
-    public void testInvalidTransition1() {
-        testTransition(CaseStatus.ACTIVE);
+    public void testChangeStatus() {
+        assertEquals("Case is initially active", caseService.getStatus(caseNodeRef), CaseStatus.ACTIVE);
+        nodeService.setProperty(caseNodeRef, OpenESDHModel.PROP_OE_STATUS,
+                CaseStatus.PASSIVE);
         thrown.expect(AlfrescoRuntimeException.class);
-        performTransition(CaseStatus.ARCHIVED);
-    }
-
-    @Test
-    public void testInvalidTransition2() {
-        testTransition(CaseStatus.PASSIVE);
-        thrown.expect(AlfrescoRuntimeException.class);
-        performTransition(CaseStatus.ARCHIVED);
-    }
-
-    @Test
-    public void testInvalidTransition3() {
-        testTransition(CaseStatus.ARCHIVED);
-        thrown.expect(AlfrescoRuntimeException.class);
-        performTransition(CaseStatus.ACTIVE);
-    }
-
-    @Test
-    public void testInvalidTransition4() {
-        testTransition(CaseStatus.ARCHIVED);
-        thrown.expect(AlfrescoRuntimeException.class);
-        performTransition(CaseStatus.PASSIVE);
-    }
-
-    @Test
-    public void testInvalidTransition5() {
-        testTransition(CaseStatus.ARCHIVED);
-        thrown.expect(AlfrescoRuntimeException.class);
-        performTransition(CaseStatus.CLOSED);
     }
 }

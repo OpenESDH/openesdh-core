@@ -202,16 +202,40 @@ public interface CaseService {
      */
     String getStatus(NodeRef nodeRef);
 
+
     /**
-     * Return whether or not the user can close the case.
+     * Return a list of valid next statuses for the case.
      *
+     * These are statuses that the user is permitted to move the case to
+     * based on the user's permissions, the current status, and the valid
+     * status transitions.
+     *
+     * @param nodeRef
+     * @return
+     */
+    Map<String, Boolean> getValidNextStatuses(NodeRef nodeRef);
+
+    /**
+     * Return whether the user can switch the case status from a given
+     * status to another status.
+     * @param fromStatus
+     * @param toStatus
      * @param user
      * @param nodeRef
      * @return
      */
-    boolean canClose(String user, NodeRef nodeRef);
+    boolean canSwitchStatus(String fromStatus, String toStatus, String user, NodeRef nodeRef);
 
-    List<Boolean> getValidNextStatuses(NodeRef nodeRef);
+    /**
+     * Try to switch the case to a new status.
+     *
+     * For example, to close, or passivate a case.
+     *
+     * @param nodeRef
+     * @param newStatus
+     * @throws Exception
+     */
+    void switchStatus(NodeRef nodeRef, String newStatus) throws Exception;
 
     /**
      * Return whether a case is locked or not.
@@ -222,47 +246,6 @@ public interface CaseService {
      * @return
      */
     boolean isLocked(NodeRef nodeRef);
-
-    /**
-     * Close the case.
-     *
-     * @param nodeRef NodeRef of the case to close
-     */
-    void close(NodeRef nodeRef);
-
-    /**
-     * Return whether or not the user can makeActive the case.
-     *
-     * @param user
-     * @param nodeRef
-     * @return
-     */
-    boolean canMakeActive(String user, NodeRef nodeRef);
-
-    /**
-     * Reopen the case.
-     *
-     * @param nodeRef NodeRef of the case to makeActive
-     */
-    void makeActive(NodeRef nodeRef);
-
-    /**
-     * Return whether the user can passivate the case.
-     * @param user
-     * @param nodeRef
-     * @return
-     */
-    boolean canPassivate(String user, NodeRef nodeRef);
-
-    boolean canUnPassivate(String user, NodeRef nodeRef);
-
-    /**
-     * Sets the case to passive status.
-     *
-     * Passive cases and their documents are not searchable by default.
-     * @param nodeRef
-     */
-    void passivate(NodeRef nodeRef);
 
     /**
      * Return whether or not the node is a case node.
