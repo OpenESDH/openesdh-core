@@ -8,24 +8,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import dk.openesdh.SimpleCaseModel;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
-import org.alfresco.service.transaction.TransactionService;
 
 import dk.openesdh.SimpleCaseModel;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.test.TransactionalIT;
 
-public class CaseDocumentTestHelper {
+public class CaseDocumentTestHelper extends TransactionalIT {
 
     protected NodeService nodeService;
 
@@ -33,13 +31,9 @@ public class CaseDocumentTestHelper {
 
     protected CaseHelper caseHelper;
 
-    protected TransactionService transactionService;
-
     protected CaseService caseService;
 
     protected DocumentService documentService;
-
-    protected RetryingTransactionHelper retryingTransactionHelper;
 
     public void setCaseService(CaseService caseService) {
         this.caseService = caseService;
@@ -57,14 +51,6 @@ public class CaseDocumentTestHelper {
         this.caseHelper = caseHelper;
     }
 
-    public void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
-    }
-
-    public void setRetryingTransactionHelper(RetryingTransactionHelper retryingTransactionHelper) {
-        this.retryingTransactionHelper = retryingTransactionHelper;
-    }
-
     public void setDocumentService(DocumentService documentService) {
         this.documentService = documentService;
     }
@@ -79,15 +65,12 @@ public class CaseDocumentTestHelper {
 
         final Map<QName, Serializable> properties = new HashMap<>();
         properties.put(ContentModel.PROP_NAME, folderName);
-        folder = AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<NodeRef>() {
-            @Override
-            public NodeRef doWork() throws Exception {
-                return nodeService
-                        .createNode(repositoryHelper.getCompanyHome(), ContentModel.ASSOC_CONTAINS,
-                                QName.createQName(OpenESDHModel.CASE_URI, folderName), ContentModel.TYPE_FOLDER,
-                                properties).getChildRef();
-            }
-        }, AuthenticationUtil.getAdminUserName());
+
+        folder = runAsAdmin(() -> {
+            return nodeService.createNode(repositoryHelper.getCompanyHome(), ContentModel.ASSOC_CONTAINS,
+                    QName.createQName(OpenESDHModel.CASE_URI, folderName), ContentModel.TYPE_FOLDER, properties)
+                    .getChildRef();
+        });
 
         return folder;
     }
@@ -128,30 +111,22 @@ public class CaseDocumentTestHelper {
     public void removeNodesAndDeleteUsersInTransaction(final List<NodeRef> nodes, final List<NodeRef> cases,
             final List<String> userNames) {
 
-        transactionService.getRetryingTransactionHelper().doInTransaction(
-                new RetryingTransactionHelper.RetryingTransactionCallback<Boolean>() {
-                    public Boolean execute() throws Throwable {
-                        // Remove temporary node, and all its content,
-                        // also removes test cases
+        runInTransactionAsAdmin(() -> {
+            for (NodeRef aCase : cases) {
+                removeCase(aCase);
+            }
 
-                        for (NodeRef aCase : cases) {
-                            removeCase(aCase);
-                        }
+            for (NodeRef node : nodes) {
+                if (node != null && nodeService.exists(node)) {
+                    nodeService.deleteNode(node);
+                }
+            }
 
-                        for (NodeRef node : nodes) {
-                            if (node != null && nodeService.exists(node)) {
-                                nodeService.deleteNode(node);
-                            }
-                        }
-
-                        for (String userName : userNames) {
-                            caseHelper.deleteDummyUser(userName);
-                        }
-
-
-                        return true;
-                    }
-                });
+            for (String userName : userNames) {
+                caseHelper.deleteDummyUser(userName);
+            }
+            return true;
+        });
     }
 
     private void removeCase(NodeRef aCase) {
@@ -182,23 +157,26 @@ public class CaseDocumentTestHelper {
         properties.put(OpenESDHModel.PROP_DOC_CATEGORY, "other");
         properties.put(OpenESDHModel.PROP_DOC_STATE, "received");
         
-        return AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<NodeRef>() {
-            @Override
-            public NodeRef doWork() throws Exception {
-                return retryingTransactionHelper.doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<NodeRef>() {
-                    @Override
-                    public NodeRef execute() throws Throwable {
-                        final NodeRef caseDocumentsFolder = caseService.getDocumentsFolder(caseNodeRef);
-                        return nodeService.createNode(caseDocumentsFolder, ContentModel.ASSOC_CONTAINS,
-                                QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, documentName),
-                                ContentModel.TYPE_CONTENT, properties).getChildRef();
-                    }
-                });
-            }
-        }, AuthenticationUtil.getAdminUserName());
+        return runInTransactionAsAdmin(() -> {
+            final NodeRef caseDocumentsFolder = caseService.getDocumentsFolder(caseNodeRef);
+            return nodeService.createNode(caseDocumentsFolder, ContentModel.ASSOC_CONTAINS,
+                    QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, documentName),
+                    ContentModel.TYPE_CONTENT, properties).getChildRef();
+        });
+    }
+
+    public NodeRef createCaseDocumentAttachment(String documentName, final NodeRef caseDocumentNodeRef) {
+        final Map<QName, Serializable> properties = new HashMap<>();
+        properties.put(ContentModel.PROP_NAME, documentName);
+        return runInTransactionAsAdmin(() -> {
+            return nodeService.createNode(caseDocumentNodeRef, ContentModel.ASSOC_CONTAINS,
+                    QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, documentName),
+                    ContentModel.TYPE_CONTENT, properties).getChildRef();
+        });
     }
 
     public String getNodePropertyString(NodeRef node, QName prop) {
         return (String) nodeService.getProperty(node, prop);
     }
+
 }

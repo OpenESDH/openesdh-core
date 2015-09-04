@@ -10,6 +10,8 @@ import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
 import org.json.JSONObject;
 
+import dk.openesdh.repo.model.CaseDocumentAttachment;
+import dk.openesdh.repo.model.ResultSet;
 import dk.openesdh.repo.webscripts.documents.Documents;
 
 /**
@@ -96,4 +98,13 @@ public interface DocumentService {
      * @throws Exception
      */
     public void copyDocumentToFolder(NodeRef caseDocument, NodeRef targetFolder) throws Exception;
+
+    /**
+     * Retrieves attachments of the provided case document with versions
+     * 
+     * @param nodeRef
+     * @return list of the case document attachments
+     */
+    public ResultSet<CaseDocumentAttachment> getAttachmentsWithVersions(NodeRef nodeRef, int startIndex,
+            int pageSize);
 }

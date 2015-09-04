@@ -188,6 +188,9 @@ public interface OpenESDHModel {
      * Documents
      */
     public static final String DOCUMENTS_FOLDER_NAME = "documents";
+    public static final String DOCUMENT_PROP_NAME = "name";
+    public static final String DOCUMENT_PROP_MODIFIED = "modified";
+    public static final String DOCUMENT_PROP_MODIFIER = "modifier";
 
     /**
      * Various constants

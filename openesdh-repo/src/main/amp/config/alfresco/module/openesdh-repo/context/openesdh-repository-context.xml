@@ -32,9 +32,10 @@
     </bean>
 
     <bean id="webscript.dk.openesdh.casehistory.get"
-          class="dk.openesdh.repo.webscripts.cases.CaseHistory"
+          class="dk.openesdh.repo.webscripts.cases.CaseHistoryWebScript"
           parent="webscript">
         <property name="auditSearchService" ref="AuditSearchService"/>
+        <property name="caseService" ref="CaseService"/>
     </bean>
 
     <bean id="xsearchWebscript" parent="webscript"
@@ -73,6 +74,12 @@
           parent="xsearchWebscript">
         <property name="caseDocumentsSearchService" ref="CaseDocumentsSearchService"/>
     </bean>
+    
+    <bean id="webscript.dk.openesdh.case.documentAttachmentsWithVersions.get" class="dk.openesdh.repo.webscripts.documents.CaseDocumentAttachmentsWithVersionsWebScript"
+          parent="webscript">
+        <property name="documentService" ref="DocumentService"/>
+    </bean>
+    
 
     <bean id="webscript.dk.openesdh.contactsearch.get"
           class="dk.openesdh.repo.webscripts.xsearch.ContactSearch"
@@ -95,6 +102,7 @@
           class="dk.openesdh.repo.webscripts.cases.DocumentRecordInfo"
           parent="webscript">
         <property name="nodeInfoService" ref="NodeInfoService"/>
+        <property name="documentService" ref="DocumentService"/>
     </bean>
 
     <bean id="webscript.dk.openesdh.iscasenode.get"
@@ -247,7 +255,7 @@
     </bean>
 
     <!--Contacts-->
-    <bean id="contactAbstractWebscript" class="dk.openesdh.repo.webscripts.contacts.Contact"
+    <bean id="contactAbstractWebscript" class="dk.openesdh.repo.webscripts.contacts.ContactWebscript"
           parent="webscript">
         <property name="nodeService" ref="nodeService"/>
         <property name="contactService" ref="ContactService"/>
