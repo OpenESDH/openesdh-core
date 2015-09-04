@@ -580,11 +580,65 @@ public class CaseServiceImpl implements CaseService {
 
     @Override
     public boolean canMakeActive(String user, NodeRef nodeRef) {
+        String status = getStatus(nodeRef);
+        switch (status) {
+            case CaseStatus.ACTIVE:
+                return false;
+            case CaseStatus.PASSIVE:
+                return canUnPassivate(user, nodeRef);
+        }
         return canUnlock(user, nodeRef) && CaseStatus.isValidTransition(getStatus(nodeRef), CaseStatus.ACTIVE);
     }
 
+    public boolean canSwitchStatus(String fromStatus, String toStatus, String user, NodeRef nodeRef) {
+        return isCaseNode(nodeRef) && CaseStatus.isValidTransition(fromStatus, toStatus) &&
+                canLeaveStatus(fromStatus, user, nodeRef) && canEnterStatus(toStatus, user, nodeRef);
+    }
+
+    @Override
+    public List<Boolean> getValidNextStatuses(NodeRef nodeRef) {
+        String user = AuthenticationUtil.getFullyAuthenticatedUser();
+        String fromStatus = getStatus(nodeRef);
+        List<Boolean> statuses = new LinkedList<>();
+        for (String toStatus: CaseStatus.getStatuses()) {
+            statuses.add(canSwitchStatus(fromStatus, toStatus, user, nodeRef));
+        }
+        return statuses;
+    }
+
+    public boolean canLeaveStatus(String status, String user, NodeRef nodeRef) {
+        switch (status) {
+            case CaseStatus.ACTIVE:
+                return true;
+            case CaseStatus.PASSIVE:
+                return true;
+            case CaseStatus.CLOSED:
+                return canUnlock(user, nodeRef);
+            case CaseStatus.ARCHIVED:
+                return false;
+            default:
+                return true;
+        }
+    }
+
+    public boolean canEnterStatus(String status, String user, NodeRef nodeRef) {
+        switch (status) {
+            case CaseStatus.ACTIVE:
+                return true;
+            case CaseStatus.PASSIVE:
+                return true;
+            case CaseStatus.CLOSED:
+                return canClose(user, nodeRef);
+            case CaseStatus.ARCHIVED:
+                // The system does this.
+                return false;
+            default:
+                return true;
+        }
+    }
+
     private boolean canUnlock(String user, NodeRef nodeRef) {
-        return isCaseNode(nodeRef) && authorityService.isAdminAuthority(user);
+        return authorityService.isAdminAuthority(user);
     }
 
     @Override
@@ -736,6 +790,11 @@ public class CaseServiceImpl implements CaseService {
     @Override
     public boolean canPassivate(String user, NodeRef nodeRef) {
         return CaseStatus.isValidTransition(getStatus(nodeRef), CaseStatus.PASSIVE);
+    }
+
+    @Override
+    public boolean canUnPassivate(String user, NodeRef nodeRef) {
+        return true;
     }
 
     @Override

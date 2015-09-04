@@ -211,6 +211,8 @@ public interface CaseService {
      */
     boolean canClose(String user, NodeRef nodeRef);
 
+    List<Boolean> getValidNextStatuses(NodeRef nodeRef);
+
     /**
      * Return whether a case is locked or not.
      *
@@ -251,6 +253,8 @@ public interface CaseService {
      * @return
      */
     boolean canPassivate(String user, NodeRef nodeRef);
+
+    boolean canUnPassivate(String user, NodeRef nodeRef);
 
     /**
      * Sets the case to passive status.
