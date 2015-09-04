@@ -67,6 +67,7 @@
 
             <overrides>
                 <property name="oe:status">
+                    <default>active</default>
                     <constraints>
                         <constraint name="base:caseStatusConstraint"
                                     type="LIST">
