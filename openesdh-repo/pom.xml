@@ -159,6 +159,9 @@
         </profile>
         <profile>
             <id>amp-with-solr</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
             <dependencies>
                 <dependency>
                     <groupId>org.alfresco.maven</groupId>
