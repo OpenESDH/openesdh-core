@@ -2,28 +2,25 @@ package dk.openesdh.repo.webscripts.contacts;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.contacts.ContactService;
-import org.alfresco.model.ContentModel;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.namespace.NamespacePrefixResolverProvider;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
-import org.apache.commons.lang.NotImplementedException;
-import org.json.JSONException;
 import org.json.simple.JSONObject;
 import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * @author Lanre
  */
-public class ContactAbstractWebscript extends AbstractWebScript{
+public abstract class ContactAbstractWebscript extends AbstractWebScript {
+
     private static final String NODE_ID = "id";
     private static final String STORE_ID = "store_id";
     private static final String STORE_TYPE = "store_type";
@@ -43,23 +40,18 @@ public class ContactAbstractWebscript extends AbstractWebScript{
         }
 
         String method = req.getServiceMatch().getWebScript().getDescription().getMethod();
-        try {
-            switch (method) {
-                case "GET":
-                    get(nodeRef, req, res);
-                    break;
-                case "POST":
-                    post(req, res);
-                    break;
-                case "PUT":
-                    put(nodeRef, req, res);
-                    break;
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
+        switch (method) {
+            case "GET":
+                get(nodeRef, req, res);
+                break;
+            case "POST":
+                post(req, res);
+                break;
+            case "PUT":
+                put(nodeRef, req, res);
+                break;
         }
     }
-
 
     /**
      * Grabbed from the org.alfresco.repo.web.scripts.discussion.AbstractDiscussionWebScript
@@ -70,72 +62,57 @@ public class ContactAbstractWebscript extends AbstractWebScript{
      */
     public String getOrNull(JSONObject json, String key) {
         if (json.containsKey(key)) {
-            return (String) json.get(key);
+            return Objects.toString(json.get(key));
         }
         return null;
     }
 
     public JSONObject buildJSON(NodeRef contactNode) {
         JSONObject result = new JSONObject();
-        try {
-                Map<QName, Serializable> props = this.nodeService.getProperties(contactNode);
-
-                for (Map.Entry<QName, Serializable> entry : props.entrySet()) {
-                    Serializable value = entry.getValue();
-                    QName key = entry.getKey();
-                    String localName = key.getLocalName();
-                    if (value != null && !key.getNamespaceURI().equalsIgnoreCase(NamespaceService.SYSTEM_MODEL_1_0_URI)) {
-                            result.put(localName, value);
-                    }
-                }
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Map<QName, Serializable> props = this.nodeService.getProperties(contactNode);
+        props.entrySet().stream()
+                .filter((Map.Entry<QName, Serializable> t)
+                        -> t.getValue() != null && !isKeyOfSystemModelNamepace(t.getKey()))
+                .forEach((entry)
+                        -> result.put(entry.getKey().getLocalName(), entry.getValue()));
         return result;
     }
 
-    void getAddressProperties(JSONObject obj, HashMap<QName, Serializable> typeProps){
-
-        typeProps.put(OpenESDHModel.PROP_CONTACT_ADDRESS, getOrNull(obj,"streetName") );
-        typeProps.put(OpenESDHModel.PROP_CONTACT_ADDRESS_LINE1, getOrNull(obj,"addressLine1") );
-        typeProps.put(OpenESDHModel.PROP_CONTACT_ADDRESS_LINE2, getOrNull(obj,"addressLine2") );
-        typeProps.put(OpenESDHModel.PROP_CONTACT_ADDRESS_LINE3, getOrNull(obj,"addressLine3") );
-        typeProps.put(OpenESDHModel.PROP_CONTACT_ADDRESS_LINE4, getOrNull(obj,"addressLine4") );
-        typeProps.put(OpenESDHModel.PROP_CONTACT_ADDRESS_LINE5, getOrNull(obj,"addressLine5") );
-        typeProps.put(OpenESDHModel.PROP_CONTACT_ADDRESS_LINE6, getOrNull(obj,"addressLine6") );
-        typeProps.put(OpenESDHModel.PROP_CONTACT_HOUSE_NUMBER, getOrNull(obj,"houseNumber") );
-        typeProps.put(OpenESDHModel.PROP_CONTACT_STREET_NAME, getOrNull(obj,"streetName") );
-        typeProps.put(OpenESDHModel.PROP_CONTACT_STREET_CODE, getOrNull(obj,"streetCode") );
-        typeProps.put(OpenESDHModel.PROP_CONTACT_SUITE_IDENTIFIER, getOrNull(obj,"suite") );
-        typeProps.put(OpenESDHModel.PROP_CONTACT_FLOOR_IDENTIFIER, getOrNull(obj,"floorNumber") );
-        typeProps.put(OpenESDHModel.PROP_CONTACT_CITY_NAME, getOrNull(obj,"city") );
-        typeProps.put(OpenESDHModel.PROP_CONTACT_POST_CODE, getOrNull(obj,"postCode") );
-        typeProps.put(OpenESDHModel.PROP_CONTACT_POST_BOX, getOrNull(obj,"postBox") );
-        typeProps.put(OpenESDHModel.PROP_CONTACT_POST_DISTRICT, getOrNull(obj,"postDistrict") );
-        typeProps.put(OpenESDHModel.PROP_CONTACT_COUNTRY_CODE, getOrNull(obj,"countryCode") );
-        typeProps.put(OpenESDHModel.PROP_CONTACT_MUNICIPALITY_CODE, getOrNull(obj,"municipalityCode") );
-        typeProps.put(OpenESDHModel.PROP_CONTACT_MAIL_SUBLOCATION_ID, getOrNull(obj,"mailDeliverySublocationIdentifier") );
-
+    private boolean isKeyOfSystemModelNamepace(QName key) {
+        return key.getNamespaceURI().equalsIgnoreCase(NamespaceService.SYSTEM_MODEL_1_0_URI);
     }
 
-    protected void get(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
-        throw new NotImplementedException();
+    void addAddressProperties(JSONObject fromObj, HashMap<QName, Serializable> toTypeProps) {
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_ADDRESS);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_ADDRESS_LINE1);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_ADDRESS_LINE2);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_ADDRESS_LINE3);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_ADDRESS_LINE4);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_ADDRESS_LINE5);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_ADDRESS_LINE6);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_HOUSE_NUMBER);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_STREET_NAME);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_STREET_CODE);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_SUITE_IDENTIFIER);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_FLOOR_IDENTIFIER);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_CITY_NAME);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_POST_CODE);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_POST_BOX);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_POST_DISTRICT);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_COUNTRY_CODE);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_MUNICIPALITY_CODE);
+        copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_MAIL_SUBLOCATION_ID);
     }
 
-    protected void post( WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
-        throw new NotImplementedException();
+    protected void copyProperty(JSONObject fromObj, HashMap<QName, Serializable> toTypeProps, QName property) {
+        toTypeProps.put(property, getOrNull(fromObj, property.getLocalName()));
     }
 
-    protected void put(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
-        throw new NotImplementedException();
-    }
+    protected abstract void get(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException;
 
-/*
-    protected void delete(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
-        throw new NotImplementedException();
-    }
-*/
+    protected abstract void post(WebScriptRequest req, WebScriptResponse res);
+
+    protected abstract void put(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res);
 
     //<editor-fold desc="Injected service bean setters">
     public void setNodeService(NodeService nodeService) {
