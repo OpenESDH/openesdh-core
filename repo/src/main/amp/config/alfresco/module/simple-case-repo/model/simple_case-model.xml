@@ -12,34 +12,10 @@
         <namespace uri="http://openesdh.dk/model/case/simple/1.0" prefix="simple" />
     </namespaces>
 
-    <constraints>
-        <constraint name="simple:caseStatusConstraint" type="LIST">
-            <parameter name="allowedValues">
-                <list>
-                    <!-- TODO: localize (check localisation in /src/main/amp/config/alfresco/module/simple_case/messages/case-model.properties) -->
-                    <value>planned</value>
-                    <value>in-progress</value>
-                    <value>existing</value>
-                    <value>pending</value>
-                    <value>archived</value>
-                    <value>cancelled</value>
-                    <value>closed</value>
-                </list>
-            </parameter>
-        </constraint>
-    </constraints>
-
     <types>
 
         <type name="simple:case">
             <parent>base:case</parent>
-            <overrides>
-                <property name="oe:status">
-                    <constraints>
-                        <constraint ref="simple:caseStatusConstraint"/>
-                    </constraints>
-                </property>
-            </overrides>
         </type>
 
     </types>
