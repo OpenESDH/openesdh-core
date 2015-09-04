@@ -1,6 +1,7 @@
 package dk.openesdh.repo.services.contacts;
 
 //import dk.openesdh.exceptions.contacts.InvalidContactTypeException;
+
 import dk.openesdh.exceptions.contacts.GenericContactException;
 import dk.openesdh.exceptions.contacts.InvalidContactTypeException;
 import dk.openesdh.exceptions.contacts.NoSuchContactException;
@@ -9,6 +10,7 @@ import dk.openesdh.repo.model.ContactType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.xsearch.ContactSearchService;
 import dk.openesdh.repo.services.xsearch.XResultSet;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,9 +18,13 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import org.alfresco.repo.transaction.RetryingTransactionHelper;
+import org.alfresco.repo.transaction.TransactionServiceImpl;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
+import org.alfresco.service.cmr.search.QueryConsistency;
 import org.alfresco.service.cmr.search.ResultSet;
 import org.alfresco.service.cmr.search.SearchParameters;
 import org.alfresco.service.cmr.search.SearchService;
@@ -27,6 +33,7 @@ import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.alfresco.service.transaction.TransactionService;
 
 /**
  * @author Lanre Abiwon.
@@ -38,7 +45,7 @@ public class ContactServiceImpl implements ContactService {
     private ContactDAOImpl contactDAO;
     private SearchService searchService;
     private ContactSearchService contactSearchService;
-
+    private TransactionService transactionService;
     //for later use
     private static Set<String> DEFAULT_ZONES = new HashSet<String>();
 
@@ -77,39 +84,44 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     public NodeRef getContactById(String id) {
+        return transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<NodeRef>() {
+            @Override
+            public NodeRef execute() throws Throwable {
 
-        SearchParameters searchParams = new SearchParameters();
-        searchParams.setLanguage(SearchService.LANGUAGE_LUCENE);
-        searchParams.addStore(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE);
-        NodeRef contact = null;
+                SearchParameters searchParams = new SearchParameters();
+                searchParams.setLanguage(SearchService.LANGUAGE_CMIS_ALFRESCO);
+                searchParams.addStore(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE);
+                searchParams.setQueryConsistency(QueryConsistency.TRANSACTIONAL);
+                NodeRef contact = null;
 
-        StringBuilder query = new StringBuilder(256);
-        query.append("TYPE:\"").append(OpenESDHModel.TYPE_CONTACT_BASE).append("\" AND ");//Use the base because ID should be unique across all contacts
-        query.append("@contact\\:email").append(":\"").append(id);
-        query.append("\"");
+                StringBuilder query = new StringBuilder(256);
+                query.append("SELECT * FROM contact:base WHERE contact:email='").append(id).append("'");
 
-        searchParams.setQuery(query.toString());
-        ResultSet results = null;
-        try {
-            results = this.searchService.query(searchParams);
-            if (results.getNodeRefs().size() > 1) {
-                throw new GenericContactException("There is more than one contact associated with this id (" + id + ").");
+                searchParams.setQuery(query.toString());
+                ResultSet results = null;
+                try {
+                    results = searchService.query(searchParams);
+                    if (results.getNodeRefs().size() > 1) {
+                        throw new GenericContactException("There is more than one contact associated with this id (" + id + ").");
+                    }
+                    if (results.getNodeRefs().size() < 1) {
+                        throw new NoSuchContactException();
+                    }
+                    contact = results.getNodeRef(0);
+                } catch (Throwable err) {
+                    if (logger.isDebugEnabled()) {
+                        logger.debug("\t\t***** Error *****\n There was a problem finding the contact: " + query.toString(), err);
+                    }
+                    throw err;
+                } finally {
+                    if (results != null) {
+                        results.close();
+                    }
+                }
+                return contact;
             }
-            if (results.getNodeRefs().size() < 1) {
-                throw new NoSuchContactException();
-            }
-            contact = results.getNodeRef(0);
-        } catch (Throwable err) {
-            if (logger.isDebugEnabled()) {
-                logger.debug("\t\t***** Error *****\n There was a problem finding the contact: " + query.toString(), err);
-            }
-            throw err;
-        } finally {
-            if (results != null) {
-                results.close();
-            }
-        }
-        return contact;
+        });
+
     }
 
     @Override
@@ -183,6 +195,15 @@ public class ContactServiceImpl implements ContactService {
     public void setContactSearchService(ContactSearchService contactSearchService) {
         this.contactSearchService = contactSearchService;
     }
+
+    public TransactionService getTransactionService() {
+        return transactionService;
+    }
+
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
     //</editor-fold>
 
 }

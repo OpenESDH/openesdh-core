@@ -134,26 +134,6 @@ public class PartyServiceImplIT {
                 return null;
             }
         });
-        //we have to wait until the search will return the contact
-        NodeRef contactNodeRef = null;
-        int sleepCount = 0;
-        int maxSleepCount = 120;
-        do {
-            try {
-                contactNodeRef = contactService.getContactById(TEST_PERSON_CONTACT_EMAIL);
-            } catch (NoSuchContactException e) {
-                sleepCount++;
-                if (sleepCount > maxSleepCount) {
-                    throw e;
-                } else {
-                    Thread.sleep(1000);
-                }
-            }
-
-        }
-        while (contactNodeRef == null);
-
-
     }
 
     @After
@@ -177,26 +157,6 @@ public class PartyServiceImplIT {
             cases.add(caseNodeRef);
         }
         caseTestHelper.removeNodesAndDeleteUsersInTransaction(nodes, cases, new ArrayList<String>());
-
-        //we have to wait until the search NO LONGER return the contact
-        NodeRef contactNodeRef = null;
-        int sleepCount = 0;
-        int maxSleepCount = 120;
-        do {
-            try {
-                contactNodeRef = contactService.getContactById(TEST_PERSON_CONTACT_EMAIL);
-                sleepCount++;
-                if (sleepCount > maxSleepCount) {
-                    throw new RuntimeException("Giving up wating on search to pick up on that contact was deleted.");
-                }
-                Thread.sleep(1000);
-            } catch (NoSuchContactException e) {
-                break;
-            }
-        }
-        while (true);
-
-
     }
 
     @Test
