@@ -52,6 +52,9 @@ public abstract class ContactAbstractWebscript extends AbstractWebScript {
             case "PUT":
                 put(nodeRef, req, res);
                 break;
+            case "DELETE":
+                delete(nodeRef, req, res);
+                break;
         }
     }
 
@@ -121,6 +124,8 @@ public abstract class ContactAbstractWebscript extends AbstractWebScript {
 
     protected abstract void put(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res);
 
+    protected abstract void delete(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res);
+
     //<editor-fold desc="Injected service bean setters">
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
@@ -130,4 +135,5 @@ public abstract class ContactAbstractWebscript extends AbstractWebScript {
         this.contactService = contactService;
     }
     //</editor-fold>
+
 }

@@ -165,4 +165,13 @@ public class ContactWebscript extends ContactAbstractWebscript {
             throw new AlfrescoRuntimeException("Unable to get the person by nodeRef because: " + npe.getMessage());
         }
     }
+
+    @Override
+    protected void delete(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) {
+        try {
+            this.nodeService.deleteNode(nodeRef);
+        } catch (Exception ge) { //Any generic exception
+            throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Issue deleting contact: " + ge.getMessage());
+        }
+    }
 }
