@@ -11,6 +11,7 @@ import java.util.Objects;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
+import org.json.JSONException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.extensions.webscripts.AbstractWebScript;
@@ -79,6 +80,13 @@ public abstract class ContactAbstractWebscript extends AbstractWebScript {
                 .stream()
                 .forEach(item -> associations.add(buildJSON(item.getTargetRef())));
         return associations;
+    }
+
+    protected void createAssociation(NodeRef contactNodeRef, JSONObject parsedRequest) throws JSONException {
+        if (!parsedRequest.containsKey("parentNodeRefId")) {
+            return;
+        }
+        contactService.addPersonToOrganization(new NodeRef(getOrNull(parsedRequest, "parentNodeRefId")), contactNodeRef);
     }
 
     void addAddressProperties(JSONObject fromObj, HashMap<QName, Serializable> toTypeProps) {

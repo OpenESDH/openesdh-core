@@ -10,7 +10,6 @@ import org.alfresco.service.cmr.repository.InvalidNodeRefException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang3.StringUtils;
-import org.json.JSONException;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -166,12 +165,4 @@ public class ContactWebscript extends ContactAbstractWebscript {
             throw new AlfrescoRuntimeException("Unable to get the person by nodeRef because: " + npe.getMessage());
         }
     }
-
-    private void createAssociation(NodeRef contactNodeRef, JSONObject parsedRequest) throws JSONException {
-        if (!parsedRequest.containsKey("parentNodeRefId")) {
-            return;
-        }
-        nodeService.createAssociation(new NodeRef(getOrNull(parsedRequest, "parentNodeRefId")), contactNodeRef, OpenESDHModel.ASSOC_CONTACT_MEMBERS);
-    }
-
 }
