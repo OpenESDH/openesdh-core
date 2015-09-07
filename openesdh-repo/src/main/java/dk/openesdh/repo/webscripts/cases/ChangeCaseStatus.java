@@ -1,7 +1,6 @@
 package dk.openesdh.repo.webscripts.cases;
 
 import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.webscripts.documents.DocumentsWebScriptUtil;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -43,7 +42,7 @@ public class ChangeCaseStatus extends AbstractWebScript {
 		}
 
 		try {
-			caseService.switchStatus(caseService.getCaseById(caseId), status);
+			caseService.changeCaseStatus(caseService.getCaseById(caseId), status);
 		} catch (Exception e) {
 			throw new WebScriptException(Status.STATUS_FORBIDDEN,
 					"Unable to switch case status: " + e.getMessage());

@@ -1,7 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
 <beans>
-    <bean id="CaseService" class="dk.openesdh.repo.services.cases.CaseServiceImpl">
+    <bean id="CaseService"
+          class="dk.openesdh.repo.services.cases.CaseServiceImpl" init-method="init">
         <property name="nodeService">
             <ref bean="NodeService"/>
         </property>
@@ -48,6 +49,10 @@
 
         <property name="behaviourFilter">
             <ref bean="policyBehaviourFilter"/>
+        </property>
+
+        <property name="policyComponent">
+            <ref bean="policyComponent"/>
         </property>
     </bean>
 

@@ -126,7 +126,8 @@ public class NodeInfoServiceImpl implements NodeInfoService {
         } else if (propertyDefinition.getDataType().getName().equals(DataTypeDefinition.CATEGORY)) {
             valueObj = getCategoryValue((NodeRef) value);
         } else {
-            valueObj.put("value", getDisplayLabel(propertyDefinition, value));
+            valueObj.put("value", value.toString());
+            valueObj.put("displayValue", getDisplayLabel(propertyDefinition, value));
             valueObj.put("type", "String");
         }
 

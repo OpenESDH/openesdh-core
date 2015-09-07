@@ -20,22 +20,18 @@
                 <property name="oe:id">
                     <type>d:text</type>
                 </property>
+                <property name="oe:status">
+                    <type>d:text</type>
+                    <mandatory enforced="true">true</mandatory>
+                </property>
             </properties>
             <mandatory-aspects>
                 <aspect>oe:titled</aspect>
-                <aspect>oe:status</aspect>
             </mandatory-aspects>
         </type>
     </types>
 
     <aspects>
-        <aspect name="oe:status">
-            <properties>
-                <property name="oe:status">
-                    <type>d:text</type>
-                </property>
-            </properties>
-        </aspect>
         <aspect name="oe:partied">
             <associations>
                 <association name="oe:parties">

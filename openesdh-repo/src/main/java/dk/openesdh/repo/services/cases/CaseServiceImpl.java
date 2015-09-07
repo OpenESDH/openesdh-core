@@ -8,7 +8,8 @@ import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
 import org.alfresco.repo.model.Repository;
-import org.alfresco.repo.policy.BehaviourFilter;
+import org.alfresco.repo.node.NodeServicePolicies;
+import org.alfresco.repo.policy.*;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
 import org.alfresco.repo.security.permissions.PermissionReference;
@@ -45,7 +46,7 @@ import java.util.stream.Collectors;
 /**
  * Created by torben on 19/08/14.
  */
-public class CaseServiceImpl implements CaseService {
+public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdatePropertiesPolicy {
 
     private static final String MSG_NO_CASE_CREATOR_PERMISSION_DEFINED = "security.permission.err_no_case_creator_permission_defined";
     private static final String MSG_NO_CASE_CREATOR_GROUP_DEFINED = "security.permission.err_no_case_creator_group_defined";
@@ -79,6 +80,9 @@ public class CaseServiceImpl implements CaseService {
     private OwnableService ownableService;
     private RuleService ruleService;
     private ActionService actionService;
+    private PolicyComponent policyComponent;
+
+    Behaviour onUpdatePropertiesBehaviour;
 
     //<editor-fold desc="Service setters">
     public void setNodeService(NodeService nodeService) {
@@ -137,6 +141,37 @@ public class CaseServiceImpl implements CaseService {
 
     public void setActionService(ActionService actionService) {
         this.actionService = actionService;
+    }
+
+    public void setPolicyComponent(PolicyComponent policyComponent) {
+        this.policyComponent = policyComponent;
+    }
+
+
+    public void init() {
+        onUpdatePropertiesBehaviour = new JavaBehaviour(this,
+                "onUpdateProperties");
+        this.policyComponent.bindClassBehaviour(
+                NodeServicePolicies.OnUpdatePropertiesPolicy.QNAME,
+                OpenESDHModel.TYPE_CASE_BASE,
+                onUpdatePropertiesBehaviour);
+    }
+
+    @Override
+    public void onUpdateProperties(NodeRef nodeRef, Map<QName, Serializable> before, Map<QName, Serializable> after) {
+        String beforeStatus = (String) before.get(OpenESDHModel.PROP_OE_STATUS);
+        if (beforeStatus == null) {
+            return;
+        }
+        String afterStatus = (String) after.get(OpenESDHModel.PROP_OE_STATUS);
+        if (beforeStatus.equals(afterStatus)) {
+            return;
+        }
+        if (isCaseNode(nodeRef)) {
+            throw new AlfrescoRuntimeException("Case status cannot be " +
+                    "changed directly. Must call the CaseService" +
+                    ".changeCaseStatus method.");
+        }
     }
 
     @Override
@@ -561,15 +596,15 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public boolean canSwitchStatus(String fromStatus, String toStatus, String user, NodeRef nodeRef) {
+    public boolean canChangeCaseStatus(String fromStatus, String toStatus, String user, NodeRef nodeRef) {
         return isCaseNode(nodeRef) &&
                 CaseStatus.isValidTransition(fromStatus, toStatus) &&
                 canLeaveStatus(fromStatus, user, nodeRef) && canEnterStatus(toStatus, user, nodeRef);
     }
 
-    public void checkCanSwitchStatus(NodeRef nodeRef, String fromStatus, String toStatus) throws AccessDeniedException {
+    public void checkCanChangeStatus(NodeRef nodeRef, String fromStatus, String toStatus) throws AccessDeniedException {
         String user = AuthenticationUtil.getRunAsUser();
-        if (!canSwitchStatus(fromStatus, toStatus, user, nodeRef)) {
+        if (!canChangeCaseStatus(fromStatus, toStatus, user, nodeRef)) {
             throw new AccessDeniedException(user + " is not allowed to " +
                     "switch case from status " + fromStatus + " to " +
                     toStatus + " for case " + nodeRef);
@@ -577,14 +612,13 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public Map<String, Boolean> getValidNextStatuses(NodeRef nodeRef) {
+    public List<String> getValidNextStatuses(NodeRef nodeRef) {
         String user = AuthenticationUtil.getFullyAuthenticatedUser();
         String fromStatus = getStatus(nodeRef);
-        Map<String, Boolean> statuses = new HashMap<>();
-        for (String toStatus: CaseStatus.getStatuses()) {
-            statuses.put(toStatus, canSwitchStatus(fromStatus, toStatus, user,
-                    nodeRef));
-        }
+        List<String> statuses = new LinkedList<>();
+        statuses = Arrays.asList(CaseStatus.getStatuses()).stream().filter(
+                s -> canChangeCaseStatus(fromStatus, s, user, nodeRef))
+                .collect(Collectors.toList());
         return statuses;
     }
 
@@ -620,25 +654,27 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public void switchStatus(NodeRef nodeRef, String newStatus) throws Exception {
+    public void changeCaseStatus(NodeRef nodeRef, String newStatus) throws Exception {
         String fromStatus = getStatus(nodeRef);
-        checkCanSwitchStatus(nodeRef, fromStatus, newStatus);
+        checkCanChangeStatus(nodeRef, fromStatus, newStatus);
 
         transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
             @Override
             public Object execute() throws Throwable {
-                // Run in transaction
-                // Disable status behaviour to allow the system to set the
-                // status directly.
-                behaviourFilter.disableBehaviour(nodeRef, OpenESDHModel.ASPECT_OE_STATUS);
-                switchStatusImpl(nodeRef, fromStatus, newStatus);
-                behaviourFilter.enableBehaviour();
+                try {
+                    // Disable status behaviour to allow the system to set the
+                    // status directly.
+                    onUpdatePropertiesBehaviour.disable();
+                    changeStatusImpl(nodeRef, fromStatus, newStatus);
+                } finally {
+                    onUpdatePropertiesBehaviour.enable();
+                }
                 return null;
             }
         });
     }
 
-    protected void switchStatusImpl(NodeRef nodeRef, String fromStatus, String newStatus) throws Exception {
+    protected void changeStatusImpl(NodeRef nodeRef, String fromStatus, String newStatus) throws Exception {
         switch (fromStatus) {
             case CaseStatus.ACTIVE:
                 switch (newStatus) {

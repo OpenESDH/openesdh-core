@@ -444,13 +444,13 @@ public class CaseServiceImplIT {
 
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
 
-        caseService.switchStatus(nonAdminCreatedCaseNr, CaseStatus.ACTIVE);
+        caseService.changeCaseStatus(nonAdminCreatedCaseNr, CaseStatus.ACTIVE);
 
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
 
         assertEquals("Initial status is active", caseService.getStatus(nonAdminCreatedCaseNr), CaseStatus.ACTIVE);
 
-        caseService.switchStatus(nonAdminCreatedCaseNr, CaseStatus.CLOSED);
+        caseService.changeCaseStatus(nonAdminCreatedCaseNr, CaseStatus.CLOSED);
 
         assertEquals("Status after closing is closed", caseService.getStatus
                 (nonAdminCreatedCaseNr), CaseStatus.CLOSED);
@@ -507,12 +507,12 @@ public class CaseServiceImplIT {
         assertTrue(caseService.isLocked(nonAdminCreatedCaseNr));
 
         // Test that a case cannot be closed twice
-        caseService.switchStatus(nonAdminCreatedCaseNr, CaseStatus.CLOSED);
+        caseService.changeCaseStatus(nonAdminCreatedCaseNr, CaseStatus.CLOSED);
 
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
 
         try {
-            caseService.switchStatus(nonAdminCreatedCaseNr, CaseStatus.ACTIVE);
+            caseService.changeCaseStatus(nonAdminCreatedCaseNr, CaseStatus.ACTIVE);
             fail("Should not be able to set closed case to active as a " +
                     "regular user");
         } catch (Exception e) {
@@ -520,7 +520,7 @@ public class CaseServiceImplIT {
 
 
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
-        caseService.switchStatus(nonAdminCreatedCaseNr, CaseStatus.ACTIVE);
+        caseService.changeCaseStatus(nonAdminCreatedCaseNr, CaseStatus.ACTIVE);
 
         assertEquals("Status after reopening is active", caseService.getStatus(nonAdminCreatedCaseNr), CaseStatus.ACTIVE);
 
@@ -544,7 +544,7 @@ public class CaseServiceImplIT {
 
     @Test
     public void passivate() throws Exception {
-        caseService.switchStatus(nonAdminCreatedCaseNr, CaseStatus.PASSIVE);
+        caseService.changeCaseStatus(nonAdminCreatedCaseNr, CaseStatus.PASSIVE);
         assertEquals("Status is passive after being passivated", caseService
                 .getStatus(nonAdminCreatedCaseNr), CaseStatus.PASSIVE);
     }

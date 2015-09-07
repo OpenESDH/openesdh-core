@@ -4,7 +4,7 @@ package dk.openesdh.repo.model;
  * Created by syastrov on 9/2/15.
  */
 public class DocumentStatus {
-    public static final String EDITABLE = "editable";
+    public static final String DRAFT = "draft";
     public static final String FINAL = "final";
 
     public static boolean isValidTransition(String before,
@@ -14,10 +14,10 @@ public class DocumentStatus {
         }
         // Currently, all transitions are valid.
         switch (before) {
-            case EDITABLE:
+            case DRAFT:
                 return after.equals(FINAL);
             case FINAL:
-                return after.equals(EDITABLE);
+                return after.equals(DRAFT);
             default:
                 return false;
         }

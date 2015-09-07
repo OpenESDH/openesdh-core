@@ -213,10 +213,10 @@ public interface CaseService {
      * @param nodeRef
      * @return
      */
-    Map<String, Boolean> getValidNextStatuses(NodeRef nodeRef);
+    List<String> getValidNextStatuses(NodeRef nodeRef);
 
     /**
-     * Return whether the user can switch the case status from a given
+     * Return whether the user can change the case status from a given
      * status to another status.
      * @param fromStatus
      * @param toStatus
@@ -224,10 +224,13 @@ public interface CaseService {
      * @param nodeRef
      * @return
      */
-    boolean canSwitchStatus(String fromStatus, String toStatus, String user, NodeRef nodeRef);
+    boolean canChangeCaseStatus(String fromStatus, String toStatus, String user, NodeRef nodeRef);
 
     /**
-     * Try to switch the case to a new status.
+     * Change the case to a new status.
+     *
+     * An exception will be thrown if this is not allowed because the user
+     * does not have the permission or if it is an invalid status transition.
      *
      * For example, to close, or passivate a case.
      *
@@ -235,7 +238,7 @@ public interface CaseService {
      * @param newStatus
      * @throws Exception
      */
-    void switchStatus(NodeRef nodeRef, String newStatus) throws Exception;
+    void changeCaseStatus(NodeRef nodeRef, String newStatus) throws Exception;
 
     /**
      * Return whether a case is locked or not.
