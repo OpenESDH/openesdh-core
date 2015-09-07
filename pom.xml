@@ -14,6 +14,10 @@
         <version>2.1.0</version>
     </parent>
 
+	<scm>
+		<connection>https://github.com/OpenESDH/openesdh-core</connection>
+	</scm>
+
     <!-- 
        | SDK properties have sensible defaults in the SDK parent, but you can override the properties below to use another version. 
        | For more available properties see the alfresco-sdk-parent POM. 

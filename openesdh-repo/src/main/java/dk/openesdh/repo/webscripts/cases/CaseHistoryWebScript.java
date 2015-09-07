@@ -1,46 +1,55 @@
 package dk.openesdh.repo.webscripts.cases;
 
-import dk.openesdh.repo.services.audit.AuditSearchService;
-import dk.openesdh.repo.services.NodeInfoService;
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.webscripts.xsearch.XSearchWebscript;
-import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.service.cmr.dictionary.DictionaryService;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.simple.JSONArray;
-import org.springframework.extensions.webscripts.AbstractWebScript;
-import org.springframework.extensions.webscripts.WebScriptRequest;
-import org.springframework.extensions.webscripts.WebScriptResponse;
-
-import org.springframework.extensions.surf.util.I18NUtil;
-
-
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
+
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.json.simple.JSONArray;
+import org.springframework.extensions.webscripts.WebScriptRequest;
+import org.springframework.extensions.webscripts.WebScriptResponse;
+import org.springframework.util.StringUtils;
+
+import dk.openesdh.repo.services.audit.AuditSearchService;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.webscripts.PageableWebScript;
+import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
+import dk.openesdh.repo.webscripts.xsearch.XSearchWebscript;
 
 /**
  * Created by flemming on 19/09/14.
  */
-public class CaseHistory extends XSearchWebscript {
+public class CaseHistoryWebScript extends XSearchWebscript {
 
     private AuditSearchService auditSearchService;
+
+    private CaseService caseService;
 
     public void setAuditSearchService(AuditSearchService auditSearchService) {
         this.auditSearchService = auditSearchService;
     }
 
+    public void setCaseService(CaseService caseService) {
+        this.caseService = caseService;
+    }
 
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
-        NodeRef caseNodeRef = new NodeRef(req.getParameter("nodeRef"));
+        NodeRef caseNodeRef = null;
+        String caseNodeRefParam = req.getParameter(WebScriptUtils.NODE_REF);
+        if (!StringUtils.isEmpty(caseNodeRefParam)) {
+            caseNodeRef = new NodeRef(caseNodeRefParam);
+        } else {
+            Map<String, String> templateArgs = req.getServiceMatch().getTemplateVars();
+            String caseId = templateArgs.get(WebScriptUtils.CASE_ID);
+            caseNodeRef = caseService.getCaseById(caseId);
+        }
 
         int startIndex = 0;
         int pageSize = defaultPageSize;
 
         String rangeHeader = req.getHeader("x-range");
-        int[] range = parseRangeHeader(rangeHeader);
+        int[] range = PageableWebScript.parseRangeHeader(rangeHeader);
         if (range != null) {
             logger.debug("Range: " + range[0] + " - " + range[1]);
             startIndex = range[0];

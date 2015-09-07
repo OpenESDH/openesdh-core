@@ -65,36 +65,6 @@
                     <sys:node-uuid>HY78tt7K-bfg5-QQw7-9dS1-a8eKTNH5jk64</sys:node-uuid>
                     <cm:description>This folder stores all openESDH cases</cm:description>
                 </view:properties>
-                <cm:contains>
-                    <cm:folder view:childName="oe:types">
-                        <cm:name>types</cm:name>
-                        <view:aspects>
-                            <cm:titled />
-                            <cm:auditable />
-                            <app:uifacets />
-                            <!--<sys:hidden/>-->
-                            <sys:referenceable />
-                        </view:aspects>
-                        <view:acl view:inherit="false">
-                            <view:ace view:access="ALLOWED">
-                                <view:authority>GROUP_EVERYONE</view:authority>
-                                <view:permission>Consumer</view:permission>
-                            </view:ace>
-                        </view:acl>
-                        <app:icon>space-icon-default</app:icon>
-                        <view:properties>
-                            <sys:store-protocol>workspace</sys:store-protocol>
-                            <sys:store-identifier>SpacesStore</sys:store-identifier>
-                            <sys:node-uuid>a45HNe87-Gg89-0034-9dS1-WmN85e8bb2V8</sys:node-uuid>
-                            <cm:description>
-                                This folder acts as storage space for case modules to store additional data. For instance
-                                it is necessary for the case modules to bootstrap the following folder structure,
-                                [typeName]/forms/, and the file, create.js, which contains the widgets' required for
-                                generating the cases' create form. NOTE - this folder is hidden.
-                            </cm:description>
-                        </view:properties>
-                    </cm:folder>
-                </cm:contains>
             </cm:folder>
             <cm:folder view:childName="oe:subsystems">
                 <cm:name>subsystems</cm:name>

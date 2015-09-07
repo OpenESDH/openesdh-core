@@ -1,14 +1,18 @@
-.alfresco-dashlets-Dashlet.dashlet .titleBarActions {
+.alfresco-dashlets-Dashlet .alfresco-dashlets-Dashlet__title-bar-actions.alfresco-dashlets-Dashlet--has-widgets {
     opacity: inherit;
 }
-.alfresco-dashlets-Dashlet.dashlet .alfresco-buttons-AlfButton{
+
+.alfresco-dashlets-Dashlet .alfresco-dashlets-Dashlet__title-bar-actions.alfresco-dashlets-Dashlet--has-widgets .alfresco-buttons-AlfButton {
+    background: transparent
+}
+
+.alfresco-dashlets-Dashlet .alfresco-buttons-AlfButton {
     background-image: none !important;
     background-color: inherit;
     border: none !important;
 }
 
-.add-icon-16
-{
+.add-icon-16 {
     background: transparent url(../../../../../../components/images/add-icon-16.png) no-repeat center center;
     padding: 8px;
 }

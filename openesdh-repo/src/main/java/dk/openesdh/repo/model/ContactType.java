@@ -1,121 +1,61 @@
 package dk.openesdh.repo.model;
 
 import dk.openesdh.repo.services.contacts.ContactService;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * @author lanre.
  */
 public enum ContactType {
 
-    ORGANIZATION
-            {
-                public boolean isFixedString()
-                {
-                    return false;
-                }
+    ORGANIZATION(true, ContactService.CONTACT_PREFIX, 9),
+    PERSON(true, ContactService.CONTACT_PREFIX, 10),
+    UNSUPPORTED(false, "", 11);
 
-                public String getFixedString()
-                {
-                    return "";
-                }
+    private final boolean fixed = false;
+    private final String fixedString = "";
+    private final boolean prefixed;
+    private final String prefixString;
+    private final int orderPosition;
 
-                public boolean isPrefixed()
-                {
-                    return true;
-                }
+    private ContactType(boolean prefixed, String prefixString, int orderPosition) {
+        this.prefixed = prefixed;
+        this.prefixString = prefixString;
+        this.orderPosition = orderPosition;
+    }
 
-                public String getPrefixString()
-                {
-                    return ContactService.CONTACT_PREFIX;
-                }
+    public boolean isFixedString() {
+        return fixed;
+    }
 
-                public int getOrderPosition()
-                {
-                    return 9;
-                }
-            },
-    PERSON
-            {
-                public boolean isFixedString()
-                {
-                    return false;
-                }
+    public String getFixedString() {
+        return fixedString;
+    }
 
-                public String getFixedString()
-                {
-                    return "";
-                }
+    public boolean isPrefixed() {
+        return prefixed;
+    }
 
-                public boolean isPrefixed()
-                {
-                    return true;
-                }
+    public String getPrefixString() {
+        return prefixString;
+    }
 
-                public String getPrefixString()
-                {
-                    return ContactService.CONTACT_PREFIX;
-                }
+    public int getOrderPosition() {
+        return orderPosition;
+    }
 
-                public int getOrderPosition()
-                {
-                    return 10;
-                }
-            },
-    UNSUPPORTED
-            {
-                public boolean isFixedString()
-                {
-                    return false;
-                }
-
-                public String getFixedString()
-                {
-                    return "";
-                }
-
-                public boolean isPrefixed()
-                {
-                    return false;
-                }
-
-                public String getPrefixString()
-                {
-                    return "";
-                }
-
-                public int getOrderPosition()
-                {
-                    return 11;
-                }
-            };
-
-    public abstract boolean isFixedString();
-
-    public abstract String getFixedString();
-
-    public abstract boolean isPrefixed();
-
-    public abstract String getPrefixString();
-
-    public abstract int getOrderPosition();
-
-    public boolean equals(String authority)
-    {
+    public boolean equals(String authority) {
         return equals(getContactType(authority));
     }
 
-    public static ContactType getContactType(String contact){
-        ContactType contactType;
-
-            if (contact.equals(ContactType.ORGANIZATION.name())) {
-                contactType = ContactType.ORGANIZATION;
-            }
-            else if (contact.equals(ContactType.PERSON.name())){
-                contactType = ContactType.PERSON;
-            }
-        else
-            contactType = ContactType.UNSUPPORTED;
-
-        return contactType;
+    public static ContactType getContactType(String contact) {
+        contact = StringUtils.upperCase(contact);
+        if (ContactType.ORGANIZATION.name().equals(contact)) {
+            return ContactType.ORGANIZATION;
+        }
+        if (ContactType.PERSON.name().equals(contact)) {
+            return ContactType.PERSON;
+        }
+        return ContactType.UNSUPPORTED;
     }
 }
