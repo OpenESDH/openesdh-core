@@ -37,7 +37,7 @@ import dk.openesdh.repo.services.xsearch.ContactSearchService;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "classpath:alfresco/application-context.xml" })
+@ContextConfiguration({"classpath:alfresco/application-context.xml"})
 public class ContactServiceImplIT {
 
     @Autowired
@@ -103,7 +103,7 @@ public class ContactServiceImplIT {
     @Test
     public void shouldCreatePersonContactWithAllProps() {
         HashMap<QName, Serializable> typeProps = createPersonContactProps();
-        
+
         testContactNodeRef = transactionHelper().doInTransaction(
                 () -> contactService.createContact(TEST_PERSON_CONTACT_EMAIL, ContactType.PERSON.name(), typeProps));
         Assert.assertNotNull("A node ref of the created contact should not be null", testContactNodeRef);
@@ -122,7 +122,7 @@ public class ContactServiceImplIT {
         Assert.assertNotNull("A node ref of the created contact should not be null", testContactNodeRef);
 
         Map<QName, Serializable> resultProps = nodeService.getProperties(testContactNodeRef);
-        
+
         typeProps.keySet().stream().forEach(key -> Assert.assertEquals(
                 "The " + key.getLocalName() + " property value of the created contact doesn't match provided", typeProps.get(key), resultProps.get(key)));
     }
@@ -133,7 +133,7 @@ public class ContactServiceImplIT {
         testContactNodeRef = transactionHelper().doInTransaction(
                 () -> contactService.createContact(TEST_PERSON_CONTACT_EMAIL, ContactType.PERSON.name(), typeProps));
         Assert.assertNotNull("A node ref of the created contact should not be null", testContactNodeRef);
-        
+
         ContactInfo contactInfo = contactService.getContactInfo(testContactNodeRef);
 
         Assert.assertEquals(wrongPropValueMessage(OpenESDHModel.PROP_CONTACT_EMAIL),
@@ -169,23 +169,23 @@ public class ContactServiceImplIT {
     }
 
     @Test
-    public void shouldCreatePersonContactAndGetContactType(){
+    public void shouldCreatePersonContactAndGetContactType() {
         HashMap<QName, Serializable> typeProps = createPersonContactProps();
         testContactNodeRef = transactionHelper().doInTransaction(
                 () -> contactService.createContact(TEST_PERSON_CONTACT_EMAIL, ContactType.PERSON.name(), typeProps));
         Assert.assertNotNull("A node ref of the created contact should not be null", testContactNodeRef);
-        
+
         ContactType resultContactType = contactService.getContactType(testContactNodeRef);
         Assert.assertEquals("Wrong contact type of the created person contact", ContactType.PERSON, resultContactType);
     }
-    
+
     @Test
     public void shouldCreateOrgContactAndGetContactType() {
         HashMap<QName, Serializable> typeProps = createOrgContactProps();
         testContactNodeRef = transactionHelper().doInTransaction(
                 () -> contactService.createContact(TEST_ORG_CONTACT_EMAIL, ContactType.ORGANIZATION.name(), typeProps));
         Assert.assertNotNull("A node ref of the created contact should not be null", testContactNodeRef);
-        
+
         ContactType resultContactType = contactService.getContactType(testContactNodeRef);
         Assert.assertEquals("Wrong contact type of the created person contact", ContactType.ORGANIZATION, resultContactType);
     }
@@ -193,15 +193,33 @@ public class ContactServiceImplIT {
     @Test
     public void shouldCreateContactAndGetContactById() throws InterruptedException {
         createContactAssertNotNullCheckEmail(TEST_PERSON_CONTACT_EMAIL, ContactType.PERSON);
-        NodeRef  contactNodeRef = contactService.getContactById(TEST_PERSON_CONTACT_EMAIL);
+        NodeRef contactNodeRef = contactService.getContactById(TEST_PERSON_CONTACT_EMAIL);
         Assert.assertNotNull("A node ref of the created contact should not be null", contactNodeRef);
     }
 
     @Test
     public void shouldCreateContactAndGetByFilter() throws InterruptedException {
         createContactAssertNotNullCheckEmail(TEST_PERSON_CONTACT_EMAIL, ContactType.PERSON);
-        List<ContactInfo> resultList = contactService.getContactByFilter(TEST_PERSON_CONTACT_EMAIL,
-                ContactType.PERSON.name());
+
+        List<ContactInfo> resultList = null;
+        //we have to wait until the search index will return the contact
+
+        int sleepCount = 0;
+        int maxSleepCount = 120;
+        do {
+            resultList = contactService.getContactByFilter(TEST_PERSON_CONTACT_EMAIL,
+                    ContactType.PERSON.name());
+            if(resultList.isEmpty()) {
+                sleepCount++;
+                if (sleepCount > maxSleepCount) {
+                    break;
+                } else {
+                    Thread.sleep(1000);
+
+                }
+            }
+        } while (resultList.isEmpty());
+
         Assert.assertFalse("The contact list got by filter shouldn't be empty", resultList.isEmpty());
         ContactInfo contactInfo = resultList.get(0);
         Assert.assertEquals(wrongPropValueMessage(OpenESDHModel.PROP_CONTACT_EMAIL), TEST_PERSON_CONTACT_EMAIL,
@@ -213,7 +231,7 @@ public class ContactServiceImplIT {
         Arrays.asList(prop).stream().forEach(propName -> sj.add(propName.getLocalName()));
         return MessageFormat.format(
                 "Retrieved \"{0}\" property value of the created contact doesn't match provided",
-                new Object[] { sj.toString() });
+                new Object[]{sj.toString()});
     }
 
     private HashMap<QName, Serializable> createPersonContactProps() {
@@ -237,4 +255,6 @@ public class ContactServiceImplIT {
     private RetryingTransactionHelper transactionHelper() {
         return transactionService.getRetryingTransactionHelper();
     }
+
+
 }
