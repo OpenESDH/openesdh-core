@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import dk.openesdh.SimpleCaseModel;
+import dk.openesdh.repo.model.CaseStatus;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.nodelocator.CompanyHomeNodeLocator;
@@ -151,6 +152,7 @@ public class CaseHelper {
                             behaviourFilter.disableBehaviour();
                         }
                         properties.put(ContentModel.PROP_NAME, name);
+                        properties.put(OpenESDHModel.PROP_OE_STATUS, CaseStatus.ACTIVE);
 
                         // Create test case
                         ChildAssociationRef childAssoc = nodeService.createNode(
