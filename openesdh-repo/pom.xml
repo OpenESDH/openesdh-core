@@ -131,14 +131,39 @@
                 <version>0.12.3</version>
                 <executions>
                     <execution>
+                        <id>jaxb-kle-emneplan</id>
                         <goals>
                             <goal>generate</goal>
                         </goals>
+                        <configuration>
+                            <schemaIncludes>
+                                <include>KLE-Emneplan-version-2-0.xsd</include>
+                            </schemaIncludes>
+                            <generatePackage>dk.klexml.emneplan</generatePackage>
+                        </configuration>
+                    </execution>
+                    <!-- The reason for multiple executions is that there are
+                         duplicate elements in the XSDs. -->
+                    <execution>
+                        <id>jaxb-kle-facetter</id>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <schemaIncludes>
+                                <include>KLE-Handlingsfacetter-version-2-0.xsd</include>
+                            </schemaIncludes>
+                            <generatePackage>dk.klexml.facetter</generatePackage>
+                            <!-- Otherwise, because the output directory is
+                                 the same as the other execution, it will
+                                 think that the sources don't need to be
+                                 updated. -->
+                            <forceRegenerate>true</forceRegenerate>
+                        </configuration>
                     </execution>
                 </executions>
                 <configuration>
                     <schemaDirectory>src/main/resources/xsd/kle</schemaDirectory>
-                    <generatePackage>dk.klexml</generatePackage>
                     <addTestCompileSourceRoot>true</addTestCompileSourceRoot>
                 </configuration>
             </plugin>
