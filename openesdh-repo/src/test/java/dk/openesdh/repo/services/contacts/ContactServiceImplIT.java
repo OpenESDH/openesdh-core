@@ -193,56 +193,16 @@ public class ContactServiceImplIT {
     @Test
     public void shouldCreateContactAndGetContactById() throws InterruptedException {
         createContactAssertNotNullCheckEmail(TEST_PERSON_CONTACT_EMAIL, ContactType.PERSON);
-        NodeRef contactNodeRef = null ;
-
-        //we have to wait until the search will return the contact
-        int sleepCount = 0;
-        int maxSleepCount = 120;
-        do {
-            try {
-                 contactNodeRef = contactService.getContactById(TEST_PERSON_CONTACT_EMAIL);
-            } catch (NoSuchContactException e) {
-                sleepCount++;
-                if (sleepCount > maxSleepCount) {
-                    throw e;
-                } else {
-                    Thread.sleep(1000);
-                }
-            }
-
-        }
-        while (contactNodeRef == null);
+        NodeRef  contactNodeRef = contactService.getContactById(TEST_PERSON_CONTACT_EMAIL);
         Assert.assertNotNull("A node ref of the created contact should not be null", contactNodeRef);
     }
 
     @Test
     public void shouldCreateContactAndGetByFilter() throws InterruptedException {
         createContactAssertNotNullCheckEmail(TEST_PERSON_CONTACT_EMAIL, ContactType.PERSON);
-
-        NodeRef contactNodeRef = null ;
-
-        //we have to wait until the search will return the contact
-        int sleepCount = 0;
-        int maxSleepCount = 120;
-        do {
-            try {
-                contactNodeRef = contactService.getContactById(TEST_PERSON_CONTACT_EMAIL);
-            } catch (NoSuchContactException e) {
-                sleepCount++;
-                if (sleepCount > maxSleepCount) {
-                    throw e;
-                } else {
-                    Thread.sleep(1000);
-                }
-            }
-
-        } while(contactNodeRef==null);
-
-
         List<ContactInfo> resultList = contactService.getContactByFilter(TEST_PERSON_CONTACT_EMAIL,
                 ContactType.PERSON.name());
         Assert.assertFalse("The contact list got by filter shouldn't be empty", resultList.isEmpty());
-
         ContactInfo contactInfo = resultList.get(0);
         Assert.assertEquals(wrongPropValueMessage(OpenESDHModel.PROP_CONTACT_EMAIL), TEST_PERSON_CONTACT_EMAIL,
                 contactInfo.getEmail());
