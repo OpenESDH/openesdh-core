@@ -2,6 +2,7 @@ package dk.openesdh.repo.webscripts.contacts;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.contacts.ContactService;
+import dk.openesdh.repo.webscripts.utils.ContactUtils;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -9,8 +10,8 @@ import java.util.Map;
 import java.util.Objects;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptRequest;
@@ -68,18 +69,16 @@ public abstract class ContactAbstractWebscript extends AbstractWebScript {
     }
 
     public JSONObject buildJSON(NodeRef contactNode) {
-        JSONObject result = new JSONObject();
         Map<QName, Serializable> props = this.nodeService.getProperties(contactNode);
-        props.entrySet().stream()
-                .filter((Map.Entry<QName, Serializable> t)
-                        -> t.getValue() != null && !isKeyOfSystemModelNamepace(t.getKey()))
-                .forEach((entry)
-                        -> result.put(entry.getKey().getLocalName(), entry.getValue()));
-        return result;
+        return ContactUtils.createContactJson(contactNode, props);
     }
 
-    private boolean isKeyOfSystemModelNamepace(QName key) {
-        return key.getNamespaceURI().equalsIgnoreCase(NamespaceService.SYSTEM_MODEL_1_0_URI);
+    protected JSONArray getAssociations(NodeRef contactNode) {
+        JSONArray associations = new JSONArray();
+        this.nodeService.getTargetAssocs(contactNode, OpenESDHModel.ASSOC_CONTACT_MEMBERS)
+                .stream()
+                .forEach(item -> associations.add(buildJSON(item.getTargetRef())));
+        return associations;
     }
 
     void addAddressProperties(JSONObject fromObj, HashMap<QName, Serializable> toTypeProps) {

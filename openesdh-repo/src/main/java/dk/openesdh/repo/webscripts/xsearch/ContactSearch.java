@@ -3,21 +3,20 @@ package dk.openesdh.repo.webscripts.xsearch;
 import dk.openesdh.repo.services.xsearch.ContactSearchService;
 import dk.openesdh.repo.services.xsearch.XResultSet;
 import dk.openesdh.repo.utils.Utils;
+import dk.openesdh.repo.webscripts.utils.ContactUtils;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import org.alfresco.repo.model.Repository;
-import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
-import org.alfresco.service.namespace.RegexQNamePattern;
 import org.apache.log4j.Logger;
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
@@ -60,7 +59,7 @@ public class ContactSearch extends AbstractWebScript {
             JSONArray nodes = new JSONArray();
             for (NodeRef nodeRef : nodeRefs) {
                 JSONObject node = nodeToJSON(nodeRef);
-                nodes.put(node);
+                nodes.add(node);
             }
 
             JSONObject response = new JSONObject();
@@ -68,35 +67,15 @@ public class ContactSearch extends AbstractWebScript {
             response.put("startIndex", startIndex);
             response.put("items", nodes);
             res.setContentEncoding("UTF-8");
-            response.write(res.getWriter());
+            response.writeJSONString(res.getWriter());
         } catch (JSONException e) {
             throw new WebScriptException("Unable to serialize JSON");
         }
     }
 
     protected JSONObject nodeToJSON(NodeRef nodeRef) throws JSONException {
-        JSONObject json = new JSONObject();
-        // TODO: Don't include ALL properties
         Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
-        for (Map.Entry<QName, Serializable> entry : properties.entrySet()) {
-            json.put(entry.getKey().toPrefixString(namespaceService), entry.getValue());
-        }
-        List<AssociationRef> associations = nodeService.getTargetAssocs(nodeRef, RegexQNamePattern.MATCH_ALL);
-        for (AssociationRef association : associations) {
-            String assocName = association.getTypeQName().toPrefixString(namespaceService);
-            if (!json.has(assocName)) {
-                JSONArray refs = new JSONArray();
-                refs.put(association.getTargetRef());
-                json.put(assocName, refs);
-            } else {
-                JSONArray refs = (JSONArray) json.get(assocName);
-                refs.put(association.getTargetRef());
-                json.put(association.getTypeQName().toPrefixString(namespaceService), refs);
-            }
-        }
-        json.put("TYPE", nodeService.getType(nodeRef).toPrefixString(namespaceService));
-        json.put("nodeRef", nodeRef.toString());
-        return json;
+        return ContactUtils.createContactJson(nodeRef, properties);
     }
 
     public void setNodeService(NodeService nodeService) {

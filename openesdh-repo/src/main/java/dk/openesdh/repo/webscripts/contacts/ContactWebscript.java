@@ -10,6 +10,7 @@ import org.alfresco.service.cmr.repository.InvalidNodeRefException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONException;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -69,6 +70,9 @@ public class ContactWebscript extends ContactAbstractWebscript {
             //Populate the map with address properties
             addAddressProperties(parsedRequest, typeProps);
             NodeRef createdContact = contactService.createContact(email, contactTypeParam, typeProps);
+
+            createAssociation(createdContact, parsedRequest);
+
             JSONObject obj;
 
             if (createdContact != null) {
@@ -123,6 +127,7 @@ public class ContactWebscript extends ContactAbstractWebscript {
             addAddressProperties(parsedRequest, typeProps);
 
             this.nodeService.setProperties(contactNodeRef, typeProps);
+
             JSONObject obj;
 
             if (contactNodeRef != null) {
@@ -141,6 +146,13 @@ public class ContactWebscript extends ContactAbstractWebscript {
     @Override
     public void get(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException {
         try {
+            String parentNodeRefId = req.getParameter("parentNodeRefId");
+            if (nodeRef == null && StringUtils.isNotEmpty(parentNodeRefId)) {
+                getAssociations(new NodeRef(parentNodeRefId))
+                        .writeJSONString(res.getWriter());
+                return;
+            }
+
             String emailId = req.getParameter("email");
             if (nodeRef == null && StringUtils.isNotEmpty(emailId)) {
                 nodeRef = contactService.getContactById(emailId);
@@ -153,6 +165,13 @@ public class ContactWebscript extends ContactAbstractWebscript {
         } catch (WebScriptException | InvalidNodeRefException npe) {
             throw new AlfrescoRuntimeException("Unable to get the person by nodeRef because: " + npe.getMessage());
         }
+    }
+
+    private void createAssociation(NodeRef contactNodeRef, JSONObject parsedRequest) throws JSONException {
+        if (!parsedRequest.containsKey("parentNodeRefId")) {
+            return;
+        }
+        nodeService.createAssociation(new NodeRef(getOrNull(parsedRequest, "parentNodeRefId")), contactNodeRef, OpenESDHModel.ASSOC_CONTACT_MEMBERS);
     }
 
 }

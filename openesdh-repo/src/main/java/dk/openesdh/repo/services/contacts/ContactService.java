@@ -1,16 +1,14 @@
 package dk.openesdh.repo.services.contacts;
 
+import dk.openesdh.repo.model.ContactInfo;
+import dk.openesdh.repo.model.ContactType;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
-
-import dk.openesdh.repo.model.ContactInfo;
-import dk.openesdh.repo.model.ContactType;
 
 /**
  * @author Lanre Abiwon.
@@ -94,4 +92,13 @@ public interface ContactService {
      * @return ContactInfo
      */
     public ContactInfo getContactInfo(NodeRef nodeRef);
+
+    /**
+     * Adds contact person to contact organization
+     *
+     * @param organization
+     * @param person
+     * @return company
+     */
+    public NodeRef addPersonToOrganization(NodeRef organization, NodeRef person);
 }
