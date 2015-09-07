@@ -117,11 +117,15 @@ public class CaseServiceImplIT {
 
     @Autowired
     private RuleService ruleService;
+
+    @Autowired
+    @Qualifier("CaseService")
+    protected CaseServiceImpl caseService;
     //</editor-fold>
 
     private static final String ALICE_BEECHER = "abeecher";
     private static final String MIKE_JACKSON = "mjackson";
-    protected CaseServiceImpl caseService = null;
+
     private DynamicNamespacePrefixResolver namespacePrefixResolver = new DynamicNamespacePrefixResolver(null);
     private NodeRef casesRootNoderef;
     protected NodeRef temporaryCaseNodeRef;
@@ -141,16 +145,6 @@ public class CaseServiceImplIT {
         } catch (Exception ge) {
             System.out.println("\n\n\t\t\t\t\t\t***** Error *****\n" + ge.getMessage());
         }
-        caseService = new CaseServiceImpl();
-        caseService.setNodeService(nodeService);
-        caseService.setSearchService(searchService);
-        caseService.setAuthorityService(authorityService);
-        caseService.setOwnableService(ownableService);
-        caseService.setPermissionService(permissionService);
-        caseService.setRepositoryHelper(repositoryHelper);
-        caseService.setTransactionService(transactionService);
-        caseService.setDictionaryService(dictionaryService);
-        caseService.setLockService(lockService);
 
         casesRootNoderef = caseService.getCasesRootNodeRef();
 

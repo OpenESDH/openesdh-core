@@ -3,7 +3,7 @@
 <beans>
     <bean id="CaseService" class="dk.openesdh.repo.services.cases.CaseServiceImpl">
         <property name="nodeService">
-            <ref bean="nodeService"/>
+            <ref bean="NodeService"/>
         </property>
 
         <property name="searchService">

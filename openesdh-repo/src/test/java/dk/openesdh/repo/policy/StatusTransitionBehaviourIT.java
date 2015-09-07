@@ -12,16 +12,18 @@ import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.transaction.TransactionService;
-import org.junit.*;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -94,10 +96,13 @@ public class StatusTransitionBehaviourIT {
     }
 
     @Test
-    public void testChangeStatus() {
+    public void testChangeStatusDirectly() {
         assertEquals("Case is initially active", caseService.getStatus(caseNodeRef), CaseStatus.ACTIVE);
+
+        // Expect an exception to be thrown because one should not be
+        // allowed to directly change the status.
+        thrown.expect(AlfrescoRuntimeException.class);
         nodeService.setProperty(caseNodeRef, OpenESDHModel.PROP_OE_STATUS,
                 CaseStatus.PASSIVE);
-        thrown.expect(AlfrescoRuntimeException.class);
     }
 }
