@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
 
@@ -98,7 +99,15 @@ public interface ContactService {
      *
      * @param organization
      * @param person
-     * @return company
+     * @return organization
      */
     public NodeRef addPersonToOrganization(NodeRef organization, NodeRef person);
+
+    /**
+     * Gets stream of person contacts associated with organization contact
+     *
+     * @param organizationNodeRef
+     * @return stream of personNodeRef's
+     */
+    public Stream<NodeRef> getOrganizationPersons(NodeRef organizationNodeRef);
 }

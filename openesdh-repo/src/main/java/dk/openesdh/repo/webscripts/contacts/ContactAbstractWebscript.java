@@ -79,9 +79,8 @@ public abstract class ContactAbstractWebscript extends AbstractWebScript {
 
     protected JSONArray getAssociations(NodeRef contactNode) {
         JSONArray associations = new JSONArray();
-        this.nodeService.getTargetAssocs(contactNode, OpenESDHModel.ASSOC_CONTACT_MEMBERS)
-                .stream()
-                .forEach(item -> associations.add(buildJSON(item.getTargetRef())));
+        contactService.getOrganizationPersons(contactNode)
+                .forEach(item -> associations.add(buildJSON(item)));
         return associations;
     }
 

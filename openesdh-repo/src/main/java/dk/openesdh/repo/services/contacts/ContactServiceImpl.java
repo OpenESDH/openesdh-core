@@ -16,6 +16,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -169,15 +170,21 @@ public class ContactServiceImpl implements ContactService {
     }
 
     @Override
-    public NodeRef addPersonToOrganization(NodeRef organization, NodeRef person) {
-        if (!this.nodeService.getType(organization).equals(OpenESDHModel.TYPE_CONTACT_ORGANIZATION)) {
+    public NodeRef addPersonToOrganization(NodeRef organizationNodeRef, NodeRef personNodeRef) {
+        if (!this.nodeService.getType(organizationNodeRef).equals(OpenESDHModel.TYPE_CONTACT_ORGANIZATION)) {
             throw new InvalidContactTypeException("The type of contact must be ORGANIZATION");
         }
-        if (!this.nodeService.getType(person).equals(OpenESDHModel.TYPE_CONTACT_PERSON)) {
+        if (!this.nodeService.getType(personNodeRef).equals(OpenESDHModel.TYPE_CONTACT_PERSON)) {
             throw new InvalidContactTypeException("The type of contact must be PERSON");
         }
-        AssociationRef association = nodeService.createAssociation(organization, person, OpenESDHModel.ASSOC_CONTACT_MEMBERS);
+        AssociationRef association = nodeService.createAssociation(organizationNodeRef, personNodeRef, OpenESDHModel.ASSOC_CONTACT_MEMBERS);
         return association.getSourceRef();
+    }
+
+    @Override
+    public Stream<NodeRef> getOrganizationPersons(NodeRef organizationNodeRef) {
+        return this.nodeService.getTargetAssocs(organizationNodeRef, OpenESDHModel.ASSOC_CONTACT_MEMBERS)
+                .stream().map(assocRef -> assocRef.getTargetRef());
     }
 
     //<editor-fold desc="Injected service bean setters">
