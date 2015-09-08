@@ -2,6 +2,7 @@ package dk.openesdh.repo.webscripts.contacts;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.contacts.ContactService;
+import dk.openesdh.repo.webscripts.utils.ContactUtils;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -9,8 +10,9 @@ import java.util.Map;
 import java.util.Objects;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
+import org.json.JSONException;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptRequest;
@@ -50,6 +52,9 @@ public abstract class ContactAbstractWebscript extends AbstractWebScript {
             case "PUT":
                 put(nodeRef, req, res);
                 break;
+            case "DELETE":
+                delete(nodeRef, req, res);
+                break;
         }
     }
 
@@ -68,18 +73,22 @@ public abstract class ContactAbstractWebscript extends AbstractWebScript {
     }
 
     public JSONObject buildJSON(NodeRef contactNode) {
-        JSONObject result = new JSONObject();
         Map<QName, Serializable> props = this.nodeService.getProperties(contactNode);
-        props.entrySet().stream()
-                .filter((Map.Entry<QName, Serializable> t)
-                        -> t.getValue() != null && !isKeyOfSystemModelNamepace(t.getKey()))
-                .forEach((entry)
-                        -> result.put(entry.getKey().getLocalName(), entry.getValue()));
-        return result;
+        return ContactUtils.createContactJson(contactNode, props);
     }
 
-    private boolean isKeyOfSystemModelNamepace(QName key) {
-        return key.getNamespaceURI().equalsIgnoreCase(NamespaceService.SYSTEM_MODEL_1_0_URI);
+    protected JSONArray getAssociations(NodeRef contactNode) {
+        JSONArray associations = new JSONArray();
+        contactService.getOrganizationPersons(contactNode)
+                .forEach(item -> associations.add(buildJSON(item)));
+        return associations;
+    }
+
+    protected void createAssociation(NodeRef contactNodeRef, JSONObject parsedRequest) throws JSONException {
+        if (!parsedRequest.containsKey("parentNodeRefId")) {
+            return;
+        }
+        contactService.addPersonToOrganization(new NodeRef(getOrNull(parsedRequest, "parentNodeRefId")), contactNodeRef);
     }
 
     void addAddressProperties(JSONObject fromObj, HashMap<QName, Serializable> toTypeProps) {
@@ -114,6 +123,8 @@ public abstract class ContactAbstractWebscript extends AbstractWebScript {
 
     protected abstract void put(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res);
 
+    protected abstract void delete(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res);
+
     //<editor-fold desc="Injected service bean setters">
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
@@ -123,4 +134,5 @@ public abstract class ContactAbstractWebscript extends AbstractWebScript {
         this.contactService = contactService;
     }
     //</editor-fold>
+
 }

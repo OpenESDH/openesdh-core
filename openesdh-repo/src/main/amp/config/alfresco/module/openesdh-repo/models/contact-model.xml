@@ -199,7 +199,7 @@
                         <many>true</many>
                     </source>
                     <target>
-                        <class>contact:base</class>
+                        <class>contact:person</class>
                         <mandatory>false</mandatory>
                         <many>true</many>
                     </target>
