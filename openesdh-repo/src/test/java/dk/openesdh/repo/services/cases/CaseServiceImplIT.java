@@ -135,14 +135,7 @@ public class CaseServiceImplIT {
 
         // TODO: All of this could have been done only once
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
-        dummyUser = caseHelper.createDummyUser();
-        NodeRef adminUserNodeRef = this.personService.getPerson(OpenESDHModel.ADMIN_USER_NAME);
-        //try dding the user to the case creator group
-        try {
-            authorityService.addAuthority("GROUP_CaseSimpleCreator", CaseHelper.DEFAULT_USERNAME);
-        } catch (Exception ge) {
-            System.out.println("\n\n\t\t\t\t\t\t***** Error *****\n" + ge.getMessage());
-        }
+
         caseService = new CaseServiceImpl();
         caseService.setNodeService(nodeService);
         caseService.setSearchService(searchService);
@@ -154,21 +147,28 @@ public class CaseServiceImplIT {
         caseService.setDictionaryService(dictionaryService);
         caseService.setLockService(lockService);
 
-        casesRootNoderef = caseService.getCasesRootNodeRef();
+        transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
+            dummyUser = caseHelper.createDummyUser();
+            NodeRef adminUserNodeRef = this.personService.getPerson(OpenESDHModel.ADMIN_USER_NAME);
+            authorityService.addAuthority("GROUP_CaseSimpleCreator", CaseHelper.DEFAULT_USERNAME);
 
-        namespacePrefixResolver.registerNamespace(NamespaceService.APP_MODEL_PREFIX, NamespaceService.APP_MODEL_1_0_URI);
-        namespacePrefixResolver.registerNamespace(OpenESDHModel.CASE_PREFIX, OpenESDHModel.CASE_URI);
+            casesRootNoderef = caseService.getCasesRootNodeRef();
 
-        final Map<QName, Serializable> properties = new HashMap<>();
+            namespacePrefixResolver.registerNamespace(NamespaceService.APP_MODEL_PREFIX, NamespaceService.APP_MODEL_1_0_URI);
+            namespacePrefixResolver.registerNamespace(OpenESDHModel.CASE_PREFIX, OpenESDHModel.CASE_URI);
 
-        String caseName = "adminUser createdC case";
-        temporaryCaseNodeRef = caseHelper.createSimpleCase(caseName, AuthenticationUtil.getAdminUserName(), adminUserNodeRef);
+            final Map<QName, Serializable> properties = new HashMap<>();
 
-        // Create a case with a non-admin user
-        caseName = "nonAdminUserCreatedCase";
-        LinkedList<NodeRef> owners = new LinkedList<>();
-        owners.add(dummyUser);
-        nonAdminCreatedCaseNr = caseHelper.createSimpleCase(caseName, CaseHelper.DEFAULT_USERNAME, dummyUser);
+            String caseName = "adminUser createdC case";
+            temporaryCaseNodeRef = caseHelper.createSimpleCase(caseName, AuthenticationUtil.getAdminUserName(), adminUserNodeRef);
+
+            // Create a case with a non-admin user
+            caseName = "nonAdminUserCreatedCase";
+            LinkedList<NodeRef> owners = new LinkedList<>();
+            owners.add(dummyUser);
+            nonAdminCreatedCaseNr = caseHelper.createSimpleCase(caseName, CaseHelper.DEFAULT_USERNAME, dummyUser);
+            return null;
+        });
     }
 
     @After
