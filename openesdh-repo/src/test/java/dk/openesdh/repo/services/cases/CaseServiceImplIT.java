@@ -126,7 +126,7 @@ public class CaseServiceImplIT {
 
     private static final String ALICE_BEECHER = "abeecher";
     private static final String MIKE_JACKSON = "mjackson";
-
+  
     private DynamicNamespacePrefixResolver namespacePrefixResolver = new DynamicNamespacePrefixResolver(null);
     private NodeRef casesRootNoderef;
     protected NodeRef temporaryCaseNodeRef;
@@ -138,31 +138,29 @@ public class CaseServiceImplIT {
 
         // TODO: All of this could have been done only once
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
-        dummyUser = caseHelper.createDummyUser();
-        NodeRef adminUserNodeRef = this.personService.getPerson(OpenESDHModel.ADMIN_USER_NAME);
-        //try dding the user to the case creator group
-        try {
+
+        transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
+            dummyUser = caseHelper.createDummyUser();
+            NodeRef adminUserNodeRef = this.personService.getPerson(OpenESDHModel.ADMIN_USER_NAME);
             authorityService.addAuthority("GROUP_CaseSimpleCreator", CaseHelper.DEFAULT_USERNAME);
-        } catch (Exception ge) {
-            System.out.println("\n\n\t\t\t\t\t\t***** Error *****\n" + ge.getMessage());
-        }
 
-        casesRootNoderef = caseService.getCasesRootNodeRef();
+            casesRootNoderef = caseService.getCasesRootNodeRef();
 
-        namespacePrefixResolver.registerNamespace(NamespaceService.APP_MODEL_PREFIX, NamespaceService.APP_MODEL_1_0_URI);
-        namespacePrefixResolver.registerNamespace(OpenESDHModel.CASE_PREFIX, OpenESDHModel.CASE_URI);
+            namespacePrefixResolver.registerNamespace(NamespaceService.APP_MODEL_PREFIX, NamespaceService.APP_MODEL_1_0_URI);
+            namespacePrefixResolver.registerNamespace(OpenESDHModel.CASE_PREFIX, OpenESDHModel.CASE_URI);
 
-        final Map<QName, Serializable> properties = new HashMap<>();
+            final Map<QName, Serializable> properties = new HashMap<>();
 
-        //TODO - WHY ARE WE DISABLING BEHAVIOUR????
-        String caseName = "adminUser createdC case";
-        temporaryCaseNodeRef = caseHelper.createSimpleCase(caseName, AuthenticationUtil.getAdminUserName(), adminUserNodeRef);
+            String caseName = "adminUser createdC case";
+            temporaryCaseNodeRef = caseHelper.createSimpleCase(caseName, AuthenticationUtil.getAdminUserName(), adminUserNodeRef);
 
-        // Create a case with a non-admin user
-        caseName = "nonAdminUserCreatedCase";
-        LinkedList<NodeRef> owners = new LinkedList<>();
-        owners.add(dummyUser);
-        nonAdminCreatedCaseNr = caseHelper.createSimpleCase(caseName, CaseHelper.DEFAULT_USERNAME, dummyUser);
+            // Create a case with a non-admin user
+            caseName = "nonAdminUserCreatedCase";
+            LinkedList<NodeRef> owners = new LinkedList<>();
+            owners.add(dummyUser);
+            nonAdminCreatedCaseNr = caseHelper.createSimpleCase(caseName, CaseHelper.DEFAULT_USERNAME, dummyUser);
+            return null;
+        });
     }
 
     @After
@@ -174,9 +172,11 @@ public class CaseServiceImplIT {
             // also removes test cases
             if (nonAdminCreatedCaseNr != null) {
                 nodeService.deleteNode(nonAdminCreatedCaseNr);
+                nonAdminCreatedCaseNr = null;
             }
             if (temporaryCaseNodeRef != null) {
                 nodeService.deleteNode(temporaryCaseNodeRef);
+                temporaryCaseNodeRef = null;
             }
             caseHelper.deleteDummyUser();
             return true;
@@ -341,7 +341,7 @@ public class CaseServiceImplIT {
 
         caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader",
                 temporaryCaseNodeRef);
-        membersByRoles = caseService.getMembersByRole(temporaryCaseNodeRef, true, false);
+        membersByRoles = caseService.getMembersByRole(temporaryCaseNodeRef,true, false);
         assertFalse(membersByRoles.get("CaseSimpleReader").contains
                 (AuthenticationUtil.getAdminUserName()));
     }
@@ -388,6 +388,7 @@ public class CaseServiceImplIT {
 
     @Test
     public void testGetMembersByRole() throws Exception {
+        //TODO: Does this still make sense? Are behaviours responsible for setting up permissions groups on temporaryCaseNodeRef?
         caseService.setupPermissionGroups(temporaryCaseNodeRef,
                 caseService.getCaseId(temporaryCaseNodeRef));
         caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(),
@@ -404,13 +405,16 @@ public class CaseServiceImplIT {
 
     @Test
     public void testGetAllMembersByRole() throws Exception {
-        caseService.setupPermissionGroups(nonAdminCreatedCaseNr, caseService.getCaseId(nonAdminCreatedCaseNr));
-        caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", nonAdminCreatedCaseNr);
-        caseService.addAuthorityToRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", nonAdminCreatedCaseNr);
-        System.out.println("\n\nCaseServiceImpl:440\n\t\t\t=>currentUserAuthorities : " + authorityService.getAuthoritiesForUser(ALICE_BEECHER).toString());
-        caseService.addAuthorityToRole(ALICE_BEECHER, "CaseOwners", nonAdminCreatedCaseNr);
-        caseService.addAuthorityToRole(MIKE_JACKSON, "CaseSimpleWriter", nonAdminCreatedCaseNr);
+        transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
+            //caseService.setupPermissionGroups(nonAdminCreatedCaseNr, caseService.getCaseId(nonAdminCreatedCaseNr));
+            //caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", nonAdminCreatedCaseNr);
+            caseService.addAuthorityToRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", nonAdminCreatedCaseNr);
+            //System.out.println("\n\nCaseServiceImpl:440\n\t\t\t=>currentUserAuthorities : " + authorityService.getAuthoritiesForUser(ALICE_BEECHER).toString());
 
+            caseService.addAuthorityToRole(ALICE_BEECHER, "CaseOwners", nonAdminCreatedCaseNr);
+            caseService.addAuthorityToRole(MIKE_JACKSON, "CaseSimpleWriter", nonAdminCreatedCaseNr);
+            return null;
+        });
         Map<String, Set<String>> membersByRole = caseService.getMembersByRole(nonAdminCreatedCaseNr, false, true);
         //check everyone's permissions
         assertTrue(membersByRole.get("CaseSimpleReader").contains(AuthenticationUtil.getAdminUserName()));
@@ -419,14 +423,19 @@ public class CaseServiceImplIT {
         assertTrue(caseOwners.contains(ALICE_BEECHER));
         assertTrue(membersByRole.get("CaseSimpleWriter").contains(MIKE_JACKSON));
         //remove 2 out of 3 from groups
-        caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", nonAdminCreatedCaseNr);
-        caseService.removeAuthorityFromRole(MIKE_JACKSON, "CaseSimpleWriter", nonAdminCreatedCaseNr);
 
+        transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
+            caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", nonAdminCreatedCaseNr);
+            caseService.removeAuthorityFromRole(MIKE_JACKSON, "CaseSimpleWriter", nonAdminCreatedCaseNr);
+            return null;
+        });
         //retrieve and test role memeberships
         membersByRole = caseService.getMembersByRole(nonAdminCreatedCaseNr, false, true);
         assertFalse(membersByRole.get("CaseSimpleReader").contains(AuthenticationUtil.getAdminUserName()));
         assertFalse(membersByRole.get("CaseSimpleWriter").contains(MIKE_JACKSON));
         assertTrue(membersByRole.get("CaseOwners").contains(ALICE_BEECHER));
+
+
     }
 
     @Test

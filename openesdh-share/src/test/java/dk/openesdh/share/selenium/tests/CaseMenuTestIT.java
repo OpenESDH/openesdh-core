@@ -29,7 +29,7 @@ public class CaseMenuTestIT extends BasePage {
     //Normal user can see menu
     @Test
     public void testCaseMenuIsVisibleAndClickableByNonAdmin() {
-        this.loginAsUser(User.ALICE);
+        this.loginAsUser(User.BOB);
         WebDriverWait wait = new WebDriverWait(Browser.Driver,10);
         this.clickCasesMenuItem();
     }

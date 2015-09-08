@@ -131,7 +131,7 @@ public class CaseHelper {
      * @param disableBehaviour
      * @return
      */
-    public NodeRef createCase(String username, final NodeRef parent, final String name,  final QName caseType,
+    public NodeRef createCase(String username, final NodeRef parent, final String name, final QName caseType,
                               final Map<QName, Serializable> properties, final List<NodeRef> owners, boolean disableBehaviour) {
         ChildAssociationRef assocRef = createCaseNode(username, parent, name, caseType, properties, owners, disableBehaviour);
         return assocRef.getChildRef();

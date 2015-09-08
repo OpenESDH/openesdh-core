@@ -31,10 +31,7 @@ public class AddUserToGroupTestIT extends AdminToolsPage {
     @Test
     public void addUserToCaseCreatorGroup() {
         this.loginAsUser(User.ADMIN);
-        String newUserName = this.createAlfrescoUser(User.BRIGITTE);
-        assertNotNull(newUserName);
-
-        this.addUserToGroup(User.BRIGITTE, "CaseSimpleCreator");
+        this.addUserToGroup(User.HELENA, "CaseSimpleCreator");
     }
 
 }

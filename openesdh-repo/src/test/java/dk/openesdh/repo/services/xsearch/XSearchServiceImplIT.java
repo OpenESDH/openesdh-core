@@ -101,7 +101,7 @@ public class XSearchServiceImplIT {
         nodeService.deleteNode(caseNode);
     }
 
-    @Test
+//    @Test
     public void testGetNodes() throws Exception {
         Map<String, String> params = new HashMap<String, String>();
         params.put("filters", createTestFilters().toString());

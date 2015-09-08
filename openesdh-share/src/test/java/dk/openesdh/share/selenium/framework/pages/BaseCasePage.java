@@ -23,12 +23,14 @@ import static org.junit.Assert.assertTrue;
 public class BaseCasePage extends BasePage {
     private static final String URL = BASE_URL + "/page/oe/case/@@ID@@/";
 
+/*
     @Before
     public void userSetup() {
         Pages.Login.loginWith(User.ADMIN);
         Pages.AdminToolsPage.addUserToGroup(User.BRIGITTE, "CaseSimpleCreator");
         Pages.Login.logout();
     }
+*/
 
 
     //<editor-fold desc="WebElements Global to all case pages">
