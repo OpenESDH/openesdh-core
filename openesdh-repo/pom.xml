@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>openesdh-repo</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>openesdh-repo Repository AMP project</name>
+    <name>openesdh-repo Repository AMP project - test pull request</name>
     <packaging>amp</packaging>
     <description>Manages the lifecycle of the openesdh-repo Repository AMP (Alfresco Module Package)</description>
 
