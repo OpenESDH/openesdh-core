@@ -65,6 +65,27 @@
                 </association>
             </associations>
 
+            <overrides>
+                <property name="oe:status">
+                    <default>active</default>
+                    <constraints>
+                        <constraint name="base:caseStatusConstraint"
+                                    type="LIST">
+                            <parameter name="allowedValues">
+                                <list>
+                                    <!-- See OPENE-162 -->
+                                    <!-- Localisation is in src/main/amp/config/alfresco/module/openesdh-repo/messages/case-model.properties -->
+                                    <value>active</value>
+                                    <value>passive</value>
+                                    <value>closed</value>
+                                    <value>archived</value>
+                                </list>
+                            </parameter>
+                        </constraint>
+                    </constraints>
+                </property>
+            </overrides>
+
             <mandatory-aspects>
                 <aspect>oe:journalizable</aspect>
             </mandatory-aspects>

@@ -187,7 +187,7 @@ public class CreateCaseIT {
 
         setFullyAuthenticatedUser(testUser);
 
-        nodeService.setProperty(caseNode, OpenESDHModel.PROP_OE_STATUS, "pending");
+        nodeService.setProperty(caseNode, OpenESDHModel.PROP_OE_STATUS, "active");
     }
     //</editor-fold>
 

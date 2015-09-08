@@ -102,7 +102,7 @@ public abstract class AbstractXSearchService implements XSearchService {
     }
 
     public XResultSet getNodes(Map<String, String> params) {
-        return getNodes(params, 0, -1, "@cm:name", true);
+        return getNodes(params, 0, -1, "cm:name", true);
     }
 
     public void setCaseService(CaseService caseService) {

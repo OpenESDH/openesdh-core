@@ -55,6 +55,9 @@
         <property name="kleEmneplanURL">
             <value>${openesdh.classification.kle.emneplan.url}</value>
         </property>
+       <property name="kleFacetterURL">
+           <value>${openesdh.classification.kle.facetter.url}</value>
+       </property>
         <property name="syncOnStartupIfMissing">
             <value>${openesdh.classification.kle.syncOnStartupIfMissing}</value>
         </property>
