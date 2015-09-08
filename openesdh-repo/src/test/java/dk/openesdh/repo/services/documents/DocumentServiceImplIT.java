@@ -30,6 +30,7 @@ import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.model.CaseDocument;
 import dk.openesdh.repo.model.CaseDocumentAttachment;
 import dk.openesdh.repo.model.ResultSet;
 import dk.openesdh.repo.services.cases.CaseService;
@@ -75,9 +76,14 @@ public class DocumentServiceImplIT {
     private static final String TEST_CASE_NAME2 = "TestCase2";
     private static final String TEST_DOCUMENT_NAME = "TestDocument";
     private static final String TEST_DOCUMENT_FILE_NAME = TEST_DOCUMENT_NAME + ".txt";
+    private static final String TEST_DOCUMENT_NAME2 = "TestDocument2";
+    private static final String TEST_DOCUMENT_FILE_NAME2 = TEST_DOCUMENT_NAME2 + ".txt";
 
     private static final String TEST_DOCUMENT_ATTACHMENT_NAME = "TestDocumentAttachment";
     private static final String TEST_DOCUMENT_ATTACHMENT_FILE_NAME = TEST_DOCUMENT_ATTACHMENT_NAME + ".txt";
+
+    private static final String TEST_DOCUMENT_ATTACHMENT_NAME2 = "TestDocumentAttachment2";
+    private static final String TEST_DOCUMENT_ATTACHMENT_FILE_NAME2 = TEST_DOCUMENT_ATTACHMENT_NAME2 + ".txt";
 
     private NodeRef testFolder;
     private NodeRef testCase1;
@@ -85,6 +91,9 @@ public class DocumentServiceImplIT {
     private NodeRef testDocument;
     private NodeRef testDocumentAttachment;
     private NodeRef testDocumentRecFolder;
+    private NodeRef testDocument2;
+    private NodeRef testDocumentAttachment2;
+    private NodeRef testDocumentRecFolder2;
 
     @Before
     public void setUp() throws Exception {
@@ -215,5 +224,22 @@ public class DocumentServiceImplIT {
                 .getVersionLabel());
         Assert.assertEquals("Wrong attachment previous version.", "1.0", attachments.getResultList().get(0)
                 .getVersions().get(0).getVersionLabel());
+    }
+
+    @Test
+    public void shouldCreateAndRetrieveDocumentsWithAttachments() {
+
+        testDocument2 = docTestHelper.createCaseDocument(TEST_DOCUMENT_FILE_NAME2, testCase1);
+        testDocumentRecFolder2 = nodeService.getPrimaryParent(testDocument2).getParentRef();
+        testDocumentAttachment2 = docTestHelper.createCaseDocumentAttachment(TEST_DOCUMENT_ATTACHMENT_FILE_NAME2,
+                testDocumentRecFolder2);
+
+        String caseId = caseService.getCaseId(testCase1);
+        List<CaseDocument> caseDocuments = documentService.getCaseDocumentsWithAttachments(caseId);
+        Assert.assertEquals("Wrong number of case documents retrieved", 2, caseDocuments.size());
+        Assert.assertEquals("Wrong number of the first document attachments retrieved", 1, caseDocuments.get(0)
+                .getAttachments().size());
+        Assert.assertEquals("Wrong number of the second document attachments retrieved", 1, caseDocuments.get(1)
+                .getAttachments().size());
     }
 }

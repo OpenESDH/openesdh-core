@@ -80,6 +80,10 @@
         <property name="documentService" ref="DocumentService"/>
     </bean>
     
+    <bean id="webscript.dk.openesdh.case.caseDocumentsWithAttachments.get" class="dk.openesdh.repo.webscripts.documents.CaseDocumentsWithAttachmentsWebScript"
+          parent="webscript">
+        <property name="documentService" ref="DocumentService"/>
+    </bean>
 
     <bean id="webscript.dk.openesdh.contactsearch.get"
           class="dk.openesdh.repo.webscripts.xsearch.ContactSearch"
