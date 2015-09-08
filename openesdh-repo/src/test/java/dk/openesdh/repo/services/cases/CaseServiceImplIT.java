@@ -46,6 +46,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -137,10 +138,10 @@ public class CaseServiceImplIT {
         dummyUser = caseHelper.createDummyUser();
         NodeRef adminUserNodeRef = this.personService.getPerson(OpenESDHModel.ADMIN_USER_NAME);
         //try dding the user to the case creator group
-        try{
+        try {
             authorityService.addAuthority("GROUP_CaseSimpleCreator", CaseHelper.DEFAULT_USERNAME);
-        }catch (Exception ge){
-            System.out.println("\n\n\t\t\t\t\t\t***** Error *****\n"+ ge.getMessage());
+        } catch (Exception ge) {
+            System.out.println("\n\n\t\t\t\t\t\t***** Error *****\n" + ge.getMessage());
         }
         caseService = new CaseServiceImpl();
         caseService.setNodeService(nodeService);
@@ -160,7 +161,6 @@ public class CaseServiceImplIT {
 
         final Map<QName, Serializable> properties = new HashMap<>();
 
-        //TODO - WHY ARE WE DISABLING BEHAVIOUR????
         String caseName = "adminUser createdC case";
         temporaryCaseNodeRef = caseHelper.createSimpleCase(caseName, AuthenticationUtil.getAdminUserName(), adminUserNodeRef);
 
@@ -176,16 +176,18 @@ public class CaseServiceImplIT {
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
 
         transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
-                // Remove temporary node, and all its content,
-                // also removes test cases
-                if (nonAdminCreatedCaseNr != null) {
-                    nodeService.deleteNode(nonAdminCreatedCaseNr);
-                }
-                if (temporaryCaseNodeRef != null) {
-                    nodeService.deleteNode(temporaryCaseNodeRef);
-                }
-                caseHelper.deleteDummyUser();
-                return true;
+            // Remove temporary node, and all its content,
+            // also removes test cases
+            if (nonAdminCreatedCaseNr != null) {
+                nodeService.deleteNode(nonAdminCreatedCaseNr);
+                nonAdminCreatedCaseNr = null;
+            }
+            if (temporaryCaseNodeRef != null) {
+                nodeService.deleteNode(temporaryCaseNodeRef);
+                temporaryCaseNodeRef = null;
+            }
+            caseHelper.deleteDummyUser();
+            return true;
         });
     }
 
@@ -347,7 +349,7 @@ public class CaseServiceImplIT {
 
         caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader",
                 temporaryCaseNodeRef);
-        membersByRoles = caseService.getMembersByRole(temporaryCaseNodeRef,true, false);
+        membersByRoles = caseService.getMembersByRole(temporaryCaseNodeRef, true, false);
         assertFalse(membersByRoles.get("CaseSimpleReader").contains
                 (AuthenticationUtil.getAdminUserName()));
     }
@@ -394,6 +396,7 @@ public class CaseServiceImplIT {
 
     @Test
     public void testGetMembersByRole() throws Exception {
+        //TODO: Does this still make sense? Are behaviours responsible for setting up permissions groups on temporaryCaseNodeRef?
         caseService.setupPermissionGroups(temporaryCaseNodeRef,
                 caseService.getCaseId(temporaryCaseNodeRef));
         caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(),
@@ -410,13 +413,16 @@ public class CaseServiceImplIT {
 
     @Test
     public void testGetAllMembersByRole() throws Exception {
-        caseService.setupPermissionGroups(nonAdminCreatedCaseNr, caseService.getCaseId(nonAdminCreatedCaseNr));
-        caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", nonAdminCreatedCaseNr);
-        caseService.addAuthorityToRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", nonAdminCreatedCaseNr);
-        System.out.println("\n\nCaseServiceImpl:440\n\t\t\t=>currentUserAuthorities : " + authorityService.getAuthoritiesForUser(ALICE_BEECHER).toString());
-        caseService.addAuthorityToRole(ALICE_BEECHER, "CaseOwners", nonAdminCreatedCaseNr);
-        caseService.addAuthorityToRole(MIKE_JACKSON, "CaseSimpleWriter", nonAdminCreatedCaseNr);
+        transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
+            //caseService.setupPermissionGroups(nonAdminCreatedCaseNr, caseService.getCaseId(nonAdminCreatedCaseNr));
+            //caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", nonAdminCreatedCaseNr);
+            caseService.addAuthorityToRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", nonAdminCreatedCaseNr);
+            //System.out.println("\n\nCaseServiceImpl:440\n\t\t\t=>currentUserAuthorities : " + authorityService.getAuthoritiesForUser(ALICE_BEECHER).toString());
 
+            caseService.addAuthorityToRole(ALICE_BEECHER, "CaseOwners", nonAdminCreatedCaseNr);
+            caseService.addAuthorityToRole(MIKE_JACKSON, "CaseSimpleWriter", nonAdminCreatedCaseNr);
+            return null;
+        });
         Map<String, Set<String>> membersByRole = caseService.getMembersByRole(nonAdminCreatedCaseNr, false, true);
         //check everyone's permissions
         assertTrue(membersByRole.get("CaseSimpleReader").contains(AuthenticationUtil.getAdminUserName()));
@@ -425,14 +431,19 @@ public class CaseServiceImplIT {
         assertTrue(caseOwners.contains(ALICE_BEECHER));
         assertTrue(membersByRole.get("CaseSimpleWriter").contains(MIKE_JACKSON));
         //remove 2 out of 3 from groups
-        caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", nonAdminCreatedCaseNr);
-        caseService.removeAuthorityFromRole(MIKE_JACKSON, "CaseSimpleWriter", nonAdminCreatedCaseNr);
 
+        transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
+            caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", nonAdminCreatedCaseNr);
+            caseService.removeAuthorityFromRole(MIKE_JACKSON, "CaseSimpleWriter", nonAdminCreatedCaseNr);
+            return null;
+        });
         //retrieve and test role memeberships
         membersByRole = caseService.getMembersByRole(nonAdminCreatedCaseNr, false, true);
         assertFalse(membersByRole.get("CaseSimpleReader").contains(AuthenticationUtil.getAdminUserName()));
         assertFalse(membersByRole.get("CaseSimpleWriter").contains(MIKE_JACKSON));
         assertTrue(membersByRole.get("CaseOwners").contains(ALICE_BEECHER));
+
+
     }
 
     @Test
@@ -447,6 +458,9 @@ public class CaseServiceImplIT {
                 repositoryHelper.getCompanyHome().getStoreRef(),
                 ContentModel.ASPECT_GEN_CLASSIFIABLE,
                 rootCategoryName, true);
+        if (rootCategories.size() == 0) {
+            throw new Exception("CaseService.testJournalize():Missing rootCategories.");
+        }
         NodeRef rootCategory = rootCategories.iterator().next().getChildRef();
         NodeRef journalKey = rootCategory;
 //        ChildAssociationRef categoryAssoc = categoryService.getCategory(rootCategory,
@@ -526,7 +540,7 @@ public class CaseServiceImplIT {
         try {
             caseService
                     .addAuthorityToRole(OpenESDHModel.ADMIN_USER_NAME,
-                    "CaseSimpleReader", nonAdminCreatedCaseNr);
+                            "CaseSimpleReader", nonAdminCreatedCaseNr);
             fail("An authority could be added to a role on a journalized case");
         } catch (Exception e) {
         }
@@ -569,7 +583,7 @@ public class CaseServiceImplIT {
 
         assertFalse("Case node has journalized aspect after being unjournalized",
                 nodeService.hasAspect(nonAdminCreatedCaseNr,
-                OpenESDHModel.ASPECT_OE_JOURNALIZED));
+                        OpenESDHModel.ASPECT_OE_JOURNALIZED));
 
         categoryService.deleteCategory(rootCategory);
     }

@@ -46,7 +46,7 @@ public class KLEClassificationSynchronizerIT {
     @Before
     public void setUp() throws Exception {
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getSystemUserName());
-        classificationSynchronizer.deleteRootCategoryIfExists(KLEClassificationSynchronizer.KLE_EMNEPLAN_ROOT_CATEGORY_NAME);
+        //classificationSynchronizer.deleteRootCategoryIfExists(KLEClassificationSynchronizer.KLE_EMNEPLAN_ROOT_CATEGORY_NAME);
     }
 
     @Test
@@ -67,6 +67,6 @@ public class KLEClassificationSynchronizerIT {
 
     @After
     public void tearDown() throws Exception {
-        classificationSynchronizer.deleteRootCategoryIfExists(KLEClassificationSynchronizer.KLE_EMNEPLAN_ROOT_CATEGORY_NAME);
+        //classificationSynchronizer.deleteRootCategoryIfExists(KLEClassificationSynchronizer.KLE_EMNEPLAN_ROOT_CATEGORY_NAME);
     }
 }
