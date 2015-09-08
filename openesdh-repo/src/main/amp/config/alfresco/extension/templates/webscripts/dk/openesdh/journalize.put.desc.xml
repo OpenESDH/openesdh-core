@@ -1,8 +1,0 @@
-<webscript>
-    <shortname>Journalize</shortname>
-    <description>Journalize a case or record and all children</description>
-    <url>/api/openesdh/{store_type}/{store_id}/{node_id}/journalize</url>
-    <format default="json"></format>
-    <authentication>user</authentication>
-    <transaction>required</transaction>
-</webscript>

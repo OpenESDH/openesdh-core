@@ -17,16 +17,8 @@
         <constraint name="doc:statusConstraint" type="LIST">
             <parameter name="allowedValues">
                 <list>
-                    <value>under-treatment</value>
-                    <value>applicable</value>
-                    <value>approved</value>
-                    <value>not-approved</value>
-                    <value>scanned</value>
-                    <value>sent-for-approval</value>
-                    <value>awaiting-comments</value>
-                    <value>discontinued</value>
-                    <value>completed</value>
-                    <value>journalized</value>
+                    <value>draft</value>
+                    <value>final</value>
                 </list>
             </parameter>
         </constraint>
@@ -233,6 +225,7 @@
 
             <overrides>
                 <property name="oe:status">
+                    <default>draft</default>
                     <constraints>
                         <constraint ref="doc:statusConstraint"/>
                     </constraints>
