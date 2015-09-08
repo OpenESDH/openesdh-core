@@ -132,6 +132,7 @@
                 <executions>
                     <execution>
                         <id>jaxb-kle-emneplan</id>
+                        <phase>generate-resources</phase>
                         <goals>
                             <goal>generate</goal>
                         </goals>
@@ -140,12 +141,14 @@
                                 <include>KLE-Emneplan-version-2-0.xsd</include>
                             </schemaIncludes>
                             <generatePackage>dk.klexml.emneplan</generatePackage>
+                            <generateDirectory>${project.build.directory}/generated-sources/xjc/emneplan</generateDirectory>
                         </configuration>
                     </execution>
                     <!-- The reason for multiple executions is that there are
                          duplicate elements in the XSDs. -->
                     <execution>
                         <id>jaxb-kle-facetter</id>
+                        <phase>generate-resources</phase>
                         <goals>
                             <goal>generate</goal>
                         </goals>
@@ -154,11 +157,7 @@
                                 <include>KLE-Handlingsfacetter-version-2-0.xsd</include>
                             </schemaIncludes>
                             <generatePackage>dk.klexml.facetter</generatePackage>
-                            <!-- Otherwise, because the output directory is
-                                 the same as the other execution, it will
-                                 think that the sources don't need to be
-                                 updated. -->
-                            <forceRegenerate>true</forceRegenerate>
+                            <generateDirectory>${project.build.directory}/generated-sources/xjc/facetter</generateDirectory>
                         </configuration>
                     </execution>
                 </executions>

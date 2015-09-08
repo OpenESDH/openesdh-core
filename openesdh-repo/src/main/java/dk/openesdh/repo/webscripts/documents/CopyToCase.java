@@ -2,6 +2,7 @@ package dk.openesdh.repo.webscripts.documents;
 
 import java.io.IOException;
 
+import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -33,7 +34,7 @@ public class CopyToCase extends AbstractWebScript {
 		String caseId = (String) json.get("caseId");
 		String docRef = (String) json.get("nodeRef");
 
-		DocumentsWebScriptUtil.respondSuccess(res, "The document has been copied to the case "
+		WebScriptUtils.respondSuccess(res, "The document has been copied to the case "
 				+ caseId);
 
 		try {

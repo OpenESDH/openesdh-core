@@ -11,7 +11,6 @@ import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -19,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import dk.openesdh.repo.model.CaseStatus;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -118,11 +118,15 @@ public class CaseServiceImplIT {
 
     @Autowired
     private RuleService ruleService;
+
+    @Autowired
+    @Qualifier("CaseService")
+    protected CaseServiceImpl caseService;
     //</editor-fold>
 
     private static final String ALICE_BEECHER = "abeecher";
     private static final String MIKE_JACKSON = "mjackson";
-    protected CaseServiceImpl caseService = null;
+
     private DynamicNamespacePrefixResolver namespacePrefixResolver = new DynamicNamespacePrefixResolver(null);
     private NodeRef casesRootNoderef;
     protected NodeRef temporaryCaseNodeRef;
@@ -137,21 +141,11 @@ public class CaseServiceImplIT {
         dummyUser = caseHelper.createDummyUser();
         NodeRef adminUserNodeRef = this.personService.getPerson(OpenESDHModel.ADMIN_USER_NAME);
         //try dding the user to the case creator group
-        try{
+        try {
             authorityService.addAuthority("GROUP_CaseSimpleCreator", CaseHelper.DEFAULT_USERNAME);
-        }catch (Exception ge){
-            System.out.println("\n\n\t\t\t\t\t\t***** Error *****\n"+ ge.getMessage());
+        } catch (Exception ge) {
+            System.out.println("\n\n\t\t\t\t\t\t***** Error *****\n" + ge.getMessage());
         }
-        caseService = new CaseServiceImpl();
-        caseService.setNodeService(nodeService);
-        caseService.setSearchService(searchService);
-        caseService.setAuthorityService(authorityService);
-        caseService.setOwnableService(ownableService);
-        caseService.setPermissionService(permissionService);
-        caseService.setRepositoryHelper(repositoryHelper);
-        caseService.setTransactionService(transactionService);
-        caseService.setDictionaryService(dictionaryService);
-        caseService.setLockService(lockService);
 
         casesRootNoderef = caseService.getCasesRootNodeRef();
 
@@ -176,16 +170,16 @@ public class CaseServiceImplIT {
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
 
         transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
-                // Remove temporary node, and all its content,
-                // also removes test cases
-                if (nonAdminCreatedCaseNr != null) {
-                    nodeService.deleteNode(nonAdminCreatedCaseNr);
-                }
-                if (temporaryCaseNodeRef != null) {
-                    nodeService.deleteNode(temporaryCaseNodeRef);
-                }
-                caseHelper.deleteDummyUser();
-                return true;
+            // Remove temporary node, and all its content,
+            // also removes test cases
+            if (nonAdminCreatedCaseNr != null) {
+                nodeService.deleteNode(nonAdminCreatedCaseNr);
+            }
+            if (temporaryCaseNodeRef != null) {
+                nodeService.deleteNode(temporaryCaseNodeRef);
+            }
+            caseHelper.deleteDummyUser();
+            return true;
         });
     }
 
@@ -347,7 +341,7 @@ public class CaseServiceImplIT {
 
         caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader",
                 temporaryCaseNodeRef);
-        membersByRoles = caseService.getMembersByRole(temporaryCaseNodeRef,true, false);
+        membersByRoles = caseService.getMembersByRole(temporaryCaseNodeRef, true, false);
         assertFalse(membersByRoles.get("CaseSimpleReader").contains
                 (AuthenticationUtil.getAdminUserName()));
     }
@@ -436,81 +430,57 @@ public class CaseServiceImplIT {
     }
 
     @Test
-    public void testJournalize() throws Exception {
+    public void testClose() throws Exception {
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
 
-        // TODO: Use real journal key categories from bootstrapped XML file
-        // Create a test journal key category
-        String categoryName = "Test Journal Key";
-        String rootCategoryName = "journalKeys";
-        Collection<ChildAssociationRef> rootCategories = categoryService.getRootCategories(
-                repositoryHelper.getCompanyHome().getStoreRef(),
-                ContentModel.ASPECT_GEN_CLASSIFIABLE,
-                rootCategoryName, true);
-        NodeRef rootCategory = rootCategories.iterator().next().getChildRef();
-        NodeRef journalKey = rootCategory;
-//        ChildAssociationRef categoryAssoc = categoryService.getCategory(rootCategory,
-//                ContentModel.ASPECT_GEN_CLASSIFIABLE, categoryName);
-//        if (categoryAssoc != null) {
-//            journalKey = categoryAssoc.getChildRef();
-//        } else {
-//            journalKey = categoryService.createCategory(rootCategory, categoryName);
-//        }
-
-        assertFalse("Case node has journalized aspect although it is not " +
-                "journalized", nodeService.hasAspect
+        assertFalse("Case node has locked aspect although it is not " +
+                "closed", nodeService.hasAspect
                 (nonAdminCreatedCaseNr,
-                        OpenESDHModel.ASPECT_OE_JOURNALIZED));
-        assertFalse("Case isJournalized returns true for an unjournalized " +
-                "case", caseService.isJournalized(nonAdminCreatedCaseNr));
-
+                        OpenESDHModel.ASPECT_OE_LOCKED));
         final String originalTitle = (String) nodeService.getProperty(nonAdminCreatedCaseNr,
                 ContentModel.PROP_TITLE);
 
-        assertFalse("Case should not be journalized when initially created",
-                caseService.isJournalized(nonAdminCreatedCaseNr));
+        assertFalse("Case should not be closed when initially created",
+                caseService.isLocked(nonAdminCreatedCaseNr));
 
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
 
-        try {
-            caseService.unJournalize(nonAdminCreatedCaseNr);
-            fail("Should not be able to unjournalize an unjournalized case");
-        } catch (Exception e) {
-        }
+        caseService.changeCaseStatus(nonAdminCreatedCaseNr, CaseStatus.ACTIVE);
 
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
 
-        caseService.journalize(nonAdminCreatedCaseNr, journalKey);
+        assertEquals("Initial status is active", caseService.getStatus(nonAdminCreatedCaseNr), CaseStatus.ACTIVE);
 
-        // Test that journalized properties got set
-        assertTrue("Case isJournalized returns false for a journalized " +
-                "case", caseService.isJournalized(nonAdminCreatedCaseNr));
-        assertTrue("Case node does not have journalized aspect after it has " +
-                "been journalized", nodeService.hasAspect
+        caseService.changeCaseStatus(nonAdminCreatedCaseNr, CaseStatus.CLOSED);
+
+        assertEquals("Status after closing is closed", caseService.getStatus
+                (nonAdminCreatedCaseNr), CaseStatus.CLOSED);
+
+        // Test that locked properties got set
+        assertTrue("Case isLocked returns true for a closed " +
+                "case", caseService.isLocked(nonAdminCreatedCaseNr));
+        assertTrue("Case node has locked aspect after it has " +
+                "been closed", nodeService.hasAspect
                 (nonAdminCreatedCaseNr,
-                        OpenESDHModel.ASPECT_OE_JOURNALIZED));
-        assertEquals("Case journalizedBy is not set correctly",
+                        OpenESDHModel.ASPECT_OE_LOCKED));
+        assertEquals("Case lockedBy is set correctly",
                 nodeService.getProperty(nonAdminCreatedCaseNr,
-                        OpenESDHModel.PROP_OE_JOURNALIZED_BY),
+                        OpenESDHModel.PROP_OE_LOCKED_BY),
                 AuthenticationUtil.getFullyAuthenticatedUser());
-        assertEquals("Case journalKey is not set correctly",
-                nodeService.getProperty(nonAdminCreatedCaseNr,
-                        OpenESDHModel.PROP_OE_JOURNALKEY),
-                journalKey);
 
-        // Test that the owner cannot write to a journalized case
+        // Test that the owner cannot write to a closed case
         try {
             nodeService.setProperty(nonAdminCreatedCaseNr,
                     ContentModel.PROP_TITLE, "new title");
-            fail("A property could be updated on a journalized case");
+            fail("A property could be updated on a closed case");
         } catch (Exception e) {
         }
 
         try {
-            // Test that a document cannot be added to a journalized case
+            // Test that a document cannot be added to a closed case
             NodeRef doc = createDocument(caseService.getDocumentsFolder
                     (nonAdminCreatedCaseNr), "testdoc");
-            fail("A document could be added to a journalized case");
+            fail("A document could be added to a closed case");
         } catch (Exception e) {
         }
 
@@ -518,7 +488,7 @@ public class CaseServiceImplIT {
         try {
             caseService.removeAuthorityFromRole(CaseHelper.DEFAULT_USERNAME,
                     "CaseOwners", nonAdminCreatedCaseNr);
-            fail("An authority could be removed from a role on a journalized case");
+            fail("An authority could be removed from a role on a closed case");
         } catch (Exception e) {
         }
 
@@ -526,39 +496,39 @@ public class CaseServiceImplIT {
         try {
             caseService
                     .addAuthorityToRole(OpenESDHModel.ADMIN_USER_NAME,
-                    "CaseSimpleReader", nonAdminCreatedCaseNr);
-            fail("An authority could be added to a role on a journalized case");
+                            "CaseSimpleReader", nonAdminCreatedCaseNr);
+            fail("An authority could be added to a role on a closed case");
         } catch (Exception e) {
         }
 
-        // Test that a user can still read from the journalized case
+        // Test that a user can still read from the closed case
         assertEquals(nodeService.getProperty(nonAdminCreatedCaseNr,
                 ContentModel.PROP_TITLE), originalTitle);
 
-        assertTrue(caseService.isJournalized(nonAdminCreatedCaseNr));
+        assertTrue(caseService.isLocked(nonAdminCreatedCaseNr));
 
-        // Test that a case cannot be journalized twice
-        try {
-            caseService.journalize(nonAdminCreatedCaseNr, journalKey);
-            fail("Should not be able to journalize a journalized case");
-        } catch (Exception e) {
-        }
+        // Test that a case cannot be closed twice
+        caseService.changeCaseStatus(nonAdminCreatedCaseNr, CaseStatus.CLOSED);
 
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
 
         try {
-            caseService.unJournalize(nonAdminCreatedCaseNr);
-            fail("Should not be able to unjournalizea case as a regular " +
-                    "user");
+            caseService.changeCaseStatus(nonAdminCreatedCaseNr, CaseStatus.ACTIVE);
+            fail("Should not be able to set closed case to active as a " +
+                    "regular user");
         } catch (Exception e) {
         }
 
 
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
-        caseService.unJournalize(nonAdminCreatedCaseNr);
+        caseService.changeCaseStatus(nonAdminCreatedCaseNr, CaseStatus.ACTIVE);
 
-        assertFalse("Case isJournalized returns true for an unjournalized " +
-                "case", caseService.isJournalized(nonAdminCreatedCaseNr));
+        assertEquals("Status after reopening is active", caseService.getStatus(nonAdminCreatedCaseNr), CaseStatus.ACTIVE);
+
+        assertFalse("Case isLocked returns false for a reopened case" +
+                "case", caseService.isLocked(nonAdminCreatedCaseNr));
+
+//        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
 
         // Test that a user can write again: these would throw exceptions if
         // they failed.
@@ -567,11 +537,17 @@ public class CaseServiceImplIT {
         nodeService.setProperty(nonAdminCreatedCaseNr,
                 ContentModel.PROP_TITLE, originalTitle);
 
-        assertFalse("Case node has journalized aspect after being unjournalized",
+        assertFalse("Case node does not have the locked aspect after being " +
+                        "reopened",
                 nodeService.hasAspect(nonAdminCreatedCaseNr,
-                OpenESDHModel.ASPECT_OE_JOURNALIZED));
+                        OpenESDHModel.ASPECT_OE_LOCKED));
+    }
 
-        categoryService.deleteCategory(rootCategory);
+    @Test
+    public void passivate() throws Exception {
+        caseService.changeCaseStatus(nonAdminCreatedCaseNr, CaseStatus.PASSIVE);
+        assertEquals("Status is passive after being passivated", caseService
+                .getStatus(nonAdminCreatedCaseNr), CaseStatus.PASSIVE);
     }
 
     @Test

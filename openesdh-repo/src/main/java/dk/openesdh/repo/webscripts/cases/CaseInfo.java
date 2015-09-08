@@ -57,7 +57,7 @@ public class CaseInfo extends AbstractWebScript {
                 OpenESDHModel.ASSOC_CASE_OWNERS, OpenESDHModel.PROP_OE_STATUS,
                 ContentModel.PROP_CREATOR, ContentModel.PROP_CREATED, ContentModel.PROP_MODIFIED,
                 ContentModel.PROP_MODIFIER, ContentModel.PROP_DESCRIPTION,
-                OpenESDHModel.PROP_OE_JOURNALKEY, OpenESDHModel.PROP_OE_JOURNALIZED_BY, OpenESDHModel.PROP_OE_JOURNALIZED_DATE
+                OpenESDHModel.PROP_OE_JOURNALKEY, OpenESDHModel.PROP_OE_LOCKED_BY, OpenESDHModel.PROP_OE_LOCKED_DATE
         );
 
         JSONObject json = nodeInfoService.getSelectedProperties(nodeInfo, this, requiredProps);
@@ -66,8 +66,8 @@ public class CaseInfo extends AbstractWebScript {
         res.setContentEncoding("UTF-8");
         try {
             json.put("allProps", nodeInfoService.buildJSON(nodeInfo, this));
-            json.put("canJournalize", caseService.canJournalize(user, caseNodeRef));
-            json.put("canUnJournalize", caseService.canUnJournalize(user, caseNodeRef));
+            json.put("isLocked", caseService.isLocked(caseNodeRef));
+            json.put("statusChoices", caseService.getValidNextStatuses(caseNodeRef));
             json.write(res.getWriter());
         } catch (JSONException e) {
             e.printStackTrace();

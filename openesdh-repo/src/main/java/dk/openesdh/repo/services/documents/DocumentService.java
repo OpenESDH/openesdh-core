@@ -10,6 +10,7 @@ import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
 import org.json.JSONObject;
 
+import dk.openesdh.repo.model.CaseDocument;
 import dk.openesdh.repo.model.CaseDocumentAttachment;
 import dk.openesdh.repo.model.ResultSet;
 import dk.openesdh.repo.webscripts.documents.Documents;
@@ -107,4 +108,13 @@ public interface DocumentService {
      */
     public ResultSet<CaseDocumentAttachment> getAttachmentsWithVersions(NodeRef nodeRef, int startIndex,
             int pageSize);
+
+    /**
+     * Retrieves case documents with attachments
+     * 
+     * @param caseId
+     *            id of the case to retrieve documents with attachments for
+     * @return list of the case documents with attachments
+     */
+    public List<CaseDocument> getCaseDocumentsWithAttachments(String caseId);
 }
