@@ -16,6 +16,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Stream;
+import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
@@ -40,7 +42,7 @@ public class ContactServiceImpl implements ContactService {
     private ContactSearchService contactSearchService;
 
     //for later use
-    private static Set<String> DEFAULT_ZONES = new HashSet<String>();
+    private static final Set<String> DEFAULT_ZONES = new HashSet<>();
 
     static {
         DEFAULT_ZONES.add(AuthorityService.ZONE_APP_DEFAULT);
@@ -49,7 +51,7 @@ public class ContactServiceImpl implements ContactService {
 
     @Override
     public ContactType getContactType(NodeRef contact) {
-        return this.nodeService.getType(contact).getLocalName().equalsIgnoreCase("PERSON") ? ContactType.PERSON : ContactType.ORGANIZATION;
+        return ContactType.getContactType(this.nodeService.getType(contact).getLocalName());
     }
 
     @Override
@@ -99,7 +101,7 @@ public class ContactServiceImpl implements ContactService {
                 throw new NoSuchContactException();
             }
             contact = results.getNodeRef(0);
-        } catch (Throwable err) {
+        } catch (GenericContactException | NoSuchContactException err) {
             if (logger.isDebugEnabled()) {
                 logger.debug("\t\t***** Error *****\n There was a problem finding the contact: " + query.toString(), err);
             }
@@ -165,6 +167,24 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public ContactInfo getContactInfo(NodeRef nodeRef) {
         return new ContactInfo(nodeRef, getContactType(nodeRef), this.nodeService.getProperties(nodeRef));
+    }
+
+    @Override
+    public NodeRef addPersonToOrganization(NodeRef organizationNodeRef, NodeRef personNodeRef) {
+        if (!this.nodeService.getType(organizationNodeRef).equals(OpenESDHModel.TYPE_CONTACT_ORGANIZATION)) {
+            throw new InvalidContactTypeException("The type of contact must be ORGANIZATION");
+        }
+        if (!this.nodeService.getType(personNodeRef).equals(OpenESDHModel.TYPE_CONTACT_PERSON)) {
+            throw new InvalidContactTypeException("The type of contact must be PERSON");
+        }
+        AssociationRef association = nodeService.createAssociation(organizationNodeRef, personNodeRef, OpenESDHModel.ASSOC_CONTACT_MEMBERS);
+        return association.getSourceRef();
+    }
+
+    @Override
+    public Stream<NodeRef> getOrganizationPersons(NodeRef organizationNodeRef) {
+        return this.nodeService.getTargetAssocs(organizationNodeRef, OpenESDHModel.ASSOC_CONTACT_MEMBERS)
+                .stream().map(assocRef -> assocRef.getTargetRef());
     }
 
     //<editor-fold desc="Injected service bean setters">

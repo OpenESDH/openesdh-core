@@ -69,6 +69,9 @@ public class ContactWebscript extends ContactAbstractWebscript {
             //Populate the map with address properties
             addAddressProperties(parsedRequest, typeProps);
             NodeRef createdContact = contactService.createContact(email, contactTypeParam, typeProps);
+
+            createAssociation(createdContact, parsedRequest);
+
             JSONObject obj;
 
             if (createdContact != null) {
@@ -123,6 +126,7 @@ public class ContactWebscript extends ContactAbstractWebscript {
             addAddressProperties(parsedRequest, typeProps);
 
             this.nodeService.setProperties(contactNodeRef, typeProps);
+
             JSONObject obj;
 
             if (contactNodeRef != null) {
@@ -141,6 +145,13 @@ public class ContactWebscript extends ContactAbstractWebscript {
     @Override
     public void get(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException {
         try {
+            String parentNodeRefId = req.getParameter("parentNodeRefId");
+            if (nodeRef == null && StringUtils.isNotEmpty(parentNodeRefId)) {
+                getAssociations(new NodeRef(parentNodeRefId))
+                        .writeJSONString(res.getWriter());
+                return;
+            }
+
             String emailId = req.getParameter("email");
             if (nodeRef == null && StringUtils.isNotEmpty(emailId)) {
                 nodeRef = contactService.getContactById(emailId);
@@ -155,4 +166,12 @@ public class ContactWebscript extends ContactAbstractWebscript {
         }
     }
 
+    @Override
+    protected void delete(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) {
+        try {
+            this.nodeService.deleteNode(nodeRef);
+        } catch (Exception ge) { //Any generic exception
+            throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Issue deleting contact: " + ge.getMessage());
+        }
+    }
 }
