@@ -42,7 +42,7 @@
         <property name="dictionaryService">
             <ref bean="DictionaryService"/>
         </property>
-        
+
         <property name="permissionsModelDAO">
             <ref bean="permissionsModelDAO"/>
         </property>
@@ -53,6 +53,37 @@
 
         <property name="policyComponent">
             <ref bean="policyComponent"/>
+        </property>
+
+        <property name="documentService">
+            <ref bean="DocumentService"/>
+        </property>
+
+        <property name="oeLockService">
+            <ref bean="OELockService"/>
+        </property>
+    </bean>
+
+    <bean id="OELockService"
+          class="dk.openesdh.repo.services.lock.OELockServiceImpl">
+        <property name="nodeService">
+            <ref bean="NodeService"/>
+        </property>
+
+        <property name="ownableService">
+            <ref bean="OwnableService"/>
+        </property>
+
+        <property name="lockService">
+            <ref bean="LockService"/>
+        </property>
+
+        <property name="permissionService">
+            <ref bean="PermissionService"/>
+        </property>
+
+        <property name="transactionService">
+            <ref bean="TransactionService"/>
         </property>
     </bean>
 
@@ -73,7 +104,7 @@
         <property name="caseService">
             <ref bean="CaseService"/>
         </property>
-        
+
         <property name="copyService">
             <ref bean="CopyService"/>
         </property>
@@ -93,11 +124,19 @@
         </property>
 
         <property name="namespaceService" ref="namespaceService"/>
-        
+
         <property name="versionService" ref="VersionService"/>
 
         <property name="behaviourFilter">
             <ref bean="policyBehaviourFilter"/>
+        </property>
+
+        <property name="policyComponent">
+            <ref bean="policyComponent"/>
+        </property>
+
+        <property name="oeLockService">
+            <ref bean="OELockService"/>
         </property>
     </bean>
 

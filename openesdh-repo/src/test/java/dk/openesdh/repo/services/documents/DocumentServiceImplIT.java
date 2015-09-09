@@ -3,6 +3,7 @@ package dk.openesdh.repo.services.documents;
 import java.util.Arrays;
 import java.util.List;
 
+import dk.openesdh.repo.model.DocumentStatus;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
@@ -37,7 +38,7 @@ import dk.openesdh.repo.services.cases.CaseService;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "classpath:alfresco/application-context.xml", "classpath:alfresco/extension/openesdh-test-context.xml" })
+@ContextConfiguration({"classpath:alfresco/application-context.xml", "classpath:alfresco/extension/openesdh-test-context.xml"})
 public class DocumentServiceImplIT {
 
     @Rule
@@ -78,6 +79,8 @@ public class DocumentServiceImplIT {
     private static final String TEST_DOCUMENT_FILE_NAME = TEST_DOCUMENT_NAME + ".txt";
     private static final String TEST_DOCUMENT_NAME2 = "TestDocument2";
     private static final String TEST_DOCUMENT_FILE_NAME2 = TEST_DOCUMENT_NAME2 + ".txt";
+    private static final String TEST_DOCUMENT_NAME3 = "TestDocument3";
+    private static final String TEST_DOCUMENT_FILE_NAME3 = TEST_DOCUMENT_NAME2 + ".txt";
 
     private static final String TEST_DOCUMENT_ATTACHMENT_NAME = "TestDocumentAttachment";
     private static final String TEST_DOCUMENT_ATTACHMENT_FILE_NAME = TEST_DOCUMENT_ATTACHMENT_NAME + ".txt";
@@ -94,6 +97,7 @@ public class DocumentServiceImplIT {
     private NodeRef testDocument2;
     private NodeRef testDocumentAttachment2;
     private NodeRef testDocumentRecFolder2;
+    private NodeRef testDocument3;
 
     @Before
     public void setUp() throws Exception {
@@ -114,10 +118,10 @@ public class DocumentServiceImplIT {
     @After
     public void tearDown() throws Exception {
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
-        
-        List<NodeRef> folders = Arrays.asList(new NodeRef[] { testFolder });
-        List<NodeRef> cases = Arrays.asList(new NodeRef[] { testCase1, testCase2 });
-        List<String> users = Arrays.asList(new String[] { CaseHelper.DEFAULT_USERNAME });
+
+        List<NodeRef> folders = Arrays.asList(new NodeRef[]{testFolder});
+        List<NodeRef> cases = Arrays.asList(new NodeRef[]{testCase1, testCase2});
+        List<String> users = Arrays.asList(new String[]{CaseHelper.DEFAULT_USERNAME});
         docTestHelper.removeNodesAndDeleteUsersInTransaction(folders, cases, users);
     }
 
@@ -241,5 +245,29 @@ public class DocumentServiceImplIT {
                 .getAttachments().size());
         Assert.assertEquals("Wrong number of the second document attachments retrieved", 1, caseDocuments.get(1)
                 .getAttachments().size());
+    }
+
+    @Test
+    public void finalizeUnfinalizeDocument() throws Exception {
+        testDocument3 = docTestHelper.createCaseDocument(TEST_DOCUMENT_FILE_NAME3, testCase1);
+        Assert.assertEquals("Document initially has DRAFT status", documentService.getNodeStatus(testDocument3), DocumentStatus.DRAFT);
+        documentService.changeNodeStatus(testDocument3, DocumentStatus.FINAL);
+        Assert.assertEquals("Finalized document has FINAL status",
+                documentService.getNodeStatus(testDocument3), DocumentStatus
+                        .FINAL);
+
+        try {
+            // Try to update the finalized document
+            NodeRef workingCopy = checkOutCheckInService.checkout(testDocument3);
+            ContentWriter writer = contentService.getWriter(workingCopy, ContentModel.PROP_CONTENT, true);
+            writer.setMimetype("text");
+            writer.putContent("some new content");
+            checkOutCheckInService.checkin(workingCopy, null);
+            Assert.fail("Expected to get an exception thrown when trying to add a new version to a finalized document");
+        } catch (Exception ignored) {
+        }
+
+        documentService.changeNodeStatus(testDocument3, DocumentStatus.DRAFT);
+        Assert.assertEquals("Unfinalized document has DRAFT status", documentService.getNodeStatus(testDocument3), DocumentStatus.DRAFT);
     }
 }

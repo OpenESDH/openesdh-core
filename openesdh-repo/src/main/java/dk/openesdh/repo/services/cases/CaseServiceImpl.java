@@ -1,15 +1,17 @@
 package dk.openesdh.repo.services.cases;
 
-import dk.openesdh.repo.model.CaseInfo;
-import dk.openesdh.repo.model.CaseInfoImpl;
-import dk.openesdh.repo.model.CaseStatus;
-import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.model.*;
+import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.services.lock.OELockService;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.node.NodeServicePolicies;
-import org.alfresco.repo.policy.*;
+import org.alfresco.repo.policy.Behaviour;
+import org.alfresco.repo.policy.BehaviourFilter;
+import org.alfresco.repo.policy.JavaBehaviour;
+import org.alfresco.repo.policy.PolicyComponent;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
 import org.alfresco.repo.security.permissions.PermissionReference;
@@ -18,7 +20,6 @@ import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.action.ActionService;
 import org.alfresco.service.cmr.dictionary.*;
 import org.alfresco.service.cmr.lock.LockService;
-import org.alfresco.service.cmr.lock.LockType;
 import org.alfresco.service.cmr.repository.*;
 import org.alfresco.service.cmr.repository.datatype.DefaultTypeConverter;
 import org.alfresco.service.cmr.rule.RuleService;
@@ -81,12 +82,22 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
     private RuleService ruleService;
     private ActionService actionService;
     private PolicyComponent policyComponent;
+    private DocumentService documentService;
+    private OELockService oeLockService;
 
     Behaviour onUpdatePropertiesBehaviour;
 
     //<editor-fold desc="Service setters">
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
+    }
+
+    public void setDocumentService(DocumentService documentService) {
+        this.documentService = documentService;
+    }
+
+    public void setOeLockService(OELockService oeLockService) {
+        this.oeLockService = oeLockService;
     }
 
     public void setContentService(ContentService contentService) {
@@ -167,11 +178,9 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
         if (beforeStatus.equals(afterStatus)) {
             return;
         }
-        if (isCaseNode(nodeRef)) {
-            throw new AlfrescoRuntimeException("Case status cannot be " +
-                    "changed directly. Must call the CaseService" +
-                    ".changeCaseStatus method.");
-        }
+        throw new AlfrescoRuntimeException("Case status cannot be " +
+                "changed directly. Must call the CaseService" +
+                ".changeNodeStatus method.");
     }
 
     @Override
@@ -596,7 +605,7 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
     }
 
     @Override
-    public boolean canChangeCaseStatus(String fromStatus, String toStatus, String user, NodeRef nodeRef) {
+    public boolean canChangeNodeStatus(String fromStatus, String toStatus, String user, NodeRef nodeRef) {
         return isCaseNode(nodeRef) &&
                 CaseStatus.isValidTransition(fromStatus, toStatus) &&
                 canLeaveStatus(fromStatus, user, nodeRef) && canEnterStatus(toStatus, user, nodeRef);
@@ -604,7 +613,7 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
 
     public void checkCanChangeStatus(NodeRef nodeRef, String fromStatus, String toStatus) throws AccessDeniedException {
         String user = AuthenticationUtil.getRunAsUser();
-        if (!canChangeCaseStatus(fromStatus, toStatus, user, nodeRef)) {
+        if (!canChangeNodeStatus(fromStatus, toStatus, user, nodeRef)) {
             throw new AccessDeniedException(user + " is not allowed to " +
                     "switch case from status " + fromStatus + " to " +
                     toStatus + " for case " + nodeRef);
@@ -614,10 +623,10 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
     @Override
     public List<String> getValidNextStatuses(NodeRef nodeRef) {
         String user = AuthenticationUtil.getFullyAuthenticatedUser();
-        String fromStatus = getStatus(nodeRef);
-        List<String> statuses = new LinkedList<>();
+        String fromStatus = getNodeStatus(nodeRef);
+        List<String> statuses;
         statuses = Arrays.asList(CaseStatus.getStatuses()).stream().filter(
-                s -> canChangeCaseStatus(fromStatus, s, user, nodeRef))
+                s -> canChangeNodeStatus(fromStatus, s, user, nodeRef))
                 .collect(Collectors.toList());
         return statuses;
     }
@@ -629,7 +638,7 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
             case CaseStatus.PASSIVE:
                 return true;
             case CaseStatus.CLOSED:
-                return canUnlock(user, nodeRef);
+                return canReopenCase(user, nodeRef);
             case CaseStatus.ARCHIVED:
                 return false;
             default:
@@ -644,7 +653,7 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
             case CaseStatus.PASSIVE:
                 return true;
             case CaseStatus.CLOSED:
-                return canLock(user, nodeRef);
+                return canCloseCase(user, nodeRef);
             case CaseStatus.ARCHIVED:
                 // The system does this.
                 return false;
@@ -654,8 +663,11 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
     }
 
     @Override
-    public void changeCaseStatus(NodeRef nodeRef, String newStatus) throws Exception {
-        String fromStatus = getStatus(nodeRef);
+    public void changeNodeStatus(NodeRef nodeRef, String newStatus) throws Exception {
+        String fromStatus = getNodeStatus(nodeRef);
+        if (newStatus.equals(fromStatus)) {
+            return;
+        }
         checkCanChangeStatus(nodeRef, fromStatus, newStatus);
 
         transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
@@ -683,8 +695,7 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
                         nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.PASSIVE);
                         break;
                     case CaseStatus.CLOSED:
-                        nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.CLOSED);
-                        lock(nodeRef);
+                        closeCase(nodeRef);
                         break;
                 }
                 break;
@@ -696,19 +707,18 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
                         break;
                     case CaseStatus.CLOSED:
                         unPassivate(nodeRef);
-                        nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.CLOSED);
-                        lock(nodeRef);
+                        closeCase(nodeRef);
                         break;
                 }
                 break;
             case CaseStatus.CLOSED:
                 switch (newStatus) {
                     case CaseStatus.ACTIVE:
-                        unlock(nodeRef);
+                        reopenCase(nodeRef);
                         nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.ACTIVE);
                         break;
                     case CaseStatus.PASSIVE:
-                        unlock(nodeRef);
+                        reopenCase(nodeRef);
                         passivate(nodeRef);
                         nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.PASSIVE);
                         break;
@@ -721,16 +731,44 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
     }
 
     @Override
-    public String getStatus(NodeRef nodeRef) {
+    public String getNodeStatus(NodeRef nodeRef) {
         return (String) nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS);
     }
 
-    protected boolean canUnlock(String user, NodeRef nodeRef) {
+    protected boolean canReopenCase(String user, NodeRef nodeRef) {
         return authorityService.isAdminAuthority(user);
     }
 
-    protected boolean canLock(String user, NodeRef nodeRef) {
+    protected boolean canCloseCase(String user, NodeRef nodeRef) {
         return true;
+    }
+
+    /**
+     * Close a case node.
+     * @param nodeRef
+     */
+    protected void closeCase(NodeRef nodeRef) throws Exception {
+        if (!isCaseNode(nodeRef)) {
+            throw new Exception("Cannot close a non-case node!");
+        }
+        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
+            @Override
+            public Object execute() throws Throwable {
+                nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.CLOSED);
+                oeLockService.lock(nodeRef);
+                for (ChildAssociationRef childAssociationRef : nodeService.getChildAssocs(nodeRef)) {
+                    NodeRef childNodeRef = childAssociationRef.getChildRef();
+                    if (documentService.isDocNode(childNodeRef)) {
+                        // Finalize any unfinalized documents
+                        documentService.changeNodeStatus(childNodeRef, DocumentStatus.FINAL);
+                    } else {
+                        oeLockService.lock(childNodeRef);
+                    }
+                }
+                lockCaseGroups(nodeRef);
+                return null;
+            }
+        });
     }
 
     @Override
@@ -738,71 +776,6 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
         return nodeService.hasAspect(nodeRef, OpenESDHModel.ASPECT_OE_LOCKED);
     }
 
-    /**
-     * Lock a case node.
-     * @param nodeRef
-     */
-    protected void lock(NodeRef nodeRef) throws Exception {
-        if (!isCaseNode(nodeRef)) {
-            throw new Exception("Cannot lock a non-case node!");
-        }
-        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
-            @Override
-            public Object execute() throws Throwable {
-                lockImpl(nodeRef);
-                lockCaseGroups(nodeRef);
-                return null;
-            }
-        });
-    }
-
-    // Suppress warning about READ_ONLY_LOCK being deprecated
-    @SuppressWarnings("deprecation")
-    protected void lockImpl(final NodeRef nodeRef) {
-        if (nodeService.hasAspect(nodeRef, OpenESDHModel.ASPECT_OE_LOCKED)) {
-            // Don't touch, already locked
-            LOGGER.warn("Node already has locked aspect when locking: " + nodeRef);
-            return;
-        }
-        AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Void>() {
-            @Override
-            public Void doWork() {
-                // Set the owner to be the System user to prevent the
-                // original owner from modifying the node
-                String originalOwner = null;
-                if (nodeService.hasAspect(nodeRef, ContentModel.ASPECT_OWNABLE)) {
-                    originalOwner = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_OWNER);
-                }
-                ownableService.setOwner(nodeRef, AuthenticationUtil.getSystemUserName());
-
-                // Add locked aspect
-                Map<QName, Serializable> props = new HashMap<>();
-                props.put(OpenESDHModel.PROP_OE_LOCKED_BY, AuthenticationUtil.getFullyAuthenticatedUser());
-                props.put(OpenESDHModel.PROP_OE_LOCKED_DATE, new Date());
-                // Save the original owner, or null if there wasn't any
-                props.put(OpenESDHModel.PROP_OE_ORIGINAL_OWNER, originalOwner);
-                nodeService.addAspect(nodeRef, OpenESDHModel.ASPECT_OE_LOCKED, props);
-
-                // Add the LockPermissionsToDeny permission set to deny everyone
-                permissionService.setPermission(nodeRef, PermissionService.ALL_AUTHORITIES, "LockPermissionsToDeny", false);
-
-                // Add a never-expiring lock as the system user
-                String authenticatedUser = AuthenticationUtil.getFullyAuthenticatedUser();
-                try {
-                    AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getSystemUserName());
-                    lockService.lock(nodeRef, LockType.READ_ONLY_LOCK, 0);
-                } finally {
-                    AuthenticationUtil.setFullyAuthenticatedUser(authenticatedUser);
-                }
-                return null;
-            }
-        });
-
-        List<ChildAssociationRef> childAssociationRefs = nodeService.getChildAssocs(nodeRef);
-        for (ChildAssociationRef childAssociationRef : childAssociationRefs) {
-            lockImpl(childAssociationRef.getChildRef());
-        }
-    }
 
     protected void lockCaseGroups(final NodeRef caseNodeRef) {
         AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Void>() {
@@ -838,53 +811,27 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
     }
 
     /**
-     * Unlock a case node.
+     * Reopen a closed case node.
      * @param nodeRef
      */
-    protected void unlock(NodeRef nodeRef) throws Exception {
+    protected void reopenCase(NodeRef nodeRef) throws Exception {
         if (!isCaseNode(nodeRef)) {
             throw new Exception("Not a case node");
         }
         transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
             @Override
             public Object execute() throws Throwable {
-                unlockImpl(nodeRef);
+                for (ChildAssociationRef childAssociationRef : nodeService.getChildAssocs(nodeRef)) {
+                    NodeRef childNodeRef = childAssociationRef.getChildRef();
+                    // Do NOT unlock documents (they should remain in FINAL status)
+                    if (!documentService.isDocNode(childNodeRef)) {
+                        oeLockService.unlock(childNodeRef);
+                    }
+                }
                 unlockCaseGroups(nodeRef);
                 return null;
             }
         });
-    }
-
-    protected void unlockImpl(final NodeRef nodeRef) {
-        AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Void>() {
-            @Override
-            public Void doWork() {
-                lockService.unlock(nodeRef);
-
-                // Only delete the permission if permissions are not
-                // inherited (shared)
-                if (!permissionService.getInheritParentPermissions(nodeRef)) {
-                    permissionService.deletePermission(nodeRef, PermissionService.ALL_AUTHORITIES, "LockPermissionsToDeny");
-                }
-
-                String originalOwner = (String) nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_ORIGINAL_OWNER);
-                if (originalOwner != null) {
-                    // Restore the node's original owner
-                    ownableService.setOwner(nodeRef, originalOwner);
-                } else {
-                    // Remove the ownable aspect, since it wasn't there to
-                    // begin with
-                    nodeService.removeAspect(nodeRef, ContentModel.ASPECT_OWNABLE);
-                }
-                nodeService.removeAspect(nodeRef, OpenESDHModel.ASPECT_OE_LOCKED);
-                return null;
-            }
-        });
-
-        List<ChildAssociationRef> childAssociationRefs = nodeService.getChildAssocs(nodeRef);
-        for (ChildAssociationRef childAssociationRef : childAssociationRefs) {
-            unlockImpl(childAssociationRef.getChildRef());
-        }
     }
 
     protected void unlockCaseGroups(final NodeRef caseNodeRef) {

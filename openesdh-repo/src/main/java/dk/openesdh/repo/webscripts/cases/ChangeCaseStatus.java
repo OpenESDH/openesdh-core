@@ -42,7 +42,7 @@ public class ChangeCaseStatus extends AbstractWebScript {
 		}
 
 		try {
-			caseService.changeCaseStatus(caseService.getCaseById(caseId), status);
+			caseService.changeNodeStatus(caseService.getCaseById(caseId), status);
 		} catch (Exception e) {
 			throw new WebScriptException(Status.STATUS_FORBIDDEN,
 					"Unable to switch case status: " + e.getMessage());

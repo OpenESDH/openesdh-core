@@ -1,18 +1,20 @@
 package dk.openesdh.repo.services.documents;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
+import dk.openesdh.repo.model.*;
+import dk.openesdh.repo.services.lock.OELockService;
+import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.node.NodeServicePolicies;
+import org.alfresco.repo.policy.Behaviour;
 import org.alfresco.repo.policy.BehaviourFilter;
+import org.alfresco.repo.policy.JavaBehaviour;
+import org.alfresco.repo.policy.PolicyComponent;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.repo.version.VersionModel;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.AssociationRef;
@@ -36,18 +38,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import dk.openesdh.repo.model.CaseDocument;
-import dk.openesdh.repo.model.CaseDocumentAttachment;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.model.ResultSet;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.webscripts.documents.Documents;
+import org.springframework.security.access.AccessDeniedException;
 
 /**
  * Created by torben on 11/09/14.
  */
 
-public class DocumentServiceImpl implements DocumentService {
+public class DocumentServiceImpl implements DocumentService, NodeServicePolicies.OnUpdatePropertiesPolicy {
 
     private static Log logger = LogFactory.getLog(DocumentServiceImpl.class);
 
@@ -59,14 +58,28 @@ public class DocumentServiceImpl implements DocumentService {
     private NamespaceService namespaceService;
     private BehaviourFilter behaviourFilter;
     private CopyService copyService;
+
+    private OELockService oeLockService;
+
     private VersionService versionService;
 
-    private MimeTypes allMimeTypes = MimeTypes.getDefaultMimeTypes();
-    private MimeTypes types;
+    private PolicyComponent policyComponent;
 
+    private MimeTypes allMimeTypes = MimeTypes.getDefaultMimeTypes();
+
+    private MimeTypes types;
+    private Behaviour onUpdatePropertiesBehaviour;
     //<editor-fold desc="Setters">
     public void setCaseService(CaseService caseService) {
         this.caseService = caseService;
+    }
+
+    public void setOeLockService(OELockService oeLockService) {
+        this.oeLockService = oeLockService;
+    }
+
+    public void setPolicyComponent(PolicyComponent policyComponent) {
+        this.policyComponent = policyComponent;
     }
 
     public void setNamespaceService(NamespaceService namespaceService) {
@@ -101,6 +114,118 @@ public class DocumentServiceImpl implements DocumentService {
 
     public void setVersionService(VersionService versionService) {
         this.versionService = versionService;
+    }
+
+    public void init() {
+        onUpdatePropertiesBehaviour = new JavaBehaviour(this,
+                "onUpdateProperties");
+        this.policyComponent.bindClassBehaviour(
+                NodeServicePolicies.OnUpdatePropertiesPolicy.QNAME,
+                OpenESDHModel.TYPE_CASE_BASE,
+                onUpdatePropertiesBehaviour);
+    }
+
+    @Override
+    public void onUpdateProperties(NodeRef nodeRef, Map<QName, Serializable> before, Map<QName, Serializable> after) {
+        String beforeStatus = (String) before.get(OpenESDHModel.PROP_OE_STATUS);
+        if (beforeStatus == null) {
+            return;
+        }
+        String afterStatus = (String) after.get(OpenESDHModel.PROP_OE_STATUS);
+        if (beforeStatus.equals(afterStatus)) {
+            return;
+        }
+        throw new AlfrescoRuntimeException("Document status cannot be " +
+                "changed directly. Must call the DocumentService" +
+                ".changeDocumentStatus method.");
+    }
+
+    @Override
+    public boolean isDocNode(NodeRef nodeRef) {
+        return dictionaryService.isSubClass(nodeService.getType(nodeRef), OpenESDHModel.TYPE_DOC_BASE);
+    }
+
+    @Override
+    public boolean canChangeNodeStatus(String fromStatus, String toStatus,
+                                           String user, NodeRef nodeRef) {
+        return isDocNode(nodeRef) &&
+                DocumentStatus.isValidTransition(fromStatus, toStatus) &&
+                canLeaveStatus(fromStatus, user, nodeRef) && canEnterStatus(toStatus, user, nodeRef);
+    }
+
+    protected boolean canLeaveStatus(String status, String user, NodeRef nodeRef) {
+        // For now anyone can exit any document status
+        return true;
+    }
+
+    protected boolean canEnterStatus(String status, String user, NodeRef nodeRef) {
+        // For now anyone can enter any document status
+        return true;
+    }
+
+    @Override
+    public void changeNodeStatus(NodeRef nodeRef, String newStatus) throws
+            Exception {
+        String fromStatus = getNodeStatus(nodeRef);
+        if (newStatus.equals(fromStatus)) {
+            return;
+        }
+        checkCanChangeStatus(nodeRef, fromStatus, newStatus);
+
+        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
+            @Override
+            public Object execute() throws Throwable {
+                try {
+                    // Disable status behaviour to allow the system to set the
+                    // status directly.
+                    onUpdatePropertiesBehaviour.disable();
+                    changeStatusImpl(nodeRef, fromStatus, newStatus);
+                } finally {
+                    onUpdatePropertiesBehaviour.enable();
+                }
+                return null;
+            }
+        });
+    }
+
+    public void checkCanChangeStatus(NodeRef nodeRef, String fromStatus, String toStatus) throws AccessDeniedException {
+        String user = AuthenticationUtil.getRunAsUser();
+        if (!canChangeNodeStatus(fromStatus, toStatus, user, nodeRef)) {
+            throw new AccessDeniedException(user + " is not allowed to " +
+                    "switch document from status " + fromStatus + " to " +
+                    toStatus + " for document " + nodeRef);
+        }
+    }
+
+    private void changeStatusImpl(NodeRef nodeRef, String fromStatus, String newStatus) {
+        switch (newStatus) {
+            case DocumentStatus.FINAL:
+                nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, newStatus);
+                // TODO: Convert to PDF
+                oeLockService.lock(nodeRef);
+                break;
+            case DocumentStatus.DRAFT:
+                oeLockService.unlock(nodeRef);
+                // TODO: Revert to non-PDF original version
+                nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, newStatus);
+                break;
+        }
+    }
+
+    @Override
+    public String getNodeStatus(NodeRef nodeRef) {
+        return (String) nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS);
+    }
+
+    @Override
+    public List<String> getValidNextStatuses(NodeRef nodeRef) {
+        String user = AuthenticationUtil.getFullyAuthenticatedUser();
+        String fromStatus = getNodeStatus(nodeRef);
+        List<String> statuses;
+        statuses = Arrays.asList(DocumentStatus.getStatuses()).stream().filter(
+                s -> canChangeNodeStatus(fromStatus, s, user, nodeRef))
+                .collect(Collectors.toList());
+        return statuses;
     }
 
     @Override

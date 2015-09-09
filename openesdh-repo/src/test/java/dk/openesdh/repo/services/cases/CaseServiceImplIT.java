@@ -25,7 +25,6 @@ import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.action.ActionService;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.lock.LockService;
-import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.rule.RuleService;
@@ -454,15 +453,15 @@ public class CaseServiceImplIT {
 
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
 
-        caseService.changeCaseStatus(nonAdminCreatedCaseNr, CaseStatus.ACTIVE);
+        caseService.changeNodeStatus(nonAdminCreatedCaseNr, CaseStatus.ACTIVE);
 
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
 
-        assertEquals("Initial status is active", caseService.getStatus(nonAdminCreatedCaseNr), CaseStatus.ACTIVE);
+        assertEquals("Initial status is active", caseService.getNodeStatus(nonAdminCreatedCaseNr), CaseStatus.ACTIVE);
 
-        caseService.changeCaseStatus(nonAdminCreatedCaseNr, CaseStatus.CLOSED);
+        caseService.changeNodeStatus(nonAdminCreatedCaseNr, CaseStatus.CLOSED);
 
-        assertEquals("Status after closing is closed", caseService.getStatus
+        assertEquals("Status after closing is closed", caseService.getNodeStatus
                 (nonAdminCreatedCaseNr), CaseStatus.CLOSED);
 
         // Test that locked properties got set
@@ -517,12 +516,12 @@ public class CaseServiceImplIT {
         assertTrue(caseService.isLocked(nonAdminCreatedCaseNr));
 
         // Test that a case cannot be closed twice
-        caseService.changeCaseStatus(nonAdminCreatedCaseNr, CaseStatus.CLOSED);
+        caseService.changeNodeStatus(nonAdminCreatedCaseNr, CaseStatus.CLOSED);
 
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
 
         try {
-            caseService.changeCaseStatus(nonAdminCreatedCaseNr, CaseStatus.ACTIVE);
+            caseService.changeNodeStatus(nonAdminCreatedCaseNr, CaseStatus.ACTIVE);
             fail("Should not be able to set closed case to active as a " +
                     "regular user");
         } catch (Exception e) {
@@ -530,9 +529,9 @@ public class CaseServiceImplIT {
 
 
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
-        caseService.changeCaseStatus(nonAdminCreatedCaseNr, CaseStatus.ACTIVE);
+        caseService.changeNodeStatus(nonAdminCreatedCaseNr, CaseStatus.ACTIVE);
 
-        assertEquals("Status after reopening is active", caseService.getStatus(nonAdminCreatedCaseNr), CaseStatus.ACTIVE);
+        assertEquals("Status after reopening is active", caseService.getNodeStatus(nonAdminCreatedCaseNr), CaseStatus.ACTIVE);
 
         assertFalse("Case isLocked returns false for a reopened case" +
                 "case", caseService.isLocked(nonAdminCreatedCaseNr));
@@ -554,9 +553,9 @@ public class CaseServiceImplIT {
 
     @Test
     public void passivate() throws Exception {
-        caseService.changeCaseStatus(nonAdminCreatedCaseNr, CaseStatus.PASSIVE);
+        caseService.changeNodeStatus(nonAdminCreatedCaseNr, CaseStatus.PASSIVE);
         assertEquals("Status is passive after being passivated", caseService
-                .getStatus(nonAdminCreatedCaseNr), CaseStatus.PASSIVE);
+                .getNodeStatus(nonAdminCreatedCaseNr), CaseStatus.PASSIVE);
     }
 
     @Test
