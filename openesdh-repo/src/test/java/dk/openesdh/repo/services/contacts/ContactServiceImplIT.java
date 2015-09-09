@@ -34,7 +34,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "classpath:alfresco/application-context.xml" })
+@ContextConfiguration({"classpath:alfresco/application-context.xml"})
 public class ContactServiceImplIT {
 
     @Autowired
@@ -66,6 +66,14 @@ public class ContactServiceImplIT {
     private static final String TEST_ORG_CONTACT_EMAIL = "org@openesdh.org";
     private static final String TEST_ORG_CONTACT_NAME = "OrgName";
     private static final String TEST_ORG_CONTACT_CVR_NUMBER = "12345678";
+    private static final String TEST_ORG_CONTACT_DEPARTMENT = "IT";
+
+    private static final String TEST_CONTACT_PHONE = "1234567890123";
+    private static final String TEST_CONTACT_MOBILE = "987654321012";
+    private static final String TEST_CONTACT_WEBSITE = "testsite.openesdh.org";
+    private static final String TEST_CONTACT_LINKEDIN = "linkedin.com/test-openesdh";
+    private static final String TEST_CONTACT_IM = "test-openesdh";
+    private static final String TEST_CONTACT_NOTES = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque dictum nisl vitae turpis dictum, tempus commodo mauris tempor.";
 
     private ContactServiceImpl contactService;
     private NodeRef testContactNodeRef;
@@ -104,7 +112,8 @@ public class ContactServiceImplIT {
     @Test
     public void shouldCreatePersonContactWithAllProps() {
         HashMap<QName, Serializable> typeProps = createPersonContactProps();
-        
+        typeProps.putAll(createCommonContactProps());
+
         testContactNodeRef = transactionHelper().doInTransaction(
                 () -> contactService.createContact(TEST_PERSON_CONTACT_EMAIL, ContactType.PERSON.name(), typeProps));
         Assert.assertNotNull("A node ref of the created contact should not be null", testContactNodeRef);
@@ -118,12 +127,14 @@ public class ContactServiceImplIT {
     @Test
     public void shouldCreateOrgContactWithAllProps() {
         HashMap<QName, Serializable> typeProps = createOrgContactProps();
+        typeProps.putAll(createCommonContactProps());
+
         testContactNodeRef = transactionHelper().doInTransaction(
                 () -> contactService.createContact(TEST_ORG_CONTACT_EMAIL, ContactType.ORGANIZATION.name(), typeProps));
         Assert.assertNotNull("A node ref of the created contact should not be null", testContactNodeRef);
 
         Map<QName, Serializable> resultProps = nodeService.getProperties(testContactNodeRef);
-        
+
         typeProps.keySet().stream().forEach(key -> Assert.assertEquals(
                 "The " + key.getLocalName() + " property value of the created contact doesn't match provided", typeProps.get(key), resultProps.get(key)));
     }
@@ -134,7 +145,7 @@ public class ContactServiceImplIT {
         testContactNodeRef = transactionHelper().doInTransaction(
                 () -> contactService.createContact(TEST_PERSON_CONTACT_EMAIL, ContactType.PERSON.name(), typeProps));
         Assert.assertNotNull("A node ref of the created contact should not be null", testContactNodeRef);
-        
+
         ContactInfo contactInfo = contactService.getContactInfo(testContactNodeRef);
 
         Assert.assertEquals(wrongPropValueMessage(OpenESDHModel.PROP_CONTACT_EMAIL),
@@ -170,23 +181,23 @@ public class ContactServiceImplIT {
     }
 
     @Test
-    public void shouldCreatePersonContactAndGetContactType(){
+    public void shouldCreatePersonContactAndGetContactType() {
         HashMap<QName, Serializable> typeProps = createPersonContactProps();
         testContactNodeRef = transactionHelper().doInTransaction(
                 () -> contactService.createContact(TEST_PERSON_CONTACT_EMAIL, ContactType.PERSON.name(), typeProps));
         Assert.assertNotNull("A node ref of the created contact should not be null", testContactNodeRef);
-        
+
         ContactType resultContactType = contactService.getContactType(testContactNodeRef);
         Assert.assertEquals("Wrong contact type of the created person contact", ContactType.PERSON, resultContactType);
     }
-    
+
     @Test
     public void shouldCreateOrgContactAndGetContactType() {
         HashMap<QName, Serializable> typeProps = createOrgContactProps();
         testContactNodeRef = transactionHelper().doInTransaction(
                 () -> contactService.createContact(TEST_ORG_CONTACT_EMAIL, ContactType.ORGANIZATION.name(), typeProps));
         Assert.assertNotNull("A node ref of the created contact should not be null", testContactNodeRef);
-        
+
         ContactType resultContactType = contactService.getContactType(testContactNodeRef);
         Assert.assertEquals("Wrong contact type of the created person contact", ContactType.ORGANIZATION, resultContactType);
     }
@@ -241,7 +252,7 @@ public class ContactServiceImplIT {
         Arrays.asList(prop).stream().forEach(propName -> sj.add(propName.getLocalName()));
         return MessageFormat.format(
                 "Retrieved \"{0}\" property value of the created contact doesn't match provided",
-                new Object[] { sj.toString() });
+                new Object[]{sj.toString()});
     }
 
     private HashMap<QName, Serializable> createPersonContactProps() {
@@ -259,6 +270,18 @@ public class ContactServiceImplIT {
         typeProps.put(OpenESDHModel.PROP_CONTACT_ORGANIZATION_NAME, TEST_ORG_CONTACT_NAME);
         typeProps.put(OpenESDHModel.PROP_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL);
         typeProps.put(OpenESDHModel.PROP_CONTACT_CVR_NUMBER, TEST_ORG_CONTACT_CVR_NUMBER);
+        typeProps.put(OpenESDHModel.PROP_CONTACT_DEPARTMENT, TEST_ORG_CONTACT_DEPARTMENT);
+        return typeProps;
+    }
+
+    private HashMap<QName, Serializable> createCommonContactProps() {
+        HashMap<QName, Serializable> typeProps = new HashMap<QName, Serializable>();
+        typeProps.put(OpenESDHModel.PROP_CONTACT_PHONE, TEST_CONTACT_PHONE);
+        typeProps.put(OpenESDHModel.PROP_CONTACT_MOBILE, TEST_CONTACT_MOBILE);
+        typeProps.put(OpenESDHModel.PROP_CONTACT_WEBSITE, TEST_CONTACT_WEBSITE);
+        typeProps.put(OpenESDHModel.PROP_CONTACT_LINKEDIN, TEST_CONTACT_LINKEDIN);
+        typeProps.put(OpenESDHModel.PROP_CONTACT_IM, TEST_CONTACT_IM);
+        typeProps.put(OpenESDHModel.PROP_CONTACT_NOTES, TEST_CONTACT_NOTES);
         return typeProps;
     }
 

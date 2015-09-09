@@ -127,7 +127,13 @@ public interface OpenESDHModel {
 
 
     public static final QName PROP_CONTACT_EMAIL = QName.createQName(CONTACT_URI, "email");
-    public static final QName PROP_CONTACT_TYPE = QName.createQName (CONTACT_URI, "contactType");
+    public static final QName PROP_CONTACT_TYPE = QName.createQName(CONTACT_URI, "contactType");
+    public static final QName PROP_CONTACT_PHONE = QName.createQName(CONTACT_URI, "phone");
+    public static final QName PROP_CONTACT_MOBILE = QName.createQName(CONTACT_URI, "mobile");
+    public static final QName PROP_CONTACT_WEBSITE = QName.createQName(CONTACT_URI, "website");
+    public static final QName PROP_CONTACT_LINKEDIN = QName.createQName(CONTACT_URI, "linkedin");
+    public static final QName PROP_CONTACT_IM = QName.createQName(CONTACT_URI, "IM");
+    public static final QName PROP_CONTACT_NOTES = QName.createQName(CONTACT_URI, "notes");
 
     public static final QName PROP_CONTACT_FIRST_NAME = QName.createQName (CONTACT_URI, "firstName");
     public static final QName PROP_CONTACT_LAST_NAME = QName.createQName (CONTACT_URI, "lastName");
@@ -135,6 +141,7 @@ public interface OpenESDHModel {
     public static final QName PROP_CONTACT_CPR_NUMBER = QName.createQName (CONTACT_URI, "cprNumber");
 
     public static final QName PROP_CONTACT_ORGANIZATION_NAME = QName.createQName (CONTACT_URI, "organizationName");
+    public static final QName PROP_CONTACT_DEPARTMENT = QName.createQName(CONTACT_URI, "department");
     public static final QName PROP_CONTACT_CVR_NUMBER = QName.createQName (CONTACT_URI, "cvrNumber");
 
     public static final QName PROP_CONTACT_ADDRESS = QName.createQName (CONTACT_URI, "address");

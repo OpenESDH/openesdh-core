@@ -48,26 +48,9 @@ public class ContactWebscript extends ContactAbstractWebscript {
                 throw new WebScriptException("No contact type was specified.");
             }
             ContactType contactType = ContactType.getContactType(contactTypeParam);
-            switch (contactType) {
-                case PERSON:
-                    typeProps.put(OpenESDHModel.PROP_CONTACT_EMAIL, getOrNull(parsedRequest, "email"));
-                    typeProps.put(OpenESDHModel.PROP_CONTACT_FIRST_NAME, getOrNull(parsedRequest, "firstName"));
-                    typeProps.put(OpenESDHModel.PROP_CONTACT_LAST_NAME, getOrNull(parsedRequest, "lastName"));
-                    typeProps.put(OpenESDHModel.PROP_CONTACT_MIDDLE_NAME, getOrNull(parsedRequest, "middleName"));
-                    typeProps.put(OpenESDHModel.PROP_CONTACT_CPR_NUMBER, getOrNull(parsedRequest, "cprNumber"));
-                    //TODO There are 2/4 more props that are boolean types to possibly add.
-                    break;
-                case ORGANIZATION:
-                    typeProps.put(OpenESDHModel.PROP_CONTACT_ORGANIZATION_NAME, getOrNull(parsedRequest, "organizationName"));
-                    typeProps.put(OpenESDHModel.PROP_CONTACT_EMAIL, getOrNull(parsedRequest, "email"));
-                    typeProps.put(OpenESDHModel.PROP_CONTACT_CVR_NUMBER, getOrNull(parsedRequest, "cvrNumber"));
-                    break;
-                default:
-                    throw new WebScriptException("Incorrect contact type was specified.");
-            }
 
-            //Populate the map with address properties
-            addAddressProperties(parsedRequest, typeProps);
+            addContactProperties(contactType, parsedRequest, typeProps);
+
             NodeRef createdContact = contactService.createContact(email, contactTypeParam, typeProps);
 
             createAssociation(createdContact, parsedRequest);
@@ -107,23 +90,10 @@ public class ContactWebscript extends ContactAbstractWebscript {
                 throw new WebScriptException("The contact email is missing. Unable to further proceed.");
             }
 
-            QName contactType = this.nodeService.getType(contactNodeRef);
-            if (contactType.equals(OpenESDHModel.TYPE_CONTACT_PERSON)) {
-                copyProperty(parsedRequest, typeProps, OpenESDHModel.PROP_CONTACT_EMAIL);
-                copyProperty(parsedRequest, typeProps, OpenESDHModel.PROP_CONTACT_FIRST_NAME);
-                copyProperty(parsedRequest, typeProps, OpenESDHModel.PROP_CONTACT_LAST_NAME);
-                copyProperty(parsedRequest, typeProps, OpenESDHModel.PROP_CONTACT_MIDDLE_NAME);
-                copyProperty(parsedRequest, typeProps, OpenESDHModel.PROP_CONTACT_CPR_NUMBER);
-                //TODO There are 2/4 more props that are boolean types to possibly add.
-            }
-            if (contactType.equals(OpenESDHModel.TYPE_CONTACT_ORGANIZATION)) {
-                copyProperty(parsedRequest, typeProps, OpenESDHModel.PROP_CONTACT_ORGANIZATION_NAME);
-                copyProperty(parsedRequest, typeProps, OpenESDHModel.PROP_CONTACT_EMAIL);
-                copyProperty(parsedRequest, typeProps, OpenESDHModel.PROP_CONTACT_CVR_NUMBER);
-            }
+            QName contactTypeQName = this.nodeService.getType(contactNodeRef);
+            ContactType contactType = contactTypeQName.equals(OpenESDHModel.TYPE_CONTACT_PERSON) ? ContactType.PERSON : ContactType.ORGANIZATION;
 
-            //Populate the map with address properties
-            addAddressProperties(parsedRequest, typeProps);
+            addContactProperties(contactType, parsedRequest, typeProps);
 
             this.nodeService.setProperties(contactNodeRef, typeProps);
 
