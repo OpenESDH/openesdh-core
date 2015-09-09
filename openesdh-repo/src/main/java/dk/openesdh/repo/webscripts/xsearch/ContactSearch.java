@@ -1,5 +1,6 @@
 package dk.openesdh.repo.webscripts.xsearch;
 
+import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.xsearch.ContactSearchService;
 import dk.openesdh.repo.services.xsearch.XResultSet;
 import dk.openesdh.repo.utils.Utils;
@@ -9,6 +10,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import org.alfresco.repo.model.Repository;
+import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.NamespaceService;
@@ -52,7 +54,7 @@ public class ContactSearch extends AbstractWebScript {
             }
 
             String sortField = params.get("sortField");
-            boolean ascending = Boolean.parseBoolean(params.get("sortAscending"));
+            boolean ascending = params.get("sortAscending") == null || Boolean.parseBoolean(params.get("sortAscending"));
 
             XResultSet results = contactSearchService.getNodes(params, startIndex, pageSize, sortField, ascending);
             List<NodeRef> nodeRefs = results.getNodeRefs();
@@ -75,7 +77,15 @@ public class ContactSearch extends AbstractWebScript {
 
     protected JSONObject nodeToJSON(NodeRef nodeRef) throws JSONException {
         Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
+        properties.put(OpenESDHModel.PROP_CONTACT_DEPARTMENT, getParentsDepartment(nodeRef));
         return ContactUtils.createContactJson(nodeRef, properties);
+    }
+
+    private Serializable getParentsDepartment(NodeRef nodeRef) {
+        for (AssociationRef assoc : nodeService.getSourceAssocs(nodeRef, OpenESDHModel.ASSOC_CONTACT_MEMBERS)) {
+            return nodeService.getProperty(assoc.getSourceRef(), OpenESDHModel.PROP_CONTACT_DEPARTMENT);
+        }
+        return null;
     }
 
     public void setNodeService(NodeService nodeService) {

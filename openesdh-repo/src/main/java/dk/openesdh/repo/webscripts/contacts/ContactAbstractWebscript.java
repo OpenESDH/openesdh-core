@@ -1,5 +1,6 @@
 package dk.openesdh.repo.webscripts.contacts;
 
+import dk.openesdh.repo.model.ContactType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.contacts.ContactService;
 import dk.openesdh.repo.webscripts.utils.ContactUtils;
@@ -15,6 +16,7 @@ import org.json.JSONException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.extensions.webscripts.AbstractWebScript;
+import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
@@ -29,6 +31,14 @@ public abstract class ContactAbstractWebscript extends AbstractWebScript {
 
     protected NodeService nodeService;
     protected ContactService contactService;
+
+    protected abstract void get(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException;
+
+    protected abstract void post(WebScriptRequest req, WebScriptResponse res);
+
+    protected abstract void put(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res);
+
+    protected abstract void delete(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res);
 
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
@@ -79,8 +89,12 @@ public abstract class ContactAbstractWebscript extends AbstractWebScript {
 
     protected JSONArray getAssociations(NodeRef contactNode) {
         JSONArray associations = new JSONArray();
-        contactService.getOrganizationPersons(contactNode)
-                .forEach(item -> associations.add(buildJSON(item)));
+        final Serializable department = this.nodeService.getProperty(contactNode, OpenESDHModel.PROP_CONTACT_DEPARTMENT);
+        contactService.getOrganizationPersons(contactNode).forEach(item -> {
+            JSONObject personJson = buildJSON(item);
+            personJson.put(OpenESDHModel.PROP_CONTACT_DEPARTMENT.getLocalName(), department);
+            associations.add(personJson);
+        });
         return associations;
     }
 
@@ -91,7 +105,36 @@ public abstract class ContactAbstractWebscript extends AbstractWebScript {
         contactService.addPersonToOrganization(new NodeRef(getOrNull(parsedRequest, "parentNodeRefId")), contactNodeRef);
     }
 
-    void addAddressProperties(JSONObject fromObj, HashMap<QName, Serializable> toTypeProps) {
+    void addContactProperties(ContactType contactType, JSONObject fromParsedRequest, HashMap<QName, Serializable> toTypeProps) {
+        switch (contactType) {
+            case PERSON:
+                copyProperty(fromParsedRequest, toTypeProps, OpenESDHModel.PROP_CONTACT_FIRST_NAME);
+                copyProperty(fromParsedRequest, toTypeProps, OpenESDHModel.PROP_CONTACT_LAST_NAME);
+                copyProperty(fromParsedRequest, toTypeProps, OpenESDHModel.PROP_CONTACT_MIDDLE_NAME);
+                copyProperty(fromParsedRequest, toTypeProps, OpenESDHModel.PROP_CONTACT_CPR_NUMBER);
+                //TODO There are 2/4 more props that are boolean types to possibly add.
+                break;
+            case ORGANIZATION:
+                copyProperty(fromParsedRequest, toTypeProps, OpenESDHModel.PROP_CONTACT_ORGANIZATION_NAME);
+                copyProperty(fromParsedRequest, toTypeProps, OpenESDHModel.PROP_CONTACT_CVR_NUMBER);
+                copyProperty(fromParsedRequest, toTypeProps, OpenESDHModel.PROP_CONTACT_DEPARTMENT);
+                break;
+            default:
+                throw new WebScriptException("Incorrect contact type was specified.");
+        }
+        copyProperty(fromParsedRequest, toTypeProps, OpenESDHModel.PROP_CONTACT_EMAIL);
+        copyProperty(fromParsedRequest, toTypeProps, OpenESDHModel.PROP_CONTACT_PHONE);
+        copyProperty(fromParsedRequest, toTypeProps, OpenESDHModel.PROP_CONTACT_MOBILE);
+        copyProperty(fromParsedRequest, toTypeProps, OpenESDHModel.PROP_CONTACT_WEBSITE);
+        copyProperty(fromParsedRequest, toTypeProps, OpenESDHModel.PROP_CONTACT_LINKEDIN);
+        copyProperty(fromParsedRequest, toTypeProps, OpenESDHModel.PROP_CONTACT_IM);
+        copyProperty(fromParsedRequest, toTypeProps, OpenESDHModel.PROP_CONTACT_NOTES);
+
+        //Populate the map with address properties
+        addAddressProperties(fromParsedRequest, toTypeProps);
+    }
+
+    private void addAddressProperties(JSONObject fromObj, HashMap<QName, Serializable> toTypeProps) {
         copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_ADDRESS);
         copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_ADDRESS_LINE1);
         copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_ADDRESS_LINE2);
@@ -113,17 +156,9 @@ public abstract class ContactAbstractWebscript extends AbstractWebScript {
         copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_MAIL_SUBLOCATION_ID);
     }
 
-    protected void copyProperty(JSONObject fromObj, HashMap<QName, Serializable> toTypeProps, QName property) {
+    void copyProperty(JSONObject fromObj, HashMap<QName, Serializable> toTypeProps, QName property) {
         toTypeProps.put(property, getOrNull(fromObj, property.getLocalName()));
     }
-
-    protected abstract void get(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException;
-
-    protected abstract void post(WebScriptRequest req, WebScriptResponse res);
-
-    protected abstract void put(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res);
-
-    protected abstract void delete(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res);
 
     //<editor-fold desc="Injected service bean setters">
     public void setNodeService(NodeService nodeService) {
