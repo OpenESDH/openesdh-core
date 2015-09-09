@@ -466,7 +466,7 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
      * @return The NodeRef for the folder in which to place the case
      */
     @Override
-    public NodeRef getCaseFolderNodeRef() {
+    public NodeRef getCaseFolderNodeRef(NodeRef casesRootNodeRef) {
         return AuthenticationUtil.runAsSystem(() -> {
             NodeRef casesYearNodeRef = getCasePathNodeRef(casesRootNodeRef, Calendar.YEAR);
             NodeRef casesMonthNodeRef = getCasePathNodeRef(casesYearNodeRef, Calendar.MONTH);
