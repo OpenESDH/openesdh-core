@@ -35,7 +35,7 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService implem
             XResultSet combinedResult = new XResultSet(new LinkedList<NodeRef>(), 0);
             //NOte that it is the postfix that is now fixed and not the naming prefix as was before
             // i.e. case:base  is now base:case. other case types are in form of <prefix>:case and inherit from base:case
-            String baseQuery = "TYPE:\"" + OpenESDHModel.CASE_PREFIX + ":case\"" + " AND NOT ASPECT:\"" + OpenESDHModel.ASPECT_OE_JOURNALIZED + "\"";
+            String baseQuery = "TYPE:\"" + OpenESDHModel.CASE_PREFIX + ":case\"" + " AND NOT ASPECT:\"" + OpenESDHModel.ASPECT_OE_LOCKED + "\"";
 
             Iterator iterator = caseGroupsNodedbid.iterator();
 

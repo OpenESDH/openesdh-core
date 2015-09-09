@@ -22,6 +22,7 @@
                 </property>
                 <property name="oe:status">
                     <type>d:text</type>
+                    <mandatory enforced="true">true</mandatory>
                 </property>
             </properties>
             <mandatory-aspects>
@@ -70,18 +71,18 @@
 
             </properties>
         </aspect>
-        <aspect name="oe:journalized">
+        <aspect name="oe:locked">
             <properties>
-                <property name="oe:journalizedBy">
+                <property name="oe:lockedBy">
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                 </property>
-                <property name="oe:journalizedDate">
+                <property name="oe:lockedDate">
                     <type>d:datetime</type>
                     <mandatory>true</mandatory>
                 </property>
                 <property name="oe:originalOwner">
-                    <!-- This stores the original owner of a node while it is journalized. -->
+                    <!-- This stores the original owner of a node while it is locked. -->
                     <type>d:text</type>
                     <index enabled="true">
                         <atomic>true</atomic>

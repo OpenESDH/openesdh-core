@@ -18,6 +18,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import java.io.FileInputStream;
+import java.io.InputStream;
+
 import static org.junit.Assert.*;
 
 /**
@@ -48,8 +51,8 @@ public class KLEClassificationSynchronizerIT {
     @Before
     public void setUp() throws Exception {
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getSystemUserName());
-        classificationSynchronizer.deleteRootCategoryIfExists(KLEClassificationSynchronizer.EmneplanLoader.ROOT_CATEGORY_NAME);
-        classificationSynchronizer.deleteRootCategoryIfExists(KLEClassificationSynchronizer.FacetterLoader.ROOT_CATEGORY_NAME);
+        //classificationSynchronizer.deleteRootCategoryIfExists(KLEClassificationSynchronizer.EmneplanLoader.ROOT_CATEGORY_NAME);
+        //classificationSynchronizer.deleteRootCategoryIfExists(KLEClassificationSynchronizer.FacetterLoader.ROOT_CATEGORY_NAME);
     }
 
     @Test
@@ -100,7 +103,7 @@ public class KLEClassificationSynchronizerIT {
 
     @After
     public void tearDown() throws Exception {
-        classificationSynchronizer.deleteRootCategoryIfExists(KLEClassificationSynchronizer.EmneplanLoader.ROOT_CATEGORY_NAME);
-        classificationSynchronizer.deleteRootCategoryIfExists(KLEClassificationSynchronizer.FacetterLoader.ROOT_CATEGORY_NAME);
+        //classificationSynchronizer.deleteRootCategoryIfExists(KLEClassificationSynchronizer.EmneplanLoader.ROOT_CATEGORY_NAME);
+        //classificationSynchronizer.deleteRootCategoryIfExists(KLEClassificationSynchronizer.FacetterLoader.ROOT_CATEGORY_NAME);
     }
 }

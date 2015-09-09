@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import dk.openesdh.exceptions.contacts.NoSuchContactException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
@@ -122,7 +123,7 @@ public class PartyServiceImplIT {
         transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Void>() {
             @Override
             public Void execute() throws Throwable {
-
+                AuthenticationUtil.setFullyAuthenticatedUser(ADMIN_USER_NAME);
                 HashMap<QName, Serializable> personProps = new HashMap<QName, Serializable>();
                 personProps.put(OpenESDHModel.PROP_CONTACT_EMAIL, TEST_PERSON_CONTACT_EMAIL);
                 testPersonContact = contactService.createContact(TEST_PERSON_CONTACT_EMAIL, ContactType.PERSON.name(), personProps);
@@ -130,16 +131,14 @@ public class PartyServiceImplIT {
                 HashMap<QName, Serializable> orgProps = new HashMap<QName, Serializable>();
                 orgProps.put(OpenESDHModel.PROP_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL);
                 testOrgContact = contactService.createContact(TEST_ORG_CONTACT_EMAIL, ContactType.ORGANIZATION.name(), orgProps);
-
                 return null;
             }
         });
-
-        AuthenticationUtil.setFullyAuthenticatedUser(ADMIN_USER_NAME);
     }
 
     @After
     public void tearDown() throws Exception {
+        AuthenticationUtil.setFullyAuthenticatedUser(ADMIN_USER_NAME);
         ArrayList<NodeRef> nodes = new ArrayList<NodeRef>();
         if (partyGroupNodeRef != null) {
             nodes.add(partyGroupNodeRef);
@@ -178,7 +177,8 @@ public class PartyServiceImplIT {
     }
 
     @Test
-    public void shouldCreateReceiverPartyWithPersonAndOrgContacts() {
+    public void shouldCreateReceiverPartyWithPersonAndOrgContacts() throws Exception {
+
         String caseId = caseService.getCaseId(caseNodeRef);
         partyGroupNodeRef = partyService.createParty(caseId, RECEIVER_ROLE,
                 Arrays.asList(TEST_PERSON_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL));
@@ -200,7 +200,7 @@ public class PartyServiceImplIT {
     }
 
     @Test
-    public void shouldCreatePartyAddPersonAndOrgContacts() {
+    public void shouldCreatePartyAddPersonAndOrgContacts() throws Exception {
         String caseId = caseService.getCaseId(caseNodeRef);
         createPartyAssertNotNUll(caseId, SENDER_ROLE);
 
@@ -225,7 +225,7 @@ public class PartyServiceImplIT {
     }
 
     @Test
-    public void shouldCreatePartyAddPersonContact() {
+    public void shouldCreatePartyAddPersonContact() throws Exception {
         String caseId = caseService.getCaseId(caseNodeRef);
         createPartyAssertNotNUll(caseId, SENDER_ROLE);
 
@@ -246,18 +246,17 @@ public class PartyServiceImplIT {
     }
 
     @Test
-    public void shouldCreatePartyAndRetrieveVia_getCaseParty(){
-        
+    public void shouldCreatePartyAndRetrieveVia_getCaseParty() throws Exception {
         String caseId = caseService.getCaseId(caseNodeRef);
         createPartyAssertNotNUll(caseId, RECEIVER_ROLE);
-        
+
         NodeRef resultPartyGroupNodeRef = partyService.getCaseParty(caseNodeRef, caseId, RECEIVER_ROLE);
         Assert.assertEquals("The retrieved party is not equal to the created party", partyGroupNodeRef,
                 resultPartyGroupNodeRef);
     }
 
     @Test
-    public void shouldCreatePartyWithContactsAndGetContactsByRole(){
+    public void shouldCreatePartyWithContactsAndGetContactsByRole() throws Exception {
         String caseId = caseService.getCaseId(caseNodeRef);
         partyGroupNodeRef = partyService.createParty(caseId, RECEIVER_ROLE,
                 Arrays.asList(TEST_PERSON_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL));
@@ -277,7 +276,7 @@ public class PartyServiceImplIT {
     }
 
     @Test
-    public void shouldCreatePartyWithContactsAndGetContactsByCaseId() {
+    public void shouldCreatePartyWithContactsAndGetContactsByCaseId() throws Exception {
         String caseId = caseService.getCaseId(caseNodeRef);
         partyGroupNodeRef = partyService.createParty(caseId, RECEIVER_ROLE,
                 Arrays.asList(TEST_PERSON_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL));
@@ -295,7 +294,7 @@ public class PartyServiceImplIT {
     }
 
     @Test
-    public void shouldCreatePartyThenRemoveParty() {
+    public void shouldCreatePartyThenRemoveParty() throws Exception {
         String caseId = caseService.getCaseId(caseNodeRef);
         partyGroupNodeRef = partyService.createParty(caseId, RECEIVER_ROLE,
                 Arrays.asList(TEST_PERSON_CONTACT_EMAIL));

@@ -125,7 +125,7 @@ function initCaseConfigDropdown(){
                 rules: [
                     {
                         topic: "CASE_INFO",
-                        attribute: "canJournalize",
+                        attribute: "canClose",
                         is: [true]
                     }
                 ]
@@ -147,7 +147,7 @@ function initCaseConfigDropdown(){
                 rules: [
                     {
                         topic: "CASE_INFO",
-                        attribute: "canUnJournalize",
+                        attribute: "canReopen",
                         is: [true]
                     }
                 ]

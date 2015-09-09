@@ -160,7 +160,7 @@ define(["dojo/_base/declare",
             _onCaseInfoInitialLoadSuccess: function (response, config) {
                 this._allWidgetsProcessedFunction = lang.hitch(this, function () {
                     this.alfPublish(this.CaseInfoTopic, response);
-                    
+
                     var caseProps  = response.allProps.properties;
                     var caseTitle = caseProps["cm:name"].value + "      " + caseProps["cm:title"].value;
                     this.alfPublish("ALF_UPDATE_PAGE_TITLE", {title: caseTitle});

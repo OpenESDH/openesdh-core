@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Map;
 
 import dk.openesdh.SimpleCaseModel;
+import dk.openesdh.repo.model.CaseStatus;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
-import org.alfresco.repo.nodelocator.CompanyHomeNodeLocator;
 import org.alfresco.repo.nodelocator.NodeLocatorService;
 import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -131,7 +131,7 @@ public class CaseHelper {
      * @param disableBehaviour
      * @return
      */
-    public NodeRef createCase(String username, final NodeRef parent, final String name,  final QName caseType,
+    public NodeRef createCase(String username, final NodeRef parent, final String name, final QName caseType,
                               final Map<QName, Serializable> properties, final List<NodeRef> owners, boolean disableBehaviour) {
         ChildAssociationRef assocRef = createCaseNode(username, parent, name, caseType, properties, owners, disableBehaviour);
         return assocRef.getChildRef();
@@ -151,6 +151,7 @@ public class CaseHelper {
                             behaviourFilter.disableBehaviour();
                         }
                         properties.put(ContentModel.PROP_NAME, name);
+                        properties.put(OpenESDHModel.PROP_OE_STATUS, CaseStatus.ACTIVE);
 
                         // Create test case
                         ChildAssociationRef childAssoc = nodeService.createNode(
