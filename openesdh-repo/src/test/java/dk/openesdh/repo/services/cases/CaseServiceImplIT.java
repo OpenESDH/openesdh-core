@@ -515,7 +515,7 @@ public class CaseServiceImplIT {
 
         assertTrue(caseService.isLocked(nonAdminCreatedCaseNr));
 
-        // Test that a case cannot be closed twice
+        // Close the case again. This shouldn't do anything.
         caseService.changeNodeStatus(nonAdminCreatedCaseNr, CaseStatus.CLOSED);
 
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);

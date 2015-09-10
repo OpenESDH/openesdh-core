@@ -202,10 +202,10 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
             case DocumentStatus.FINAL:
                 nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, newStatus);
                 // TODO: Convert to PDF
-                oeLockService.lock(nodeRef);
+                oeLockService.lock(nodeRef, true);
                 break;
             case DocumentStatus.DRAFT:
-                oeLockService.unlock(nodeRef);
+                oeLockService.unlock(nodeRef, true);
                 // TODO: Revert to non-PDF original version
                 nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, newStatus);
                 break;

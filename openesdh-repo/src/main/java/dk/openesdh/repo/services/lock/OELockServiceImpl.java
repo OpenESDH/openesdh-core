@@ -4,7 +4,9 @@ import dk.openesdh.repo.model.OpenESDHModel;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.lock.LockService;
+import org.alfresco.service.cmr.lock.LockStatus;
 import org.alfresco.service.cmr.lock.LockType;
+import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.OwnableService;
@@ -49,7 +51,7 @@ public class OELockServiceImpl implements OELockService {
 
     @Override
     @SuppressWarnings("deprecation")
-    public void lock(final NodeRef nodeRef) {
+    public void lock(final NodeRef nodeRef, final boolean lockChildren) {
         if (nodeService.hasAspect(nodeRef, OpenESDHModel.ASPECT_OE_LOCKED)) {
             // Don't touch, already locked
             LOGGER.warn("Node already has locked aspect when locking: " + nodeRef);
@@ -76,14 +78,33 @@ public class OELockServiceImpl implements OELockService {
             // Add the LockPermissionsToDeny permission set to deny everyone
             permissionService.setPermission(nodeRef, PermissionService.ALL_AUTHORITIES, "LockPermissionsToDeny", false);
 
-            // Add a never-expiring close as the system user
-            lockService.lock(nodeRef, LockType.READ_ONLY_LOCK, 0);
+            // Add a never-expiring lock as the system user
+            // We have to temporarily switch the fully authenticated user,
+            // because LockService uses that to determine the lock owner.
+            String authenticatedUser = AuthenticationUtil.getFullyAuthenticatedUser();
+            try {
+                AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getSystemUserName());
+                lockService.lock(nodeRef, LockType.READ_ONLY_LOCK, 0);
+            } finally {
+                AuthenticationUtil.setFullyAuthenticatedUser(authenticatedUser);
+            }
+
+            if (lockChildren) {
+                for (ChildAssociationRef childAssociationRef : nodeService.getChildAssocs(nodeRef)) {
+                    lock(childAssociationRef.getChildRef(), true);
+                }
+            }
             return null;
         });
     }
 
     @Override
-    public void unlock(final NodeRef nodeRef) {
+    public void lock(NodeRef nodeRef) {
+        lock(nodeRef, false);
+    }
+
+    @Override
+    public void unlock(final NodeRef nodeRef, boolean unlockChildren) {
         AuthenticationUtil.runAsSystem(() -> {
             lockService.unlock(nodeRef);
 
@@ -103,7 +124,24 @@ public class OELockServiceImpl implements OELockService {
                 nodeService.removeAspect(nodeRef, ContentModel.ASPECT_OWNABLE);
             }
             nodeService.removeAspect(nodeRef, OpenESDHModel.ASPECT_OE_LOCKED);
+
+            if (unlockChildren) {
+                for (ChildAssociationRef childAssociationRef : nodeService.getChildAssocs(nodeRef)) {
+                    unlock(childAssociationRef.getChildRef(), true);
+                }
+            }
             return null;
         });
+    }
+
+    @Override
+    public void unlock(NodeRef nodeRef) {
+        unlock(nodeRef, false);
+    }
+
+    @Override
+    public boolean isLocked(NodeRef nodeRef) {
+        return nodeService.hasAspect(nodeRef, OpenESDHModel.ASPECT_OE_LOCKED)
+                && lockService.getLockStatus(nodeRef) == LockStatus.LOCKED;
     }
 }
