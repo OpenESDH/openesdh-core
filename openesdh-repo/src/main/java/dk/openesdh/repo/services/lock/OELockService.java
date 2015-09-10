@@ -19,6 +19,13 @@ public interface OELockService {
      * bypass these permissions.
      *
      * @param nodeRef
+     * @param lockChildren
+     */
+    void lock(NodeRef nodeRef, boolean lockChildren);
+
+    /**
+     * Lock a node without locking its children.
+     * @param nodeRef
      */
     void lock(NodeRef nodeRef);
 
@@ -27,6 +34,20 @@ public interface OELockService {
      * the LockPermissionsToDeny permission, and removing the oe:locked
      * aspect.
      * @param nodeRef
+     * @param unlockChildren
+     */
+    void unlock(NodeRef nodeRef, boolean unlockChildren);
+
+    /**
+     * Unlock the node without unlocking its children.
+     * @param nodeRef
      */
     void unlock(NodeRef nodeRef);
+
+    /**
+     * Return whether the node is locked with OELockService.
+     * @param nodeRef
+     * @return
+     */
+    boolean isLocked(NodeRef nodeRef);
 }

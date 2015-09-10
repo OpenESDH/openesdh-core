@@ -190,6 +190,10 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
 
     public void checkCanChangeStatus(NodeRef nodeRef, String fromStatus, String toStatus) throws AccessDeniedException {
         String user = AuthenticationUtil.getRunAsUser();
+        if (!isDocNode(nodeRef)) {
+            throw new AlfrescoRuntimeException("Node is not a document node:" +
+                    " " + nodeRef);
+        }
         if (!canChangeNodeStatus(fromStatus, toStatus, user, nodeRef)) {
             throw new AccessDeniedException(user + " is not allowed to " +
                     "switch document from status " + fromStatus + " to " +
@@ -202,10 +206,10 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
             case DocumentStatus.FINAL:
                 nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, newStatus);
                 // TODO: Convert to PDF
-                oeLockService.lock(nodeRef);
+                oeLockService.lock(nodeRef, true);
                 break;
             case DocumentStatus.DRAFT:
-                oeLockService.unlock(nodeRef);
+                oeLockService.unlock(nodeRef, true);
                 // TODO: Revert to non-PDF original version
                 nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, newStatus);
                 break;
@@ -453,14 +457,15 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
         caseDocument.setNodeRef(docRecordNodeRef.toString());
         caseDocument.setMainDocNodeRef(getMainDocument(docRecordNodeRef).toString());
         Map<QName, Serializable> props = nodeService.getProperties(docRecordNodeRef);
-        caseDocument.setTite(props.get(ContentModel.PROP_NAME).toString());
+        caseDocument.setTitle(props.get(ContentModel.PROP_NAME).toString());
         caseDocument.setType(props.get(OpenESDHModel.PROP_DOC_TYPE).toString());
         caseDocument.setState(props.get(OpenESDHModel.PROP_DOC_STATE).toString());
+        caseDocument.setStatus(props.get(OpenESDHModel.PROP_OE_STATUS).toString());
         caseDocument.setCategory(props.get(OpenESDHModel.PROP_DOC_CATEGORY).toString());
         caseDocument.setCreated((Date) props.get(ContentModel.PROP_CREATED));
         caseDocument.setModified((Date) props.get(ContentModel.PROP_MODIFIED));
         caseDocument.setOwner(getDocumentOwner(docRecordNodeRef));
-        String extension = FilenameUtils.getExtension(caseDocument.getTite());
+        String extension = FilenameUtils.getExtension(caseDocument.getTitle());
         caseDocument.setFileType(extension);
 
         List<ChildAssociationRef> attachmentsAssocs = getAttachmentsChildAssociations(docRecordNodeRef);

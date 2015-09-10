@@ -4,6 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import dk.openesdh.repo.model.DocumentStatus;
+import dk.openesdh.repo.services.lock.OELockService;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
@@ -61,6 +62,10 @@ public class DocumentServiceImplIT {
     protected DocumentService documentService;
 
     @Autowired
+    @Qualifier("OELockService")
+    protected OELockService oeLockService;
+
+    @Autowired
     @Qualifier("TransactionService")
     protected TransactionService transactionService;
 
@@ -98,6 +103,7 @@ public class DocumentServiceImplIT {
     private NodeRef testDocumentAttachment2;
     private NodeRef testDocumentRecFolder2;
     private NodeRef testDocument3;
+    private NodeRef testDocumentRecFolder3;
 
     @Before
     public void setUp() throws Exception {
@@ -250,11 +256,13 @@ public class DocumentServiceImplIT {
     @Test
     public void finalizeUnfinalizeDocument() throws Exception {
         testDocument3 = docTestHelper.createCaseDocument(TEST_DOCUMENT_FILE_NAME3, testCase1);
-        Assert.assertEquals("Document initially has DRAFT status", documentService.getNodeStatus(testDocument3), DocumentStatus.DRAFT);
-        documentService.changeNodeStatus(testDocument3, DocumentStatus.FINAL);
-        Assert.assertEquals("Finalized document has FINAL status",
-                documentService.getNodeStatus(testDocument3), DocumentStatus
-                        .FINAL);
+        testDocumentRecFolder3 = nodeService.getPrimaryParent(testDocument3).getParentRef();
+        Assert.assertEquals("Document initially has DRAFT status", DocumentStatus.DRAFT, documentService.getNodeStatus(testDocumentRecFolder3));
+        documentService.changeNodeStatus(testDocumentRecFolder3, DocumentStatus.FINAL);
+        Assert.assertEquals("Finalized document has FINAL status", DocumentStatus.FINAL, documentService.getNodeStatus(testDocumentRecFolder3));
+
+        Assert.assertTrue("Document record is locked after being finalized.", oeLockService.isLocked(testDocumentRecFolder3));
+        Assert.assertTrue("Document file is locked after being finalized", oeLockService.isLocked(testDocument3));
 
         try {
             // Try to update the finalized document
@@ -267,7 +275,10 @@ public class DocumentServiceImplIT {
         } catch (Exception ignored) {
         }
 
-        documentService.changeNodeStatus(testDocument3, DocumentStatus.DRAFT);
-        Assert.assertEquals("Unfinalized document has DRAFT status", documentService.getNodeStatus(testDocument3), DocumentStatus.DRAFT);
+        documentService.changeNodeStatus(testDocumentRecFolder3, DocumentStatus.DRAFT);
+        Assert.assertEquals("Unfinalized document has DRAFT status", documentService.getNodeStatus(testDocumentRecFolder3), DocumentStatus.DRAFT);
+
+        Assert.assertFalse("Document record is locked after being finalized but should be unlocked.", oeLockService.isLocked(testDocumentRecFolder3));
+        Assert.assertFalse("Document file is locked after being finalized but should be unlocked.", oeLockService.isLocked(testDocument3));
     }
 }

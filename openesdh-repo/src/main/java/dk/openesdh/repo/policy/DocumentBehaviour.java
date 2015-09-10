@@ -139,8 +139,9 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
         if (nodeService.countChildAssocs(docRecord, true) == 1) {
             
             ChildAssociationRef childAssoc = nodeService.getChildAssocs(docRecord).get(0);
-            if(!OpenESDHModel.ASSOC_DOC_MAIN.equals(childAssoc.getTypeQName())){
-                //Tag the case document as the main document for the case
+            if (!OpenESDHModel.ASSOC_DOC_MAIN.equals(
+                    childAssoc.getTypeQName())) {
+                // Tag the file as the main file for the record
                 nodeService.addChild(docRecord, fileRef, OpenESDHModel.ASSOC_DOC_MAIN, OpenESDHModel.ASSOC_DOC_MAIN);
             }
             

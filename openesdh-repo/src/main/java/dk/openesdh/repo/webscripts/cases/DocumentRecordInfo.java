@@ -48,6 +48,7 @@ public class DocumentRecordInfo extends AbstractWebScript {
             result.put("type", documentNodeInfo.properties.get(OpenESDHModel.PROP_DOC_TYPE));
             result.put("category", documentNodeInfo.properties.get(OpenESDHModel.PROP_DOC_CATEGORY));
             result.put("state", documentNodeInfo.properties.get(OpenESDHModel.PROP_DOC_STATE));
+            result.put("status", documentNodeInfo.properties.get(OpenESDHModel.PROP_OE_STATUS));
             result.put("name", documentNodeInfo.properties.get(ContentModel.PROP_NAME));
             result.put("created", documentNodeInfo.properties.get(ContentModel.PROP_CREATED));
             result.put("owner", docOwner.getFirstName() + " " + docOwner.getLastName());

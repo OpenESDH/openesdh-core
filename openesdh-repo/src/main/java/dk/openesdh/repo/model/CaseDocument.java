@@ -8,11 +8,12 @@ import org.alfresco.service.cmr.security.PersonService.PersonInfo;
 
 public class CaseDocument {
 
-    private String tite;
+    private String title;
     private String docNo;
     private String type;
     private String category;
     private String state;
+    private String status;
     private Date created;
     private Date modified;
     private String nodeRef;
@@ -30,12 +31,12 @@ public class CaseDocument {
         this.attachments = attachments;
     }
 
-    public String getTite() {
-        return tite;
+    public String getTitle() {
+        return title;
     }
 
-    public void setTite(String tite) {
-        this.tite = tite;
+    public void setTitle(String tite) {
+        this.title = tite;
     }
 
     public String getDocNo() {
@@ -68,6 +69,14 @@ public class CaseDocument {
 
     public void setState(String state) {
         this.state = state;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 
     public Date getCreated() {

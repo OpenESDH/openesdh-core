@@ -73,8 +73,6 @@ public class EmailDocument extends AbstractWebScript {
         props.put(OpenESDHModel.PROP_DOC_STATE, "received");
         NodeRef documentFolder = documentService.createDocumentFolder(documentsFolder, name, props).getChildRef();
 
-        nodeService.setProperties(documentFolder, props);
-
         LOG.warn("responsible: " + responsible);
         if (responsible != null) {
             NodeRef personRef = personService.getPerson(responsible, false);

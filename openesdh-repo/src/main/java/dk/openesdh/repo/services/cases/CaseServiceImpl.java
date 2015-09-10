@@ -613,6 +613,10 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
 
     public void checkCanChangeStatus(NodeRef nodeRef, String fromStatus, String toStatus) throws AccessDeniedException {
         String user = AuthenticationUtil.getRunAsUser();
+        if (!isCaseNode(nodeRef)) {
+            throw new AlfrescoRuntimeException("Node is not a case node: " +
+                    nodeRef);
+        }
         if (!canChangeNodeStatus(fromStatus, toStatus, user, nodeRef)) {
             throw new AccessDeniedException(user + " is not allowed to " +
                     "switch case from status " + fromStatus + " to " +
@@ -622,7 +626,7 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
 
     @Override
     public List<String> getValidNextStatuses(NodeRef nodeRef) {
-        String user = AuthenticationUtil.getFullyAuthenticatedUser();
+        String user = AuthenticationUtil.getRunAsUser();
         String fromStatus = getNodeStatus(nodeRef);
         List<String> statuses;
         statuses = Arrays.asList(CaseStatus.getStatuses()).stream().filter(
@@ -762,7 +766,7 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
                         // Finalize any unfinalized documents
                         documentService.changeNodeStatus(childNodeRef, DocumentStatus.FINAL);
                     } else {
-                        oeLockService.lock(childNodeRef);
+                        oeLockService.lock(childNodeRef, true);
                     }
                 }
                 lockCaseGroups(nodeRef);
@@ -773,7 +777,7 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
 
     @Override
     public boolean isLocked(NodeRef nodeRef) {
-        return nodeService.hasAspect(nodeRef, OpenESDHModel.ASPECT_OE_LOCKED);
+        return oeLockService.isLocked(nodeRef);
     }
 
 
@@ -821,11 +825,12 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
         transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
             @Override
             public Object execute() throws Throwable {
+                oeLockService.unlock(nodeRef);
                 for (ChildAssociationRef childAssociationRef : nodeService.getChildAssocs(nodeRef)) {
                     NodeRef childNodeRef = childAssociationRef.getChildRef();
                     // Do NOT unlock documents (they should remain in FINAL status)
                     if (!documentService.isDocNode(childNodeRef)) {
-                        oeLockService.unlock(childNodeRef);
+                        oeLockService.unlock(childNodeRef, true);
                     }
                 }
                 unlockCaseGroups(nodeRef);
