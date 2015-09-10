@@ -1,7 +1,9 @@
 package dk.openesdh.repo.services.documents;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -11,6 +13,7 @@ import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
 import org.junit.After;
 import org.junit.Assert;
@@ -32,6 +35,7 @@ import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.CaseDocument;
 import dk.openesdh.repo.model.CaseDocumentAttachment;
+import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.model.ResultSet;
 import dk.openesdh.repo.services.cases.CaseService;
 
@@ -241,5 +245,24 @@ public class DocumentServiceImplIT {
                 .getAttachments().size());
         Assert.assertEquals("Wrong number of the second document attachments retrieved", 1, caseDocuments.get(1)
                 .getAttachments().size());
+    }
+
+    @Test
+    public void shouldUpdateCaseDocumentProperties() {
+        CaseDocument document = new CaseDocument();
+        document.setNodeRef(testDocument.toString());
+        document.setCategory(OpenESDHModel.DOCUMENT_CATEGORY_CONTRACT);
+        document.setType(OpenESDHModel.DOCUMENT_TYPE_INVOICE);
+        document.setState(OpenESDHModel.DOCUMENT_STATE_FINALISED);
+
+        documentService.updateCaseDocumentProperties(document);
+
+        Map<QName, Serializable> props = nodeService.getProperties(testDocument);
+        Assert.assertEquals("Document category should be updated", OpenESDHModel.DOCUMENT_CATEGORY_CONTRACT,
+                props.get(OpenESDHModel.PROP_DOC_CATEGORY));
+        Assert.assertEquals("Document type should be updated", OpenESDHModel.DOCUMENT_TYPE_INVOICE,
+                props.get(OpenESDHModel.PROP_DOC_TYPE));
+        Assert.assertEquals("Document state should be updated", OpenESDHModel.DOCUMENT_STATE_FINALISED,
+                props.get(OpenESDHModel.PROP_DOC_STATE));
     }
 }
