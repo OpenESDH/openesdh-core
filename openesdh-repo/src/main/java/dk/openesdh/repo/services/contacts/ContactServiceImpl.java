@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
-import org.alfresco.repo.transaction.TransactionServiceImpl;
 import java.util.stream.Stream;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -135,7 +134,7 @@ public class ContactServiceImpl implements ContactService {
         try {
             XResultSet results = contactSearchService.getNodes(params, 0, -1, "cm:name", true);
             for (NodeRef contactNode : results.getNodeRefs()) {
-                contacts.add(new ContactInfo(contactNode, getContactType(contactNode), this.nodeService.getProperties(contactNode)));
+                contacts.add(getContactInfo(contactNode));
             }
         } catch (Throwable err) {
             if (logger.isDebugEnabled()) {
