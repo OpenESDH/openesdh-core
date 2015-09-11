@@ -154,7 +154,7 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
                 "onUpdateProperties");
         this.policyComponent.bindClassBehaviour(
                 NodeServicePolicies.OnUpdatePropertiesPolicy.QNAME,
-                OpenESDHModel.TYPE_CASE_BASE,
+                OpenESDHModel.TYPE_DOC_BASE,
                 onUpdatePropertiesBehaviour);
     }
 
@@ -271,6 +271,11 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
         // Get the source and target mimetypes
         String fileName = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_NAME);
         ContentReader reader = contentService.getReader(nodeRef, ContentModel.PROP_CONTENT);
+        if (reader == null) {
+            // Empty node.
+            // TODO: Throw an error?
+            return;
+        }
         String sourceMimetype = reader.getMimetype();
         if (sourceMimetype.equals(MimetypeMap.MIMETYPE_BINARY)) {
             // Try to guess the mimetype if it is application/octet-stream
@@ -285,18 +290,14 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
         // Acceptable file formats and image files can be transformed to the
         // finalized file format
         if (!acceptableFinalizedFileMimeTypes.contains(sourceMimetype) && !sourceMimetype.startsWith("image/") && !sourceMimetype.startsWith("text/")) {
-            // TODO: I18N of exception messages
-            throw new AutomaticFinalizeFailureException("The file format " +
-                    "'{0}' is not acceptable to be converted into finalized " +
-                    "file format '{1}'",
+            throw new AutomaticFinalizeFailureException("openesdh.document.err.automatic_finalize_not_acceptable_format",
                     new Object[]{sourceFormatDisplay, targetFormatDisplay});
         }
 
         try {
             renditionService.render(nodeRef, pdfRenditionDefinition);
         } catch (RenditionServiceException|ContentIOException e) {
-            // TODO: I18N of exception messages
-            throw new AutomaticFinalizeFailureException("Exception during transformation from '{0}' to '{1}",
+            throw new AutomaticFinalizeFailureException("openesdh.document.err.exception_during_transformation",
                     new Object[]{sourceFormatDisplay, targetFormatDisplay}, e);
         }
     }

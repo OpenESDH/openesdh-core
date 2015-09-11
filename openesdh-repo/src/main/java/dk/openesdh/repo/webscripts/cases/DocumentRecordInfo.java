@@ -53,6 +53,7 @@ public class DocumentRecordInfo extends AbstractWebScript {
             result.put("created", documentNodeInfo.properties.get(ContentModel.PROP_CREATED));
             result.put("owner", docOwner.getFirstName() + " " + docOwner.getLastName());
             result.put("mainDocNodeRef", mainDocNodeRef.toString());
+            result.put("statusChoices", documentService.getValidNextStatuses(documentNodeRef));
 //            result.put("caseId", documentNodeInfo.properties.get(OpenESDHModel.PROP_OE_CASE_ID));
 
             result.write(res.getWriter());

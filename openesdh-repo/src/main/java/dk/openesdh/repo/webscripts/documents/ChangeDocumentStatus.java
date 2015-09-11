@@ -46,7 +46,7 @@ public class ChangeDocumentStatus extends AbstractWebScript {
 			documentService.changeNodeStatus(nodeRef, status);
 		} catch (Exception e) {
 			throw new WebScriptException(Status.STATUS_FORBIDDEN,
-					"Unable to switch document status: " + e.getMessage());
+					"Unable to switch document status: " + e.getMessage(), e);
 		}
 
 		WebScriptUtils.respondSuccess(res, "The document status has been changed");
