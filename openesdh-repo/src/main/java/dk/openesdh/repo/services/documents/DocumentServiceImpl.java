@@ -150,17 +150,6 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
             }
         }
 
-        // Create the final rendition definition if it doesn't already exist.
-        // For now, we only support PDF
-        pdfRenditionDefinition = renditionService.loadRenditionDefinition(FINAL_PDF_RENDITION_DEFINITION_NAME);
-        if (pdfRenditionDefinition == null) {
-            pdfRenditionDefinition = renditionService.createRenditionDefinition(FINAL_PDF_RENDITION_DEFINITION_NAME, ReformatRenderingEngine.NAME);
-            pdfRenditionDefinition.setParameterValue(
-                    ReformatRenderingEngine.PARAM_MIME_TYPE,
-                    MimetypeMap.MIMETYPE_PDF);
-            renditionService.saveRenditionDefinition(pdfRenditionDefinition);
-        }
-
         onUpdatePropertiesBehaviour = new JavaBehaviour(this,
                 "onUpdateProperties");
         this.policyComponent.bindClassBehaviour(
@@ -262,7 +251,22 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
     }
 
     private void transformToFinalizedFileFormat(NodeRef nodeRef) {
+        if (nodeRef == null) {
+            return;
+        }
         // For now, we only support transform to PDF.
+        // Create the final rendition definition if it doesn't already exist.
+        // For now, we only support PDF
+        if (pdfRenditionDefinition == null) {
+            pdfRenditionDefinition = renditionService.loadRenditionDefinition(FINAL_PDF_RENDITION_DEFINITION_NAME);
+        }
+        if (pdfRenditionDefinition == null) {
+            pdfRenditionDefinition = renditionService.createRenditionDefinition(FINAL_PDF_RENDITION_DEFINITION_NAME, ReformatRenderingEngine.NAME);
+            pdfRenditionDefinition.setParameterValue(
+                    ReformatRenderingEngine.PARAM_MIME_TYPE,
+                    MimetypeMap.MIMETYPE_PDF);
+            renditionService.saveRenditionDefinition(pdfRenditionDefinition);
+        }
 
         // Get the source and target mimetypes
         String fileName = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_NAME);

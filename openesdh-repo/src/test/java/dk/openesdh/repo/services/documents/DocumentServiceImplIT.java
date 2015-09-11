@@ -310,7 +310,7 @@ public class DocumentServiceImplIT {
         checkOutCheckInService.checkin(workingCopy, null);
 
         expectedException.expect(AutomaticFinalizeFailureException.class);
-        documentService.changeNodeStatus(testDocumentRecFolder3, DocumentStatus.FINAL);
+        documentService.changeNodeStatus(testDocumentRecFolder4, DocumentStatus.FINAL);
     }
 
     @Test
