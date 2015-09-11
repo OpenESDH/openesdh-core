@@ -91,7 +91,7 @@ public class DocumentServiceImplIT {
     private static final String TEST_DOCUMENT_NAME3 = "TestDocument3";
     private static final String TEST_DOCUMENT_FILE_NAME3 = TEST_DOCUMENT_NAME2 + ".txt";
     private static final String TEST_DOCUMENT_NAME4 = "TestDocument4";
-    private static final String TEST_DOCUMENT_FILE_NAME4 = TEST_DOCUMENT_NAME4 + ".m4a";
+    private static final String TEST_DOCUMENT_FILE_NAME4 = TEST_DOCUMENT_NAME4 + ".json";
 
 
     private static final String TEST_DOCUMENT_ATTACHMENT_NAME = "TestDocumentAttachment";
