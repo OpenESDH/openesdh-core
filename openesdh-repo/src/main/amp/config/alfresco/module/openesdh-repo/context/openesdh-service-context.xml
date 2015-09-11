@@ -105,6 +105,14 @@
             <ref bean="CaseService"/>
         </property>
 
+        <property name="contentService">
+            <ref bean="ContentService"/>
+        </property>
+
+        <property name="renditionService">
+            <ref bean="RenditionService"/>
+        </property>
+
         <property name="copyService">
             <ref bean="CopyService"/>
         </property>
@@ -137,6 +145,18 @@
 
         <property name="oeLockService">
             <ref bean="OELockService"/>
+        </property>
+
+        <property name="mimetypeService">
+            <ref bean="mimetypeService"/>
+        </property>
+
+        <property name="acceptableFinalizedFileFormats">
+            <value>${openesdh.document.acceptableFinalizedFileFormats}</value>
+        </property>
+
+        <property name="finalizedFileFormat">
+            <value>${openesdh.document.finalizedFileFormat}</value>
         </property>
     </bean>
 
