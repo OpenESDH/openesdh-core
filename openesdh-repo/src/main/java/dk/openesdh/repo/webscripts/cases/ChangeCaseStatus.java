@@ -45,7 +45,7 @@ public class ChangeCaseStatus extends AbstractWebScript {
 			caseService.changeNodeStatus(caseService.getCaseById(caseId), status);
 		} catch (Exception e) {
 			throw new WebScriptException(Status.STATUS_FORBIDDEN,
-					"Unable to switch case status: " + e.getMessage());
+					"Unable to switch case status: " + e.getMessage(), e);
 		}
 
 		WebScriptUtils.respondSuccess(res, "The case status has been changed");

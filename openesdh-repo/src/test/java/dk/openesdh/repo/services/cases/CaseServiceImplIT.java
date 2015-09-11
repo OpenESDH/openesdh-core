@@ -180,6 +180,12 @@ public class CaseServiceImplIT {
             // Remove temporary node, and all its content,
             // also removes test cases
             if (nonAdminCreatedCaseNr != null) {
+                if (oeLockService.isLocked(nonAdminCreatedCaseNr)) {
+                    transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
+                        oeLockService.unlock(nonAdminCreatedCaseNr, true);
+                        return null;
+                    });
+                }
                 nodeService.deleteNode(nonAdminCreatedCaseNr);
                 nonAdminCreatedCaseNr = null;
             }
@@ -521,8 +527,7 @@ public class CaseServiceImplIT {
 
         // Test that the owner cannot add an authority to a role on the case
         try {
-            caseService
-                    .addAuthorityToRole(OpenESDHModel.ADMIN_USER_NAME,
+            caseService.addAuthorityToRole(OpenESDHModel.ADMIN_USER_NAME,
                             "CaseSimpleReader", nonAdminCreatedCaseNr);
             fail("An authority could be added to a role on a closed case");
         } catch (Exception e) {
