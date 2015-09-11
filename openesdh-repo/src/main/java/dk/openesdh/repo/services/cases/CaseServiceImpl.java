@@ -7,6 +7,7 @@ import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
 import org.alfresco.repo.model.Repository;
+import org.alfresco.repo.search.impl.lucene.LuceneQueryParserException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
 import org.alfresco.repo.security.permissions.PermissionReference;
@@ -19,10 +20,14 @@ import org.alfresco.service.cmr.lock.LockType;
 import org.alfresco.service.cmr.repository.*;
 import org.alfresco.service.cmr.repository.datatype.DefaultTypeConverter;
 import org.alfresco.service.cmr.rule.RuleService;
+import org.alfresco.service.cmr.search.LimitBy;
+import org.alfresco.service.cmr.search.ResultSet;
+import org.alfresco.service.cmr.search.SearchParameters;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.*;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
+import org.alfresco.util.SearchLanguageConversion;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -179,11 +184,7 @@ public class CaseServiceImpl implements CaseService {
 
     @Override
     public boolean canUpdateCaseRoles(String user, NodeRef caseNodeRef) {
-        if (isJournalized(caseNodeRef)) {
-            return false;
-        }
-        return authorityService.isAdminAuthority(user) ||
-                isCaseOwner(user, caseNodeRef);
+        return !isJournalized(caseNodeRef) && (authorityService.isAdminAuthority(user) || isCaseOwner(user, caseNodeRef));
     }
 
     @Override
@@ -551,6 +552,84 @@ public class CaseServiceImpl implements CaseService {
     @Override
     public void removeAuthorityFromRole(final NodeRef authorityNodeRef, final String role, final NodeRef caseNodeRef) {
         removeAuthorityFromRole(getAuthorityName(authorityNodeRef), role, caseNodeRef);
+    }
+
+    @Override
+    public List<CaseInfo> findCases(String filter, int size) {
+        List<CaseInfo> result;
+
+        NodeRef caseRoot = getCasesRootNodeRef();
+        if (caseRoot == null) {
+            result = Collections.emptyList();
+        } else {
+            // get the cases that match the specified names
+            StringBuilder query = new StringBuilder(128);
+            query.append("+TYPE:\"").append(OpenESDHModel.TYPE_CASE_BASE).append('"');
+
+            final boolean filterIsPresent = filter != null && filter.length() > 0;
+
+            if (filterIsPresent) {
+                query.append(" AND (");
+                String escNameFilter = SearchLanguageConversion.escapeLuceneQuery(filter.replace('"', ' '));
+                String[] tokenizedFilter = SearchLanguageConversion.tokenizeString(escNameFilter);
+
+                //oe:id
+                query.append(" oe:id:\" ");
+                for (int i = 0; i < tokenizedFilter.length; i++) {
+                    if (i != 0) //Not first element
+                    {
+                        query.append("?");
+                    }
+                    query.append(tokenizedFilter[i].toLowerCase());
+                }
+                query.append("*\"");
+
+                //cm:title
+                query.append(" OR ")
+                        .append(" cm:title: (");
+                for (int i = 0; i < tokenizedFilter.length; i++) {
+                    if (i != 0) //Not first element
+                    {
+                        query.append(" AND ");
+                    }
+                    query.append("\"" + tokenizedFilter[i] + "*\" ");
+                }
+                query.append(")");
+
+                query.append(" OR cm:description:\"" + escNameFilter + "\"");
+                query.append(")");
+            }
+
+            SearchParameters sp = new SearchParameters();
+            sp.addStore(caseRoot.getStoreRef());
+            sp.setLanguage(SearchService.LANGUAGE_FTS_ALFRESCO);
+            sp.setQuery(query.toString());
+            if (size > 0) {
+                sp.setLimit(size);
+                sp.setLimitBy(LimitBy.FINAL_SIZE);
+            }
+
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Search parameters are: " + sp);
+            }
+
+            ResultSet results = null;
+            try {
+                results = this.searchService.query(sp);
+                result = new ArrayList<CaseInfo>(results.length());
+                for (NodeRef site : results.getNodeRefs()) {
+                    result.add(getCaseInfo(site));
+                }
+            } catch (LuceneQueryParserException lqpe) {
+                //Log the error but suppress is from the user
+                LOGGER.error("LuceneQueryParserException with findCases()", lqpe);
+                result = Collections.emptyList();
+            } finally {
+                if (results != null) results.close();
+            }
+        }
+
+        return result;
     }
 
     //<editor-fold desc="Journalization methods">

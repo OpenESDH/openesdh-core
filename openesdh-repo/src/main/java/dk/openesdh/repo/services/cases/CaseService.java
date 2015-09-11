@@ -255,6 +255,14 @@ public interface CaseService {
      */
     NodeRef getDocumentsFolder(NodeRef caseNodeRef);
 
+    /**
+     * Find cases
+     * @param filter
+     * @param size
+     * @return
+     */
+    public List<CaseInfo> findCases(String filter, int size);
+
     Map<String, Object> getSearchDefinition(QName caseType);
 
     public JSONArray buildConstraintsJSON(ConstraintDefinition constraint) throws JSONException;
