@@ -667,4 +667,14 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
                 .filter(assoc -> !assoc.getChildRef().equals(mainDocNodeRef))
                 .collect(Collectors.toList());
     }
+
+    @Override
+    public void updateCaseDocumentProperties(CaseDocument caseDocument) {
+        NodeRef documentNodeRef = new NodeRef(caseDocument.getNodeRef());
+        Map<QName, Serializable> properties = nodeService.getProperties(documentNodeRef);
+        properties.put(OpenESDHModel.PROP_DOC_TYPE, caseDocument.getType());
+        properties.put(OpenESDHModel.PROP_DOC_STATE, caseDocument.getState());
+        properties.put(OpenESDHModel.PROP_DOC_CATEGORY, caseDocument.getCategory());
+        nodeService.setProperties(documentNodeRef, properties);
+    }
 }
