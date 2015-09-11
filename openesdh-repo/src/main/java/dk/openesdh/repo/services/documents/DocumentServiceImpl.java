@@ -181,6 +181,14 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
     @Override
     public boolean canChangeNodeStatus(String fromStatus, String toStatus,
                                        String user, NodeRef nodeRef) {
+        NodeRef parentCase = caseService.getParentCase(nodeRef);
+        if (parentCase != null) {
+            // Don't allow user to change status of documents which are in a
+            // locked case
+            if (caseService.isLocked(parentCase)) {
+                return false;
+            }
+        }
         return isDocNode(nodeRef) &&
                 DocumentStatus.isValidTransition(fromStatus, toStatus) &&
                 canLeaveStatus(fromStatus, user, nodeRef) && canEnterStatus(toStatus, user, nodeRef);

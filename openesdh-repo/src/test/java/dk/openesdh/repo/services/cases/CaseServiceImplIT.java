@@ -18,7 +18,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.model.CaseStatus;
+import dk.openesdh.repo.model.DocumentStatus;
+import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.services.lock.OELockService;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -113,10 +117,22 @@ public class CaseServiceImplIT {
     protected CaseHelper caseHelper;
 
     @Autowired
+    @Qualifier("CaseDocumentTestHelper")
+    protected CaseDocumentTestHelper docTestHelper;
+
+    @Autowired
     private ActionService actionService;
 
     @Autowired
     private RuleService ruleService;
+
+    @Autowired
+    @Qualifier("DocumentService")
+    private DocumentService documentService;
+
+    @Autowired
+    @Qualifier("OELockService")
+    private OELockService oeLockService;
 
     @Autowired
     @Qualifier("CaseService")
@@ -459,6 +475,10 @@ public class CaseServiceImplIT {
 
         assertEquals("Initial status is active", caseService.getNodeStatus(nonAdminCreatedCaseNr), CaseStatus.ACTIVE);
 
+        // Add a document
+        NodeRef docFileNodeRef = docTestHelper.createCaseDocument("testdoc", nonAdminCreatedCaseNr);
+        NodeRef docRecordNodeRef = nodeService.getPrimaryParent(docFileNodeRef).getParentRef();
+
         caseService.changeNodeStatus(nonAdminCreatedCaseNr, CaseStatus.CLOSED);
 
         assertEquals("Status after closing is closed", caseService.getNodeStatus
@@ -476,6 +496,12 @@ public class CaseServiceImplIT {
                         OpenESDHModel.PROP_OE_LOCKED_BY),
                 AuthenticationUtil.getFullyAuthenticatedUser());
 
+        // Test that document got finalized
+        assertEquals("Document in finalized case has FINAL status",
+                DocumentStatus.FINAL, documentService.getNodeStatus(docRecordNodeRef));
+        assertEquals("Document in finalized case is locked", true,
+                oeLockService.isLocked(docRecordNodeRef));
+
         // Test that the owner cannot write to a closed case
         try {
             nodeService.setProperty(nonAdminCreatedCaseNr,
@@ -486,8 +512,7 @@ public class CaseServiceImplIT {
 
         try {
             // Test that a document cannot be added to a closed case
-            NodeRef doc = createDocument(caseService.getDocumentsFolder
-                    (nonAdminCreatedCaseNr), "testdoc");
+            NodeRef doc = docTestHelper.createCaseDocument("ASDF", nonAdminCreatedCaseNr);
             fail("A document could be added to a closed case");
         } catch (Exception e) {
         }
@@ -564,15 +589,5 @@ public class CaseServiceImplIT {
         String caseId = caseService.getCaseId(nonAdminCreatedCaseNr);
         List<String> permissions = caseService.getCaseUserPermissions(caseId);
         assertTrue("Case owner should contain permissions for the case", permissions.contains("CaseOwners"));
-    }
-
-    private NodeRef createDocument(NodeRef parent, String name) {
-        Map<QName, Serializable> properties = new HashMap<>();
-        properties.put(ContentModel.PROP_NAME, name);
-        return nodeService.createNode(
-                caseService.getDocumentsFolder(nonAdminCreatedCaseNr),
-                ContentModel.ASSOC_CONTAINS, QName.createQName
-                        (OpenESDHModel.CASE_URI, name),
-                ContentModel.TYPE_CONTENT, properties).getChildRef();
     }
 }

@@ -759,16 +759,13 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
             @Override
             public Object execute() throws Throwable {
                 nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.CLOSED);
-                oeLockService.lock(nodeRef);
-                for (ChildAssociationRef childAssociationRef : nodeService.getChildAssocs(nodeRef)) {
-                    NodeRef childNodeRef = childAssociationRef.getChildRef();
-                    if (documentService.isDocNode(childNodeRef)) {
-                        // Finalize any unfinalized documents
-                        documentService.changeNodeStatus(childNodeRef, DocumentStatus.FINAL);
-                    } else {
-                        oeLockService.lock(childNodeRef, true);
-                    }
+                // Finalize any unfinalized documents
+                for (ChildAssociationRef docAssoc : documentService.getDocumentsForCase(nodeRef)) {
+                    NodeRef docNodeRef = docAssoc.getChildRef();
+                    documentService.changeNodeStatus(docNodeRef, DocumentStatus.FINAL);
                 }
+                // Lock the case and all children
+                oeLockService.lock(nodeRef, true);
                 lockCaseGroups(nodeRef);
                 return null;
             }
@@ -825,16 +822,20 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
         transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
             @Override
             public Object execute() throws Throwable {
+                unlockImpl(nodeRef);
+                unlockCaseGroups(nodeRef);
+                return null;
+            }
+
+            private void unlockImpl(NodeRef nodeRef) {
                 oeLockService.unlock(nodeRef);
                 for (ChildAssociationRef childAssociationRef : nodeService.getChildAssocs(nodeRef)) {
                     NodeRef childNodeRef = childAssociationRef.getChildRef();
                     // Do NOT unlock documents (they should remain in FINAL status)
                     if (!documentService.isDocNode(childNodeRef)) {
-                        oeLockService.unlock(childNodeRef, true);
+                        unlockImpl(childNodeRef);
                     }
                 }
-                unlockCaseGroups(nodeRef);
-                return null;
             }
         });
     }
