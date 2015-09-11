@@ -1,0 +1,10 @@
+<webscript>
+       <shortname>OpenESDH Live Search - Cases</shortname>
+       <description>OpenESDH Live Search Component Data Webscript</description>
+       <url>/openesdh/live-search-cases?t={term}</url>
+       <format default="json">argument</format>
+       <authentication>user</authentication>
+       <transaction allow="readonly">required</transaction>
+       <lifecycle>internal</lifecycle>
+       <family>OpenESDH search</family>
+</webscript>
