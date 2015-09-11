@@ -299,7 +299,7 @@ public class DocumentServiceImplIT {
         testDocumentRecFolder4 = nodeService.getPrimaryParent(testDocument4).getParentRef();
 
         // Try to update the finalized document
-        NodeRef workingCopy = checkOutCheckInService.checkout(testDocument3);
+        NodeRef workingCopy = checkOutCheckInService.checkout(testDocument4);
         ContentWriter writer = contentService.getWriter(workingCopy, ContentModel.PROP_CONTENT, true);
         writer.setMimetype(MimetypeMap.MIMETYPE_JSON);
         writer.putContent("{'thisShouldNotBeAbleToBeFinalized': 1}");
