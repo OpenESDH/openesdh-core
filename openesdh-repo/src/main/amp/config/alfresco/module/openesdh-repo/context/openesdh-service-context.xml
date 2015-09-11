@@ -100,7 +100,7 @@
         <property name="namespaceService" ref="namespaceService"/>
     </bean>
 
-    <bean id="DocumentService" class="dk.openesdh.repo.services.documents.DocumentServiceImpl">
+    <bean id="DocumentService" class="dk.openesdh.repo.services.documents.DocumentServiceImpl" init-method="init">
         <property name="caseService">
             <ref bean="CaseService"/>
         </property>
