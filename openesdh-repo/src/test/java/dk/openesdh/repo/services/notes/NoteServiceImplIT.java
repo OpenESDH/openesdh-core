@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-import dk.openesdh.repo.services.cases.CaseService;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -17,8 +16,6 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
-import org.alfresco.service.namespace.NamespaceService;
-import org.alfresco.service.namespace.QName;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,7 +33,9 @@ import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.model.Note;
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CaseService;
 
 /**
  * Created by syastrov on 2/6/15.
@@ -88,11 +87,13 @@ public class NoteServiceImplIT {
     private static final String CASE_READER_USER_NAME = "caseReaderUser";
     private static final String NON_CASE_READER_USER_NAME = "nonCaseReaderUser";
 
+    private static final String TEST_NOTE_HEADLINE = "My headline";
     private static final String TEST_NOTE_CONTENT = "My note";
 
     private NodeRef parentNodeRef;
     private NodeRef caseNodeRef;
     private NodeRef noteNodeRef;
+    private List<NodeRef> notes = new ArrayList<NodeRef>();
 
     @Before
     public void setUp() throws Exception {
@@ -115,6 +116,8 @@ public class NoteServiceImplIT {
         if (noteNodeRef != null) {
             nodes.add(noteNodeRef);
         }
+        nodes.addAll(notes);
+        
         docTestHelper.removeNodesAndDeleteUsersInTransaction(nodes, Arrays.asList(caseNodeRef),
                 Arrays.asList(NON_CASE_READER_USER_NAME, CaseHelper.DEFAULT_USERNAME, CASE_READER_USER_NAME));
     }
@@ -126,21 +129,57 @@ public class NoteServiceImplIT {
         noteNodeRef = createNoteForNonCaseNode();
 
         assertTrue("A node of the created note should exist, but it doesn't", nodeService.exists(noteNodeRef));
-        assertTrue("Notes list should contain newly created note",
-                noteService.getNotes(parentNodeRef).contains(noteNodeRef));
+        assertTrue("Notes list should contain newly created note", 
+                noteService.getNotes(parentNodeRef)
+                .stream()
+                .anyMatch(note -> noteNodeRef.equals(note.getNodeRef()))
+        );
     }
 
     @Test
     public void testUpdateNote() throws Exception {
         noteNodeRef = createNoteForNonCaseNode();
-        noteService.updateNote(noteNodeRef, "My updated note", "Updated author");
-        List<NodeRef> notes = noteService.getNotes(parentNodeRef);
+
+        Note note = new Note();
+        note.setNodeRef(noteNodeRef);
+        note.setParent(parentNodeRef);
+        note.setHeadline("Updated headline");
+        note.setAuthor("Updated author");
+        note.setContent("My updated note");
+
+        noteService.updateNote(note);
+
+        NodeRef updatedNote = noteService.getNotes(parentNodeRef).get(0).getNodeRef();
+
+        assertEquals("Updated note should contain updated headline", "Updated headline",
+                nodeService.getProperty(updatedNote, OpenESDHModel.PROP_NOTE_HEADLINE));
 
         assertEquals("Updated note should contain updated content", "My updated note",
-                nodeService.getProperty(notes.get(0), OpenESDHModel.PROP_NOTE_CONTENT));
+                nodeService.getProperty(updatedNote, OpenESDHModel.PROP_NOTE_CONTENT));
 
         assertEquals("Updated note should contain updated author", "Updated author",
-                nodeService.getProperty(notes.get(0), ContentModel.PROP_AUTHOR));
+                nodeService.getProperty(updatedNote, ContentModel.PROP_AUTHOR));
+    }
+    
+    @Test
+    public void testGetNotesPaging()throws Exception{
+        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
+        NodeRef firstNote = createCaseNote(CaseHelper.DEFAULT_USERNAME, "first note", "first note content");
+        NodeRef secondNote = createCaseNote(CaseHelper.DEFAULT_USERNAME, "second note", "second note content");
+        notes.addAll(Arrays.asList(firstNote, secondNote));
+
+        List<Note> firstNoteList = noteService.getNotes(caseNodeRef, 0, 1).getResultList();
+        Assert.assertEquals("Result notes list should contain only 1 element", 1, firstNoteList.size());
+        Assert.assertEquals("Result notes list should contain first note", "first note", firstNoteList.get(0)
+                .getHeadline());
+
+        List<Note> secondNoteList = noteService.getNotes(caseNodeRef, 1, 1).getResultList();
+        Assert.assertEquals("Result notes list should contain only 1 element", 1, secondNoteList.size());
+        Assert.assertEquals("Result notes list should contain second note", "second note", secondNoteList.get(0)
+                .getHeadline());
+
+        List<Note> twoNotesList = noteService.getNotes(caseNodeRef, 0, 3).getResultList();
+        Assert.assertEquals("Result notes list should contain 2 elements", 2, twoNotesList.size());
     }
 
     @Test
@@ -153,7 +192,14 @@ public class NoteServiceImplIT {
     }
 
     private NodeRef createNoteForNonCaseNode() {
-        return noteService.createNote(parentNodeRef, "My note", "Author");
+
+        Note note = new Note();
+        note.setParent(parentNodeRef);
+        note.setAuthor("Author");
+        note.setHeadline("Test headline");
+        note.setContent("My note");
+
+        return noteService.createNote(note);
     }
 
     @Test
@@ -163,16 +209,29 @@ public class NoteServiceImplIT {
         Assert.assertNotNull("Created note ref should not be null", noteNodeRef);
         assertTrue("A node of the created note should exist", nodeService.exists(noteNodeRef));
         assertTrue("Case should contain newly created note",
-                noteService.getNotes(caseNodeRef).contains(noteNodeRef));
+                noteService.getNotes(caseNodeRef)
+                .stream()
+                .anyMatch(note -> noteNodeRef.equals(note.getNodeRef())));
     }
 
     @Test
     public void shouldAllowCaseWriterToUpdateCaseNote() {
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
         noteNodeRef = createCaseNote(CaseHelper.DEFAULT_USERNAME);
-        noteService.updateNote(noteNodeRef, "My updated note", "Updated author");
 
-        NodeRef updatedNote = noteService.getNotes(caseNodeRef).get(0);
+        Note note = new Note();
+        note.setNodeRef(noteNodeRef);
+        note.setParent(caseNodeRef);
+        note.setHeadline("Updated headline");
+        note.setContent("My updated note");
+        note.setAuthor("Updated author");
+
+        noteService.updateNote(note);
+
+        NodeRef updatedNote = noteService.getNotes(caseNodeRef).get(0).getNodeRef();
+
+        assertEquals("Updated note should contain updated content", "Updated headline",
+                nodeService.getProperty(updatedNote, OpenESDHModel.PROP_NOTE_HEADLINE));
 
         assertEquals("Updated note should contain updated content", "My updated note",
                 nodeService.getProperty(updatedNote, OpenESDHModel.PROP_NOTE_CONTENT));
@@ -190,7 +249,7 @@ public class NoteServiceImplIT {
         noteService.deleteNote(noteNodeRef);
         assertFalse("A nodeRef of the deleted note shouldn't exist", nodeService.exists(noteNodeRef));
 
-        List<NodeRef> notes = noteService.getNotes(caseNodeRef);
+        List<Note> notes = noteService.getNotes(caseNodeRef);
         assertTrue("Case note list should be empty after the note has been deleted", notes.isEmpty());
     }
 
@@ -200,7 +259,7 @@ public class NoteServiceImplIT {
 
         AuthenticationUtil.setFullyAuthenticatedUser(CASE_READER_USER_NAME);
 
-        NodeRef note = noteService.getNotes(caseNodeRef).get(0);
+        NodeRef note = noteService.getNotes(caseNodeRef).get(0).getNodeRef();
         String noteContent = (String) nodeService.getProperty(note, OpenESDHModel.PROP_NOTE_CONTENT);
         Assert.assertEquals("The note content retrieved for case reader doesn't match the created note",
                 TEST_NOTE_CONTENT, noteContent);
@@ -226,9 +285,16 @@ public class NoteServiceImplIT {
         noteNodeRef = createCaseNote(CaseHelper.ADMIN_USER_NAME);
         Assert.assertNotNull("Created note ref should not be null", noteNodeRef);
 
+        Note note = new Note();
+        note.setNodeRef(noteNodeRef);
+        note.setParent(caseNodeRef);
+        note.setHeadline("Updated header");
+        note.setContent("Updated note");
+        note.setAuthor(CASE_READER_USER_NAME);
+
         AuthenticationUtil.setFullyAuthenticatedUser(CASE_READER_USER_NAME);
         thrown.expect(AccessDeniedException.class);
-        noteService.updateNote(noteNodeRef, "My updated note", CASE_READER_USER_NAME);
+        noteService.updateNote(note);
     }
 
     @Test
@@ -242,6 +308,16 @@ public class NoteServiceImplIT {
     }
 
     private NodeRef createCaseNote(String noteAuthor) {
-        return noteService.createNote(caseNodeRef, TEST_NOTE_CONTENT, noteAuthor);
+        return createCaseNote(noteAuthor, TEST_NOTE_HEADLINE, TEST_NOTE_CONTENT);
+    }
+    
+    private NodeRef createCaseNote(String noteAuthor, String headline, String content) {
+        Note note = new Note();
+        note.setParent(caseNodeRef);
+        note.setHeadline(headline);
+        note.setContent(content);
+        note.setAuthor(noteAuthor);
+
+        return noteService.createNote(note);
     }
 }

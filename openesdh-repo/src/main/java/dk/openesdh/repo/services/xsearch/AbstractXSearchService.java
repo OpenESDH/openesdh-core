@@ -1,21 +1,15 @@
 package dk.openesdh.repo.services.xsearch;
 
 import dk.openesdh.repo.services.cases.CaseService;
-import org.alfresco.repo.model.Repository;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.search.ResultSet;
-import org.alfresco.service.cmr.search.SearchParameters;
-import org.alfresco.service.cmr.search.SearchService;
-import org.apache.commons.lang.StringUtils;
-import org.apache.lucene.queryParser.QueryParser;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import org.alfresco.repo.model.Repository;
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.search.LimitBy;
+import org.alfresco.service.cmr.search.ResultSet;
+import org.alfresco.service.cmr.search.SearchParameters;
+import org.alfresco.service.cmr.search.SearchService;
 
 /**
  * Created by flemmingheidepedersen on 12/09/14.
@@ -48,6 +42,7 @@ public abstract class AbstractXSearchService implements XSearchService {
         sp.addStore(repositoryHelper.getCompanyHome().getStoreRef());
         sp.setSkipCount(startIndex);
         sp.setLimit(pageSize);
+        sp.setLimitBy(LimitBy.FINAL_SIZE);
         sp.setQuery(query);
         if (sortDefinition != null) {
             sp.addSort(sortDefinition);
@@ -102,7 +97,7 @@ public abstract class AbstractXSearchService implements XSearchService {
     }
 
     public XResultSet getNodes(Map<String, String> params) {
-        return getNodes(params, 0, -1, "@cm:name", true);
+        return getNodes(params, 0, -1, "cm:name", true);
     }
 
     public void setCaseService(CaseService caseService) {

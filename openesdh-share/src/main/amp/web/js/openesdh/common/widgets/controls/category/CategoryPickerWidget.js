@@ -188,6 +188,7 @@ define(["dojo/_base/declare",
                 buttons.push(cancelButton);
 
                 var dialog = new AlfDialog({
+                    id: "CATEGORY_PICKER_DIALOG",
                     pubSubScope: this.pubSubScope,
                     title: this.message(this.titleMessageKey),
                     contentWidth: "550px",

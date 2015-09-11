@@ -33,12 +33,12 @@ public abstract class BasePage {
     @Before
     public void setup() {
         PageFactory.initElements(Browser.Driver, this);
-        Pages.Login.loginWith(User.ADMIN);
+        /*Pages.Login.loginWith(User.ADMIN);
         Pages.AdminToolsPage.createAlfrescoUser(User.BOB);
         Pages.AdminToolsPage.createAlfrescoUser(User.BRIGITTE);
         Pages.AdminToolsPage.createAlfrescoUser(User.CAROL);
         Pages.AdminToolsPage.createAlfrescoUser(User.HELENA);
-        Pages.Login.logout();
+        Pages.Login.logout();*/
     }
 
     @After

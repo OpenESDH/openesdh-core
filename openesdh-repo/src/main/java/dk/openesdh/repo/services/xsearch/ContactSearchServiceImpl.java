@@ -1,6 +1,9 @@
 package dk.openesdh.repo.services.xsearch;
 
 import dk.openesdh.repo.model.OpenESDHModel;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.search.SearchParameters;
@@ -8,22 +11,17 @@ import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
-import org.apache.lucene.queryParser.QueryParser;
 
-import java.util.*;
+public class ContactSearchServiceImpl extends AbstractXSearchService implements ContactSearchService {
 
-public class ContactSearchServiceImpl extends AbstractXSearchService
-        implements ContactSearchService {
-
-    private static Logger LOGGER = Logger.getLogger(ContactSearchService.class.toString());
-
+    private static final Logger LOG = Logger.getLogger(ContactSearchService.class.toString());
 
     protected DictionaryService dictionaryService;
     protected NamespaceService namespaceService;
     private boolean personSearch;
 
+    @Override
     public XResultSet getNodes(Map<String, String> params, int startIndex, int pageSize, String sortField, boolean ascending) {
         String baseType = params.get("baseType");
         if (baseType == null) {
@@ -38,10 +36,9 @@ public class ContactSearchServiceImpl extends AbstractXSearchService
         QName baseTypeQName = QName.resolveToQName(namespaceService, baseType);
 
         // Make sure the base type is a Contact
-        if (!dictionaryService.isSubClass(baseTypeQName,
-                OpenESDHModel.TYPE_CONTACT_BASE)) {
-            throw new AlfrescoRuntimeException(baseTypeQName + " is not a " +
-                    "subtype of " + OpenESDHModel.TYPE_CONTACT_BASE);
+        if (!dictionaryService.isSubClass(baseTypeQName, OpenESDHModel.TYPE_CONTACT_BASE)) {
+            throw new AlfrescoRuntimeException(baseTypeQName + " is not a "
+                    + "subtype of " + OpenESDHModel.TYPE_CONTACT_BASE);
         }
 
         // Trim / remove double-quotes
@@ -50,27 +47,22 @@ public class ContactSearchServiceImpl extends AbstractXSearchService
         personSearch = false;
 
         String query;
-        if (dictionaryService.isSubClass(baseTypeQName,
-                OpenESDHModel.TYPE_CONTACT_PERSON)) {
+        if (dictionaryService.isSubClass(baseTypeQName, OpenESDHModel.TYPE_CONTACT_PERSON)) {
             // Person
             query = buildPersonQuery(term);
-            if (sortField.equals("")) {
-                sortField = "contact:lastName";
-            }
+            sortField = StringUtils.defaultIfEmpty(sortField, "contact:lastName");
         } else if (dictionaryService.isSubClass(baseTypeQName, OpenESDHModel.TYPE_CONTACT_ORGANIZATION)) {
             // Organization
             query = buildOrganizationQuery(term);
-            if (sortField.equals("")) {
-                sortField = "contact:organizationName";
-            }
+            sortField = StringUtils.defaultIfEmpty(sortField, "contact:organizationName");
         } else {
             throw new AlfrescoRuntimeException("Unsupported contact subtype: "
                     + baseTypeQName);
         }
 
         query = "TYPE:\"" + baseTypeQName + "\" AND (" + query + ")";
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug(query);
+        if (LOG.isDebugEnabled()) {
+            LOG.debug(query);
         }
         return executeQuery(query, startIndex, pageSize, sortField, ascending);
     }
@@ -80,8 +72,8 @@ public class ContactSearchServiceImpl extends AbstractXSearchService
         sp.setLanguage(SearchService.LANGUAGE_FTS_ALFRESCO);
         sp.setNamespace(OpenESDHModel.CONTACT_URI);
         if (this.personSearch) {
-            sp.addQueryTemplate("_PERSON", "|%firstName OR |%middleName OR " +
-                    "|%lastName");
+            sp.addQueryTemplate("_PERSON", "|%firstName OR |%middleName OR "
+                    + "|%lastName");
             sp.setDefaultFieldName("_PERSON");
             sp.setDefaultOperator(SearchParameters.Operator.AND);
         }
@@ -90,11 +82,11 @@ public class ContactSearchServiceImpl extends AbstractXSearchService
     protected String buildPersonQuery(String term) {
         List<String> searchTerms = new ArrayList<>();
         QName[] fields = new QName[]{
-                OpenESDHModel.PROP_CONTACT_FIRST_NAME,
-                OpenESDHModel.PROP_CONTACT_MIDDLE_NAME,
-                OpenESDHModel.PROP_CONTACT_LAST_NAME,
-                OpenESDHModel.PROP_CONTACT_EMAIL,
-                OpenESDHModel.PROP_CONTACT_CPR_NUMBER
+            OpenESDHModel.PROP_CONTACT_FIRST_NAME,
+            OpenESDHModel.PROP_CONTACT_MIDDLE_NAME,
+            OpenESDHModel.PROP_CONTACT_LAST_NAME,
+            OpenESDHModel.PROP_CONTACT_EMAIL,
+            OpenESDHModel.PROP_CONTACT_CPR_NUMBER
         };
 
         String[] tokens = term.split("(?<!\\\\) ");
@@ -127,13 +119,13 @@ public class ContactSearchServiceImpl extends AbstractXSearchService
                 firstToken = false;
             }
 
-            searchTerms.add(OpenESDHModel.PROP_CONTACT_FIRST_NAME.toString() + ":" +
-                    multiPartNames.toString());
-            searchTerms.add(OpenESDHModel.PROP_CONTACT_MIDDLE_NAME.toString() +
-                    ":" +
-                    multiPartNames.toString());
-            searchTerms.add(OpenESDHModel.PROP_CONTACT_LAST_NAME.toString() + ":" +
-                    multiPartNames.toString());
+            searchTerms.add(OpenESDHModel.PROP_CONTACT_FIRST_NAME.toString() + ":"
+                    + multiPartNames.toString());
+            searchTerms.add(OpenESDHModel.PROP_CONTACT_MIDDLE_NAME.toString()
+                    + ":"
+                    + multiPartNames.toString());
+            searchTerms.add(OpenESDHModel.PROP_CONTACT_LAST_NAME.toString() + ":"
+                    + multiPartNames.toString());
         }
         return StringUtils.join(searchTerms, " OR ");
     }
@@ -145,9 +137,9 @@ public class ContactSearchServiceImpl extends AbstractXSearchService
     protected String buildOrganizationQuery(String term) {
         List<String> searchTerms = new ArrayList<>();
         QName[] fields = new QName[]{
-                OpenESDHModel.PROP_CONTACT_ORGANIZATION_NAME,
-                OpenESDHModel.PROP_CONTACT_CVR_NUMBER,
-                OpenESDHModel.PROP_CONTACT_EMAIL
+            OpenESDHModel.PROP_CONTACT_ORGANIZATION_NAME,
+            OpenESDHModel.PROP_CONTACT_CVR_NUMBER,
+            OpenESDHModel.PROP_CONTACT_EMAIL
         };
 
         term += "*";
@@ -157,6 +149,7 @@ public class ContactSearchServiceImpl extends AbstractXSearchService
         }
         return StringUtils.join(searchTerms, " OR ");
     }
+
     public void setDictionaryService(DictionaryService dictionaryService) {
         this.dictionaryService = dictionaryService;
     }

@@ -2,6 +2,7 @@ package dk.openesdh.repo.webscripts.documents;
 
 import java.io.IOException;
 
+import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -41,7 +42,7 @@ public class MoveToCase  extends AbstractWebScript {
 					"Unable to move document to case. " + e.getMessage());
 		}
 
-		DocumentsWebScriptUtil.respondSuccess(res, "The document has been moved to the case " + caseId);
+		WebScriptUtils.respondSuccess(res, "The document has been moved to the case " + caseId);
 	}
 
 	private void logError(Exception e) {

@@ -96,7 +96,6 @@ public class NodeInfoServiceImpl implements NodeInfoService {
                 properties.put(propertyQName.toPrefixString(namespaceService), valueObj);
             }
             result.put("properties", properties);
-            result.put("isJournalized", nodeInfo.aspects.contains(OpenESDHModel.ASPECT_OE_JOURNALIZED));
 
         } catch (JSONException e) {
             e.printStackTrace();
@@ -127,7 +126,8 @@ public class NodeInfoServiceImpl implements NodeInfoService {
         } else if (propertyDefinition.getDataType().getName().equals(DataTypeDefinition.CATEGORY)) {
             valueObj = getCategoryValue((NodeRef) value);
         } else {
-            valueObj.put("value", getDisplayLabel(propertyDefinition, value));
+            valueObj.put("value", value.toString());
+            valueObj.put("displayValue", getDisplayLabel(propertyDefinition, value));
             valueObj.put("type", "String");
         }
 

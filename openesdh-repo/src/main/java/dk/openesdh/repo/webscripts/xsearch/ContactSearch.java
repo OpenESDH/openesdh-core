@@ -1,30 +1,31 @@
 package dk.openesdh.repo.webscripts.xsearch;
 
+import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.xsearch.ContactSearchService;
 import dk.openesdh.repo.services.xsearch.XResultSet;
 import dk.openesdh.repo.utils.Utils;
+import dk.openesdh.repo.webscripts.utils.ContactUtils;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
-import org.alfresco.service.namespace.RegexQNamePattern;
 import org.apache.log4j.Logger;
-import org.json.JSONArray;
 import org.json.JSONException;
-import org.json.JSONObject;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-
 public class ContactSearch extends AbstractWebScript {
+
     static Logger log = Logger.getLogger(ContactSearch.class);
 
     protected NodeService nodeService;
@@ -34,6 +35,7 @@ public class ContactSearch extends AbstractWebScript {
 
     public static int DEFAULT_PAGE_SIZE = 25;
 
+    @Override
     public void execute(WebScriptRequest req, WebScriptResponse res)
             throws IOException {
         try {
@@ -52,15 +54,14 @@ public class ContactSearch extends AbstractWebScript {
             }
 
             String sortField = params.get("sortField");
-            boolean ascending = Boolean.parseBoolean(params.get
-                    ("sortAscending"));
+            boolean ascending = params.get("sortAscending") == null || Boolean.parseBoolean(params.get("sortAscending"));
 
             XResultSet results = contactSearchService.getNodes(params, startIndex, pageSize, sortField, ascending);
             List<NodeRef> nodeRefs = results.getNodeRefs();
             JSONArray nodes = new JSONArray();
             for (NodeRef nodeRef : nodeRefs) {
                 JSONObject node = nodeToJSON(nodeRef);
-                nodes.put(node);
+                nodes.add(node);
             }
 
             JSONObject response = new JSONObject();
@@ -68,38 +69,23 @@ public class ContactSearch extends AbstractWebScript {
             response.put("startIndex", startIndex);
             response.put("items", nodes);
             res.setContentEncoding("UTF-8");
-            res.getWriter().write(response.toString());
+            response.writeJSONString(res.getWriter());
         } catch (JSONException e) {
             throw new WebScriptException("Unable to serialize JSON");
         }
     }
 
     protected JSONObject nodeToJSON(NodeRef nodeRef) throws JSONException {
-        JSONObject json = new JSONObject();
-        // TODO: Don't include ALL properties
         Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
-        for (Map.Entry<QName, Serializable> entry : properties.entrySet()) {
-            json.put(entry.getKey().toPrefixString(namespaceService), entry.getValue());
+        properties.put(OpenESDHModel.PROP_CONTACT_DEPARTMENT, getParentsDepartment(nodeRef));
+        return ContactUtils.createContactJson(nodeRef, properties);
+    }
+
+    private Serializable getParentsDepartment(NodeRef nodeRef) {
+        for (AssociationRef assoc : nodeService.getSourceAssocs(nodeRef, OpenESDHModel.ASSOC_CONTACT_MEMBERS)) {
+            return nodeService.getProperty(assoc.getSourceRef(), OpenESDHModel.PROP_CONTACT_DEPARTMENT);
         }
-        List<AssociationRef> associations = nodeService.getTargetAssocs
-                (nodeRef, RegexQNamePattern.MATCH_ALL);
-        for (AssociationRef association : associations) {
-            String assocName = association.getTypeQName().toPrefixString
-                    (namespaceService);
-            if (!json.has(assocName)) {
-                JSONArray refs = new JSONArray();
-                refs.put(association.getTargetRef());
-                json.put(assocName, refs);
-            } else {
-                JSONArray refs = (JSONArray) json.get(assocName);
-                refs.put(association.getTargetRef());
-                json.put(association.getTypeQName().toPrefixString
-                        (namespaceService), refs);
-            }
-        }
-        json.put("TYPE", nodeService.getType(nodeRef).toPrefixString(namespaceService));
-        json.put("nodeRef", nodeRef.toString());
-        return json;
+        return null;
     }
 
     public void setNodeService(NodeService nodeService) {
@@ -118,5 +104,3 @@ public class ContactSearch extends AbstractWebScript {
         this.contactSearchService = contactSearchService;
     }
 }
-
-

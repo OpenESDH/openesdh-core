@@ -104,17 +104,24 @@ public class UserInvolvedSearchServiceImplIT {
 
     @Before
     public void setUp() throws Exception {
+        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ADMIN_USER_NAME);
         owner = caseHelper.createDummyUser();
-
         caseA = caseHelper.createSimpleCase(caseATitle,
                 CaseHelper.ADMIN_USER_NAME,
                 owner);
 
-        caseService.addAuthorityToRole(owner, "CaseSimpleReader", caseA);
+        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Void>() {
+            @Override
+            public Void execute() throws Throwable {
+                caseService.addAuthorityToRole(owner, "CaseSimpleReader", caseA);
+                return null;
+            }
+        });
 
-        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ADMIN_USER_NAME);
+        //NOTICE: Should really wait for index to pick up changes (but this would effectively re-implements the tests below).
+
+
     }
-
 
     @Test
     public void testGetCaseGroupsNodedbid() {
@@ -130,21 +137,32 @@ public class UserInvolvedSearchServiceImplIT {
     }
 
     @Test
-    public void testGetNodes() {
+    public void testGetNodes() throws InterruptedException {
 
         Map<String, String> params = new HashMap();
         params.put("user", CaseHelper.DEFAULT_USERNAME);
         params.put("filter", "");
         params.put("baseType", "");
 
-        XResultSet nodes = userInvolvedSearchService.getNodes(params, 0, 100, "", true);
-
+        XResultSet nodes = null;
+        int sleepCount = 0;
+        int maxSleepCount = 120;
+        //wait for the search index to pick up changes.
+        do {
+            nodes = userInvolvedSearchService.getNodes(params, 0, 100, "", true);
+            if (nodes.getLength() == 0) {
+                sleepCount++;
+                if (sleepCount > maxSleepCount) {
+                    break;
+                }
+                Thread.sleep(1000);
+            }
+        } while (nodes.getLength() == 0);
         // we expect there to be only one - caseA
         List<NodeRef> list = nodes.getNodeRefs();
         NodeRef nodeRef = list.get(0);
 
         assertEquals(caseATitle, nodeService.getProperty(nodeRef, ContentModel.PROP_TITLE));
-
 
 
     }

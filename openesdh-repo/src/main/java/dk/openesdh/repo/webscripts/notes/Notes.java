@@ -1,35 +1,26 @@
 package dk.openesdh.repo.webscripts.notes;
 
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.notes.NoteService;
-import dk.openesdh.repo.webscripts.AbstractRESTWebscript;
-import org.alfresco.model.ContentModel;
+import java.io.IOException;
+
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.service.cmr.repository.ChildAssociationRef;
-import org.alfresco.service.cmr.repository.DuplicateChildNodeNameException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PersonService;
-import org.alfresco.service.namespace.NamespaceService;
-import org.alfresco.service.namespace.QName;
-import org.alfresco.service.namespace.QNamePattern;
-import org.alfresco.service.namespace.RegexQNamePattern;
-import org.json.JSONArray;
+import org.apache.log4j.Logger;
 import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.JSONTokener;
-import org.springframework.extensions.webscripts.AbstractWebScript;
-import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.*;
+import dk.openesdh.repo.model.Note;
+import dk.openesdh.repo.services.notes.NoteService;
+import dk.openesdh.repo.webscripts.AbstractRESTWebscript;
+import dk.openesdh.repo.webscripts.PageableWebScript;
+import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 public class Notes extends AbstractRESTWebscript {
+
+    protected static Logger logger = Logger.getLogger(Notes.class);
+
     private NodeService nodeService;
     private NoteService noteService;
     private PersonService personService;
@@ -49,50 +40,21 @@ public class Notes extends AbstractRESTWebscript {
     @Override
     protected void get(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse
             res) throws IOException {
-        // process additional parameters
-        boolean reverse = req.getParameter("reverse") != null ?
-                Boolean.valueOf(req.getParameter("reverse")) : true;
-
-        // TODO: Paging?
-//        int startIndex = req.getParameter("startIndex") != null ?
-//                Integer.valueOf(req.getParameter("startIndex")) : 0;
-//        int pageSize = req.getParameter("pageSize ") != null ?
-//                Integer.valueOf(req.getParameter("pageSize ")) : 10;
-
-        List<NodeRef> nodeRefs = noteService.getNotes(nodeRef);
-
-        if (reverse) {
-            Collections.reverse(nodeRefs);
-        }
-
-        int resultsEnd = nodeRefs.size();
-        int startIndex = 0;
-        res.setHeader("Content-Range", "items " + startIndex +
-                "-" + resultsEnd + "/" + nodeRefs.size());
-
-        res.setContentEncoding("UTF-8");
-        try {
-            JSONArray json = buildJSON(nodeRefs);
-            json.write(res.getWriter());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        PageableWebScript<Note> ws = (int startIndex, int pageSize) -> noteService.getNotes(nodeRef, startIndex,
+                pageSize);
+        PageableWebScript.getItemsPage(req, res, ws);
     }
 
     @Override
     protected void post(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
-        JSONObject jsonReq = new JSONObject(new JSONTokener(req.getContent().getContent()));
-        String content = jsonReq.getString("content");
-        String author = AuthenticationUtil.getFullyAuthenticatedUser();
+        Note note = (Note) WebScriptUtils.readJson(Note.class, req);
+        note.setAuthor(AuthenticationUtil.getFullyAuthenticatedUser());
+        note.setParent(nodeRef);
+        NodeRef noteNodeRef = noteService.createNote(note);
 
-        NodeRef noteNodeRef = noteService.createNote(nodeRef, content, author);
+        note.setNodeRef(noteNodeRef);
         res.setContentEncoding("UTF-8");
-        try {
-            JSONObject json = buildJSON(noteNodeRef);
-            json.write(res.getWriter());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        WebScriptUtils.writeJson(note, res);
     }
 
     @Override
@@ -102,58 +64,9 @@ public class Notes extends AbstractRESTWebscript {
 
     @Override
     protected void put(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
-        JSONObject jsonReq = new JSONObject(new JSONTokener(req.getContent().getContent()));
-        String content = jsonReq.getString("content");
-        String author = jsonReq.getString("author");
-
-        noteService.updateNote(nodeRef, content, author);
-
+        Note note = (Note) WebScriptUtils.readJson(Note.class, req);
+        noteService.updateNote(note);
         res.setContentEncoding("UTF-8");
-        try {
-            JSONObject json = buildJSON(nodeRef);
-            json.write(res.getWriter());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        WebScriptUtils.writeJson(note, res);
     }
-
-    JSONObject buildJSON(NodeRef nodeRef) throws JSONException {
-        JSONObject obj = new JSONObject();
-        obj.put("nodeRef", nodeRef);
-
-        obj.put("content", nodeService.getProperty(nodeRef, OpenESDHModel.PROP_NOTE_CONTENT));
-
-
-        String author = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_AUTHOR);
-
-        NodeRef personNodeRef = personService.getPersonOrNull(author);
-        if (personNodeRef != null) {
-            // If it's a user who authored the note, output the user object
-            JSONObject userObj = new JSONObject();
-            PersonService.PersonInfo info = personService.getPerson(personNodeRef);
-            userObj.put("userName", author);
-            userObj.put("displayName", info.getFirstName() + " " + info.getLastName());
-            obj.put("author", userObj);
-        } else {
-            // If it's not a user, just output the name
-            obj.put("author", author);
-        }
-
-        obj.put("creator", nodeService.getProperty(nodeRef, ContentModel.PROP_CREATOR));
-        obj.put("created", ((Date)nodeService.getProperty(nodeRef, ContentModel.PROP_CREATED)).getTime());
-        obj.put("modified", ((Date)nodeService.getProperty(nodeRef, ContentModel.PROP_MODIFIED)).getTime());
-        return obj;
-    }
-
-    JSONArray buildJSON(List<NodeRef> nodeRefs) throws JSONException {
-        JSONArray result = new JSONArray();
-
-        for (NodeRef nodeRef : nodeRefs) {
-            result.put(buildJSON(nodeRef));
-        }
-
-        return result;
-    }
-
-
 }

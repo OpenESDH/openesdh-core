@@ -27,7 +27,6 @@ public interface CaseService {
 
     Pattern CASE_ID_PATTERN = Pattern.compile("\\d+-(\\d+)");
 
-
     /**
      * Get the root folder for the openESDH context
      *
@@ -44,6 +43,7 @@ public interface CaseService {
 
     /**
      * The noderef for the folder where case types are meant to store their data
+     *
      * @return
      */
     NodeRef getCasesTypeStorageRootNodeRef();
@@ -51,6 +51,7 @@ public interface CaseService {
     /**
      * Retrieves the widgets that comprise the create case form and is (or should have been) stored in the
      * OpenESDH/cases/types/[case_type_name]/forms/create-form.js on case module bootstrap.
+     *
      * @param caseType string in the form of case:XXXXXX or just plain string that should be the postfix of the case model
      *                 i.e. case:simple || simple(this is the postfix)
      * @return
@@ -75,6 +76,7 @@ public interface CaseService {
 
     /**
      * Get a list of case db-id's where the given authority has the given role.
+     *
      * @param authorityNodeRef
      * @param role
      * @return
@@ -90,7 +92,7 @@ public interface CaseService {
      *
      * @param caseNodeRef
      * @param noExpandGroups expand subgroups
-     * @param includeOwner inculde case owner
+     * @param includeOwner   inculde case owner
      * @return
      */
     Map<String, Set<String>> getMembersByRole(NodeRef caseNodeRef, boolean noExpandGroups, boolean includeOwner);
@@ -113,6 +115,7 @@ public interface CaseService {
 
     /**
      * returns case info data structure given a nodeRef
+     *
      * @param caseNodeRef
      * @return
      */
@@ -120,6 +123,7 @@ public interface CaseService {
 
     /**
      * Returns a case info data structure given a case id string
+     *
      * @param caseId
      * @return
      */
@@ -168,6 +172,7 @@ public interface CaseService {
 
     /**
      * Return whether a user can update case roles.
+     *
      * @param user
      * @param caseNodeRef
      * @return
@@ -190,44 +195,64 @@ public interface CaseService {
     NodeRef getCaseFolderNodeRef(NodeRef casesFolderNodeRef);
 
     /**
-     * Return whether or not the user can journalize the node.
-     * @param user
-     * @param nodeRef
-     * @return
-     */
-    boolean canJournalize(String user, NodeRef nodeRef);
-
-    /**
-     * Return whether or not the user can unjournalize the node.
-     * @param user
-     * @param nodeRef
-     * @return
-     */
-    boolean canUnJournalize(String user, NodeRef nodeRef);
-
-    /**
-     * Return whether a node is journalized or not.
-     * @param nodeRef
-     * @return
-     */
-    boolean isJournalized(NodeRef nodeRef);
-
-    /**
-     * Journalize node and all child nodes
-     * @param nodeRef NodeRef of the node to journalize
-     * @param journalKey
-     */
-    void journalize(NodeRef nodeRef, NodeRef journalKey);
-
-    /**
-     * Unjournalize node and all child nodes
+     * Get the case status.
      *
-     * @param nodeRef NodeRef of the node to unjournalize
+     * @param nodeRef
+     * @return String
      */
-    void unJournalize(NodeRef nodeRef);
+    String getStatus(NodeRef nodeRef);
+
+
+    /**
+     * Return a list of valid next statuses for the case.
+     *
+     * These are statuses that the user is permitted to move the case to
+     * based on the user's permissions, the current status, and the valid
+     * status transitions.
+     *
+     * @param nodeRef
+     * @return
+     */
+    List<String> getValidNextStatuses(NodeRef nodeRef);
+
+    /**
+     * Return whether the user can change the case status from a given
+     * status to another status.
+     * @param fromStatus
+     * @param toStatus
+     * @param user
+     * @param nodeRef
+     * @return
+     */
+    boolean canChangeCaseStatus(String fromStatus, String toStatus, String user, NodeRef nodeRef);
+
+    /**
+     * Change the case to a new status.
+     *
+     * An exception will be thrown if this is not allowed because the user
+     * does not have the permission or if it is an invalid status transition.
+     *
+     * For example, to close, or passivate a case.
+     *
+     * @param nodeRef
+     * @param newStatus
+     * @throws Exception
+     */
+    void changeCaseStatus(NodeRef nodeRef, String newStatus) throws Exception;
+
+    /**
+     * Return whether a case is locked or not.
+     *
+     * This can be due to either the case being closed or archived.
+     *
+     * @param nodeRef
+     * @return
+     */
+    boolean isLocked(NodeRef nodeRef);
 
     /**
      * Return whether or not the node is a case node.
+     *
      * @param nodeRef
      * @return
      */
@@ -235,6 +260,7 @@ public interface CaseService {
 
     /**
      * Return whether or not the node is a doc which exists within a case.
+     *
      * @param nodeRef
      * @return
      */
@@ -243,6 +269,7 @@ public interface CaseService {
     /**
      * Get the parent case of the given node, or null if the node does not
      * have a parent which is a case. The parent does not have to be immediate.
+     *
      * @param nodeRef
      * @return
      */
@@ -250,6 +277,7 @@ public interface CaseService {
 
     /**
      * Get the documents folder of the given case.
+     *
      * @param caseNodeRef
      * @return
      */
@@ -271,7 +299,6 @@ public interface CaseService {
 
     /**
      * Get current user permissions for the case
-     *
      */
     public List<String> getCaseUserPermissions(String caseId);
 }

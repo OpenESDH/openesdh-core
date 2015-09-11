@@ -1,9 +1,11 @@
 package dk.openesdh.repo.webscripts.xsearch;
 
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.xsearch.XResultSet;
-import dk.openesdh.repo.services.xsearch.XSearchService;
-import dk.openesdh.repo.utils.Utils;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -22,11 +24,11 @@ import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.xsearch.XResultSet;
+import dk.openesdh.repo.services.xsearch.XSearchService;
+import dk.openesdh.repo.utils.Utils;
+import dk.openesdh.repo.webscripts.PageableWebScript;
 
 public class XSearchWebscript extends AbstractWebScript {
     protected static Logger logger = Logger.getLogger(XSearchWebscript.class);
@@ -40,7 +42,7 @@ public class XSearchWebscript extends AbstractWebScript {
      * The page size to use if none is specified in the request.
      * This is settable from the bean definition.
      */
-    protected int defaultPageSize = 25;
+    protected int defaultPageSize = PageableWebScript.DEFAULT_PAGE_SIZE;
 
     /**
      * Handles a typical request from a dojo/store/JsonRest store.
@@ -62,7 +64,7 @@ public class XSearchWebscript extends AbstractWebScript {
             int pageSize = defaultPageSize;
 
             String rangeHeader = req.getHeader("x-range");
-            int[] range = parseRangeHeader(rangeHeader);
+            int[] range = PageableWebScript.parseRangeHeader(rangeHeader);
             if (range != null) {
                 logger.debug("Range: " + range[0] + " - " + range[1]);
                 startIndex = range[0];
@@ -147,33 +149,16 @@ public class XSearchWebscript extends AbstractWebScript {
         return json;
     }
 
-    private void addAssocToArray(AssociationRef association, JSONArray refs) {
+    private void addAssocToArray(AssociationRef association, JSONArray refs) throws JSONException {
         if (nodeService.getType(association.getTargetRef()).equals( ContentModel.TYPE_PERSON)) {
             PersonService.PersonInfo info = personService.getPerson(association.getTargetRef());
-            refs.put(info.getUserName());
+            JSONObject json = new JSONObject();
+            json.put("value", info.getUserName());
+            json.put("fullname", info.getFirstName() + " " + info.getLastName());
+            refs.put(json);
         }
         else {
             refs.put(association.getTargetRef());
-        }
-    }
-
-    /**
-     * Parse a HTTP Range header and return an array containing 2 elemens: the
-     * start and end index of the range.
-     *
-     * @param range
-     * @return
-     */
-    protected int[] parseRangeHeader(String range) {
-        final String RANGE_START = "items=";
-        if (range != null && range.contains(RANGE_START)) {
-            String rest = range.substring(RANGE_START.length());
-            int dash = rest.indexOf("-");
-            int startIndex = Integer.parseInt(rest.substring(0, dash));
-            int endIndex = Integer.parseInt(rest.substring(dash + 1));
-            return new int[]{startIndex, endIndex};
-        } else {
-            return null;
         }
     }
 

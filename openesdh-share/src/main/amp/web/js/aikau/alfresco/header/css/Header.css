@@ -1,0 +1,90 @@
+.alfresco-share .alf-home-icon {
+   background: url("./images/home.png");
+   background-repeat: no-repeat;
+   height: 16px;
+   width: 16px;
+   display: block;
+   float: left;
+}
+
+.alfresco-share .navigation-menu {
+   margin-top: 23px;
+}
+
+.alfresco-share .title-menu {
+   margin-top: 23px;
+}
+
+.alfrescoHeader {
+	 background-color: @header-primary-background-color;
+}
+
+.alfresco-share .alfresco-header-Header {
+   color: @header-primary-font-color;
+   padding: 0;
+   width: auto;
+   > nav {
+   	/*max-width: @screen-max;
+   	margin: 0 auto;*/
+   	padding-top: 4px;
+   	padding-bottom: 4px;
+   }
+}
+
+/* Sets the highlight on the menu bar items in the header bar ONLY */
+.alfresco-share .alfresco-header-Header .alfresco-menus-AlfMenuBar .dijitMenuPassive .dijitMenuItemHover {
+   background-color: @header-hover-background-color;
+   color: @header-hover-font-color;
+}
+
+.alfresco-share .alf-header-menu-bar .dijitMenuItem {
+   color: @header-dropdown-menu-font-color;
+}
+
+/* Sets the highlight on popup menu items in the header bar ONLY. Note that we need to use "alf-header-menu-bar" and not
+   just "alf-header" because the popup is not a direct child of the node set with the "alf-header" class */
+.alfresco-share .alf-header-menu-bar .alf-menu-group .dijitMenuPassive .dijitMenuItemHover, 
+.alfresco-share .alf-header-menu-bar .alf-menu-group .dijitMenuItemSelected {
+   background-color: @header-hover-background-color;
+   color: @header-hover-font-color;
+}
+
+/* Sets the selection highlight colour on header menu items - more specific than class in AlfMenuBar */
+.alfresco-share .alfresco-header-Header .dijitReset.dijitInline.dijitMenuItemLabel.dijitMenuItemSelected.dijitMenuItem {
+   background-color: @header-focus-background-color;
+}
+
+/* Sets the correct height for the header menu bar items. This may need to be changed for different browsers and
+ * possible adjusted if items in the header are changed */
+.alfresco-share .alfresco-header-Header .dijitReset.dijitInline.dijitMenuItemLabel.dijitMenuItem {
+   height: 22px;
+   margin: 0 8px;
+   padding-top: 4px;
+   color: @header-menubar-font-color;
+   font-size: 14px;
+   text-transform: uppercase;
+   position: relative;
+}
+
+/* Sets the dark grey colour in the drop-down menus in header menus ONLY. */
+.alfresco-share .alf-header-menu-bar.alf-menu-groups {
+   background-color: @header-focus-background-color;
+   border: 1px solid @header-focus-background-color;
+   box-shadow: 0.33px 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Sets the dark grey colour in the menu groups in the header menu ONLY */
+.alfresco-share .alf-header-menu-bar .dijitMenuTable {
+   background-color: @header-focus-background-color;
+   color: @header-focus-font-color;
+}
+
+/* Sets the menu group title background colour in the header menu ONLY */
+.alfresco-share .alf-header-menu-bar .alf-menu-group.dijitMenu {
+   background-color: @header-focus-background-color;
+}
+
+/* Stops the line appearing between menu items in the header bar menu ONLY */
+.alfresco-share .alf-header-menu-bar .alf-menu-group .dijitReset.dijitMenuItem {
+   border-bottom: none;
+}

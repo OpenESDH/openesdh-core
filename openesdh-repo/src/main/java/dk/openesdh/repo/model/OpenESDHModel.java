@@ -64,7 +64,7 @@ public interface OpenESDHModel {
     /**
      * Aspects
      */
-    public static final QName ASPECT_OE_JOURNALIZED = QName.createQName(OE_URI, "journalized");
+    public static final QName ASPECT_OE_LOCKED = QName.createQName(OE_URI, "locked");
     public static final QName ASPECT_OE_CASE_ID = QName.createQName(OE_URI, "caseId");
 
     public static final QName ASPECT_CASE_COUNTER = QName.createQName(CASE_URI, "counter");
@@ -98,19 +98,21 @@ public interface OpenESDHModel {
 
     public static final QName ASSOC_NOTE_NOTES = QName.createQName(NOTE_URI, "notes");
 
+    public static final QName ASSOC_NOTE_CONCERNED_PARTIES = QName.createQName(NOTE_URI, "concernedParties");
+
     /**
      * Properties
      */
     public static final QName PROP_OE_ID = QName.createQName(OE_URI, "id");
-    public static final QName PROP_OE_STATUS = QName.createQName(OE_URI, "status");
-    public static final QName PROP_OE_JOURNALIZED_BY = QName.createQName(OE_URI, "journalizedBy");
-    public static final QName PROP_OE_JOURNALIZED_DATE = QName.createQName(OE_URI, "journalizedDate");
-    public static final QName PROP_OE_JOURNALKEY = QName.createQName(OE_URI, "journalKey");
+    public static final QName PROP_OE_LOCKED_BY = QName.createQName(OE_URI, "lockedBy");
+    public static final QName PROP_OE_LOCKED_DATE = QName.createQName(OE_URI, "lockedDate");
     public static final QName PROP_OE_ORIGINAL_OWNER = QName.createQName(OE_URI, "originalOwner");
+    public static final QName PROP_OE_JOURNALKEY = QName.createQName(OE_URI, "journalKey");
     public static final QName PROP_OE_CASE_ID = QName.createQName(OE_URI, "caseId");
-
     public static final QName PROP_CASE_STARTDATE = QName.createQName(CASE_URI, "startDate");
+
     public static final QName PROP_CASE_ENDDATE = QName.createQName(CASE_URI, "endDate");
+    public static final QName PROP_OE_STATUS = QName.createQName(OE_URI, "status");
     public static final QName PROP_CASE_SUBJECT = QName.createQName(CASE_URI, "subject");//TODO This is a value used for testing
 
     public static final QName PROP_CASE_UNIQUE_NUMBER = QName.createQName(CASE_URI, "uniqueNumber");
@@ -125,7 +127,13 @@ public interface OpenESDHModel {
 
 
     public static final QName PROP_CONTACT_EMAIL = QName.createQName(CONTACT_URI, "email");
-    public static final QName PROP_CONTACT_TYPE = QName.createQName (CONTACT_URI, "contactType");
+    public static final QName PROP_CONTACT_TYPE = QName.createQName(CONTACT_URI, "contactType");
+    public static final QName PROP_CONTACT_PHONE = QName.createQName(CONTACT_URI, "phone");
+    public static final QName PROP_CONTACT_MOBILE = QName.createQName(CONTACT_URI, "mobile");
+    public static final QName PROP_CONTACT_WEBSITE = QName.createQName(CONTACT_URI, "website");
+    public static final QName PROP_CONTACT_LINKEDIN = QName.createQName(CONTACT_URI, "linkedin");
+    public static final QName PROP_CONTACT_IM = QName.createQName(CONTACT_URI, "IM");
+    public static final QName PROP_CONTACT_NOTES = QName.createQName(CONTACT_URI, "notes");
 
     public static final QName PROP_CONTACT_FIRST_NAME = QName.createQName (CONTACT_URI, "firstName");
     public static final QName PROP_CONTACT_LAST_NAME = QName.createQName (CONTACT_URI, "lastName");
@@ -133,6 +141,7 @@ public interface OpenESDHModel {
     public static final QName PROP_CONTACT_CPR_NUMBER = QName.createQName (CONTACT_URI, "cprNumber");
 
     public static final QName PROP_CONTACT_ORGANIZATION_NAME = QName.createQName (CONTACT_URI, "organizationName");
+    public static final QName PROP_CONTACT_DEPARTMENT = QName.createQName(CONTACT_URI, "department");
     public static final QName PROP_CONTACT_CVR_NUMBER = QName.createQName (CONTACT_URI, "cvrNumber");
 
     public static final QName PROP_CONTACT_ADDRESS = QName.createQName (CONTACT_URI, "address");
@@ -158,6 +167,7 @@ public interface OpenESDHModel {
     public static final QName PROP_CONTACT_REGISTERED = QName.createQName (CONTACT_URI, "registered");
     public static final QName PROP_CONTACT_INTERNAL = QName.createQName (CONTACT_URI, "internal");
 
+    public static final QName PROP_NOTE_HEADLINE = QName.createQName(NOTE_URI, "headline");
     public static final QName PROP_NOTE_CONTENT = QName.createQName(NOTE_URI, "content");
     public static final QName PROP_ATTACHMENT_COUNT = QName.createQName(DOC_URI, "attachmentCount");
 
@@ -170,7 +180,7 @@ public interface OpenESDHModel {
     /**
      * Constraints
      */
-    public static final QName CONSTRAINT_CASE_SIMPLE_STATUS = QName.createQName(CASE_URI, "simpleStatusConstraint");
+    public static final QName CONSTRAINT_CASE_BASE_STATUS = QName.createQName(CASE_URI, "caseStatusConstraint");
     public static final QName CONSTRAINT_CASE_ALLOWED_PARTY_ROLES = QName.createQName(CASE_URI, "allowedPartyRoles");
 
     //Document constraints
@@ -185,6 +195,18 @@ public interface OpenESDHModel {
      * Documents
      */
     public static final String DOCUMENTS_FOLDER_NAME = "documents";
+    public static final String DOCUMENT_PROP_NAME = "name";
+    public static final String DOCUMENT_PROP_MODIFIED = "modified";
+    public static final String DOCUMENT_PROP_MODIFIER = "modifier";
+
+    public static final String DOCUMENT_TYPE_LETTER = "letter";
+    public static final String DOCUMENT_TYPE_INVOICE = "invoice";
+
+    public static final String DOCUMENT_CATEGORY_OTHER = "other";
+    public static final String DOCUMENT_CATEGORY_CONTRACT = "contract";
+
+    public static final String DOCUMENT_STATE_RECEIVED = "received";
+    public static final String DOCUMENT_STATE_FINALISED = "finalised";
 
     /**
      * Various constants

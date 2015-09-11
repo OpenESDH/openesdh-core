@@ -1,13 +1,19 @@
 package dk.openesdh.repo.services.documents;
 
+import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
+import org.alfresco.service.cmr.repository.ContentService;
+import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
 import org.junit.After;
 import org.junit.Assert;
@@ -27,6 +33,10 @@ import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.model.CaseDocument;
+import dk.openesdh.repo.model.CaseDocumentAttachment;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.model.ResultSet;
 import dk.openesdh.repo.services.cases.CaseService;
 
 @RunWith(RemoteTestRunner.class)
@@ -57,17 +67,37 @@ public class DocumentServiceImplIT {
     @Qualifier("TransactionService")
     protected TransactionService transactionService;
 
+    @Autowired
+    @Qualifier("CheckOutCheckInService")
+    protected CheckOutCheckInService checkOutCheckInService;
+
+    @Autowired
+    @Qualifier("ContentService")
+    protected ContentService contentService;
+
     private static final String TEST_FOLDER_NAME = "DocumentServiceImpIT";
     private static final String TEST_CASE_NAME1 = "TestCase1";
     private static final String TEST_CASE_NAME2 = "TestCase2";
     private static final String TEST_DOCUMENT_NAME = "TestDocument";
     private static final String TEST_DOCUMENT_FILE_NAME = TEST_DOCUMENT_NAME + ".txt";
+    private static final String TEST_DOCUMENT_NAME2 = "TestDocument2";
+    private static final String TEST_DOCUMENT_FILE_NAME2 = TEST_DOCUMENT_NAME2 + ".txt";
+
+    private static final String TEST_DOCUMENT_ATTACHMENT_NAME = "TestDocumentAttachment";
+    private static final String TEST_DOCUMENT_ATTACHMENT_FILE_NAME = TEST_DOCUMENT_ATTACHMENT_NAME + ".txt";
+
+    private static final String TEST_DOCUMENT_ATTACHMENT_NAME2 = "TestDocumentAttachment2";
+    private static final String TEST_DOCUMENT_ATTACHMENT_FILE_NAME2 = TEST_DOCUMENT_ATTACHMENT_NAME2 + ".txt";
 
     private NodeRef testFolder;
     private NodeRef testCase1;
     private NodeRef testCase2;
     private NodeRef testDocument;
+    private NodeRef testDocumentAttachment;
     private NodeRef testDocumentRecFolder;
+    private NodeRef testDocument2;
+    private NodeRef testDocumentAttachment2;
+    private NodeRef testDocumentRecFolder2;
 
     @Before
     public void setUp() throws Exception {
@@ -81,6 +111,8 @@ public class DocumentServiceImplIT {
 
         testDocument = docTestHelper.createCaseDocument(TEST_DOCUMENT_FILE_NAME, testCase1);
         testDocumentRecFolder = nodeService.getPrimaryParent(testDocument).getParentRef();
+        testDocumentAttachment = docTestHelper.createCaseDocumentAttachment(TEST_DOCUMENT_ATTACHMENT_FILE_NAME,
+                testDocumentRecFolder);
     }
 
     @After
@@ -179,5 +211,58 @@ public class DocumentServiceImplIT {
                     .getMessage().startsWith("Duplicate child name not allowed"));
             Assert.assertTrue("The exception is thrown which is OK", true);
         }
+    }
+
+    @Test
+    public void shouldCreateDocumentAttachmentVersionAndRetrieveSeveralVersions() {
+        NodeRef workingCopy = checkOutCheckInService.checkout(testDocumentAttachment);
+        ContentWriter writer = contentService.getWriter(workingCopy, ContentModel.PROP_CONTENT, true);
+        writer.setMimetype("text");
+        writer.putContent("some new content");
+        checkOutCheckInService.checkin(workingCopy, null);
+
+        ResultSet<CaseDocumentAttachment> attachments = documentService.getAttachmentsWithVersions(
+                testDocumentRecFolder, 0, 1000);
+        Assert.assertEquals("Wrong number of document attachments retrieved.", 1, attachments.getTotalItems());
+        Assert.assertEquals("Wrong attachment current version.", "1.1", attachments.getResultList().get(0)
+                .getVersionLabel());
+        Assert.assertEquals("Wrong attachment previous version.", "1.0", attachments.getResultList().get(0)
+                .getVersions().get(0).getVersionLabel());
+    }
+
+    @Test
+    public void shouldCreateAndRetrieveDocumentsWithAttachments() {
+
+        testDocument2 = docTestHelper.createCaseDocument(TEST_DOCUMENT_FILE_NAME2, testCase1);
+        testDocumentRecFolder2 = nodeService.getPrimaryParent(testDocument2).getParentRef();
+        testDocumentAttachment2 = docTestHelper.createCaseDocumentAttachment(TEST_DOCUMENT_ATTACHMENT_FILE_NAME2,
+                testDocumentRecFolder2);
+
+        String caseId = caseService.getCaseId(testCase1);
+        List<CaseDocument> caseDocuments = documentService.getCaseDocumentsWithAttachments(caseId);
+        Assert.assertEquals("Wrong number of case documents retrieved", 2, caseDocuments.size());
+        Assert.assertEquals("Wrong number of the first document attachments retrieved", 1, caseDocuments.get(0)
+                .getAttachments().size());
+        Assert.assertEquals("Wrong number of the second document attachments retrieved", 1, caseDocuments.get(1)
+                .getAttachments().size());
+    }
+
+    @Test
+    public void shouldUpdateCaseDocumentProperties() {
+        CaseDocument document = new CaseDocument();
+        document.setNodeRef(testDocument.toString());
+        document.setCategory(OpenESDHModel.DOCUMENT_CATEGORY_CONTRACT);
+        document.setType(OpenESDHModel.DOCUMENT_TYPE_INVOICE);
+        document.setState(OpenESDHModel.DOCUMENT_STATE_FINALISED);
+
+        documentService.updateCaseDocumentProperties(document);
+
+        Map<QName, Serializable> props = nodeService.getProperties(testDocument);
+        Assert.assertEquals("Document category should be updated", OpenESDHModel.DOCUMENT_CATEGORY_CONTRACT,
+                props.get(OpenESDHModel.PROP_DOC_CATEGORY));
+        Assert.assertEquals("Document type should be updated", OpenESDHModel.DOCUMENT_TYPE_INVOICE,
+                props.get(OpenESDHModel.PROP_DOC_TYPE));
+        Assert.assertEquals("Document state should be updated", OpenESDHModel.DOCUMENT_STATE_FINALISED,
+                props.get(OpenESDHModel.PROP_DOC_STATE));
     }
 }

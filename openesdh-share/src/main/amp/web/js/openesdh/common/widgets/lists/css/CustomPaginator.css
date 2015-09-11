@@ -1,0 +1,42 @@
+.next-page,
+.previous-page {
+	display: inline-block;
+    font-family: FontAwesome;
+    font-size: 24px;
+    text-rendering: auto;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    vertical-align: middle;
+    padding: 3px 4px !important;
+    opacity: 0.8;  
+}
+
+#Share .next-page,
+#Share .previous-page,
+#Share .dropdown {
+	margin-right: 5px;
+}
+
+.next-page:hover,
+.previous-page:hover {
+	opacity: 1;
+}
+
+.next-page.dijitDisabled:hover,
+.previous-page.dijitDisabled:hover {
+	 opacity: 0.8; 
+}
+
+
+.previous-page:before { content: "\f104"; }
+
+.next-page:before { content: "\f105"; }
+
+
+#Share .dropdown {
+	display: inline-block;
+	font-size: 0.9em;
+	vertical-align: middle;
+	padding: 0 !important;
+	color: #999999;
+}

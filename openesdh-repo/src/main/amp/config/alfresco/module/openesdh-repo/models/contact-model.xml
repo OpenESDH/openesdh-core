@@ -30,6 +30,11 @@
                 <value><![CDATA[^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$]]></value>
             </parameter>
         </constraint>
+        <constraint name="contact:phoneConstraint" type="REGEX">
+            <parameter name="expression">
+                <value><![CDATA[^[+]?[0-9\- ]+$]]></value>
+            </parameter>
+        </constraint>
         <constraint name="contact:contactTypeConstraint" type="LIST">
             <parameter name="allowedValues">
                 <list>
@@ -81,6 +86,11 @@
                 <value>70</value>
             </parameter>
         </constraint>
+        <constraint name="contact:char2000" type="LENGTH">
+            <parameter name="maxLength">
+                <value>2000</value>
+            </parameter>
+        </constraint>
     </constraints>
     <types>
         <type name="contact:base">
@@ -102,6 +112,42 @@
                     <mandatory>true</mandatory>
                     <constraints>
                         <constraint ref="contact:contactTypeConstraint"/>
+                    </constraints>
+                </property>
+                <property name="contact:phone">
+                    <type>d:text</type>
+                    <constraints>
+                        <constraint ref="contact:phoneConstraint"/>
+                    </constraints>
+                </property>
+                <property name="contact:mobile">
+                    <type>d:text</type>
+                    <constraints>
+                        <constraint ref="contact:phoneConstraint"/>
+                    </constraints>
+                </property>
+                <property name="contact:website">
+                    <type>d:text</type>
+                    <constraints>
+                        <constraint ref="contact:char70"/>
+                    </constraints>
+                </property>
+                <property name="contact:linkedin">
+                    <type>d:text</type>
+                    <constraints>
+                        <constraint ref="contact:char70"/>
+                    </constraints>
+                </property>
+                <property name="contact:IM">
+                    <type>d:text</type>
+                    <constraints>
+                        <constraint ref="contact:char70"/>
+                    </constraints>
+                </property>
+                <property name="contact:notes">
+                    <type>d:text</type>
+                    <constraints>
+                        <constraint ref="contact:char2000"/>
                     </constraints>
                 </property>
             </properties>
@@ -162,7 +208,6 @@
                     <type>d:boolean</type>
                     <default>false</default>
                 </property>
-
             </properties>
 
             <overrides>
@@ -191,6 +236,13 @@
                         <constraint ref="contact:cvrConstraint"/>
                     </constraints>
                 </property>
+                
+                <property name="contact:department">
+                    <type>d:text</type>
+                    <constraints>
+                        <constraint ref="contact:char50"/>
+                    </constraints>
+                </property>
             </properties>
             <associations>
                 <child-association name="contact:members">
@@ -199,7 +251,7 @@
                         <many>true</many>
                     </source>
                     <target>
-                        <class>contact:base</class>
+                        <class>contact:person</class>
                         <mandatory>false</mandatory>
                         <many>true</many>
                     </target>

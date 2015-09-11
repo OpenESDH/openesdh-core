@@ -36,41 +36,81 @@ define(["dojo/_base/declare",
                 // Unsubscribe from CaseInfoTopic so we don't show the data twice
                 this.alfUnsubscribe(this.caseInfoTopicSubscription);
 
-//                console.log("on case info received: ", payload);
-
-                this.widgetsForBody = [];
-//                var currentItem = this.unmarshal(payload);
-                var properties = payload.properties;
-                for (var i in properties) {
-                    if (i == "alfTopic") continue;
-                    
-                    var widget = "";
-                    if (properties[i].type == "Date") {
-                        widget = "openesdh/common/widgets/renderers/DateField";
-                    }
-                    else if (properties[i].type == "UserName") {
-                        widget = "openesdh/common/widgets/renderers/UserNameField";
-                    }
-                    else if(i == "cm:title"){
-                    	widget = "openesdh/common/widgets/renderers/CaseTitle";
-                    }
-                    else {
-//                    	console.log("adding property: "+i);
-                        widget = "openesdh/common/widgets/renderers/PropertyField";
-                    }
-
-                    var propertyWidget = {
-                        name: widget,
-                        config: {
-                            currentItem: payload.allProps.properties, //properties,
-                            propertyToRender: i,
-                            label: properties[i].label,
+                var currentItem = payload.allProps.properties;
+                this.widgetsForBody = [
+                    {
+                        name: "openesdh/common/widgets/renderers/PropertyField",
+                        config:{
+                            currentItem: currentItem,
+                            propertyToRender: "oe:id",
+                            label: this.message("caseId"),
                             renderOnNewLine: true
                         }
-                    };
-
-                    this.widgetsForBody.push(propertyWidget);
-                }
+                    },
+                    {
+                        name: "openesdh/common/widgets/renderers/PropertyField",
+                        config:{
+                            currentItem: currentItem,
+                            propertyToRender: "cm:title",
+                            label: this.message("caseTitle"),
+                            renderOnNewLine: true
+                        }
+                    },
+                    {
+                        name: "openesdh/common/widgets/renderers/PropertyField",
+                        config:{
+                            currentItem: currentItem,
+                            propertyToRender: "oe:status",
+                            label: this.message("caseStatus"),
+                            renderOnNewLine: true
+                        }
+                    },
+                    {
+                        name: "openesdh/common/widgets/renderers/UserNameField",
+                        config:{
+                            currentItem: currentItem,
+                            propertyToRender: "cm:creator",
+                            label: this.message("createdBy"),
+                            renderOnNewLine: true
+                        }
+                    },
+                    {
+                        name: "openesdh/common/widgets/renderers/DateField",
+                        config:{
+                            currentItem: currentItem,
+                            propertyToRender: "cm:created",
+                            label: this.message("created"),
+                            renderOnNewLine: true
+                        }
+                    },
+                    {
+                        name: "openesdh/common/widgets/renderers/UserNameField",
+                        config:{
+                            currentItem: currentItem,
+                            propertyToRender: "base:owners",
+                            label: this.message("caseOwners"),
+                            renderOnNewLine: true
+                        }
+                    },
+                    {
+                        name: "openesdh/common/widgets/renderers/DateField",
+                        config:{
+                            currentItem: currentItem,
+                            propertyToRender: "cm:modified",
+                            label: this.message("lastModified"),
+                            renderOnNewLine: true
+                        }
+                    },
+                    {
+                        name: "openesdh/common/widgets/renderers/PropertyField",
+                        config:{
+                            currentItem: currentItem,
+                            propertyToRender: "cm:description",
+                            label: this.message("description"),
+                            renderOnNewLine: true
+                        }
+                    }
+                ];
                 this.processWidgets(this.widgetsForBody, this.bodyNode);
             }
 

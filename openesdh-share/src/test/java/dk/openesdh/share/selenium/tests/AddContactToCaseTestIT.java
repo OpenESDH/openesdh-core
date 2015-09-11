@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
@@ -64,6 +65,8 @@ public class AddContactToCaseTestIT extends BaseCasePage {
         resultSelector.click();
         WebElement pickedItemCancelButton = partyPickerDialog.findElement(By.xpath("//div[@class='picked-items']//table//tbody//tr//td[last()]//span"));
         wait.until(ExpectedConditions.elementToBeClickable(pickedItemCancelButton));
+        partyPickerDialog.findElement(By.className("dijitDialogTitleBar")).click();//bug hack
+        wait.until(ExpectedConditions.elementToBeClickable(partyPickerDialogOKButton));
         partyPickerDialogOKButton.click();
         //A kind of weak check, checking for the sender button to be displayed as it should be the only one.
         //Should probably look into creating a structure like USER for contact such that we cycle through a set list of
@@ -91,6 +94,7 @@ public class AddContactToCaseTestIT extends BaseCasePage {
         resultSelector.click();
         WebElement pickedItemCancelButton = partyPickerDialog.findElement(By.xpath("//div[@class='picked-items']//table//tbody//tr//td[last()]//span"));
         wait.until(ExpectedConditions.elementToBeClickable(pickedItemCancelButton));
+        partyPickerDialog.findElement(By.className("dijitDialogTitleBar")).click();//bug hack
         partyPickerDialogOKButton.click();
         //A kind of weak check, checking for the sender button to be displayed as it should be the only one.
         //Should probably look into creating a structure like USER for contact such that we cycle through a set list of

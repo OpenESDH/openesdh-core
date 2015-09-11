@@ -1,0 +1,9 @@
+<webscript>
+    <shortname>Case Documents With Attachments</shortname>
+    <description>Retrieves case documents with attachments</description>
+    <url>/api/openesdh/case/{caseId}/documents/attachments</url>
+    <format default="json"></format>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+    <family>Case Document Tools</family>
+</webscript>

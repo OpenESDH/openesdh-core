@@ -2,17 +2,18 @@ package dk.openesdh.repo.services.documents;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.repo.version.VersionModel;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
@@ -20,6 +21,9 @@ import org.alfresco.service.cmr.repository.CopyService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.PersonService;
+import org.alfresco.service.cmr.version.Version;
+import org.alfresco.service.cmr.version.VersionHistory;
+import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
@@ -32,7 +36,10 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import dk.openesdh.repo.model.CaseDocument;
+import dk.openesdh.repo.model.CaseDocumentAttachment;
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.model.ResultSet;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.webscripts.documents.Documents;
 
@@ -52,6 +59,7 @@ public class DocumentServiceImpl implements DocumentService {
     private NamespaceService namespaceService;
     private BehaviourFilter behaviourFilter;
     private CopyService copyService;
+    private VersionService versionService;
 
     private MimeTypes allMimeTypes = MimeTypes.getDefaultMimeTypes();
     private MimeTypes types;
@@ -90,6 +98,10 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     // </editor-fold>
+
+    public void setVersionService(VersionService versionService) {
+        this.versionService = versionService;
+    }
 
     @Override
     public List<ChildAssociationRef> getDocumentsForCase(NodeRef nodeRef) {
@@ -223,26 +235,39 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public List<NodeRef> getAttachments(NodeRef docRecordNodeRef) {
-        NodeRef mainDocNodeRef = getMainDocument(docRecordNodeRef);
+        
+        return getAttachmentsChildAssociations(docRecordNodeRef)
+                .stream()
+                .map(childRef -> childRef.getChildRef())
+                .collect(Collectors.toList());
+    }
 
-        Collection<ChildAssociationRef> attachmentRefs = this.nodeService.getChildAssocs(docRecordNodeRef, null, null);
-
-        List<NodeRef> attachmentNodeRefs = new ArrayList<>();
-        for(ChildAssociationRef childRef : attachmentRefs){
-            if (!childRef.getChildRef().equals(mainDocNodeRef)) {
-                attachmentNodeRefs.add(childRef.getChildRef());
-            }
+    @Override
+    public ResultSet<CaseDocumentAttachment> getAttachmentsWithVersions(NodeRef docRecordNodeRef, int startIndex,
+            int pageSize) {
+        List<ChildAssociationRef> attachmentsAssocs = getAttachmentsChildAssociations(docRecordNodeRef);
+        int totalItems = attachmentsAssocs.size();
+        int resultEnd = startIndex + pageSize;
+        if (totalItems < resultEnd) {
+            resultEnd = totalItems;
         }
-        return attachmentNodeRefs;
+        List<CaseDocumentAttachment> attachments = getAttachmentsWithVersions(attachmentsAssocs.subList(
+                startIndex, resultEnd));
+        ResultSet<CaseDocumentAttachment> result = new ResultSet<CaseDocumentAttachment>();
+        result.setResultList(attachments);
+        result.setTotalItems(attachmentsAssocs.size());
+        return result;
     }
 
     /**
      * Returns true if the file name has an extension
-     * @param filename the string representation of the filename in question
+     * 
+     * @param filename
+     *            the string representation of the filename in question
      * @return {boolean}
      */
-    public static boolean hasFileExtentsion(String filename){
-        String fileNameExt =  FilenameUtils.getExtension(filename);
+    public static boolean hasFileExtentsion(String filename) {
+        String fileNameExt = FilenameUtils.getExtension(filename);
         return StringUtils.isNotEmpty(fileNameExt);
     }
 
@@ -289,7 +314,37 @@ public class DocumentServiceImpl implements DocumentService {
                 QName.createQName(OpenESDHModel.DOC_URI, documentFolderName), true);
     }
 
-    private NodeRef getTargetCase(String targetCaseId) throws Exception {
+    @Override
+    public List<CaseDocument> getCaseDocumentsWithAttachments(String caseId) {
+        NodeRef caseNodeRef = caseService.getCaseById(caseId);
+        return this.getDocumentsForCase(caseNodeRef)
+            .stream()
+            .map(documentAssoc -> getCaseDocument(documentAssoc.getChildRef()))
+            .collect(Collectors.toList());
+    }
+    
+    protected CaseDocument getCaseDocument(NodeRef docRecordNodeRef) {
+        CaseDocument caseDocument = new CaseDocument();
+        caseDocument.setNodeRef(docRecordNodeRef.toString());
+        caseDocument.setMainDocNodeRef(getMainDocument(docRecordNodeRef).toString());
+        Map<QName, Serializable> props = nodeService.getProperties(docRecordNodeRef);
+        caseDocument.setTite(props.get(ContentModel.PROP_NAME).toString());
+        caseDocument.setType(props.get(OpenESDHModel.PROP_DOC_TYPE).toString());
+        caseDocument.setState(props.get(OpenESDHModel.PROP_DOC_STATE).toString());
+        caseDocument.setCategory(props.get(OpenESDHModel.PROP_DOC_CATEGORY).toString());
+        caseDocument.setCreated((Date) props.get(ContentModel.PROP_CREATED));
+        caseDocument.setModified((Date) props.get(ContentModel.PROP_MODIFIED));
+        caseDocument.setOwner(getDocumentOwner(docRecordNodeRef));
+        String extension = FilenameUtils.getExtension(caseDocument.getTite());
+        caseDocument.setFileType(extension);
+
+        List<ChildAssociationRef> attachmentsAssocs = getAttachmentsChildAssociations(docRecordNodeRef);
+        caseDocument.setAttachments(getAttachments(attachmentsAssocs));
+
+        return caseDocument;
+    }
+
+    protected NodeRef getTargetCase(String targetCaseId) throws Exception {
         try {
             return caseService.getCaseById(targetCaseId);
         } catch (Exception e) {
@@ -297,11 +352,120 @@ public class DocumentServiceImpl implements DocumentService {
         }
     }
 
-    private boolean isCaseContainsDocument(NodeRef targetCaseDocumentsFolder, NodeRef documentRecFolderToCopy) {
-        return nodeService.getChildAssocs(targetCaseDocumentsFolder)
+    protected boolean isCaseContainsDocument(NodeRef targetCaseDocumentsFolder, NodeRef documentRecFolderToCopy) {
+        return nodeService.getChildAssocs(targetCaseDocumentsFolder).stream()
+                .filter(assoc -> assoc.getChildRef().equals(documentRecFolderToCopy)).findAny().isPresent();
+    }
+    
+    protected List<CaseDocumentAttachment> getAttachments(List<ChildAssociationRef> attachmentsAssocs) {
+        return attachmentsAssocs
                 .stream()
-                .filter(assoc -> assoc.getChildRef().equals(documentRecFolderToCopy))
-                .findAny()
-                .isPresent();
+                .map(assoc -> getAttachment(assoc.getChildRef()))
+                .collect(Collectors.toList());
+    }
+
+    protected List<CaseDocumentAttachment> getAttachmentsWithVersions(
+            List<ChildAssociationRef> attachmentsAssocs) {
+        return attachmentsAssocs
+                .stream()
+                .map(assoc -> getAttachmentWithVersions(assoc.getChildRef()))
+                .collect(Collectors.toList());
+    }
+
+    protected CaseDocumentAttachment getAttachmentWithVersions(NodeRef nodeRef) {
+        CaseDocumentAttachment attachment = getAttachment(nodeRef);
+
+        if (!versionService.isVersioned(nodeRef)) {
+            return attachment;
+        }
+
+        VersionHistory versionHistory = versionService.getVersionHistory(nodeRef);
+        List<CaseDocumentAttachment> versions = versionHistory.getAllVersions()
+                .stream()
+                .map(version -> createAttachmentVersion(version))
+                .collect(Collectors.toList());
+        
+        CaseDocumentAttachment currentAttachmentVersion = versions
+                .stream()
+                .filter(version -> version.getVersionLabel().equals(attachment.getVersionLabel()))
+                .findFirst()
+                .get();
+        
+        attachment.setCreated(currentAttachmentVersion.getCreated());
+        attachment.setCreator(currentAttachmentVersion.getCreator());
+
+        versions.remove(currentAttachmentVersion);
+        attachment.getVersions().addAll(versions);
+        
+        return attachment;
+    }
+
+    protected CaseDocumentAttachment getAttachment(NodeRef nodeRef) {
+        CaseDocumentAttachment attachment = new CaseDocumentAttachment();
+        attachment.setNodeRef(nodeRef.toString());
+
+        Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
+        attachment.setName(properties.get(ContentModel.PROP_NAME).toString());
+        attachment.setVersionLabel(properties.get(ContentModel.PROP_VERSION_LABEL).toString());
+        attachment.setCreated((Date) properties.get(ContentModel.PROP_CREATED));
+        attachment.setModified((Date) properties.get(ContentModel.PROP_MODIFIED));
+        attachment.setType(nodeService.getType(nodeRef).toPrefixString(namespaceService));
+        String extension = FilenameUtils.getExtension(attachment.getName());
+        attachment.setFileType(extension);
+
+        NodeRef creatorNodeRef = personService
+                .getPersonOrNull(properties.get(ContentModel.PROP_CREATOR).toString());
+        if (creatorNodeRef != null) {
+            attachment.setCreator(personService.getPerson(creatorNodeRef));
+        }
+
+        NodeRef modifierNodeRef = personService.getPersonOrNull(properties.get(ContentModel.PROP_MODIFIER)
+                .toString());
+        if (modifierNodeRef != null) {
+            attachment.setModifier(personService.getPerson(modifierNodeRef));
+        }
+        return attachment;
+    }
+
+    protected CaseDocumentAttachment createAttachmentVersion(Version version) {
+        CaseDocumentAttachment docVers = new CaseDocumentAttachment();
+        docVers.setName(version.getVersionProperty(OpenESDHModel.DOCUMENT_PROP_NAME).toString());
+        docVers.setVersionLabel(version.getVersionLabel());
+        docVers.setCreated((Date) version.getVersionProperty(VersionModel.PROP_CREATED_DATE));
+        docVers.setModified((Date) version.getVersionProperty(OpenESDHModel.DOCUMENT_PROP_MODIFIED));
+        docVers.setDescription(version.getDescription());
+        docVers.setNodeRef(version.getFrozenStateNodeRef().toString());
+
+        NodeRef creatorNodeRef = personService.getPersonOrNull(version
+                .getVersionProperty(VersionModel.PROP_CREATOR).toString());
+        if (creatorNodeRef != null) {
+            docVers.setCreator(personService.getPerson(creatorNodeRef));
+        }
+
+        NodeRef modifierNodeRef = personService.getPersonOrNull((version
+                .getVersionProperty(OpenESDHModel.DOCUMENT_PROP_MODIFIER).toString()).toString());
+        if (modifierNodeRef != null) {
+            docVers.setModifier(personService.getPerson(modifierNodeRef));
+        }
+
+        return docVers;
+    }
+
+    protected List<ChildAssociationRef> getAttachmentsChildAssociations(NodeRef docRecordNodeRef) {
+        NodeRef mainDocNodeRef = getMainDocument(docRecordNodeRef);
+        return this.nodeService.getChildAssocs(docRecordNodeRef, null, null)
+                .stream()
+                .filter(assoc -> !assoc.getChildRef().equals(mainDocNodeRef))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public void updateCaseDocumentProperties(CaseDocument caseDocument) {
+        NodeRef documentNodeRef = new NodeRef(caseDocument.getNodeRef());
+        Map<QName, Serializable> properties = nodeService.getProperties(documentNodeRef);
+        properties.put(OpenESDHModel.PROP_DOC_TYPE, caseDocument.getType());
+        properties.put(OpenESDHModel.PROP_DOC_STATE, caseDocument.getState());
+        properties.put(OpenESDHModel.PROP_DOC_CATEGORY, caseDocument.getCategory());
+        nodeService.setProperties(documentNodeRef, properties);
     }
 }

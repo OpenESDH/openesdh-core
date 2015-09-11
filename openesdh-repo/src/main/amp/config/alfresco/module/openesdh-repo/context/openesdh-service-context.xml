@@ -1,9 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
 <beans>
-    <bean id="CaseService" class="dk.openesdh.repo.services.cases.CaseServiceImpl">
+    <bean id="CaseService"
+          class="dk.openesdh.repo.services.cases.CaseServiceImpl" init-method="init">
         <property name="nodeService">
-            <ref bean="nodeService"/>
+            <ref bean="NodeService"/>
         </property>
 
         <property name="searchService">
@@ -45,6 +46,14 @@
         <property name="permissionsModelDAO">
             <ref bean="permissionsModelDAO"/>
         </property>
+
+        <property name="behaviourFilter">
+            <ref bean="policyBehaviourFilter"/>
+        </property>
+
+        <property name="policyComponent">
+            <ref bean="policyComponent"/>
+        </property>
     </bean>
 
     <bean id="NodeInfoService" class="dk.openesdh.repo.services.NodeInfoServiceImpl">
@@ -84,6 +93,8 @@
         </property>
 
         <property name="namespaceService" ref="namespaceService"/>
+        
+        <property name="versionService" ref="VersionService"/>
 
         <property name="behaviourFilter">
             <ref bean="policyBehaviourFilter"/>
@@ -184,13 +195,14 @@
         <property name="contactDAO" ref="ContactDAO" />
         <property name="searchService" ref="searchService"/>
         <property name="contactSearchService" ref="ContactSearchService"/>
+        <property name="transactionService" ref="TransactionService"/>
     </bean>
 
     <bean id="NoteService"
           class="dk.openesdh.repo.services.notes.NoteServiceImpl">
-        <property name="nodeService">
-            <ref bean="NodeService"/>
-        </property>
+        <property name="nodeService" ref="NodeService" />
+        <property name="personService" ref="PersonService" />
+        <property name="contactService" ref="ContactService" />
     </bean>
 
     <bean id="PartyService" class="dk.openesdh.repo.services.cases.PartyServiceImpl">

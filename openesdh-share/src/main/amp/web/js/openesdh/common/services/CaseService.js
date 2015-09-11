@@ -83,22 +83,19 @@ define(["dojo/_base/declare",
 
             _showCreateCaseDialog: function dk_openesdh__showCreateCaseDialog(payload) {
                 var publishOnSuccessTopic = (payload.publishOnSuccessTopic != null ? payload.publishOnSuccessTopic : this.CreateCaseSuccess);
-                if(this.createCaseDialog){
-                    this.createCaseDialog.destroy();
-                }
-                this.createCaseDialog = new AlfFormDialog({
-                    id:"CREATE_CASE_DIALOG",
-                    dialogTitle: this.message("create-case.dialog.title"),
-                    dialogConfirmationButtonTitle: this.message("create-case.label.button.create"),
-                    dialogCancellationButtonTitle: this.message("create-case.label.button.cancel"),
-                    formSubmissionTopic: this.CreateCaseTopic,
-                    formSubmissionPayload: {
-                        publishOnSuccessTopic: publishOnSuccessTopic
-                    },
-                    fixedWidth: true,
-                    widgets: this._getCreateCaseWidgets(payload.caseType)
-                });
-                this.createCaseDialog.show();
+                this.alfPublish("ALF_CREATE_FORM_DIALOG_REQUEST",
+                    {
+                        dialogId:"CREATE_CASE_DIALOG",
+                        dialogTitle: this.message("create-case.dialog.title"),
+                        dialogConfirmationButtonTitle: this.message("create-case.label.button.create"),
+                        dialogCancellationButtonTitle: this.message("create-case.label.button.cancel"),
+                        formSubmissionTopic: this.CreateCaseTopic,
+                        formSubmissionPayloadMixin: {
+                            publishOnSuccessTopic: publishOnSuccessTopic
+                        },
+                        fixedWidth: true,
+                        widgets: this._getCreateCaseWidgets(payload.caseType)
+                    });
             },
 
             _onCreateCaseTopic: function (payload){
@@ -163,10 +160,9 @@ define(["dojo/_base/declare",
             _onCaseInfoInitialLoadSuccess: function (response, config) {
                 this._allWidgetsProcessedFunction = lang.hitch(this, function () {
                     this.alfPublish(this.CaseInfoTopic, response);
-                    
+
                     var caseProps  = response.allProps.properties;
-                    var caseTitle = caseProps["cm:title"].value;
-                    caseTitle += " (" + caseProps["cm:name"].value + ")"
+                    var caseTitle = caseProps["cm:name"].value + "      " + caseProps["cm:title"].value;
                     this.alfPublish("ALF_UPDATE_PAGE_TITLE", {title: caseTitle});
                 });
                 // Call it immediately after we receive the response, and let

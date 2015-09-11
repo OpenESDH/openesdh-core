@@ -9,3 +9,4 @@ alf_data_dev
 .settings
 alfresco.log
 *.log*
+nbactions.xml
