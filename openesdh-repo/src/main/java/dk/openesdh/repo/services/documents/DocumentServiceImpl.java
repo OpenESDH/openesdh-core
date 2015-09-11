@@ -291,6 +291,7 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
         try {
             renditionService.render(nodeRef, pdfRenditionDefinition);
         } catch (RenditionServiceException|ContentIOException e) {
+            // TODO: I18N of exception messages
             throw new AutomaticFinalizeFailureException("Exception during transformation from '{0}' to '{1}",
                     new Object[]{sourceFormatDisplay, targetFormatDisplay}, e);
         }

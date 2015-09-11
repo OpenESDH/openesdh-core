@@ -6,6 +6,7 @@ import java.util.List;
 import dk.openesdh.repo.model.DocumentStatus;
 import dk.openesdh.repo.services.lock.OELockService;
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
@@ -41,7 +42,6 @@ import dk.openesdh.repo.services.cases.CaseService;
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
 @ContextConfiguration({"classpath:alfresco/application-context.xml", "classpath:alfresco/extension/openesdh-test-context.xml"})
 public class DocumentServiceImplIT {
-
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -86,6 +86,9 @@ public class DocumentServiceImplIT {
     private static final String TEST_DOCUMENT_FILE_NAME2 = TEST_DOCUMENT_NAME2 + ".txt";
     private static final String TEST_DOCUMENT_NAME3 = "TestDocument3";
     private static final String TEST_DOCUMENT_FILE_NAME3 = TEST_DOCUMENT_NAME2 + ".txt";
+    private static final String TEST_DOCUMENT_NAME4 = "TestDocument4";
+    private static final String TEST_DOCUMENT_FILE_NAME4 = TEST_DOCUMENT_NAME4 + ".m4a";
+
 
     private static final String TEST_DOCUMENT_ATTACHMENT_NAME = "TestDocumentAttachment";
     private static final String TEST_DOCUMENT_ATTACHMENT_FILE_NAME = TEST_DOCUMENT_ATTACHMENT_NAME + ".txt";
@@ -104,6 +107,11 @@ public class DocumentServiceImplIT {
     private NodeRef testDocumentRecFolder2;
     private NodeRef testDocument3;
     private NodeRef testDocumentRecFolder3;
+    private NodeRef testDocument4;
+    private NodeRef testDocumentRecFolder4;
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
@@ -280,5 +288,24 @@ public class DocumentServiceImplIT {
 
         Assert.assertFalse("Document record is locked after being finalized but should be unlocked.", oeLockService.isLocked(testDocumentRecFolder3));
         Assert.assertFalse("Document file is locked after being finalized but should be unlocked.", oeLockService.isLocked(testDocument3));
+    }
+
+    @Test
+    public void finalizeNonAcceptableFormatDocument() throws Exception {
+        // Make sure that you get an exception when trying to finalize a
+        // document which is not an allowed finalizable type
+        // (e.g. application/json, etc..)
+        testDocument4 = docTestHelper.createCaseDocument(TEST_DOCUMENT_FILE_NAME4, testCase1);
+        testDocumentRecFolder4 = nodeService.getPrimaryParent(testDocument4).getParentRef();
+
+        // Try to update the finalized document
+        NodeRef workingCopy = checkOutCheckInService.checkout(testDocument3);
+        ContentWriter writer = contentService.getWriter(workingCopy, ContentModel.PROP_CONTENT, true);
+        writer.setMimetype(MimetypeMap.MIMETYPE_JSON);
+        writer.putContent("{'thisShouldNotBeAbleToBeFinalized': 1}");
+        checkOutCheckInService.checkin(workingCopy, null);
+
+        expectedException.expect(AutomaticFinalizeFailureException.class);
+        documentService.changeNodeStatus(testDocumentRecFolder3, DocumentStatus.FINAL);
     }
 }
