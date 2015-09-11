@@ -10,13 +10,7 @@ import static org.junit.Assert.fail;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.model.CaseStatus;
@@ -476,7 +470,8 @@ public class CaseServiceImplIT {
         assertEquals("Initial status is active", caseService.getNodeStatus(nonAdminCreatedCaseNr), CaseStatus.ACTIVE);
 
         // Add a document
-        NodeRef docFileNodeRef = docTestHelper.createCaseDocument("testdoc", nonAdminCreatedCaseNr);
+        NodeRef docFileNodeRef = docTestHelper.createCaseDocument(UUID
+                .randomUUID().toString() + ".txt", nonAdminCreatedCaseNr);
         NodeRef docRecordNodeRef = nodeService.getPrimaryParent(docFileNodeRef).getParentRef();
 
         caseService.changeNodeStatus(nonAdminCreatedCaseNr, CaseStatus.CLOSED);
@@ -512,7 +507,8 @@ public class CaseServiceImplIT {
 
         try {
             // Test that a document cannot be added to a closed case
-            NodeRef doc = docTestHelper.createCaseDocument("ASDF", nonAdminCreatedCaseNr);
+            NodeRef doc = docTestHelper.createCaseDocument(UUID.randomUUID()
+                    .toString() + ".txt", nonAdminCreatedCaseNr);
             fail("A document could be added to a closed case");
         } catch (Exception e) {
         }
