@@ -90,13 +90,15 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
             //Mimetype detection and add the extension
             if (!hasFileExtension(fileName)){
                 ContentData fileDataType = (ContentData) nodeService.getProperty(fileRef, ContentModel.PROP_CONTENT);
-                try {
-                    MimeType contentMimeType = MimeTypes.getDefaultMimeTypes().forName(fileDataType.getMimetype());
-                    fileName += contentMimeType.getExtension();
-                    nodeService.setProperty(fileRef, ContentModel.PROP_NAME, fileName);
-                } catch (MimeTypeException e) {
-                    // TODO: Is it ok to just ignore? If we can't find the mimetype we just leave it without extension.
-//                    e.printStackTrace();
+                if (fileDataType != null) {
+                    try {
+                        MimeType contentMimeType = MimeTypes.getDefaultMimeTypes().forName(fileDataType.getMimetype());
+                        fileName += contentMimeType.getExtension();
+                        nodeService.setProperty(fileRef, ContentModel.PROP_NAME, fileName);
+                    } catch (MimeTypeException e) {
+                        // TODO: Is it ok to just ignore? If we can't find the mimetype we just leave it without extension.
+                        //                    e.printStackTrace();
+                    }
                 }
             }
 
