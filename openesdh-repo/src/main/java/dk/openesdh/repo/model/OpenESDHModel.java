@@ -199,6 +199,15 @@ public interface OpenESDHModel {
     public static final String DOCUMENT_PROP_MODIFIED = "modified";
     public static final String DOCUMENT_PROP_MODIFIER = "modifier";
 
+    public static final String DOCUMENT_TYPE_LETTER = "letter";
+    public static final String DOCUMENT_TYPE_INVOICE = "invoice";
+
+    public static final String DOCUMENT_CATEGORY_OTHER = "other";
+    public static final String DOCUMENT_CATEGORY_CONTRACT = "contract";
+
+    public static final String DOCUMENT_STATE_RECEIVED = "received";
+    public static final String DOCUMENT_STATE_FINALISED = "finalised";
+
     /**
      * Various constants
      */

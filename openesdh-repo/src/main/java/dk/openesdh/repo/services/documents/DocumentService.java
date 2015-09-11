@@ -117,4 +117,12 @@ public interface DocumentService {
      * @return list of the case documents with attachments
      */
     public List<CaseDocument> getCaseDocumentsWithAttachments(String caseId);
+
+    /**
+     * Updates case document properties
+     * 
+     * @param caseDocument
+     *            case document to update
+     */
+    public void updateCaseDocumentProperties(CaseDocument caseDocument);
 }

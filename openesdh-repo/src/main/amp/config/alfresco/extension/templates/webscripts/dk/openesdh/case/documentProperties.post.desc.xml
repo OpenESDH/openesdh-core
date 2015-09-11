@@ -1,0 +1,9 @@
+<webscript>
+    <shortname>Update Case Document Properties</shortname>
+    <description>Updates properties of the case document</description>
+    <url>/api/openesdh/case/document/properties</url>
+    <format default="json"></format>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+    <family>Case Document Tools</family>
+</webscript>

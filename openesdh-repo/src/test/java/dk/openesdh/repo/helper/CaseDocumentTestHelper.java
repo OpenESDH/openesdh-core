@@ -153,9 +153,9 @@ public class CaseDocumentTestHelper extends TransactionalIT {
         
         final Map<QName, Serializable> properties = new HashMap<>();
         properties.put(ContentModel.PROP_NAME, documentName);
-        properties.put(OpenESDHModel.PROP_DOC_TYPE, "letter");
-        properties.put(OpenESDHModel.PROP_DOC_CATEGORY, "other");
-        properties.put(OpenESDHModel.PROP_DOC_STATE, "received");
+        properties.put(OpenESDHModel.PROP_DOC_TYPE, OpenESDHModel.DOCUMENT_TYPE_LETTER);
+        properties.put(OpenESDHModel.PROP_DOC_CATEGORY, OpenESDHModel.DOCUMENT_CATEGORY_OTHER);
+        properties.put(OpenESDHModel.PROP_DOC_STATE, OpenESDHModel.DOCUMENT_STATE_RECEIVED);
         
         return runInTransactionAsAdmin(() -> {
             final NodeRef caseDocumentsFolder = caseService.getDocumentsFolder(caseNodeRef);
