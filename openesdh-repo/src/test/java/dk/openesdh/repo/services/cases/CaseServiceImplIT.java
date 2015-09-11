@@ -470,8 +470,7 @@ public class CaseServiceImplIT {
         assertEquals("Initial status is active", caseService.getNodeStatus(nonAdminCreatedCaseNr), CaseStatus.ACTIVE);
 
         // Add a document
-        NodeRef docFileNodeRef = docTestHelper.createCaseDocument(UUID
-                .randomUUID().toString() + ".txt", nonAdminCreatedCaseNr);
+        NodeRef docFileNodeRef = docTestHelper.createCaseDocument(UUID.randomUUID().toString(), nonAdminCreatedCaseNr);
         NodeRef docRecordNodeRef = nodeService.getPrimaryParent(docFileNodeRef).getParentRef();
 
         caseService.changeNodeStatus(nonAdminCreatedCaseNr, CaseStatus.CLOSED);
@@ -507,8 +506,7 @@ public class CaseServiceImplIT {
 
         try {
             // Test that a document cannot be added to a closed case
-            NodeRef doc = docTestHelper.createCaseDocument(UUID.randomUUID()
-                    .toString() + ".txt", nonAdminCreatedCaseNr);
+            NodeRef doc = docTestHelper.createCaseDocument(UUID.randomUUID().toString(), nonAdminCreatedCaseNr);
             fail("A document could be added to a closed case");
         } catch (Exception e) {
         }
