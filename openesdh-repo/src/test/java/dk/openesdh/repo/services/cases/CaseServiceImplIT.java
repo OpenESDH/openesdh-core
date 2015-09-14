@@ -180,12 +180,10 @@ public class CaseServiceImplIT {
             // Remove temporary node, and all its content,
             // also removes test cases
             if (nonAdminCreatedCaseNr != null) {
-                if (oeLockService.isLocked(nonAdminCreatedCaseNr)) {
-                    transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
-                        oeLockService.unlock(nonAdminCreatedCaseNr, true);
-                        return null;
-                    });
-                }
+                // Make sure it is unlocked, before deleting, since the
+                // documents may have remained locked if the testClose
+                // test failed.
+                oeLockService.unlock(nonAdminCreatedCaseNr, true);
                 nodeService.deleteNode(nonAdminCreatedCaseNr);
                 nonAdminCreatedCaseNr = null;
             }
@@ -559,6 +557,18 @@ public class CaseServiceImplIT {
 
         assertFalse("Case isLocked returns false for a reopened case" +
                 "case", caseService.isLocked(nonAdminCreatedCaseNr));
+
+        assertEquals("Document in finalized case still has FINAL status after reopening",
+                DocumentStatus.FINAL, documentService.getNodeStatus(docRecordNodeRef));
+
+        // Put the document back in draft status. This is done so that
+        // tear-down will not result in a NodeLockedException when
+        // deleting the case.
+        documentService.changeNodeStatus(docRecordNodeRef, DocumentStatus.DRAFT);
+
+        assertEquals("Document in finalized case can be changed back to " +
+                        "DRAFT status after reopening", DocumentStatus.DRAFT, documentService.getNodeStatus(docRecordNodeRef));
+
 
 //        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
 

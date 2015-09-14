@@ -759,15 +759,26 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
             @Override
             public Object execute() throws Throwable {
                 nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.CLOSED);
-                // Finalize any unfinalized documents
-                for (ChildAssociationRef docAssoc : documentService.getDocumentsForCase(nodeRef)) {
-                    NodeRef docNodeRef = docAssoc.getChildRef();
-                    documentService.changeNodeStatus(docNodeRef, DocumentStatus.FINAL);
-                }
-                // Lock the case and all children
-                oeLockService.lock(nodeRef, true);
+                // Lock the case and all children, recursively
+                lockImpl(nodeRef);
                 lockCaseGroups(nodeRef);
                 return null;
+            }
+
+            private void lockImpl(NodeRef nodeRef) throws Exception {
+                for (ChildAssociationRef childAssociationRef : nodeService.getChildAssocs(nodeRef)) {
+                    NodeRef childNodeRef = childAssociationRef.getChildRef();
+                    if (!documentService.isDocNode(childNodeRef)) {
+                        // Lock recursively all children
+                        lockImpl(childNodeRef);
+                    } else {
+                        // Finalize documents (DocumentService will handle
+                        // locking).
+                        documentService.changeNodeStatus(childNodeRef, DocumentStatus.FINAL);
+                    }
+                }
+                // Lock the node itself
+                oeLockService.lock(nodeRef);
             }
         });
     }
