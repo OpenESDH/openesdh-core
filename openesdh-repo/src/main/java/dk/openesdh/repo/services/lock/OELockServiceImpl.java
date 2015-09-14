@@ -142,7 +142,6 @@ public class OELockServiceImpl implements OELockService {
     @Override
     public boolean isLocked(NodeRef nodeRef) {
         return nodeService.hasAspect(nodeRef, OpenESDHModel.ASPECT_OE_LOCKED)
-                && lockService.getLockStatus(nodeRef) == LockStatus.LOCKED
-                || lockService.getLockStatus(nodeRef) == LockStatus.LOCK_OWNER;
+                && (lockService.getLockStatus(nodeRef) == LockStatus.LOCKED || lockService.getLockStatus(nodeRef) == LockStatus.LOCK_OWNER);
     }
 }
