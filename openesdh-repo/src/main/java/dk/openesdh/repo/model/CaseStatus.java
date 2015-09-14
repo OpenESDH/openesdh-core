@@ -1,7 +1,5 @@
 package dk.openesdh.repo.model;
 
-import java.util.List;
-
 /**
  * Created by syastrov on 9/2/15.
  */

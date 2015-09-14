@@ -88,7 +88,7 @@ public class StatusTransitionBehaviourIT {
 
     @Test
     public void testSetToSameStatus() {
-        assertEquals("Case is initially active", caseService.getStatus(caseNodeRef), CaseStatus.ACTIVE);
+        assertEquals("Case is initially active", caseService.getNodeStatus(caseNodeRef), CaseStatus.ACTIVE);
 
         // This should be ok.
         nodeService.setProperty(caseNodeRef, OpenESDHModel.PROP_OE_STATUS,
@@ -97,7 +97,7 @@ public class StatusTransitionBehaviourIT {
 
     @Test
     public void testChangeStatusDirectly() {
-        assertEquals("Case is initially active", caseService.getStatus(caseNodeRef), CaseStatus.ACTIVE);
+        assertEquals("Case is initially active", caseService.getNodeStatus(caseNodeRef), CaseStatus.ACTIVE);
 
         // Expect an exception to be thrown because one should not be
         // allowed to directly change the status.

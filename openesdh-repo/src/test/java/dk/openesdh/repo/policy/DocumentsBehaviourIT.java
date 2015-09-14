@@ -89,9 +89,8 @@ public class DocumentsBehaviourIT {
 
         String resultFileName = (String) nodeService.getProperty(testAddDocument, ContentModel.PROP_NAME);
         String resultExtension = FilenameUtils.getExtension(resultFileName);
-        Assert.assertFalse("The added document extension should not be empty",
+        Assert.assertTrue("The document should keep its original extension",
                 Strings.isNullOrEmpty(resultExtension));
-        Assert.assertEquals("Wrong extension of the added document", "txt", resultExtension);
 
         Map<String, NodeRef> caseDocsFolderContent = nodeService.getChildAssocs(testCase1DocumentsFolder).stream().collect(
                         Collectors.<ChildAssociationRef, String, NodeRef> toMap(
