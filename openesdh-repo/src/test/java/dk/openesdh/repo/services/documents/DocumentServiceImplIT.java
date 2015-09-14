@@ -100,6 +100,9 @@ public class DocumentServiceImplIT {
     private static final String TEST_DOCUMENT_ATTACHMENT_NAME2 = "TestDocumentAttachment2";
     private static final String TEST_DOCUMENT_ATTACHMENT_FILE_NAME2 = TEST_DOCUMENT_ATTACHMENT_NAME2 + ".txt";
 
+    private static final String TEST_DOCUMENT_ATTACHMENT_NAME3 = "TestDocumentAttachment3";
+    private static final String TEST_DOCUMENT_ATTACHMENT_FILE_NAME3 = TEST_DOCUMENT_ATTACHMENT_NAME3 + ".txt";
+
     private NodeRef testFolder;
     private NodeRef testCase1;
     private NodeRef testCase2;
@@ -113,7 +116,7 @@ public class DocumentServiceImplIT {
     private NodeRef testDocumentRecFolder3;
     private NodeRef testDocument4;
     private NodeRef testDocumentRecFolder4;
-
+    private NodeRef testDocumentAttachment3;
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
@@ -269,12 +272,14 @@ public class DocumentServiceImplIT {
     public void finalizeUnfinalizeDocument() throws Exception {
         testDocument3 = docTestHelper.createCaseDocument(TEST_DOCUMENT_FILE_NAME3, testCase1);
         testDocumentRecFolder3 = nodeService.getPrimaryParent(testDocument3).getParentRef();
+        testDocumentAttachment3 = docTestHelper.createCaseDocumentAttachment(TEST_DOCUMENT_ATTACHMENT_FILE_NAME2, testDocumentRecFolder3);
         Assert.assertEquals("Document initially has DRAFT status", DocumentStatus.DRAFT, documentService.getNodeStatus(testDocumentRecFolder3));
         documentService.changeNodeStatus(testDocumentRecFolder3, DocumentStatus.FINAL);
         Assert.assertEquals("Finalized document has FINAL status", DocumentStatus.FINAL, documentService.getNodeStatus(testDocumentRecFolder3));
 
         Assert.assertTrue("Document record is locked after being finalized.", oeLockService.isLocked(testDocumentRecFolder3));
         Assert.assertTrue("Document file is locked after being finalized", oeLockService.isLocked(testDocument3));
+        Assert.assertTrue("Document attachment is locked after being finalized", oeLockService.isLocked(testDocumentAttachment3));
 
         try {
             // Try to update the finalized document
@@ -292,6 +297,7 @@ public class DocumentServiceImplIT {
 
         Assert.assertFalse("Document record is locked after being finalized but should be unlocked.", oeLockService.isLocked(testDocumentRecFolder3));
         Assert.assertFalse("Document file is locked after being finalized but should be unlocked.", oeLockService.isLocked(testDocument3));
+        Assert.assertFalse("Document attachment is locked after being finalized but should be unlocked", oeLockService.isLocked(testDocumentAttachment3));
     }
 
     @Test
