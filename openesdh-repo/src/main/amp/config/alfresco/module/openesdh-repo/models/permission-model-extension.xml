@@ -50,22 +50,6 @@
         <permissionGroup name="CaseOwners" expose="true" requiresType="false">
             <includePermissionGroup permissionGroup="Coordinator" type="cm:cmobject"/>
         </permissionGroup>
-        <permissionGroup name="CaseStandardReader" expose="true"
-                         requiresType="true">
-            <includePermissionGroup permissionGroup="Consumer" type="cm:cmobject"/>
-        </permissionGroup>
-        
-        <permissionGroup name="CaseStandardWriter" expose="true"
-                         requiresType="true">
-            <includePermissionGroup permissionGroup="Collaborator"
-                                    type="cm:cmobject" />
-        </permissionGroup>
-        
-        <permissionGroup name="CaseStandardCreator" expose="false"
-                         requiresType="true">
-            <includePermissionGroup permissionGroup="Collaborator"
-                                    type="cm:cmobject" />
-        </permissionGroup>
     </permissionSet>
 </permissions>
 
