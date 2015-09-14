@@ -1,16 +1,16 @@
 package dk.openesdh.repo.audit;
 
 import dk.openesdh.repo.services.cases.CaseService;
+import java.io.Serializable;
+import java.util.regex.Matcher;
 import org.alfresco.repo.audit.extractor.AbstractDataExtractor;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.Path;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.Serializable;
-import java.util.regex.Matcher;
-
 public final class CaseNodeRefExtractor extends AbstractDataExtractor {
+
     private NodeService nodeService;
     private CaseService caseService;
 
@@ -46,6 +46,12 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
                     return null;
                 }
                 result = getNodeRefFromCaseID(parts[2]);
+            } else if (str.contains("GROUP_PARTY")) {
+                String[] parts = str.split("_");
+                if (parts.length < 3) {
+                    return null;
+                }
+                result = getNodeRefFromCaseDbID(parts[2]);
             } else {
                 // System.out.println("this is a path thingie");
                 result = getNodeRefFromPath(str);
@@ -76,7 +82,7 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
 
     /**
      * Retrieves case id from the provided path of the following format:
-     *      /app:company_home/oe:OpenESDH/oe:cases/case:2015/case:6/case:15/case:20150615-916
+     * /app:company_home/oe:OpenESDH/oe:cases/case:2015/case:6/case:15/case:20150615-916
      *
      * @param path the path to retrieve a case id from
      * @return case id
@@ -98,4 +104,9 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
             return null;
         }
     }
+
+    private String getNodeRefFromCaseDbID(String caseDbID) {
+        return nodeService.getNodeRef(Long.parseLong(caseDbID)).toString();
+    }
+
 }
