@@ -2,6 +2,7 @@ package dk.openesdh.repo.policy;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import dk.openesdh.repo.services.documents.DocumentService;
 import org.alfresco.model.ContentModel;
@@ -85,25 +86,20 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
 
             String fileName = (String) nodeService.getProperty(fileRef, ContentModel.PROP_NAME);
             String documentName = FilenameUtils.removeExtension(fileName);
-            //It is common that users create a file without adding an extension to the file name
-            //so originally we decided to add a .txt by default but instead it is better to attempt
-            //Mimetype detection and add the extension
-            if (!hasFileExtension(fileName)){
-                ContentData fileDataType = (ContentData) nodeService.getProperty(fileRef, ContentModel.PROP_CONTENT);
-                try {
-                    MimeType contentMimeType = MimeTypes.getDefaultMimeTypes().forName(fileDataType.getMimetype());
-                    fileName += contentMimeType.getExtension();
-                    nodeService.setProperty(fileRef, ContentModel.PROP_NAME, fileName);
-                } catch (MimeTypeException e) {
-                    // TODO: Is it ok to just ignore? If we can't find the mimetype we just leave it without extension.
-//                    e.printStackTrace();
-                }
-            }
+
+            // Set a temporary file name
+            // This is to avoid duplicates child node exception when the
+            // document record is created below
+            String tempFileName = UUID.randomUUID().toString() + fileName;
+            nodeService.setProperty(fileRef, ContentModel.PROP_NAME, tempFileName);
 
             // Create document folder
             NodeRef documentFolderRef = documentService.createDocumentFolder(documentsFolderRef, documentName).getChildRef();
             nodeService.moveNode(fileRef, documentFolderRef, ContentModel.ASSOC_CONTAINS,
                     Utils.createDocumentContentAssociationName(documentName));
+
+            // Set the filename back to the original, after it has been moved
+            nodeService.setProperty(fileRef, ContentModel.PROP_NAME, fileName);
         }
     }
 
@@ -139,8 +135,9 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
         if (nodeService.countChildAssocs(docRecord, true) == 1) {
             
             ChildAssociationRef childAssoc = nodeService.getChildAssocs(docRecord).get(0);
-            if(!OpenESDHModel.ASSOC_DOC_MAIN.equals(childAssoc.getTypeQName())){
-                //Tag the case document as the main document for the case
+            if (!OpenESDHModel.ASSOC_DOC_MAIN.equals(
+                    childAssoc.getTypeQName())) {
+                // Tag the file as the main file for the record
                 nodeService.addChild(docRecord, fileRef, OpenESDHModel.ASSOC_DOC_MAIN, OpenESDHModel.ASSOC_DOC_MAIN);
             }
             

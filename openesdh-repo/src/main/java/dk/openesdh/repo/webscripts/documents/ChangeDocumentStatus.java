@@ -1,7 +1,9 @@
-package dk.openesdh.repo.webscripts.cases;
+package dk.openesdh.repo.webscripts.documents;
 
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.documents.DocumentService;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
+import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
@@ -11,14 +13,14 @@ import org.springframework.util.StringUtils;
 import java.io.IOException;
 import java.util.Map;
 
-public class ChangeCaseStatus extends AbstractWebScript {
+public class ChangeDocumentStatus extends AbstractWebScript {
 
-	private static Log logger = LogFactory.getLog(ChangeCaseStatus.class);
+	private static Log logger = LogFactory.getLog(ChangeDocumentStatus.class);
 
-	private CaseService caseService;
+	private DocumentService documentService;
 
-	public void setCaseService(CaseService caseService) {
-		this.caseService = caseService;
+	public void setDocumentService(DocumentService documentService) {
+		this.documentService = documentService;
 	}
 
 	@Override
@@ -26,12 +28,11 @@ public class ChangeCaseStatus extends AbstractWebScript {
 			throws IOException {
 
 		Map<String, String> templateArgs = req.getServiceMatch().getTemplateVars();
-		String caseId = templateArgs.get("caseId");
-
-		if (StringUtils.isEmpty(caseId)) {
-			throw new WebScriptException(Status.STATUS_BAD_REQUEST,
-					"No case id provided");
-		}
+		String storeType = templateArgs.get("store_type");
+		String storeId = templateArgs.get("store_id");
+		String id = templateArgs.get("id");
+		String docNodeRefStr = storeType +"://"+storeId+"/"+id;
+		NodeRef nodeRef = new NodeRef (docNodeRefStr);
 
 		JSONObject json = WebScriptUtils.readJson(req);
 		String status = (String) json.get("status");
@@ -42,13 +43,13 @@ public class ChangeCaseStatus extends AbstractWebScript {
 		}
 
 		try {
-			caseService.changeNodeStatus(caseService.getCaseById(caseId), status);
+			documentService.changeNodeStatus(nodeRef, status);
 		} catch (Exception e) {
 			throw new WebScriptException(Status.STATUS_FORBIDDEN,
-					"Unable to switch case status: " + e.getMessage(), e);
+					"Unable to switch document status: " + e.getMessage(), e);
 		}
 
-		WebScriptUtils.respondSuccess(res, "The case status has been changed");
+		WebScriptUtils.respondSuccess(res, "The document status has been changed");
 	}
 
 }

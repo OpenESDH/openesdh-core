@@ -1,17 +1,26 @@
 package dk.openesdh.repo.services.documents;
 
-import dk.openesdh.repo.model.CaseDocument;
-import dk.openesdh.repo.model.CaseDocumentAttachment;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.model.ResultSet;
+import dk.openesdh.repo.model.*;
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.lock.OELockService;
 import dk.openesdh.repo.webscripts.documents.Documents;
+import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.content.MimetypeMap;
+import org.alfresco.repo.node.NodeServicePolicies;
+import org.alfresco.repo.policy.Behaviour;
 import org.alfresco.repo.policy.BehaviourFilter;
+import org.alfresco.repo.policy.JavaBehaviour;
+import org.alfresco.repo.policy.PolicyComponent;
+import org.alfresco.repo.rendition.executer.ReformatRenderingEngine;
 import org.alfresco.repo.search.impl.lucene.LuceneQueryParserException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.repo.version.VersionModel;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
+import org.alfresco.service.cmr.rendition.RenditionDefinition;
+import org.alfresco.service.cmr.rendition.RenditionService;
+import org.alfresco.service.cmr.rendition.RenditionServiceException;
 import org.alfresco.service.cmr.repository.*;
 import org.alfresco.service.cmr.search.LimitBy;
 import org.alfresco.service.cmr.search.SearchParameters;
@@ -22,15 +31,16 @@ import org.alfresco.service.cmr.version.VersionHistory;
 import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
+import org.alfresco.service.transaction.TransactionService;
 import org.alfresco.util.SearchLanguageConversion;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.tika.mime.MimeTypes;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.io.Serializable;
 import java.util.*;
@@ -40,10 +50,10 @@ import java.util.stream.Collectors;
  * Created by torben on 11/09/14.
  */
 
-public class DocumentServiceImpl implements DocumentService {
+public class DocumentServiceImpl implements DocumentService, NodeServicePolicies.OnUpdatePropertiesPolicy {
 
+    private static final QName FINAL_PDF_RENDITION_DEFINITION_NAME = QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "finalPdfRenditionDefinition");
     private static Log logger = LogFactory.getLog(DocumentServiceImpl.class);
-
     private NodeService nodeService;
     private DictionaryService dictionaryService;
     private PersonService personService;
@@ -52,16 +62,23 @@ public class DocumentServiceImpl implements DocumentService {
     private NamespaceService namespaceService;
     private BehaviourFilter behaviourFilter;
     private CopyService copyService;
+    private OELockService oeLockService;
     private VersionService versionService;
-
-    private MimeTypes allMimeTypes = MimeTypes.getDefaultMimeTypes();
-    private MimeTypes types;
+    private PolicyComponent policyComponent;
+    private Behaviour onUpdatePropertiesBehaviour;
+    private ContentService contentService;
+    private MimetypeService mimetypeService;
+    private RenditionService renditionService;
+    private TransactionService transactionService;
+    private String finalizedFileFormat;
+    private String acceptableFinalizedFileFormats;
+    private Set<String> acceptableFinalizedFileMimeTypes;
+    private RenditionDefinition pdfRenditionDefinition;
 
     /**
      * Returns true if the file name has an extension
      *
-     * @param filename
-     *            the string representation of the filename in question
+     * @param filename the string representation of the filename in question
      * @return {boolean}
      */
     public static boolean hasFileExtentsion(String filename) {
@@ -69,9 +86,37 @@ public class DocumentServiceImpl implements DocumentService {
         return StringUtils.isNotEmpty(fileNameExt);
     }
 
-    //<editor-fold desc="Setters">
+    //<editor-fold desc="Injected service setters">
     public void setCaseService(CaseService caseService) {
         this.caseService = caseService;
+    }
+
+    public void setRenditionService(RenditionService renditionService) {
+        this.renditionService = renditionService;
+    }
+
+    public void setMimetypeService(MimetypeService mimetypeService) {
+        this.mimetypeService = mimetypeService;
+    }
+
+    public void setFinalizedFileFormat(String finalizedFileFormat) {
+        this.finalizedFileFormat = finalizedFileFormat;
+    }
+
+    public void setAcceptableFinalizedFileFormats(String acceptableFinalizedFileFormats) {
+        this.acceptableFinalizedFileFormats = acceptableFinalizedFileFormats;
+    }
+
+    public void setContentService(ContentService contentService) {
+        this.contentService = contentService;
+    }
+
+    public void setOeLockService(OELockService oeLockService) {
+        this.oeLockService = oeLockService;
+    }
+
+    public void setPolicyComponent(PolicyComponent policyComponent) {
+        this.policyComponent = policyComponent;
     }
 
     public void setNamespaceService(NamespaceService namespaceService) {
@@ -107,8 +152,189 @@ public class DocumentServiceImpl implements DocumentService {
     }
     // </editor-fold>
 
+    public void setTransactionService(TransactionService transactionService) {
+        this.transactionService = transactionService;
+    }
+
+    public void init() {
+        acceptableFinalizedFileMimeTypes = new HashSet<>(20);
+        for (String extension : acceptableFinalizedFileFormats.split(",")) {
+            String mimetype = mimetypeService.getMimetype(extension);
+            if (!mimetype.equals(MimetypeMap.MIMETYPE_BINARY)) {
+                acceptableFinalizedFileMimeTypes.add(mimetype);
+            }
+        }
+
+        onUpdatePropertiesBehaviour = new JavaBehaviour(this, "onUpdateProperties");
+        this.policyComponent.bindClassBehaviour(
+                NodeServicePolicies.OnUpdatePropertiesPolicy.QNAME,
+                OpenESDHModel.TYPE_DOC_BASE, onUpdatePropertiesBehaviour);
+    }
+
     @Override
-    public NodeRef getMainDocument(NodeRef caseDocNodeRef){
+    public void onUpdateProperties(NodeRef nodeRef, Map<QName, Serializable> before, Map<QName, Serializable> after) {
+        String beforeStatus = (String) before.get(OpenESDHModel.PROP_OE_STATUS);
+        if (beforeStatus == null) {
+            return;
+        }
+        String afterStatus = (String) after.get(OpenESDHModel.PROP_OE_STATUS);
+        if (beforeStatus.equals(afterStatus)) {
+            return;
+        }
+        throw new AlfrescoRuntimeException("Document status cannot be " +
+                "changed directly. Must call the DocumentService" +
+                ".changeDocumentStatus method.");
+    }
+
+    protected boolean canLeaveStatus(String status, String user, NodeRef nodeRef) {
+        // For now anyone can exit any document status
+        return true;
+    }
+
+    protected boolean canEnterStatus(String status, String user, NodeRef nodeRef) {
+        // For now anyone can enter any document status
+        return true;
+    }
+
+    public void checkCanChangeStatus(NodeRef nodeRef, String fromStatus, String toStatus) throws AccessDeniedException {
+        String user = AuthenticationUtil.getRunAsUser();
+        if (!isDocNode(nodeRef)) {
+            throw new AlfrescoRuntimeException("Node is not a document node:" +
+                    " " + nodeRef);
+        }
+        if (!canChangeNodeStatus(fromStatus, toStatus, user, nodeRef)) {
+            throw new AccessDeniedException(user + " is not allowed to " +
+                    "switch document from status " + fromStatus + " to " +
+                    toStatus + " for document " + nodeRef);
+        }
+    }
+
+    private void changeStatusImpl(NodeRef nodeRef, String fromStatus, String newStatus) {
+        switch (newStatus) {
+            case DocumentStatus.FINAL:
+                nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, newStatus);
+                // Transform main doc and attachments to finalized formats
+                transformToFinalizedFileFormat(getMainDocument(nodeRef));
+                getAttachments(nodeRef).forEach(this::transformToFinalizedFileFormat);
+                oeLockService.lock(nodeRef, true);
+                break;
+            case DocumentStatus.DRAFT:
+                oeLockService.unlock(nodeRef, true);
+                nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, newStatus);
+                break;
+        }
+    }
+
+    private void transformToFinalizedFileFormat(NodeRef nodeRef) {
+        if (nodeRef == null) {
+            return;
+        }
+        // For now, we only support transform to PDF.
+        // Create the final rendition definition if it doesn't already exist.
+        // For now, we only support PDF
+        if (pdfRenditionDefinition == null) {
+            pdfRenditionDefinition = renditionService.loadRenditionDefinition(FINAL_PDF_RENDITION_DEFINITION_NAME);
+        }
+        if (pdfRenditionDefinition == null) {
+            pdfRenditionDefinition = renditionService.createRenditionDefinition(FINAL_PDF_RENDITION_DEFINITION_NAME, ReformatRenderingEngine.NAME);
+            pdfRenditionDefinition.setParameterValue(
+                    ReformatRenderingEngine.PARAM_MIME_TYPE,
+                    MimetypeMap.MIMETYPE_PDF);
+            renditionService.saveRenditionDefinition(pdfRenditionDefinition);
+        }
+
+        // Get the source and target mimetypes
+        String fileName = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_NAME);
+        ContentReader reader = contentService.getReader(nodeRef, ContentModel.PROP_CONTENT);
+        if (reader == null) {
+            // Empty node.
+            // TODO: Throw an error?
+            return;
+        }
+        String sourceMimetype = reader.getMimetype();
+        if (sourceMimetype.equals(MimetypeMap.MIMETYPE_BINARY)) {
+            // Try to guess the mimetype if it is application/octet-stream
+            sourceMimetype = mimetypeService.guessMimetype(fileName, reader);
+        }
+        String targetMimetype = mimetypeService.getMimetype(finalizedFileFormat);
+
+        String sourceFormatDisplay = mimetypeService.getDisplaysByMimetype().getOrDefault(sourceMimetype,
+                sourceMimetype);
+        String targetFormatDisplay = mimetypeService.getDisplaysByMimetype().getOrDefault(targetMimetype, targetMimetype);
+
+        // Acceptable file formats and image files can be transformed to the
+        // finalized file format
+        if (!acceptableFinalizedFileMimeTypes.contains(sourceMimetype) && !sourceMimetype.startsWith("image/") && !sourceMimetype.startsWith("text/")) {
+            throw new AutomaticFinalizeFailureException("openesdh.document.err.automatic_finalize_not_acceptable_format",
+                    new Object[]{sourceFormatDisplay, targetFormatDisplay});
+        }
+
+        try {
+            renditionService.render(nodeRef, pdfRenditionDefinition);
+        } catch (RenditionServiceException | ContentIOException e) {
+            throw new AutomaticFinalizeFailureException("openesdh.document.err.exception_during_transformation",
+                    new Object[]{sourceFormatDisplay, targetFormatDisplay}, e);
+        }
+    }
+
+    @Override
+    public String getNodeStatus(NodeRef nodeRef) {
+        return (String) nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS);
+    }
+
+    @Override
+    public List<String> getValidNextStatuses(NodeRef nodeRef) {
+        String user = AuthenticationUtil.getFullyAuthenticatedUser();
+        String fromStatus = getNodeStatus(nodeRef);
+        List<String> statuses;
+        statuses = Arrays.asList(DocumentStatus.getStatuses()).stream().filter(
+                s -> canChangeNodeStatus(fromStatus, s, user, nodeRef))
+                .collect(Collectors.toList());
+        return statuses;
+    }
+
+    @Override
+    public boolean canChangeNodeStatus(String fromStatus, String toStatus, String user, NodeRef nodeRef) {
+        NodeRef parentCase = caseService.getParentCase(nodeRef);
+        if (parentCase != null) {
+            // Don't allow user to change status of documents which are in a
+            // locked case
+            if (caseService.isLocked(parentCase)) {
+                return false;
+            }
+        }
+        return isDocNode(nodeRef) &&
+                DocumentStatus.isValidTransition(fromStatus, toStatus) &&
+                canLeaveStatus(fromStatus, user, nodeRef) && canEnterStatus(toStatus, user, nodeRef);
+    }
+
+    @Override
+    public void changeNodeStatus(NodeRef nodeRef, String newStatus) throws
+            Exception {
+        String fromStatus = getNodeStatus(nodeRef);
+        if (newStatus.equals(fromStatus)) {
+            return;
+        }
+        checkCanChangeStatus(nodeRef, fromStatus, newStatus);
+
+        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
+            @Override
+            public Object execute() throws Throwable {
+                try {
+                    // Disable status behaviour to allow the system to set the
+                    // status directly.
+                    onUpdatePropertiesBehaviour.disable();
+                    changeStatusImpl(nodeRef, fromStatus, newStatus);
+                } finally {
+                    onUpdatePropertiesBehaviour.enable();
+                }
+                return null;
+            }
+        });
+    }
+
+    @Override
+    public NodeRef getMainDocument(NodeRef caseDocNodeRef) {
         List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(caseDocNodeRef, OpenESDHModel
                 .ASSOC_DOC_MAIN, QName.createQName(OpenESDHModel.DOC_URI, "main"));
         return childAssocs.get(0).getChildRef();
@@ -116,10 +342,10 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public PersonService.PersonInfo getDocumentOwner(NodeRef caseDocNodeRef) {
-        List <AssociationRef> ownerList = this.nodeService.getTargetAssocs(caseDocNodeRef, OpenESDHModel.ASSOC_DOC_OWNER);
-        PersonService.PersonInfo owner =null ;
+        List<AssociationRef> ownerList = this.nodeService.getTargetAssocs(caseDocNodeRef, OpenESDHModel.ASSOC_DOC_OWNER);
+        PersonService.PersonInfo owner = null;
 
-        if(ownerList.size() >= 1) //should always = 1 but just in case
+        if (ownerList.size() >= 1) //should always = 1 but just in case
             owner = this.personService.getPerson(ownerList.get(0).getTargetRef()); //return the first one in the list
 
         return owner;
@@ -128,13 +354,18 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public List<PersonService.PersonInfo> getDocResponsibles(NodeRef caseDocNodeRef) {
         //TODO could it be the case that in the future there could be more than one person responsible for a document
-        List <AssociationRef> responsibleList = this.nodeService.getTargetAssocs(caseDocNodeRef, OpenESDHModel.ASSOC_DOC_RESPONSIBLE_PERSON);
-        List <PersonService.PersonInfo> responsibles = new ArrayList<>();
+        List<AssociationRef> responsibleList = this.nodeService.getTargetAssocs(caseDocNodeRef, OpenESDHModel.ASSOC_DOC_RESPONSIBLE_PERSON);
+        List<PersonService.PersonInfo> responsibles = new ArrayList<>();
 
-        for(AssociationRef person : responsibleList)
+        for (AssociationRef person : responsibleList)
             responsibles.add(this.personService.getPerson(person.getTargetRef()));
 
         return responsibles;
+    }
+
+    @Override
+    public boolean isDocNode(NodeRef nodeRef) {
+        return dictionaryService.isSubClass(nodeService.getType(nodeRef), OpenESDHModel.TYPE_DOC_BASE);
     }
 
     @Override
@@ -171,8 +402,7 @@ public class DocumentServiceImpl implements DocumentService {
                         if (Date.class.equals(value.getClass())) {
                             valueObj.put("type", "Date");
                             valueObj.put("value", ((Date) value).getTime());
-                        }
-                        else if(key.getPrefixString().equals("modifier") || key.getPrefixString().equals("creator")) {
+                        } else if (key.getPrefixString().equals("modifier") || key.getPrefixString().equals("creator")) {
                             valueObj.put("type", "UserName");
                             valueObj.put("value", value);
                             NodeRef personNodeRef = personService.getPerson((String) value);
@@ -201,7 +431,7 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public ChildAssociationRef createDocumentFolder(final NodeRef documentsFolder, final String name) {
         Map<QName, Serializable> props = new HashMap<>(1);
-        return this.createDocumentFolder(documentsFolder,name, props);
+        return this.createDocumentFolder(documentsFolder, name, props);
     }
 
     @Override
@@ -218,6 +448,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     /**
      * Gets the nodeRef of a document or folder within a case by recursively trawling up the tree until the caseType is detected
+     *
      * @param nodeRef the node whose containing case is to be found.
      * @return the case container noderef
      */
@@ -225,10 +456,9 @@ public class DocumentServiceImpl implements DocumentService {
     public NodeRef getCaseNodeRef(NodeRef nodeRef) {
         NodeRef caseNodeRef = null;
         QName nodeRefType = this.nodeService.getType(nodeRef);
-        if (dictionaryService.isSubClass(nodeRefType, OpenESDHModel.TYPE_CASE_BASE) ) {
+        if (dictionaryService.isSubClass(nodeRefType, OpenESDHModel.TYPE_CASE_BASE)) {
             caseNodeRef = nodeRef;
-        }
-        else {
+        } else {
             ChildAssociationRef primaryParent = this.nodeService.getPrimaryParent(nodeRef);
             if (primaryParent != null && primaryParent.getParentRef() != null) {
                 caseNodeRef = getCaseNodeRef(primaryParent.getParentRef());
@@ -291,7 +521,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public ResultSet<CaseDocumentAttachment> getAttachmentsWithVersions(NodeRef docRecordNodeRef, int startIndex,
-            int pageSize) {
+                                                                        int pageSize) {
         List<ChildAssociationRef> attachmentsAssocs = getAttachmentsChildAssociations(docRecordNodeRef);
         int totalItems = attachmentsAssocs.size();
         int resultEnd = startIndex + pageSize;
@@ -310,11 +540,11 @@ public class DocumentServiceImpl implements DocumentService {
     public List<CaseDocument> getCaseDocumentsWithAttachments(String caseId) {
         NodeRef caseNodeRef = caseService.getCaseById(caseId);
         return this.getDocumentsForCase(caseNodeRef)
-            .stream()
-            .map(documentAssoc -> getCaseDocument(documentAssoc.getChildRef()))
-            .collect(Collectors.toList());
+                .stream()
+                .map(documentAssoc -> getCaseDocument(documentAssoc.getChildRef()))
+                .collect(Collectors.toList());
     }
-    
+
     @Override
     public void updateCaseDocumentProperties(CaseDocument caseDocument) {
         NodeRef documentNodeRef = new NodeRef(caseDocument.getNodeRef());
@@ -324,7 +554,6 @@ public class DocumentServiceImpl implements DocumentService {
         properties.put(OpenESDHModel.PROP_DOC_CATEGORY, caseDocument.getCategory());
         nodeService.setProperties(documentNodeRef, properties);
     }
-
 
     @Override
     public List<NodeRef> findCaseDocuments(String filter, int size) {
@@ -414,14 +643,15 @@ public class DocumentServiceImpl implements DocumentService {
         caseDocument.setNodeRef(docRecordNodeRef.toString());
         caseDocument.setMainDocNodeRef(getMainDocument(docRecordNodeRef).toString());
         Map<QName, Serializable> props = nodeService.getProperties(docRecordNodeRef);
-        caseDocument.setTite(props.get(ContentModel.PROP_NAME).toString());
+        caseDocument.setTitle(props.get(ContentModel.PROP_NAME).toString());
         caseDocument.setType(props.get(OpenESDHModel.PROP_DOC_TYPE).toString());
         caseDocument.setState(props.get(OpenESDHModel.PROP_DOC_STATE).toString());
+        caseDocument.setStatus(props.get(OpenESDHModel.PROP_OE_STATUS).toString());
         caseDocument.setCategory(props.get(OpenESDHModel.PROP_DOC_CATEGORY).toString());
         caseDocument.setCreated((Date) props.get(ContentModel.PROP_CREATED));
         caseDocument.setModified((Date) props.get(ContentModel.PROP_MODIFIED));
         caseDocument.setOwner(getDocumentOwner(docRecordNodeRef));
-        String extension = FilenameUtils.getExtension(caseDocument.getTite());
+        String extension = FilenameUtils.getExtension(caseDocument.getTitle());
         caseDocument.setFileType(extension);
 
         List<ChildAssociationRef> attachmentsAssocs = getAttachmentsChildAssociations(docRecordNodeRef);
@@ -437,7 +667,7 @@ public class DocumentServiceImpl implements DocumentService {
             throw new Exception("Error trying to get target case for the case id: " + targetCaseId, e);
         }
     }
-    
+
     protected boolean isCaseContainsDocument(NodeRef targetCaseDocumentsFolder, NodeRef documentRecFolderToCopy) {
         return nodeService.getChildAssocs(targetCaseDocumentsFolder).stream()
                 .filter(assoc -> assoc.getChildRef().equals(documentRecFolderToCopy)).findAny().isPresent();

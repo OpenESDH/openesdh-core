@@ -7,6 +7,10 @@ public class DocumentStatus {
     public static final String DRAFT = "draft";
     public static final String FINAL = "final";
 
+    public static String[] getStatuses() {
+        return new String[] {DRAFT, FINAL};
+    }
+
     public static boolean isValidTransition(String before,
                                             String after) {
         if (before == null || before.equals(after)) {

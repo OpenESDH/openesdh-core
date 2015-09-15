@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
+import dk.openesdh.repo.services.HasStatus;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.PersonService;
@@ -18,7 +19,7 @@ import dk.openesdh.repo.webscripts.documents.Documents;
 /**
  * Created by torben on 11/09/14.
  */
-public interface DocumentService {
+public interface DocumentService extends HasStatus {
 
     public static final String DOCUMENT_STORED_IN_CASE_MESSAGE = "The document has already been stored in the case ";
 
@@ -43,6 +44,13 @@ public interface DocumentService {
      * @return a PersonInfo structure from which we can query various properties of the person
      */
     public List<PersonService.PersonInfo> getDocResponsibles(NodeRef caseDocNodeRef);
+
+    /**
+     * Check if the node is a document (extends doc:base).
+     * @param nodeRef
+     * @return
+     */
+    boolean isDocNode(NodeRef nodeRef);
 
     public java.util.List<ChildAssociationRef> getDocumentsForCase(NodeRef nodeRef);
 
