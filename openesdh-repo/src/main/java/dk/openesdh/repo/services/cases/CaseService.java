@@ -49,16 +49,6 @@ public interface CaseService {
     NodeRef getCasesTypeStorageRootNodeRef();
 
     /**
-     * Retrieves the widgets that comprise the create case form and is (or should have been) stored in the
-     * OpenESDH/cases/types/[case_type_name]/forms/create-form.js on case module bootstrap.
-     *
-     * @param caseType string in the form of case:XXXXXX or just plain string that should be the postfix of the case model
-     *                 i.e. case:simple || simple(this is the postfix)
-     * @return
-     */
-    JSONArray getCaseCreateFormWidgets(String caseType);
-
-    /**
      * Get the roles that are possible to set for the given case.
      *
      * @param caseNodeRef

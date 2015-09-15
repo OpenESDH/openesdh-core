@@ -213,36 +213,6 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
     }
 
     @Override
-    public JSONArray getCaseCreateFormWidgets(String caseType) {
-        JSONArray widgets = null;
-        Pattern modelPattern = Pattern.compile("(\\w+):(\\w+)");
-        Matcher matcher = modelPattern.matcher(caseType);
-        if (matcher.find()) { // then get the folder name from the postfix
-            caseType = StringUtils.substringAfter(caseType, ":");
-        }
-        //Recursively step 2 levels down to get the file
-        NodeRef typesFolder;
-        NodeRef caseFolder;
-        NodeRef caseFormsFolder;
-        try {
-            typesFolder = getCasesTypeStorageRootNodeRef();
-            caseFolder = nodeService.getChildByName(typesFolder, ContentModel.ASSOC_CONTAINS, caseType);
-            caseFormsFolder = nodeService.getChildByName(caseFolder, ContentModel.ASSOC_CONTAINS, "forms");
-            //Now read the file
-            NodeRef formWidgetsFile = nodeService.getChildByName(caseFormsFolder, ContentModel.ASSOC_CONTAINS, "create-form.js");
-            //Read the file contents
-            ContentReader contentReader = contentService.getReader(formWidgetsFile, ContentModel.PROP_CONTENT);
-            String tmp = contentReader.getContentString();
-            JSONObject unparsedJSON = new JSONObject(tmp);
-            widgets = unparsedJSON.getJSONArray("widgets");
-        } catch (Exception ge) {
-            LOGGER.warn("\n\n\n====>CaseServiceImpl - 379:\nerror with retrieving widgets: " + ge.getMessage() + "\n\n");
-        }
-
-        return widgets;
-    }
-
-    @Override
     public Set<String> getRoles(NodeRef caseNodeRef) {
         return permissionService.getSettablePermissions(caseNodeRef);
     }

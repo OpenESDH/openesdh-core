@@ -1,32 +1,28 @@
 package dk.openesdh.repo.services.documents;
 
-import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
-
+import dk.openesdh.repo.model.CaseDocument;
+import dk.openesdh.repo.model.CaseDocumentAttachment;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.model.ResultSet;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.webscripts.documents.Documents;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.policy.BehaviourFilter;
+import org.alfresco.repo.search.impl.lucene.LuceneQueryParserException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.version.VersionModel;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
-import org.alfresco.service.cmr.repository.AssociationRef;
-import org.alfresco.service.cmr.repository.ChildAssociationRef;
-import org.alfresco.service.cmr.repository.CopyService;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.repository.*;
+import org.alfresco.service.cmr.search.LimitBy;
+import org.alfresco.service.cmr.search.SearchParameters;
+import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionHistory;
 import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
-import org.alfresco.service.transaction.TransactionService;
+import org.alfresco.util.SearchLanguageConversion;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -36,12 +32,9 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import dk.openesdh.repo.model.CaseDocument;
-import dk.openesdh.repo.model.CaseDocumentAttachment;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.model.ResultSet;
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.webscripts.documents.Documents;
+import java.io.Serializable;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * Created by torben on 11/09/14.
@@ -54,7 +47,7 @@ public class DocumentServiceImpl implements DocumentService {
     private NodeService nodeService;
     private DictionaryService dictionaryService;
     private PersonService personService;
-    private TransactionService transactionService;
+    private SearchService searchService;
     private CaseService caseService;
     private NamespaceService namespaceService;
     private BehaviourFilter behaviourFilter;
@@ -63,6 +56,18 @@ public class DocumentServiceImpl implements DocumentService {
 
     private MimeTypes allMimeTypes = MimeTypes.getDefaultMimeTypes();
     private MimeTypes types;
+
+    /**
+     * Returns true if the file name has an extension
+     *
+     * @param filename
+     *            the string representation of the filename in question
+     * @return {boolean}
+     */
+    public static boolean hasFileExtentsion(String filename) {
+        String fileNameExt = FilenameUtils.getExtension(filename);
+        return StringUtils.isNotEmpty(fileNameExt);
+    }
 
     //<editor-fold desc="Setters">
     public void setCaseService(CaseService caseService) {
@@ -85,8 +90,8 @@ public class DocumentServiceImpl implements DocumentService {
         this.personService = personService;
     }
 
-    public void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
+    public void setSearchService(SearchService searchService) {
+        this.searchService = searchService;
     }
 
     public void setBehaviourFilter(BehaviourFilter behaviourFilter) {
@@ -97,10 +102,39 @@ public class DocumentServiceImpl implements DocumentService {
         this.copyService = copyService;
     }
 
-    // </editor-fold>
-
     public void setVersionService(VersionService versionService) {
         this.versionService = versionService;
+    }
+    // </editor-fold>
+
+    @Override
+    public NodeRef getMainDocument(NodeRef caseDocNodeRef){
+        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(caseDocNodeRef, OpenESDHModel
+                .ASSOC_DOC_MAIN, QName.createQName(OpenESDHModel.DOC_URI, "main"));
+        return childAssocs.get(0).getChildRef();
+    }
+
+    @Override
+    public PersonService.PersonInfo getDocumentOwner(NodeRef caseDocNodeRef) {
+        List <AssociationRef> ownerList = this.nodeService.getTargetAssocs(caseDocNodeRef, OpenESDHModel.ASSOC_DOC_OWNER);
+        PersonService.PersonInfo owner =null ;
+
+        if(ownerList.size() >= 1) //should always = 1 but just in case
+            owner = this.personService.getPerson(ownerList.get(0).getTargetRef()); //return the first one in the list
+
+        return owner;
+    }
+
+    @Override
+    public List<PersonService.PersonInfo> getDocResponsibles(NodeRef caseDocNodeRef) {
+        //TODO could it be the case that in the future there could be more than one person responsible for a document
+        List <AssociationRef> responsibleList = this.nodeService.getTargetAssocs(caseDocNodeRef, OpenESDHModel.ASSOC_DOC_RESPONSIBLE_PERSON);
+        List <PersonService.PersonInfo> responsibles = new ArrayList<>();
+
+        for(AssociationRef person : responsibleList)
+            responsibles.add(this.personService.getPerson(person.getTargetRef()));
+
+        return responsibles;
     }
 
     @Override
@@ -182,36 +216,6 @@ public class DocumentServiceImpl implements DocumentService {
         return documentAssociationRef;
     }
 
-    @Override
-    public NodeRef getMainDocument(NodeRef caseDocNodeRef){
-        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(caseDocNodeRef, OpenESDHModel
-                .ASSOC_DOC_MAIN, QName.createQName(OpenESDHModel.DOC_URI, "main"));
-        return childAssocs.get(0).getChildRef();
-    }
-
-    @Override
-    public PersonService.PersonInfo getDocumentOwner(NodeRef caseDocNodeRef) {
-        List <AssociationRef> ownerList = this.nodeService.getTargetAssocs(caseDocNodeRef, OpenESDHModel.ASSOC_DOC_OWNER);
-        PersonService.PersonInfo owner =null ;
-
-        if(ownerList.size() >= 1) //should always = 1 but just in case
-            owner = this.personService.getPerson(ownerList.get(0).getTargetRef()); //return the first one in the list
-
-        return owner;
-    }
-
-    @Override
-    public List<PersonService.PersonInfo> getDocResponsibles(NodeRef caseDocNodeRef) {
-        //TODO could it be the case that in the future there could be more than one person responsible for a document
-        List <AssociationRef> responsibleList = this.nodeService.getTargetAssocs(caseDocNodeRef, OpenESDHModel.ASSOC_DOC_RESPONSIBLE_PERSON);
-        List <PersonService.PersonInfo> responsibles = new ArrayList<>();
-
-        for(AssociationRef person : responsibleList)
-            responsibles.add(this.personService.getPerson(person.getTargetRef()));
-
-        return responsibles;
-    }
-
     /**
      * Gets the nodeRef of a document or folder within a case by recursively trawling up the tree until the caseType is detected
      * @param nodeRef the node whose containing case is to be found.
@@ -235,40 +239,11 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public List<NodeRef> getAttachments(NodeRef docRecordNodeRef) {
-        
+
         return getAttachmentsChildAssociations(docRecordNodeRef)
                 .stream()
                 .map(childRef -> childRef.getChildRef())
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public ResultSet<CaseDocumentAttachment> getAttachmentsWithVersions(NodeRef docRecordNodeRef, int startIndex,
-            int pageSize) {
-        List<ChildAssociationRef> attachmentsAssocs = getAttachmentsChildAssociations(docRecordNodeRef);
-        int totalItems = attachmentsAssocs.size();
-        int resultEnd = startIndex + pageSize;
-        if (totalItems < resultEnd) {
-            resultEnd = totalItems;
-        }
-        List<CaseDocumentAttachment> attachments = getAttachmentsWithVersions(attachmentsAssocs.subList(
-                startIndex, resultEnd));
-        ResultSet<CaseDocumentAttachment> result = new ResultSet<CaseDocumentAttachment>();
-        result.setResultList(attachments);
-        result.setTotalItems(attachmentsAssocs.size());
-        return result;
-    }
-
-    /**
-     * Returns true if the file name has an extension
-     * 
-     * @param filename
-     *            the string representation of the filename in question
-     * @return {boolean}
-     */
-    public static boolean hasFileExtentsion(String filename) {
-        String fileNameExt = FilenameUtils.getExtension(filename);
-        return StringUtils.isNotEmpty(fileNameExt);
     }
 
     @Override
@@ -315,6 +290,23 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
+    public ResultSet<CaseDocumentAttachment> getAttachmentsWithVersions(NodeRef docRecordNodeRef, int startIndex,
+            int pageSize) {
+        List<ChildAssociationRef> attachmentsAssocs = getAttachmentsChildAssociations(docRecordNodeRef);
+        int totalItems = attachmentsAssocs.size();
+        int resultEnd = startIndex + pageSize;
+        if (totalItems < resultEnd) {
+            resultEnd = totalItems;
+        }
+        List<CaseDocumentAttachment> attachments = getAttachmentsWithVersions(attachmentsAssocs.subList(
+                startIndex, resultEnd));
+        ResultSet<CaseDocumentAttachment> result = new ResultSet<CaseDocumentAttachment>();
+        result.setResultList(attachments);
+        result.setTotalItems(attachmentsAssocs.size());
+        return result;
+    }
+
+    @Override
     public List<CaseDocument> getCaseDocumentsWithAttachments(String caseId) {
         NodeRef caseNodeRef = caseService.getCaseById(caseId);
         return this.getDocumentsForCase(caseNodeRef)
@@ -323,6 +315,100 @@ public class DocumentServiceImpl implements DocumentService {
             .collect(Collectors.toList());
     }
     
+    @Override
+    public void updateCaseDocumentProperties(CaseDocument caseDocument) {
+        NodeRef documentNodeRef = new NodeRef(caseDocument.getNodeRef());
+        Map<QName, Serializable> properties = nodeService.getProperties(documentNodeRef);
+        properties.put(OpenESDHModel.PROP_DOC_TYPE, caseDocument.getType());
+        properties.put(OpenESDHModel.PROP_DOC_STATE, caseDocument.getState());
+        properties.put(OpenESDHModel.PROP_DOC_CATEGORY, caseDocument.getCategory());
+        nodeService.setProperties(documentNodeRef, properties);
+    }
+
+
+    @Override
+    public List<NodeRef> findCaseDocuments(String filter, int size) {
+        List<NodeRef> result;
+
+        NodeRef caseRoot = caseService.getCasesRootNodeRef();
+        if (caseRoot == null) {
+            result = Collections.emptyList();
+        } else {
+            // get the cases that match the specified names
+            StringBuilder query = new StringBuilder(128);
+            query.append("PATH:\"").append(CaseService.OPENESDH_ROOT_CONTEXT_PATH).append("/*\" ");
+            query.append(" AND +TYPE:\"").append(OpenESDHModel.TYPE_DOC_FILE).append('"');
+            query.append(" AND(-TYPE:\"cm:thumbnail\" AND -TYPE:\"cm:failedThumbnail\" AND -TYPE:\"cm:rating\" AND -TYPE:\"fm:post\" AND -ASPECT:\"sys:hidden\" AND -cm:creator:system");
+
+            final boolean filterIsPresent = filter != null && filter.length() > 0;
+
+            if (filterIsPresent) {
+                query.append(" AND ");
+                String escNameFilter = SearchLanguageConversion.escapeLuceneQuery(filter.replace('"', ' '));
+                String[] tokenizedFilter = SearchLanguageConversion.tokenizeString(escNameFilter);
+
+                //cm:name
+                query.append("cm:name:\" ");
+                for (int i = 0; i < tokenizedFilter.length; i++) {
+                    if (i != 0) //Not first element
+                    {
+                        query.append("?");
+                    }
+                    query.append(tokenizedFilter[i].toLowerCase());
+                }
+                query.append("*\"");
+
+                //cm:title
+                query.append(" OR ")
+                        .append(" cm:title: (");
+                for (int i = 0; i < tokenizedFilter.length; i++) {
+                    if (i != 0) //Not first element
+                    {
+                        query.append(" AND ");
+                    }
+                    query.append("\"" + tokenizedFilter[i] + "*\" ");
+                }
+                query.append(")");
+
+                query.append(" OR cm:description:\"" + escNameFilter + "*\"");
+                query.append(" OR TEXT:\"" + escNameFilter + "*\"");
+                query.append(")");
+            }
+
+            SearchParameters sp = new SearchParameters();
+            sp.addQueryTemplate("_CASE_DOCUMENTS", "|%name OR |%title OR |%description TEXT TAG");
+            sp.setDefaultFieldName("_CASE_DOCUMENTS");
+            sp.addStore(caseRoot.getStoreRef());
+            sp.setLanguage(SearchService.LANGUAGE_FTS_ALFRESCO);
+            sp.setQuery(query.toString());
+            if (size > 0) {
+                sp.setLimit(size);
+                sp.setLimitBy(LimitBy.FINAL_SIZE);
+            }
+
+            if (logger.isDebugEnabled()) {
+                logger.debug("Search parameters are: " + sp);
+            }
+
+            org.alfresco.service.cmr.search.ResultSet results = null;
+            try {
+                results = this.searchService.query(sp);
+                result = new ArrayList<NodeRef>(results.length());
+                for (NodeRef site : results.getNodeRefs()) {
+                    result.add(site);
+                }
+            } catch (LuceneQueryParserException lqpe) {
+                //Log the error but suppress is from the user
+                logger.error("LuceneQueryParserException finding case documents", lqpe);
+                result = Collections.emptyList();
+            } finally {
+                if (results != null) results.close();
+            }
+        }
+
+        return result;
+    }
+
     protected CaseDocument getCaseDocument(NodeRef docRecordNodeRef) {
         CaseDocument caseDocument = new CaseDocument();
         caseDocument.setNodeRef(docRecordNodeRef.toString());
@@ -351,12 +437,12 @@ public class DocumentServiceImpl implements DocumentService {
             throw new Exception("Error trying to get target case for the case id: " + targetCaseId, e);
         }
     }
-
+    
     protected boolean isCaseContainsDocument(NodeRef targetCaseDocumentsFolder, NodeRef documentRecFolderToCopy) {
         return nodeService.getChildAssocs(targetCaseDocumentsFolder).stream()
                 .filter(assoc -> assoc.getChildRef().equals(documentRecFolderToCopy)).findAny().isPresent();
     }
-    
+
     protected List<CaseDocumentAttachment> getAttachments(List<ChildAssociationRef> attachmentsAssocs) {
         return attachmentsAssocs
                 .stream()
@@ -384,19 +470,19 @@ public class DocumentServiceImpl implements DocumentService {
                 .stream()
                 .map(version -> createAttachmentVersion(version))
                 .collect(Collectors.toList());
-        
+
         CaseDocumentAttachment currentAttachmentVersion = versions
                 .stream()
                 .filter(version -> version.getVersionLabel().equals(attachment.getVersionLabel()))
                 .findFirst()
                 .get();
-        
+
         attachment.setCreated(currentAttachmentVersion.getCreated());
         attachment.setCreator(currentAttachmentVersion.getCreator());
 
         versions.remove(currentAttachmentVersion);
         attachment.getVersions().addAll(versions);
-        
+
         return attachment;
     }
 
@@ -442,8 +528,7 @@ public class DocumentServiceImpl implements DocumentService {
             docVers.setCreator(personService.getPerson(creatorNodeRef));
         }
 
-        NodeRef modifierNodeRef = personService.getPersonOrNull((version
-                .getVersionProperty(OpenESDHModel.DOCUMENT_PROP_MODIFIER).toString()).toString());
+        NodeRef modifierNodeRef = personService.getPersonOrNull((version.getVersionProperty(OpenESDHModel.DOCUMENT_PROP_MODIFIER).toString()));
         if (modifierNodeRef != null) {
             docVers.setModifier(personService.getPerson(modifierNodeRef));
         }
@@ -457,15 +542,5 @@ public class DocumentServiceImpl implements DocumentService {
                 .stream()
                 .filter(assoc -> !assoc.getChildRef().equals(mainDocNodeRef))
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public void updateCaseDocumentProperties(CaseDocument caseDocument) {
-        NodeRef documentNodeRef = new NodeRef(caseDocument.getNodeRef());
-        Map<QName, Serializable> properties = nodeService.getProperties(documentNodeRef);
-        properties.put(OpenESDHModel.PROP_DOC_TYPE, caseDocument.getType());
-        properties.put(OpenESDHModel.PROP_DOC_STATE, caseDocument.getState());
-        properties.put(OpenESDHModel.PROP_DOC_CATEGORY, caseDocument.getCategory());
-        nodeService.setProperties(documentNodeRef, properties);
     }
 }

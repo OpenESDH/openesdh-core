@@ -272,6 +272,11 @@
     <bean id="webscript.dk.openesdh.search.live-search-cases.get" class="dk.openesdh.repo.webscripts.search.LiveSearchCases" parent="webscript">
         <property name="caseService" ref="CaseService"/>
     </bean>
+    <bean id="webscript.dk.openesdh.search.live-search-caseDocs.get" class="dk.openesdh.repo.webscripts.search.LiveSearchCaseDocuments" parent="webscript">
+        <property name="caseService" ref="CaseService"/>
+        <property name="nodeService" ref="NodeService"/>
+        <property name="documentService" ref="DocumentService"/>
+    </bean>
 
     <!--Contacts-->
     <bean id="contactAbstractWebscript" class="dk.openesdh.repo.webscripts.contacts.ContactWebscript"

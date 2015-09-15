@@ -125,4 +125,6 @@ public interface DocumentService {
      *            case document to update
      */
     public void updateCaseDocumentProperties(CaseDocument caseDocument);
+
+    public List<NodeRef> findCaseDocuments(String filter, int size);
 }

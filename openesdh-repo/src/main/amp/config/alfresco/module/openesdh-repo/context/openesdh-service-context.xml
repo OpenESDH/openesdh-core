@@ -88,9 +88,7 @@
             <ref bean="PersonService"/>
         </property>
 
-        <property name="transactionService">
-            <ref bean="TransactionService"/>
-        </property>
+        <property name="searchService" ref="SearchService"/>
 
         <property name="namespaceService" ref="namespaceService"/>
         
