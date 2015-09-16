@@ -62,6 +62,12 @@
         <property name="xSearchService" ref="LastModifiedByMeSearchService"/>
     </bean>
 
+    <bean id="webscript.dk.openesdh.classification.search.get"
+          class="dk.openesdh.repo.webscripts.xsearch.ClassificationSearch"
+          parent="xsearchWebscript">
+        <property name="xSearchService" ref="ClassificationSearchService"/>
+    </bean>
+
     <bean id="webscript.dk.openesdh.casedocumentssearch.get"
           class="dk.openesdh.repo.webscripts.xsearch.DocumentSearch"
           parent="xsearchWebscript">

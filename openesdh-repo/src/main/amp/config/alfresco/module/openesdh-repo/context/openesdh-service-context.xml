@@ -217,6 +217,16 @@
         </property>
     </bean>
 
+    <bean id="ClassificationSearchService"
+          class="dk.openesdh.repo.services.classification.ClassificationSearchServiceImpl">
+        <property name="searchService">
+            <ref bean="SearchService"/>
+        </property>
+        <property name="repositoryHelper">
+            <ref bean="repositoryHelper"/>
+        </property>
+    </bean>
+
     <bean id="CaseDocumentsSearchService"
           class="dk.openesdh.repo.services.xsearch.CaseDocumentsSearchServiceImpl"
           parent="XSearchService">

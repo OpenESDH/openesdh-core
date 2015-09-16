@@ -1,0 +1,9 @@
+<webscript>
+    <shortname>Classification Search</shortname>
+    <description>Performs a classification search for a given
+        classification field, optionally filtering by search term.</description>
+    <url>/api/openesdh/classification/search?term={term?}&amp;field={field}</url>
+    <format default="json"></format>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+</webscript>

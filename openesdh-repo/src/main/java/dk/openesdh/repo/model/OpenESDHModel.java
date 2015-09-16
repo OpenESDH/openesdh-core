@@ -108,6 +108,7 @@ public interface OpenESDHModel {
     public static final QName PROP_OE_LOCKED_DATE = QName.createQName(OE_URI, "lockedDate");
     public static final QName PROP_OE_ORIGINAL_OWNER = QName.createQName(OE_URI, "originalOwner");
     public static final QName PROP_OE_JOURNALKEY = QName.createQName(OE_URI, "journalKey");
+    public static final QName PROP_OE_JOURNALFACET = QName.createQName(OE_URI, "journalFacet");
     public static final QName PROP_OE_CASE_ID = QName.createQName(OE_URI, "caseId");
     public static final QName PROP_CASE_STARTDATE = QName.createQName(CASE_URI, "startDate");
 
