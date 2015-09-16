@@ -147,11 +147,11 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
                                         auditEntry.put("type", I18NUtil.getMessage("auditlog.label.type.document"));
                                         result.add(auditEntry);
                                     }
-                                    else if (type.contains("cm:folder")) {
-                                        auditEntry.put("action", I18NUtil.getMessage("auditlog.label.folder.added") + " " + properties.get(name));
-                                        auditEntry.put("type", I18NUtil.getMessage("auditlog.label.type.folder"));
-                                        result.add(auditEntry);
-                                    }
+//                                    else if (type.contains("cm:folder")) {
+//                                        auditEntry.put("action", I18NUtil.getMessage("auditlog.label.folder.added") + " " + properties.get(name));
+//                                        auditEntry.put("type", I18NUtil.getMessage("auditlog.label.type.folder"));
+//                                        result.add(auditEntry);
+//                                    }
                                 } else if (type.startsWith("note:")) {
                                     String trimmedNote = StringUtils
                                             .abbreviate((String) properties
