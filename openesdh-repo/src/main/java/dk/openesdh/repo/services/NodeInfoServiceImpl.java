@@ -141,7 +141,8 @@ public class NodeInfoServiceImpl implements NodeInfoService {
         Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
         // TODO: Use dedicated category type, and render it in the client side
         valueObj.put("type", "String");
-        valueObj.put("value", properties.get(ContentModel.PROP_NAME) + " " + properties.get(ContentModel.PROP_TITLE));
+        valueObj.put("value", nodeRef);
+        valueObj.put("displayValue", properties.get(ContentModel.PROP_NAME) + " " + properties.get(ContentModel.PROP_TITLE));
         return valueObj;
     }
 

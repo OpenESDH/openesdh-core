@@ -57,7 +57,8 @@ public class CaseInfo extends AbstractWebScript {
                 OpenESDHModel.ASSOC_CASE_OWNERS, OpenESDHModel.PROP_OE_STATUS,
                 ContentModel.PROP_CREATOR, ContentModel.PROP_CREATED, ContentModel.PROP_MODIFIED,
                 ContentModel.PROP_MODIFIER, ContentModel.PROP_DESCRIPTION,
-                OpenESDHModel.PROP_OE_JOURNALKEY, OpenESDHModel.PROP_OE_LOCKED_BY, OpenESDHModel.PROP_OE_LOCKED_DATE
+                OpenESDHModel.PROP_OE_JOURNALKEY, OpenESDHModel.PROP_OE_JOURNALFACET,
+                OpenESDHModel.PROP_OE_LOCKED_BY, OpenESDHModel.PROP_OE_LOCKED_DATE
         );
 
         JSONObject json = nodeInfoService.getSelectedProperties(nodeInfo, this, requiredProps);
