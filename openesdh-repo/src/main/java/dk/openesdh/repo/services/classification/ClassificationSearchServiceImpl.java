@@ -7,6 +7,8 @@ import dk.openesdh.repo.services.xsearch.AbstractXSearchService;
 import dk.openesdh.repo.services.xsearch.XResultSet;
 import dk.openesdh.repo.services.xsearch.XSearchService;
 import org.alfresco.error.AlfrescoRuntimeException;
+import org.alfresco.service.cmr.search.SearchParameters;
+import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.ISO9075;
 import org.apache.commons.lang.StringUtils;
@@ -51,11 +53,25 @@ public class ClassificationSearchServiceImpl extends AbstractXSearchService {
         }
 
         // Search on name OR title
-        String query = "+PATH:\"" + queryPath + "\" AND +(@cm\\:name:\"" +
-                term + "*\" OR @cm\\:title:\"*" + term + "*\")";
+        // Note the use of = prefix on the name field: this is to force it
+        // NOT to use tokenisation of the name field.
+
+        // Note: This is FTS search syntax
+        String query = "PATH:\"" + queryPath + "\" AND (=name:\"" +
+                term + "*\" OR title:\"*" + term + "*\")";
+
+        if (sortField == null) {
+            sortField = "cm:name";
+            ascending = true;
+        }
 
         return executeQuery(query, startIndex, pageSize, sortField,
                 ascending);
+    }
+
+    @Override
+    protected void setSearchParameters(SearchParameters sp) {
+        sp.setLanguage(SearchService.LANGUAGE_FTS_ALFRESCO);
     }
 
     /**
