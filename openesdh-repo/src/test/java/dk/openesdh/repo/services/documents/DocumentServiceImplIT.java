@@ -5,7 +5,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
+import dk.openesdh.repo.model.DocumentStatus;
+import dk.openesdh.repo.services.lock.OELockService;
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
@@ -41,9 +44,8 @@ import dk.openesdh.repo.services.cases.CaseService;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "classpath:alfresco/application-context.xml", "classpath:alfresco/extension/openesdh-test-context.xml" })
+@ContextConfiguration({"classpath:alfresco/application-context.xml", "classpath:alfresco/extension/openesdh-test-context.xml"})
 public class DocumentServiceImplIT {
-
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
@@ -64,6 +66,10 @@ public class DocumentServiceImplIT {
     protected DocumentService documentService;
 
     @Autowired
+    @Qualifier("OELockService")
+    protected OELockService oeLockService;
+
+    @Autowired
     @Qualifier("TransactionService")
     protected TransactionService transactionService;
 
@@ -82,12 +88,20 @@ public class DocumentServiceImplIT {
     private static final String TEST_DOCUMENT_FILE_NAME = TEST_DOCUMENT_NAME + ".txt";
     private static final String TEST_DOCUMENT_NAME2 = "TestDocument2";
     private static final String TEST_DOCUMENT_FILE_NAME2 = TEST_DOCUMENT_NAME2 + ".txt";
+    private static final String TEST_DOCUMENT_NAME3 = "TestDocument3";
+    private static final String TEST_DOCUMENT_FILE_NAME3 = TEST_DOCUMENT_NAME2 + ".txt";
+    private static final String TEST_DOCUMENT_NAME4 = "TestDocument4";
+    private static final String TEST_DOCUMENT_FILE_NAME4 = TEST_DOCUMENT_NAME4 + ".json";
+
 
     private static final String TEST_DOCUMENT_ATTACHMENT_NAME = "TestDocumentAttachment";
     private static final String TEST_DOCUMENT_ATTACHMENT_FILE_NAME = TEST_DOCUMENT_ATTACHMENT_NAME + ".txt";
 
     private static final String TEST_DOCUMENT_ATTACHMENT_NAME2 = "TestDocumentAttachment2";
     private static final String TEST_DOCUMENT_ATTACHMENT_FILE_NAME2 = TEST_DOCUMENT_ATTACHMENT_NAME2 + ".txt";
+
+    private static final String TEST_DOCUMENT_ATTACHMENT_NAME3 = "TestDocumentAttachment3";
+    private static final String TEST_DOCUMENT_ATTACHMENT_FILE_NAME3 = TEST_DOCUMENT_ATTACHMENT_NAME3 + ".txt";
 
     private NodeRef testFolder;
     private NodeRef testCase1;
@@ -98,6 +112,13 @@ public class DocumentServiceImplIT {
     private NodeRef testDocument2;
     private NodeRef testDocumentAttachment2;
     private NodeRef testDocumentRecFolder2;
+    private NodeRef testDocument3;
+    private NodeRef testDocumentRecFolder3;
+    private NodeRef testDocument4;
+    private NodeRef testDocumentRecFolder4;
+    private NodeRef testDocumentAttachment3;
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {
@@ -118,10 +139,10 @@ public class DocumentServiceImplIT {
     @After
     public void tearDown() throws Exception {
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
-        
-        List<NodeRef> folders = Arrays.asList(new NodeRef[] { testFolder });
-        List<NodeRef> cases = Arrays.asList(new NodeRef[] { testCase1, testCase2 });
-        List<String> users = Arrays.asList(new String[] { CaseHelper.DEFAULT_USERNAME });
+
+        List<NodeRef> folders = Arrays.asList(new NodeRef[]{testFolder});
+        List<NodeRef> cases = Arrays.asList(new NodeRef[]{testCase1, testCase2});
+        List<String> users = Arrays.asList(new String[]{CaseHelper.DEFAULT_USERNAME});
         docTestHelper.removeNodesAndDeleteUsersInTransaction(folders, cases, users);
     }
 
@@ -245,6 +266,57 @@ public class DocumentServiceImplIT {
                 .getAttachments().size());
         Assert.assertEquals("Wrong number of the second document attachments retrieved", 1, caseDocuments.get(1)
                 .getAttachments().size());
+    }
+
+    @Test
+    public void finalizeUnfinalizeDocument() throws Exception {
+        testDocument3 = docTestHelper.createCaseDocument(TEST_DOCUMENT_FILE_NAME3, testCase1);
+        testDocumentRecFolder3 = nodeService.getPrimaryParent(testDocument3).getParentRef();
+        testDocumentAttachment3 = docTestHelper.createCaseDocumentAttachment(TEST_DOCUMENT_ATTACHMENT_FILE_NAME2, testDocumentRecFolder3);
+        Assert.assertEquals("Document initially has DRAFT status", DocumentStatus.DRAFT, documentService.getNodeStatus(testDocumentRecFolder3));
+        documentService.changeNodeStatus(testDocumentRecFolder3, DocumentStatus.FINAL);
+        Assert.assertEquals("Finalized document has FINAL status", DocumentStatus.FINAL, documentService.getNodeStatus(testDocumentRecFolder3));
+
+        Assert.assertTrue("Document record is locked after being finalized.", oeLockService.isLocked(testDocumentRecFolder3));
+        Assert.assertTrue("Document file is locked after being finalized", oeLockService.isLocked(testDocument3));
+        Assert.assertTrue("Document attachment is locked after being finalized", oeLockService.isLocked(testDocumentAttachment3));
+
+        try {
+            // Try to update the finalized document
+            NodeRef workingCopy = checkOutCheckInService.checkout(testDocument3);
+            ContentWriter writer = contentService.getWriter(workingCopy, ContentModel.PROP_CONTENT, true);
+            writer.setMimetype("text");
+            writer.putContent("some new content");
+            checkOutCheckInService.checkin(workingCopy, null);
+            Assert.fail("Expected to get an exception thrown when trying to add a new version to a finalized document");
+        } catch (Exception ignored) {
+        }
+
+        documentService.changeNodeStatus(testDocumentRecFolder3, DocumentStatus.DRAFT);
+        Assert.assertEquals("Unfinalized document has DRAFT status", documentService.getNodeStatus(testDocumentRecFolder3), DocumentStatus.DRAFT);
+
+        Assert.assertFalse("Document record is locked after being finalized but should be unlocked.", oeLockService.isLocked(testDocumentRecFolder3));
+        Assert.assertFalse("Document file is locked after being finalized but should be unlocked.", oeLockService.isLocked(testDocument3));
+        Assert.assertFalse("Document attachment is locked after being finalized but should be unlocked", oeLockService.isLocked(testDocumentAttachment3));
+    }
+
+    @Test
+    public void finalizeNonAcceptableFormatDocument() throws Exception {
+        // Make sure that you get an exception when trying to finalize a
+        // document which is not an allowed finalizable type
+        // (e.g. application/json, etc..)
+        testDocument4 = docTestHelper.createCaseDocument(TEST_DOCUMENT_FILE_NAME4, testCase1);
+        testDocumentRecFolder4 = nodeService.getPrimaryParent(testDocument4).getParentRef();
+
+        // Try to update the finalized document
+        NodeRef workingCopy = checkOutCheckInService.checkout(testDocument4);
+        ContentWriter writer = contentService.getWriter(workingCopy, ContentModel.PROP_CONTENT, true);
+        writer.setMimetype(MimetypeMap.MIMETYPE_JSON);
+        writer.putContent("{'thisShouldNotBeAbleToBeFinalized': 1}");
+        checkOutCheckInService.checkin(workingCopy, null);
+
+        expectedException.expect(AutomaticFinalizeFailureException.class);
+        documentService.changeNodeStatus(testDocumentRecFolder4, DocumentStatus.FINAL);
     }
 
     @Test

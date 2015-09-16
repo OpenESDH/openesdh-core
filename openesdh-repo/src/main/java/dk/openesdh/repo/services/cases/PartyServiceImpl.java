@@ -15,6 +15,7 @@ import java.util.Set;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -96,7 +97,8 @@ public class PartyServiceImpl implements PartyService {
      */
     @Override
     public boolean addContactsToParty(String caseId, NodeRef partyRef, String partyRole, List<String> contacts) {
-        boolean result = false;
+        NodeRef caseNodeRef = caseService.getCaseById(caseId);
+        caseService.checkCanUpdateCaseRoles(caseNodeRef);
 
         if (partyRef == null) {
             partyRef = this.authorityService.getAuthorityNodeRef(partyRole);
@@ -104,16 +106,20 @@ public class PartyServiceImpl implements PartyService {
                 partyRef = createParty(caseId, partyRole);
             }
         }
-
-        for (String contact : contacts) {
-            NodeRef childRef = getContactNodeRefId(contact);
-            String childAssocName = (String) nodeService.getProperty(childRef, ContentModel.PROP_NAME);
-            NodeRef contactNode = nodeService.addChild(partyRef, childRef, ContentModel.ASSOC_MEMBER,
-                    QName.createQName("cm", childAssocName, namespacePrefixResolver)).getChildRef();
-            if (contactNode != null) {
-                result = true;
+        final NodeRef partyGroupRef = partyRef;
+        boolean result = AuthenticationUtil.runAs((() -> {
+            boolean created = false;
+            for (String contact : contacts) {
+                NodeRef childRef = getContactNodeRefId(contact);
+                String childAssocName = (String) nodeService.getProperty(childRef, ContentModel.PROP_NAME);
+                NodeRef contactNode = nodeService.addChild(partyGroupRef, childRef, ContentModel.ASSOC_MEMBER,
+                        QName.createQName("cm", childAssocName, namespacePrefixResolver)).getChildRef();
+                if (contactNode != null) {
+                    created = true;
+                }
             }
-        }
+            return created;
+        }), OpenESDHModel.ADMIN_USER_NAME);
         return result;
     }
 

@@ -1,22 +1,23 @@
 package dk.openesdh.repo.services.cases;
 
 import dk.openesdh.repo.model.CaseInfo;
+import dk.openesdh.repo.services.HasStatus;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
 import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
 import org.json.JSONArray;
 import org.json.JSONException;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
+import org.springframework.security.access.AccessDeniedException;
 
 /**
  * Created by torben on 19/08/14.
  */
-public interface CaseService {
+public interface CaseService extends HasStatus {
     String DATE_FORMAT = "yyyyMMdd";
 
     //Folder root contexts (i.e. the next 3 variables)
@@ -194,51 +195,6 @@ public interface CaseService {
      */
     NodeRef getCaseFolderNodeRef(NodeRef casesFolderNodeRef);
 
-    /**
-     * Get the case status.
-     *
-     * @param nodeRef
-     * @return String
-     */
-    String getStatus(NodeRef nodeRef);
-
-
-    /**
-     * Return a list of valid next statuses for the case.
-     *
-     * These are statuses that the user is permitted to move the case to
-     * based on the user's permissions, the current status, and the valid
-     * status transitions.
-     *
-     * @param nodeRef
-     * @return
-     */
-    List<String> getValidNextStatuses(NodeRef nodeRef);
-
-    /**
-     * Return whether the user can change the case status from a given
-     * status to another status.
-     * @param fromStatus
-     * @param toStatus
-     * @param user
-     * @param nodeRef
-     * @return
-     */
-    boolean canChangeCaseStatus(String fromStatus, String toStatus, String user, NodeRef nodeRef);
-
-    /**
-     * Change the case to a new status.
-     *
-     * An exception will be thrown if this is not allowed because the user
-     * does not have the permission or if it is an invalid status transition.
-     *
-     * For example, to close, or passivate a case.
-     *
-     * @param nodeRef
-     * @param newStatus
-     * @throws Exception
-     */
-    void changeCaseStatus(NodeRef nodeRef, String newStatus) throws Exception;
 
     /**
      * Return whether a case is locked or not.
@@ -291,6 +247,15 @@ public interface CaseService {
 
     /**
      * Get current user permissions for the case
+     * @param caseId
+     * @return
      */
     public List<String> getCaseUserPermissions(String caseId);
+
+    /**
+     *
+     * @param caseNodeRef
+     * @throws AccessDeniedException
+     */
+    public void checkCanUpdateCaseRoles(NodeRef caseNodeRef) throws AccessDeniedException;
 }

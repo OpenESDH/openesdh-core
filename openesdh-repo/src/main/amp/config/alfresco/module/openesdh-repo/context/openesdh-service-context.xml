@@ -42,7 +42,7 @@
         <property name="dictionaryService">
             <ref bean="DictionaryService"/>
         </property>
-        
+
         <property name="permissionsModelDAO">
             <ref bean="permissionsModelDAO"/>
         </property>
@@ -53,6 +53,37 @@
 
         <property name="policyComponent">
             <ref bean="policyComponent"/>
+        </property>
+
+        <property name="documentService">
+            <ref bean="DocumentService"/>
+        </property>
+
+        <property name="oeLockService">
+            <ref bean="OELockService"/>
+        </property>
+    </bean>
+
+    <bean id="OELockService"
+          class="dk.openesdh.repo.services.lock.OELockServiceImpl">
+        <property name="nodeService">
+            <ref bean="NodeService"/>
+        </property>
+
+        <property name="ownableService">
+            <ref bean="OwnableService"/>
+        </property>
+
+        <property name="lockService">
+            <ref bean="LockService"/>
+        </property>
+
+        <property name="permissionService">
+            <ref bean="PermissionService"/>
+        </property>
+
+        <property name="transactionService">
+            <ref bean="TransactionService"/>
         </property>
     </bean>
 
@@ -69,11 +100,19 @@
         <property name="namespaceService" ref="namespaceService"/>
     </bean>
 
-    <bean id="DocumentService" class="dk.openesdh.repo.services.documents.DocumentServiceImpl">
+    <bean id="DocumentService" class="dk.openesdh.repo.services.documents.DocumentServiceImpl" init-method="init">
         <property name="caseService">
             <ref bean="CaseService"/>
         </property>
-        
+
+        <property name="contentService">
+            <ref bean="ContentService"/>
+        </property>
+
+        <property name="renditionService">
+            <ref bean="RenditionService"/>
+        </property>
+
         <property name="copyService">
             <ref bean="CopyService"/>
         </property>
@@ -93,11 +132,31 @@
         </property>
 
         <property name="namespaceService" ref="namespaceService"/>
-        
+
         <property name="versionService" ref="VersionService"/>
 
         <property name="behaviourFilter">
             <ref bean="policyBehaviourFilter"/>
+        </property>
+
+        <property name="policyComponent">
+            <ref bean="policyComponent"/>
+        </property>
+
+        <property name="oeLockService">
+            <ref bean="OELockService"/>
+        </property>
+
+        <property name="mimetypeService">
+            <ref bean="mimetypeService"/>
+        </property>
+
+        <property name="acceptableFinalizedFileFormats">
+            <value>${openesdh.document.acceptableFinalizedFileFormats}</value>
+        </property>
+
+        <property name="finalizedFileFormat">
+            <value>${openesdh.document.finalizedFileFormat}</value>
         </property>
     </bean>
 

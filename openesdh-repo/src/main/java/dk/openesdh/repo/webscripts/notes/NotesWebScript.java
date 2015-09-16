@@ -1,45 +1,26 @@
 package dk.openesdh.repo.webscripts.notes;
 
-import java.io.IOException;
-
-import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.security.PersonService;
-import org.apache.log4j.Logger;
-import org.json.JSONException;
-import org.springframework.extensions.webscripts.WebScriptRequest;
-import org.springframework.extensions.webscripts.WebScriptResponse;
-
 import dk.openesdh.repo.model.Note;
 import dk.openesdh.repo.services.notes.NoteService;
 import dk.openesdh.repo.webscripts.AbstractRESTWebscript;
 import dk.openesdh.repo.webscripts.PageableWebScript;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
+import java.io.IOException;
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.apache.log4j.Logger;
+import org.json.JSONException;
+import org.springframework.extensions.webscripts.WebScriptRequest;
+import org.springframework.extensions.webscripts.WebScriptResponse;
 
-public class Notes extends AbstractRESTWebscript {
+public class NotesWebScript extends AbstractRESTWebscript {
 
-    protected static Logger logger = Logger.getLogger(Notes.class);
+    protected static Logger logger = Logger.getLogger(NotesWebScript.class);
 
-    private NodeService nodeService;
     private NoteService noteService;
-    private PersonService personService;
-
-    public void setNodeService(NodeService nodeService) {
-        this.nodeService = nodeService;
-    }
-
-    public void setNoteService(NoteService noteService) {
-        this.noteService = noteService;
-    }
-
-    public void setPersonService(PersonService personService) {
-        this.personService = personService;
-    }
 
     @Override
-    protected void get(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse
-            res) throws IOException {
+    protected void get(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException {
         PageableWebScript<Note> ws = (int startIndex, int pageSize) -> noteService.getNotes(nodeRef, startIndex,
                 pageSize);
         PageableWebScript.getItemsPage(req, res, ws);
@@ -68,5 +49,9 @@ public class Notes extends AbstractRESTWebscript {
         noteService.updateNote(note);
         res.setContentEncoding("UTF-8");
         WebScriptUtils.writeJson(note, res);
+    }
+
+    public void setNoteService(NoteService noteService) {
+        this.noteService = noteService;
     }
 }

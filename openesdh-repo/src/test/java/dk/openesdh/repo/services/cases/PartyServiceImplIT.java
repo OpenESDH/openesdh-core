@@ -19,6 +19,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.repo.security.permissions.AccessDeniedException;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
@@ -218,6 +219,19 @@ public class PartyServiceImplIT {
 
         Assert.assertTrue("Created party should contain added test organization contact",
                 resultContacts.contains(testOrgContact));
+    }
+
+    @Test(expected = AccessDeniedException.class)
+    public void shuldFailAddingPersonContactBecouseOfPermissions() throws Exception {
+        String caseId = caseService.getCaseId(caseNodeRef);
+        createPartyAssertNotNUll(caseId, SENDER_ROLE);
+
+        //login as other user
+        AuthenticationUtil.setFullyAuthenticatedUser(MJACKSON);
+
+        //should fail
+        partyService.addContactsToParty(caseId, partyGroupNodeRef, SENDER_ROLE,
+                Arrays.asList(TEST_PERSON_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL));
     }
 
     @Test
