@@ -357,4 +357,13 @@
         <property name="caseService" ref="CaseService" />
     </bean>
 
+    <bean id="webscript.dk.openesdh.case.caseemail.post" parent="webscript"
+          class="dk.openesdh.repo.webscripts.cases.CaseEmail">
+        <property name="mailService" ref="mailService"/>
+        <property name="caseService" ref="CaseService" />
+        <property name="personService" ref="PersonService"/>
+        <property name="nodeService" ref="NodeService"/>
+        <property name="documentService" ref="DocumentService"/>
+        <property name="contentService" ref="ContentService" />
+    </bean>
 </beans>
