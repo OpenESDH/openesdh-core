@@ -1,9 +1,10 @@
 package dk.openesdh.repo.webscripts.cases;
 
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.utils.Utils;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -21,12 +22,11 @@ import org.springframework.extensions.webscripts.DeclarativeWebScript;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.utils.Utils;
-
 /**
  * @author Lanre Abiwon.
+ * @deprecated used only in Share. Please use {@link dk.openesdh.repo.webscripts.cases.CaseMembersWebScript}
  */
+@Deprecated
 public class MembersList extends DeclarativeWebScript {
 
     private static Log logger = LogFactory.getLog(MembersList.class);

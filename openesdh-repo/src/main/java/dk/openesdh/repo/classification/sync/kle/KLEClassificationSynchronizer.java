@@ -169,7 +169,7 @@ public class KLEClassificationSynchronizer extends AbstractLifecycleBean impleme
         }
     }
 
-    class EmneplanLoader {
+    public class EmneplanLoader {
         private final Log logger = LogFactory.getLog(EmneplanLoader.class);
 
         public final static String ROOT_CATEGORY_NAME = "kle_emneplan";
@@ -226,7 +226,7 @@ public class KLEClassificationSynchronizer extends AbstractLifecycleBean impleme
 
     }
 
-    class FacetterLoader {
+    public class FacetterLoader {
 
         private final Log logger = LogFactory.getLog(FacetterLoader.class);
 

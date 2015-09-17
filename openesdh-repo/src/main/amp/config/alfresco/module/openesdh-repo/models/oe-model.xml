@@ -69,6 +69,16 @@
                     </index>
                 </property>
 
+                <property name="oe:journalFacet">
+                    <type>d:category</type>
+                    <multiple>false</multiple>
+                    <index enabled="true">
+                        <atomic>true</atomic>
+                        <stored>true</stored>
+                        <tokenised>false</tokenised>
+                    </index>
+                </property>
+
             </properties>
         </aspect>
         <aspect name="oe:locked">
