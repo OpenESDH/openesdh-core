@@ -107,13 +107,6 @@ public class CaseEmail extends AbstractWebScript {
                     throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, e.getMessage());
                 }
             });
-//            for (NodeRef attachment: attachments) {
-//                String name = (String) nodeService.getProperty(attachment, ContentModel.PROP_NAME);
-//                ContentReader reader = contentService.getReader(attachment, ContentModel.PROP_CONTENT);
-//                ByteArrayOutputStream os = new ByteArrayOutputStream();
-//                FileCopyUtils.copy(reader.getContentInputStream(), os);
-//                message.addAttachment(name, new ByteArrayResource(os.toByteArray()));
-//            }
         };
 
         mailService.send(preparator);
