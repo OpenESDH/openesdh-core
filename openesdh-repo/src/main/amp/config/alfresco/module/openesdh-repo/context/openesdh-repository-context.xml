@@ -179,7 +179,17 @@
         <property name="nodeService" ref="NodeService" />
         <property name="caseService" ref="CaseService" />
     </bean>
-
+    
+    <bean id="webscript.dk.openesdh.ContactNameExtractor" class="dk.openesdh.repo.audit.ContactNameExtractor">
+        <property name="registry" ref="auditModel.extractorRegistry" />
+        <property name="nodeService" ref="NodeService" />
+    </bean>
+    
+    <bean id="webscript.dk.openesdh.GroupNameExtractor" class="dk.openesdh.repo.audit.GroupNameExtractor">
+        <property name="registry" ref="auditModel.extractorRegistry" />
+        <property name="nodeService" ref="NodeService" />
+    </bean>
+    
     <bean id="webscript.dk.openesdh.documents.containerNodes.get" class="dk.openesdh.repo.webscripts.documents.DocumentCaseContainers" parent="webscript">
         <property name="caseService" ref="CaseService" />
         <property name="documentService" ref="DocumentService" />

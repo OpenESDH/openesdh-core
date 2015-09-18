@@ -1,16 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Audit xmlns="http://www.alfresco.org/repo/audit/model/3.2"
-   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-   xsi:schemaLocation="http://www.alfresco.org/repo/audit/model/3.2 alfresco-audit-3.2.xsd">
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.alfresco.org/repo/audit/model/3.2 alfresco-audit-3.2.xsd">
 
     <DataExtractors>
-       <DataExtractor name="simpleValue" registeredName="auditModel.extractor.simpleValue"/>
-       <DataExtractor name="nullValue" registeredName="auditModel.extractor.nullValue"/>
-       <DataExtractor name="caseIDValue" registeredName="webscript.dk.openesdh.CaseIDExtractor" />
+        <DataExtractor name="simpleValue" registeredName="auditModel.extractor.simpleValue"/>
+        <DataExtractor name="nullValue" registeredName="auditModel.extractor.nullValue"/>
+        <DataExtractor name="caseIDValue" registeredName="webscript.dk.openesdh.CaseIDExtractor" />
+        <DataExtractor name="contactNameValue" registeredName="webscript.dk.openesdh.ContactNameExtractor" />
+        <DataExtractor name="groupNameValue" registeredName="webscript.dk.openesdh.GroupNameExtractor" />
     </DataExtractors>
 
     <DataGenerators>
-       <DataGenerator name="currentUser" registeredName="auditModel.generator.user"/>
+        <DataGenerator name="currentUser" registeredName="auditModel.generator.user"/>
     </DataGenerators>
 
     <PathMappings>
@@ -22,8 +24,9 @@
         <PathMap source="/alfresco-api/post/PermissionService/setPermission/args/nodeRef" target="/esdh/case" />
         <PathMap source="/alfresco-api/post/AuthorityService/addAuthority/args/parentName" target="/esdh/case" />
         <PathMap source="/alfresco-api/post/AuthorityService/removeAuthority/args/parentName" target="/esdh/case" />
+        <PathMap source="/alfresco-api/post/NodeService/addChild/args/parentRef" target="/esdh/case"/>
+        <PathMap source="/alfresco-api/post/NodeService/removeChild/args/parentRef" target="/esdh/case"/>
         <PathMap source="/alfresco-access/transaction/path" target="/esdh/case" />
-
 
         <PathMap source="/alfresco-api/post/ticketComponent/validateTicket/no-error" target="/esdh/login"/>
         <PathMap source="/alfresco-api/post/ticketComponent/validateTicket/error" target="/esdh/loginFailure"/>
@@ -31,11 +34,15 @@
         <PathMap source="/alfresco-api/pre/ticketComponent/invalidateTicketById/args" target="/esdh/logout"/>
         <PathMap source="/esdh/transaction/properties/add/cm:versionLabel" target="/esdh/transaction/cm:versionLabel"/>
         <PathMap source="/esdh/transaction/properties/to/cm:versionLabel" target="/esdh/transaction/cm:versionLabel"/>
+        
+        <PathMap source="/alfresco-api/post/NodeService/addChild" target="/esdh/child/add"/>
+        <PathMap source="/alfresco-api/post/NodeService/removeChild" target="/esdh/child/remove"/>
+        
     </PathMappings>
 
     <Application name="esdh" key="esdh">
 
-       <AuditPath key="login">
+        <AuditPath key="login">
             <RecordValue key="user" dataExtractor="simpleValue" dataSource="/esdh/loginUser" dataTrigger="/esdh/login" />
         </AuditPath>
 
@@ -47,69 +54,61 @@
             <GenerateValue key="user" dataGenerator="currentUser"/>
         </AuditPath>
 
-	<AuditPath key="case">
-	    <RecordValue key="value" dataExtractor="caseIDValue"  />
-    </AuditPath>
-
-
-
-        <AuditPath key="security">
-    	    <AuditPath key="setPermission">
-        	    <AuditPath key="args">
-                	<AuditPath key="nodeRef">
-                	    <RecordValue key="value" dataExtractor="simpleValue" />
-                	</AuditPath>
-                	<AuditPath key="permission">
-                	    <RecordValue key="value" dataExtractor="simpleValue" />
-                	</AuditPath>
-                	<AuditPath key="authority">
-                	    <RecordValue key="value" dataExtractor="simpleValue" />
-                	</AuditPath>
-        	    </AuditPath>
-        	    <AuditPath key="error">
-            		<RecordValue key="value" dataExtractor="nullValue" />
-        	    </AuditPath>
-    	    </AuditPath>
-
-    	    <AuditPath key="addAuthority">
-        	    <AuditPath key="args">
-                	<AuditPath key="childName">
-                	    <RecordValue key="value" dataExtractor="simpleValue" />
-                	</AuditPath>
-                	<AuditPath key="parentName">
-                	    <RecordValue key="value" dataExtractor="simpleValue" />
-                	</AuditPath>
-        	    </AuditPath>
-        	    <AuditPath key="error">
-            		<RecordValue key="value" dataExtractor="nullValue" />
-        	    </AuditPath>
-    	    </AuditPath>
-
-    	    <AuditPath key="removeAuthority">
-        	    <AuditPath key="args">
-                	<AuditPath key="childName">
-                	    <RecordValue key="value" dataExtractor="simpleValue" />
-                	</AuditPath>
-                	<AuditPath key="parentName">
-                	    <RecordValue key="value" dataExtractor="simpleValue" />
-                	</AuditPath>
-        	    </AuditPath>
-        	    <AuditPath key="error">
-            		<RecordValue key="value" dataExtractor="nullValue" />
-        	    </AuditPath>
-    	    </AuditPath>
-
-
+        <AuditPath key="case">
+            <RecordValue key="value" dataExtractor="caseIDValue"/>
         </AuditPath>
 
+        <AuditPath key="security">
+            <AuditPath key="setPermission">
+                <AuditPath key="args">
+                    <AuditPath key="nodeRef">
+                        <RecordValue key="value" dataExtractor="simpleValue" />
+                    </AuditPath>
+                    <AuditPath key="permission">
+                        <RecordValue key="value" dataExtractor="simpleValue" />
+                    </AuditPath>
+                    <AuditPath key="authority">
+                        <RecordValue key="value" dataExtractor="simpleValue" />
+                    </AuditPath>
+                </AuditPath>
+                <AuditPath key="error">
+                    <RecordValue key="value" dataExtractor="nullValue" />
+                </AuditPath>
+            </AuditPath>
 
+            <AuditPath key="addAuthority">
+                <AuditPath key="args">
+                    <AuditPath key="childName">
+                        <RecordValue key="value" dataExtractor="simpleValue" />
+                    </AuditPath>
+                    <AuditPath key="parentName">
+                        <RecordValue key="value" dataExtractor="simpleValue" />
+                    </AuditPath>
+                </AuditPath>
+                <AuditPath key="error">
+                    <RecordValue key="value" dataExtractor="nullValue" />
+                </AuditPath>
+            </AuditPath>
 
+            <AuditPath key="removeAuthority">
+                <AuditPath key="args">
+                    <AuditPath key="childName">
+                        <RecordValue key="value" dataExtractor="simpleValue" />
+                    </AuditPath>
+                    <AuditPath key="parentName">
+                        <RecordValue key="value" dataExtractor="simpleValue" />
+                    </AuditPath>
+                </AuditPath>
+                <AuditPath key="error">
+                    <RecordValue key="value" dataExtractor="nullValue" />
+                </AuditPath>
+            </AuditPath>
+        </AuditPath>
 
         <AuditPath key="transaction">
             <RecordValue key="action" dataExtractor="simpleValue" dataSource="/esdh/transaction/action" dataTrigger="/esdh/transaction/action" />
             <RecordValue key="sub-actions" dataExtractor="simpleValue" dataSource="/esdh/transaction/sub-actions" dataTrigger="/esdh/transaction/sub-actions" />
             <RecordValue key="user" dataExtractor="simpleValue" dataSource="/esdh/transaction/user" dataTrigger="/esdh/transaction/user" />
-
             <RecordValue key="path" dataExtractor="simpleValue" dataSource="/esdh/transaction/path" dataTrigger="/esdh/transaction/path" />
             <RecordValue key="type" dataExtractor="simpleValue" dataSource="/esdh/transaction/type" dataTrigger="/esdh/transaction/type" />
             <RecordValue key="version" dataExtractor="simpleValue" dataSource="/esdh/transaction/cm:versionLabel" dataTrigger="/esdh/transaction/cm:versionLabel" />
@@ -140,9 +139,21 @@
                 <RecordValue key="add" dataExtractor="simpleValue" dataSource="/esdh/transaction/aspects/add" dataTrigger="/esdh/transaction/aspects/add" />
                 <RecordValue key="delete" dataExtractor="simpleValue" dataSource="/esdh/transaction/aspects/delete" dataTrigger="/esdh/transaction/aspects/delete" />
             </AuditPath>
-
         </AuditPath>
-
+        
+        <AuditPath key="child">
+            <AuditPath key="add">
+                <AuditPath key="args">
+                    <RecordValue key="contactName" dataExtractor="contactNameValue" dataSource="/esdh/child/add/args/childRef" dataTrigger="/esdh/child/add/args/childRef" />
+                    <RecordValue key="groupName" dataExtractor="groupNameValue" dataSource="/esdh/child/add/args/parentRef" dataTrigger="/esdh/child/add/args/parentRef" />
+                </AuditPath>
+            </AuditPath>
+            <AuditPath key="remove">
+                <AuditPath key="args">
+                    <RecordValue key="contactName" dataExtractor="contactNameValue" dataSource="/esdh/child/remove/args/childRef" dataTrigger="/esdh/child/remove/args/childRef" />
+                    <RecordValue key="groupName" dataExtractor="groupNameValue" dataSource="/esdh/child/remove/args/parentRef" dataTrigger="/esdh/child/remove/args/parentRef" />
+                </AuditPath>
+            </AuditPath>
+        </AuditPath>
     </Application>
-
 </Audit>
