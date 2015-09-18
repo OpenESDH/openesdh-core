@@ -1,0 +1,3 @@
+{
+"isMember" : ${isMember?c}
+}
