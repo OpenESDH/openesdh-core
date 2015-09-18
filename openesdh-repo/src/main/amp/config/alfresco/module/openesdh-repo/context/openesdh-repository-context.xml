@@ -170,26 +170,6 @@
         <property name="authorityService" ref="AuthorityService"/>
     </bean>
 
-    <bean id="${project.artifactId}_permissionModelBootstrap" parent="permissionModelBootstrap">
-        <property name="model" value="alfresco/module/openesdh-repo/models/permission-model-extension.xml" />
-    </bean>
-
-    <bean id="webscript.dk.openesdh.CaseIDExtractor" class="dk.openesdh.repo.audit.CaseNodeRefExtractor">
-        <property name="registry" ref="auditModel.extractorRegistry" />
-        <property name="nodeService" ref="NodeService" />
-        <property name="caseService" ref="CaseService" />
-    </bean>
-    
-    <bean id="webscript.dk.openesdh.ContactNameExtractor" class="dk.openesdh.repo.audit.ContactNameExtractor">
-        <property name="registry" ref="auditModel.extractorRegistry" />
-        <property name="nodeService" ref="NodeService" />
-    </bean>
-    
-    <bean id="webscript.dk.openesdh.GroupNameExtractor" class="dk.openesdh.repo.audit.GroupNameExtractor">
-        <property name="registry" ref="auditModel.extractorRegistry" />
-        <property name="nodeService" ref="NodeService" />
-    </bean>
-    
     <bean id="webscript.dk.openesdh.documents.containerNodes.get" class="dk.openesdh.repo.webscripts.documents.DocumentCaseContainers" parent="webscript">
         <property name="caseService" ref="CaseService" />
         <property name="documentService" ref="DocumentService" />

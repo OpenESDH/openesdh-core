@@ -1,10 +1,10 @@
 package dk.openesdh.repo.services.audit;
 
 import dk.openesdh.repo.model.OpenESDHModel;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.permissions.AccessDeniedException;
 import org.alfresco.service.cmr.audit.AuditQueryParameters;
@@ -64,10 +64,10 @@ public class AuditSearchServiceImpl implements AuditSearchService {
 
         // Only users with ACL_METHOD.ROLE_ADMINISTRATOR are allowed to call
         // AuditService methods.
-        AuthenticationUtil.runAs(() -> {
+        runAsAdmin(() -> {
             auditService.auditQuery(auditQueryCallback, auditQueryParameters, OpenESDHModel.AUDIT_LOG_MAX);
             return null;
-        }, AuthenticationUtil.getAdminUserName());
+        });
 
         // test comment
         return auditQueryCallback.getResult();
@@ -81,11 +81,11 @@ public class AuditSearchServiceImpl implements AuditSearchService {
     }
 
     private Set<String> getCurrentUserGroups() {
-        return AuthenticationUtil.runAs(() -> {
+        return runAsAdmin(() -> {
             String currentUserName = AuthenticationUtil.getFullyAuthenticatedUser();
             Set<String> userGroups = authorityService.getAuthoritiesForUser(currentUserName);
             return userGroups;
-        }, AuthenticationUtil.getAdminUserName());
+        });
     }
 
     private List<String> getCaseReadWriteOwnGroups(NodeRef nodeRef) {
@@ -94,21 +94,22 @@ public class AuditSearchServiceImpl implements AuditSearchService {
             OpenESDHModel.PERMISSION_NAME_CASE_SIMPLE_WRITER,
             OpenESDHModel.PERMISSION_NAME_CASE_OWNERS
         });
-        ArrayList<String> rwoGroups = new ArrayList<>();
         Set<AccessPermission> casePermissions = getAllCasePermissions(nodeRef);
-        casePermissions.stream()
+        List<String> rwoGroups = casePermissions.stream()
                 .filter((accessPermission)
                         -> (accessPermission.getAuthorityType() == AuthorityType.GROUP
                         && rwoPermissions.contains(accessPermission.getPermission())))
-                .forEach((accessPermission) -> {
-                    rwoGroups.add(accessPermission.getAuthority());
-                });
+                .map(accessPermission -> accessPermission.getAuthority())
+                .collect(Collectors.toList());
         return rwoGroups;
     }
 
     private Set<AccessPermission> getAllCasePermissions(final NodeRef nodeRef) {
-        return AuthenticationUtil.runAs(()
-                -> permissionService.getAllSetPermissions(nodeRef), AuthenticationUtil.getAdminUserName());
+        return runAsAdmin(() -> permissionService.getAllSetPermissions(nodeRef));
+    }
+
+    protected <R> R runAsAdmin(AuthenticationUtil.RunAsWork<R> r) {
+        return AuthenticationUtil.runAs(r, AuthenticationUtil.getAdminUserName());
     }
 
 }

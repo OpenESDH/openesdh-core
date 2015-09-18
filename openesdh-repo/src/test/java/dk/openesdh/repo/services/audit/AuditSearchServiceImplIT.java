@@ -15,6 +15,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.audit.AuditService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -104,12 +105,12 @@ public class AuditSearchServiceImplIT {
         owner = caseHelper.createDummyUser(DUMMY_USER);
         caseA = caseHelper.createSimpleCase(CASE_A_TITLE, CaseHelper.ADMIN_USER_NAME, owner);
 
-        transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
+        doInTransaction(() -> {
             caseAId = caseService.getCaseId(caseA);
             contact = createTestContact();
             return null;
         });
-        transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
+        doInTransaction(() -> {
             //add party
             partyService.addContactToParty(caseAId, null, SENDER_ROLE, contact.toString());
             //remove party
@@ -164,7 +165,7 @@ public class AuditSearchServiceImplIT {
     @After
     public void tearDown() throws Exception {
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ADMIN_USER_NAME);
-        transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
+        doInTransaction(() -> {
             if (caseA != null) {
                 nodeService.deleteNode(caseA);
             }
@@ -174,5 +175,9 @@ public class AuditSearchServiceImplIT {
             caseHelper.deleteDummyUser(DUMMY_USER);
             return true;
         });
+    }
+
+    protected <R> R doInTransaction(RetryingTransactionHelper.RetryingTransactionCallback<R> cb) {
+        return transactionService.getRetryingTransactionHelper().doInTransaction(cb);
     }
 }

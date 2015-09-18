@@ -6,9 +6,9 @@
     <DataExtractors>
         <DataExtractor name="simpleValue" registeredName="auditModel.extractor.simpleValue"/>
         <DataExtractor name="nullValue" registeredName="auditModel.extractor.nullValue"/>
-        <DataExtractor name="caseIDValue" registeredName="webscript.dk.openesdh.CaseIDExtractor" />
-        <DataExtractor name="contactNameValue" registeredName="webscript.dk.openesdh.ContactNameExtractor" />
-        <DataExtractor name="groupNameValue" registeredName="webscript.dk.openesdh.GroupNameExtractor" />
+        <DataExtractor name="caseIDValue" registeredName="audit.dk.openesdh.CaseIDExtractor" />
+        <DataExtractor name="contactNameValue" registeredName="audit.dk.openesdh.ContactNameExtractor" />
+        <DataExtractor name="groupNameValue" registeredName="audit.dk.openesdh.GroupNameExtractor" />
     </DataExtractors>
 
     <DataGenerators>
