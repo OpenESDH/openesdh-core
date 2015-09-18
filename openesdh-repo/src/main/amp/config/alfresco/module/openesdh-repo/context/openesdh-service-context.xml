@@ -273,4 +273,9 @@
         <property name="namespacePrefixResolver" ref="namespaceService"/>
     </bean>
 
+    <bean id="CaseWorkflowService"
+          class="dk.openesdh.repo.services.workflow.CaseWorkflowServiceImpl">
+        <property name="nodeService" ref="NodeService" />
+        <property name="workflowService" ref="WorkflowService" />
+    </bean>
 </beans>
