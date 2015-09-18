@@ -66,7 +66,7 @@ public class CaseHistoryWebScript extends XSearchWebscript {
 
         List results = allResults.subList(startIndex, resultsEnd);
 
-        res.setContentEncoding("UTF-8");
+        res.setContentEncoding(WebScriptUtils.CONTENT_ENCODING_UTF_8);
         res.setHeader("Content-Range", "items " + startIndex +
                 "-" + resultsEnd + "/" + totalResults);
         res.getWriter().write(JSONArray.toJSONString(results));

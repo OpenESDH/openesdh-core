@@ -10,13 +10,15 @@ import static org.junit.Assert.fail;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 
-import dk.openesdh.repo.helper.CaseDocumentTestHelper;
-import dk.openesdh.repo.model.CaseStatus;
-import dk.openesdh.repo.model.DocumentStatus;
-import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.services.lock.OELockService;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -49,8 +51,13 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 
+import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.model.CaseStatus;
+import dk.openesdh.repo.model.DocumentStatus;
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.services.lock.OELockService;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -151,7 +158,7 @@ public class CaseServiceImplIT {
         transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
             dummyUser = caseHelper.createDummyUser();
             NodeRef adminUserNodeRef = this.personService.getPerson(OpenESDHModel.ADMIN_USER_NAME);
-            authorityService.addAuthority("GROUP_CaseSimpleCreator", CaseHelper.DEFAULT_USERNAME);
+                    authorityService.addAuthority(CaseHelper.CASE_CREATOR_GROUP, CaseHelper.DEFAULT_USERNAME);
 
             casesRootNoderef = caseService.getCasesRootNodeRef();
 

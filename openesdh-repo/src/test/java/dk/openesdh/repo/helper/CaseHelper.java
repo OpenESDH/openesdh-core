@@ -6,8 +6,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import dk.openesdh.SimpleCaseModel;
-import dk.openesdh.repo.model.CaseStatus;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.nodelocator.NodeLocatorService;
@@ -27,6 +25,8 @@ import org.alfresco.service.transaction.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import dk.openesdh.SimpleCaseModel;
+import dk.openesdh.repo.model.CaseStatus;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
 
@@ -78,7 +78,15 @@ public class CaseHelper {
 
     @Autowired
     private CaseService caseService;
+
+    public static final String CASE_WRITER_ROLE = "CaseSimpleWriter";
+    public static final String CASE_READER_ROLE = "CaseSimpleReader";
+    public static final String CASE_CREATOR_ROLE = "CaseSimpleCreator";
+
+    public static final String CASE_CREATOR_GROUP = "GROUP_CaseSimpleCreator";
+
     //</editor-fold>
+
 
     //<editor-fold desc="Service setters">
     public void setNodeService(NodeService nodeService) {

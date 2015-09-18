@@ -73,10 +73,6 @@ public class CreateCaseIT {
     private AuthorityService authorityService;
     //</editor-fold>
 
-    private static final String CREATOR_ROLE = "CaseSimpleCreator";
-    private static final String READER_ROLE = "CaseSimpleReader";
-    private static final String WRITER_ROLE = "CaseSimpleWriter";
-
     @Autowired
     @Qualifier("TestCaseHelper")
     private CaseHelper caseHelper;
@@ -118,7 +114,7 @@ public class CreateCaseIT {
         setFullyAuthenticatedUser(getAdminUserName());
 
         retryingTransactionHelper.doInTransaction(() -> {
-            authorityService.removeAuthority(PermissionService.GROUP_PREFIX + CREATOR_ROLE, getAdminUserName());
+            authorityService.removeAuthority(PermissionService.GROUP_PREFIX + CaseHelper.CASE_CREATOR_ROLE, getAdminUserName());
             final String name = UUID.randomUUID().toString();
             NodeRef owner = personService.getPerson(getAdminUserName());
 
@@ -203,11 +199,11 @@ public class CreateCaseIT {
 
     private void giveUserReadAccess(final String userName) {
         runInTransactionAsAdmin(() -> {
-            if (!authorityService.authorityExists(PermissionService.GROUP_PREFIX + READER_ROLE)) {
-                authorityService.createAuthority(AuthorityType.GROUP, READER_ROLE);
+            if (!authorityService.authorityExists(PermissionService.GROUP_PREFIX + CaseHelper.CASE_READER_ROLE)) {
+                authorityService.createAuthority(AuthorityType.GROUP, CaseHelper.CASE_READER_ROLE);
             }
-            if (!authorityService.getAuthoritiesForUser(userName).contains(PermissionService.GROUP_PREFIX + READER_ROLE)) {
-                authorityService.addAuthority(PermissionService.GROUP_PREFIX + READER_ROLE, userName);
+            if (!authorityService.getAuthoritiesForUser(userName).contains(PermissionService.GROUP_PREFIX + CaseHelper.CASE_READER_ROLE)) {
+                authorityService.addAuthority(PermissionService.GROUP_PREFIX + CaseHelper.CASE_READER_ROLE, userName);
             }
             return null;
         });
@@ -215,11 +211,11 @@ public class CreateCaseIT {
 
     private void giveUserWriteAccess(final String userName) {
         runInTransactionAsAdmin(() -> {
-            if (!authorityService.authorityExists(PermissionService.GROUP_PREFIX + WRITER_ROLE)) {
-                authorityService.createAuthority(AuthorityType.GROUP, WRITER_ROLE);
+            if (!authorityService.authorityExists(PermissionService.GROUP_PREFIX + CaseHelper.CASE_WRITER_ROLE)) {
+                authorityService.createAuthority(AuthorityType.GROUP, CaseHelper.CASE_WRITER_ROLE);
             }
-            if (!authorityService.getAuthoritiesForUser(userName).contains(PermissionService.GROUP_PREFIX + WRITER_ROLE)) {
-                authorityService.addAuthority(PermissionService.GROUP_PREFIX + WRITER_ROLE, userName);
+            if (!authorityService.getAuthoritiesForUser(userName).contains(PermissionService.GROUP_PREFIX + CaseHelper.CASE_WRITER_ROLE)) {
+                authorityService.addAuthority(PermissionService.GROUP_PREFIX + CaseHelper.CASE_WRITER_ROLE, userName);
             }
             return null;
         });
@@ -227,11 +223,11 @@ public class CreateCaseIT {
 
     private void giveUserCreateAccess(final String userName) {
         runInTransactionAsAdmin(() -> {
-            if (!authorityService.authorityExists(PermissionService.GROUP_PREFIX + CREATOR_ROLE)) {
-                authorityService.createAuthority(AuthorityType.GROUP, CREATOR_ROLE);
+            if (!authorityService.authorityExists(PermissionService.GROUP_PREFIX + CaseHelper.CASE_CREATOR_ROLE)) {
+                authorityService.createAuthority(AuthorityType.GROUP, CaseHelper.CASE_CREATOR_ROLE);
             }
-            if (!authorityService.getAuthoritiesForUser(userName).contains(PermissionService.GROUP_PREFIX + CREATOR_ROLE)) {
-                authorityService.addAuthority(PermissionService.GROUP_PREFIX + CREATOR_ROLE, userName);
+            if (!authorityService.getAuthoritiesForUser(userName).contains(PermissionService.GROUP_PREFIX + CaseHelper.CASE_CREATOR_ROLE)) {
+                authorityService.addAuthority(PermissionService.GROUP_PREFIX + CaseHelper.CASE_CREATOR_ROLE, userName);
             }
             return null;
         });
