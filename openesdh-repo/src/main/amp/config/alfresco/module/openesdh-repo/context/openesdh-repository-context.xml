@@ -1,6 +1,28 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
 <beans>
+    <!-- ****************************************************** -->
+    <!-- ************** VERY VERY VERY IMPORTANT ************** -->
+    <!-- ****************************************************** -->
+    <!-- This overrides the ootb utils, rootscope javascript    -->
+    <!-- object to provide additional features to accomodate    -->
+    <!-- openESDH.                                              -->
+    <!-- ****************************************************** -->
+    <!-- ****************************************************** -->
+    <bean id="utilsScript" parent="baseJavaScriptExtension" class="dk.openesdh.repo.rootScopeExt.UtilsExt">
+        <property name="extensionName">
+            <value>utils</value>
+        </property>
+        <property name="serviceRegistry">
+            <ref bean="ServiceRegistry"/>
+        </property>
+        <property name="nodeService" ref="nodeService"/>
+        <property name="caseService" ref="CaseService"/>
+    </bean>
+
+
+
+
     <bean id="webscript.dk.openesdh.casetypes.get"
           class="dk.openesdh.repo.model.CaseTypes"
           parent="webscript">
