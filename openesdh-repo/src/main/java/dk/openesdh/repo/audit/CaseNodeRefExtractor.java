@@ -68,7 +68,7 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
         return getNodeRefFromPath(str);
     }
 
-    private String getNodeRefFromPath(String path) {
+    protected String getNodeRefFromPath(String path) {
         String prefix = CaseService.OPENESDH_ROOT_CONTEXT_PATH;
         if (!path.startsWith(prefix)) {
             return null;
@@ -93,7 +93,7 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
      * @param path the path to retrieve a case id from
      * @return case id
      */
-    private String getCaseIdFromPath(String path) {
+    protected String getCaseIdFromPath(String path) {
         Matcher m = CaseService.CASE_ID_PATTERN.matcher(path);
         if (m.find()) {
             return m.group();
