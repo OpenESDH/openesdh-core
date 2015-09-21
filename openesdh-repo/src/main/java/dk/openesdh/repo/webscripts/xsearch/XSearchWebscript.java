@@ -29,6 +29,7 @@ import dk.openesdh.repo.services.xsearch.XResultSet;
 import dk.openesdh.repo.services.xsearch.XSearchService;
 import dk.openesdh.repo.utils.Utils;
 import dk.openesdh.repo.webscripts.PageableWebScript;
+import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 public class XSearchWebscript extends AbstractWebScript {
     protected static Logger logger = Logger.getLogger(XSearchWebscript.class);
@@ -93,7 +94,7 @@ public class XSearchWebscript extends AbstractWebScript {
                     "-" + resultsEnd + "/" + results.getNumberFound());
 
             String jsonString = nodes.toString();
-            res.setContentEncoding("UTF-8");
+            res.setContentEncoding(WebScriptUtils.CONTENT_ENCODING_UTF_8);
             res.getWriter().write(jsonString);
 
         } catch (JSONException e) {

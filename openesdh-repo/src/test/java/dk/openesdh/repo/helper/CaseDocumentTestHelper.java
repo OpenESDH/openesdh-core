@@ -175,6 +175,21 @@ public class CaseDocumentTestHelper extends TransactionalIT {
         });
     }
 
+    public NodeRef createDocument(String documentName, NodeRef targetFolderNodeRef) {
+        NodeRef docNodeRef = nodeService.getChildByName(targetFolderNodeRef, ContentModel.ASSOC_CONTAINS,
+                documentName);
+        if (docNodeRef != null) {
+            return docNodeRef;
+        }
+        final Map<QName, Serializable> properties = new HashMap<>();
+        properties.put(ContentModel.PROP_NAME, documentName);
+        return runInTransactionAsAdmin(() -> {
+            return nodeService.createNode(targetFolderNodeRef, ContentModel.ASSOC_CONTAINS,
+                    QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, documentName),
+                    ContentModel.TYPE_CONTENT, properties).getChildRef();
+        });
+    }
+
     public String getNodePropertyString(NodeRef node, QName prop) {
         return (String) nodeService.getProperty(node, prop);
     }

@@ -1,14 +1,10 @@
 package dk.openesdh.repo.webscripts.xsearch;
 
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.xsearch.ContactSearchService;
-import dk.openesdh.repo.services.xsearch.XResultSet;
-import dk.openesdh.repo.utils.Utils;
-import dk.openesdh.repo.webscripts.utils.ContactUtils;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+
 import org.alfresco.repo.model.Repository;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -23,6 +19,13 @@ import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
+
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.xsearch.ContactSearchService;
+import dk.openesdh.repo.services.xsearch.XResultSet;
+import dk.openesdh.repo.utils.Utils;
+import dk.openesdh.repo.webscripts.utils.ContactUtils;
+import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 public class ContactSearch extends AbstractWebScript {
 
@@ -68,7 +71,7 @@ public class ContactSearch extends AbstractWebScript {
             response.put("totalRecords", results.getNumberFound());
             response.put("startIndex", startIndex);
             response.put("items", nodes);
-            res.setContentEncoding("UTF-8");
+            res.setContentEncoding(WebScriptUtils.CONTENT_ENCODING_UTF_8);
             response.writeJSONString(res.getWriter());
         } catch (JSONException e) {
             throw new WebScriptException("Unable to serialize JSON");

@@ -1,7 +1,9 @@
 package dk.openesdh.repo.webscripts.xsearch;
 
-import dk.openesdh.repo.services.xsearch.CaseDocumentsSearchService;
-import dk.openesdh.repo.services.xsearch.XResultSet;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.commons.io.FilenameUtils;
@@ -14,9 +16,9 @@ import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
+import dk.openesdh.repo.services.xsearch.CaseDocumentsSearchService;
+import dk.openesdh.repo.services.xsearch.XResultSet;
+import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 /**
  * Extends XSearchWebscript to change the data retriever to retrieve just the attachments.
@@ -65,7 +67,7 @@ public class CaseDocumentAttachements extends XSearchWebscript {
             res.setHeader("Content-Range", "items " + startIndex + "-" + resultsEnd + "/" + results.getNumberFound());
 
             String jsonString = nodes.toString();
-            res.setContentEncoding("UTF-8");
+            res.setContentEncoding(WebScriptUtils.CONTENT_ENCODING_UTF_8);
             res.getWriter().write(jsonString);
 
         } catch (JSONException e) {

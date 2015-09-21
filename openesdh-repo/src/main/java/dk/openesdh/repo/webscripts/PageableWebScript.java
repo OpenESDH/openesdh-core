@@ -49,7 +49,7 @@ public interface PageableWebScript<T> {
 
         int resultsEnd = items.getResultList().size() + startIndex;
         res.setHeader("Content-Range", "items " + startIndex + "-" + resultsEnd + "/" + items.getTotalItems());
-        res.setContentEncoding("UTF-8");
+        res.setContentEncoding(WebScriptUtils.CONTENT_ENCODING_UTF_8);
         WebScriptUtils.writeJson(items.getResultList(), res);
     }
 

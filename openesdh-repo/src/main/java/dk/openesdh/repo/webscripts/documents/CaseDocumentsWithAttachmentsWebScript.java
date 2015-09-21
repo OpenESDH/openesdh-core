@@ -29,7 +29,7 @@ public class CaseDocumentsWithAttachmentsWebScript extends AbstractWebScript {
             return;
         }
         List<CaseDocument> caseDocuments = documentService.getCaseDocumentsWithAttachments(caseId);
-        res.setContentEncoding("UTF-8");
+        res.setContentEncoding(WebScriptUtils.CONTENT_ENCODING_UTF_8);
         WebScriptUtils.writeJson(caseDocuments, res);
     }
 
