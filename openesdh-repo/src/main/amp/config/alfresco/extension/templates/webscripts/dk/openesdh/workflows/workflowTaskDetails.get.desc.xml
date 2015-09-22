@@ -1,0 +1,8 @@
+<webscript>
+  <shortname>Webscript to retrieve workflow task details</shortname>
+  <description>Retrieves details of the provided workflow task.</description>
+  <url>/api/openesdh/workflow/task/{taskId}/details</url>
+  <authentication>user</authentication>
+  <family>Case Workflow Tools</family>
+  <format default="json">argument</format>
+</webscript>
