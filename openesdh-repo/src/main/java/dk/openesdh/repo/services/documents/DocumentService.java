@@ -133,4 +133,6 @@ public interface DocumentService extends HasStatus {
      *            case document to update
      */
     public void updateCaseDocumentProperties(CaseDocument caseDocument);
+
+    public List<NodeRef> findCaseDocuments(String filter, int size);
 }

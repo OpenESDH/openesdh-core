@@ -1,6 +1,28 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
 <beans>
+    <!-- ****************************************************** -->
+    <!-- ************** VERY VERY VERY IMPORTANT ************** -->
+    <!-- ****************************************************** -->
+    <!-- This overrides the ootb utils, rootscope javascript    -->
+    <!-- object to provide additional features to accomodate    -->
+    <!-- openESDH.                                              -->
+    <!-- ****************************************************** -->
+    <!-- ****************************************************** -->
+    <bean id="utilsScript" parent="baseJavaScriptExtension" class="dk.openesdh.repo.rootScopeExt.UtilsExt">
+        <property name="extensionName">
+            <value>utils</value>
+        </property>
+        <property name="serviceRegistry">
+            <ref bean="ServiceRegistry"/>
+        </property>
+        <property name="nodeService" ref="nodeService"/>
+        <property name="caseService" ref="CaseService"/>
+    </bean>
+
+
+
+
     <bean id="webscript.dk.openesdh.casetypes.get"
           class="dk.openesdh.repo.model.CaseTypes"
           parent="webscript">
@@ -246,6 +268,16 @@
     </bean>
     <bean id="webscript.dk.openesdh.case.notes.notes.get" parent="openeCaseNotesWebscript"></bean>
     <bean id="webscript.dk.openesdh.case.notes.notes.post" parent="openeCaseNotesWebscript"></bean>
+
+    <!--Live search webscripts-->
+    <bean id="webscript.dk.openesdh.search.live-search-cases.get" class="dk.openesdh.repo.webscripts.search.LiveSearchCases" parent="webscript">
+        <property name="caseService" ref="CaseService"/>
+    </bean>
+    <bean id="webscript.dk.openesdh.search.live-search-caseDocs.get" class="dk.openesdh.repo.webscripts.search.LiveSearchCaseDocuments" parent="webscript">
+        <property name="caseService" ref="CaseService"/>
+        <property name="nodeService" ref="NodeService"/>
+        <property name="documentService" ref="DocumentService"/>
+    </bean>
 
     <!--Contacts-->
     <bean id="contactAbstractWebscript" class="dk.openesdh.repo.webscripts.contacts.ContactWebscript"

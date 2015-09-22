@@ -11,20 +11,12 @@
             <ref bean="SearchService"/>
         </property>
 
-        <property name="contentService">
-            <ref bean="ContentService"/>
-        </property>
-
         <property name="authorityService">
             <ref bean="AuthorityService"/>
         </property>
 
         <property name="ownableService">
             <ref bean="OwnableService"/>
-        </property>
-
-        <property name="lockService">
-            <ref bean="LockService"/>
         </property>
 
         <property name="permissionService">
@@ -45,10 +37,6 @@
 
         <property name="permissionsModelDAO">
             <ref bean="permissionsModelDAO"/>
-        </property>
-
-        <property name="behaviourFilter">
-            <ref bean="policyBehaviourFilter"/>
         </property>
 
         <property name="policyComponent">
@@ -127,9 +115,7 @@
             <ref bean="PersonService"/>
         </property>
 
-        <property name="transactionService">
-            <ref bean="TransactionService"/>
-        </property>
+        <property name="searchService" ref="SearchService"/>
 
         <property name="namespaceService" ref="namespaceService"/>
 
@@ -196,7 +182,8 @@
         </property>
     </bean>
 
-    <bean id="LastModifiedByMeSearchService" class="dk.openesdh.repo.services.xsearch.LastModifiedByMeSearchServiceImpl">
+    <bean id="LastModifiedByMeSearchService"
+          class="dk.openesdh.repo.services.xsearch.LastModifiedByMeSearchServiceImpl">
         <property name="searchService">
             <ref bean="SearchService"/>
         </property>
@@ -255,13 +242,13 @@
 
     <bean id="ContactDAO" class="dk.openesdh.repo.services.contacts.ContactDAOImpl">
         <property name="nodeService" ref="nodeService"/>
-        <property name="namespacePrefixResolver" ref="namespaceService" />
+        <property name="namespacePrefixResolver" ref="namespaceService"/>
         <property name="repositoryHelper" ref="repositoryHelper"/>
     </bean>
 
     <bean id="ContactService" class="dk.openesdh.repo.services.contacts.ContactServiceImpl">
-        <property name="nodeService" ref="nodeService" />
-        <property name="contactDAO" ref="ContactDAO" />
+        <property name="nodeService" ref="nodeService"/>
+        <property name="contactDAO" ref="ContactDAO"/>
         <property name="searchService" ref="searchService"/>
         <property name="contactSearchService" ref="ContactSearchService"/>
         <property name="transactionService" ref="TransactionService"/>
@@ -269,9 +256,9 @@
 
     <bean id="NoteService"
           class="dk.openesdh.repo.services.notes.NoteServiceImpl">
-        <property name="nodeService" ref="NodeService" />
-        <property name="personService" ref="PersonService" />
-        <property name="contactService" ref="ContactService" />
+        <property name="nodeService" ref="NodeService"/>
+        <property name="personService" ref="PersonService"/>
+        <property name="contactService" ref="ContactService"/>
     </bean>
 
     <bean id="PartyService" class="dk.openesdh.repo.services.cases.PartyServiceImpl">
@@ -279,7 +266,7 @@
         <property name="caseService" ref="CaseService"/>
         <property name="contactService" ref="ContactService"/>
         <property name="nodeService" ref="NodeService"/>
-        <property name="dictionaryService" ref="DictionaryService" />
+        <property name="dictionaryService" ref="DictionaryService"/>
         <property name="namespacePrefixResolver" ref="namespaceService"/>
     </bean>
 
