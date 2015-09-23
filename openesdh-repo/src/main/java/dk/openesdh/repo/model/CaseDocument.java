@@ -19,7 +19,6 @@ public class CaseDocument {
     private String nodeRef;
     private String mainDocNodeRef;
     private PersonInfo owner;
-    private String fileType;
 
     private List<CaseDocumentAttachment> attachments = new ArrayList<>();
 
@@ -117,14 +116,6 @@ public class CaseDocument {
 
     public void setOwner(PersonInfo owner) {
         this.owner = owner;
-    }
-
-    public String getFileType() {
-        return fileType;
-    }
-
-    public void setFileType(String fileType) {
-        this.fileType = fileType;
     }
 
 }

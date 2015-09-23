@@ -327,6 +327,7 @@ public class DocumentServiceImplIT {
         document.setCategory(OpenESDHModel.DOCUMENT_CATEGORY_CONTRACT);
         document.setType(OpenESDHModel.DOCUMENT_TYPE_INVOICE);
         document.setState(OpenESDHModel.DOCUMENT_STATE_FINALISED);
+        document.setTitle("TEST TITLE");
 
         documentService.updateCaseDocumentProperties(document);
 
@@ -337,5 +338,7 @@ public class DocumentServiceImplIT {
                 props.get(OpenESDHModel.PROP_DOC_TYPE));
         Assert.assertEquals("Document state should be updated", OpenESDHModel.DOCUMENT_STATE_FINALISED,
                 props.get(OpenESDHModel.PROP_DOC_STATE));
+        Assert.assertEquals("Document title should be updated", "TEST TITLE",
+                props.get(ContentModel.PROP_TITLE));
     }
 }
