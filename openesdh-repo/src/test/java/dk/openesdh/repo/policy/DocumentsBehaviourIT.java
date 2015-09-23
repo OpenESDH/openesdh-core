@@ -92,8 +92,6 @@ public class DocumentsBehaviourIT {
         Assert.assertTrue("The document should keep its original extension",
                 Strings.isNullOrEmpty(resultExtension));
 
-        Assert.assertEquals("The document record should get a title equal to its name", resultFileName, nodeService.getProperty(testCase1DocumentsFolder, ContentModel.PROP_TITLE));
-
         Map<String, NodeRef> caseDocsFolderContent = nodeService.getChildAssocs(testCase1DocumentsFolder).stream().collect(
                         Collectors.<ChildAssociationRef, String, NodeRef> toMap(
                                 assoc -> (String) nodeService.getProperty(assoc.getChildRef(),
@@ -108,6 +106,8 @@ public class DocumentsBehaviourIT {
                 hasKey(caseDocsFolderContent.keySet(), TEST_ADD_DOCUMENT_NAME));
 
         NodeRef addedDocRecordFolder = caseDocsFolderContent.get(TEST_ADD_DOCUMENT_NAME);
+        Assert.assertEquals("The document record should get a title equal to its name", TEST_ADD_DOCUMENT_NAME, nodeService.getProperty(addedDocRecordFolder, ContentModel.PROP_TITLE));
+
         List<NodeRef> addedDocRecordFolderContent = nodeService.getChildAssocs(addedDocRecordFolder).stream()
                 .map(ChildAssociationRef::getChildRef).collect(Collectors.toList());
 
