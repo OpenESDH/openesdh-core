@@ -434,7 +434,7 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
     @Override
     public boolean isCaseDocNode(NodeRef nodeRef) {
         QName type = nodeService.getType(nodeRef);
-        return dictionaryService.isSubClass(type, OpenESDHModel.TYPE_DOC_BASE) && nodeService.hasAspect(nodeRef, OpenESDHModel.ASPECT_OE_CASE_ID);
+        return (dictionaryService.isSubClass(type, OpenESDHModel.TYPE_DOC_BASE) || dictionaryService.isSubClass(type, OpenESDHModel.TYPE_DOC_DIGITAL_FILE));
     }
 
     @Override
