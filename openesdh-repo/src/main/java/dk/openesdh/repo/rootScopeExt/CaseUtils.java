@@ -26,7 +26,7 @@ public class CaseUtils extends BaseScopableProcessorExtension{
         NodeRef objNodeRef = nodeObj.getNodeRef();
         if(caseService.isCaseNode(objNodeRef) || caseService.isCaseDocNode(objNodeRef)) {
             NodeRef caseNodeRef = documentService.getCaseNodeRef(objNodeRef);
-            caseId = caseService.getCaseId(caseNodeRef).toString();
+            caseId = caseService.getCaseId(caseNodeRef);
         }
         return caseId;
     }
