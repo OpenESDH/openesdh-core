@@ -11,7 +11,7 @@
         <property name="registry" ref="auditModel.extractorRegistry" />
         <property name="nodeService" ref="NodeService" />
     </bean>
-    
+
     <bean id="audit.dk.openesdh.GroupNameExtractor" class="dk.openesdh.repo.audit.GroupNameExtractor">
         <property name="registry" ref="auditModel.extractorRegistry" />
         <property name="nodeService" ref="NodeService" />

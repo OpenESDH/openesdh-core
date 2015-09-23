@@ -293,6 +293,12 @@
     </types>
 
     <aspects>
+        <!-- Indicates a main document. Not to be confused with the "doc:main"
+        child assoc, which is the primary means of indicating a file is
+        the main file in a document record. This aspect is added/removed in a
+        behaviour based on the doc:main child assoc. -->
+        <aspect name="doc:isMainFile"></aspect>
+
         <aspect name="doc:publicityExempted">
             <properties>
                 <property name="doc:alternativeTitle">

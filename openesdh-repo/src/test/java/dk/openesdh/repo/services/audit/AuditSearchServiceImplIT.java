@@ -154,8 +154,7 @@ public class AuditSearchServiceImplIT {
             }
         });
 
-        assertTrue("History should have Case creation record", visitedTypes.contains("System"));
-        assertTrue("History should have Folder creation record", visitedTypes.contains("Folder Added"));
+        assertTrue("History should have Case creation record", visitedTypes.contains("Case"));
         assertTrue("History should have Member add record", visitedTypes.contains("Member Added"));
         assertTrue("History should have Member remove record", visitedTypes.contains("Member Removed"));
         assertTrue("History should have Party Add record", visitedTypes.contains("Party Added"));

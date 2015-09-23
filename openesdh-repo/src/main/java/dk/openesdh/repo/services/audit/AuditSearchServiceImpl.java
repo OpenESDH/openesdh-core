@@ -9,6 +9,7 @@ import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.permissions.AccessDeniedException;
 import org.alfresco.service.cmr.audit.AuditQueryParameters;
 import org.alfresco.service.cmr.audit.AuditService;
+import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.AccessPermission;
 import org.alfresco.service.cmr.security.AuthorityService;
@@ -31,6 +32,8 @@ public class AuditSearchServiceImpl implements AuditSearchService {
 
     private PermissionService permissionService;
 
+    private DictionaryService dictionaryService;
+
     private static final String MSG_ACCESS_DENIED = "auditlog.permissions.err_access_denied";
 
     public void setAuditService(AuditService auditService) {
@@ -43,6 +46,10 @@ public class AuditSearchServiceImpl implements AuditSearchService {
 
     public void setPermissionService(PermissionService permissionService) {
         this.permissionService = permissionService;
+    }
+
+    public void setDictionaryService(DictionaryService dictionaryService) {
+        this.dictionaryService = dictionaryService;
     }
 
     @Override
@@ -60,7 +67,7 @@ public class AuditSearchServiceImpl implements AuditSearchService {
         auditQueryParameters.addSearchKey(null, nodeRef.toString());
 
         // create auditQueryCallback inside this method, putting it outside, will make it a singleton as the class is a service.
-        final OpenESDHAuditQueryCallBack auditQueryCallback = new OpenESDHAuditQueryCallBack();
+        final OpenESDHAuditQueryCallBack auditQueryCallback = new OpenESDHAuditQueryCallBack(dictionaryService);
 
         // Only users with ACL_METHOD.ROLE_ADMINISTRATOR are allowed to call
         // AuditService methods.

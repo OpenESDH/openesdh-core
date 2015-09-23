@@ -75,6 +75,8 @@ public interface OpenESDHModel {
     public static final QName ASPECT_NOTE_NOTABLE = QName.createQName(NOTE_URI, "notable");
     public static final QName ASPECT_DOC_RECORD = QName.createQName(DOC_URI, "record");
 
+    public static final QName ASPECT_DOC_IS_MAIN_FILE = QName.createQName(DOC_URI, "isMainFile");
+
     /**
      * Associations
      */
@@ -121,7 +123,6 @@ public interface OpenESDHModel {
 
     public static final QName PROP_DOC_ARRIVAL_DATE = QName.createQName(DOC_URI, "arrivalDate");
     public static final QName PROP_DOC_CATEGORY = QName.createQName(DOC_URI, "category");
-    public static final QName PROP_DOC_IS_MAIN_ENTRY = QName.createQName(DOC_URI, "isMainEntry");
     public static final QName PROP_DOC_VARIANT = QName.createQName(DOC_URI, "variant");
     public static final QName PROP_DOC_TYPE = QName.createQName(DOC_URI, "type");
     public static final QName PROP_DOC_STATE = QName.createQName(DOC_URI, "state");

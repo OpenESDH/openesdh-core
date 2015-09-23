@@ -1,14 +1,22 @@
 package dk.openesdh.repo.services.audit;
 
 import dk.openesdh.repo.model.OpenESDHModel;
+
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import org.alfresco.error.AlfrescoRuntimeException;
+import org.alfresco.model.BlogIntegrationModel;
 import org.alfresco.model.ContentModel;
+import org.alfresco.model.ForumModel;
+import org.alfresco.model.ImapModel;
+import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
 import org.alfresco.service.cmr.audit.AuditService;
+import org.alfresco.service.cmr.dictionary.DictionaryService;
+import org.alfresco.service.cmr.dictionary.PropertyDefinition;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
@@ -27,6 +35,7 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
     private static final String MEMBER_REMOVE_CHILD = "/esdh/security/removeAuthority/args/childName/value";
     private static final String TRANSACTION_PATH = "/esdh/transaction/user";
     private static final String TRANSACTION_ACTION = "/esdh/transaction/action";
+    private static final String TRANSACTION_SUB_ACTIONS = "/esdh/transaction/sub-actions";
     private static final String PARTY_ADD_NAME = "/esdh/child/add/args/contactName";
     private static final String PARTY_ADD_GROUP_NAME = "/esdh/child/add/args/groupName";
     private static final String PARTY_REMOVE_NAME = "/esdh/child/remove/args/contactName";
@@ -34,7 +43,22 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
 
     private static final int MAX_NOTE_TEXT_LENGTH = 40;
 
+    private static final List<QName> undesiredProps = Arrays.asList(
+            ContentModel.PROP_DEAD_PROPERTIES,
+            ContentModel.PROP_NODE_REF,
+            ContentModel.PROP_MODIFIED,
+            ContentModel.PROP_VERSION_LABEL,
+            ForumModel.PROP_COMMENT_COUNT,
+            ImapModel.PROP_CHANGE_TOKEN, ImapModel.PROP_UIDVALIDITY,
+            ImapModel.PROP_MAXUID, BlogIntegrationModel.PROP_LINK);
+
     private JSONArray result = new JSONArray();
+
+    private DictionaryService dictionaryService;
+
+    public OpenESDHAuditQueryCallBack(DictionaryService dictionaryService) {
+        this.dictionaryService = dictionaryService;
+    }
 
     public JSONArray getResult() {
         return result;
@@ -76,6 +100,18 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
                     case "CHECK IN":
                         addEntryTransactionCheckIn(values, auditEntry);
                         break;
+                    case "updateNodeProperties":
+                        addEntryTransactionUpdateProperties(values, auditEntry);
+                        break;
+                    default:
+                        if (values.containsKey(TRANSACTION_SUB_ACTIONS)) {
+                            String subActions = (String) values.get(TRANSACTION_SUB_ACTIONS);
+                            if (subActions.contains("updateNodeProperties")) {
+                                addEntryTransactionUpdateProperties(values, auditEntry);
+                                return true;
+                            }
+                        }
+                        break;
                 }
                 return true;
             }
@@ -95,6 +131,58 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
             e.printStackTrace();
         }
         return true;
+    }
+
+    private void addEntryTransactionUpdateProperties(Map<String, Serializable> values, JSONObject auditEntry) throws JSONException {
+        QName nodeType = (QName) values.get("/esdh/transaction/nodeType");
+        String type;
+        if (dictionaryService.isSubClass(nodeType, OpenESDHModel.TYPE_CASE_BASE)) {
+            type = "case";
+        } else if (dictionaryService.isSubClass(nodeType, OpenESDHModel.TYPE_DOC_BASE)) {
+            type = "document";
+        } else if (dictionaryService.isSubClass(nodeType, OpenESDHModel.TYPE_DOC_FILE)) {
+            // TODO: Distinguish between main file and attachments
+            type = "attachment";
+        } else {
+            return;
+        }
+        Map<QName, Serializable> fromMap = (Map<QName, Serializable>) values.get("/esdh/transaction/properties/from");
+        Map<QName, Serializable> toMap = (Map<QName, Serializable>) values.get("/esdh/transaction/properties/to");
+        if (fromMap == null || toMap == null) {
+            return;
+        }
+        fromMap = filterUndesirableProps(fromMap);
+        toMap = filterUndesirableProps(toMap);
+        List<String> changes = new ArrayList<>();
+        final Map<QName, Serializable> finalToMap = toMap;
+        fromMap.forEach((qName, value) -> {
+            changes.add(I18NUtil.getMessage("auditlog.label.property.update",
+                    getPropertyTitle(qName), value.toString(), finalToMap
+                            .get(qName).toString()));
+        });
+        if (!changes.isEmpty()) {
+            auditEntry.put("type", getTypeMessage(type));
+            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.properties.updated", StringUtils.join(changes, ";\n")));
+            result.add(auditEntry);
+        }
+    }
+
+    private String getPropertyTitle(QName qName) {
+        PropertyDefinition property = dictionaryService.getProperty(qName);
+        if (property != null) {
+            String title = property.getTitle(dictionaryService);
+            if (title != null) {
+                return title;
+            }
+        }
+        return qName.getLocalName();
+    }
+
+
+    private Map<QName, Serializable> filterUndesirableProps(Map<QName, Serializable> map) {
+        return map.entrySet().stream().filter(
+                p -> !undesiredProps.contains(p.getKey()))
+                .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
     }
 
     private void addEntryMemberAdd(Map<String, Serializable> values, JSONObject auditEntry) throws JSONException {
@@ -123,22 +211,28 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
         String type = (String) values.get("/esdh/transaction/type");
         String path = (String) values.get("/esdh/transaction/path");
         String[] pArray = path.split("/");
+        Set<QName> aspectsAdd = (Set<QName>) values.get("/esdh/transaction/aspects/add");
 
         Map properties = (Map) values.get("/esdh/transaction/properties/add");
 
         if (path.contains(OpenESDHModel.DOCUMENTS_FOLDER_NAME)) {
             QName name = ContentModel.PROP_NAME;
+            // TODO: These checks should check for subtypes using
+            // dictionaryService
             if (type.equals("cm:content")) {
-                auditEntry.put("action", I18NUtil.getMessage("auditlog.label.attachment.added") + " " + properties.get(name));
-                auditEntry.put("type", getTypeMessage("attachment"));
-                result.add(auditEntry);
+                boolean isMainFile = aspectsAdd != null && aspectsAdd.contains(OpenESDHModel.ASPECT_DOC_IS_MAIN_FILE);
+                if (!isMainFile) {
+                    auditEntry.put("action", I18NUtil.getMessage("auditlog.label.attachment.added") + " " + properties.get(name));
+                    auditEntry.put("type", getTypeMessage("attachment"));
+                    result.add(auditEntry);
+                } else {
+                    // Adding main doc, don't log an entry because you would
+                    // get two entries when adding a document: one for the record
+                    // and one for the main file
+                }
             } else if (type.contains("doc:")) {
                 auditEntry.put("action", I18NUtil.getMessage("auditlog.label.document.added") + " " + properties.get(name));
                 auditEntry.put("type", getTypeMessage("document"));
-                result.add(auditEntry);
-            } else if (type.contains("cm:folder")) {
-                auditEntry.put("action", I18NUtil.getMessage("auditlog.label.folder.added") + " " + properties.get(name));
-                auditEntry.put("type", getTypeMessage("folder"));
                 result.add(auditEntry);
             }
         } else if (type.startsWith("note:")) {
@@ -148,7 +242,7 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
             result.add(auditEntry);
         } else {
             auditEntry.put("action", I18NUtil.getMessage("auditlog.label.case.created") + " " + pArray[pArray.length - 1].split(":")[1]);
-            auditEntry.put("type", getTypeMessage("system"));
+            auditEntry.put("type", getTypeMessage("case"));
             result.add(auditEntry);
         }
     }

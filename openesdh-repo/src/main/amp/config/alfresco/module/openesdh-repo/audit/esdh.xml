@@ -6,6 +6,7 @@
     <DataExtractors>
         <DataExtractor name="simpleValue" registeredName="auditModel.extractor.simpleValue"/>
         <DataExtractor name="nullValue" registeredName="auditModel.extractor.nullValue"/>
+        <DataExtractor name="nodeTypeValue" registeredName="auditModel.extractor.nodeType"/>
         <DataExtractor name="caseIDValue" registeredName="audit.dk.openesdh.CaseIDExtractor" />
         <DataExtractor name="contactNameValue" registeredName="audit.dk.openesdh.ContactNameExtractor" />
         <DataExtractor name="groupNameValue" registeredName="audit.dk.openesdh.GroupNameExtractor" />
@@ -111,6 +112,7 @@
             <RecordValue key="user" dataExtractor="simpleValue" dataSource="/esdh/transaction/user" dataTrigger="/esdh/transaction/user" />
             <RecordValue key="path" dataExtractor="simpleValue" dataSource="/esdh/transaction/path" dataTrigger="/esdh/transaction/path" />
             <RecordValue key="type" dataExtractor="simpleValue" dataSource="/esdh/transaction/type" dataTrigger="/esdh/transaction/type" />
+            <RecordValue key="nodeType" dataExtractor="nodeTypeValue" dataSource="/esdh/transaction/node" dataTrigger="/esdh/transaction/node" />
             <RecordValue key="version" dataExtractor="simpleValue" dataSource="/esdh/transaction/cm:versionLabel" dataTrigger="/esdh/transaction/cm:versionLabel" />
             <RecordValue key="workingcopy" dataExtractor="simpleValue" dataSource="/esdh/transaction/cm:workingCopyMode" dataTrigger="/esdh/transaction/cm:workingCopyMode" />
 
