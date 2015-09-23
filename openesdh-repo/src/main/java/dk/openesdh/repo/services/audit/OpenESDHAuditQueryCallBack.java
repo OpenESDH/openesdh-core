@@ -1,14 +1,18 @@
 package dk.openesdh.repo.services.audit;
 
 import dk.openesdh.repo.model.OpenESDHModel;
+
 import java.io.Serializable;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.audit.AuditService;
+import org.alfresco.service.cmr.dictionary.DictionaryService;
+import org.alfresco.service.cmr.dictionary.PropertyDefinition;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
@@ -34,7 +38,17 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
 
     private static final int MAX_NOTE_TEXT_LENGTH = 40;
 
+    private static final List<String> undesiredProps = Arrays.asList
+            ("deadproperties", "noderef", "modified", "commentcount",
+                    "changetoken", "uidvalidity", "maxuid", "link");
+
     private JSONArray result = new JSONArray();
+
+    private DictionaryService dictionaryService;
+
+    public OpenESDHAuditQueryCallBack(DictionaryService dictionaryService) {
+        this.dictionaryService = dictionaryService;
+    }
 
     public JSONArray getResult() {
         return result;
@@ -76,6 +90,8 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
                     case "CHECK IN":
                         addEntryTransactionCheckIn(values, auditEntry);
                         break;
+                    case "updateNodeProperties":
+                        addEntryTransactionUpdateProperties(values, auditEntry);
                 }
                 return true;
             }
@@ -95,6 +111,47 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
             e.printStackTrace();
         }
         return true;
+    }
+
+    private void addEntryTransactionUpdateProperties(Map<String, Serializable> values, JSONObject auditEntry) throws JSONException {
+        QName className = (QName) values.get("/esdh/transaction/type");
+        String type;
+        if (dictionaryService.isSubClass(className, OpenESDHModel.TYPE_CASE_BASE)) {
+            type = "case";
+        } else if (dictionaryService.isSubClass(className, OpenESDHModel.TYPE_DOC_BASE)) {
+            type = "document";
+        } else if (dictionaryService.isSubClass(className, OpenESDHModel.TYPE_DOC_FILE)) {
+            // TODO: Distinguish between main file and attachments
+            type = "attachment";
+        } else {
+            return;
+        }
+        auditEntry.put("type", type);
+        Map<QName, Serializable> fromMap = filterUndesirableProps((Map<QName, Serializable>) values.get("/esdh/transaction/properties/from"));
+        Map<QName, Serializable> toMap = filterUndesirableProps((Map<QName, Serializable>) values.get("/esdh/transaction/properties/to"));
+        List<String> changes = new ArrayList<>();
+        fromMap.forEach((qName, value) -> {
+            changes.add(I18NUtil.getMessage("auditlog.label.property.update",
+                    getPropertyTitle(qName), value.toString(), toMap.get(qName).toString()));
+        });
+        auditEntry.put("action", I18NUtil.getMessage("auditlog.label.properties.updated", StringUtils.join(changes, "\n")));
+        result.add(auditEntry);
+    }
+
+    private String getPropertyTitle(QName qName) {
+        PropertyDefinition property = dictionaryService.getProperty(qName);
+        if (property == null) {
+            return qName.getLocalName();
+        } else {
+            return property.getTitle(dictionaryService);
+        }
+    }
+
+
+    private Map<QName, Serializable> filterUndesirableProps(Map<QName, Serializable> map) {
+        return map.entrySet().stream().filter(
+                p -> !undesiredProps.contains(p.getKey().getLocalName().toLowerCase()))
+                .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
     }
 
     private void addEntryMemberAdd(Map<String, Serializable> values, JSONObject auditEntry) throws JSONException {
