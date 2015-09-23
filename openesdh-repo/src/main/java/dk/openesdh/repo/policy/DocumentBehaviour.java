@@ -1,5 +1,7 @@
 package dk.openesdh.repo.policy;
 
+import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -76,6 +78,27 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
                 OpenESDHModel.TYPE_DOC_SIMPLE,
                 this.afterCopyDocumentFolder
         );
+
+        this.policyComponent.bindClassBehaviour(
+                NodeServicePolicies.OnCreateNodePolicy.QNAME,
+                OpenESDHModel.TYPE_DOC_BASE,
+                new JavaBehaviour(this, "onCreateDocRecordBehaviour", Behaviour.NotificationFrequency.TRANSACTION_COMMIT)
+        );
+    }
+
+    public void onCreateDocRecordBehaviour (ChildAssociationRef childRef) {
+        NodeRef nodeRef = childRef.getChildRef();
+        if (!nodeService.exists(childRef.getParentRef()) || !nodeService.exists(nodeRef)) {
+            return;
+        }
+
+        if (!nodeService.hasAspect(nodeRef, ContentModel.ASPECT_TITLED)) {
+            // Assign a default title to the document based on its name
+            String title = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_NAME);
+            Map<QName, Serializable> props = new HashMap<>();
+            props.put(ContentModel.PROP_TITLE, title);
+            nodeService.addAspect(nodeRef, ContentModel.ASPECT_TITLED, props);
+        }
     }
 
     public void onCreateCaseDocContentBehaviour(ChildAssociationRef childAssociationRef, boolean isNewNode) {
