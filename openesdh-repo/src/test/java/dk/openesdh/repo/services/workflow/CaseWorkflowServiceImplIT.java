@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthorityService;
@@ -18,6 +19,7 @@ import org.alfresco.service.cmr.workflow.WorkflowTask;
 import org.alfresco.service.cmr.workflow.WorkflowTaskState;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,16 +58,27 @@ public class CaseWorkflowServiceImplIT {
     protected AuthorityService authorityService;
 
     @Autowired
+    @Qualifier("NamespaceService")
+    protected NamespaceService namespaceService;
+
+    @Autowired
+    @Qualifier("DictionaryService")
+    protected DictionaryService dictionaryService;
+
+    @Autowired
     @Qualifier("CaseDocumentTestHelper")
     protected CaseDocumentTestHelper docTestHelper;
 
-    protected CaseWorkflowServiceImpl service;
+    @Autowired
+    @Qualifier("CaseWorkflowService")
+    protected CaseWorkflowService service;
 
     private static final String TEST_FOLDER_NAME = "CaseWorkflowServiceImplIT";
     private static final String TEST_DOCUMENT_NAME = "test_document.txt";
     private static final String ACTIVITY_ADHOC_WORKFLOW_NAME = "activiti$activitiAdhoc";
     private static final String ACTIVITY_PARALLEL_GROUP_REVIEW_WORKFLOW_NAME = "activiti$activitiParallelGroupReview";
     private static final String ACTIVITY_PARALLEL_REVIEW_WORKFLOW_NAME = "activiti$activitiParallelReview";
+    private static final String REQUIRED_APPROVE_PERCENT_PROPERTY = "wf_requiredApprovePercent";
 
     private NodeRef testFolder;
     private NodeRef testDocument;
@@ -78,12 +91,18 @@ public class CaseWorkflowServiceImplIT {
         personNodeRef = personService.getPerson(AuthenticationUtil.getFullyAuthenticatedUser());
         caseCreatorsGroupNodeRef = authorityService.getAuthorityNodeRef(CaseHelper.CASE_CREATOR_GROUP);
 
-        service = new CaseWorkflowServiceImpl();
-        service.setNodeService(nodeService);
-        service.setWorkflowService(workflowService);
-
         testFolder = docTestHelper.createFolder(TEST_FOLDER_NAME);
         testDocument = docTestHelper.createDocument(TEST_DOCUMENT_NAME, testFolder);
+    }
+
+    @After
+    public void tearDown() {
+        if (testDocument != null) {
+            nodeService.deleteNode(testDocument);
+        }
+        if (testFolder != null) {
+            nodeService.deleteNode(testFolder);
+        }
     }
 
     @Test
@@ -101,8 +120,6 @@ public class CaseWorkflowServiceImplIT {
         wi.setAssignTo(personNodeRef.toString());
 
         WorkflowPath wfPath = service.startWorkflow(wi);
-        WorkflowTask startTask = workflowService.getStartTask(wfPath.getInstance().getId());
-        workflowService.endTask(startTask.getId(), null);
 
         List<WorkflowTask> tasks = workflowService.getTasksForWorkflowPath(wfPath.getId());
         Assert.assertEquals("The started workflow should contain a task", 1, tasks.size());
@@ -125,13 +142,10 @@ public class CaseWorkflowServiceImplIT {
         wi.setMessage("Workflow for assignee list");
         wi.setSendEmailNotifications(false);
         wi.getAssignees().add(personNodeRef.toString());
-        wi.setRequiredApprovalPercentage(50);
+        wi.getProperties().put(REQUIRED_APPROVE_PERCENT_PROPERTY, "100");
 
         WorkflowPath wfPath = service.startWorkflow(wi);
         String wfInstanceId = wfPath.getInstance().getId();
-
-        WorkflowTask startTask = workflowService.getStartTask(wfInstanceId);
-        workflowService.endTask(startTask.getId(), null);
 
         List<WorkflowTask> tasks = workflowService.getAssignedTasks(AuthenticationUtil.getFullyAuthenticatedUser(),
                 WorkflowTaskState.IN_PROGRESS);
@@ -141,6 +155,7 @@ public class CaseWorkflowServiceImplIT {
                 .filter(t -> t.getPath().getInstance().getId().equals(wfInstanceId))
                 .findFirst()
                 .get();
+
         QName outcomePropName = QName.createQName(NamespaceService.WORKFLOW_MODEL_1_0_URI, "reviewOutcome");
         Map<QName, Serializable> props = new HashMap<QName, Serializable>();
         props.put(outcomePropName, "Approve");
@@ -165,18 +180,13 @@ public class CaseWorkflowServiceImplIT {
         wi.setMessage("Workflow for assignee group");
         wi.setSendEmailNotifications(false);
         wi.setAssignToGroup(caseCreatorsGroupNodeRef.toString());
-        wi.setRequiredApprovalPercentage(50);
 
         WorkflowPath wfPath = service.startWorkflow(wi);
         String wfInstanceId = wfPath.getInstance().getId();
 
-        WorkflowTask startTask = workflowService.getStartTask(wfInstanceId);
-        workflowService.endTask(startTask.getId(), null);
-
         List<WorkflowTask> tasks = workflowService.getAssignedTasks(AuthenticationUtil.getFullyAuthenticatedUser(),
                 WorkflowTaskState.IN_PROGRESS);
         
-
         WorkflowTask task = tasks
                 .stream()
                 .filter(t -> t.getPath().getInstance().getId().equals(wfInstanceId))

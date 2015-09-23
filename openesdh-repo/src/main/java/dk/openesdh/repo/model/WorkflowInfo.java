@@ -2,7 +2,9 @@ package dk.openesdh.repo.model;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class WorkflowInfo {
 
@@ -16,7 +18,7 @@ public class WorkflowInfo {
     private String priority;
     private String message;
     private boolean sendEmailNotifications;
-    private int requiredApprovalPercentage;
+    private Map<String, Object> properties = new HashMap<String, Object>();
 
     public String getWorkflowType() {
         return workflowType;
@@ -90,20 +92,20 @@ public class WorkflowInfo {
         this.sendEmailNotifications = sendEmailNotifications;
     }
 
-    public int getRequiredApprovalPercentage() {
-        return requiredApprovalPercentage;
-    }
-
-    public void setRequiredApprovalPercentage(int requiredApprovalPercentage) {
-        this.requiredApprovalPercentage = requiredApprovalPercentage;
-    }
-
     public List<String> getAssignees() {
         return assignees;
     }
 
     public void setAssignees(List<String> assignees) {
         this.assignees = assignees;
+    }
+
+    public Map<String, Object> getProperties() {
+        return properties;
+    }
+
+    public void setProperties(Map<String, Object> properties) {
+        this.properties = properties;
     }
 
 }
