@@ -1,0 +1,10 @@
+<webscript>
+  <shortname>Start workflow</shortname>
+  <description>
+    Starts workflow relevant to the passed data
+  </description>
+  <url>/api/openesdh/workflow/start</url>
+  <authentication>user</authentication>
+  <family>Case Workflow Tools</family>
+  <format default="json">argument</format>
+</webscript>

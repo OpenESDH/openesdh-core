@@ -19,6 +19,7 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.NodeInfoService;
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 /**
  * Created by torben on 11/09/14.
@@ -64,7 +65,7 @@ public class CaseInfo extends AbstractWebScript {
         JSONObject json = nodeInfoService.getSelectedProperties(nodeInfo, this, requiredProps);
         String user = AuthenticationUtil.getFullyAuthenticatedUser();
 
-        res.setContentEncoding("UTF-8");
+        res.setContentEncoding(WebScriptUtils.CONTENT_ENCODING_UTF_8);
         try {
             json.put("allProps", nodeInfoService.buildJSON(nodeInfo, this));
             json.put("isLocked", caseService.isLocked(caseNodeRef));

@@ -1,7 +1,10 @@
 package dk.openesdh.repo.webscripts.cases;
 
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.cases.CaseService;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.namespace.QName;
@@ -13,10 +16,8 @@ import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 public class CaseConstraints extends AbstractWebScript {
 
@@ -36,7 +37,7 @@ public class CaseConstraints extends AbstractWebScript {
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
         final String caseModelName = "caseModel";
-        res.setContentEncoding("UTF-8");
+        res.setContentEncoding(WebScriptUtils.CONTENT_ENCODING_UTF_8);
         JSONObject jsonResponse = new JSONObject();
 
         Collection<QName> allModels = dictionaryService.getAllModels();

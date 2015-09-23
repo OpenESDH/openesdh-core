@@ -1,0 +1,12 @@
+<webscript>
+    <shortname>Returns whether the user is member of a group</shortname>
+    <description><![CDATA[
+      Determines whether the user is member of a group
+    ]]>
+    </description>
+    <url>/api/groups/{shortName}/member/{userName}</url>
+    <format default="json">argument</format>
+    <authentication>user</authentication>
+    <transaction allow="readonly">required</transaction>
+    <lifecycle>draft_public_api</lifecycle>
+</webscript>

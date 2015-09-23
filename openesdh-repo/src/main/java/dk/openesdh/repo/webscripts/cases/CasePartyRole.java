@@ -85,17 +85,14 @@ public class CasePartyRole extends AbstractWebScript {
             String newRole = json.get("newRole").toString();
             String partyId = json.get("partyId").toString();
 
-            //First we add the party to the new Role. We do this first in case of failure we wouldn't have removed the contact
-            if (!this.partyService.addContactToParty(caseId, null, newRole, partyId)) {
-                throw new WebScriptException("Unable to change " + partyId + "'s role to " + newRole + ".");
-            }
-
-            //Then we remove from the old role after adding just in case
             if (!this.partyService.removePartyRole(caseId, partyId, oldRole)) {
                 throw new WebScriptException("Unable to remove " + partyId + " from the " + oldRole + ".\nTry removing again or contact the system administrator");
             }
-            json.writeJSONString(res.getWriter());
 
+            if (!this.partyService.addContactToParty(caseId, null, newRole, partyId)) {
+                throw new WebScriptException("Unable to change " + partyId + "'s role to " + newRole + ".");
+            }
+            json.writeJSONString(res.getWriter());
         } catch (Exception ge) {
             throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Role change failure for the following reason: " + ge.getMessage());
         }

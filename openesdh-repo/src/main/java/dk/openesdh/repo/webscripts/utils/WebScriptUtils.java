@@ -25,6 +25,8 @@ public class WebScriptUtils {
 
     public static final String NODE_REF = "nodeRef";
 
+    public static final String CONTENT_ENCODING_UTF_8 = "UTF-8";
+
     public static void checkContentTypeJson(WebScriptRequest req) {
         String contentType = req.getContentType();
         if (contentType != null && contentType.indexOf(';') != -1) {

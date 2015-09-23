@@ -9,24 +9,27 @@ import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.node.NodeServicePolicies;
 import org.alfresco.repo.policy.Behaviour;
-import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.policy.JavaBehaviour;
 import org.alfresco.repo.policy.PolicyComponent;
+import org.alfresco.repo.search.impl.lucene.LuceneQueryParserException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
 import org.alfresco.repo.security.permissions.PermissionReference;
 import org.alfresco.repo.security.permissions.impl.ModelDAO;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
-import org.alfresco.service.cmr.action.ActionService;
 import org.alfresco.service.cmr.dictionary.*;
-import org.alfresco.service.cmr.lock.LockService;
-import org.alfresco.service.cmr.repository.*;
+import org.alfresco.service.cmr.repository.ChildAssociationRef;
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.datatype.DefaultTypeConverter;
-import org.alfresco.service.cmr.rule.RuleService;
+import org.alfresco.service.cmr.search.LimitBy;
+import org.alfresco.service.cmr.search.ResultSet;
+import org.alfresco.service.cmr.search.SearchParameters;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.*;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
+import org.alfresco.util.SearchLanguageConversion;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -61,31 +64,22 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
     private static final String WRITER = "Writer";
 
     private static Logger LOGGER = Logger.getLogger(CaseServiceImpl.class);
-
+    Behaviour onUpdatePropertiesBehaviour;
     /**
      * repositoryHelper cannot be autowired - seemingly
      */
     private Repository repositoryHelper;
     private NodeService nodeService;
-    private ContentService contentService;
     private SearchService searchService;
-    private LockService lockService;
-    private BehaviourFilter behaviourFilter;
-
     private AuthorityService authorityService;
-
     private PermissionService permissionService;
     private ModelDAO permissionsModelDAO;
     private TransactionService transactionService;
     private DictionaryService dictionaryService;
     private OwnableService ownableService;
-    private RuleService ruleService;
-    private ActionService actionService;
     private PolicyComponent policyComponent;
     private DocumentService documentService;
     private OELockService oeLockService;
-
-    Behaviour onUpdatePropertiesBehaviour;
 
     //<editor-fold desc="Service setters">
     public void setNodeService(NodeService nodeService) {
@@ -100,20 +94,8 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
         this.oeLockService = oeLockService;
     }
 
-    public void setContentService(ContentService contentService) {
-        this.contentService = contentService;
-    }
-
     public void setSearchService(SearchService searchService) {
         this.searchService = searchService;
-    }
-
-    public void setLockService(LockService lockService) {
-        this.lockService = lockService;
-    }
-
-    public void setBehaviourFilter(BehaviourFilter behaviourFilter) {
-        this.behaviourFilter = behaviourFilter;
     }
 
     public void setAuthorityService(AuthorityService authorityService) {
@@ -146,18 +128,9 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
         this.permissionsModelDAO = permissionsModelDAO;
     }
 
-    public void setRuleService(RuleService ruleService) {
-        this.ruleService = ruleService;
-    }
-
-    public void setActionService(ActionService actionService) {
-        this.actionService = actionService;
-    }
-
     public void setPolicyComponent(PolicyComponent policyComponent) {
         this.policyComponent = policyComponent;
     }
-
 
     public void init() {
         onUpdatePropertiesBehaviour = new JavaBehaviour(this,
@@ -178,130 +151,11 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
         if (beforeStatus.equals(afterStatus)) {
             return;
         }
-        throw new AlfrescoRuntimeException("Case status cannot be " +
-                "changed directly. Must call the CaseService" +
-                ".changeNodeStatus method.");
-    }
-
-    @Override
-    public void addAuthorityToRole(final String authorityName, final String role, final NodeRef caseNodeRef) {
-        checkCanUpdateCaseRoles(caseNodeRef);
-
-        runAsAdmin(() -> {
-            String caseId = getCaseId(caseNodeRef);
-            String groupName = getCaseRoleGroupName(caseId, role);
-            authorityService.addAuthority(groupName, authorityName);
-            return null;
-        });
-    }
-
-    @Override
-    public void addAuthorityToRole(final NodeRef authorityNodeRef, final String role, final NodeRef caseNodeRef) {
-        addAuthorityToRole(getAuthorityName(authorityNodeRef), role,
-                caseNodeRef);
-    }
-
-    @Override
-    public void addAuthoritiesToRole(final List<NodeRef> authorities, final String role, final NodeRef caseNodeRef) {
-        checkCanUpdateCaseRoles(caseNodeRef);
-
-        runAsAdmin(() -> {
-            String caseId = getCaseId(caseNodeRef);
-            final String groupName = getCaseRoleGroupName(caseId, role);
-            if (!authorityService.authorityExists(groupName)) {
-                return null;
-            }
-            transactionService.getRetryingTransactionHelper().doInTransaction(
-                    new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
-                        @Override
-                        public Object execute() throws Throwable {
-                            for (NodeRef authorityNodeRef : authorities) {
-                                String authority = getAuthorityName(authorityNodeRef);
-                                if (authority != null) {
-                                    authorityService.addAuthority(groupName, authority);
-                                }
-                            }
-                            return null;
-                        }
-                    });
-            return null;
-        });
-    }
-
-    @Override
-    public boolean canUpdateCaseRoles(String user, NodeRef caseNodeRef) {
-        if (isLocked(caseNodeRef)) {
-            return false;
+        if (isCaseNode(nodeRef)) {
+            throw new AlfrescoRuntimeException("Case status cannot be " +
+                    "changed directly. Must call the CaseService" +
+                    ".changeCaseStatus method.");
         }
-        return authorityService.isAdminAuthority(user) ||
-                isCaseOwner(user, caseNodeRef);
-    }
-
-    @Override
-    public void changeAuthorityRole(final String authorityName, final String fromRole, final String toRole, final NodeRef caseNodeRef) {
-        checkCanUpdateCaseRoles(caseNodeRef);
-
-        runAsAdmin(() -> {
-            // Do in transaction
-            transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper
-                    .RetryingTransactionCallback<Object>() {
-                @Override
-                public Object execute() throws Throwable {
-                    removeAuthorityFromRole(authorityName, fromRole, caseNodeRef);
-                    addAuthorityToRole(authorityName, toRole, caseNodeRef);
-                    return null;
-                }
-            });
-            return null;
-        });
-    }
-
-    @Override
-    public void checkCaseCreatorPermissions(QName caseTypeQName) {
-        String caseCreatorPermissionName = getCaseCreatorPermissionForCaseType(caseTypeQName);
-        if (StringUtils.isEmpty(caseCreatorPermissionName)) {
-            throw new AccessDeniedException(I18NUtil.getMessage(MSG_NO_CASE_CREATOR_PERMISSION_DEFINED,
-                    caseTypeQName.getLocalName()));
-        }
-
-        String caseCreatorGroup = PermissionService.GROUP_PREFIX + caseCreatorPermissionName;
-        if (!caseCreatorGroupExists(caseCreatorGroup)) {
-            throw new AccessDeniedException(I18NUtil.getMessage(MSG_NO_CASE_CREATOR_GROUP_DEFINED,
-                    caseTypeQName.getLocalName()));
-        }
-
-        if (AuthenticationUtil.isRunAsUserTheSystemUser()) {
-            return;
-        }
-
-        Set<String> currentUserAuthorities = authorityService.getAuthorities();
-
-        if (!currentUserAuthorities.contains(caseCreatorGroup)) {
-            throw new AccessDeniedException(I18NUtil.getMessage(MSG_CASE_CREATOR_PERMISSION_VIOLATION,
-                    caseTypeQName.getLocalName()));
-        }
-    }
-
-    @Override
-    public void createCase(final ChildAssociationRef childAssocRef) {
-        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Void>() {
-            @Override
-            public Void doWork() {
-                NodeRef caseNodeRef = childAssocRef.getChildRef();
-                LOGGER.info("caseNodeRef " + caseNodeRef);
-
-                //Create folder structure
-                NodeRef casesRootNodeRef = getCasesRootNodeRef();
-
-                NodeRef caseFolderNodeRef = getCaseFolderNodeRef(casesRootNodeRef);
-                // Get a unique number to append to the caseId.
-                long caseUniqueNumber = getCaseUniqueId(caseNodeRef);
-
-                setupCase(caseNodeRef, caseFolderNodeRef, caseUniqueNumber);
-
-                return null;
-            }
-        }, AuthenticationUtil.getAdminUserName());
     }
 
     @Override
@@ -351,92 +205,6 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
     }
 
     @Override
-    public NodeRef getCaseById(String caseId) {
-        Matcher matcher = CASE_ID_PATTERN.matcher(caseId);
-        if (matcher.matches()) {
-            // Get the DBID from the case ID, and grab the NodeRef
-            try {
-                final Long dbid = Long.parseLong(matcher.group(1));
-                NodeRef caseNodeRef = AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<NodeRef>() {
-                    @Override
-                    public NodeRef doWork() throws Exception {
-                        return nodeService.getNodeRef(dbid);
-                    }
-                });
-
-                // Check that it exists and is really a case node (extending type
-                // "case:base")
-                if (!Objects.isNull(caseNodeRef) && nodeService.exists(caseNodeRef) && isCaseNode(caseNodeRef)) {
-                    return caseNodeRef;
-                }
-            } catch (NumberFormatException e) {
-                return null;
-            }
-        }
-        return null;
-    }
-
-    public String getCaseId(NodeRef caseNodeRef) {
-        return (String) nodeService.getProperty(caseNodeRef, OpenESDHModel.PROP_OE_ID);
-    }
-
-    @Override
-    public CaseInfo getCaseInfo(NodeRef caseNodeRef) {
-        CaseInfo caseInfo;
-
-        // Get the properties
-        Map<QName, Serializable> properties = this.getCaseProperties(caseNodeRef);
-        String caseId = this.getCaseId(caseNodeRef);
-        String title = (String) properties.get(ContentModel.PROP_TITLE);
-        String description = (String) properties.get(ContentModel.PROP_DESCRIPTION);
-
-        // Create and return the site information
-        caseInfo = new CaseInfoImpl(caseNodeRef, caseId, title, description, properties);
-
-        caseInfo.setCreatedDate(DefaultTypeConverter.INSTANCE.convert(Date.class, properties.get(ContentModel.PROP_CREATED)));
-        caseInfo.setLastModifiedDate(DefaultTypeConverter.INSTANCE.convert(Date.class, properties.get(ContentModel.PROP_MODIFIED)));
-        caseInfo.setStartDate(DefaultTypeConverter.INSTANCE.convert(Date.class, properties.get(OpenESDHModel.PROP_CASE_STARTDATE)));
-        caseInfo.setEndDate(DefaultTypeConverter.INSTANCE.convert(Date.class, properties.get(OpenESDHModel.PROP_CASE_ENDDATE)));
-
-        return caseInfo;
-    }
-
-    @Override
-    public CaseInfo getCaseInfo(String caseId) {
-        return getCaseInfo(getCaseById(caseId));
-    }
-
-    @Override
-    public JSONArray getCaseCreateFormWidgets(String caseType) {
-        JSONArray widgets = null;
-        Pattern modelPattern = Pattern.compile("(\\w+):(\\w+)");
-        Matcher matcher = modelPattern.matcher(caseType);
-        if (matcher.find()) { // then get the folder name from the postfix
-            caseType = StringUtils.substringAfter(caseType, ":");
-        }
-        //Recursively step 2 levels down to get the file
-        NodeRef typesFolder;
-        NodeRef caseFolder;
-        NodeRef caseFormsFolder;
-        try {
-            typesFolder = getCasesTypeStorageRootNodeRef();
-            caseFolder = nodeService.getChildByName(typesFolder, ContentModel.ASSOC_CONTAINS, caseType);
-            caseFormsFolder = nodeService.getChildByName(caseFolder, ContentModel.ASSOC_CONTAINS, "forms");
-            //Now read the file
-            NodeRef formWidgetsFile = nodeService.getChildByName(caseFormsFolder, ContentModel.ASSOC_CONTAINS, "create-form.js");
-            //Read the file contents
-            ContentReader contentReader = contentService.getReader(formWidgetsFile, ContentModel.PROP_CONTENT);
-            String tmp = contentReader.getContentString();
-            JSONObject unparsedJSON = new JSONObject(tmp);
-            widgets = unparsedJSON.getJSONArray("widgets");
-        } catch (Exception ge) {
-            LOGGER.warn("\n\n\n====>CaseServiceImpl - 379:\nerror with retrieving widgets: " + ge.getMessage() + "\n\n");
-        }
-
-        return widgets;
-    }
-
-    @Override
     public List<Long> getCaseDbIdsWhereAuthorityHasRole(NodeRef authorityNodeRef, String role) {
         List<Long> caseDbIds = new ArrayList<>();
         Set<String> containingAuthorities = authorityService.getContainingAuthorities(null,
@@ -467,6 +235,175 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
         return membersByRole;
     }
 
+    public String getCaseId(NodeRef caseNodeRef) {
+        return (String) nodeService.getProperty(caseNodeRef, OpenESDHModel.PROP_OE_ID);
+    }
+
+    @Override
+    public NodeRef getCaseById(String caseId) {
+        Matcher matcher = CASE_ID_PATTERN.matcher(caseId);
+        if (matcher.matches()) {
+            // Get the DBID from the case ID, and grab the NodeRef
+            try {
+                final Long dbid = Long.parseLong(matcher.group(1));
+                NodeRef caseNodeRef = AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<NodeRef>() {
+                    @Override
+                    public NodeRef doWork() throws Exception {
+                        return nodeService.getNodeRef(dbid);
+                    }
+                });
+
+                // Check that it exists and is really a case node (extending type
+                // "case:base")
+                if (!Objects.isNull(caseNodeRef) && nodeService.exists(caseNodeRef) && isCaseNode(caseNodeRef)) {
+                    return caseNodeRef;
+                }
+            } catch (NumberFormatException e) {
+                return null;
+            }
+        }
+        return null;
+    }
+
+    @Override
+    public CaseInfo getCaseInfo(NodeRef caseNodeRef) {
+        CaseInfo caseInfo;
+
+        // Get the properties
+        Map<QName, Serializable> properties = this.getCaseProperties(caseNodeRef);
+        String caseId = this.getCaseId(caseNodeRef);
+        String title = (String) properties.get(ContentModel.PROP_TITLE);
+        String description = (String) properties.get(ContentModel.PROP_DESCRIPTION);
+
+        // Create and return the site information
+        caseInfo = new CaseInfoImpl(caseNodeRef, caseId, title, description, properties);
+
+        caseInfo.setCreatedDate(DefaultTypeConverter.INSTANCE.convert(Date.class, properties.get(ContentModel.PROP_CREATED)));
+        caseInfo.setLastModifiedDate(DefaultTypeConverter.INSTANCE.convert(Date.class, properties.get(ContentModel.PROP_MODIFIED)));
+        caseInfo.setStartDate(DefaultTypeConverter.INSTANCE.convert(Date.class, properties.get(OpenESDHModel.PROP_CASE_STARTDATE)));
+        caseInfo.setEndDate(DefaultTypeConverter.INSTANCE.convert(Date.class, properties.get(OpenESDHModel.PROP_CASE_ENDDATE)));
+
+        return caseInfo;
+    }
+
+    @Override
+    public CaseInfo getCaseInfo(String caseId) {
+        return getCaseInfo(getCaseById(caseId));
+    }
+
+    @Override
+    public void removeAuthorityFromRole(final String authorityName, final String role, final NodeRef caseNodeRef) {
+        checkCanUpdateCaseRoles(caseNodeRef);
+        runAsAdmin(() -> {
+            String caseId = getCaseId(caseNodeRef);
+            String groupName = getCaseRoleGroupName(caseId, role);
+            if (authorityService.authorityExists(groupName) && authorityService.authorityExists(authorityName)) {
+                authorityService.removeAuthority(groupName, authorityName);
+            }
+            return null;
+        });
+    }
+
+    @Override
+    public void removeAuthorityFromRole(final NodeRef authorityNodeRef, final String role, final NodeRef caseNodeRef) {
+        removeAuthorityFromRole(getAuthorityName(authorityNodeRef), role, caseNodeRef);
+    }
+
+    @Override
+    public void addAuthorityToRole(final String authorityName, final String role, final NodeRef caseNodeRef) {
+        checkCanUpdateCaseRoles(caseNodeRef);
+
+        runAsAdmin(() -> {
+            String caseId = getCaseId(caseNodeRef);
+            String groupName = getCaseRoleGroupName(caseId, role);
+            authorityService.addAuthority(groupName, authorityName);
+            return null;
+        });
+    }
+
+    @Override
+    public void addAuthorityToRole(final NodeRef authorityNodeRef, final String role, final NodeRef caseNodeRef) {
+        addAuthorityToRole(getAuthorityName(authorityNodeRef), role,
+                caseNodeRef);
+    }
+
+    @Override
+    public void addAuthoritiesToRole(final List<NodeRef> authorities, final String role, final NodeRef caseNodeRef) {
+        checkCanUpdateCaseRoles(caseNodeRef);
+
+        runAsAdmin(() -> {
+            String caseId = getCaseId(caseNodeRef);
+            final String groupName = getCaseRoleGroupName(caseId, role);
+            if (!authorityService.authorityExists(groupName)) {
+                return null;
+            }
+            transactionService.getRetryingTransactionHelper().doInTransaction(
+                    new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
+                        @Override
+                        public Object execute() throws Throwable {
+                            for (NodeRef authorityNodeRef : authorities) {
+                                String authority = getAuthorityName(authorityNodeRef);
+                                if (authority != null) {
+                                    authorityService.addAuthority(groupName, authority);
+                                }
+                            }
+                            return null;
+                        }
+                    });
+            return null;
+        });
+    }
+
+    @Override
+    public void changeAuthorityRole(final String authorityName, final String fromRole, final String toRole, final NodeRef caseNodeRef) {
+        checkCanUpdateCaseRoles(caseNodeRef);
+
+        runAsAdmin(() -> {
+            // Do in transaction
+            transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper
+                    .RetryingTransactionCallback<Object>() {
+                @Override
+                public Object execute() throws Throwable {
+                    removeAuthorityFromRole(authorityName, fromRole, caseNodeRef);
+                    addAuthorityToRole(authorityName, toRole, caseNodeRef);
+                    return null;
+                }
+            });
+            return null;
+        });
+    }
+
+    @Override
+    public boolean canUpdateCaseRoles(String user, NodeRef caseNodeRef) {
+        if (isLocked(caseNodeRef)) {
+            return false;
+        }
+        return authorityService.isAdminAuthority(user) ||
+                isCaseOwner(user, caseNodeRef);
+    }
+
+    @Override
+    public void createCase(final ChildAssociationRef childAssocRef) {
+        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Void>() {
+            @Override
+            public Void doWork() {
+                NodeRef caseNodeRef = childAssocRef.getChildRef();
+                LOGGER.info("caseNodeRef " + caseNodeRef);
+
+                //Create folder structure
+                NodeRef casesRootNodeRef = getCasesRootNodeRef();
+
+                NodeRef caseFolderNodeRef = getCaseFolderNodeRef(casesRootNodeRef);
+                // Get a unique number to append to the caseId.
+                long caseUniqueNumber = getCaseUniqueId(caseNodeRef);
+
+                setupCase(caseNodeRef, caseFolderNodeRef, caseUniqueNumber);
+
+                return null;
+            }
+        }, AuthenticationUtil.getAdminUserName());
+    }
+
     /**
      * \
      * Get the nodeRef for the folder in which to place the case.
@@ -481,6 +418,23 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
             NodeRef casesMonthNodeRef = getCasePathNodeRef(casesYearNodeRef, Calendar.MONTH);
             return getCasePathNodeRef(casesMonthNodeRef, Calendar.DATE);
         });
+    }
+
+    @Override
+    public boolean isLocked(NodeRef nodeRef) {
+        return oeLockService.isLocked(nodeRef);
+    }
+
+    @Override
+    public boolean isCaseNode(NodeRef nodeRef) {
+        QName type = nodeService.getType(nodeRef);
+        return dictionaryService.isSubClass(type, OpenESDHModel.TYPE_CASE_BASE);
+    }
+
+    @Override
+    public boolean isCaseDocNode(NodeRef nodeRef) {
+        QName type = nodeService.getType(nodeRef);
+        return dictionaryService.isSubClass(type, OpenESDHModel.TYPE_DOC_BASE) && nodeService.hasAspect(nodeRef, OpenESDHModel.ASPECT_OE_CASE_ID);
     }
 
     @Override
@@ -507,6 +461,86 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
     @Override
     public NodeRef getDocumentsFolder(NodeRef caseNodeRef) {
         return nodeService.getChildByName(caseNodeRef, ContentModel.ASSOC_CONTAINS, OpenESDHModel.DOCUMENTS_FOLDER_NAME);
+    }
+
+    @Override
+    public List<CaseInfo> findCases(String filter, int size) {
+        List<CaseInfo> result;
+
+        NodeRef caseRoot = getCasesRootNodeRef();
+        if (caseRoot == null) {
+            result = Collections.emptyList();
+        } else {
+            // get the cases that match the specified names
+            StringBuilder query = new StringBuilder(128);
+            query.append("+TYPE:\"").append(OpenESDHModel.TYPE_CASE_BASE).append('"');
+
+            final boolean filterIsPresent = filter != null && filter.length() > 0;
+
+            if (filterIsPresent) {
+                query.append(" AND (");
+                String escNameFilter = SearchLanguageConversion.escapeLuceneQuery(filter.replace('"', ' '));
+                String[] tokenizedFilter = SearchLanguageConversion.tokenizeString(escNameFilter);
+
+                //oe:id
+                query.append(" oe:id:\" ");
+                for (int i = 0; i < tokenizedFilter.length; i++) {
+                    if (i != 0) //Not first element
+                    {
+                        query.append("?");
+                    }
+                    query.append(tokenizedFilter[i].toLowerCase());
+                }
+                query.append("*\"");
+
+                //cm:title
+                query.append(" OR ")
+                        .append(" cm:title: (");
+                for (int i = 0; i < tokenizedFilter.length; i++) {
+                    if (i != 0) //Not first element
+                    {
+                        query.append(" AND ");
+                    }
+                    query.append("\"" + tokenizedFilter[i] + "*\" ");
+                }
+                query.append(")");
+
+                query.append(" OR cm:description:\"" + escNameFilter + "\"");
+                query.append(")");
+            }
+
+            SearchParameters sp = new SearchParameters();
+            sp.addQueryTemplate("_CASES", "|%oe:id OR |%title OR |%description");
+            sp.setDefaultFieldName("_CASES");
+            sp.addStore(caseRoot.getStoreRef());
+            sp.setLanguage(SearchService.LANGUAGE_FTS_ALFRESCO);
+            sp.setQuery(query.toString());
+            if (size > 0) {
+                sp.setLimit(size);
+                sp.setLimitBy(LimitBy.FINAL_SIZE);
+            }
+
+            if (LOGGER.isDebugEnabled()) {
+                LOGGER.debug("Search parameters are: " + sp);
+            }
+
+            ResultSet results = null;
+            try {
+                results = this.searchService.query(sp);
+                result = new ArrayList<CaseInfo>(results.length());
+                for (NodeRef site : results.getNodeRefs()) {
+                    result.add(getCaseInfo(site));
+                }
+            } catch (LuceneQueryParserException lqpe) {
+                //Log the error but suppress is from the user
+                LOGGER.error("LuceneQueryParserException with findCases()", lqpe);
+                result = Collections.emptyList();
+            } finally {
+                if (results != null) results.close();
+            }
+        }
+
+        return result;
     }
 
     @Override
@@ -549,6 +583,46 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
         return model;
     }
 
+    public JSONArray buildConstraintsJSON(ConstraintDefinition constraint) throws JSONException {
+        org.json.JSONArray result = new org.json.JSONArray();
+        org.json.JSONObject lvPair;
+
+        List<String> constraintValues = (List<String>) constraint.getConstraint().getParameters().get(ListOfValuesConstraint.ALLOWED_VALUES_PARAM);
+        for (String constraintValue : constraintValues) {
+            lvPair = new org.json.JSONObject();
+            lvPair.put("label", ((ListOfValuesConstraint) constraint.getConstraint()).getDisplayLabel(constraintValue, dictionaryService));
+            lvPair.put("value", constraintValue);
+            result.put(lvPair);
+        }
+        return result;
+    }
+
+    @Override
+    public void checkCaseCreatorPermissions(QName caseTypeQName) {
+        String caseCreatorPermissionName = getCaseCreatorPermissionForCaseType(caseTypeQName);
+        if (StringUtils.isEmpty(caseCreatorPermissionName)) {
+            throw new AccessDeniedException(I18NUtil.getMessage(MSG_NO_CASE_CREATOR_PERMISSION_DEFINED,
+                    caseTypeQName.getLocalName()));
+        }
+
+        String caseCreatorGroup = PermissionService.GROUP_PREFIX + caseCreatorPermissionName;
+        if (!caseCreatorGroupExists(caseCreatorGroup)) {
+            throw new AccessDeniedException(I18NUtil.getMessage(MSG_NO_CASE_CREATOR_GROUP_DEFINED,
+                    caseTypeQName.getLocalName()));
+        }
+
+        if (AuthenticationUtil.isRunAsUserTheSystemUser()) {
+            return;
+        }
+
+        Set<String> currentUserAuthorities = authorityService.getAuthorities();
+
+        if (!currentUserAuthorities.contains(caseCreatorGroup)) {
+            throw new AccessDeniedException(I18NUtil.getMessage(MSG_CASE_CREATOR_PERMISSION_VIOLATION,
+                    caseTypeQName.getLocalName()));
+        }
+    }
+
     @Override
     public List<String> getCaseUserPermissions(String caseId) {
 
@@ -570,45 +644,8 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
                 .collect(Collectors.toList());
     }
 
-    @Override
-    public boolean isCaseNode(NodeRef nodeRef) {
-        QName type = nodeService.getType(nodeRef);
-        return dictionaryService.isSubClass(type, OpenESDHModel.TYPE_CASE_BASE);
-    }
-
-    @Override
-    public boolean isCaseDocNode(NodeRef nodeRef) {
-        QName type = nodeService.getType(nodeRef);
-        return dictionaryService.isSubClass(type, OpenESDHModel.TYPE_DOC_BASE) && nodeService.hasAspect(nodeRef, OpenESDHModel.ASPECT_OE_CASE_ID);
-    }
-
-    @Override
-    public void removeAuthorityFromRole(final String authorityName, final String role, final NodeRef caseNodeRef) {
-        checkCanUpdateCaseRoles(caseNodeRef);
-        runAsAdmin(() -> {
-            String caseId = getCaseId(caseNodeRef);
-            String groupName = getCaseRoleGroupName(caseId, role);
-            if (authorityService.authorityExists(groupName) && authorityService.authorityExists(authorityName)) {
-                authorityService.removeAuthority(groupName, authorityName);
-            }
-            return null;
-        });
-    }
-
     protected <R> R runAsAdmin(RunAsWork<R> r) {
         return AuthenticationUtil.runAs(r, OpenESDHModel.ADMIN_USER_NAME);
-    }
-
-    @Override
-    public void removeAuthorityFromRole(final NodeRef authorityNodeRef, final String role, final NodeRef caseNodeRef) {
-        removeAuthorityFromRole(getAuthorityName(authorityNodeRef), role, caseNodeRef);
-    }
-
-    @Override
-    public boolean canChangeNodeStatus(String fromStatus, String toStatus, String user, NodeRef nodeRef) {
-        return isCaseNode(nodeRef) &&
-                CaseStatus.isValidTransition(fromStatus, toStatus) &&
-                canLeaveStatus(fromStatus, user, nodeRef) && canEnterStatus(toStatus, user, nodeRef);
     }
 
     public void checkCanChangeStatus(NodeRef nodeRef, String fromStatus, String toStatus) throws AccessDeniedException {
@@ -622,17 +659,6 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
                     "switch case from status " + fromStatus + " to " +
                     toStatus + " for case " + nodeRef);
         }
-    }
-
-    @Override
-    public List<String> getValidNextStatuses(NodeRef nodeRef) {
-        String user = AuthenticationUtil.getRunAsUser();
-        String fromStatus = getNodeStatus(nodeRef);
-        List<String> statuses;
-        statuses = Arrays.asList(CaseStatus.getStatuses()).stream().filter(
-                s -> canChangeNodeStatus(fromStatus, s, user, nodeRef))
-                .collect(Collectors.toList());
-        return statuses;
     }
 
     protected boolean canLeaveStatus(String status, String user, NodeRef nodeRef) {
@@ -664,30 +690,6 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
             default:
                 return true;
         }
-    }
-
-    @Override
-    public void changeNodeStatus(NodeRef nodeRef, String newStatus) throws Exception {
-        String fromStatus = getNodeStatus(nodeRef);
-        if (newStatus.equals(fromStatus)) {
-            return;
-        }
-        checkCanChangeStatus(nodeRef, fromStatus, newStatus);
-
-        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
-            @Override
-            public Object execute() throws Throwable {
-                try {
-                    // Disable status behaviour to allow the system to set the
-                    // status directly.
-                    onUpdatePropertiesBehaviour.disable();
-                    changeStatusImpl(nodeRef, fromStatus, newStatus);
-                } finally {
-                    onUpdatePropertiesBehaviour.enable();
-                }
-                return null;
-            }
-        });
     }
 
     protected void changeStatusImpl(NodeRef nodeRef, String fromStatus, String newStatus) throws Exception {
@@ -739,6 +741,48 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
         return (String) nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS);
     }
 
+    @Override
+    public List<String> getValidNextStatuses(NodeRef nodeRef) {
+        String user = AuthenticationUtil.getRunAsUser();
+        String fromStatus = getNodeStatus(nodeRef);
+        List<String> statuses;
+        statuses = Arrays.asList(CaseStatus.getStatuses()).stream().filter(
+                s -> canChangeNodeStatus(fromStatus, s, user, nodeRef))
+                .collect(Collectors.toList());
+        return statuses;
+    }
+
+    @Override
+    public boolean canChangeNodeStatus(String fromStatus, String toStatus, String user, NodeRef nodeRef) {
+        return isCaseNode(nodeRef) &&
+                CaseStatus.isValidTransition(fromStatus, toStatus) &&
+                canLeaveStatus(fromStatus, user, nodeRef) && canEnterStatus(toStatus, user, nodeRef);
+    }
+
+    @Override
+    public void changeNodeStatus(NodeRef nodeRef, String newStatus) throws Exception {
+        String fromStatus = getNodeStatus(nodeRef);
+        if (newStatus.equals(fromStatus)) {
+            return;
+        }
+        checkCanChangeStatus(nodeRef, fromStatus, newStatus);
+
+        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
+            @Override
+            public Object execute() throws Throwable {
+                try {
+                    // Disable status behaviour to allow the system to set the
+                    // status directly.
+                    onUpdatePropertiesBehaviour.disable();
+                    changeStatusImpl(nodeRef, fromStatus, newStatus);
+                } finally {
+                    onUpdatePropertiesBehaviour.enable();
+                }
+                return null;
+            }
+        });
+    }
+
     protected boolean canReopenCase(String user, NodeRef nodeRef) {
         return authorityService.isAdminAuthority(user);
     }
@@ -749,6 +793,7 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
 
     /**
      * Close a case node.
+     *
      * @param nodeRef
      */
     protected void closeCase(NodeRef nodeRef) throws Exception {
@@ -756,15 +801,6 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
             throw new Exception("Cannot close a non-case node!");
         }
         transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
-            @Override
-            public Object execute() throws Throwable {
-                nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.CLOSED);
-                // Lock the case and all children, recursively
-                lockImpl(nodeRef);
-                lockCaseGroups(nodeRef);
-                return null;
-            }
-
             private void lockImpl(NodeRef nodeRef) throws Exception {
                 for (ChildAssociationRef childAssociationRef : nodeService.getChildAssocs(nodeRef)) {
                     NodeRef childNodeRef = childAssociationRef.getChildRef();
@@ -780,14 +816,19 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
                 // Lock the node itself
                 oeLockService.lock(nodeRef);
             }
+
+            @Override
+            public Object execute() throws Throwable {
+                nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.CLOSED);
+                // Lock the case and all children, recursively
+                lockImpl(nodeRef);
+                lockCaseGroups(nodeRef);
+                return null;
+            }
+
+
         });
     }
-
-    @Override
-    public boolean isLocked(NodeRef nodeRef) {
-        return oeLockService.isLocked(nodeRef);
-    }
-
 
     protected void lockCaseGroups(final NodeRef caseNodeRef) {
         AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Void>() {
@@ -808,8 +849,9 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
 
     /**
      * Passivates a case.
-     *
+     * <p/>
      * Passive cases and their documents are not searchable by default.
+     *
      * @param nodeRef
      */
     protected void passivate(NodeRef nodeRef) {
@@ -824,6 +866,7 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
 
     /**
      * Reopen a closed case node.
+     *
      * @param nodeRef
      */
     protected void reopenCase(NodeRef nodeRef) throws Exception {
@@ -831,13 +874,6 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
             throw new Exception("Not a case node");
         }
         transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
-            @Override
-            public Object execute() throws Throwable {
-                unlockImpl(nodeRef);
-                unlockCaseGroups(nodeRef);
-                return null;
-            }
-
             private void unlockImpl(NodeRef nodeRef) {
                 oeLockService.unlock(nodeRef);
                 for (ChildAssociationRef childAssociationRef : nodeService.getChildAssocs(nodeRef)) {
@@ -848,8 +884,18 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
                     }
                 }
             }
+
+            @Override
+            public Object execute() throws Throwable {
+                unlockImpl(nodeRef);
+                unlockCaseGroups(nodeRef);
+                return null;
+            }
+
+
         });
     }
+    //</editor-fold>
 
     protected void unlockCaseGroups(final NodeRef caseNodeRef) {
         AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Void>() {
@@ -867,7 +913,6 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
             }
         });
     }
-    //</editor-fold>
 
     protected boolean isCaseOwner(String user, NodeRef caseNodeRef) {
         String caseId = getCaseId(caseNodeRef);
@@ -984,20 +1029,6 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
             result.add(dependent.get(classDef.getName()));
         }
 
-        return result;
-    }
-
-    public JSONArray buildConstraintsJSON(ConstraintDefinition constraint) throws JSONException {
-        org.json.JSONArray result = new org.json.JSONArray();
-        org.json.JSONObject lvPair;
-
-        List<String> constraintValues = (List<String>) constraint.getConstraint().getParameters().get(ListOfValuesConstraint.ALLOWED_VALUES_PARAM);
-        for (String constraintValue : constraintValues) {
-            lvPair = new org.json.JSONObject();
-            lvPair.put("label", ((ListOfValuesConstraint) constraint.getConstraint()).getDisplayLabel(constraintValue, dictionaryService));
-            lvPair.put("value", constraintValue);
-            result.put(lvPair);
-        }
         return result;
     }
 

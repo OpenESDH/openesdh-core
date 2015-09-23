@@ -70,7 +70,6 @@ public class Utils {
         JSONObject c = getCaseTypeJson(caseType, dictionaryService);
         String type = StringUtils.substringBefore(caseType.getPrefixString(), ":");
         c.put("Type", type);
-        c.put("createFormWidgets", caseService.getCaseCreateFormWidgets(type));
         return c;
     }
 

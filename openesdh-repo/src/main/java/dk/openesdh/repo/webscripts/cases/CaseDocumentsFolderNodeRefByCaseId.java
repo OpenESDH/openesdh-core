@@ -24,7 +24,7 @@ public class CaseDocumentsFolderNodeRefByCaseId extends AbstractWebScript {
         NodeRef caseDocumentsFolderNodeRef = caseService.getDocumentsFolder(caseNodeRef);
         Map<String, String> result = new HashMap<String, String>();
         result.put("caseDocsFolderNodeRef", caseDocumentsFolderNodeRef.toString());
-        res.setContentEncoding("UTF-8");
+        res.setContentEncoding(WebScriptUtils.CONTENT_ENCODING_UTF_8);
         WebScriptUtils.writeJson(result, res);
     }
 

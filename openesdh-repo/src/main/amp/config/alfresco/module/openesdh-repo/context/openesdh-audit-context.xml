@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+<beans>
+    <bean id="audit.dk.openesdh.CaseIDExtractor" class="dk.openesdh.repo.audit.CaseNodeRefExtractor">
+        <property name="registry" ref="auditModel.extractorRegistry" />
+        <property name="nodeService" ref="NodeService" />
+        <property name="caseService" ref="CaseService" />
+    </bean>
+    
+    <bean id="audit.dk.openesdh.ContactNameExtractor" class="dk.openesdh.repo.audit.ContactNameExtractor">
+        <property name="registry" ref="auditModel.extractorRegistry" />
+        <property name="nodeService" ref="NodeService" />
+    </bean>
+    
+    <bean id="audit.dk.openesdh.GroupNameExtractor" class="dk.openesdh.repo.audit.GroupNameExtractor">
+        <property name="registry" ref="auditModel.extractorRegistry" />
+        <property name="nodeService" ref="NodeService" />
+    </bean>
+</beans>
