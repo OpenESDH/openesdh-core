@@ -180,15 +180,25 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
         String type = (String) values.get("/esdh/transaction/type");
         String path = (String) values.get("/esdh/transaction/path");
         String[] pArray = path.split("/");
+        Set<QName> aspectsAdd = (Set<QName>) values.get("/esdh/transaction/aspects/add");
 
         Map properties = (Map) values.get("/esdh/transaction/properties/add");
 
         if (path.contains(OpenESDHModel.DOCUMENTS_FOLDER_NAME)) {
             QName name = ContentModel.PROP_NAME;
+            // TODO: These checks should check for subtypes using
+            // dictionaryService
             if (type.equals("cm:content")) {
-                auditEntry.put("action", I18NUtil.getMessage("auditlog.label.attachment.added") + " " + properties.get(name));
-                auditEntry.put("type", getTypeMessage("attachment"));
-                result.add(auditEntry);
+                boolean isMainFile = aspectsAdd != null && aspectsAdd.contains(OpenESDHModel.ASPECT_DOC_IS_MAIN_FILE);
+                if (!isMainFile) {
+                    auditEntry.put("action", I18NUtil.getMessage("auditlog.label.attachment.added") + " " + properties.get(name));
+                    auditEntry.put("type", getTypeMessage("attachment"));
+                    result.add(auditEntry);
+                } else {
+                    // Adding main doc, don't log an entry because you would
+                    // get two entries when adding a document: one for the record
+                    // and one for the main file
+                }
             } else if (type.contains("doc:")) {
                 auditEntry.put("action", I18NUtil.getMessage("auditlog.label.document.added") + " " + properties.get(name));
                 auditEntry.put("type", getTypeMessage("document"));
