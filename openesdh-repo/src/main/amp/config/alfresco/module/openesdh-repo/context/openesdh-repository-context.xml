@@ -9,7 +9,7 @@
     <!-- openESDH.                                              -->
     <!-- ****************************************************** -->
     <!-- ****************************************************** -->
-    <bean id="utilsScript" parent="baseJavaScriptExtension" class="dk.openesdh.repo.rootScopeExt.UtilsExt">
+    <bean id="utilsScript" parent="baseJavaScriptExtension" class="dk.openesdh.repo.rootScopeExt.UtilsExt" depends-on="openesdh-repo_dictionaryBootstrap">
         <property name="extensionName">
             <value>utils</value>
         </property>
@@ -19,9 +19,6 @@
         <property name="nodeService" ref="nodeService"/>
         <property name="caseService" ref="CaseService"/>
     </bean>
-
-
-
 
     <bean id="webscript.dk.openesdh.casetypes.get"
           class="dk.openesdh.repo.model.CaseTypes"
