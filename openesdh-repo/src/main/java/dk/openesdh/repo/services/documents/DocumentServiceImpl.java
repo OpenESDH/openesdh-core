@@ -214,8 +214,9 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
             case DocumentStatus.FINAL:
                 nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, newStatus);
                 // Transform main doc and attachments to finalized formats
-                transformToFinalizedFileFormat(getMainDocument(nodeRef));
-                getAttachments(nodeRef).forEach(this::transformToFinalizedFileFormat);
+                // TODO: Re-enable this after demo: see OPENE-278
+//                transformToFinalizedFileFormat(getMainDocument(nodeRef));
+//                getAttachments(nodeRef).forEach(this::transformToFinalizedFileFormat);
                 oeLockService.lock(nodeRef, true);
                 break;
             case DocumentStatus.DRAFT:
