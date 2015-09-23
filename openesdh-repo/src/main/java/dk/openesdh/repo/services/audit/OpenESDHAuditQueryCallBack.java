@@ -1,15 +1,16 @@
 package dk.openesdh.repo.services.audit;
 
 import java.io.Serializable;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
+import java.util.*;
+import java.util.regex.MatchResult;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.service.cmr.audit.AuditService;
 import org.alfresco.service.namespace.QName;
+import org.alfresco.util.Pair;
 import org.apache.commons.lang.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -32,6 +33,10 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
         return result;
     }
 
+    private static final List<String> undesiredProps = Arrays.asList
+            ("deadproperties", "noderef", "modified", "commentcount",
+                    "changetoken", "uidvalidity", "maxuid", "link");
+
 
     private void DefaultValidKeysSetup() {
 
@@ -40,15 +45,15 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
         validKeys.put("/esdh/transaction/action=CREATE", true);
         validKeys.put("/esdh/transaction/action=DELETE", true);
         validKeys.put("/esdh/transaction/action=CHECK IN", true);
+        validKeys.put("/esdh/transaction/action=updateNodeProperties", true);
     }
 
-    public OpenESDHAuditQueryCallBack(Map<String, Boolean> validKeys)  {
+    public OpenESDHAuditQueryCallBack(Map<String, Boolean> validKeys) {
         super();
 
         if (validKeys != null) {
             this.validKeys = validKeys;
-        }
-        else {
+        } else {
             this.DefaultValidKeysSetup();
         }
     }
@@ -66,6 +71,7 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
     /**
      * Return the role given a case group name.
      * Returns null if the group name does not belong to a case.
+     *
      * @param groupName
      * @return
      */
@@ -88,7 +94,7 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
     public boolean handleAuditEntry(Long entryId, String applicationName, String user, long time, Map<String, Serializable> values) {
         try {
             JSONObject auditEntry = new JSONObject();
-            auditEntry.put("user",user);
+            auditEntry.put("user", user);
             auditEntry.put("time", time);
 
             for (Map.Entry<String, Serializable> entry : values.entrySet()) {
@@ -107,6 +113,8 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
                             String authority = (String) values.get("/esdh/security/addAuthority/args/childName/value");
                             auditEntry.put("action", I18NUtil.getMessage("auditlog.label.member.added", authority, role));
                             auditEntry.put("type", I18NUtil.getMessage("auditlog.label.type.member"));
+                            auditEntry.put("authority", authority);
+                            auditEntry.put("role", role);
                             result.add(auditEntry);
                         }
                         break;
@@ -120,17 +128,20 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
                             String authority = (String) values.get("/esdh/security/removeAuthority/args/childName/value");
                             auditEntry.put("action", I18NUtil.getMessage("auditlog.label.member.removed", authority, role));
                             auditEntry.put("type", I18NUtil.getMessage("auditlog.label.type.member"));
+                            auditEntry.put("authority", authority);
+                            auditEntry.put("role", role);
                             result.add(auditEntry);
                         }
                         break;
                     }
 
                     // file/folder CRUD transaction
-                    case "/esdh/transaction/user":  {
+                    case "/esdh/transaction/user": {
                         if (values.get("/esdh/transaction/action").equals("CREATE")) {
                             if (validKeys.get("/esdh/transaction/action=CREATE")) {
-                                String type = (String)values.get("/esdh/transaction/type");
-                                String path = (String)values.get("/esdh/transaction/path");
+                                String type = (String) values.get("/esdh/transaction/type");
+                                String path = (String) values.get("/esdh/transaction/path");
+                                Set<QName> aspectsAdd = (Set<QName>) values.get("/esdh/transaction/aspects/add");
                                 String[] pArray = path.split("/");
 
                                 Map properties = (Map) values.get("/esdh/transaction/properties/add");
@@ -138,11 +149,18 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
                                 if (path.indexOf(OpenESDHModel.DOCUMENTS_FOLDER_NAME) != -1) {
                                     QName name = QName.createQName("http://www.alfresco.org/model/content/1.0", "name");
                                     if (type.equals("cm:content")) {
-                                        auditEntry.put("action", I18NUtil.getMessage("auditlog.label.attachment.added") + " " + properties.get(name));
-                                        auditEntry.put("type", I18NUtil.getMessage("auditlog.label.type.attachment"));
-                                        result.add(auditEntry);
-                                    }
-                                    else if (type.contains("doc:")) {
+                                        if (aspectsAdd.contains(OpenESDHModel.ASPECT_DOC_IS_MAIN_FILE)) {
+                                            // Adding main doc, don't log an
+                                            // entry because you would get
+                                            // two entries when adding a
+                                            // document: one for the record
+                                            // and one for the main file
+                                        } else {
+                                            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.attachment.added") + " " + properties.get(name));
+                                            auditEntry.put("type", I18NUtil.getMessage("auditlog.label.type.attachment"));
+                                            result.add(auditEntry);
+                                        }
+                                    } else if (type.contains("doc:")) {
                                         auditEntry.put("action", I18NUtil.getMessage("auditlog.label.document.added") + " " + properties.get(name));
                                         auditEntry.put("type", I18NUtil.getMessage("auditlog.label.type.document"));
                                         result.add(auditEntry);
@@ -163,42 +181,48 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
                                     auditEntry.put("type", I18NUtil
                                             .getMessage("auditlog.label.type.note"));
                                 } else {
-                                    auditEntry.put("action", I18NUtil.getMessage("auditlog.label.case.created") + " " + pArray[pArray.length-1].split(":")[1]);
+                                    auditEntry.put("action", I18NUtil.getMessage("auditlog.label.case.created") + " " + pArray[pArray.length - 1].split(":")[1]);
                                     auditEntry.put("type", getTypeMessageSystem());
                                     result.add(auditEntry);
                                 }
                             }
-                        }
-                        else if (values.get("/esdh/transaction/action").equals("DELETE")) {
+                        } else if (values.get("/esdh/transaction/action").equals("DELETE")) {
                             if (validKeys.get("/esdh/transaction/action=DELETE")) {
 
-                                HashSet<String> aspects = (HashSet)values.get("/esdh/transaction/aspects/delete");
+                                HashSet<String> aspects = (HashSet) values.get("/esdh/transaction/aspects/delete");
                                 QName name = QName.createQName("http://www.alfresco.org/model/content/1.0", "copiedfrom");
 
-                                String path = (String)values.get("/esdh/transaction/path");
+                                String path = (String) values.get("/esdh/transaction/path");
                                 String[] pArray = path.split("/");
 
 
                                 if (aspects != null && aspects.contains(name)) {
-                                    auditEntry.put("action", I18NUtil.getMessage("auditlog.label.finished.editing") + " " + pArray[pArray.length-1].split(":")[1]);
+                                    auditEntry.put("action", I18NUtil.getMessage("auditlog.label.finished.editing") + " " + pArray[pArray.length - 1].split(":")[1]);
                                     auditEntry.put("type", getTypeMessageSystem());
                                     result.add(auditEntry);
-                                }
-                                else {
-                                    auditEntry.put("action", I18NUtil.getMessage("auditlog.label.deleted.document") + " " + pArray[pArray.length-1].split(":")[1]);
+                                } else {
+                                    auditEntry.put("action", I18NUtil.getMessage("auditlog.label.deleted.document") + " " + pArray[pArray.length - 1].split(":")[1]);
                                     auditEntry.put("type", getTypeMessageSystem());
                                     result.add(auditEntry);
                                 }
                             }
-                        }
-                        else if (values.get("/esdh/transaction/action").equals("CHECK IN")) {
+                        } else if (values.get("/esdh/transaction/action").equals("CHECK IN")) {
                             if (validKeys.get("/esdh/transaction/action=CHECK IN")) {
 
-                                String path = (String)values.get("/esdh/transaction/path");
+                                String path = (String) values.get("/esdh/transaction/path");
                                 String[] pArray = path.split("/");
 
-                                auditEntry.put("action", I18NUtil.getMessage("auditlog.label.checkedin") + " " + pArray[pArray.length-1].split(":")[1]);
+                                auditEntry.put("action", I18NUtil.getMessage("auditlog.label.checkedin") + " " + pArray[pArray.length - 1].split(":")[1]);
                                 auditEntry.put("type", getTypeMessageSystem());
+                                result.add(auditEntry);
+                            }
+                        } else if (values.get("/esdh/transaction/action").equals("updateNodeProperties")) {
+                            String type = (String) values.get("/esdh/transaction/type");
+                            if (validKeys.get("/esdh/transaction/action=updateNodeProperties")) {
+                                auditEntry.put("action", I18NUtil.getMessage("auditlog.label.properties.updated"));
+                                auditEntry.put("type", getTypeMessageForType(type));
+                                auditEntry.put("from", filterUndesirableProps((Map<QName, Serializable>) values.get("/esdh/transaction/properties/from")));
+                                auditEntry.put("to", filterUndesirableProps((Map<QName, Serializable>) values.get("/esdh/transaction/properties/to")));
                                 result.add(auditEntry);
                             }
                         }
@@ -211,15 +235,33 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
 
         return true;
     }
-    
-    private String getTypeMessageSystem(){
+
+    private Map<QName, Serializable> filterUndesirableProps(Map<QName, Serializable> map) {
+        return map.entrySet().stream().filter(
+                p -> !undesiredProps.contains(p.getKey().getLocalName().toLowerCase()))
+                .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
+    }
+
+    private String getTypeMessageSystem() {
         return I18NUtil.getMessage("auditlog.label.type.system");
+    }
+
+    private String getTypeMessageForType(String type) {
+        // TODO: This should really make use of the DictionaryService to
+        // determine types
+        if (type.contains(":case")) {
+            return I18NUtil.getMessage("auditlog.label.type.case");
+        } else if (type.contains("doc:")) {
+            return I18NUtil.getMessage("auditlog.label.type.document");
+        } else {
+            return getTypeMessageSystem();
+        }
     }
 
     @Override
     public boolean handleAuditEntryError(Long entryId, String errorMsg, Throwable error) {
 
-        throw new AlfrescoRuntimeException(errorMsg,error);
+        throw new AlfrescoRuntimeException(errorMsg, error);
     }
 }
 
