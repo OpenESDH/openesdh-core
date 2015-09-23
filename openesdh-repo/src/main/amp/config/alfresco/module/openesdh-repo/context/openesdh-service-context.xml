@@ -285,19 +285,19 @@
     
     <bean id="WorkflowTaskService" class="dk.openesdh.repo.services.workflow.WorkflowTaskServiceImpl">
         <property name="workflowService" ref="WorkflowService"/>
-        <property name="namespaceService" ref="namespaceService"/>
+        <property name="namespaceService" ref="NamespaceService"/>
         <property name="nodeService" ref="NodeService"/>
         <property name="personService" ref="PersonService" />
         <property name="dictionaryService" ref="DictionaryService" />
         <property name="authenticationService" ref="AuthenticationService"/>
-        <property name="authorityService" ref="authorityService"/>
+        <property name="authorityService" ref="AuthorityService"/>
     </bean>
 
     <bean id="CaseWorkflowService"
           class="dk.openesdh.repo.services.workflow.CaseWorkflowServiceImpl">
         <property name="nodeService" ref="NodeService" />
         <property name="workflowService" ref="WorkflowService" />
-        <property name="namespaceService" ref="namespaceService"/>
+        <property name="namespaceService" ref="NamespaceService"/>
         <property name="dictionaryService" ref="DictionaryService" />
     </bean>
 </beans>

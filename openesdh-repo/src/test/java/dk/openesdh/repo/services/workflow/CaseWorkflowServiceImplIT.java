@@ -69,7 +69,9 @@ public class CaseWorkflowServiceImplIT {
     @Qualifier("CaseDocumentTestHelper")
     protected CaseDocumentTestHelper docTestHelper;
 
-    protected CaseWorkflowServiceImpl service;
+    @Autowired
+    @Qualifier("CaseWorkflowService")
+    protected CaseWorkflowService service;
 
     private static final String TEST_FOLDER_NAME = "CaseWorkflowServiceImplIT";
     private static final String TEST_DOCUMENT_NAME = "test_document.txt";
@@ -88,12 +90,6 @@ public class CaseWorkflowServiceImplIT {
         AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();
         personNodeRef = personService.getPerson(AuthenticationUtil.getFullyAuthenticatedUser());
         caseCreatorsGroupNodeRef = authorityService.getAuthorityNodeRef(CaseHelper.CASE_CREATOR_GROUP);
-
-        service = new CaseWorkflowServiceImpl();
-        service.setNodeService(nodeService);
-        service.setWorkflowService(workflowService);
-        service.setNamespaceService(namespaceService);
-        service.setDictionaryService(dictionaryService);
 
         testFolder = docTestHelper.createFolder(TEST_FOLDER_NAME);
         testDocument = docTestHelper.createDocument(TEST_DOCUMENT_NAME, testFolder);
