@@ -34,5 +34,9 @@
             </list>
         </property>
     </bean>
+    
+    <bean id="${project.artifactId}_permissionModelBootstrap" parent="permissionModelBootstrap">
+        <property name="model" value="alfresco/module/openesdh-repo/models/permission-model-extension.xml" />
+    </bean>
 
 </beans>

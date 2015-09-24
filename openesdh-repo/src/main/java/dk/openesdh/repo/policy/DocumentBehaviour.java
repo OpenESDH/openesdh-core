@@ -1,5 +1,7 @@
 package dk.openesdh.repo.policy;
 
+import java.io.Serializable;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -76,6 +78,27 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
                 OpenESDHModel.TYPE_DOC_SIMPLE,
                 this.afterCopyDocumentFolder
         );
+
+        this.policyComponent.bindClassBehaviour(
+                NodeServicePolicies.OnCreateNodePolicy.QNAME,
+                OpenESDHModel.TYPE_DOC_BASE,
+                new JavaBehaviour(this, "onCreateDocRecordBehaviour", Behaviour.NotificationFrequency.TRANSACTION_COMMIT)
+        );
+    }
+
+    public void onCreateDocRecordBehaviour (ChildAssociationRef childRef) {
+        NodeRef nodeRef = childRef.getChildRef();
+        if (!nodeService.exists(childRef.getParentRef()) || !nodeService.exists(nodeRef)) {
+            return;
+        }
+
+        if (!nodeService.hasAspect(nodeRef, ContentModel.ASPECT_TITLED)) {
+            // Assign a default title to the document based on its name
+            String title = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_NAME);
+            Map<QName, Serializable> props = new HashMap<>();
+            props.put(ContentModel.PROP_TITLE, title);
+            nodeService.addAspect(nodeRef, ContentModel.ASPECT_TITLED, props);
+        }
     }
 
     public void onCreateCaseDocContentBehaviour(ChildAssociationRef childAssociationRef, boolean isNewNode) {
@@ -139,6 +162,7 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
                     childAssoc.getTypeQName())) {
                 // Tag the file as the main file for the record
                 nodeService.addChild(docRecord, fileRef, OpenESDHModel.ASSOC_DOC_MAIN, OpenESDHModel.ASSOC_DOC_MAIN);
+                nodeService.addAspect(fileRef, OpenESDHModel.ASPECT_DOC_IS_MAIN_FILE, null);
             }
             
 
@@ -189,6 +213,7 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
             return;
         }
         nodeService.removeChildAssociation(docMainAssociation);
+        nodeService.removeAspect(docMainAssociation.getChildRef(), OpenESDHModel.ASPECT_DOC_IS_MAIN_FILE);
     }
 
     private ChildAssociationRef getDocMainAssociation(NodeRef docFolderNodeRef) {
@@ -206,6 +231,7 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
         NodeRef docFileRef = docContentAssociation.getChildRef();
         nodeService.addChild(docRecordNode, docFileRef, OpenESDHModel.ASSOC_DOC_MAIN,
                 OpenESDHModel.ASSOC_DOC_MAIN);
+        nodeService.addAspect(docFileRef, OpenESDHModel.ASPECT_DOC_IS_MAIN_FILE, null);
 
         NodeRef copyDocRecordNode = copyMap.get(docRecordNode);
 
@@ -220,6 +246,7 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
         NodeRef copyDocFileNode = copyMap.get(docFileRef);
         nodeService.addChild(copyDocRecordNode, copyDocFileNode, OpenESDHModel.ASSOC_DOC_MAIN,
                 OpenESDHModel.ASSOC_DOC_MAIN);
+        nodeService.addAspect(copyDocFileNode, OpenESDHModel.ASPECT_DOC_IS_MAIN_FILE, null);
     }
 
     private void removeOriginalAssoc(NodeRef docRecordNode) {

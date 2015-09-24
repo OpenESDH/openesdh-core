@@ -106,6 +106,8 @@ public class DocumentsBehaviourIT {
                 hasKey(caseDocsFolderContent.keySet(), TEST_ADD_DOCUMENT_NAME));
 
         NodeRef addedDocRecordFolder = caseDocsFolderContent.get(TEST_ADD_DOCUMENT_NAME);
+        Assert.assertEquals("The document record should get a title equal to its name", TEST_ADD_DOCUMENT_NAME, nodeService.getProperty(addedDocRecordFolder, ContentModel.PROP_TITLE));
+
         List<NodeRef> addedDocRecordFolderContent = nodeService.getChildAssocs(addedDocRecordFolder).stream()
                 .map(ChildAssociationRef::getChildRef).collect(Collectors.toList());
 

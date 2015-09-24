@@ -1,16 +1,17 @@
 package dk.openesdh.repo.audit;
 
 import dk.openesdh.repo.services.cases.CaseService;
+import java.io.Serializable;
+import java.util.regex.Matcher;
+import org.alfresco.model.ContentModel;
 import org.alfresco.repo.audit.extractor.AbstractDataExtractor;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.repository.Path;
+import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang3.StringUtils;
 
-import java.io.Serializable;
-import java.util.regex.Matcher;
-
 public final class CaseNodeRefExtractor extends AbstractDataExtractor {
+
     private NodeService nodeService;
     private CaseService caseService;
 
@@ -30,34 +31,45 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
 
     public Serializable extractData(Serializable value) throws Throwable {
         String result = null;
-
         // TODO Ole,do we ever get an instance of a nodeRef?
         if (value instanceof NodeRef) {
-            // received a NodeRef object, we know this is a permission change
-            // therefore we always have a path
             NodeRef nodeRef = (NodeRef) value;
-            Path path = nodeService.getPath(nodeRef);
-            result = nodeRef.toString();
-        } else if (value instanceof String) {
-            String str = (String) value;
-            if (str.startsWith("GROUP_case_")) {
-                String[] parts = str.split("_");
-                if (parts.length < 3) {
-                    return null;
-                }
-                result = getNodeRefFromCaseID(parts[2]);
+            QName type = nodeService.getType(nodeRef);
+            if (type.isMatch(ContentModel.TYPE_AUTHORITY_CONTAINER)) {
+                Serializable name = nodeService.getProperty(nodeRef, ContentModel.PROP_AUTHORITY_NAME);
+                result = getNodeRefFromString((String) name);
             } else {
-                // System.out.println("this is a path thingie");
-                result = getNodeRefFromPath(str);
+                // received a NodeRef object, we know this is a permission change
+                // therefore we always have a path
+                nodeService.getPath(nodeRef);//throws error
+                result = nodeRef.toString();
             }
+        } else if (value instanceof String) {
+            result = getNodeRefFromString((String) value);
         }
         // TODO: check that what is returned is actually a case, return null otherwise
         return result;
     }
 
-    protected String getNodeRefFromPath(String path) {
+    private String getNodeRefFromString(String str) {
+        if (str.startsWith("GROUP_case_")) {
+            String[] parts = str.split("_");
+            if (parts.length < 3) {
+                return null;
+            }
+            return getNodeRefFromCaseID(parts[2]);
+        } else if (str.contains("GROUP_PARTY")) {
+            String[] parts = str.split("_");
+            if (parts.length < 3) {
+                return null;
+            }
+            return getNodeRefFromCaseDbID(parts[2]);
+        }
+        return getNodeRefFromPath(str);
+    }
 
-        String prefix = caseService.OPENESDH_ROOT_CONTEXT_PATH;
+    protected String getNodeRefFromPath(String path) {
+        String prefix = CaseService.OPENESDH_ROOT_CONTEXT_PATH;
         if (!path.startsWith(prefix)) {
             return null;
         }
@@ -76,7 +88,7 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
 
     /**
      * Retrieves case id from the provided path of the following format:
-     *      /app:company_home/oe:OpenESDH/oe:cases/case:2015/case:6/case:15/case:20150615-916
+     * /app:company_home/oe:OpenESDH/oe:cases/case:2015/case:6/case:15/case:20150615-916
      *
      * @param path the path to retrieve a case id from
      * @return case id
@@ -97,5 +109,9 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
         } else {
             return null;
         }
+    }
+
+    private String getNodeRefFromCaseDbID(String caseDbID) {
+        return nodeService.getNodeRef(Long.parseLong(caseDbID)).toString();
     }
 }
