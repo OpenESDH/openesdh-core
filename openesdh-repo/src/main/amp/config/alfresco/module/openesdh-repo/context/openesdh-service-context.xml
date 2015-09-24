@@ -55,6 +55,10 @@
         <property name="oeLockService">
             <ref bean="OELockService"/>
         </property>
+        
+        <property name="openESDHFoldersService">
+            <ref bean="OpenESDHFoldersService"/>
+        </property>
     </bean>
     
     <bean id="DocumentTypeService" class="dk.openesdh.repo.services.documents.DocumentTypeServiceImpl">
