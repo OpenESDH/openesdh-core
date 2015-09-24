@@ -17,7 +17,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import org.alfresco.model.ContentModel;
-import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
@@ -30,7 +29,6 @@ import org.alfresco.service.transaction.TransactionService;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -305,32 +303,31 @@ public class DocumentServiceImplIT {
     }
 
     
-    @Ignore//TODO: Add this test back after demo: see OPENE-278
-    @Test
-    public void finalizeNonAcceptableFormatDocument() throws Exception {
-        // Make sure that you get an exception when trying to finalize a
-        // document which is not an allowed finalizable type
-        // (e.g. application/json, etc..)
-        testDocument4 = docTestHelper.createCaseDocument(TEST_DOCUMENT_FILE_NAME4, testCase1, documentType1);
-        testDocumentRecFolder4 = nodeService.getPrimaryParent(testDocument4).getParentRef();
-
-        // Try to update the finalized document
-        NodeRef workingCopy = checkOutCheckInService.checkout(testDocument4);
-        ContentWriter writer = contentService.getWriter(workingCopy, ContentModel.PROP_CONTENT, true);
-        writer.setMimetype(MimetypeMap.MIMETYPE_JSON);
-        writer.putContent("{'thisShouldNotBeAbleToBeFinalized': 1}");
-        checkOutCheckInService.checkin(workingCopy, null);
-
-        expectedException.expect(AutomaticFinalizeFailureException.class);
-        documentService.changeNodeStatus(testDocumentRecFolder4, DocumentStatus.FINAL);
-    }
+    //TODO: Add this test back after demo: see OPENE-278
+//    @Test
+//    public void finalizeNonAcceptableFormatDocument() throws Exception {
+//        // Make sure that you get an exception when trying to finalize a
+//        // document which is not an allowed finalizable type
+//        // (e.g. application/json, etc..)
+//        testDocument4 = docTestHelper.createCaseDocument(TEST_DOCUMENT_FILE_NAME4, testCase1, documentType1);
+//        testDocumentRecFolder4 = nodeService.getPrimaryParent(testDocument4).getParentRef();
+//
+//        // Try to update the finalized document
+//        NodeRef workingCopy = checkOutCheckInService.checkout(testDocument4);
+//        ContentWriter writer = contentService.getWriter(workingCopy, ContentModel.PROP_CONTENT, true);
+//        writer.setMimetype(MimetypeMap.MIMETYPE_JSON);
+//        writer.putContent("{'thisShouldNotBeAbleToBeFinalized': 1}");
+//        checkOutCheckInService.checkin(workingCopy, null);
+//
+//        expectedException.expect(AutomaticFinalizeFailureException.class);
+//        documentService.changeNodeStatus(testDocumentRecFolder4, DocumentStatus.FINAL);
+//    }
     @Test
     public void shouldUpdateCaseDocumentProperties() {
         NodeRef caseDocNodeRef = testDocumentRecFolder;
         CaseDocument document = new CaseDocument();
         document.setNodeRef(caseDocNodeRef.toString());
         document.setCategory(OpenESDHModel.DOCUMENT_CATEGORY_CONTRACT);
-//        document.setType(OpenESDHModel.DOCUMENT_TYPE_INVOICE);
         document.setState(OpenESDHModel.DOCUMENT_STATE_FINALISED);
         document.setTitle(TEST_TITLE);
 
