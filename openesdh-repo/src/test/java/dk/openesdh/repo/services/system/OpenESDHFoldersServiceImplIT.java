@@ -5,7 +5,6 @@ import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 import dk.openesdh.repo.model.OpenESDHModel;
 import static dk.openesdh.repo.services.system.OpenESDHFoldersService.CASES_ROOT;
-import static dk.openesdh.repo.services.system.OpenESDHFoldersService.CASES_TYPES_ROOT;
 import static dk.openesdh.repo.services.system.OpenESDHFoldersService.CLASSIFICATIONS;
 import static dk.openesdh.repo.services.system.OpenESDHFoldersService.DOCUMENT_TYPES;
 import static dk.openesdh.repo.services.system.OpenESDHFoldersService.OPENESDH_ROOT_CONTEXT;
@@ -16,7 +15,6 @@ import org.alfresco.service.namespace.DynamicNamespacePrefixResolver;
 import org.alfresco.service.namespace.NamespaceService;
 import static org.junit.Assert.assertEquals;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,11 +63,10 @@ public class OpenESDHFoldersServiceImplIT {
         assertPath(openESDHFoldersService.getCasesRootNodeRef(), OPENESDH_ROOT_CONTEXT, CASES_ROOT);
     }
 
-    @Ignore
-    @Test
-    public void testGetCasesTypeStorageRootNodeRef() {
-        assertPath(openESDHFoldersService.getCasesTypeStorageRootNodeRef(), OPENESDH_ROOT_CONTEXT, CASES_ROOT, CASES_TYPES_ROOT);
-    }
+//    @Test
+//    public void testGetCasesTypeStorageRootNodeRef() {
+//        assertPath(openESDHFoldersService.getCasesTypeStorageRootNodeRef(), OPENESDH_ROOT_CONTEXT, CASES_ROOT, CASES_TYPES_ROOT);
+//    }
 
     @Test
     public void testGetClassificationsRootNodeRef() {
