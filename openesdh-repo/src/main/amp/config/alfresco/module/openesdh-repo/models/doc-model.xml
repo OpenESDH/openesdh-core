@@ -43,19 +43,6 @@
             </parameter>
         </constraint>
 
-        <constraint name="doc:typeConstraint" type="LIST">
-            <parameter name="allowedValues">
-                <list>
-                    <value>invoice</value>
-                    <value>letter</value>
-                    <value>note</value>
-                    <value>report</value>
-                    <value>agenda</value>
-                    <value>other</value>
-                </list>
-            </parameter>
-        </constraint>
-
         <constraint name="doc:stateConstraint" type="LIST">
             <parameter name="allowedValues">
                 <list>
@@ -110,13 +97,6 @@
                     <description>Id suppiled by the user</description>
                     <type>d:text</type>
                 </property>
-                <property name="doc:type">
-                    <type>d:text</type>
-                    <mandatory>true</mandatory>
-                    <constraints>
-                        <constraint ref="doc:typeConstraint"/>
-                    </constraints>
-                </property>
 
                 <property name="doc:letterDate">
                     <description>Brevdato</description>
@@ -162,6 +142,18 @@
             </properties>
 
             <associations>
+                <association name="doc:atype">
+                    <source>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </source>
+                    <target>
+                        <class>doc:dtype</class>
+                        <mandatory>true</mandatory>
+                        <many>false</many>
+                    </target>
+                </association>
+                
                 <association name="doc:owner">
                     <source>
                         <mandatory>false</mandatory>
@@ -289,6 +281,12 @@
                     <multiple>false</multiple>
                 </property>
             </properties>
+        </type>
+        
+        <!-- other types -->
+        <type name="doc:dtype">
+            <title>Document type</title>
+            <parent>cm:content</parent>
         </type>
     </types>
 

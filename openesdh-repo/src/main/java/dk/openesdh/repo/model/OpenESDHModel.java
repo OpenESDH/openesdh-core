@@ -50,6 +50,7 @@ public interface OpenESDHModel {
     public static final QName TYPE_DOC_BASE = QName.createQName(DOC_URI, TYPE_BASE_NAME);
     public static final QName TYPE_DOC_SIMPLE = QName.createQName(DOC_URI, TYPE_SIMPLE_NAME);
 
+    public static final QName TYPE_DOC_TYPE = QName.createQName(DOC_URI, "dtype");
     public static final QName TYPE_DOC_FILE = QName.createQName(DOC_URI, "file");
     public static final QName TYPE_DOC_DIGITAL_FILE = QName.createQName(DOC_URI, "digitalFile");
     public static final QName TYPE_DOC_PHYSICAL_FILE = QName.createQName(DOC_URI, "physicalFile");
@@ -82,6 +83,7 @@ public interface OpenESDHModel {
      */
     public static final QName ASSOC_CASE_OWNERS = QName.createQName(CASE_URI, "owners");
 
+    public static final QName ASSOC_DOC_TYPE = QName.createQName(DOC_URI, "atype");
     public static final QName ASSOC_DOC_OWNER = QName.createQName(DOC_URI, "owner");
     public static final QName ASSOC_DOC_RESPONSIBLE_PERSON = QName.createQName(DOC_URI, "responsible");
     public static final QName ASSOC_DOC_MAIN = QName.createQName(DOC_URI, "main");
@@ -126,7 +128,6 @@ public interface OpenESDHModel {
     public static final QName PROP_DOC_VARIANT = QName.createQName(DOC_URI, "variant");
     public static final QName PROP_DOC_TYPE = QName.createQName(DOC_URI, "type");
     public static final QName PROP_DOC_STATE = QName.createQName(DOC_URI, "state");
-
 
     public static final QName PROP_CONTACT_EMAIL = QName.createQName(CONTACT_URI, "email");
     public static final QName PROP_CONTACT_TYPE = QName.createQName(CONTACT_URI, "contactType");
@@ -201,8 +202,8 @@ public interface OpenESDHModel {
     public static final String DOCUMENT_PROP_MODIFIED = "modified";
     public static final String DOCUMENT_PROP_MODIFIER = "modifier";
 
-    public static final String DOCUMENT_TYPE_LETTER = "letter";
-    public static final String DOCUMENT_TYPE_INVOICE = "invoice";
+//    public static final String DOCUMENT_TYPE_LETTER = "letter";
+//    public static final String DOCUMENT_TYPE_INVOICE = "invoice";
 
     public static final String DOCUMENT_CATEGORY_OTHER = "other";
     public static final String DOCUMENT_CATEGORY_CONTRACT = "contract";

@@ -1,8 +1,12 @@
 package dk.openesdh.repo.webscripts.xsearch;
 
+import dk.openesdh.repo.model.DocumentType;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.services.documents.DocumentTypeService;
+import dk.openesdh.repo.utils.Utils;
 import java.util.Map;
 import java.util.Set;
-
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.commons.io.FilenameUtils;
@@ -10,20 +14,18 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.utils.Utils;
-
 public class DocumentSearch extends XSearchWebscript {
 
     private static final String NODE_REF_PARAM_NAME = "nodeRef";
     private static final String CASE_ID_PARAM_NAME = "caseId";
 
     protected DocumentService documentService;
+    protected DocumentTypeService documentTypeService;
     protected CaseService caseService;
 
     /**
      * Adds the main document nodeRef to the results.
+     *
      * @param nodeRef
      * @return
      * @throws JSONException
@@ -33,6 +35,12 @@ public class DocumentSearch extends XSearchWebscript {
         NodeRef mainDocNodeRef = documentService.getMainDocument(nodeRef);
         if (mainDocNodeRef != null) {
             json.put("mainDocNodeRef", mainDocNodeRef.toString());
+            //get document type
+            DocumentType documentType = documentTypeService.getDocumentTypeOfDocument(nodeRef);
+            if (documentType != null) {
+                json.put("doc:type", documentType.getName());
+            }
+
             //Get the main document version string
             String mainDocVersion = (String) nodeService.getProperty(mainDocNodeRef, ContentModel.PROP_VERSION_LABEL);
             json.put("mainDocVersion", mainDocVersion);
@@ -46,7 +54,7 @@ public class DocumentSearch extends XSearchWebscript {
     }
 
     protected Map<String, String> getParams(WebScriptRequest req) {
-        
+
         Map<String, String> params = Utils.parseParameters(req.getURL());
         Set<String> paramNames = params.keySet();
         if (paramNames.contains(NODE_REF_PARAM_NAME) || !paramNames.contains(CASE_ID_PARAM_NAME)) {
@@ -68,6 +76,7 @@ public class DocumentSearch extends XSearchWebscript {
         this.caseService = caseService;
     }
 
+    public void setDocumentTypeService(DocumentTypeService documentTypeService) {
+        this.documentTypeService = documentTypeService;
+    }
 }
-
-

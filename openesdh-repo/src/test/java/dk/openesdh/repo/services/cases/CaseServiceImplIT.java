@@ -1,12 +1,16 @@
 package dk.openesdh.repo.services.cases;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
-
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
+import dk.openesdh.repo.helper.CaseDocumentTestHelper;
+import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.model.CaseStatus;
+import dk.openesdh.repo.model.DocumentStatus;
+import dk.openesdh.repo.model.DocumentType;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.services.documents.DocumentTypeService;
+import dk.openesdh.repo.services.lock.OELockService;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -18,7 +22,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
-
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -40,6 +43,12 @@ import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
 import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -48,16 +57,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
-
-import dk.openesdh.repo.helper.CaseDocumentTestHelper;
-import dk.openesdh.repo.helper.CaseHelper;
-import dk.openesdh.repo.model.CaseStatus;
-import dk.openesdh.repo.model.DocumentStatus;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.services.lock.OELockService;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -138,6 +137,10 @@ public class CaseServiceImplIT {
     @Autowired
     @Qualifier("CaseService")
     protected CaseServiceImpl caseService;
+
+    @Autowired
+    @Qualifier("DocumentTypeService")
+    protected DocumentTypeService documentTypeService;
     //</editor-fold>
 
     private static final String ALICE_BEECHER = "abeecher";
@@ -148,6 +151,7 @@ public class CaseServiceImplIT {
     protected NodeRef temporaryCaseNodeRef;
     private NodeRef dummyUser;
     protected NodeRef nonAdminCreatedCaseNr;
+    private DocumentType documentType;
 
     @Before
     public void setUp() throws Exception {
@@ -165,6 +169,8 @@ public class CaseServiceImplIT {
             namespacePrefixResolver.registerNamespace(NamespaceService.APP_MODEL_PREFIX, NamespaceService.APP_MODEL_1_0_URI);
             namespacePrefixResolver.registerNamespace(OpenESDHModel.CASE_PREFIX, OpenESDHModel.CASE_URI);
 
+            documentType = documentTypeService.getDocumentTypes().stream().findFirst().get();
+
             final Map<QName, Serializable> properties = new HashMap<>();
 
             String caseName = "adminUser createdC case";
@@ -175,6 +181,7 @@ public class CaseServiceImplIT {
             LinkedList<NodeRef> owners = new LinkedList<>();
             owners.add(dummyUser);
             nonAdminCreatedCaseNr = caseHelper.createSimpleCase(caseName, CaseHelper.DEFAULT_USERNAME, dummyUser);
+
             return null;
         });
     }
@@ -481,7 +488,7 @@ public class CaseServiceImplIT {
         assertEquals("Initial status is active", caseService.getNodeStatus(nonAdminCreatedCaseNr), CaseStatus.ACTIVE);
 
         // Add a document
-        NodeRef docFileNodeRef = docTestHelper.createCaseDocument(UUID.randomUUID().toString(), nonAdminCreatedCaseNr);
+        NodeRef docFileNodeRef = docTestHelper.createCaseDocument(UUID.randomUUID().toString(), nonAdminCreatedCaseNr, documentType);
         NodeRef docRecordNodeRef = nodeService.getPrimaryParent(docFileNodeRef).getParentRef();
 
         caseService.changeNodeStatus(nonAdminCreatedCaseNr, CaseStatus.CLOSED);
@@ -517,7 +524,7 @@ public class CaseServiceImplIT {
 
         try {
             // Test that a document cannot be added to a closed case
-            NodeRef doc = docTestHelper.createCaseDocument(UUID.randomUUID().toString(), nonAdminCreatedCaseNr);
+            NodeRef doc = docTestHelper.createCaseDocument(UUID.randomUUID().toString(), nonAdminCreatedCaseNr, documentType);
             fail("A document could be added to a closed case");
         } catch (Exception e) {
         }

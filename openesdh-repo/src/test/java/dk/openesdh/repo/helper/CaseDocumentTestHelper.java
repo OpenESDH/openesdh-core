@@ -1,5 +1,12 @@
 package dk.openesdh.repo.helper;
 
+import dk.openesdh.SimpleCaseModel;
+import dk.openesdh.repo.model.DocumentType;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.services.documents.DocumentTypeService;
+import dk.openesdh.repo.test.TransactionalIT;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -7,7 +14,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -16,12 +22,6 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
-
-import dk.openesdh.SimpleCaseModel;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.test.TransactionalIT;
 
 public class CaseDocumentTestHelper extends TransactionalIT {
 
@@ -34,6 +34,8 @@ public class CaseDocumentTestHelper extends TransactionalIT {
     protected CaseService caseService;
 
     protected DocumentService documentService;
+
+    private DocumentTypeService documentTypeService;
 
     public void setCaseService(CaseService caseService) {
         this.caseService = caseService;
@@ -53,6 +55,10 @@ public class CaseDocumentTestHelper extends TransactionalIT {
 
     public void setDocumentService(DocumentService documentService) {
         this.documentService = documentService;
+    }
+
+    public void setDocumentTypeService(DocumentTypeService documentTypeService) {
+        this.documentTypeService = documentTypeService;
     }
 
     // Create temporary node for use during testing
@@ -93,7 +99,7 @@ public class CaseDocumentTestHelper extends TransactionalIT {
             boolean disableBehaviour) {
         NodeRef caseFolder = nodeService.getChildByName(repositoryHelper.getCompanyHome(),
                 ContentModel.ASSOC_CONTAINS, caseName);
-        if(caseFolder != null){
+        if (caseFolder != null) {
             return caseFolder;
         }
 
@@ -110,21 +116,14 @@ public class CaseDocumentTestHelper extends TransactionalIT {
 
     public void removeNodesAndDeleteUsersInTransaction(final List<NodeRef> nodes, final List<NodeRef> cases,
             final List<String> userNames) {
-
         runInTransactionAsAdmin(() -> {
-            for (NodeRef aCase : cases) {
-                removeCase(aCase);
-            }
-
-            for (NodeRef node : nodes) {
-                if (node != null && nodeService.exists(node)) {
-                    nodeService.deleteNode(node);
-                }
-            }
-
-            for (String userName : userNames) {
-                caseHelper.deleteDummyUser(userName);
-            }
+            cases.stream()
+                    .forEach((aCase) -> removeCase(aCase));
+            nodes.stream()
+                    .filter(node -> node != null && nodeService.exists(node))
+                    .forEach(node -> nodeService.deleteNode(node));
+            userNames.stream()
+                    .forEach((userName) -> caseHelper.deleteDummyUser(userName));
             return true;
         });
     }
@@ -132,9 +131,9 @@ public class CaseDocumentTestHelper extends TransactionalIT {
     private void removeCase(NodeRef aCase) {
         NodeRef caseDocumentsFolder = caseService.getDocumentsFolder(aCase);
         List<ChildAssociationRef> caseDocumentsList = documentService.getDocumentsForCase(aCase);
-        for (ChildAssociationRef caseDocumentAssoc : caseDocumentsList) {
+        caseDocumentsList.stream().forEach((caseDocumentAssoc) -> {
             removeDocument(caseDocumentAssoc.getChildRef());
-        }
+        });
         nodeService.deleteNode(caseDocumentsFolder);
         nodeService.deleteNode(aCase);
     }
@@ -149,19 +148,20 @@ public class CaseDocumentTestHelper extends TransactionalIT {
         nodeService.deleteNode(documentFolderRef);
     }
 
-    public NodeRef createCaseDocument(final String documentName, final NodeRef caseNodeRef) {
-        
+    public NodeRef createCaseDocument(final String documentName, final NodeRef caseNodeRef, DocumentType type) {
         final Map<QName, Serializable> properties = new HashMap<>();
         properties.put(ContentModel.PROP_NAME, documentName);
-        properties.put(OpenESDHModel.PROP_DOC_TYPE, OpenESDHModel.DOCUMENT_TYPE_LETTER);
+        //this will be transfered to folder in DocumentBehavior
+        properties.put(OpenESDHModel.PROP_DOC_TYPE, type.getNodeRef().toString());
         properties.put(OpenESDHModel.PROP_DOC_CATEGORY, OpenESDHModel.DOCUMENT_CATEGORY_OTHER);
         properties.put(OpenESDHModel.PROP_DOC_STATE, OpenESDHModel.DOCUMENT_STATE_RECEIVED);
-        
+
         return runInTransactionAsAdmin(() -> {
             final NodeRef caseDocumentsFolder = caseService.getDocumentsFolder(caseNodeRef);
-            return nodeService.createNode(caseDocumentsFolder, ContentModel.ASSOC_CONTAINS,
+            NodeRef documentNodeRef = nodeService.createNode(caseDocumentsFolder, ContentModel.ASSOC_CONTAINS,
                     QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, documentName),
                     ContentModel.TYPE_CONTENT, properties).getChildRef();
+            return documentNodeRef;
         });
     }
 

@@ -14,11 +14,13 @@
             |               |_forms
             |
             |_ subsystems
-                |_classifications
-                |       |_<classification type> (e.g. KLE)
-                |
-                |_contact_resolution
-                        |_<dSource resolution type> (e.g. cpr_broker)
+            |   |_classifications
+            |   |       |_<classification type> (e.g. KLE)
+            |   |
+            |   |_contact_resolution
+            |           |_<dSource resolution type> (e.g. cpr_broker)
+            |_ clasification
+                |_ document_types
     -->
     <cm:folder view:childName="oe:OpenESDH">
         <app:uifacets />
@@ -130,6 +132,26 @@
                             <sys:store-identifier>SpacesStore</sys:store-identifier>
                             <sys:node-uuid>NH2O4h2O-20w4-b877-9dS1-bb907hNk64e8</sys:node-uuid>
                             <cm:description>The openESDH classification subsystems root</cm:description>
+                        </view:properties>
+                    </cm:folder>
+                </cm:contains>
+            </cm:folder>
+            <cm:folder view:childName="oe:classifications">
+                <cm:name>classifications</cm:name>
+                <view:properties>
+                    <sys:store-protocol>workspace</sys:store-protocol>
+                    <sys:store-identifier>SpacesStore</sys:store-identifier>
+                    <sys:node-uuid>f2115fc6-dfab-4bcc-b3de-0bfef1e411af</sys:node-uuid>
+                    <cm:description>This folder stores all openESDH classifications as DocumentTypes, DocumentCategories etc.</cm:description>
+                </view:properties>
+                <cm:contains>
+                    <cm:folder view:childName="oe:document_types">
+                        <cm:name>Document Types</cm:name>
+                        <view:properties>
+                            <sys:store-protocol>workspace</sys:store-protocol>
+                            <sys:store-identifier>SpacesStore</sys:store-identifier>
+                            <sys:node-uuid>c2de8e23-6db2-4909-b9a6-e670301fd5d2</sys:node-uuid>
+                            <cm:description>This folder stores openESDH DocumentTypes</cm:description>
                         </view:properties>
                     </cm:folder>
                 </cm:contains>

@@ -5,8 +5,17 @@ import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.documents.DocumentTypeService;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
@@ -28,20 +37,18 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.Serializable;
-import java.util.*;
-import java.util.stream.Collectors;
-
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
 @ContextConfiguration({ "classpath:alfresco/application-context.xml",
         "classpath:alfresco/extension/openesdh-test-context.xml" })
-public class DocumentsBehaviourIT {
+public class DocumentBehaviourIT {
 
     private static final String TEST_ADD_DOCUMENT_NAME = "TestAddDocument";
     private static final String TEST_ADD_DOCUMENT_CONTENT = "This is a test add document content...";
     private static final String TEST_FOLDER_NAME = "DocumentServiceImpIT";
     private static final String TEST_CASE_NAME1 = "TestCase1";
+    private static final String TEST_CATEGORY = "other";
+    private static final String TEST_STATE = "received";
 
     @Autowired
     @Qualifier("NodeService")
@@ -59,10 +66,15 @@ public class DocumentsBehaviourIT {
     @Qualifier("CaseDocumentTestHelper")
     protected CaseDocumentTestHelper docTestHelper;
 
+    @Autowired
+    @Qualifier("DocumentTypeService")
+    protected DocumentTypeService documentTypeService;
+
     private NodeRef testFolder;
     private NodeRef testCase1;
     private NodeRef testCase1DocumentsFolder;
     private NodeRef testAddDocument;
+    private DocumentType documentType;
 
     @Before
     public void setUp() throws Exception {
@@ -71,6 +83,7 @@ public class DocumentsBehaviourIT {
         testFolder = docTestHelper.createFolder(TEST_FOLDER_NAME);
         testCase1 = docTestHelper.createCaseBehaviourOn(TEST_CASE_NAME1, testFolder, CaseHelper.DEFAULT_USERNAME);
         testCase1DocumentsFolder = caseService.getDocumentsFolder(testCase1);
+        documentType = documentTypeService.getDocumentTypes().stream().findAny().get();
     }
 
     @After
@@ -85,11 +98,14 @@ public class DocumentsBehaviourIT {
     @Test
     public void shouldAddDocumentToCase() {
         addDocumentToCase();
-        Assert.assertNotNull("The node ref of the added document shouldn't be null", testAddDocument);
+        Assert.assertNotNull(
+                "The node ref of the added document shouldn't be null",
+                testAddDocument);
 
         String resultFileName = (String) nodeService.getProperty(testAddDocument, ContentModel.PROP_NAME);
         String resultExtension = FilenameUtils.getExtension(resultFileName);
-        Assert.assertTrue("The document should keep its original extension",
+        Assert.assertTrue(
+                "The document should keep its original extension",
                 Strings.isNullOrEmpty(resultExtension));
 
         Map<String, NodeRef> caseDocsFolderContent = nodeService.getChildAssocs(testCase1DocumentsFolder).stream().collect(
@@ -102,7 +118,8 @@ public class DocumentsBehaviourIT {
                 "The added document should be put to the document record folder NOT to the case documents folder",
                 caseDocsFolderContent.values().contains(testAddDocument));
 
-        Assert.assertTrue("The case documents folder should contain the added document record folder",
+        Assert.assertTrue(
+                "The case documents folder should contain the added document record folder",
                 hasKey(caseDocsFolderContent.keySet(), TEST_ADD_DOCUMENT_NAME));
 
         NodeRef addedDocRecordFolder = caseDocsFolderContent.get(TEST_ADD_DOCUMENT_NAME);
@@ -111,16 +128,28 @@ public class DocumentsBehaviourIT {
         List<NodeRef> addedDocRecordFolderContent = nodeService.getChildAssocs(addedDocRecordFolder).stream()
                 .map(ChildAssociationRef::getChildRef).collect(Collectors.toList());
 
-        Assert.assertTrue("The document record folder should contain the added document",
+        Assert.assertTrue(
+                "The document record folder should contain the added document",
                 addedDocRecordFolderContent.contains(testAddDocument));
+
+        Assert.assertEquals("The document record folder should contain the added document state",
+                TEST_STATE,
+                nodeService.getProperty(addedDocRecordFolder, OpenESDHModel.PROP_DOC_STATE));
+        Assert.assertEquals("The document record folder should contain the added document category",
+                TEST_CATEGORY,
+                nodeService.getProperty(addedDocRecordFolder, OpenESDHModel.PROP_DOC_CATEGORY));
+        Assert.assertEquals("The document record folder should be the added document type",
+                documentType.getNodeRef(),
+                documentTypeService.getDocumentTypeOfDocument(addedDocRecordFolder).getNodeRef());
+
     }
 
     private void addDocumentToCase() {
         final Map<QName, Serializable> properties = new HashMap<>();
         properties.put(ContentModel.PROP_NAME, TEST_ADD_DOCUMENT_NAME);
-        properties.put(OpenESDHModel.PROP_DOC_TYPE, "letter");
-        properties.put(OpenESDHModel.PROP_DOC_CATEGORY, "other");
-        properties.put(OpenESDHModel.PROP_DOC_STATE, "received");
+        properties.put(OpenESDHModel.PROP_DOC_TYPE, documentType.getNodeRef());
+        properties.put(OpenESDHModel.PROP_DOC_CATEGORY, TEST_CATEGORY);
+        properties.put(OpenESDHModel.PROP_DOC_STATE, TEST_STATE);
         ContentData content = ContentData.createContentProperty(TEST_ADD_DOCUMENT_CONTENT);
         content = ContentData.setMimetype(content, MimeTypes.PLAIN_TEXT);
         properties.put(ContentModel.TYPE_CONTENT, content);

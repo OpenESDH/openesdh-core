@@ -1,20 +1,18 @@
 package dk.openesdh.repo.services.documents;
 
+import dk.openesdh.repo.model.CaseDocument;
+import dk.openesdh.repo.model.CaseDocumentAttachment;
+import dk.openesdh.repo.model.ResultSet;
+import dk.openesdh.repo.services.HasStatus;
+import dk.openesdh.repo.webscripts.documents.Documents;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
-
-import dk.openesdh.repo.services.HasStatus;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
 import org.json.JSONObject;
-
-import dk.openesdh.repo.model.CaseDocument;
-import dk.openesdh.repo.model.CaseDocumentAttachment;
-import dk.openesdh.repo.model.ResultSet;
-import dk.openesdh.repo.webscripts.documents.Documents;
 
 /**
  * Created by torben on 11/09/14.
@@ -55,7 +53,6 @@ public interface DocumentService extends HasStatus {
     public java.util.List<ChildAssociationRef> getDocumentsForCase(NodeRef nodeRef);
 
     JSONObject buildJSON(List<ChildAssociationRef> childAssociationRefs, Documents documents, NodeRef caseNodeRef);
-
 
     public ChildAssociationRef createDocumentFolder(final NodeRef documentsFolder, final String name);
 

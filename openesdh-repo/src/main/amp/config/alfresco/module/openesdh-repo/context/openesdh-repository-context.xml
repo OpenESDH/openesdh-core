@@ -73,6 +73,7 @@
           parent="xsearchWebscript">
         <property name="xSearchService" ref="CaseDocumentsSearchService"/>
         <property name="documentService" ref="DocumentService"/>
+        <property name="documentTypeService" ref="DocumentTypeService"/>
         <property name="caseService" ref="CaseService"/>
     </bean>
 
@@ -118,6 +119,7 @@
           parent="webscript">
         <property name="nodeInfoService" ref="NodeInfoService"/>
         <property name="documentService" ref="DocumentService"/>
+        <property name="documentTypeService" ref="DocumentTypeService"/>
     </bean>
 
     <bean id="webscript.dk.openesdh.iscasenode.get"
@@ -224,6 +226,7 @@
     <bean id="webscript.dk.openesdh.caseemail.post" class="dk.openesdh.repo.webscripts.documents.EmailDocument" parent="webscript">
         <property name="caseService" ref="CaseService" />
         <property name="documentService" ref="DocumentService" />
+        <property name="documentTypeService" ref="DocumentTypeService" />
         <property name="personService" ref="PersonService" />
         <property name="nodeService" ref="NodeService"/>
         <property name="contentService" ref="ContentService" />
@@ -255,6 +258,7 @@
         <property name="caseService" ref="CaseService"/>
         <property name="nodeService" ref="NodeService"/>
         <property name="documentService" ref="DocumentService"/>
+        <property name="documentTypeService" ref="DocumentTypeService"/>
     </bean>
 
     <!--Contacts-->
@@ -342,6 +346,7 @@
           class="dk.openesdh.repo.webscripts.documents.DocumentConstraints">
         <property name="dictionaryService" ref="dictionaryService"/>
         <property name="caseService" ref="CaseService" />
+        <property name="documentTypeService" ref="DocumentTypeService"/>
     </bean>
 
     <bean id="webscript.dk.openesdh.case.caseUserPermissions.get" parent="webscript"
