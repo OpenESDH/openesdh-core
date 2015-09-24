@@ -41,7 +41,7 @@ public class XSearchServiceImpl extends AbstractXSearchService {
             return StringUtils.join(searchTerms, " AND ");
         }
 
-        JSONArray filters = getJsonArray(filtersJSON);
+        JSONArray filters = getJsonArrayReturnNullOnParseException(filtersJSON);
         if (filters != null) {
             for (int i = 0; i < filters.length(); i++) {
                 processFilter(filters.getJSONObject(i))
@@ -56,7 +56,7 @@ public class XSearchServiceImpl extends AbstractXSearchService {
         return StringUtils.join(searchTerms, " AND ");
     }
 
-    protected JSONArray getJsonArray(String s) {
+    protected JSONArray getJsonArrayReturnNullOnParseException(String s) {
         try {
             return new JSONArray(s);
         } catch (JSONException e) {
