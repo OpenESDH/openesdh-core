@@ -1,10 +1,13 @@
 package dk.openesdh.repo.services.xsearch;
 
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
-import dk.openesdh.SimpleCaseModel;
-import dk.openesdh.repo.helper.CaseHelper;
-import dk.openesdh.repo.model.OpenESDHModel;
+import static org.junit.Assert.assertEquals;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.nodelocator.CompanyHomeNodeLocator;
@@ -19,8 +22,8 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,13 +31,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
 
-import static org.junit.Assert.*;
+import dk.openesdh.SimpleCaseModel;
+import dk.openesdh.repo.helper.CaseHelper;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass=SpringJUnit4ClassRunner.class)
@@ -124,9 +125,8 @@ public class XSearchServiceImplIT {
     public void testBuildQuery() throws Exception {
         JSONArray filters = createTestFilters();
         String query = xSearchService.buildQuery(baseType, filters.toString());
-        assertEquals("@cm\\:title:" + AbstractXSearchService.quote(testCaseTitle) +
-                " AND " +
-                "TYPE:" + AbstractXSearchService.quote(baseType), query);
+        assertEquals("@cm\\:title:" + AbstractXSearchService.quote(testCaseTitle) + " AND " + "TYPE:"
+                + AbstractXSearchService.quote(baseType), query);
 
         // TODO: Test other types of filters
     }
@@ -180,12 +180,11 @@ public class XSearchServiceImplIT {
     public void testProcessFilter() throws Exception {
         // Test != operator
         JSONObject filter = createFilterObject("cm:title", "!=", "blah");
-        assertEquals("-@cm\\:title:\"blah\"", xSearchService.processFilter
-                (filter));
+        assertEquals("-@cm\\:title:\"blah\"", xSearchService.processFilter(filter).get());
 
         // Test empty value
         filter = createFilterObject("cm:title", "=", "");
-        assertNull(xSearchService.processFilter(filter));
+        Assert.assertFalse(xSearchService.processFilter(filter).isPresent());
     }
 
     @Test
