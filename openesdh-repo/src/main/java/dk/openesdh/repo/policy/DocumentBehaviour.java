@@ -192,7 +192,7 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
                     this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY);
                     this.nodeService.setProperty(docRecord, OpenESDHModel.PROP_DOC_STATE, doc_state);
                     this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_STATE);
-                    documentTypeService.updateDocumentType(docRecord, documentType);
+                    documentService.updateDocumentType(docRecord, documentType);
                     this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_TYPE);
                 }
             }

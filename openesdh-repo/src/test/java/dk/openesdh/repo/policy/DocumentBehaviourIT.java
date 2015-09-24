@@ -8,6 +8,7 @@ import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.documents.DocumentService;
 import dk.openesdh.repo.services.documents.DocumentTypeService;
 import java.io.Serializable;
 import java.util.Arrays;
@@ -65,6 +66,10 @@ public class DocumentBehaviourIT {
     @Autowired
     @Qualifier("CaseDocumentTestHelper")
     protected CaseDocumentTestHelper docTestHelper;
+
+    @Autowired
+    @Qualifier("DocumentService")
+    protected DocumentService documentService;
 
     @Autowired
     @Qualifier("DocumentTypeService")
@@ -140,7 +145,7 @@ public class DocumentBehaviourIT {
                 nodeService.getProperty(addedDocRecordFolder, OpenESDHModel.PROP_DOC_CATEGORY));
         Assert.assertEquals("The document record folder should be the added document type",
                 documentType.getNodeRef(),
-                documentTypeService.getDocumentTypeOfDocument(addedDocRecordFolder).getNodeRef());
+                documentService.getDocumentType(addedDocRecordFolder).getNodeRef());
 
     }
 

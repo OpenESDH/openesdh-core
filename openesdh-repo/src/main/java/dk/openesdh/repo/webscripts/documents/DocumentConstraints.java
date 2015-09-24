@@ -1,5 +1,6 @@
 package dk.openesdh.repo.webscripts.documents;
 
+import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.DocumentTypeService;
@@ -54,7 +55,7 @@ public class DocumentConstraints extends AbstractWebScript {
             //documentTypes
             jsonResponse.put("documentTypes", new JSONArray(documentTypeService.getDocumentTypes()
                     .stream()
-                    .map(type -> type.toJSONObject())
+                    .map(DocumentType::toJSONObject)
                     .collect(Collectors.toList())));
 
             jsonResponse.write(res.getWriter());

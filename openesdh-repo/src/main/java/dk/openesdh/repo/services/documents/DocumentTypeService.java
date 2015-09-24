@@ -10,22 +10,6 @@ import org.alfresco.service.cmr.repository.NodeRef;
 public interface DocumentTypeService {
 
     /**
-     * Get document type by document NodeRef
-     *
-     * @param docNodeRef
-     * @return DocumentType
-     */
-    public DocumentType getDocumentTypeOfDocument(NodeRef docNodeRef);
-
-    /**
-     * Set document type for document
-     *
-     * @param docNodeRef
-     * @param type
-     */
-    public void updateDocumentType(NodeRef docNodeRef, DocumentType type);
-
-    /**
      * get available document types
      *
      * @return

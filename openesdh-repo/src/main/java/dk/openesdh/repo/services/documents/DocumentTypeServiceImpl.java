@@ -4,7 +4,6 @@ import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 import java.io.Serializable;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,7 +11,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
-import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.InvalidNodeRefException;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -24,26 +22,6 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
     private OpenESDHFoldersService openESDHFoldersService;
     private NodeService nodeService;
 
-    @Override
-    public DocumentType getDocumentTypeOfDocument(NodeRef docNodeRef) {
-        Optional<NodeRef> typeNode = getDocumentTypeOfDoc(docNodeRef);
-        if (typeNode.isPresent()) {
-            return getDocumentType(typeNode.get());
-        }
-        return null;
-    }
-
-    @Override
-    public void updateDocumentType(NodeRef docNodeRef, DocumentType type) {
-        nodeService.setAssociations(docNodeRef, OpenESDHModel.ASSOC_DOC_TYPE, Arrays.asList(type.getNodeRef()));
-    }
-
-    private Optional<NodeRef> getDocumentTypeOfDoc(NodeRef docNodeRef) throws InvalidNodeRefException {
-        Optional<AssociationRef> assocRef = nodeService.getTargetAssocs(docNodeRef, OpenESDHModel.ASSOC_DOC_TYPE).stream().findFirst();
-        return assocRef.isPresent()
-                ? Optional.of(assocRef.get().getTargetRef())
-                : Optional.empty();
-    }
 
     @Override
     public DocumentType saveDocumentType(DocumentType documentType) {

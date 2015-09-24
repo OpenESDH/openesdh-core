@@ -3,7 +3,6 @@ package dk.openesdh.repo.webscripts.xsearch;
 import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.services.documents.DocumentTypeService;
 import dk.openesdh.repo.utils.Utils;
 import java.util.Map;
 import java.util.Set;
@@ -20,7 +19,6 @@ public class DocumentSearch extends XSearchWebscript {
     private static final String CASE_ID_PARAM_NAME = "caseId";
 
     protected DocumentService documentService;
-    protected DocumentTypeService documentTypeService;
     protected CaseService caseService;
 
     /**
@@ -36,7 +34,7 @@ public class DocumentSearch extends XSearchWebscript {
         if (mainDocNodeRef != null) {
             json.put("mainDocNodeRef", mainDocNodeRef.toString());
             //get document type
-            DocumentType documentType = documentTypeService.getDocumentTypeOfDocument(nodeRef);
+            DocumentType documentType = documentService.getDocumentType(nodeRef);
             if (documentType != null) {
                 json.put("doc:type", documentType.getName());
             }
@@ -74,9 +72,5 @@ public class DocumentSearch extends XSearchWebscript {
 
     public void setCaseService(CaseService caseService) {
         this.caseService = caseService;
-    }
-
-    public void setDocumentTypeService(DocumentTypeService documentTypeService) {
-        this.documentTypeService = documentTypeService;
     }
 }

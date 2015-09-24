@@ -3,6 +3,7 @@ package dk.openesdh.repo.services.documents;
 import dk.openesdh.repo.model.CaseDocument;
 import dk.openesdh.repo.model.CaseDocumentAttachment;
 import dk.openesdh.repo.model.DocumentStatus;
+import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.model.ResultSet;
 import dk.openesdh.repo.services.cases.CaseService;
@@ -17,6 +18,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.alfresco.error.AlfrescoRuntimeException;
@@ -573,7 +575,7 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
         properties.put(OpenESDHModel.PROP_DOC_STATE, caseDocument.getState());
         properties.put(OpenESDHModel.PROP_DOC_CATEGORY, caseDocument.getCategory());
         nodeService.setProperties(documentNodeRef, properties);
-        documentTypeService.updateDocumentType(documentNodeRef, caseDocument.getType());
+        updateDocumentType(documentNodeRef, caseDocument.getType());
     }
 
     @Override
@@ -665,7 +667,7 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
         caseDocument.setMainDocNodeRef(getMainDocument(docRecordNodeRef).toString());
         Map<QName, Serializable> props = nodeService.getProperties(docRecordNodeRef);
         caseDocument.setTitle(props.get(ContentModel.PROP_TITLE).toString());
-        caseDocument.setType(documentTypeService.getDocumentTypeOfDocument(docRecordNodeRef));
+        caseDocument.setType(getDocumentType(docRecordNodeRef));
         caseDocument.setState(props.get(OpenESDHModel.PROP_DOC_STATE).toString());
         caseDocument.setStatus(props.get(OpenESDHModel.PROP_OE_STATUS).toString());
         caseDocument.setCategory(props.get(OpenESDHModel.PROP_DOC_CATEGORY).toString());
@@ -791,5 +793,16 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
                 .stream()
                 .filter(assoc -> !assoc.getChildRef().equals(mainDocNodeRef))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public DocumentType getDocumentType(NodeRef docNodeRef) {
+        Optional<AssociationRef> assocRef = nodeService.getTargetAssocs(docNodeRef, OpenESDHModel.ASSOC_DOC_TYPE).stream().findFirst();
+        return assocRef.isPresent() ? documentTypeService.getDocumentType(assocRef.get().getTargetRef()) : null;
+    }
+
+    @Override
+    public void updateDocumentType(NodeRef docNodeRef, DocumentType type) {
+        nodeService.setAssociations(docNodeRef, OpenESDHModel.ASSOC_DOC_TYPE, Arrays.asList(type.getNodeRef()));
     }
 }

@@ -73,7 +73,6 @@
           parent="xsearchWebscript">
         <property name="xSearchService" ref="CaseDocumentsSearchService"/>
         <property name="documentService" ref="DocumentService"/>
-        <property name="documentTypeService" ref="DocumentTypeService"/>
         <property name="caseService" ref="CaseService"/>
     </bean>
 
@@ -119,7 +118,6 @@
           parent="webscript">
         <property name="nodeInfoService" ref="NodeInfoService"/>
         <property name="documentService" ref="DocumentService"/>
-        <property name="documentTypeService" ref="DocumentTypeService"/>
     </bean>
 
     <bean id="webscript.dk.openesdh.iscasenode.get"
@@ -258,7 +256,6 @@
         <property name="caseService" ref="CaseService"/>
         <property name="nodeService" ref="NodeService"/>
         <property name="documentService" ref="DocumentService"/>
-        <property name="documentTypeService" ref="DocumentTypeService"/>
     </bean>
 
     <!--Contacts-->

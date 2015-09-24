@@ -4,7 +4,6 @@ import dk.openesdh.repo.model.CaseInfo;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.services.documents.DocumentTypeService;
 import dk.openesdh.repo.utils.Utils;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -30,7 +29,6 @@ public class LiveSearchCaseDocuments extends DeclarativeWebScript {
     //<editor-fold desc="injected services and initialised properties">
     private CaseService caseService;
     private DocumentService documentService;
-    private DocumentTypeService documentTypeService;
     private NodeService nodeService;
 
     public void setCaseService(CaseService caseService) {
@@ -41,9 +39,6 @@ public class LiveSearchCaseDocuments extends DeclarativeWebScript {
     }
     public void setDocumentService(DocumentService documentService) {
         this.documentService = documentService;
-    }
-    public void setDocumentTypeService(DocumentTypeService documentTypeService) {
-        this.documentTypeService = documentTypeService;
     }
     //</editor-fold>
     private static final Logger logger = Logger.getLogger(LiveSearchCaseDocuments.class);
@@ -94,7 +89,7 @@ public class LiveSearchCaseDocuments extends DeclarativeWebScript {
             caseObj.put("caseTitle", caseItem.getTitle());
 
             documentObj.put("name", docProps.get(ContentModel.PROP_NAME));
-            documentObj.put("type", documentTypeService.getDocumentTypeOfDocument(document).getName());
+            documentObj.put("type", documentService.getDocumentType(document).getName());
             documentObj.put("docState", docProps.get(OpenESDHModel.PROP_DOC_STATE));
             documentObj.put("docStatus", docProps.get(OpenESDHModel.PROP_OE_STATUS));
             documentObj.put("docCategory", docProps.get(OpenESDHModel.PROP_DOC_CATEGORY));

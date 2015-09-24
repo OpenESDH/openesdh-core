@@ -2,6 +2,7 @@ package dk.openesdh.repo.services.documents;
 
 import dk.openesdh.repo.model.CaseDocument;
 import dk.openesdh.repo.model.CaseDocumentAttachment;
+import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.ResultSet;
 import dk.openesdh.repo.services.HasStatus;
 import dk.openesdh.repo.webscripts.documents.Documents;
@@ -132,4 +133,20 @@ public interface DocumentService extends HasStatus {
     public void updateCaseDocumentProperties(CaseDocument caseDocument);
 
     public List<NodeRef> findCaseDocuments(String filter, int size);
+
+    /**
+     * Get document type by document NodeRef
+     *
+     * @param docNodeRef
+     * @return DocumentType
+     */
+    public DocumentType getDocumentType(NodeRef docNodeRef);
+
+    /**
+     * Set document type for document
+     *
+     * @param docNodeRef
+     * @param type
+     */
+    public void updateDocumentType(NodeRef docNodeRef, DocumentType type);
 }

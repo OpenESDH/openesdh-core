@@ -348,7 +348,7 @@ public class DocumentServiceImplIT {
                 props.get(OpenESDHModel.PROP_DOC_CATEGORY));
         Assert.assertEquals("Document state should be updated", OpenESDHModel.DOCUMENT_STATE_FINALISED,
                 props.get(OpenESDHModel.PROP_DOC_STATE));
-        Assert.assertEquals(documentTypeService.getDocumentTypeOfDocument(caseDocNodeRef).getNodeRef(), documentType2.getNodeRef());
+        Assert.assertEquals(documentService.getDocumentType(caseDocNodeRef).getNodeRef(), documentType2.getNodeRef());
 
         Assert.assertEquals("Document title should be updated", TEST_TITLE, props.get(ContentModel.PROP_TITLE));
     }

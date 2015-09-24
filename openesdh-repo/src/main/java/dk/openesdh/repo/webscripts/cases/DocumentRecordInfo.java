@@ -4,7 +4,6 @@ import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.NodeInfoService;
 import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.services.documents.DocumentTypeService;
 import java.io.IOException;
 import java.util.Map;
 import org.alfresco.model.ContentModel;
@@ -24,7 +23,6 @@ public class DocumentRecordInfo extends AbstractWebScript {
 
     private NodeInfoService nodeInfoService;
     private DocumentService documentService;
-    private DocumentTypeService documentTypeService;
 
     public void setNodeInfoService(NodeInfoService nodeInfoService) {
         this.nodeInfoService = nodeInfoService;
@@ -32,10 +30,6 @@ public class DocumentRecordInfo extends AbstractWebScript {
 
     public void setDocumentService(DocumentService documentService) {
         this.documentService = documentService;
-    }
-
-    public void setDocumentTypeService(DocumentTypeService documentTypeService) {
-        this.documentTypeService = documentTypeService;
     }
 
     @Override
@@ -46,7 +40,7 @@ public class DocumentRecordInfo extends AbstractWebScript {
 
         PersonInfo docOwner = documentService.getDocumentOwner(documentNodeRef);
         NodeRef mainDocNodeRef = documentService.getMainDocument(documentNodeRef);
-        DocumentType documentType = documentTypeService.getDocumentTypeOfDocument(documentNodeRef);
+        DocumentType documentType = documentService.getDocumentType(documentNodeRef);
 
         JSONObject result = new JSONObject();
         try {
