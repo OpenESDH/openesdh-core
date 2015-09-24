@@ -35,9 +35,9 @@ public class XSearchServiceImpl extends AbstractXSearchService {
 
     protected String buildQuery(String baseType, String filtersJSON) throws JSONException {
         List<String> searchTerms = new ArrayList<>();
-        searchTerms.add("TYPE:" + quote(baseType));
 
         if (filtersJSON == null) {
+            searchTerms.add("TYPE:" + quote(baseType));
             return StringUtils.join(searchTerms, " AND ");
         }
 
@@ -52,6 +52,7 @@ public class XSearchServiceImpl extends AbstractXSearchService {
                 .ifPresent(searchTerm -> searchTerms.add(searchTerm));
         }
 
+        searchTerms.add("TYPE:" + quote(baseType));
         return StringUtils.join(searchTerms, " AND ");
     }
 
