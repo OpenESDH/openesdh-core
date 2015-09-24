@@ -56,9 +56,6 @@
         <property name="documentService">
             <ref bean="DocumentService"/>
         </property>
-        <property name="documentTypeService">
-            <ref bean="DocumentTypeService"/>
-        </property>
     </bean>
 
 </beans>

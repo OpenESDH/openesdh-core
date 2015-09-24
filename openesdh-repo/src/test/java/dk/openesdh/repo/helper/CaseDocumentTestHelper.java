@@ -5,7 +5,6 @@ import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.services.documents.DocumentTypeService;
 import dk.openesdh.repo.test.TransactionalIT;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -35,8 +34,6 @@ public class CaseDocumentTestHelper extends TransactionalIT {
 
     protected DocumentService documentService;
 
-    private DocumentTypeService documentTypeService;
-
     public void setCaseService(CaseService caseService) {
         this.caseService = caseService;
     }
@@ -55,10 +52,6 @@ public class CaseDocumentTestHelper extends TransactionalIT {
 
     public void setDocumentService(DocumentService documentService) {
         this.documentService = documentService;
-    }
-
-    public void setDocumentTypeService(DocumentTypeService documentTypeService) {
-        this.documentTypeService = documentTypeService;
     }
 
     // Create temporary node for use during testing
@@ -131,9 +124,9 @@ public class CaseDocumentTestHelper extends TransactionalIT {
     private void removeCase(NodeRef aCase) {
         NodeRef caseDocumentsFolder = caseService.getDocumentsFolder(aCase);
         List<ChildAssociationRef> caseDocumentsList = documentService.getDocumentsForCase(aCase);
-        caseDocumentsList.stream().forEach((caseDocumentAssoc) -> {
+        for (ChildAssociationRef caseDocumentAssoc : caseDocumentsList) {
             removeDocument(caseDocumentAssoc.getChildRef());
-        });
+        }
         nodeService.deleteNode(caseDocumentsFolder);
         nodeService.deleteNode(aCase);
     }
@@ -157,11 +150,10 @@ public class CaseDocumentTestHelper extends TransactionalIT {
         properties.put(OpenESDHModel.PROP_DOC_STATE, OpenESDHModel.DOCUMENT_STATE_RECEIVED);
 
         return runInTransactionAsAdmin(() -> {
-            final NodeRef caseDocumentsFolder = caseService.getDocumentsFolder(caseNodeRef);
-            NodeRef documentNodeRef = nodeService.createNode(caseDocumentsFolder, ContentModel.ASSOC_CONTAINS,
+            NodeRef caseDocumentsFolder = caseService.getDocumentsFolder(caseNodeRef);
+            return nodeService.createNode(caseDocumentsFolder, ContentModel.ASSOC_CONTAINS,
                     QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, documentName),
                     ContentModel.TYPE_CONTENT, properties).getChildRef();
-            return documentNodeRef;
         });
     }
 
