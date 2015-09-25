@@ -152,7 +152,6 @@ function getCaseOrCaseDocumentItem(caseId, containerId, pathParts, node, populat
         if (!populate) return {};
         item =
         {
-            //case: node.properties["oe:id"],
             case: isCaseType? node : caseUtils.getCaseInfo(caseId),
             container: containerId,
             nodeRef: node.nodeRef.toString(),
@@ -178,6 +177,7 @@ function getCaseOrCaseDocumentItem(caseId, containerId, pathParts, node, populat
     }
     else if (node.isDocument) {
         item.type = "document";
+        item.docRecordNodeRef = node.parent.nodeRef;
         item.size = node.size;
     }
 
