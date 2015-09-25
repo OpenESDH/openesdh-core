@@ -1,6 +1,7 @@
 package dk.openesdh.repo.webscripts.cases;
 
 import java.io.IOException;
+import java.util.Date;
 import java.util.Map;
 
 import org.alfresco.model.ContentModel;
@@ -50,7 +51,11 @@ public class DocumentRecordInfo extends AbstractWebScript {
             result.put("state", documentNodeInfo.properties.get(OpenESDHModel.PROP_DOC_STATE));
             result.put("status", documentNodeInfo.properties.get(OpenESDHModel.PROP_OE_STATUS));
             result.put("title", documentNodeInfo.properties.get(ContentModel.PROP_TITLE));
-            result.put("created", documentNodeInfo.properties.get(ContentModel.PROP_CREATED));
+
+            Date created = (Date) documentNodeInfo.properties.get(ContentModel.PROP_CREATED);
+            // Returning date in Long format to make it parsable
+            result.put("created", created.getTime());
+
             result.put("owner", docOwner.getFirstName() + " " + docOwner.getLastName());
             result.put("mainDocNodeRef", mainDocNodeRef.toString());
             result.put("statusChoices", documentService.getValidNextStatuses(documentNodeRef));
