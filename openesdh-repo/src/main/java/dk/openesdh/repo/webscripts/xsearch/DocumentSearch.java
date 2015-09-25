@@ -36,7 +36,7 @@ public class DocumentSearch extends XSearchWebscript {
             //get document type
             DocumentType documentType = documentService.getDocumentType(nodeRef);
             if (documentType != null) {
-                json.put("doc:type", documentType.getName());
+                json.put("doc:type", documentType.getDisplayName());
             }
 
             //Get the main document version string

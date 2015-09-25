@@ -286,7 +286,12 @@
         <!-- other types -->
         <type name="doc:dtype">
             <title>Document type</title>
-            <parent>cm:content</parent>
+            <parent>cm:cmobject</parent>
+            <properties>
+                <property name="doc:typeDisplayName">
+                    <type>d:text</type>
+                </property>
+            </properties>
         </type>
     </types>
 

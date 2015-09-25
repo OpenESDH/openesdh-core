@@ -2,6 +2,8 @@ package dk.openesdh.repo.model;
 
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -9,6 +11,7 @@ public class DocumentType {
 
     private NodeRef nodeRef;
     private String name;
+    private String displayName;
 
     public DocumentType() {
     }
@@ -33,11 +36,20 @@ public class DocumentType {
         this.name = name;
     }
 
+    public String getDisplayName() {
+        return displayName;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
     public JSONObject toJSONObject() {
         try {
             JSONObject json = new JSONObject();
             json.put("nodeRef", nodeRef.toString());
             json.put("name", name);
+            json.put("displayName", displayName);
             return json;
         } catch (JSONException ex) {
             throw new AlfrescoRuntimeException("Json error", ex);
@@ -46,6 +58,6 @@ public class DocumentType {
 
     @Override
     public String toString() {
-        return "[" + nodeRef + ", " + name + "]";
+        return ReflectionToStringBuilder.toString(this, ToStringStyle.SHORT_PREFIX_STYLE);
     }
 }

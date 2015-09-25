@@ -127,6 +127,7 @@ public interface OpenESDHModel {
     public static final QName PROP_DOC_CATEGORY = QName.createQName(DOC_URI, "category");
     public static final QName PROP_DOC_VARIANT = QName.createQName(DOC_URI, "variant");
     public static final QName PROP_DOC_TYPE = QName.createQName(DOC_URI, "type");
+    public static final QName PROP_DOC_TYPE_DISPLAY_NAME = QName.createQName(DOC_URI, "typeDisplayName");
     public static final QName PROP_DOC_STATE = QName.createQName(DOC_URI, "state");
 
     public static final QName PROP_CONTACT_EMAIL = QName.createQName(CONTACT_URI, "email");
@@ -201,6 +202,9 @@ public interface OpenESDHModel {
     public static final String DOCUMENT_PROP_NAME = "name";
     public static final String DOCUMENT_PROP_MODIFIED = "modified";
     public static final String DOCUMENT_PROP_MODIFIER = "modifier";
+
+    public static final String DOCUMENT_TYPE_LETTER = "letter";
+    public static final String DOCUMENT_TYPE_INVOICE = "invoice";
 
     public static final String DOCUMENT_CATEGORY_OTHER = "other";
     public static final String DOCUMENT_CATEGORY_CONTRACT = "contract";

@@ -46,6 +46,7 @@ public class DocumentRecordInfo extends AbstractWebScript {
         try {
             result.put("typeId", documentType.getNodeRef().toString());
             result.put("typeName", documentType.getName());
+            result.put("typeDisplayName", documentType.getDisplayName());
 //            result.put("typeChoices", getDocumentTypeChoices());
 
             result.put("category", documentNodeInfo.properties.get(OpenESDHModel.PROP_DOC_CATEGORY));

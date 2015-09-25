@@ -22,11 +22,11 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
     private OpenESDHFoldersService openESDHFoldersService;
     private NodeService nodeService;
 
-
     @Override
     public DocumentType saveDocumentType(DocumentType documentType) {
         Map<QName, Serializable> properties = new HashMap<>();
         properties.put(ContentModel.PROP_NAME, documentType.getName());
+        properties.put(OpenESDHModel.PROP_DOC_TYPE_DISPLAY_NAME, documentType.getDisplayName());
         if (documentType.getNodeRef() == null) {
             ChildAssociationRef createdNode = nodeService.createNode(
                     getDocumentTypesRoot(),
@@ -56,6 +56,7 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
             DocumentType type = new DocumentType();
             type.setNodeRef(nodeRef);
             type.setName((String) properties.get(ContentModel.PROP_NAME));
+            type.setDisplayName((String) properties.get(OpenESDHModel.PROP_DOC_TYPE_DISPLAY_NAME));
             return type;
         } catch (InvalidNodeRefException none) {
             //node does not exist
@@ -64,14 +65,12 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
     }
 
     @Override
-    public DocumentType getDocumentTypeByName(String typeName) {
-        Optional<DocumentType> typeByName = nodeService
-                .getChildAssocs(getDocumentTypesRoot())
+    public Optional<DocumentType> getDocumentTypeByName(String typeName) {
+        return nodeService.getChildAssocs(getDocumentTypesRoot())
                 .stream()
-                .filter(assocItem -> assocItem.getQName().getLocalName().equals(typeName))
                 .map(assocItem -> getDocumentType(assocItem.getChildRef()))
+                .filter(type -> type.getName().equals(typeName))
                 .findAny();
-        return typeByName.orElse(null);
     }
 
     @Override

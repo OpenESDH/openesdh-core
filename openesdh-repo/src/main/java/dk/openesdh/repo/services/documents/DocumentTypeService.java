@@ -2,6 +2,7 @@ package dk.openesdh.repo.services.documents;
 
 import dk.openesdh.repo.model.DocumentType;
 import java.util.List;
+import java.util.Optional;
 import org.alfresco.service.cmr.repository.NodeRef;
 
 /**
@@ -31,7 +32,7 @@ public interface DocumentTypeService {
      * @return
      */
     public DocumentType getDocumentType(NodeRef nodeRef);
-    public DocumentType getDocumentTypeByName(String typeName);
+    public Optional<DocumentType> getDocumentTypeByName(String typeName);
 
     /**
      * Delete

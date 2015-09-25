@@ -1,5 +1,6 @@
 package dk.openesdh.repo.webscripts.documents;
 
+import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.DocumentService;
@@ -73,7 +74,9 @@ public class EmailDocument extends AbstractWebScript {
         NodeRef nodeRef = caseService.getCaseById(caseId);
         NodeRef documentsFolder = caseService.getDocumentsFolder(nodeRef);
         Map<QName, Serializable> props = new HashMap<>();
-        props.put(OpenESDHModel.PROP_DOC_TYPE, documentTypeService.getDocumentTypeByName("Letter").getNodeRef());
+        DocumentType documentType = documentTypeService.getDocumentTypeByName(OpenESDHModel.DOCUMENT_TYPE_LETTER)
+                .orElseThrow(() -> new WebScriptException("Document type \"letter\" not found"));
+        props.put(OpenESDHModel.PROP_DOC_TYPE, documentType.getNodeRef());
         props.put(OpenESDHModel.PROP_DOC_CATEGORY, "other");
         props.put(OpenESDHModel.PROP_DOC_STATE, "received");
         NodeRef documentFolder = documentService.createDocumentFolder(documentsFolder, name, props).getChildRef();
