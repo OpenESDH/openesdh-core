@@ -849,7 +849,11 @@ function processMultiValue(propName, propValue, operand, pseudo) {
  */
 function resolveRootNode(reference) {
     try {
-        var node = utils.resolveNodeReference(reference);
+        var node = null;
+        if (reference == "openesdh://cases/home")
+            node = caseUtils.resolveCasesHomeNodeRef();
+        else node = utils.resolveNodeReference(reference);
+
         if (node === null) {
             logger.warn("Unable to resolve specified root node reference: " + reference);
         }

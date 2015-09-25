@@ -268,57 +268,22 @@
     <bean id="webscript.dk.openesdh.contact.contact.get" parent="contactAbstractWebscript"/>
     <bean id="webscript.dk.openesdh.contact.contact.delete" parent="contactAbstractWebscript"/>
 
-    <!--Rootscope javascript objects-->
-    <bean id="contactUtils" parent="baseJavaScriptExtension" class="dk.openesdh.repo.rootScopeExt.Contact">
-        <property name="extensionName">
-            <value>contactUtil</value>
-        </property>
-        <property name="contactService" ref="ContactService"/>
-    </bean>
-    <bean id="script-caseUtils" parent="baseJavaScriptExtension" class="dk.openesdh.repo.rootScopeExt.CaseUtils">
-        <property name="extensionName">
-            <value>caseUtils</value>
-        </property>
-        <property name="caseService" ref="CaseService"/>
-        <property name="documentService" ref="DocumentService"/>
-        <property name="services" ref="ServiceRegistry"/>
-    </bean>
-    <!-- ****************************************************** -->
-    <!-- ************** VERY VERY VERY IMPORTANT ************** -->
-    <!-- ****************************************************** -->
-    <!-- This overrides the ootb utils, rootscope javascript    -->
-    <!-- object to provide additional features to accomodate    -->
-    <!-- openESDH. See resolveNodeReference()#80                -->
-    <!-- ****************************************************** -->
-    <!-- ****************************************************** -->
-    <bean id="utilsScript" parent="baseJavaScriptExtension" class="dk.openesdh.repo.rootScopeExt.UtilsExt" depends-on="openesdh-repo_dictionaryBootstrap">
-        <property name="extensionName">
-            <value>utils</value>
-        </property>
-        <property name="serviceRegistry">
-            <ref bean="ServiceRegistry"/>
-        </property>
-        <property name="nodeService" ref="nodeService"/>
-        <property name="caseService" ref="CaseService"/>
-    </bean>
-
     <!--Parties-->
     <!--Permitted Roles-->
     <bean id="webscript.dk.openesdh.case.permittedRoles.get" parent="webscript"
           class="dk.openesdh.repo.webscripts.cases.PermittedRoles">
+
         <property name="dictionaryService" ref="dictionaryService"/>
     </bean>
     
-    <bean id="casePartyRoleWebscript"
-          class="dk.openesdh.repo.webscripts.cases.CasePartyRole"
-          parent="webscript">
+    <bean id="casePartyRoleWebscript" class="dk.openesdh.repo.webscripts.cases.CasePartyRole" parent="webscript">
         <property name="partyService" ref="PartyService"/>
         <property name="contactService" ref="ContactService"/>
     </bean>
-    <bean id="webscript.dk.openesdh.case.parties.party.get" parent="casePartyRoleWebscript"></bean>
-    <bean id="webscript.dk.openesdh.case.parties.party.post" parent="casePartyRoleWebscript"></bean>
-    <bean id="webscript.dk.openesdh.case.parties.party.put" parent="casePartyRoleWebscript"></bean>
-    <bean id="webscript.dk.openesdh.case.parties.party.delete" parent="casePartyRoleWebscript"></bean>
+    <bean id="webscript.dk.openesdh.case.parties.party.get" parent="casePartyRoleWebscript"/>
+    <bean id="webscript.dk.openesdh.case.parties.party.post" parent="casePartyRoleWebscript"/>
+    <bean id="webscript.dk.openesdh.case.parties.party.put" parent="casePartyRoleWebscript"/>
+    <bean id="webscript.dk.openesdh.case.parties.party.delete" parent="casePartyRoleWebscript"/>
 
     <!--Miscellaneous-->
     <bean id="webscript.dk.openesdh.case.searchDefinition.get" parent="webscript"
