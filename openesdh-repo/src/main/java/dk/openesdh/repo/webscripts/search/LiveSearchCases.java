@@ -61,6 +61,7 @@ public class LiveSearchCases extends DeclarativeWebScript {
         JSONArray result = new JSONArray();
         for(CaseInfo caseItem : cases){
             JSONObject caseObj = new JSONObject();
+            caseObj.put("caseNodeRef", caseItem.getNodeRef());
             caseObj.put("caseId", caseItem.getCaseId());
             caseObj.put("caseTitle",caseItem.getTitle());
             caseObj.put("caseEndDate",caseItem.getEndDate());

@@ -5,6 +5,7 @@ import org.alfresco.repo.jscript.ScriptNode;
 import org.alfresco.repo.jscript.ScriptUtils;
 import org.alfresco.repo.jscript.ValueConverter;
 import org.alfresco.repo.nodelocator.*;
+import org.alfresco.repo.web.scripts.RepositoryContainer;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -16,14 +17,26 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
+ * This is an override of the org.alfresco.repo.jscript.ScriptUtils class rather than an override of the
+ * org.alfresco.web.scripts.WebScriptUtils. However because the latter is an override of the former we must include
+ * an instance of the "repository container" in ours. Essentially meaning that we're overriding the former.
+ * (i.e. org.alfresco.web.scripts.WebScriptUtils).
+ *
  * @author Lanre Abiwon.
  */
-public class UtilsExt extends ScriptUtils {
+public class UtilsExt extends ScriptUtils{
 
-    /** Services */
+    /**
+     * Services
+     */
     protected ServiceRegistry services;
     private NodeService unprotNodeService;
     private CaseService caseService;
+    protected RepositoryContainer repositoryContainer;
+
+    public void setRepositoryContainer(RepositoryContainer repositoryContainer) {
+        this.repositoryContainer = repositoryContainer;
+    }
 
     public void setCaseService(CaseService caseService) {
         this.caseService = caseService;
@@ -95,6 +108,7 @@ public class UtilsExt extends ScriptUtils {
                 break;
         }
 
+        System.out.println("About to return: " + nodeRef.toString());
         return nodeRef != null ? (ScriptNode) new ValueConverter().convertValueForScript(this.services, getScope(), null, nodeRef) : null;
     }
 }

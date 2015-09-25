@@ -152,7 +152,6 @@ function getCaseOrCaseDocumentItem(caseId, containerId, pathParts, node, populat
         if (!populate) return {};
         item =
         {
-            //case: node.properties["oe:id"],
             case: isCaseType? node : caseUtils.getCaseInfo(caseId),
             container: containerId,
             nodeRef: node.nodeRef.toString(),
@@ -178,6 +177,7 @@ function getCaseOrCaseDocumentItem(caseId, containerId, pathParts, node, populat
     }
     else if (node.isDocument) {
         item.type = "document";
+        item.docRecordNodeRef = node.parent.nodeRef;
         item.size = node.size;
     }
 
@@ -849,7 +849,11 @@ function processMultiValue(propName, propValue, operand, pseudo) {
  */
 function resolveRootNode(reference) {
     try {
-        var node = utils.resolveNodeReference(reference);
+        var node = null;
+        if (reference == "openesdh://cases/home")
+            node = caseUtils.resolveCasesHomeNodeRef();
+        else node = utils.resolveNodeReference(reference);
+
         if (node === null) {
             logger.warn("Unable to resolve specified root node reference: " + reference);
         }

@@ -4,6 +4,7 @@ import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.DocumentService;
 import org.alfresco.repo.jscript.BaseScopableProcessorExtension;
 import org.alfresco.repo.jscript.ScriptNode;
+import org.alfresco.repo.jscript.ValueConverter;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
 
@@ -29,6 +30,11 @@ public class CaseUtils extends BaseScopableProcessorExtension{
             caseId = caseService.getCaseId(caseNodeRef);
         }
         return caseId;
+    }
+
+    public ScriptNode resolveCasesHomeNodeRef(){
+        NodeRef nodeRef = caseService.getCasesRootNodeRef();
+        return (ScriptNode) new ValueConverter().convertValueForScript(this.services, getScope(), null, nodeRef);
     }
 
     //<editor-fold desc="injected bean setters">
