@@ -12,6 +12,7 @@ public class DocumentType {
     private NodeRef nodeRef;
     private String name;
     private String displayName;
+    private Boolean systemType;
 
     public DocumentType() {
     }
@@ -44,12 +45,21 @@ public class DocumentType {
         this.displayName = displayName;
     }
 
+    public Boolean getSystemType() {
+        return systemType;
+    }
+
+    public void setSystemType(Boolean systemType) {
+        this.systemType = systemType;
+    }
+
     public JSONObject toJSONObject() {
         try {
             JSONObject json = new JSONObject();
             json.put("nodeRef", nodeRef.toString());
             json.put("name", name);
             json.put("displayName", displayName);
+            json.put("systemType", systemType);
             return json;
         } catch (JSONException ex) {
             throw new AlfrescoRuntimeException("Json error", ex);

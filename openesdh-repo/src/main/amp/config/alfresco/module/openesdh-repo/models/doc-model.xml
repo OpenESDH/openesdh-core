@@ -87,6 +87,12 @@
                 </list>
             </parameter>
         </constraint>
+        
+        <constraint name="doc:displayNameConstr" type="LENGTH">
+            <parameter name="maxLength">
+                <value>150</value>
+            </parameter>
+        </constraint>
     </constraints>
     <types>
         <type name="doc:base">
@@ -289,7 +295,14 @@
             <parent>cm:cmobject</parent>
             <properties>
                 <property name="doc:typeDisplayName">
-                    <type>d:text</type>
+                    <type>d:mltext</type>
+                    <constraints>
+                        <constraint ref="doc:displayNameConstr"/>
+                    </constraints>
+                </property>
+                <property name="doc:systemType">
+                    <type>d:boolean</type>
+                    <default>false</default>
                 </property>
             </properties>
         </type>

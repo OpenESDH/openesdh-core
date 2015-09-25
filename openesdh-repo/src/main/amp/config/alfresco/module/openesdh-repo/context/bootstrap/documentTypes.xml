@@ -7,7 +7,8 @@
     <doc:dtype view:childName="doc:atype">
         <cm:name>invoice</cm:name>
         <view:properties>
-            <doc:typeDisplayName>invoice</doc:typeDisplayName>
+            <doc:typeDisplayName>Invoice</doc:typeDisplayName>
+            <doc:systemType>true</doc:systemType>
             <sys:store-protocol>workspace</sys:store-protocol>
             <sys:store-identifier>SpacesStore</sys:store-identifier>
             <sys:node-uuid>be36694a-a463-4d0a-8389-9473bdc65280</sys:node-uuid>
@@ -16,6 +17,7 @@
     <doc:dtype view:childName="doc:atype">
         <cm:name>letter</cm:name>
         <view:properties>
+            <doc:systemType>true</doc:systemType>
             <doc:typeDisplayName>Letter</doc:typeDisplayName>
             <sys:store-protocol>workspace</sys:store-protocol>
             <sys:store-identifier>SpacesStore</sys:store-identifier>

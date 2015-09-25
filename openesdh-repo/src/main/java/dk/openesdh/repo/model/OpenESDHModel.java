@@ -128,6 +128,7 @@ public interface OpenESDHModel {
     public static final QName PROP_DOC_VARIANT = QName.createQName(DOC_URI, "variant");
     public static final QName PROP_DOC_TYPE = QName.createQName(DOC_URI, "type");
     public static final QName PROP_DOC_TYPE_DISPLAY_NAME = QName.createQName(DOC_URI, "typeDisplayName");
+    public static final QName PROP_DOC_TYPE_SYSTEM = QName.createQName(DOC_URI, "systemType");
     public static final QName PROP_DOC_STATE = QName.createQName(DOC_URI, "state");
 
     public static final QName PROP_CONTACT_EMAIL = QName.createQName(CONTACT_URI, "email");

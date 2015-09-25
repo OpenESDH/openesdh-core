@@ -4,6 +4,7 @@ import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 import java.io.Serializable;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,14 +20,21 @@ import org.alfresco.service.namespace.QName;
 
 public class DocumentTypeServiceImpl implements DocumentTypeService {
 
+    public static List<String> SYSTEM_TYPES = Arrays.asList("invoice", "letter");
     private OpenESDHFoldersService openESDHFoldersService;
     private NodeService nodeService;
 
     @Override
     public DocumentType saveDocumentType(DocumentType documentType) {
-        Map<QName, Serializable> properties = new HashMap<>();
+        Map<QName, Serializable> properties = getProperties(documentType.getNodeRef());
+        if (isSystemType(properties)) {
+            throwErrorIfSystemNameWasChanged(properties, documentType);
+        } else {
+            properties.put(OpenESDHModel.PROP_DOC_TYPE_SYSTEM, false);
+        }
         properties.put(ContentModel.PROP_NAME, documentType.getName());
         properties.put(OpenESDHModel.PROP_DOC_TYPE_DISPLAY_NAME, documentType.getDisplayName());
+
         if (documentType.getNodeRef() == null) {
             ChildAssociationRef createdNode = nodeService.createNode(
                     getDocumentTypesRoot(),
@@ -39,6 +47,24 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
         }
         nodeService.setProperties(documentType.getNodeRef(), properties);
         return documentType;
+    }
+
+    private boolean isSystemType(Map<QName, Serializable> properties) {
+        return properties.get(OpenESDHModel.PROP_DOC_TYPE_SYSTEM) != null
+                && (Boolean) properties.get(OpenESDHModel.PROP_DOC_TYPE_SYSTEM);
+    }
+
+    private void throwErrorIfSystemNameWasChanged(Map<QName, Serializable> properties, DocumentType documentType) throws AlfrescoRuntimeException {
+        if (!properties.get(ContentModel.PROP_NAME).equals(documentType.getName())) {
+            throw new AlfrescoRuntimeException("Can not change name of system document type");
+        }
+    }
+
+    private Map<QName, Serializable> getProperties(NodeRef nodeRef) throws InvalidNodeRefException {
+        if (nodeRef == null) {
+            return new HashMap<>();
+        }
+        return nodeService.getProperties(nodeRef);
     }
 
     private NodeRef getDocumentTypesRoot() {
@@ -57,6 +83,7 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
             type.setNodeRef(nodeRef);
             type.setName((String) properties.get(ContentModel.PROP_NAME));
             type.setDisplayName((String) properties.get(OpenESDHModel.PROP_DOC_TYPE_DISPLAY_NAME));
+            type.setSystemType((Boolean) properties.get(OpenESDHModel.PROP_DOC_TYPE_SYSTEM));
             return type;
         } catch (InvalidNodeRefException none) {
             //node does not exist
@@ -75,8 +102,8 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
 
     @Override
     public void deleteDocumentType(DocumentType documentType) {
-        if (!nodeService.getSourceAssocs(documentType.getNodeRef(), OpenESDHModel.TYPE_DOC_TYPE).isEmpty()) {
-            throw new AlfrescoRuntimeException("Cannot delete document type. It is associated with existing documents");
+        if ((Boolean) nodeService.getProperty(documentType.getNodeRef(), OpenESDHModel.PROP_DOC_TYPE_SYSTEM)) {
+            throw new AlfrescoRuntimeException("Cannot delete system document type.");
         }
         nodeService.deleteNode(documentType.getNodeRef());
 

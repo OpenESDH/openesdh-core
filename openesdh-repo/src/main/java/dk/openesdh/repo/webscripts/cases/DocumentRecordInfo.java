@@ -45,7 +45,7 @@ public class DocumentRecordInfo extends AbstractWebScript {
         JSONObject result = new JSONObject();
         try {
             result.put("typeId", documentType.getNodeRef().toString());
-            result.put("typeName", documentType.getName());
+            result.put("typeName", documentType.getDisplayName());
             result.put("typeDisplayName", documentType.getDisplayName());
 //            result.put("typeChoices", getDocumentTypeChoices());
 
