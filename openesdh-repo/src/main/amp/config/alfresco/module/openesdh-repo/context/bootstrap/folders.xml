@@ -157,27 +157,6 @@
                             <sys:node-uuid>329bc79a-5693-4d79-9d0b-365ecc02277d</sys:node-uuid>
                             <cm:description>The openESDH file templates root</cm:description>
                         </view:properties>
-                        <cm:contains>
-                            <cm:content view:childName="cm:test-template.odt">
-                                <view:aspects>
-                                    <cm:auditable/>
-                                    <sys:referenceable/>
-                                    <cm:titled />
-                                    <cm:author />
-                                </view:aspects>
-                                <view:properties>
-                                    <cm:author>Magenta-Aps</cm:author>
-                                    <cm:name>test-template.odt</cm:name>
-                                    <cm:title>Test template</cm:title>
-                                    <sys:store-protocol>workspace</sys:store-protocol>
-                                    <sys:store-identifier>SpacesStore</sys:store-identifier>
-                                    <cm:description>A test office template.</cm:description>
-                                    <cm:content>contentUrl=classpath:alfresco/module/openesdh-repo/context/bootstrap/officetemplates/test-template.odt|mimetype=application/vnd.oasis.opendocument.text|size=|encoding=UTF-8|locale=en_GB_</cm:content>
-                                    <sys:node-uuid>5d2ad9ca-084d-489f-b64e-c345cdec6f61</sys:node-uuid>
-                                </view:properties>
-                                <view:associations/>
-                            </cm:content>
-                        </cm:contains>
                     </cm:folder>
                 </cm:contains>
             </cm:folder>

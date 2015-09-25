@@ -90,66 +90,15 @@ public class OfficeTemplateFillPost extends AbstractRESTWebscript {
             try {
                 Map<String, Serializable> model = new HashMap<>();
                 JSONObject json = WebScriptUtils.readJson(req);
-                JSONObject modelJson = (JSONObject) json.get("model");
-                if (modelJson != null) {
+                JSONObject fieldData = (JSONObject) json.get("fieldData");
+                if (fieldData != null) {
                     // Add the user input to the template model
-                    modelJson.forEach((k, v) -> {
+                    fieldData.forEach((k, v) -> {
                         model.put((String) k, (Serializable) v);
                     });
-                    // Anything that is to be filled in automatically by the
-                    // system will be overwritten in the following code.
-                }
-
-                String caseId = (String) json.get("caseId");
-                if (caseId != null) {
-                    NodeRef caseNodeRef = caseService.getCaseById(caseId);
-                    CaseInfo caseInfo = caseService.getCaseInfo(caseNodeRef);
-                    model.put("case.id", caseInfo.getCaseId());
-                    model.put("case.title", caseInfo.getTitle());
-
-                    NodeInfoService.NodeInfo nodeInfo = nodeInfoService.getNodeInfo(caseNodeRef);
-                    List<QName> requiredProps = Arrays.asList(OpenESDHModel.PROP_OE_ID, ContentModel.PROP_TITLE,
-                            OpenESDHModel.ASSOC_CASE_OWNERS, OpenESDHModel.PROP_OE_STATUS,
-                            ContentModel.PROP_CREATOR, ContentModel.PROP_CREATED, ContentModel.PROP_MODIFIED,
-                            ContentModel.PROP_MODIFIER, ContentModel.PROP_DESCRIPTION,
-                            OpenESDHModel.PROP_OE_JOURNALKEY, OpenESDHModel.PROP_OE_JOURNALFACET,
-                            OpenESDHModel.PROP_OE_LOCKED_BY, OpenESDHModel.PROP_OE_LOCKED_DATE
-                    );
-
-                    org.json.JSONObject infoJson = nodeInfoService.getSelectedProperties(nodeInfo, null, requiredProps);
-                    model.put("case.type", getPropertyValue("base:type", infoJson));
-                    model.put("case.journalKey", getPropertyValue("oe:journalKey", infoJson));
-                }
-
-                String userName = AuthenticationUtil.getFullyAuthenticatedUser();
-                NodeRef personNodeRef = personService.getPerson(userName);
-                try {
-                    PersonService.PersonInfo personInfo = personService.getPerson(personNodeRef);
-                    String fullName = personInfo.getFirstName() + " " + personInfo.getLastName();
-                    model.put("user.username", userName);
-                    model.put("user.name", fullName);
-                    Map<QName, Serializable> userProps = nodeService.getProperties(personInfo.getNodeRef());
-                    model.put("user.email", userProps.getOrDefault(ContentModel
-                            .PROP_EMAIL, ""));
-                    model.put("user.telephoneNumber", userProps.getOrDefault(ContentModel.PROP_TELEPHONE, ""));
-                    model.put("user.position", userProps.getOrDefault(ContentModel.PROP_JOBTITLE, ""));
-                    model.put("user.department", userProps.getOrDefault(ContentModel.PROP_LOCATION, ""));
-                } catch (NoSuchPersonException e) {
-                    LOGGER.warn("Problem retrieving user's details when filling template", e);
-                }
-
-                String contactNodeRefStr = (String) json.get("contactNodeRef");
-                if (caseId != null && contactNodeRefStr != null) {
-                    NodeRef contactNodeRef = new NodeRef(contactNodeRefStr);
-                    ContactInfo contactInfo  = contactService.getContactInfo(contactNodeRef);
-                    model.put("receiver.city", contactInfo.getCityName());
-                    model.put("receiver.postnumber", contactInfo.getPostCode());
-                    model.put("receiver.name", contactInfo.getName());
-                    model.put("receiver." + (contactInfo.getType().equalsIgnoreCase("PERSON") ? "cpr" : "cvr"), contactInfo.getIDNumebr());
                 }
 
                 ContentReader reader = officeTemplateService.renderTemplate(nodeRef, model);
-//                res.setContentEncoding(reader.getEncoding());
                 res.setContentType(reader.getMimetype());
                 reader.getContent(res.getOutputStream());
             } catch (Exception e) {

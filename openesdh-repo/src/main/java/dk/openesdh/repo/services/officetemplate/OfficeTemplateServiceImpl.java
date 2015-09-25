@@ -15,6 +15,7 @@ import org.odftoolkit.odfdom.doc.OdfDocument;
 import org.odftoolkit.odfdom.dom.element.text.TextUserFieldDeclElement;
 import org.odftoolkit.simple.TextDocument;
 import org.odftoolkit.simple.common.field.VariableField;
+import org.springframework.util.StringUtils;
 import org.w3c.dom.NodeList;
 
 import java.io.*;
@@ -91,7 +92,11 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
         Map<QName, Serializable> properties = nodeService.getProperties(templateNodeRef);
         OfficeTemplate template = new OfficeTemplate();
         template.setName((String) properties.get(ContentModel.PROP_NAME));
-        template.setTitle((String) properties.get(ContentModel.PROP_TITLE));
+        String title = (String) properties.get(ContentModel.PROP_TITLE);
+        if (title == null) {
+            title = StringUtils.stripFilenameExtension(template.getName());
+        }
+        template.setTitle(title);
         template.setNodeRef(templateNodeRef.toString());
 
         if (withFields) {
