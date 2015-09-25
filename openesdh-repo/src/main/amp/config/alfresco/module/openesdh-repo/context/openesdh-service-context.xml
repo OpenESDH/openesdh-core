@@ -294,4 +294,15 @@
         <property name="namespaceService" ref="NamespaceService"/>
         <property name="dictionaryService" ref="DictionaryService" />
     </bean>
+
+    <bean id="OfficeTemplateService"
+          class="dk.openesdh.repo.services.officetemplate.OfficeTemplateServiceImpl"
+          init-method="init">
+        <property name="nodeService" ref="NodeService" />
+        <property name="fileFolderService" ref="FileFolderService" />
+        <property name="contentService" ref="ContentService" />
+        <property name="repositoryHelper" ref="repositoryHelper" />
+        <property name="mimetypeService" ref="mimetypeService"/>
+    </bean>
+
 </beans>
