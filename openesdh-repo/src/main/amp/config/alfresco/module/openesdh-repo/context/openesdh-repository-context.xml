@@ -379,13 +379,6 @@
           class="dk.openesdh.repo.webscripts.officetemplate.OfficeTemplateFillPost"
           parent="webscript">
         <property name="officeTemplateService" ref="OfficeTemplateService"/>
-        <property name="caseService" ref="CaseService"/>
-        <property name="contactService" ref="ContactService"/>
-        <property name="nodeInfoService" ref="NodeInfoService"/>
-        <property name="contentService" ref="ContentService"/>
-        <property name="nodeService" ref="NodeService"/>
-        <property name="partyService" ref="PartyService"/>
-        <property name="personService" ref="PersonService"/>
     </bean>
 </beans>
 
