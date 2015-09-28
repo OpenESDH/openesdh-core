@@ -85,10 +85,12 @@ public class LiveSearchCaseDocuments extends DeclarativeWebScript {
             NodeRef docCase = documentService.getCaseNodeRef(document);
             CaseInfo caseItem = caseService.getCaseInfo(docCase);
             //Create the case object which we'll stuff into the document object
+            caseObj.put("caseNodeRef", caseItem.getNodeRef());
             caseObj.put("caseId", caseItem.getCaseId());
             caseObj.put("caseTitle", caseItem.getTitle());
 
             documentObj.put("name", docProps.get(ContentModel.PROP_NAME));
+            documentObj.put("nodeRef", document);
             documentObj.put("type", documentService.getDocumentType(document).getDisplayName());
             documentObj.put("docState", docProps.get(OpenESDHModel.PROP_DOC_STATE));
             documentObj.put("docStatus", docProps.get(OpenESDHModel.PROP_OE_STATUS));
