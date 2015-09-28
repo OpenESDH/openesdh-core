@@ -1,10 +1,22 @@
 package dk.openesdh.repo.services.documents;
 
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
+import dk.openesdh.repo.helper.CaseDocumentTestHelper;
+import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.model.CaseDocument;
+import dk.openesdh.repo.model.CaseDocumentAttachment;
+import dk.openesdh.repo.model.DocumentCategory;
+import dk.openesdh.repo.model.DocumentStatus;
+import dk.openesdh.repo.model.DocumentType;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.model.ResultSet;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.lock.OELockService;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
@@ -27,20 +39,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.CollectionUtils;
-
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
-
-import dk.openesdh.repo.helper.CaseDocumentTestHelper;
-import dk.openesdh.repo.helper.CaseHelper;
-import dk.openesdh.repo.model.CaseDocument;
-import dk.openesdh.repo.model.CaseDocumentAttachment;
-import dk.openesdh.repo.model.DocumentStatus;
-import dk.openesdh.repo.model.DocumentType;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.model.ResultSet;
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.lock.OELockService;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -86,6 +84,10 @@ public class DocumentServiceImplIT {
     @Qualifier("DocumentTypeService")
     private DocumentTypeServiceImpl documentTypeService;
 
+    @Autowired
+    @Qualifier("DocumentCategoryService")
+    private DocumentCategoryServiceImpl documentCategoryService;
+
     private static final String TEST_TITLE = "TEST TITLE";
     private static final String TEST_FOLDER_NAME = "DocumentServiceImpIT";
     private static final String TEST_CASE_NAME1 = "TestCase1";
@@ -119,7 +121,6 @@ public class DocumentServiceImplIT {
     private NodeRef testDocument4;
     private NodeRef testDocumentRecFolder4;
     private NodeRef testDocumentAttachment3;
-    private DocumentType documentType1;
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
@@ -131,8 +132,7 @@ public class DocumentServiceImplIT {
         testCase1 = docTestHelper.createCaseBehaviourOn(TEST_CASE_NAME1, testFolder, CaseHelper.DEFAULT_USERNAME);
         testCase2 = docTestHelper.createCaseBehaviourOn(TEST_CASE_NAME2, testFolder, CaseHelper.DEFAULT_USERNAME);
 
-        documentType1 = documentTypeService.getDocumentTypes().stream().findFirst().get();
-        testDocument = docTestHelper.createCaseDocument(TEST_DOCUMENT_FILE_NAME, testCase1, documentType1);
+        testDocument = docTestHelper.createCaseDocument(TEST_DOCUMENT_FILE_NAME, testCase1);
 
         testDocumentRecFolder = nodeService.getPrimaryParent(testDocument).getParentRef();
         testDocumentAttachment = docTestHelper.createCaseDocumentAttachment(TEST_DOCUMENT_ATTACHMENT_FILE_NAME,
@@ -259,7 +259,7 @@ public class DocumentServiceImplIT {
     @Test
     public void shouldCreateAndRetrieveDocumentsWithAttachments() {
 
-        testDocument2 = docTestHelper.createCaseDocument(TEST_DOCUMENT_FILE_NAME2, testCase1, documentType1);
+        testDocument2 = docTestHelper.createCaseDocument(TEST_DOCUMENT_FILE_NAME2, testCase1);
         testDocumentRecFolder2 = nodeService.getPrimaryParent(testDocument2).getParentRef();
         docTestHelper.createCaseDocumentAttachment(TEST_DOCUMENT_ATTACHMENT_FILE_NAME2,
                 testDocumentRecFolder2);
@@ -275,7 +275,7 @@ public class DocumentServiceImplIT {
 
     @Test
     public void finalizeUnfinalizeDocument() throws Exception {
-        testDocument3 = docTestHelper.createCaseDocument(TEST_DOCUMENT_FILE_NAME3, testCase1, documentType1);
+        testDocument3 = docTestHelper.createCaseDocument(TEST_DOCUMENT_FILE_NAME3, testCase1);
         testDocumentRecFolder3 = nodeService.getPrimaryParent(testDocument3).getParentRef();
         testDocumentAttachment3 = docTestHelper.createCaseDocumentAttachment(TEST_DOCUMENT_ATTACHMENT_FILE_NAME2, testDocumentRecFolder3);
         Assert.assertEquals("Document initially has DRAFT status", DocumentStatus.DRAFT, documentService.getNodeStatus(testDocumentRecFolder3));
@@ -312,7 +312,7 @@ public class DocumentServiceImplIT {
 //        // Make sure that you get an exception when trying to finalize a
 //        // document which is not an allowed finalizable type
 //        // (e.g. application/json, etc..)
-//        testDocument4 = docTestHelper.createCaseDocument(TEST_DOCUMENT_FILE_NAME4, testCase1, documentType1);
+//        testDocument4 = docTestHelper.createCaseDocument(TEST_DOCUMENT_FILE_NAME4, testCase1);
 //        testDocumentRecFolder4 = nodeService.getPrimaryParent(testDocument4).getParentRef();
 //
 //        // Try to update the finalized document
@@ -330,23 +330,32 @@ public class DocumentServiceImplIT {
         NodeRef caseDocNodeRef = testDocumentRecFolder;
         CaseDocument document = new CaseDocument();
         document.setNodeRef(caseDocNodeRef.toString());
-        document.setCategory(OpenESDHModel.DOCUMENT_CATEGORY_CONTRACT);
         document.setTitle(TEST_TITLE);
 
-        DocumentType documentType2 = documentTypeService.getDocumentTypes().stream().skip(1).findFirst().get();
+        DocumentType documentType2 = getSecondItemFrom(documentTypeService.getDocumentTypes());
         document.setType(documentType2);
 
+        DocumentCategory documentCategory2 = getSecondItemFrom(documentCategoryService.getDocumentCategories());
+        document.setCategory(documentCategory2);
+
         Map<QName, Serializable> initialProps = nodeService.getProperties(caseDocNodeRef);
-        Assert.assertNotNull(initialProps.get(OpenESDHModel.PROP_DOC_CATEGORY));
         Assert.assertNotNull(initialProps.get(OpenESDHModel.PROP_DOC_STATE));
 
         documentService.updateCaseDocumentProperties(document);
 
         Map<QName, Serializable> props = nodeService.getProperties(caseDocNodeRef);
-        Assert.assertEquals("Document category should be updated", OpenESDHModel.DOCUMENT_CATEGORY_CONTRACT,
-                props.get(OpenESDHModel.PROP_DOC_CATEGORY));
-        Assert.assertEquals(documentService.getDocumentType(caseDocNodeRef).getNodeRef(), documentType2.getNodeRef());
+        Assert.assertEquals("Document category should be updated",
+                documentCategory2.getNodeRef(),
+                documentService.getDocumentCategory(caseDocNodeRef).getNodeRef());
+        Assert.assertEquals("Document type should be updated",
+                documentType2.getNodeRef(),
+                documentService.getDocumentType(caseDocNodeRef).getNodeRef());
+        Assert.assertEquals("Document title should be updated",
+                TEST_TITLE,
+                props.get(ContentModel.PROP_TITLE));
+    }
 
-        Assert.assertEquals("Document title should be updated", TEST_TITLE, props.get(ContentModel.PROP_TITLE));
+    private <T> T getSecondItemFrom(List<T> collection) {
+        return collection.stream().skip(1).findFirst().get();
     }
 }

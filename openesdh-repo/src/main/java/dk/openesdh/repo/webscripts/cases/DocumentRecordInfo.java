@@ -1,5 +1,6 @@
 package dk.openesdh.repo.webscripts.cases;
 
+import dk.openesdh.repo.model.DocumentCategory;
 import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.NodeInfoService;
@@ -42,15 +43,18 @@ public class DocumentRecordInfo extends AbstractWebScript {
         PersonInfo docOwner = documentService.getDocumentOwner(documentNodeRef);
         NodeRef mainDocNodeRef = documentService.getMainDocument(documentNodeRef);
         DocumentType documentType = documentService.getDocumentType(documentNodeRef);
+        DocumentCategory documentCategory = documentService.getDocumentCategory(documentNodeRef);
 
         JSONObject result = new JSONObject();
         try {
             result.put("typeId", documentType.getNodeRef().toString());
-            result.put("typeName", documentType.getDisplayName());
+            result.put("typeName", documentType.getName());
             result.put("typeDisplayName", documentType.getDisplayName());
-//            result.put("typeChoices", getDocumentTypeChoices());
 
-            result.put("category", documentNodeInfo.properties.get(OpenESDHModel.PROP_DOC_CATEGORY));
+            result.put("categoryId", documentCategory.getNodeRef().toString());
+            result.put("categoryName", documentCategory.getName());
+            result.put("categoryDisplayName", documentCategory.getDisplayName());
+
             result.put("state", documentNodeInfo.properties.get(OpenESDHModel.PROP_DOC_STATE));
             result.put("status", documentNodeInfo.properties.get(OpenESDHModel.PROP_OE_STATUS));
             result.put("title", documentNodeInfo.properties.get(ContentModel.PROP_TITLE));

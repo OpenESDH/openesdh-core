@@ -5,9 +5,11 @@ import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.model.DocumentCategory;
 import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.documents.DocumentCategoryService;
 import dk.openesdh.repo.services.documents.DocumentService;
 import dk.openesdh.repo.services.documents.DocumentTypeService;
 import java.io.Serializable;
@@ -53,33 +55,38 @@ public class DocumentBehaviourIT {
 
     @Autowired
     @Qualifier("NodeService")
-    protected NodeService nodeService;
+    private NodeService nodeService;
 
     @Autowired
     @Qualifier("retryingTransactionHelper")
-    protected RetryingTransactionHelper retryingTransactionHelper;
+    private RetryingTransactionHelper retryingTransactionHelper;
 
     @Autowired
     @Qualifier("CaseService")
-    protected CaseService caseService;
+    private CaseService caseService;
 
     @Autowired
     @Qualifier("CaseDocumentTestHelper")
-    protected CaseDocumentTestHelper docTestHelper;
+    private CaseDocumentTestHelper docTestHelper;
 
     @Autowired
     @Qualifier("DocumentService")
-    protected DocumentService documentService;
+    private DocumentService documentService;
 
     @Autowired
     @Qualifier("DocumentTypeService")
-    protected DocumentTypeService documentTypeService;
+    private DocumentTypeService documentTypeService;
+
+    @Autowired
+    @Qualifier("DocumentCategoryService")
+    private DocumentCategoryService documentCategoryService;
 
     private NodeRef testFolder;
     private NodeRef testCase1;
     private NodeRef testCase1DocumentsFolder;
     private NodeRef testAddDocument;
     private DocumentType documentType;
+    private DocumentCategory documentCategory;
 
     @Before
     public void setUp() throws Exception {
@@ -89,6 +96,7 @@ public class DocumentBehaviourIT {
         testCase1 = docTestHelper.createCaseBehaviourOn(TEST_CASE_NAME1, testFolder, CaseHelper.DEFAULT_USERNAME);
         testCase1DocumentsFolder = caseService.getDocumentsFolder(testCase1);
         documentType = documentTypeService.getDocumentTypes().stream().findAny().get();
+        documentCategory = documentCategoryService.getDocumentCategories().stream().findAny().get();
     }
 
     @After
@@ -141,8 +149,8 @@ public class DocumentBehaviourIT {
                 TEST_STATE,
                 nodeService.getProperty(addedDocRecordFolder, OpenESDHModel.PROP_DOC_STATE));
         Assert.assertEquals("The document record folder should contain the added document category",
-                TEST_CATEGORY,
-                nodeService.getProperty(addedDocRecordFolder, OpenESDHModel.PROP_DOC_CATEGORY));
+                documentCategory.getNodeRef(),
+                documentService.getDocumentCategory(addedDocRecordFolder).getNodeRef());
         Assert.assertEquals("The document record folder should be the added document type",
                 documentType.getNodeRef(),
                 documentService.getDocumentType(addedDocRecordFolder).getNodeRef());
@@ -153,7 +161,7 @@ public class DocumentBehaviourIT {
         final Map<QName, Serializable> properties = new HashMap<>();
         properties.put(ContentModel.PROP_NAME, TEST_ADD_DOCUMENT_NAME);
         properties.put(OpenESDHModel.PROP_DOC_TYPE, documentType.getNodeRef());
-        properties.put(OpenESDHModel.PROP_DOC_CATEGORY, TEST_CATEGORY);
+        properties.put(OpenESDHModel.PROP_DOC_CATEGORY, documentCategory.getNodeRef());
         properties.put(OpenESDHModel.PROP_DOC_STATE, TEST_STATE);
         ContentData content = ContentData.createContentProperty(TEST_ADD_DOCUMENT_CONTENT);
         content = ContentData.setMimetype(content, MimeTypes.PLAIN_TEXT);

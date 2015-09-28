@@ -98,7 +98,7 @@ public class LiveSearchCaseDocuments extends DeclarativeWebScript {
             documentObj.put("type", documentService.getDocumentType(docRecord).getDisplayName());
             documentObj.put("docState", docProps.get(OpenESDHModel.PROP_DOC_STATE));
             documentObj.put("docStatus", docProps.get(OpenESDHModel.PROP_OE_STATUS));
-            documentObj.put("docCategory", docProps.get(OpenESDHModel.PROP_DOC_CATEGORY));
+            documentObj.put("docCategory", documentService.getDocumentCategory(docRecord).getDisplayName());
             documentObj.put("version", docProps.get(ContentModel.PROP_VERSION_LABEL));
             documentObj.put("case", caseObj); //This one isn't optional at the moment
             result.put(documentObj);

@@ -117,6 +117,7 @@
         <cm:name>other</cm:name>
         <view:properties>
             <doc:categoryDisplayName>Other</doc:categoryDisplayName>
+            <doc:systemCategory>true</doc:systemCategory>
             <sys:store-protocol>workspace</sys:store-protocol>
             <sys:store-identifier>SpacesStore</sys:store-identifier>
             <sys:node-uuid>4c01ea9a-fc55-4493-868e-2239c9359be0</sys:node-uuid>

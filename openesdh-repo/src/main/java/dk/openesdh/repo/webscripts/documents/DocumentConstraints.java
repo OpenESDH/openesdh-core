@@ -1,8 +1,10 @@
 package dk.openesdh.repo.webscripts.documents;
 
+import dk.openesdh.repo.model.DocumentCategory;
 import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.documents.DocumentCategoryService;
 import dk.openesdh.repo.services.documents.DocumentTypeService;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 import java.io.IOException;
@@ -23,6 +25,7 @@ public class DocumentConstraints extends AbstractWebScript {
     private DictionaryService dictionaryService;
     private CaseService caseService;
     private DocumentTypeService documentTypeService;
+    private DocumentCategoryService documentCategoryService;
 
     public void setDictionaryService(DictionaryService dictionaryService) {
         this.dictionaryService = dictionaryService;
@@ -34,6 +37,10 @@ public class DocumentConstraints extends AbstractWebScript {
 
     public void setDocumentTypeService(DocumentTypeService documentTypeService) {
         this.documentTypeService = documentTypeService;
+    }
+
+    public void setDocumentCategoryService(DocumentCategoryService documentCategoryService) {
+        this.documentCategoryService = documentCategoryService;
     }
     //</editor-fold>
 
@@ -56,6 +63,12 @@ public class DocumentConstraints extends AbstractWebScript {
             jsonResponse.put("documentTypes", new JSONArray(documentTypeService.getDocumentTypes()
                     .stream()
                     .map(DocumentType::toJSONObject)
+                    .collect(Collectors.toList())));
+
+            //documentCategories
+            jsonResponse.put("documentCategories", new JSONArray(documentCategoryService.getDocumentCategories()
+                    .stream()
+                    .map(DocumentCategory::toJSONObject)
                     .collect(Collectors.toList())));
 
             jsonResponse.write(res.getWriter());

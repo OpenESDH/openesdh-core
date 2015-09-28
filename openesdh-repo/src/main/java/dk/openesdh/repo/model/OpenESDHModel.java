@@ -214,7 +214,7 @@ public interface OpenESDHModel {
     public static final String DOCUMENT_TYPE_INVOICE = "invoice";
 
     public static final String DOCUMENT_CATEGORY_ANNEX = "annex";
-    public static final String DOCUMENT_CATEGORY_CONTRACT = "contract";
+    public static final String DOCUMENT_CATEGORY_OTHER = "other";
 
     public static final String DOCUMENT_STATE_RECEIVED = "received";
     public static final String DOCUMENT_STATE_FINALISED = "finalised";

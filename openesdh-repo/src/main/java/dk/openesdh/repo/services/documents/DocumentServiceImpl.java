@@ -2,6 +2,7 @@ package dk.openesdh.repo.services.documents;
 
 import dk.openesdh.repo.model.CaseDocument;
 import dk.openesdh.repo.model.CaseDocumentAttachment;
+import dk.openesdh.repo.model.DocumentCategory;
 import dk.openesdh.repo.model.DocumentStatus;
 import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
@@ -89,6 +90,7 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
     private RenditionService renditionService;
     private TransactionService transactionService;
     private DocumentTypeService documentTypeService;
+    private DocumentCategoryService documentCategoryService;
 
     private String finalizedFileFormat;
     private String acceptableFinalizedFileFormats;
@@ -165,6 +167,10 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
 
     public void setDocumentTypeService(DocumentTypeService documentTypeService) {
         this.documentTypeService = documentTypeService;
+    }
+
+    public void setDocumentCategoryService(DocumentCategoryService documentCategoryService) {
+        this.documentCategoryService = documentCategoryService;
     }
 
     public void setVersionService(VersionService versionService) {
@@ -572,9 +578,10 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
         NodeRef documentNodeRef = new NodeRef(caseDocument.getNodeRef());
         Map<QName, Serializable> properties = nodeService.getProperties(documentNodeRef);
         properties.put(ContentModel.PROP_TITLE, caseDocument.getTitle());
-        properties.put(OpenESDHModel.PROP_DOC_CATEGORY, caseDocument.getCategory());
         nodeService.setProperties(documentNodeRef, properties);
+        //associations:
         updateDocumentType(documentNodeRef, caseDocument.getType());
+        updateDocumentCategory(documentNodeRef, caseDocument.getCategory());
     }
 
     @Override
@@ -669,7 +676,7 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
         caseDocument.setType(getDocumentType(docRecordNodeRef));
         caseDocument.setState(props.get(OpenESDHModel.PROP_DOC_STATE).toString());
         caseDocument.setStatus(props.get(OpenESDHModel.PROP_OE_STATUS).toString());
-        caseDocument.setCategory(props.get(OpenESDHModel.PROP_DOC_CATEGORY).toString());
+        caseDocument.setCategory(getDocumentCategory(docRecordNodeRef));
         caseDocument.setCreated((Date) props.get(ContentModel.PROP_CREATED));
         caseDocument.setModified((Date) props.get(ContentModel.PROP_MODIFIED));
         caseDocument.setOwner(getDocumentOwner(docRecordNodeRef));
@@ -803,5 +810,16 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
     @Override
     public void updateDocumentType(NodeRef docNodeRef, DocumentType type) {
         nodeService.setAssociations(docNodeRef, OpenESDHModel.ASSOC_DOC_TYPE, Arrays.asList(type.getNodeRef()));
+    }
+
+    @Override
+    public DocumentCategory getDocumentCategory(NodeRef docNodeRef) {
+        Optional<AssociationRef> assocRef = nodeService.getTargetAssocs(docNodeRef, OpenESDHModel.ASSOC_DOC_CATEGORY).stream().findFirst();
+        return assocRef.isPresent() ? documentCategoryService.getDocumentCategory(assocRef.get().getTargetRef()) : null;
+    }
+
+    @Override
+    public void updateDocumentCategory(NodeRef docNodeRef, DocumentCategory category) {
+        nodeService.setAssociations(docNodeRef, OpenESDHModel.ASSOC_DOC_CATEGORY, Arrays.asList(category.getNodeRef()));
     }
 }

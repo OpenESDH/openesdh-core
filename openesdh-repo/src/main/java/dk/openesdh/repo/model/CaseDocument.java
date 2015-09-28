@@ -10,7 +10,7 @@ public class CaseDocument {
     private String title;
     private String docNo;
     private DocumentType type;
-    private String category;
+    private DocumentCategory category;
     private String state;
     private String status;
     private Date created;
@@ -53,11 +53,11 @@ public class CaseDocument {
         this.type = type;
     }
 
-    public String getCategory() {
+    public DocumentCategory getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(DocumentCategory category) {
         this.category = category;
     }
 

@@ -1,8 +1,8 @@
 package dk.openesdh.repo.webscripts.documents;
 
-import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.documents.DocumentCategoryService;
 import dk.openesdh.repo.services.documents.DocumentService;
 import dk.openesdh.repo.services.documents.DocumentTypeService;
 import java.io.IOException;
@@ -42,6 +42,7 @@ public class EmailDocument extends AbstractWebScript {
     private NodeService nodeService;
     private ContentService contentService;
     private DocumentTypeService documentTypeService;
+    private DocumentCategoryService documentCategoryService;
 
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse resp) throws IOException {
@@ -74,10 +75,8 @@ public class EmailDocument extends AbstractWebScript {
         NodeRef nodeRef = caseService.getCaseById(caseId);
         NodeRef documentsFolder = caseService.getDocumentsFolder(nodeRef);
         Map<QName, Serializable> props = new HashMap<>();
-        DocumentType documentType = documentTypeService.getDocumentTypeByName(OpenESDHModel.DOCUMENT_TYPE_LETTER)
-                .orElseThrow(() -> new WebScriptException("Document type \"letter\" not found"));
-        props.put(OpenESDHModel.PROP_DOC_TYPE, documentType.getNodeRef());
-        props.put(OpenESDHModel.PROP_DOC_CATEGORY, "other");
+        props.put(OpenESDHModel.PROP_DOC_TYPE, getDocumentTypeLetter());
+        props.put(OpenESDHModel.PROP_DOC_CATEGORY, getDocumentCategoryOther());
         props.put(OpenESDHModel.PROP_DOC_STATE, "received");
         NodeRef documentFolder = documentService.createDocumentFolder(documentsFolder, name, props).getChildRef();
 
@@ -111,6 +110,16 @@ public class EmailDocument extends AbstractWebScript {
         result.writeJSONString(resp.getWriter());
     }
 
+    private String getDocumentTypeLetter() {
+        return documentTypeService.getDocumentTypeByName(OpenESDHModel.DOCUMENT_TYPE_LETTER)
+                .orElseThrow(() -> new WebScriptException("Document type \"letter\" not found")).toString();
+    }
+
+    private String getDocumentCategoryOther() {
+        return documentCategoryService.getDocumentCategoryByName(OpenESDHModel.DOCUMENT_CATEGORY_OTHER)
+                .orElseThrow(() -> new WebScriptException("Document type \"other\" not found")).toString();
+    }
+
     public void setDocumentService(DocumentService documentService) {
         this.documentService = documentService;
     }
@@ -133,5 +142,9 @@ public class EmailDocument extends AbstractWebScript {
 
     public void setDocumentTypeService(DocumentTypeService documentTypeService) {
         this.documentTypeService = documentTypeService;
+    }
+
+    public void setDocumentCategoryService(DocumentCategoryService documentCategoryService) {
+        this.documentCategoryService = documentCategoryService;
     }
 }

@@ -23,26 +23,6 @@
             </parameter>
         </constraint>
 
-        <constraint name="doc:categoryConstraint" type="LIST">
-            <parameter name="allowedValues">
-                <list>
-                    <value>annex</value>
-                    <value>proof</value>
-                    <value>contract</value>
-                    <value>note</value>
-                    <value>report</value>
-                    <value>proxy</value>
-                    <value>warranty</value>
-                    <value>part</value>
-                    <value>statement</value>
-                    <value>summary</value>
-                    <value>accounting</value>
-                    <value>offers</value>
-                    <value>other</value>
-                </list>
-            </parameter>
-        </constraint>
-
         <constraint name="doc:stateConstraint" type="LIST">
             <parameter name="allowedValues">
                 <list>
@@ -135,15 +115,6 @@
                 <property name="doc:classification">
                     <description>Primær klassifikation</description>
                     <type>d:text</type>
-                </property>
-
-                <property name="doc:category">
-                    <description>Kunden vælger selv disse</description>
-                    <type>d:text</type>
-                    <mandatory>true</mandatory>
-                    <constraints>
-                        <constraint ref="doc:categoryConstraint"/>
-                    </constraints>
                 </property>
             </properties>
 
