@@ -112,6 +112,13 @@ public class NodeInfoServiceImpl implements NodeInfoService {
         JSONObject valueObj = new JSONObject();
         Serializable value = nodeInfo.properties.get(propertyQName);
 
+        // Special handling of "TYPE" property
+        if (OpenESDHModel.TYPE.equals(propertyQName)) {
+            valueObj.put("type", "String");
+            valueObj.put("value", dictionaryService.getType(nodeInfo.nodeClassName).getTitle(dictionaryService));
+            return valueObj;
+        }
+
         if (value == null) {
             return valueObj;
         }

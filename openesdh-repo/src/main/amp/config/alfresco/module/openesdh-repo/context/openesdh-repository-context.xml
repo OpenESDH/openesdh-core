@@ -335,6 +335,18 @@
           class="dk.openesdh.repo.webscripts.workflows.WorkflowTaskDetailsWebScript">
         <property name="workflowTaskService" ref="WorkflowTaskService" />
     </bean>
+
+    <bean id="webscript.dk.openesdh.officetemplate.officetemplate.get"
+          class="dk.openesdh.repo.webscripts.officetemplate.OfficeTemplateGet"
+          parent="webscript">
+        <property name="officeTemplateService" ref="OfficeTemplateService"/>
+    </bean>
+
+    <bean id="webscript.dk.openesdh.officetemplate.officetemplatefill.post"
+          class="dk.openesdh.repo.webscripts.officetemplate.OfficeTemplateFillPost"
+          parent="webscript">
+        <property name="officeTemplateService" ref="OfficeTemplateService"/>
+    </bean>
     
     <!--Document types-->
     <bean id="documentTypesWebscript"
@@ -346,3 +358,4 @@
     <bean id="webscript.dk.openesdh.documents.types.doctype.post" parent="documentTypesWebscript"></bean>
     <bean id="webscript.dk.openesdh.documents.types.doctype.delete" parent="documentTypesWebscript"></bean>
 </beans>
+
