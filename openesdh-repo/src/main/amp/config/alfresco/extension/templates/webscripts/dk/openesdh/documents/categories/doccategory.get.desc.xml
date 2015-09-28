@@ -1,0 +1,10 @@
+<webscript>
+    <shortname>Get document categories</shortname>
+    <description>Returns the list of document categories or a single category with suplied nodeRefId</description>
+    <url>/api/openesdh/document/categories</url>
+    <url>/api/openesdh/document/category?nodeRefId=</url>
+    <format default="json"></format>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+    <family>Case Document Tools</family>
+</webscript>
