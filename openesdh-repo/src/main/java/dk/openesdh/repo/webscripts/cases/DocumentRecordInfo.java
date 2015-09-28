@@ -5,6 +5,7 @@ import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.NodeInfoService;
 import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.services.lock.OELockService;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
@@ -25,6 +26,7 @@ public class DocumentRecordInfo extends AbstractWebScript {
 
     private NodeInfoService nodeInfoService;
     private DocumentService documentService;
+    private OELockService oeLockService;
 
     public void setNodeInfoService(NodeInfoService nodeInfoService) {
         this.nodeInfoService = nodeInfoService;
@@ -32,6 +34,10 @@ public class DocumentRecordInfo extends AbstractWebScript {
 
     public void setDocumentService(DocumentService documentService) {
         this.documentService = documentService;
+    }
+
+    public void setOeLockService(OELockService oeLockService) {
+        this.oeLockService = oeLockService;
     }
 
     @Override
@@ -65,6 +71,8 @@ public class DocumentRecordInfo extends AbstractWebScript {
             result.put("owner", docOwner.getFirstName() + " " + docOwner.getLastName());
             result.put("mainDocNodeRef", mainDocNodeRef.toString());
             result.put("statusChoices", documentService.getValidNextStatuses(documentNodeRef));
+            result.put("isLocked", oeLockService.isLocked(documentNodeRef));
+
 //            result.put("caseId", documentNodeInfo.properties.get(OpenESDHModel.PROP_OE_CASE_ID));
 
             result.write(res.getWriter());
