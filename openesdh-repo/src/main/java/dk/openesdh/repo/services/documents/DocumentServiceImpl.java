@@ -1,9 +1,17 @@
 package dk.openesdh.repo.services.documents;
 
-import dk.openesdh.repo.model.*;
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.lock.OELockService;
-import dk.openesdh.repo.webscripts.documents.Documents;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.content.MimetypeMap;
@@ -21,7 +29,15 @@ import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.rendition.RenditionDefinition;
 import org.alfresco.service.cmr.rendition.RenditionService;
 import org.alfresco.service.cmr.rendition.RenditionServiceException;
-import org.alfresco.service.cmr.repository.*;
+import org.alfresco.service.cmr.repository.AssociationRef;
+import org.alfresco.service.cmr.repository.ChildAssociationRef;
+import org.alfresco.service.cmr.repository.ContentIOException;
+import org.alfresco.service.cmr.repository.ContentReader;
+import org.alfresco.service.cmr.repository.ContentService;
+import org.alfresco.service.cmr.repository.CopyService;
+import org.alfresco.service.cmr.repository.MimetypeService;
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.search.LimitBy;
 import org.alfresco.service.cmr.search.SearchParameters;
 import org.alfresco.service.cmr.search.SearchService;
@@ -42,9 +58,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.security.access.AccessDeniedException;
 
-import java.io.Serializable;
-import java.util.*;
-import java.util.stream.Collectors;
+import dk.openesdh.repo.model.CaseDocument;
+import dk.openesdh.repo.model.CaseDocumentAttachment;
+import dk.openesdh.repo.model.DocumentStatus;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.model.ResultSet;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.lock.OELockService;
+import dk.openesdh.repo.webscripts.documents.Documents;
 
 /**
  * Created by torben on 11/09/14.
@@ -556,7 +577,6 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
         Map<QName, Serializable> properties = nodeService.getProperties(documentNodeRef);
         properties.put(ContentModel.PROP_TITLE, caseDocument.getTitle());
         properties.put(OpenESDHModel.PROP_DOC_TYPE, caseDocument.getType());
-        properties.put(OpenESDHModel.PROP_DOC_STATE, caseDocument.getState());
         properties.put(OpenESDHModel.PROP_DOC_CATEGORY, caseDocument.getCategory());
         nodeService.setProperties(documentNodeRef, properties);
     }
