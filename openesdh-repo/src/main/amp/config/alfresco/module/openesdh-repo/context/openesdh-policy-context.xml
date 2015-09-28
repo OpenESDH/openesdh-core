@@ -45,6 +45,9 @@
         <property name="documentService">
             <ref bean="DocumentService"/>
         </property>
+        <property name="documentTypeService">
+            <ref bean="DocumentTypeService"/>
+        </property>
         <property name="nodeService" ref="NodeService"/>
         <property name="policyComponent" ref="policyComponent"/>
     </bean>

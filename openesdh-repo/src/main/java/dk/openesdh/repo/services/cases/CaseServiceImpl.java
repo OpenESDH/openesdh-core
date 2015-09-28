@@ -1,8 +1,33 @@
 package dk.openesdh.repo.services.cases;
 
-import dk.openesdh.repo.model.*;
+import dk.openesdh.repo.model.CaseInfo;
+import dk.openesdh.repo.model.CaseInfoImpl;
+import dk.openesdh.repo.model.CaseStatus;
+import dk.openesdh.repo.model.DocumentStatus;
+import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.documents.DocumentService;
 import dk.openesdh.repo.services.lock.OELockService;
+import dk.openesdh.repo.services.system.OpenESDHFoldersService;
+import java.io.Serializable;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
@@ -17,7 +42,12 @@ import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
 import org.alfresco.repo.security.permissions.PermissionReference;
 import org.alfresco.repo.security.permissions.impl.ModelDAO;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
-import org.alfresco.service.cmr.dictionary.*;
+import org.alfresco.service.cmr.dictionary.AspectDefinition;
+import org.alfresco.service.cmr.dictionary.AssociationDefinition;
+import org.alfresco.service.cmr.dictionary.ClassDefinition;
+import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
+import org.alfresco.service.cmr.dictionary.DictionaryService;
+import org.alfresco.service.cmr.dictionary.PropertyDefinition;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -26,7 +56,12 @@ import org.alfresco.service.cmr.search.LimitBy;
 import org.alfresco.service.cmr.search.ResultSet;
 import org.alfresco.service.cmr.search.SearchParameters;
 import org.alfresco.service.cmr.search.SearchService;
-import org.alfresco.service.cmr.security.*;
+import org.alfresco.service.cmr.security.AccessPermission;
+import org.alfresco.service.cmr.security.AccessStatus;
+import org.alfresco.service.cmr.security.AuthorityService;
+import org.alfresco.service.cmr.security.AuthorityType;
+import org.alfresco.service.cmr.security.OwnableService;
+import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
 import org.alfresco.util.SearchLanguageConversion;
@@ -37,15 +72,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.security.access.AccessDeniedException;
-
-import java.io.Serializable;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.*;
-import java.util.function.Predicate;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Created by torben on 19/08/14.
@@ -80,8 +106,8 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
     private PolicyComponent policyComponent;
     private DocumentService documentService;
     private OELockService oeLockService;
+    private OpenESDHFoldersService openESDHFoldersService;
 
-    //<editor-fold desc="Service setters">
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
     }
@@ -122,14 +148,21 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
         this.dictionaryService = dictionaryService;
     }
 
-    //</editor-fold>
-
     public void setPermissionsModelDAO(ModelDAO permissionsModelDAO) {
         this.permissionsModelDAO = permissionsModelDAO;
     }
 
     public void setPolicyComponent(PolicyComponent policyComponent) {
         this.policyComponent = policyComponent;
+    }
+
+    public void setOpenESDHFoldersService(OpenESDHFoldersService openESDHFoldersService) {
+        this.openESDHFoldersService = openESDHFoldersService;
+    }
+
+    @Override
+    public NodeRef getCasesRootNodeRef() {
+        return openESDHFoldersService.getCasesRootNodeRef();
     }
 
     public void init() {
@@ -156,40 +189,6 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
                     "changed directly. Must call the CaseService" +
                     ".changeCaseStatus method.");
         }
-    }
-
-    @Override
-    public NodeRef getOpenESDHRootFolder() {
-        NodeRef companyHomeNodeRef = repositoryHelper.getCompanyHome();
-        NodeRef openESDH_root_nodeRef = nodeService.getChildByName(companyHomeNodeRef, ContentModel.ASSOC_CONTAINS, OPENESDH_ROOT_CONTEXT);
-
-        //Throw an exception. This should have been created on first boot
-        if (openESDH_root_nodeRef == null)
-            throw new AlfrescoRuntimeException("The openESDH \"ROOT\" context folder has not been initialised.");
-
-        return openESDH_root_nodeRef;
-    }
-
-    @Override
-    public NodeRef getCasesRootNodeRef() {
-        NodeRef casesRootNodeRef = nodeService.getChildByName(getOpenESDHRootFolder(), ContentModel.ASSOC_CONTAINS, CASES_ROOT);
-
-        //Throw an exception. This should have been created on first boot along with the context root folder
-        if (casesRootNodeRef == null)
-            throw new AlfrescoRuntimeException("The openESDH \"CASES\" root folder has not been initialised.");
-
-        return casesRootNodeRef;
-    }
-
-    @Override
-    public NodeRef getCasesTypeStorageRootNodeRef() {
-        NodeRef typesRootNodeRef = nodeService.getChildByName(getCasesRootNodeRef(), ContentModel.ASSOC_CONTAINS, CASES_TYPES_ROOT);
-
-        //Throw an exception. This should have been created on first boot along with the context root folder
-        if (typesRootNodeRef == null)
-            throw new AlfrescoRuntimeException("The openESDH folder for case types storage doesn't exist.");
-
-        return typesRootNodeRef;
     }
 
     @Override
@@ -391,7 +390,7 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
                 LOGGER.info("caseNodeRef " + caseNodeRef);
 
                 //Create folder structure
-                NodeRef casesRootNodeRef = getCasesRootNodeRef();
+                NodeRef casesRootNodeRef = openESDHFoldersService.getCasesRootNodeRef();
 
                 NodeRef caseFolderNodeRef = getCaseFolderNodeRef(casesRootNodeRef);
                 // Get a unique number to append to the caseId.
@@ -442,7 +441,7 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
         if (isCaseNode(nodeRef)) {
             return nodeRef;
         }
-        if (nodeRef.equals(getCasesRootNodeRef())) {
+        if (nodeRef.equals(openESDHFoldersService.getCasesRootNodeRef())) {
             // Case nodes and cases root don't have cases as ancestors
             return null;
         }
@@ -467,7 +466,7 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
     public List<CaseInfo> findCases(String filter, int size) {
         List<CaseInfo> result;
 
-        NodeRef caseRoot = getCasesRootNodeRef();
+        NodeRef caseRoot = openESDHFoldersService.getCasesRootNodeRef();
         if (caseRoot == null) {
             result = Collections.emptyList();
         } else {

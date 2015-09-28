@@ -4,8 +4,12 @@
 <beans>
     <!--The initial openESDH folder context-->
     <bean id="${project.artifactId}_bootstrap" parent="spacesStoreImporter" >
-        <property name="log"> <value>false</value> </property>
-        <property name="useExistingStore"> <value>true</value> </property>
+        <property name="log"> 
+            <value>false</value> 
+        </property>
+        <property name="useExistingStore"> 
+            <value>true</value> 
+        </property>
         <property name="transactionService" ref="transactionService"/>
         <property name="bootstrapViews">
             <list>
@@ -18,10 +22,33 @@
             </list>
         </property>
     </bean>
+    <!-- initial document types -->
+    <bean id="${project.artifactId}_docTypesBootstrap" parent="spacesStoreImporter" >
+        <property name="log"> 
+            <value>true</value> 
+        </property>
+        <property name="useExistingStore"> 
+            <value>true</value> 
+        </property>
+        <property name="transactionService" ref="transactionService"/>
+        <property name="bootstrapViews">
+            <list>
+                <props>
+                    <prop key="path">app:company_home/oe:OpenESDH/oe:classifications/oe:document_types</prop>
+                    <prop key="uuidBinding">UPDATE_EXISTING</prop>
+                    <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/documentTypes.xml</prop>
+                </props>
+            </list>
+        </property>
+    </bean>
     <!--Contacts store-->
     <bean id="${project.artifactId}_contactBootstrap" parent="spacesStoreImporter" >
-        <property name="log"> <value>false</value> </property>
-        <property name="useExistingStore"> <value>true</value> </property>
+        <property name="log"> 
+            <value>false</value> 
+        </property>
+        <property name="useExistingStore"> 
+            <value>true</value> 
+        </property>
         <property name="transactionService" ref="transactionService"/>
 
         <property name="bootstrapViews">

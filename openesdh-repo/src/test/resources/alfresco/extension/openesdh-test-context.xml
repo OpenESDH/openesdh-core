@@ -40,8 +40,8 @@
 
     </bean>
 	
-	<bean id="CaseDocumentTestHelper" class="dk.openesdh.repo.helper.CaseDocumentTestHelper">
-		<property name="nodeService">
+    <bean id="CaseDocumentTestHelper" class="dk.openesdh.repo.helper.CaseDocumentTestHelper">
+        <property name="nodeService">
             <ref bean="NodeService"/>
         </property>
         <property name="repositoryHelper">
@@ -56,6 +56,6 @@
         <property name="documentService">
             <ref bean="DocumentService"/>
         </property>
-	</bean>
+    </bean>
 
 </beans>

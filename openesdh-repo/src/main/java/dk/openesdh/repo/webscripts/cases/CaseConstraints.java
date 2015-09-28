@@ -1,10 +1,11 @@
 package dk.openesdh.repo.webscripts.cases;
 
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-
 import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.namespace.QName;
@@ -15,9 +16,6 @@ import org.json.JSONObject;
 import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
-
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 public class CaseConstraints extends AbstractWebScript {
 

@@ -224,6 +224,7 @@
     <bean id="webscript.dk.openesdh.caseemail.post" class="dk.openesdh.repo.webscripts.documents.EmailDocument" parent="webscript">
         <property name="caseService" ref="CaseService" />
         <property name="documentService" ref="DocumentService" />
+        <property name="documentTypeService" ref="DocumentTypeService" />
         <property name="personService" ref="PersonService" />
         <property name="nodeService" ref="NodeService"/>
         <property name="contentService" ref="ContentService" />
@@ -307,6 +308,7 @@
           class="dk.openesdh.repo.webscripts.documents.DocumentConstraints">
         <property name="dictionaryService" ref="dictionaryService"/>
         <property name="caseService" ref="CaseService" />
+        <property name="documentTypeService" ref="DocumentTypeService"/>
     </bean>
 
     <bean id="webscript.dk.openesdh.case.caseUserPermissions.get" parent="webscript"
@@ -333,4 +335,14 @@
           class="dk.openesdh.repo.webscripts.workflows.WorkflowTaskDetailsWebScript">
         <property name="workflowTaskService" ref="WorkflowTaskService" />
     </bean>
+    
+    <!--Document types-->
+    <bean id="documentTypesWebscript"
+          class="dk.openesdh.repo.webscripts.documents.DocumentTypesWebScript"
+          parent="webscript">
+        <property name="documentTypeService" ref="DocumentTypeService"/>
+    </bean>
+    <bean id="webscript.dk.openesdh.documents.types.doctype.get" parent="documentTypesWebscript"></bean>
+    <bean id="webscript.dk.openesdh.documents.types.doctype.post" parent="documentTypesWebscript"></bean>
+    <bean id="webscript.dk.openesdh.documents.types.doctype.delete" parent="documentTypesWebscript"></bean>
 </beans>

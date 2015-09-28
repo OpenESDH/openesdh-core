@@ -5,6 +5,10 @@ import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.DocumentService;
 import dk.openesdh.repo.utils.Utils;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -18,11 +22,6 @@ import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.DeclarativeWebScript;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptRequest;
-
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 
 public class LiveSearchCaseDocuments extends DeclarativeWebScript {
@@ -42,8 +41,7 @@ public class LiveSearchCaseDocuments extends DeclarativeWebScript {
         this.documentService = documentService;
     }
     //</editor-fold>
-
-    private static Logger logger = Logger.getLogger(LiveSearchCaseDocuments.class);
+    private static final Logger logger = Logger.getLogger(LiveSearchCaseDocuments.class);
 
     public void init() {
         PropertyCheck.mandatory(this, "DocumentService", documentService);
@@ -54,7 +52,7 @@ public class LiveSearchCaseDocuments extends DeclarativeWebScript {
     @Override
     protected Map<String, Object> executeImpl(WebScriptRequest req,  Status status, Cache cache) {
         Map<String, String> params = Utils.parseParameters(req.getURL());
-        Map<String, Object> model = new HashMap<String, Object>();
+        Map<String, Object> model = new HashMap<>();
         int maxResults = 3;
         try {
             maxResults = Integer.parseInt(params.get("maxResults"));
@@ -93,7 +91,7 @@ public class LiveSearchCaseDocuments extends DeclarativeWebScript {
 
             documentObj.put("name", docProps.get(ContentModel.PROP_NAME));
             documentObj.put("nodeRef", document);
-            documentObj.put("type", docProps.get(OpenESDHModel.PROP_DOC_TYPE));
+            documentObj.put("type", documentService.getDocumentType(document).getDisplayName());
             documentObj.put("docState", docProps.get(OpenESDHModel.PROP_DOC_STATE));
             documentObj.put("docStatus", docProps.get(OpenESDHModel.PROP_OE_STATUS));
             documentObj.put("docCategory", docProps.get(OpenESDHModel.PROP_DOC_CATEGORY));
