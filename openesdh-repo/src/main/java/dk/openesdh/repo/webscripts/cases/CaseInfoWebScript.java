@@ -24,7 +24,7 @@ import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 /**
  * Created by torben on 11/09/14.
  */
-public class CaseInfo extends AbstractWebScript {
+public class CaseInfoWebScript extends AbstractWebScript {
 
     private NodeInfoService nodeInfoService;
     private DictionaryService dictionaryService;
@@ -58,16 +58,17 @@ public class CaseInfo extends AbstractWebScript {
                 OpenESDHModel.ASSOC_CASE_OWNERS, OpenESDHModel.PROP_OE_STATUS,
                 ContentModel.PROP_CREATOR, ContentModel.PROP_CREATED, ContentModel.PROP_MODIFIED,
                 ContentModel.PROP_MODIFIER, ContentModel.PROP_DESCRIPTION,
-                OpenESDHModel.PROP_OE_JOURNALKEY, OpenESDHModel.PROP_OE_JOURNALFACET,
-                OpenESDHModel.PROP_OE_LOCKED_BY, OpenESDHModel.PROP_OE_LOCKED_DATE
+                OpenESDHModel.PROP_OE_JOURNALKEY, OpenESDHModel.PROP_OE_JOURNALFACET, OpenESDHModel.PROP_OE_LOCKED_BY,
+                OpenESDHModel.PROP_OE_LOCKED_DATE, OpenESDHModel.PROP_CASE_STARTDATE
         );
 
-        JSONObject json = nodeInfoService.getSelectedProperties(nodeInfo, this, requiredProps);
+        JSONObject json = nodeInfoService.getSelectedProperties(nodeInfo, requiredProps);
         String user = AuthenticationUtil.getFullyAuthenticatedUser();
 
         res.setContentEncoding(WebScriptUtils.CONTENT_ENCODING_UTF_8);
         try {
-            json.put("allProps", nodeInfoService.buildJSON(nodeInfo, this));
+            ((JSONObject) json.get("properties")).put("nodeRef", caseNodeRef.toString());
+            json.put("allProps", nodeInfoService.buildJSON(nodeInfo));
             json.put("isLocked", caseService.isLocked(caseNodeRef));
             json.put("statusChoices", caseService.getValidNextStatuses(caseNodeRef));
             json.write(res.getWriter());

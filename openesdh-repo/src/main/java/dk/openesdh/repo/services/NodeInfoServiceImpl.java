@@ -7,22 +7,26 @@ import java.util.List;
 import java.util.Map;
 
 import org.alfresco.model.ContentModel;
-import org.alfresco.repo.dictionary.DictionaryModelType;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
-import org.alfresco.service.cmr.dictionary.*;
+import org.alfresco.service.cmr.dictionary.AssociationDefinition;
+import org.alfresco.service.cmr.dictionary.Constraint;
+import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
+import org.alfresco.service.cmr.dictionary.DataTypeDefinition;
+import org.alfresco.service.cmr.dictionary.DictionaryService;
+import org.alfresco.service.cmr.dictionary.PropertyDefinition;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.webscripts.cases.CaseInfo;
 
 /**
  * @author Torben Lauritzen.
@@ -63,14 +67,14 @@ public class NodeInfoServiceImpl implements NodeInfoService {
     }
 
     @Override
-    public JSONObject buildJSON(NodeInfo nodeInfo, CaseInfo caseInfo) {
+    public JSONObject buildJSON(NodeInfo nodeInfo) {
         JSONObject result = new JSONObject();
         try {
 
             ArrayList<QName> propertiesToRetrieve = new ArrayList<QName>(nodeInfo.properties.keySet());
             propertiesToRetrieve.add(OpenESDHModel.ASSOC_CASE_OWNERS);
 
-            result = getSelectedProperties(nodeInfo, caseInfo, propertiesToRetrieve);
+            result = getSelectedProperties(nodeInfo, propertiesToRetrieve);
 
             JSONObject aspectsObj = new JSONObject();
             for (QName aspect : nodeInfo.aspects) {
@@ -85,7 +89,7 @@ public class NodeInfoServiceImpl implements NodeInfoService {
     }
 
     @Override
-    public JSONObject getSelectedProperties(NodeInfo nodeInfo, CaseInfo caseInfo, List<QName>objectProps){
+    public JSONObject getSelectedProperties(NodeInfo nodeInfo, List<QName> objectProps) {
         JSONObject result = new JSONObject();
         JSONObject properties = new JSONObject();
 
@@ -175,8 +179,10 @@ public class NodeInfoServiceImpl implements NodeInfoService {
         valueObj.put("value", commaDelimitedUserNames);
 
         ArrayList<String> fullNames = new ArrayList<String>();
+        List<String> nodeRefs = new ArrayList<String>();
         for (String userName : userNames) {
             NodeRef personNodeRef = personService.getPerson(userName);
+            nodeRefs.add(personNodeRef.toString());
             String firstName = (String) nodeService.getProperty(personNodeRef, ContentModel.PROP_FIRSTNAME);
             String lastName = (String) nodeService.getProperty(personNodeRef, ContentModel.PROP_LASTNAME);
             String fullName = StringUtils.isEmpty(lastName) ? firstName : firstName + " " + lastName;
@@ -184,6 +190,7 @@ public class NodeInfoServiceImpl implements NodeInfoService {
         }
         String commaDelimitedFullNames = StringUtils.collectionToDelimitedString(fullNames, ", ");
         valueObj.put("fullname", commaDelimitedFullNames);
+        valueObj.put("nodeRef", new JSONArray(nodeRefs));
 
         return valueObj;
     }
