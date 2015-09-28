@@ -32,6 +32,7 @@ function main()
             doc_category = null,
             doc_state = null,
             doc_type = null,
+            title = null,
             i;
 
         // Upload specific
@@ -143,6 +144,9 @@ function main()
                 case "doc_type":
                     doc_type = field.value;
                     break;
+
+                case "title":
+                    title = field.value;
             }
         }
 
@@ -383,6 +387,8 @@ function main()
                 newFile.properties["doc:state"] = doc_state;
             if(doc_type)
                 newFile.properties["doc:type"] = doc_type;
+            if (title)
+                newFile.properties["cm:title"] = title;
 
             newFile.save();
 
