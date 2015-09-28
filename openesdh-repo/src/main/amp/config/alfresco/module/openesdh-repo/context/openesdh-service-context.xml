@@ -1,6 +1,11 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
 <beans>
+    <bean id="OpenESDHFoldersService" class="dk.openesdh.repo.services.system.OpenESDHFoldersServiceImpl">
+        <property name="nodeService" ref="nodeService" />
+        <property name="repositoryHelper" ref="repositoryHelper" />
+    </bean>
+    
     <bean id="CaseService"
           class="dk.openesdh.repo.services.cases.CaseServiceImpl" init-method="init">
         <property name="nodeService">
@@ -50,6 +55,19 @@
         <property name="oeLockService">
             <ref bean="OELockService"/>
         </property>
+        
+        <property name="openESDHFoldersService">
+            <ref bean="OpenESDHFoldersService"/>
+        </property>
+    </bean>
+    
+    <bean id="DocumentTypeService" class="dk.openesdh.repo.services.documents.DocumentTypeServiceImpl">
+        <property name="nodeService">
+            <ref bean="NodeService"/>
+        </property>
+        <property name="openESDHFoldersService">
+            <ref bean="OpenESDHFoldersService"/>
+        </property>
     </bean>
 
     <bean id="OELockService"
@@ -92,19 +110,15 @@
         <property name="caseService">
             <ref bean="CaseService"/>
         </property>
-
         <property name="contentService">
             <ref bean="ContentService"/>
         </property>
-
         <property name="renditionService">
             <ref bean="RenditionService"/>
         </property>
-
         <property name="copyService">
             <ref bean="CopyService"/>
         </property>
-
         <property name="nodeService">
             <ref bean="NodeService"/>
         </property>
@@ -114,37 +128,33 @@
         <property name="personService">
             <ref bean="PersonService"/>
         </property>
-        
-        <property name="transactionService">
-            <ref bean="TransactionService"/>
+        <property name="searchService">
+            <ref bean="SearchService"/>
         </property>
-
-        <property name="searchService" ref="SearchService"/>
-
-        <property name="namespaceService" ref="namespaceService"/>
-
-        <property name="versionService" ref="VersionService"/>
-
-        <property name="behaviourFilter">
-            <ref bean="policyBehaviourFilter"/>
+        <property name="namespaceService">
+            <ref bean="namespaceService"/>
         </property>
-
+        <property name="versionService">
+            <ref bean="VersionService"/>
+        </property>
         <property name="policyComponent">
             <ref bean="policyComponent"/>
         </property>
-
         <property name="oeLockService">
             <ref bean="OELockService"/>
         </property>
-
         <property name="mimetypeService">
             <ref bean="mimetypeService"/>
         </property>
-
+        <property name="documentTypeService">
+            <ref bean="DocumentTypeService"/>
+        </property>
+        <property name="transactionService">
+            <ref bean="TransactionService"/>
+        </property>
         <property name="acceptableFinalizedFileFormats">
             <value>${openesdh.document.acceptableFinalizedFileFormats}</value>
         </property>
-
         <property name="finalizedFileFormat">
             <value>${openesdh.document.finalizedFileFormat}</value>
         </property>

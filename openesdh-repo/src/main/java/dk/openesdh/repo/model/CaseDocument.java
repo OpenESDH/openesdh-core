@@ -3,14 +3,13 @@ package dk.openesdh.repo.model;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 import org.alfresco.service.cmr.security.PersonService.PersonInfo;
 
 public class CaseDocument {
 
     private String title;
     private String docNo;
-    private String type;
+    private DocumentType type;
     private String category;
     private String state;
     private String status;
@@ -19,7 +18,6 @@ public class CaseDocument {
     private String nodeRef;
     private String mainDocNodeRef;
     private PersonInfo owner;
-    private String fileType;
 
     private List<CaseDocumentAttachment> attachments = new ArrayList<>();
 
@@ -47,11 +45,11 @@ public class CaseDocument {
         this.docNo = docNo;
     }
 
-    public String getType() {
+    public DocumentType getType() {
         return type;
     }
 
-    public void setType(String type) {
+    public void setType(DocumentType type) {
         this.type = type;
     }
 
@@ -117,14 +115,6 @@ public class CaseDocument {
 
     public void setOwner(PersonInfo owner) {
         this.owner = owner;
-    }
-
-    public String getFileType() {
-        return fileType;
-    }
-
-    public void setFileType(String fileType) {
-        this.fileType = fileType;
     }
 
 }

@@ -1,23 +1,17 @@
 package dk.openesdh.repo.services.xsearch;
 
-import dk.openesdh.repo.services.cases.CaseService;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+
 import org.alfresco.error.AlfrescoRuntimeException;
-import org.alfresco.repo.model.Repository;
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.search.ResultSet;
-import org.alfresco.service.cmr.search.SearchParameters;
-import org.alfresco.service.cmr.search.SearchService;
 import org.apache.commons.lang.StringUtils;
 import org.apache.lucene.queryParser.QueryParser;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.extensions.webscripts.WebScriptException;
-
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 
 /**
  * Created by flemmingheidepedersen on 12/09/14.
@@ -39,23 +33,35 @@ public class XSearchServiceImpl extends AbstractXSearchService {
     }
 
 
-    protected String buildQuery(String baseType, String filtersJSON) throws
-            JSONException {
+    protected String buildQuery(String baseType, String filtersJSON) throws JSONException {
         List<String> searchTerms = new ArrayList<>();
 
-        if (filtersJSON != null) {
-            JSONArray filters = new JSONArray(filtersJSON);
+        if (filtersJSON == null) {
+            searchTerms.add("TYPE:" + quote(baseType));
+            return StringUtils.join(searchTerms, " AND ");
+        }
+
+        JSONArray filters = getJsonArrayReturnNullOnParseException(filtersJSON);
+        if (filters != null) {
             for (int i = 0; i < filters.length(); i++) {
-                JSONObject filter = filters.getJSONObject(i);
-                String searchTerm = processFilter(filter);
-                if (searchTerm != null) {
-                    searchTerms.add(searchTerm);
-                }
+                processFilter(filters.getJSONObject(i))
+                    .ifPresent(searchTerm -> searchTerms.add(searchTerm));
             }
+        } else {
+            processFilter(new JSONObject(filtersJSON))
+                .ifPresent(searchTerm -> searchTerms.add(searchTerm));
         }
 
         searchTerms.add("TYPE:" + quote(baseType));
         return StringUtils.join(searchTerms, " AND ");
+    }
+
+    protected JSONArray getJsonArrayReturnNullOnParseException(String s) {
+        try {
+            return new JSONArray(s);
+        } catch (JSONException e) {
+            return null;
+        }
     }
 
     String processFilterValue(JSONObject filter) throws JSONException {
@@ -108,7 +114,7 @@ public class XSearchServiceImpl extends AbstractXSearchService {
         return dbIds;
     }
 
-    String processFilter(JSONObject filter) throws JSONException {
+    Optional<String> processFilter(JSONObject filter) throws JSONException {
         String name = filter.getString("name");
         String operator = filter.getString("operator");
 
@@ -141,7 +147,7 @@ public class XSearchServiceImpl extends AbstractXSearchService {
         //System.out.println("Filter " + name + " " + operator + " " + value);
 
         if (value == null) {
-            return null;
+            return Optional.empty();
         }
 
         // Escape field name for lucene
@@ -156,7 +162,7 @@ public class XSearchServiceImpl extends AbstractXSearchService {
             field = "@" + field;
         }
 
-        return prepend + field + ':' + value;
+        return Optional.of(prepend + field + ':' + value);
     }
 
 }
