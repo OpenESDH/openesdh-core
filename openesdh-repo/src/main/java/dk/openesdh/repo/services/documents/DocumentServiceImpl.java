@@ -572,7 +572,6 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
         NodeRef documentNodeRef = new NodeRef(caseDocument.getNodeRef());
         Map<QName, Serializable> properties = nodeService.getProperties(documentNodeRef);
         properties.put(ContentModel.PROP_TITLE, caseDocument.getTitle());
-        properties.put(OpenESDHModel.PROP_DOC_STATE, caseDocument.getState());
         properties.put(OpenESDHModel.PROP_DOC_CATEGORY, caseDocument.getCategory());
         nodeService.setProperties(documentNodeRef, properties);
         updateDocumentType(documentNodeRef, caseDocument.getType());

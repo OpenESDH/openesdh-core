@@ -1,21 +1,10 @@
 package dk.openesdh.repo.services.documents;
 
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
-import dk.openesdh.repo.helper.CaseDocumentTestHelper;
-import dk.openesdh.repo.helper.CaseHelper;
-import dk.openesdh.repo.model.CaseDocument;
-import dk.openesdh.repo.model.CaseDocumentAttachment;
-import dk.openesdh.repo.model.DocumentStatus;
-import dk.openesdh.repo.model.DocumentType;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.model.ResultSet;
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.lock.OELockService;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
@@ -38,6 +27,20 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.CollectionUtils;
+
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
+
+import dk.openesdh.repo.helper.CaseDocumentTestHelper;
+import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.model.CaseDocument;
+import dk.openesdh.repo.model.CaseDocumentAttachment;
+import dk.openesdh.repo.model.DocumentStatus;
+import dk.openesdh.repo.model.DocumentType;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.model.ResultSet;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.lock.OELockService;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -328,7 +331,6 @@ public class DocumentServiceImplIT {
         CaseDocument document = new CaseDocument();
         document.setNodeRef(caseDocNodeRef.toString());
         document.setCategory(OpenESDHModel.DOCUMENT_CATEGORY_CONTRACT);
-        document.setState(OpenESDHModel.DOCUMENT_STATE_FINALISED);
         document.setTitle(TEST_TITLE);
 
         DocumentType documentType2 = documentTypeService.getDocumentTypes().stream().skip(1).findFirst().get();
@@ -343,8 +345,6 @@ public class DocumentServiceImplIT {
         Map<QName, Serializable> props = nodeService.getProperties(caseDocNodeRef);
         Assert.assertEquals("Document category should be updated", OpenESDHModel.DOCUMENT_CATEGORY_CONTRACT,
                 props.get(OpenESDHModel.PROP_DOC_CATEGORY));
-        Assert.assertEquals("Document state should be updated", OpenESDHModel.DOCUMENT_STATE_FINALISED,
-                props.get(OpenESDHModel.PROP_DOC_STATE));
         Assert.assertEquals(documentService.getDocumentType(caseDocNodeRef).getNodeRef(), documentType2.getNodeRef());
 
         Assert.assertEquals("Document title should be updated", TEST_TITLE, props.get(ContentModel.PROP_TITLE));
