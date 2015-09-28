@@ -25,7 +25,7 @@
     <#list data.items as item>
     {
     "nodeRef": "${item.nodeRef}",
-    <#if item.docRecordNodeRef??>"docRecordNodeRef": "${item.nodeRef}",</#if>
+    <#if item.docRecordNodeRef??>"docRecordNodeRef": "${item.docRecordNodeRef}",</#if>
     "type": "${item.type}",
     "name": "${item.name!''}",
     "displayName": "${item.displayName!''}",
