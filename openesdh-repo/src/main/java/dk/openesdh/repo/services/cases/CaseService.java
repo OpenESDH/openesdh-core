@@ -21,7 +21,6 @@ public interface CaseService extends HasStatus {
     String DATE_FORMAT = "yyyyMMdd";
 
     //Folder root contexts (i.e. the next 3 variables)
-    String OPENESDH_ROOT_CONTEXT = "OpenESDH";
     String CASES_ROOT = "cases";
     String CASES_TYPES_ROOT = "types";
     String OPENESDH_ROOT_CONTEXT_PATH = "/app:company_home/oe:OpenESDH/oe:cases/";
@@ -29,25 +28,11 @@ public interface CaseService extends HasStatus {
     Pattern CASE_ID_PATTERN = Pattern.compile("\\d+-(\\d+)");
 
     /**
-     * Get the root folder for the openESDH context
-     *
-     * @return NodeRef for the openESDH root folder
-     */
-    NodeRef getOpenESDHRootFolder();
-
-    /**
      * Get the root folder for storing cases
      *
      * @return NodeRef for the root folder
      */
     NodeRef getCasesRootNodeRef();
-
-    /**
-     * The noderef for the folder where case types are meant to store their data
-     *
-     * @return
-     */
-    NodeRef getCasesTypeStorageRootNodeRef();
 
     /**
      * Get the roles that are possible to set for the given case.

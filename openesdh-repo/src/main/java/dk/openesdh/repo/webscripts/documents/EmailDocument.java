@@ -1,8 +1,14 @@
 package dk.openesdh.repo.webscripts.documents;
 
+import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.services.documents.DocumentTypeService;
+import java.io.IOException;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.service.cmr.repository.ContentService;
@@ -17,12 +23,11 @@ import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.springframework.extensions.webscripts.*;
-
-import java.io.IOException;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+import org.springframework.extensions.webscripts.AbstractWebScript;
+import org.springframework.extensions.webscripts.Status;
+import org.springframework.extensions.webscripts.WebScriptException;
+import org.springframework.extensions.webscripts.WebScriptRequest;
+import org.springframework.extensions.webscripts.WebScriptResponse;
 
 /**
  * Created by rasmutor on 2/9/15.
@@ -36,6 +41,7 @@ public class EmailDocument extends AbstractWebScript {
     private PersonService personService;
     private NodeService nodeService;
     private ContentService contentService;
+    private DocumentTypeService documentTypeService;
 
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse resp) throws IOException {
@@ -68,7 +74,9 @@ public class EmailDocument extends AbstractWebScript {
         NodeRef nodeRef = caseService.getCaseById(caseId);
         NodeRef documentsFolder = caseService.getDocumentsFolder(nodeRef);
         Map<QName, Serializable> props = new HashMap<>();
-        props.put(OpenESDHModel.PROP_DOC_TYPE, "letter");
+        DocumentType documentType = documentTypeService.getDocumentTypeByName(OpenESDHModel.DOCUMENT_TYPE_LETTER)
+                .orElseThrow(() -> new WebScriptException("Document type \"letter\" not found"));
+        props.put(OpenESDHModel.PROP_DOC_TYPE, documentType.getNodeRef());
         props.put(OpenESDHModel.PROP_DOC_CATEGORY, "other");
         props.put(OpenESDHModel.PROP_DOC_STATE, "received");
         NodeRef documentFolder = documentService.createDocumentFolder(documentsFolder, name, props).getChildRef();
@@ -121,5 +129,9 @@ public class EmailDocument extends AbstractWebScript {
 
     public void setContentService(ContentService contentService) {
         this.contentService = contentService;
+    }
+
+    public void setDocumentTypeService(DocumentTypeService documentTypeService) {
+        this.documentTypeService = documentTypeService;
     }
 }
