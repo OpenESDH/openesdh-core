@@ -1,14 +1,10 @@
 package dk.openesdh.repo.webscripts.documents;
 
-import dk.openesdh.repo.model.DocumentType;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.services.documents.DocumentTypeService;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.service.cmr.repository.ContentService;
@@ -28,6 +24,12 @@ import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
+
+import dk.openesdh.repo.model.DocumentType;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.services.documents.DocumentTypeService;
 
 /**
  * Created by rasmutor on 2/9/15.
@@ -78,7 +80,6 @@ public class EmailDocument extends AbstractWebScript {
                 .orElseThrow(() -> new WebScriptException("Document type \"letter\" not found"));
         props.put(OpenESDHModel.PROP_DOC_TYPE, documentType.getNodeRef());
         props.put(OpenESDHModel.PROP_DOC_CATEGORY, "other");
-        props.put(OpenESDHModel.PROP_DOC_STATE, "received");
         NodeRef documentFolder = documentService.createDocumentFolder(documentsFolder, name, props).getChildRef();
 
         LOG.warn("responsible: " + responsible);

@@ -1,14 +1,5 @@
 package dk.openesdh.repo.services.documents;
 
-import dk.openesdh.repo.model.CaseDocument;
-import dk.openesdh.repo.model.CaseDocumentAttachment;
-import dk.openesdh.repo.model.DocumentStatus;
-import dk.openesdh.repo.model.DocumentType;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.model.ResultSet;
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.lock.OELockService;
-import dk.openesdh.repo.webscripts.documents.Documents;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -21,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.content.MimetypeMap;
@@ -64,6 +56,16 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.security.access.AccessDeniedException;
+
+import dk.openesdh.repo.model.CaseDocument;
+import dk.openesdh.repo.model.CaseDocumentAttachment;
+import dk.openesdh.repo.model.DocumentStatus;
+import dk.openesdh.repo.model.DocumentType;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.model.ResultSet;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.lock.OELockService;
+import dk.openesdh.repo.webscripts.documents.Documents;
 
 /**
  * Created by torben on 11/09/14.
@@ -667,7 +669,6 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
         Map<QName, Serializable> props = nodeService.getProperties(docRecordNodeRef);
         caseDocument.setTitle(props.get(ContentModel.PROP_TITLE).toString());
         caseDocument.setType(getDocumentType(docRecordNodeRef));
-        caseDocument.setState(props.get(OpenESDHModel.PROP_DOC_STATE).toString());
         caseDocument.setStatus(props.get(OpenESDHModel.PROP_OE_STATUS).toString());
         caseDocument.setCategory(props.get(OpenESDHModel.PROP_DOC_CATEGORY).toString());
         caseDocument.setCreated((Date) props.get(ContentModel.PROP_CREATED));
