@@ -20,6 +20,7 @@ import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.util.CollectionUtils;
@@ -189,7 +190,7 @@ public class NodeInfoServiceImpl implements NodeInfoService {
         }
         String commaDelimitedFullNames = StringUtils.collectionToDelimitedString(fullNames, ", ");
         valueObj.put("fullname", commaDelimitedFullNames);
-        valueObj.put("nodeRef", StringUtils.collectionToDelimitedString(nodeRefs, ", "));
+        valueObj.put("nodeRef", new JSONArray(nodeRefs));
 
         return valueObj;
     }
