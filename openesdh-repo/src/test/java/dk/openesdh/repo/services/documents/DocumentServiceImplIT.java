@@ -338,7 +338,6 @@ public class DocumentServiceImplIT {
 
         Map<QName, Serializable> initialProps = nodeService.getProperties(caseDocNodeRef);
         Assert.assertNotNull(initialProps.get(OpenESDHModel.PROP_DOC_CATEGORY));
-        Assert.assertNotNull(initialProps.get(OpenESDHModel.PROP_DOC_STATE));
 
         documentService.updateCaseDocumentProperties(document);
 

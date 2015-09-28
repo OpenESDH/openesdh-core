@@ -1,11 +1,5 @@
 package dk.openesdh.repo.helper;
 
-import dk.openesdh.SimpleCaseModel;
-import dk.openesdh.repo.model.DocumentType;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.test.TransactionalIT;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -13,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -21,6 +16,13 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
+
+import dk.openesdh.SimpleCaseModel;
+import dk.openesdh.repo.model.DocumentType;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.test.TransactionalIT;
 
 public class CaseDocumentTestHelper extends TransactionalIT {
 
@@ -147,7 +149,6 @@ public class CaseDocumentTestHelper extends TransactionalIT {
         //this will be transfered to folder in DocumentBehavior
         properties.put(OpenESDHModel.PROP_DOC_TYPE, type.getNodeRef().toString());
         properties.put(OpenESDHModel.PROP_DOC_CATEGORY, OpenESDHModel.DOCUMENT_CATEGORY_OTHER);
-        properties.put(OpenESDHModel.PROP_DOC_STATE, OpenESDHModel.DOCUMENT_STATE_RECEIVED);
 
         return runInTransactionAsAdmin(() -> {
             NodeRef caseDocumentsFolder = caseService.getDocumentsFolder(caseNodeRef);

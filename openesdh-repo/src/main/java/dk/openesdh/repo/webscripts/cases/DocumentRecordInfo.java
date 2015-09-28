@@ -1,12 +1,9 @@
 package dk.openesdh.repo.webscripts.cases;
 
-import dk.openesdh.repo.model.DocumentType;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.NodeInfoService;
-import dk.openesdh.repo.services.documents.DocumentService;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.PersonService.PersonInfo;
@@ -16,6 +13,11 @@ import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
+
+import dk.openesdh.repo.model.DocumentType;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.NodeInfoService;
+import dk.openesdh.repo.services.documents.DocumentService;
 
 /**
  * @author Lanre Abiwon
@@ -51,7 +53,6 @@ public class DocumentRecordInfo extends AbstractWebScript {
 //            result.put("typeChoices", getDocumentTypeChoices());
 
             result.put("category", documentNodeInfo.properties.get(OpenESDHModel.PROP_DOC_CATEGORY));
-            result.put("state", documentNodeInfo.properties.get(OpenESDHModel.PROP_DOC_STATE));
             result.put("status", documentNodeInfo.properties.get(OpenESDHModel.PROP_OE_STATUS));
             result.put("title", documentNodeInfo.properties.get(ContentModel.PROP_TITLE));
 

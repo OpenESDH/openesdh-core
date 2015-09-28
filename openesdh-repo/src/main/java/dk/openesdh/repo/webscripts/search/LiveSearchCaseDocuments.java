@@ -1,14 +1,10 @@
 package dk.openesdh.repo.webscripts.search;
 
-import dk.openesdh.repo.model.CaseInfo;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.utils.Utils;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -22,6 +18,12 @@ import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.DeclarativeWebScript;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptRequest;
+
+import dk.openesdh.repo.model.CaseInfo;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.utils.Utils;
 
 
 public class LiveSearchCaseDocuments extends DeclarativeWebScript {
@@ -96,7 +98,6 @@ public class LiveSearchCaseDocuments extends DeclarativeWebScript {
             documentObj.put("nodeRef", document);
             documentObj.put("docRecordNodeRef", docRecord);
             documentObj.put("type", documentService.getDocumentType(docRecord).getDisplayName());
-            documentObj.put("docState", docProps.get(OpenESDHModel.PROP_DOC_STATE));
             documentObj.put("docStatus", docProps.get(OpenESDHModel.PROP_OE_STATUS));
             documentObj.put("docCategory", docProps.get(OpenESDHModel.PROP_DOC_CATEGORY));
             documentObj.put("version", docProps.get(ContentModel.PROP_VERSION_LABEL));
