@@ -5,10 +5,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-import dk.openesdh.repo.model.DocumentStatus;
-import dk.openesdh.repo.services.lock.OELockService;
 import org.alfresco.model.ContentModel;
-import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
@@ -38,9 +35,11 @@ import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.CaseDocument;
 import dk.openesdh.repo.model.CaseDocumentAttachment;
+import dk.openesdh.repo.model.DocumentStatus;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.model.ResultSet;
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.lock.OELockService;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -326,7 +325,6 @@ public class DocumentServiceImplIT {
         document.setNodeRef(testDocument.toString());
         document.setCategory(OpenESDHModel.DOCUMENT_CATEGORY_CONTRACT);
         document.setType(OpenESDHModel.DOCUMENT_TYPE_INVOICE);
-        document.setState(OpenESDHModel.DOCUMENT_STATE_FINALISED);
         document.setTitle("TEST TITLE");
 
         documentService.updateCaseDocumentProperties(document);
@@ -336,8 +334,6 @@ public class DocumentServiceImplIT {
                 props.get(OpenESDHModel.PROP_DOC_CATEGORY));
         Assert.assertEquals("Document type should be updated", OpenESDHModel.DOCUMENT_TYPE_INVOICE,
                 props.get(OpenESDHModel.PROP_DOC_TYPE));
-        Assert.assertEquals("Document state should be updated", OpenESDHModel.DOCUMENT_STATE_FINALISED,
-                props.get(OpenESDHModel.PROP_DOC_STATE));
         Assert.assertEquals("Document title should be updated", "TEST TITLE",
                 props.get(ContentModel.PROP_TITLE));
     }
