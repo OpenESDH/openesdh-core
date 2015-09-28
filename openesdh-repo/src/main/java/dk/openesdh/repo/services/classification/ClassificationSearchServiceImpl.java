@@ -60,6 +60,13 @@ public class ClassificationSearchServiceImpl extends AbstractXSearchService {
         String query = "PATH:\"" + queryPath + "\" AND (=name:\"" +
                 term + "*\" OR title:\"*" + term + "*\")";
 
+        // Quick hack for demo
+        // TODO: The discontinued date should be stored as a category
+        // property when being synced by the ClassificationSynchronizer
+        // The search should then query for categories that have not been
+        // discontinued as of the current date
+        query += " AND -title:udgået";
+
         if (sortField == null) {
             sortField = "cm:name";
             ascending = true;
