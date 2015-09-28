@@ -160,6 +160,18 @@
                     </target>
                 </association>
                 
+                <association name="doc:acategory">
+                    <source>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </source>
+                    <target>
+                        <class>doc:dcategory</class>
+                        <mandatory>true</mandatory>
+                        <many>false</many>
+                    </target>
+                </association>
+                
                 <association name="doc:owner">
                     <source>
                         <mandatory>false</mandatory>
@@ -301,6 +313,22 @@
                     </constraints>
                 </property>
                 <property name="doc:systemType">
+                    <type>d:boolean</type>
+                    <default>false</default>
+                </property>
+            </properties>
+        </type>
+        <type name="doc:dcategory">
+            <title>Document category</title>
+            <parent>cm:cmobject</parent>
+            <properties>
+                <property name="doc:categoryDisplayName">
+                    <type>d:mltext</type>
+                    <constraints>
+                        <constraint ref="doc:displayNameConstr"/>
+                    </constraints>
+                </property>
+                <property name="doc:systemCategory">
                     <type>d:boolean</type>
                     <default>false</default>
                 </property>

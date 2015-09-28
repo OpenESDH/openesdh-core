@@ -180,6 +180,15 @@
                             <cm:description>This folder stores openESDH DocumentTypes</cm:description>
                         </view:properties>
                     </cm:folder>
+                    <cm:folder view:childName="oe:document_categories">
+                        <cm:name>Document Categories</cm:name>
+                        <view:properties>
+                            <sys:store-protocol>workspace</sys:store-protocol>
+                            <sys:store-identifier>SpacesStore</sys:store-identifier>
+                            <sys:node-uuid>d5c60a1c-64e6-4040-b885-1521cee68871</sys:node-uuid>
+                            <cm:description>This folder stores openESDH DocumentCategories</cm:description>
+                        </view:properties>
+                    </cm:folder>
                 </cm:contains>
             </cm:folder>
         </cm:contains>

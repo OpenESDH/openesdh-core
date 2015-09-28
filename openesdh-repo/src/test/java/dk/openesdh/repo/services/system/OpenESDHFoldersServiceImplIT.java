@@ -6,6 +6,7 @@ import com.tradeshift.test.remote.RemoteTestRunner;
 import dk.openesdh.repo.model.OpenESDHModel;
 import static dk.openesdh.repo.services.system.OpenESDHFoldersService.CASES_ROOT;
 import static dk.openesdh.repo.services.system.OpenESDHFoldersService.CLASSIFICATIONS;
+import static dk.openesdh.repo.services.system.OpenESDHFoldersService.DOCUMENT_CATEGORIES;
 import static dk.openesdh.repo.services.system.OpenESDHFoldersService.DOCUMENT_TYPES;
 import static dk.openesdh.repo.services.system.OpenESDHFoldersService.OPENESDH_ROOT_CONTEXT;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -76,5 +77,10 @@ public class OpenESDHFoldersServiceImplIT {
     @Test
     public void testGetDocumentTypesRootNodeRef() {
         assertPath(openESDHFoldersService.getDocumentTypesRootNodeRef(), OPENESDH_ROOT_CONTEXT, CLASSIFICATIONS, DOCUMENT_TYPES);
+    }
+
+    @Test
+    public void testGetDocumentcategoriesRootNodeRef() {
+        assertPath(openESDHFoldersService.getDocumentCategoriesRootNodeRef(), OPENESDH_ROOT_CONTEXT, CLASSIFICATIONS, DOCUMENT_CATEGORIES);
     }
 }

@@ -51,6 +51,7 @@ public interface OpenESDHModel {
     public static final QName TYPE_DOC_SIMPLE = QName.createQName(DOC_URI, TYPE_SIMPLE_NAME);
 
     public static final QName TYPE_DOC_TYPE = QName.createQName(DOC_URI, "dtype");
+    public static final QName TYPE_DOC_CATEGORY = QName.createQName(DOC_URI, "dcategory");
     public static final QName TYPE_DOC_FILE = QName.createQName(DOC_URI, "file");
     public static final QName TYPE_DOC_DIGITAL_FILE = QName.createQName(DOC_URI, "digitalFile");
     public static final QName TYPE_DOC_PHYSICAL_FILE = QName.createQName(DOC_URI, "physicalFile");
@@ -84,6 +85,7 @@ public interface OpenESDHModel {
     public static final QName ASSOC_CASE_OWNERS = QName.createQName(CASE_URI, "owners");
 
     public static final QName ASSOC_DOC_TYPE = QName.createQName(DOC_URI, "atype");
+    public static final QName ASSOC_DOC_CATEGORY = QName.createQName(DOC_URI, "acategory");
     public static final QName ASSOC_DOC_OWNER = QName.createQName(DOC_URI, "owner");
     public static final QName ASSOC_DOC_RESPONSIBLE_PERSON = QName.createQName(DOC_URI, "responsible");
     public static final QName ASSOC_DOC_MAIN = QName.createQName(DOC_URI, "main");
@@ -124,12 +126,16 @@ public interface OpenESDHModel {
 
 
     public static final QName PROP_DOC_ARRIVAL_DATE = QName.createQName(DOC_URI, "arrivalDate");
-    public static final QName PROP_DOC_CATEGORY = QName.createQName(DOC_URI, "category");
     public static final QName PROP_DOC_VARIANT = QName.createQName(DOC_URI, "variant");
+    public static final QName PROP_DOC_STATE = QName.createQName(DOC_URI, "state");
+    //document types
     public static final QName PROP_DOC_TYPE = QName.createQName(DOC_URI, "type");
     public static final QName PROP_DOC_TYPE_DISPLAY_NAME = QName.createQName(DOC_URI, "typeDisplayName");
     public static final QName PROP_DOC_TYPE_SYSTEM = QName.createQName(DOC_URI, "systemType");
-    public static final QName PROP_DOC_STATE = QName.createQName(DOC_URI, "state");
+    //document categories
+    public static final QName PROP_DOC_CATEGORY = QName.createQName(DOC_URI, "category");
+    public static final QName PROP_DOC_CATEGORY_DISPLAY_NAME = QName.createQName(DOC_URI, "categoryDisplayName");
+    public static final QName PROP_DOC_CATEGORY_SYSTEM = QName.createQName(DOC_URI, "systemCategory");
 
     public static final QName PROP_CONTACT_EMAIL = QName.createQName(CONTACT_URI, "email");
     public static final QName PROP_CONTACT_TYPE = QName.createQName(CONTACT_URI, "contactType");

@@ -41,6 +41,25 @@
             </list>
         </property>
     </bean>
+    <!-- initial document categories -->
+    <bean id="${project.artifactId}_docCategBootstrap" parent="spacesStoreImporter" >
+        <property name="log"> 
+            <value>true</value> 
+        </property>
+        <property name="useExistingStore"> 
+            <value>true</value> 
+        </property>
+        <property name="transactionService" ref="transactionService"/>
+        <property name="bootstrapViews">
+            <list>
+                <props>
+                    <prop key="path">app:company_home/oe:OpenESDH/oe:classifications/oe:document_categories</prop>
+                    <prop key="uuidBinding">UPDATE_EXISTING</prop>
+                    <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/documentCategories.xml</prop>
+                </props>
+            </list>
+        </property>
+    </bean>
     <!--Contacts store-->
     <bean id="${project.artifactId}_contactBootstrap" parent="spacesStoreImporter" >
         <property name="log"> 
