@@ -14,7 +14,6 @@ import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
@@ -84,8 +83,8 @@ public class DocumentTypeServiceImplIT {
 
     @Test
     public void testSystemTypesExists() {
-        assertNotNull(documentTypeService.getDocumentTypeByName(OpenESDHModel.DOCUMENT_TYPE_INVOICE));
-        assertNotNull(documentTypeService.getDocumentTypeByName(OpenESDHModel.DOCUMENT_TYPE_LETTER));
+        assertTrue(documentTypeService.getDocumentTypeByName(OpenESDHModel.DOCUMENT_TYPE_INVOICE).isPresent());
+        assertTrue(documentTypeService.getDocumentTypeByName(OpenESDHModel.DOCUMENT_TYPE_LETTER).isPresent());
     }
 
     private void safelyDelete(DocumentType documentType) {

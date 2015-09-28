@@ -146,7 +146,7 @@ public class CaseDocumentTestHelper extends TransactionalIT {
         properties.put(ContentModel.PROP_NAME, documentName);
         //this will be transfered to folder in DocumentBehavior
         properties.put(OpenESDHModel.PROP_DOC_TYPE, type.getNodeRef().toString());
-        properties.put(OpenESDHModel.PROP_DOC_CATEGORY, OpenESDHModel.DOCUMENT_CATEGORY_OTHER);
+        properties.put(OpenESDHModel.PROP_DOC_CATEGORY, OpenESDHModel.DOCUMENT_CATEGORY_ANNEX);
         properties.put(OpenESDHModel.PROP_DOC_STATE, OpenESDHModel.DOCUMENT_STATE_RECEIVED);
 
         return runInTransactionAsAdmin(() -> {
