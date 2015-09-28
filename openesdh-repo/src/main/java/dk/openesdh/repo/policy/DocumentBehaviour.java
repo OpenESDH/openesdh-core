@@ -176,7 +176,10 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
              * here and removed from the main document.
              */
 
-            nodeService.setProperty(docRecord, ContentModel.PROP_TITLE, nodeService.getProperty(childAssocRef.getChildRef(), ContentModel.PROP_TITLE));
+            String title = (String) nodeService.getProperty(fileRef, ContentModel.PROP_TITLE);
+            if (title != null || nodeService.getProperty(docRecord, ContentModel.PROP_NAME).equals(nodeService.getProperty(fileRef, ContentModel.PROP_NAME))) {
+                nodeService.setProperty(docRecord, ContentModel.PROP_TITLE, title);
+            }
 
             String doc_category, doc_state, doc_type;
             try {
