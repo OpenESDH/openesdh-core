@@ -42,7 +42,7 @@
         <view:properties>
             <sys:store-protocol>workspace</sys:store-protocol>
             <sys:store-identifier>SpacesStore</sys:store-identifier>
-            <sys:node-uuid>f49c1691-d942-4b44-936b-fb0f528f9966</sys:node-uuid>
+            <sys:node-uuid>fhj738tw-45hW-659u-9DS1-9cX3Nh95r089</sys:node-uuid>
             <cm:description>This folder stores everything that is related to the openESDH application context</cm:description>
         </view:properties>
         <cm:contains>
@@ -64,7 +64,7 @@
                 <view:properties>
                     <sys:store-protocol>workspace</sys:store-protocol>
                     <sys:store-identifier>SpacesStore</sys:store-identifier>
-                    <sys:node-uuid>e6373d4e-b3b8-4759-a9f1-b3ec7ebafdc3</sys:node-uuid>
+                    <sys:node-uuid>HY78tt7K-bfg5-QQw7-9dS1-a8eKTNH5jk64</sys:node-uuid>
                     <cm:description>This folder stores all openESDH cases</cm:description>
                 </view:properties>
             </cm:folder>
@@ -86,7 +86,7 @@
                 <view:properties>
                     <sys:store-protocol>workspace</sys:store-protocol>
                     <sys:store-identifier>SpacesStore</sys:store-identifier>
-                    <sys:node-uuid>edec82a1-c668-4b16-b7da-4862c99f0ca0</sys:node-uuid>
+                    <sys:node-uuid>a7d4fkH9-j98y-QiiQ-9dS1-44f309550a3b</sys:node-uuid>
                     <cm:description>This folder is created so that all subsystems that need to store anything on the system might store their files here. Should only be viewable to admins by default</cm:description>
                 </view:properties>
                 <cm:contains>
@@ -108,7 +108,7 @@
                         <view:properties>
                             <sys:store-protocol>workspace</sys:store-protocol>
                             <sys:store-identifier>SpacesStore</sys:store-identifier>
-                            <sys:node-uuid>b92b1989-8013-42c3-ba0a-007e80a0a924</sys:node-uuid>
+                            <sys:node-uuid>NH2O4h21-024w-3B57-9dS1-bb907ae899bc</sys:node-uuid>
                             <cm:description>The openESDH contact_resolution subsystems root</cm:description>
                         </view:properties>
                     </cm:folder>
@@ -130,7 +130,7 @@
                         <view:properties>
                             <sys:store-protocol>workspace</sys:store-protocol>
                             <sys:store-identifier>SpacesStore</sys:store-identifier>
-                            <sys:node-uuid>e8081ca8-20e9-4a18-9cba-7fe7d460ef1c</sys:node-uuid>
+                            <sys:node-uuid>NH2O4h2O-20w4-b877-9dS1-bb907hNk64e8</sys:node-uuid>
                             <cm:description>The openESDH classification subsystems root</cm:description>
                         </view:properties>
                     </cm:folder>
