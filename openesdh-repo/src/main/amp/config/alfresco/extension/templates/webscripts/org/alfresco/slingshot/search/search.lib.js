@@ -177,7 +177,7 @@ function getCaseOrCaseDocumentItem(caseId, containerId, pathParts, node, populat
     }
     else if (node.isDocument) {
         item.type = "document";
-        item.docRecordNodeRef = node.parent.nodeRef;
+        item.docRecordNodeRef = node.parent.nodeRef.toString();
         item.size = node.size;
     }
 
