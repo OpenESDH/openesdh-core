@@ -47,6 +47,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 public class DocumentBehaviourIT {
 
     private static final String TEST_ADD_DOCUMENT_NAME = "TestAddDocument";
+    private static final String TEST_ADD_DOCUMENT_TITLE = "TestAddDocument-Title";
     private static final String TEST_ADD_DOCUMENT_CONTENT = "This is a test add document content...";
     private static final String TEST_FOLDER_NAME = "DocumentServiceImpIT";
     private static final String TEST_CASE_NAME1 = "TestCase1";
@@ -122,10 +123,10 @@ public class DocumentBehaviourIT {
                 Strings.isNullOrEmpty(resultExtension));
 
         Map<String, NodeRef> caseDocsFolderContent = nodeService.getChildAssocs(testCase1DocumentsFolder).stream().collect(
-                        Collectors.<ChildAssociationRef, String, NodeRef> toMap(
-                                assoc -> (String) nodeService.getProperty(assoc.getChildRef(),
-                                        ContentModel.PROP_NAME), assoc -> assoc.getChildRef()
-                        ) );
+                Collectors.<ChildAssociationRef, String, NodeRef>toMap(
+                        assoc -> (String) nodeService.getProperty(assoc.getChildRef(),
+                                ContentModel.PROP_NAME), assoc -> assoc.getChildRef()
+                ));
 
         Assert.assertFalse(
                 "The added document should be put to the document record folder NOT to the case documents folder",
@@ -136,7 +137,7 @@ public class DocumentBehaviourIT {
                 hasKey(caseDocsFolderContent.keySet(), TEST_ADD_DOCUMENT_NAME));
 
         NodeRef addedDocRecordFolder = caseDocsFolderContent.get(TEST_ADD_DOCUMENT_NAME);
-        Assert.assertEquals("The document record should get a title equal to its name", TEST_ADD_DOCUMENT_NAME, nodeService.getProperty(addedDocRecordFolder, ContentModel.PROP_TITLE));
+        Assert.assertEquals("The document record should get a title if provided on the main doc file", TEST_ADD_DOCUMENT_TITLE, nodeService.getProperty(addedDocRecordFolder, ContentModel.PROP_TITLE));
 
         List<NodeRef> addedDocRecordFolderContent = nodeService.getChildAssocs(addedDocRecordFolder).stream()
                 .map(ChildAssociationRef::getChildRef).collect(Collectors.toList());
@@ -145,9 +146,6 @@ public class DocumentBehaviourIT {
                 "The document record folder should contain the added document",
                 addedDocRecordFolderContent.contains(testAddDocument));
 
-        Assert.assertEquals("The document record folder should contain the added document state",
-                TEST_STATE,
-                nodeService.getProperty(addedDocRecordFolder, OpenESDHModel.PROP_DOC_STATE));
         Assert.assertEquals("The document record folder should contain the added document category",
                 documentCategory.getNodeRef(),
                 documentService.getDocumentCategory(addedDocRecordFolder).getNodeRef());
@@ -162,7 +160,7 @@ public class DocumentBehaviourIT {
         properties.put(ContentModel.PROP_NAME, TEST_ADD_DOCUMENT_NAME);
         properties.put(OpenESDHModel.PROP_DOC_TYPE, documentType.getNodeRef());
         properties.put(OpenESDHModel.PROP_DOC_CATEGORY, documentCategory.getNodeRef());
-        properties.put(OpenESDHModel.PROP_DOC_STATE, TEST_STATE);
+        properties.put(ContentModel.PROP_TITLE, TEST_ADD_DOCUMENT_TITLE);
         ContentData content = ContentData.createContentProperty(TEST_ADD_DOCUMENT_CONTENT);
         content = ContentData.setMimetype(content, MimeTypes.PLAIN_TEXT);
         properties.put(ContentModel.TYPE_CONTENT, content);

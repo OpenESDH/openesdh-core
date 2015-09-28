@@ -27,7 +27,6 @@ import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.namespace.RegexQNamePattern;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.util.CollectionUtils;
 
@@ -87,7 +86,7 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
         );
     }
 
-    public void onCreateDocRecordBehaviour (ChildAssociationRef childRef) {
+    public void onCreateDocRecordBehaviour(ChildAssociationRef childRef) {
         NodeRef nodeRef = childRef.getChildRef();
         if (!nodeService.exists(childRef.getParentRef()) || !nodeService.exists(nodeRef)) {
             return;
@@ -173,37 +172,26 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
              * so the meta-data needed for the doc record is grafted on the main doc then applied to the document record
              * here and removed from the main document.
              */
-            String doc_category, doc_state, doc_type;
-            try {
-                //First check if the docRecord has any of the mandatory props. If any of these are null we handle the
-                //exception in the catch.
-                nodeService.getProperty(docRecord, OpenESDHModel.PROP_DOC_STATE).toString();
-                nodeService.getProperty(docRecord, OpenESDHModel.PROP_DOC_TYPE).toString();
-                nodeService.getProperty(docRecord, OpenESDHModel.PROP_DOC_CATEGORY).toString();
-            } catch (NullPointerException npe) {
-                //if not check that the document itself has the mandatory properties and set it on the docRecord (uploads)
+            String title = (String) nodeService.getProperty(fileRef, ContentModel.PROP_TITLE);
+            if (title != null || nodeService.getProperty(docRecord, ContentModel.PROP_NAME).equals(nodeService.getProperty(fileRef, ContentModel.PROP_NAME))) {
+                nodeService.setProperty(docRecord, ContentModel.PROP_TITLE, title);
+            }
 
-                //state
-                doc_state = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_STATE).toString();
+            //category
+            String doc_category = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY).toString();
+            DocumentCategory documentCategory = documentCategoryService.getDocumentCategory(new NodeRef(doc_category));
+            //type
+            String doc_type = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_TYPE).toString();
+            DocumentType documentType = documentTypeService.getDocumentType(new NodeRef(doc_type));
+            if (documentCategory == null || documentType == null) {
+                throw new WebScriptException("The following meta-data is required for a main document:\n\tCategory\n\ttype");
+            } else {
                 //category
-                doc_category = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY).toString();
-                DocumentCategory documentCategory = documentCategoryService.getDocumentCategory(new NodeRef(doc_category));
+                documentService.updateDocumentCategory(docRecord, documentCategory);
+                this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY);
                 //type
-                doc_type = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_TYPE).toString();
-                DocumentType documentType = documentTypeService.getDocumentType(new NodeRef(doc_type));
-                if (StringUtils.isAnyEmpty(doc_category, doc_state) || documentType == null) {
-                    throw new WebScriptException(npe.getMessage() + "\nThe following meta-data is required for a main document:\n\tCategory\n\tState\n\ttype");
-                } else {
-                    //category
-                    documentService.updateDocumentCategory(docRecord, documentCategory);
-                    this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY);
-                    //state
-                    this.nodeService.setProperty(docRecord, OpenESDHModel.PROP_DOC_STATE, doc_state);
-                    this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_STATE);
-                    //type
-                    documentService.updateDocumentType(docRecord, documentType);
-                    this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_TYPE);
-                }
+                documentService.updateDocumentType(docRecord, documentType);
+                this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_TYPE);
             }
         }
 

@@ -23,20 +23,6 @@
             </parameter>
         </constraint>
 
-        <constraint name="doc:stateConstraint" type="LIST">
-            <parameter name="allowedValues">
-                <list>
-                    <value>received</value>
-                    <value>distributed</value>
-                    <value>draft</value>
-                    <value>under-review</value>
-                    <value>published</value>
-                    <value>finalised</value>
-                    <value>submitted</value>
-                </list>
-            </parameter>
-        </constraint>
-
         <constraint name="doc:relationConstraint" type="LIST">
             <parameter name="allowedValues">
                 <list>
@@ -92,14 +78,6 @@
                 <property name="doc:discardmentCode">
                     <description>Kassationskode</description>
                     <type>d:text</type>
-                </property>
-
-                <property name="doc:state">
-                    <type>d:text</type>
-                    <mandatory>true</mandatory>
-                    <constraints>
-                        <constraint ref="doc:stateConstraint"/>
-                    </constraints>
                 </property>
 
                 <property name="doc:comment">

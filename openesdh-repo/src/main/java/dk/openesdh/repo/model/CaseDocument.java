@@ -11,7 +11,6 @@ public class CaseDocument {
     private String docNo;
     private DocumentType type;
     private DocumentCategory category;
-    private String state;
     private String status;
     private Date created;
     private Date modified;
@@ -59,14 +58,6 @@ public class CaseDocument {
 
     public void setCategory(DocumentCategory category) {
         this.category = category;
-    }
-
-    public String getState() {
-        return state;
-    }
-
-    public void setState(String state) {
-        this.state = state;
     }
 
     public String getStatus() {

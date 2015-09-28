@@ -170,7 +170,6 @@ public class CaseDocumentTestHelper extends TransactionalIT {
         //this will be transfered to folder in DocumentBehavior
         properties.put(OpenESDHModel.PROP_DOC_TYPE, getFirstDocumentType().getNodeRef().toString());
         properties.put(OpenESDHModel.PROP_DOC_CATEGORY, getFirstDocumentCategory().getNodeRef().toString());
-        properties.put(OpenESDHModel.PROP_DOC_STATE, OpenESDHModel.DOCUMENT_STATE_RECEIVED);
 
         return runInTransactionAsAdmin(() -> {
             NodeRef caseDocumentsFolder = caseService.getDocumentsFolder(caseNodeRef);

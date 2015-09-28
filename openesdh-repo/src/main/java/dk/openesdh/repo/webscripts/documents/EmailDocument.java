@@ -77,7 +77,7 @@ public class EmailDocument extends AbstractWebScript {
         Map<QName, Serializable> props = new HashMap<>();
         props.put(OpenESDHModel.PROP_DOC_TYPE, getDocumentTypeLetter());
         props.put(OpenESDHModel.PROP_DOC_CATEGORY, getDocumentCategoryOther());
-        props.put(OpenESDHModel.PROP_DOC_STATE, "received");
+
         NodeRef documentFolder = documentService.createDocumentFolder(documentsFolder, name, props).getChildRef();
 
         LOG.warn("responsible: " + responsible);

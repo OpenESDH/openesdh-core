@@ -127,7 +127,6 @@ public interface OpenESDHModel {
 
     public static final QName PROP_DOC_ARRIVAL_DATE = QName.createQName(DOC_URI, "arrivalDate");
     public static final QName PROP_DOC_VARIANT = QName.createQName(DOC_URI, "variant");
-    public static final QName PROP_DOC_STATE = QName.createQName(DOC_URI, "state");
     //document types
     public static final QName PROP_DOC_TYPE = QName.createQName(DOC_URI, "type");
     public static final QName PROP_DOC_TYPE_DISPLAY_NAME = QName.createQName(DOC_URI, "typeDisplayName");

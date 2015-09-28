@@ -9,7 +9,6 @@ import dk.openesdh.repo.model.CaseDocumentAttachment;
 import dk.openesdh.repo.model.DocumentCategory;
 import dk.openesdh.repo.model.DocumentStatus;
 import dk.openesdh.repo.model.DocumentType;
-import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.model.ResultSet;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.lock.OELockService;
@@ -337,9 +336,6 @@ public class DocumentServiceImplIT {
 
         DocumentCategory documentCategory2 = getSecondItemFrom(documentCategoryService.getDocumentCategories());
         document.setCategory(documentCategory2);
-
-        Map<QName, Serializable> initialProps = nodeService.getProperties(caseDocNodeRef);
-        Assert.assertNotNull(initialProps.get(OpenESDHModel.PROP_DOC_STATE));
 
         documentService.updateCaseDocumentProperties(document);
 
