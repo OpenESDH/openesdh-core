@@ -212,11 +212,3 @@ if(verticalLayout){
                 }
     });
 }
-//var shareVerticalLayout = widgetUtils.findObject(model.jsonModel, "id", "SHARE_VERTICAL_LAYOUT");
-
-//model.jsonModel.widgets = [{
-//    name: "openesdh/common/widgets/layout/BootstrapContainer",
-//    config: {
-//        widgets: [shareVerticalLayout]
-//    }
-//}];

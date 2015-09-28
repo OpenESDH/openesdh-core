@@ -83,6 +83,9 @@ public class LiveSearchCaseDocuments extends DeclarativeWebScript {
 
             //The case to which the document belongs
             NodeRef docCase = documentService.getCaseNodeRef(document);
+
+            NodeRef docRecord = nodeService.getPrimaryParent(document).getParentRef();
+
             CaseInfo caseItem = caseService.getCaseInfo(docCase);
             //Create the case object which we'll stuff into the document object
             caseObj.put("caseNodeRef", caseItem.getNodeRef());
@@ -91,7 +94,8 @@ public class LiveSearchCaseDocuments extends DeclarativeWebScript {
 
             documentObj.put("name", docProps.get(ContentModel.PROP_NAME));
             documentObj.put("nodeRef", document);
-            documentObj.put("type", documentService.getDocumentType(document).getDisplayName());
+            documentObj.put("docRecordNodeRef", docRecord);
+            documentObj.put("type", documentService.getDocumentType(docRecord).getDisplayName());
             documentObj.put("docState", docProps.get(OpenESDHModel.PROP_DOC_STATE));
             documentObj.put("docStatus", docProps.get(OpenESDHModel.PROP_OE_STATUS));
             documentObj.put("docCategory", docProps.get(OpenESDHModel.PROP_DOC_CATEGORY));
