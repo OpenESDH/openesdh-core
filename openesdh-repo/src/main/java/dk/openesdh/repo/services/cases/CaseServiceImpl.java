@@ -503,38 +503,20 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
 
             if (filterIsPresent) {
                 query.append(" AND (");
-                String escNameFilter = SearchLanguageConversion.escapeLuceneQuery(filter.replace('"', ' '));
+                // Tokenize the filter and wildcard each token
+                String escNameFilter = SearchLanguageConversion.escapeLuceneQuery(filter);
                 String[] tokenizedFilter = SearchLanguageConversion.tokenizeString(escNameFilter);
-
-                //oe:id
-                query.append(" oe:id:\" ");
-                for (int i = 0; i < tokenizedFilter.length; i++) {
-                    if (i != 0) //Not first element
-                    {
-                        query.append("?");
-                    }
-                    query.append(tokenizedFilter[i].toLowerCase());
+                for (String aTokenizedFilter : tokenizedFilter) {
+                    query.append(aTokenizedFilter).append("*");
                 }
-                query.append("*\"");
-
-                //cm:title
-                query.append(" OR ")
-                        .append(" cm:title: (");
-                for (int i = 0; i < tokenizedFilter.length; i++) {
-                    if (i != 0) //Not first element
-                    {
-                        query.append(" AND ");
-                    }
-                    query.append("\"" + tokenizedFilter[i] + "*\" ");
-                }
-                query.append(")");
-
-                query.append(" OR cm:description:\"" + escNameFilter + "\"");
                 query.append(")");
             }
 
+            System.out.println(query);
             SearchParameters sp = new SearchParameters();
-            sp.addQueryTemplate("_CASES", "|%oe:id OR |%title OR |%description");
+            sp.addQueryTemplate("_CASES", "|%oe:id |%title " +
+                    "|%description |%oe:journalKeyIndexed " +
+                    "|%oe:journalFacetIndexed");
             sp.setDefaultFieldName("_CASES");
             sp.addStore(caseRoot.getStoreRef());
             sp.setLanguage(SearchService.LANGUAGE_FTS_ALFRESCO);
