@@ -178,6 +178,8 @@ function getCaseOrCaseDocumentItem(caseId, containerId, pathParts, node, populat
     else if (node.isDocument) {
         item.type = "document";
         item.docRecordNodeRef = node.parent.nodeRef.toString();
+        item.docCategory = node.parent.properties["doc:category"];
+        item.docStatus = node.parent.properties["oe:status"];
         item.size = node.size;
     }
 
