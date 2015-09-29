@@ -4,8 +4,8 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import org.alfresco.model.ContentModel;
+import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
@@ -18,14 +18,18 @@ import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.DeclarativeWebScript;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptRequest;
-
 import dk.openesdh.repo.model.CaseInfo;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.DocumentService;
 import dk.openesdh.repo.utils.Utils;
 
-
+/**
+ * IMPORTANT
+ * Please note that this isn't teh function/method responsible for returning the results on the search page.
+ * For that refer to openesdh-repo/src/main/amp/config/alfresco/extension/templates/webscripts/org/alfresco/slingshot/search/search.lib.js#L139
+ * or on github https://github.com/OpenESDH/openesdh-core/blob/develop/openesdh-repo/src/main/amp/config/alfresco/extension/templates/webscripts/org/alfresco/slingshot/search/search.lib.js#L139
+ */
 public class LiveSearchCaseDocuments extends DeclarativeWebScript {
 
     //<editor-fold desc="injected services and initialised properties">
@@ -82,10 +86,9 @@ public class LiveSearchCaseDocuments extends DeclarativeWebScript {
             JSONObject documentObj = new JSONObject();
             JSONObject caseObj = new JSONObject();
             Map<QName, Serializable> docProps = nodeService.getProperties(document);
-
             //The case to which the document belongs
             NodeRef docCase = documentService.getCaseNodeRef(document);
-
+            //The actual docRecord (Folder) representing the document itself. This contains the "main document" we're interested in
             NodeRef docRecord = nodeService.getPrimaryParent(document).getParentRef();
 
             CaseInfo caseItem = caseService.getCaseInfo(docCase);
@@ -93,14 +96,17 @@ public class LiveSearchCaseDocuments extends DeclarativeWebScript {
             caseObj.put("caseNodeRef", caseItem.getNodeRef());
             caseObj.put("caseId", caseItem.getCaseId());
             caseObj.put("caseTitle", caseItem.getTitle());
+            //Needed to get the mimetype
+            ContentData docData = (ContentData) docProps.get(ContentModel.PROP_CONTENT);
 
             documentObj.put("name", docProps.get(ContentModel.PROP_NAME));
             documentObj.put("nodeRef", document);
             documentObj.put("docRecordNodeRef", docRecord);
             documentObj.put("type", documentService.getDocumentType(docRecord).getDisplayName());
-            documentObj.put("docStatus", docProps.get(OpenESDHModel.PROP_OE_STATUS));
-            documentObj.put("docCategory", docProps.get(OpenESDHModel.PROP_DOC_CATEGORY));
+            documentObj.put("docStatus", nodeService.getProperty(docRecord, OpenESDHModel.PROP_OE_STATUS));
+            documentObj.put("docCategory", nodeService.getProperty(docRecord, OpenESDHModel.PROP_DOC_CATEGORY));
             documentObj.put("version", docProps.get(ContentModel.PROP_VERSION_LABEL));
+            documentObj.put("fileMimeType", docData.getMimetype());
             documentObj.put("case", caseObj); //This one isn't optional at the moment
             result.put(documentObj);
         }

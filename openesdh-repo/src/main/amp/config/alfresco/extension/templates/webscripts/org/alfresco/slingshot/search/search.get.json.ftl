@@ -29,10 +29,12 @@
     "type": "${item.type}",
     "name": "${item.name!''}",
     "displayName": "${item.displayName!''}",
-        <#if item.title??>
+    <#if item.title??>
         "title": "${item.title}",
-        </#if>
+    </#if>
     "description": "${item.description!''}",
+    <#if item.docCategory??>"docCategory": "${item.docCategory}",</#if>
+    <#if item.docStatus??>"docStatus": "${item.docStatus}",</#if>
     "modifiedOn": "${xmldate(item.modifiedOn)}",
     "modifiedByUser": "${item.modifiedByUser}",
     "modifiedBy": "${item.modifiedBy}",
