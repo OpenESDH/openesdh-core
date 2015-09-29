@@ -231,6 +231,6 @@ public interface OpenESDHModel {
     public static final String ADMIN_USER_NAME = "admin";
 
     // Special QNAME for requesting the TYPE from NodeInfoService
-    public static final QName TYPE = QName.createQName(CASE_URI, "type");
+    public static final QName TYPE = QName.createQName(OE_URI, "type");
 
 }
