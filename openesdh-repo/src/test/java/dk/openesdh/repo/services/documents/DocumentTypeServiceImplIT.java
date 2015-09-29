@@ -14,7 +14,6 @@ import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
@@ -57,7 +56,7 @@ public class DocumentTypeServiceImplIT {
         documentType1 = new DocumentType();
         documentType1.setName("testInvoice");
         documentType1.setDisplayName("testInvoiceDN");
-        documentType1 = documentTypeService.saveDocumentType(documentType1);
+        documentType1 = documentTypeService.createOrUpdateDocumentType(documentType1);
         //read
         DocumentType saved = documentTypeService.getDocumentType(documentType1.getNodeRef());
         assertEquals(documentType1.getNodeRef(), saved.getNodeRef());
@@ -66,7 +65,7 @@ public class DocumentTypeServiceImplIT {
         //update
         saved.setName("testLetter");
         saved.setDisplayName("testLetterDN");
-        saved = documentTypeService.saveDocumentType(saved);
+        saved = documentTypeService.createOrUpdateDocumentType(saved);
         //get by name
         documentType2 = documentTypeService.getDocumentTypeByName("testLetter")
                 .orElseThrow(AssertionError::new);
@@ -84,8 +83,8 @@ public class DocumentTypeServiceImplIT {
 
     @Test
     public void testSystemTypesExists() {
-        assertNotNull(documentTypeService.getDocumentTypeByName(OpenESDHModel.DOCUMENT_TYPE_INVOICE));
-        assertNotNull(documentTypeService.getDocumentTypeByName(OpenESDHModel.DOCUMENT_TYPE_LETTER));
+        assertTrue(documentTypeService.getDocumentTypeByName(OpenESDHModel.DOCUMENT_TYPE_INVOICE).isPresent());
+        assertTrue(documentTypeService.getDocumentTypeByName(OpenESDHModel.DOCUMENT_TYPE_LETTER).isPresent());
     }
 
     private void safelyDelete(DocumentType documentType) {

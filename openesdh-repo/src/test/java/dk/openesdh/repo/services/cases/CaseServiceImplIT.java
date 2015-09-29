@@ -6,10 +6,8 @@ import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.CaseStatus;
 import dk.openesdh.repo.model.DocumentStatus;
-import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.services.documents.DocumentTypeService;
 import dk.openesdh.repo.services.lock.OELockService;
 import java.io.Serializable;
 import java.text.DateFormat;
@@ -23,20 +21,11 @@ import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import org.alfresco.model.ContentModel;
-import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.service.cmr.action.ActionService;
-import org.alfresco.service.cmr.dictionary.DictionaryService;
-import org.alfresco.service.cmr.lock.LockService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.rule.RuleService;
-import org.alfresco.service.cmr.search.CategoryService;
-import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
-import org.alfresco.service.cmr.security.OwnableService;
-import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.DynamicNamespacePrefixResolver;
 import org.alfresco.service.namespace.NamespaceService;
@@ -57,74 +46,34 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:alfresco/application-context.xml")
 public class CaseServiceImplIT {
 
-    //<editor-fold desc="Injected Autowired services">
-    //    private static final String ADMIN_USER_NAME = "admin";
-    private static final String USER_NAME_1 = "abeecher";
-    private static final String USER_NAME_2 = "mjackson";
-
     @Autowired
     @Qualifier("NodeService")
-    protected NodeService nodeService;
-
-    @Autowired
-    @Qualifier("SearchService")
-    protected SearchService searchService;
+    private NodeService nodeService;
 
     @Autowired
     @Qualifier("AuthorityService")
-    protected AuthorityService authorityService;
+    private AuthorityService authorityService;
 
     @Autowired
     @Qualifier("PersonService")
-    protected PersonService personService;
-
-    @Autowired
-    @Qualifier("PermissionService")
-    protected PermissionService permissionService;
-
-    @Autowired
-    @Qualifier("OwnableService")
-    protected OwnableService ownableService;
-
-    @Autowired
-    @Qualifier("LockService")
-    protected LockService lockService;
-
-    @Autowired
-    @Qualifier("repositoryHelper")
-    protected Repository repositoryHelper;
+    private PersonService personService;
 
     @Autowired
     @Qualifier("TransactionService")
-    protected TransactionService transactionService;
-
-    @Autowired
-    @Qualifier("DictionaryService")
-    protected DictionaryService dictionaryService;
-
-    @Autowired
-    @Qualifier("CategoryService")
-    protected CategoryService categoryService;
+    private TransactionService transactionService;
 
     @Autowired
     @Qualifier("TestCaseHelper")
-    protected CaseHelper caseHelper;
+    private CaseHelper caseHelper;
 
     @Autowired
     @Qualifier("CaseDocumentTestHelper")
-    protected CaseDocumentTestHelper docTestHelper;
-
-    @Autowired
-    private ActionService actionService;
-
-    @Autowired
-    private RuleService ruleService;
+    private CaseDocumentTestHelper docTestHelper;
 
     @Autowired
     @Qualifier("DocumentService")
@@ -136,22 +85,16 @@ public class CaseServiceImplIT {
 
     @Autowired
     @Qualifier("CaseService")
-    protected CaseServiceImpl caseService;
-
-    @Autowired
-    @Qualifier("DocumentTypeService")
-    protected DocumentTypeService documentTypeService;
-    //</editor-fold>
+    private CaseServiceImpl caseService;
 
     private static final String ALICE_BEECHER = "abeecher";
     private static final String MIKE_JACKSON = "mjackson";
-  
-    private DynamicNamespacePrefixResolver namespacePrefixResolver = new DynamicNamespacePrefixResolver(null);
+
+    private final DynamicNamespacePrefixResolver namespacePrefixResolver = new DynamicNamespacePrefixResolver(null);
     private NodeRef casesRootNoderef;
-    protected NodeRef temporaryCaseNodeRef;
+    private NodeRef temporaryCaseNodeRef;
     private NodeRef dummyUser;
-    protected NodeRef nonAdminCreatedCaseNr;
-    private DocumentType documentType;
+    private NodeRef nonAdminCreatedCaseNr;
 
     @Before
     public void setUp() throws Exception {
@@ -162,26 +105,19 @@ public class CaseServiceImplIT {
         transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
             dummyUser = caseHelper.createDummyUser();
             NodeRef adminUserNodeRef = this.personService.getPerson(OpenESDHModel.ADMIN_USER_NAME);
-                    authorityService.addAuthority(CaseHelper.CASE_CREATOR_GROUP, CaseHelper.DEFAULT_USERNAME);
+            authorityService.addAuthority(CaseHelper.CASE_CREATOR_GROUP, CaseHelper.DEFAULT_USERNAME);
 
             casesRootNoderef = caseService.getCasesRootNodeRef();
 
             namespacePrefixResolver.registerNamespace(NamespaceService.APP_MODEL_PREFIX, NamespaceService.APP_MODEL_1_0_URI);
             namespacePrefixResolver.registerNamespace(OpenESDHModel.CASE_PREFIX, OpenESDHModel.CASE_URI);
 
-            documentType = documentTypeService.getDocumentTypes().stream().findFirst().get();
-
-            final Map<QName, Serializable> properties = new HashMap<>();
-
             String caseName = "adminUser createdC case";
             temporaryCaseNodeRef = caseHelper.createSimpleCase(caseName, AuthenticationUtil.getAdminUserName(), adminUserNodeRef);
 
             // Create a case with a non-admin user
             caseName = "nonAdminUserCreatedCase";
-            LinkedList<NodeRef> owners = new LinkedList<>();
-            owners.add(dummyUser);
             nonAdminCreatedCaseNr = caseHelper.createSimpleCase(caseName, CaseHelper.DEFAULT_USERNAME, dummyUser);
-
             return null;
         });
     }
@@ -286,16 +222,12 @@ public class CaseServiceImplIT {
         String groupSuffix = "case_" + caseId + "_CaseSimpleReader";
         String groupName = authorityService.getName(AuthorityType.GROUP, groupSuffix);
         assertNotNull("No reader group created", groupName);
-        if (groupName != null) {
-            authorityService.deleteAuthority(groupName);
-        }
+        authorityService.deleteAuthority(groupName);
 
         groupSuffix = "case_" + caseId + "_CaseSimpleWriter";
         groupName = authorityService.getName(AuthorityType.GROUP, groupSuffix);
         assertNotNull("No writer group created", groupName);
-        if (groupName != null) {
-            authorityService.deleteAuthority(groupName);
-        }
+        authorityService.deleteAuthority(groupName);
     }
 
     @Test
@@ -320,8 +252,8 @@ public class CaseServiceImplIT {
         nodeService.removeAssociation(nonAdminCreatedCaseNr,
                 adminNodeRef, OpenESDHModel.ASSOC_CASE_OWNERS);
 
-        assertFalse("Removing case owner should remove them from CaseOwners " +
-                "group", authorityService
+        assertFalse("Removing case owner should remove them from CaseOwners "
+                + "group", authorityService
                 .getContainedAuthorities(
                         AuthorityType.USER,
                         groupName,
@@ -368,9 +300,8 @@ public class CaseServiceImplIT {
 
         caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader",
                 temporaryCaseNodeRef);
-        membersByRoles = caseService.getMembersByRole(temporaryCaseNodeRef,true, false);
-        assertFalse(membersByRoles.get("CaseSimpleReader").contains
-                (AuthenticationUtil.getAdminUserName()));
+        membersByRoles = caseService.getMembersByRole(temporaryCaseNodeRef, true, false);
+        assertFalse(membersByRoles.get("CaseSimpleReader").contains(AuthenticationUtil.getAdminUserName()));
     }
 
     @Test
@@ -387,8 +318,7 @@ public class CaseServiceImplIT {
         caseService.addAuthoritiesToRole(authorities, "CaseSimpleReader",
                 temporaryCaseNodeRef);
         Map<String, Set<String>> membersByRoles = caseService.getMembersByRole(temporaryCaseNodeRef, true, false);
-        assertTrue(membersByRoles.get("CaseSimpleReader").contains
-                (AuthenticationUtil.getAdminUserName()));
+        assertTrue(membersByRoles.get("CaseSimpleReader").contains(AuthenticationUtil.getAdminUserName()));
         caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader",
                 temporaryCaseNodeRef);
     }
@@ -462,16 +392,14 @@ public class CaseServiceImplIT {
         assertFalse(membersByRole.get("CaseSimpleWriter").contains(MIKE_JACKSON));
         assertTrue(membersByRole.get("CaseOwners").contains(ALICE_BEECHER));
 
-
     }
 
     @Test
     public void testClose() throws Exception {
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
 
-        assertFalse("Case node has locked aspect although it is not " +
-                "closed", nodeService.hasAspect
-                (nonAdminCreatedCaseNr,
+        assertFalse("Case node has locked aspect although it is not "
+                + "closed", nodeService.hasAspect(nonAdminCreatedCaseNr,
                         OpenESDHModel.ASPECT_OE_LOCKED));
         final String originalTitle = (String) nodeService.getProperty(nonAdminCreatedCaseNr,
                 ContentModel.PROP_TITLE);
@@ -488,20 +416,18 @@ public class CaseServiceImplIT {
         assertEquals("Initial status is active", caseService.getNodeStatus(nonAdminCreatedCaseNr), CaseStatus.ACTIVE);
 
         // Add a document
-        NodeRef docFileNodeRef = docTestHelper.createCaseDocument(UUID.randomUUID().toString(), nonAdminCreatedCaseNr, documentType);
+        NodeRef docFileNodeRef = docTestHelper.createCaseDocument(UUID.randomUUID().toString(), nonAdminCreatedCaseNr);
         NodeRef docRecordNodeRef = nodeService.getPrimaryParent(docFileNodeRef).getParentRef();
 
         caseService.changeNodeStatus(nonAdminCreatedCaseNr, CaseStatus.CLOSED);
 
-        assertEquals("Status after closing is closed", caseService.getNodeStatus
-                (nonAdminCreatedCaseNr), CaseStatus.CLOSED);
+        assertEquals("Status after closing is closed", caseService.getNodeStatus(nonAdminCreatedCaseNr), CaseStatus.CLOSED);
 
         // Test that locked properties got set
-        assertTrue("Case isLocked returns true for a closed " +
-                "case", caseService.isLocked(nonAdminCreatedCaseNr));
-        assertTrue("Case node has locked aspect after it has " +
-                "been closed", nodeService.hasAspect
-                (nonAdminCreatedCaseNr,
+        assertTrue("Case isLocked returns true for a closed "
+                + "case", caseService.isLocked(nonAdminCreatedCaseNr));
+        assertTrue("Case node has locked aspect after it has "
+                + "been closed", nodeService.hasAspect(nonAdminCreatedCaseNr,
                         OpenESDHModel.ASPECT_OE_LOCKED));
         assertEquals("Case lockedBy is set correctly",
                 nodeService.getProperty(nonAdminCreatedCaseNr,
@@ -524,7 +450,7 @@ public class CaseServiceImplIT {
 
         try {
             // Test that a document cannot be added to a closed case
-            NodeRef doc = docTestHelper.createCaseDocument(UUID.randomUUID().toString(), nonAdminCreatedCaseNr, documentType);
+            NodeRef doc = docTestHelper.createCaseDocument(UUID.randomUUID().toString(), nonAdminCreatedCaseNr);
             fail("A document could be added to a closed case");
         } catch (Exception e) {
         }
@@ -540,7 +466,7 @@ public class CaseServiceImplIT {
         // Test that the owner cannot add an authority to a role on the case
         try {
             caseService.addAuthorityToRole(OpenESDHModel.ADMIN_USER_NAME,
-                            "CaseSimpleReader", nonAdminCreatedCaseNr);
+                    "CaseSimpleReader", nonAdminCreatedCaseNr);
             fail("An authority could be added to a role on a closed case");
         } catch (Exception e) {
         }
@@ -558,19 +484,18 @@ public class CaseServiceImplIT {
 
         try {
             caseService.changeNodeStatus(nonAdminCreatedCaseNr, CaseStatus.ACTIVE);
-            fail("Should not be able to set closed case to active as a " +
-                    "regular user");
+            fail("Should not be able to set closed case to active as a "
+                    + "regular user");
         } catch (Exception e) {
         }
-
 
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
         caseService.changeNodeStatus(nonAdminCreatedCaseNr, CaseStatus.ACTIVE);
 
         assertEquals("Status after reopening is active", caseService.getNodeStatus(nonAdminCreatedCaseNr), CaseStatus.ACTIVE);
 
-        assertFalse("Case isLocked returns false for a reopened case" +
-                "case", caseService.isLocked(nonAdminCreatedCaseNr));
+        assertFalse("Case isLocked returns false for a reopened case"
+                + "case", caseService.isLocked(nonAdminCreatedCaseNr));
 
         assertEquals("Document in finalized case still has FINAL status after reopening",
                 DocumentStatus.FINAL, documentService.getNodeStatus(docRecordNodeRef));
@@ -580,12 +505,10 @@ public class CaseServiceImplIT {
         // deleting the case.
         documentService.changeNodeStatus(docRecordNodeRef, DocumentStatus.DRAFT);
 
-        assertEquals("Document in finalized case can be changed back to " +
-                        "DRAFT status after reopening", DocumentStatus.DRAFT, documentService.getNodeStatus(docRecordNodeRef));
-
+        assertEquals("Document in finalized case can be changed back to "
+                + "DRAFT status after reopening", DocumentStatus.DRAFT, documentService.getNodeStatus(docRecordNodeRef));
 
 //        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
-
         // Test that a user can write again: these would throw exceptions if
         // they failed.
         nodeService.setProperty(nonAdminCreatedCaseNr,
@@ -593,8 +516,8 @@ public class CaseServiceImplIT {
         nodeService.setProperty(nonAdminCreatedCaseNr,
                 ContentModel.PROP_TITLE, originalTitle);
 
-        assertFalse("Case node does not have the locked aspect after being " +
-                        "reopened",
+        assertFalse("Case node does not have the locked aspect after being "
+                + "reopened",
                 nodeService.hasAspect(nonAdminCreatedCaseNr,
                         OpenESDHModel.ASPECT_OE_LOCKED));
     }

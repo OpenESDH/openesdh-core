@@ -23,26 +23,6 @@
             </parameter>
         </constraint>
 
-        <constraint name="doc:categoryConstraint" type="LIST">
-            <parameter name="allowedValues">
-                <list>
-                    <value>annex</value>
-                    <value>proof</value>
-                    <value>contract</value>
-                    <value>note</value>
-                    <value>report</value>
-                    <value>proxy</value>
-                    <value>warranty</value>
-                    <value>part</value>
-                    <value>statement</value>
-                    <value>summary</value>
-                    <value>accounting</value>
-                    <value>offers</value>
-                    <value>other</value>
-                </list>
-            </parameter>
-        </constraint>
-
         <constraint name="doc:relationConstraint" type="LIST">
             <parameter name="allowedValues">
                 <list>
@@ -114,15 +94,6 @@
                     <description>Primær klassifikation</description>
                     <type>d:text</type>
                 </property>
-
-                <property name="doc:category">
-                    <description>Kunden vælger selv disse</description>
-                    <type>d:text</type>
-                    <mandatory>true</mandatory>
-                    <constraints>
-                        <constraint ref="doc:categoryConstraint"/>
-                    </constraints>
-                </property>
             </properties>
 
             <associations>
@@ -133,6 +104,18 @@
                     </source>
                     <target>
                         <class>doc:dtype</class>
+                        <mandatory>true</mandatory>
+                        <many>false</many>
+                    </target>
+                </association>
+                
+                <association name="doc:acategory">
+                    <source>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </source>
+                    <target>
+                        <class>doc:dcategory</class>
                         <mandatory>true</mandatory>
                         <many>false</many>
                     </target>
@@ -279,6 +262,22 @@
                     </constraints>
                 </property>
                 <property name="doc:systemType">
+                    <type>d:boolean</type>
+                    <default>false</default>
+                </property>
+            </properties>
+        </type>
+        <type name="doc:dcategory">
+            <title>Document category</title>
+            <parent>cm:cmobject</parent>
+            <properties>
+                <property name="doc:categoryDisplayName">
+                    <type>d:mltext</type>
+                    <constraints>
+                        <constraint ref="doc:displayNameConstr"/>
+                    </constraints>
+                </property>
+                <property name="doc:systemCategory">
                     <type>d:boolean</type>
                     <default>false</default>
                 </property>

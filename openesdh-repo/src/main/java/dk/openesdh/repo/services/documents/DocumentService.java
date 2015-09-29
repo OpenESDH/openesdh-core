@@ -2,6 +2,7 @@ package dk.openesdh.repo.services.documents;
 
 import dk.openesdh.repo.model.CaseDocument;
 import dk.openesdh.repo.model.CaseDocumentAttachment;
+import dk.openesdh.repo.model.DocumentCategory;
 import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.ResultSet;
 import dk.openesdh.repo.services.HasStatus;
@@ -149,4 +150,20 @@ public interface DocumentService extends HasStatus {
      * @param type
      */
     public void updateDocumentType(NodeRef docNodeRef, DocumentType type);
+
+    /**
+     * Get document category by document NodeRef
+     *
+     * @param docNodeRef
+     * @return DocumentCategory
+     */
+    public DocumentCategory getDocumentCategory(NodeRef docNodeRef);
+
+    /**
+     * Set document type for document
+     *
+     * @param docNodeRef
+     * @param category
+     */
+    public void updateDocumentCategory(NodeRef docNodeRef, DocumentCategory category);
 }

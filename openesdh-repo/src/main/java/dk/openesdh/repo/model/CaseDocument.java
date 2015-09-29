@@ -3,7 +3,6 @@ package dk.openesdh.repo.model;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-
 import org.alfresco.service.cmr.security.PersonService.PersonInfo;
 
 public class CaseDocument {
@@ -11,7 +10,7 @@ public class CaseDocument {
     private String title;
     private String docNo;
     private DocumentType type;
-    private String category;
+    private DocumentCategory category;
     private String status;
     private Date created;
     private Date modified;
@@ -53,11 +52,11 @@ public class CaseDocument {
         this.type = type;
     }
 
-    public String getCategory() {
+    public DocumentCategory getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(DocumentCategory category) {
         this.category = category;
     }
 

@@ -1,5 +1,14 @@
 package dk.openesdh.repo.helper;
 
+import dk.openesdh.SimpleCaseModel;
+import dk.openesdh.repo.model.DocumentCategory;
+import dk.openesdh.repo.model.DocumentType;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.documents.DocumentCategoryService;
+import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.services.documents.DocumentTypeService;
+import dk.openesdh.repo.test.TransactionalIT;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -7,7 +16,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -16,13 +24,6 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
-
-import dk.openesdh.SimpleCaseModel;
-import dk.openesdh.repo.model.DocumentType;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.test.TransactionalIT;
 
 public class CaseDocumentTestHelper extends TransactionalIT {
 
@@ -35,6 +36,10 @@ public class CaseDocumentTestHelper extends TransactionalIT {
     protected CaseService caseService;
 
     protected DocumentService documentService;
+
+    protected DocumentTypeService documentTypeService;
+
+    protected DocumentCategoryService documentCategoryService;
 
     public void setCaseService(CaseService caseService) {
         this.caseService = caseService;
@@ -54,6 +59,14 @@ public class CaseDocumentTestHelper extends TransactionalIT {
 
     public void setDocumentService(DocumentService documentService) {
         this.documentService = documentService;
+    }
+
+    public void setDocumentTypeService(DocumentTypeService documentTypeService) {
+        this.documentTypeService = documentTypeService;
+    }
+
+    public void setDocumentCategoryService(DocumentCategoryService documentCategoryService) {
+        this.documentCategoryService = documentCategoryService;
     }
 
     // Create temporary node for use during testing
@@ -143,12 +156,20 @@ public class CaseDocumentTestHelper extends TransactionalIT {
         nodeService.deleteNode(documentFolderRef);
     }
 
-    public NodeRef createCaseDocument(final String documentName, final NodeRef caseNodeRef, DocumentType type) {
+    private DocumentType getFirstDocumentType() {
+        return documentTypeService.getDocumentTypes().stream().findFirst().get();
+    }
+
+    private DocumentCategory getFirstDocumentCategory() {
+        return documentCategoryService.getDocumentCategories().stream().findFirst().get();
+    }
+
+    public NodeRef createCaseDocument(final String documentName, final NodeRef caseNodeRef) {
         final Map<QName, Serializable> properties = new HashMap<>();
         properties.put(ContentModel.PROP_NAME, documentName);
         //this will be transfered to folder in DocumentBehavior
-        properties.put(OpenESDHModel.PROP_DOC_TYPE, type.getNodeRef().toString());
-        properties.put(OpenESDHModel.PROP_DOC_CATEGORY, OpenESDHModel.DOCUMENT_CATEGORY_OTHER);
+        properties.put(OpenESDHModel.PROP_DOC_TYPE, getFirstDocumentType().getNodeRef().toString());
+        properties.put(OpenESDHModel.PROP_DOC_CATEGORY, getFirstDocumentCategory().getNodeRef().toString());
 
         return runInTransactionAsAdmin(() -> {
             NodeRef caseDocumentsFolder = caseService.getDocumentsFolder(caseNodeRef);

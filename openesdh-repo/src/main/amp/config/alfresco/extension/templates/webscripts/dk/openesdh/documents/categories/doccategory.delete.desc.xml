@@ -1,7 +1,7 @@
 <webscript>
-    <shortname>Delete document type</shortname>
-    <description>Deletes document type</description>
-    <url>/api/openesdh/document/type?nodeRefId=</url>
+    <shortname>Delete document category</shortname>
+    <description>Deletes document category</description>
+    <url>/api/openesdh/document/category?nodeRefId=</url>
     <format default="json"></format>
     <authentication>admin</authentication>
     <transaction>required</transaction>

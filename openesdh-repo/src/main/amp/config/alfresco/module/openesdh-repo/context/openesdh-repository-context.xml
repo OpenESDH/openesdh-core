@@ -226,6 +226,7 @@
         <property name="caseService" ref="CaseService" />
         <property name="documentService" ref="DocumentService" />
         <property name="documentTypeService" ref="DocumentTypeService" />
+        <property name="documentCategoryService" ref="DocumentCategoryService" />
         <property name="personService" ref="PersonService" />
         <property name="nodeService" ref="NodeService"/>
         <property name="contentService" ref="ContentService" />
@@ -310,6 +311,7 @@
         <property name="dictionaryService" ref="dictionaryService"/>
         <property name="caseService" ref="CaseService" />
         <property name="documentTypeService" ref="DocumentTypeService"/>
+        <property name="documentCategoryService" ref="DocumentCategoryService"/>
     </bean>
 
     <bean id="webscript.dk.openesdh.case.caseUserPermissions.get" parent="webscript"
@@ -358,5 +360,15 @@
     <bean id="webscript.dk.openesdh.documents.types.doctype.get" parent="documentTypesWebscript"></bean>
     <bean id="webscript.dk.openesdh.documents.types.doctype.post" parent="documentTypesWebscript"></bean>
     <bean id="webscript.dk.openesdh.documents.types.doctype.delete" parent="documentTypesWebscript"></bean>
+    
+    <!--Document categories-->
+    <bean id="documentCategoriesWebscript"
+          class="dk.openesdh.repo.webscripts.documents.DocumentCategoriesWebScript"
+          parent="webscript">
+        <property name="documentCategoryService" ref="DocumentCategoryService"/>
+    </bean>
+    <bean id="webscript.dk.openesdh.documents.categories.doccategory.get" parent="documentCategoriesWebscript"></bean>
+    <bean id="webscript.dk.openesdh.documents.categories.doccategory.post" parent="documentCategoriesWebscript"></bean>
+    <bean id="webscript.dk.openesdh.documents.categories.doccategory.delete" parent="documentCategoriesWebscript"></bean>
 </beans>
 
