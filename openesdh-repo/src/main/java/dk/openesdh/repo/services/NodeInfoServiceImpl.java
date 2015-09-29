@@ -136,10 +136,6 @@ public class NodeInfoServiceImpl implements NodeInfoService {
             valueObj = getPersonValue((String) value);
         } else if (propertyDefinition.getDataType().getName().equals(DataTypeDefinition.CATEGORY)) {
             valueObj = getCategoryValue((NodeRef) value);
-        } else if (propertyQName.equals(OpenESDHModel.PROP_OE_JOURNALKEY) || propertyQName.equals(OpenESDHModel.PROP_OE_JOURNALFACET)) {
-            // TODO: HACK for demo. Because we switched to using d:text
-            // datatype for these, but still want to treat them as categories.
-            valueObj = getCategoryValue(new NodeRef((String) value));
         } else {
             valueObj.put("value", value.toString());
             valueObj.put("displayValue", getDisplayLabel(propertyDefinition, value));

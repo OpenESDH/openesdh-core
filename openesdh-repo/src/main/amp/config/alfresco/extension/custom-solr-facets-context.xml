@@ -9,16 +9,6 @@
         </property>
     </bean>
 
-    <bean id="facet.categoryDisplayHandler"
-          class="dk.openesdh.repo.search.impl.solr.facet.handler.CategoryDisplayHandler" parent="baseFacetLabelDisplayHandler">
-        <constructor-arg>
-            <set>
-                <value>@{http://openesdh.dk/model/openesdh/1.0}journalKey</value>
-                <value>@{http://openesdh.dk/model/openesdh/1.0}journalFacet</value>
-            </set>
-        </constructor-arg>
-    </bean>
-
     <bean id="facet.dateFacetFields" class="org.springframework.beans.factory.config.SetFactoryBean">
         <property name="sourceSet">
             <set>

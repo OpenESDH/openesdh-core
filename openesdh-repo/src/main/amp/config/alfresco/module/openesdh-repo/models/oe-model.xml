@@ -59,9 +59,27 @@
             <parent>cm:classifiable</parent>
             <properties>
                 <property name="oe:journalKey">
-                    <!-- TODO: HACK for demo; Should use d:category data type.
-                      The reason d:text is being used here is because the tokenization of d:category is messed up for faceted search
-                     -->
+                    <type>d:category</type>
+                    <mandatory>true</mandatory>
+                    <multiple>false</multiple>
+                    <index enabled="true">
+                        <atomic>true</atomic>
+                        <stored>false</stored>
+                        <tokenised>false</tokenised>
+                    </index>
+                </property>
+
+                <property name="oe:journalFacet">
+                    <type>d:category</type>
+                    <multiple>false</multiple>
+                    <index enabled="true">
+                        <atomic>true</atomic>
+                        <stored>false</stored>
+                        <tokenised>false</tokenised>
+                    </index>
+                </property>
+
+                <property name="oe:journalKeyIndexed">
                     <type>d:text</type>
                     <mandatory>true</mandatory>
                     <multiple>false</multiple>
@@ -73,10 +91,7 @@
                     </index>
                 </property>
 
-                <property name="oe:journalFacet">
-                    <!-- TODO: HACK for demo; Should use d:category data type.
-                      The reason d:text is being used here is because the tokenization of d:category is messed up for faceted search
-                     -->
+                <property name="oe:journalFacetIndexed">
                     <type>d:text</type>
                     <multiple>false</multiple>
                     <index enabled="true">
