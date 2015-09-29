@@ -4,6 +4,7 @@ import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.services.documents.DocumentTypeService;
 import dk.openesdh.repo.webscripts.AbstractRESTWebscript;
 import dk.openesdh.repo.webscripts.ParamUtils;
+import static dk.openesdh.repo.webscripts.ParamUtils.checkRequiredParam;
 import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -53,31 +54,25 @@ public class DocumentTypesWebScript extends AbstractRESTWebscript {
     protected void post(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
         String name = ParamUtils.getRequiredParameter(req, "name");
         String displayName = ParamUtils.getRequiredParameter(req, "displayName");
-        DocumentType saveDocumentType = updateDocumentType(nodeRef, name, displayName);
+        DocumentType saveDocumentType = createOrUpdateDocumentType(nodeRef, name, displayName);
         writeDocumentTypeToResponse(saveDocumentType, res);
     }
 
     @Override
     protected void delete(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
-        checkRequiredNodeRef(nodeRef);
+        checkRequiredParam(nodeRef, "nodeRef");
         DocumentType type = new DocumentType();
         type.setNodeRef(nodeRef);
         documentTypeService.deleteDocumentType(type);
         res.getWriter().append("Deleted succesfully");
     }
 
-    private void checkRequiredNodeRef(NodeRef nodeRef) throws WebScriptException {
-        if (nodeRef == null) {
-            throw new WebScriptException("Required parameter is not defined: nodeRef");
-        }
-    }
-
-    private DocumentType updateDocumentType(NodeRef nodeRef, String name, String displayName) {
+    private DocumentType createOrUpdateDocumentType(NodeRef nodeRef, String name, String displayName) {
         DocumentType type = new DocumentType();
         type.setNodeRef(nodeRef);
         type.setName(name);
         type.setDisplayName(displayName);
-        return documentTypeService.saveDocumentType(type);
+        return documentTypeService.createOrUpdateDocumentType(type);
     }
 
     private void writeDocumentTypeToResponse(DocumentType documentType, WebScriptResponse res) throws JSONException, IOException {

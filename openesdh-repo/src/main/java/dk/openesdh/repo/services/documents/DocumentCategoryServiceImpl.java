@@ -33,7 +33,7 @@ public class DocumentCategoryServiceImpl implements DocumentCategoryService {
     }
 
     @Override
-    public DocumentCategory saveDocumentCategory(DocumentCategory documentCategory) {
+    public DocumentCategory createOrUpdateDocumentCategory(DocumentCategory documentCategory) {
         Map<QName, Serializable> properties = getProperties(documentCategory.getNodeRef());
         if (isSystemCategory(properties)) {
             throwErrorIfSystemNameWasChanged(properties, documentCategory);

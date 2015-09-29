@@ -56,7 +56,7 @@ public class DocumentTypeServiceImplIT {
         documentType1 = new DocumentType();
         documentType1.setName("testInvoice");
         documentType1.setDisplayName("testInvoiceDN");
-        documentType1 = documentTypeService.saveDocumentType(documentType1);
+        documentType1 = documentTypeService.createOrUpdateDocumentType(documentType1);
         //read
         DocumentType saved = documentTypeService.getDocumentType(documentType1.getNodeRef());
         assertEquals(documentType1.getNodeRef(), saved.getNodeRef());
@@ -65,7 +65,7 @@ public class DocumentTypeServiceImplIT {
         //update
         saved.setName("testLetter");
         saved.setDisplayName("testLetterDN");
-        saved = documentTypeService.saveDocumentType(saved);
+        saved = documentTypeService.createOrUpdateDocumentType(saved);
         //get by name
         documentType2 = documentTypeService.getDocumentTypeByName("testLetter")
                 .orElseThrow(AssertionError::new);

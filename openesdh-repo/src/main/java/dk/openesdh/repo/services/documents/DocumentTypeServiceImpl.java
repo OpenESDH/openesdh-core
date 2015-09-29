@@ -25,7 +25,7 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
     private NodeService nodeService;
 
     @Override
-    public DocumentType saveDocumentType(DocumentType documentType) {
+    public DocumentType createOrUpdateDocumentType(DocumentType documentType) {
         Map<QName, Serializable> properties = getProperties(documentType.getNodeRef());
         if (isSystemType(properties)) {
             throwErrorIfSystemNameWasChanged(properties, documentType);

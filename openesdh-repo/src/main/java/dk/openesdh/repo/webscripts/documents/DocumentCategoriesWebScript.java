@@ -4,6 +4,7 @@ import dk.openesdh.repo.model.DocumentCategory;
 import dk.openesdh.repo.services.documents.DocumentCategoryService;
 import dk.openesdh.repo.webscripts.AbstractRESTWebscript;
 import dk.openesdh.repo.webscripts.ParamUtils;
+import static dk.openesdh.repo.webscripts.ParamUtils.checkRequiredParam;
 import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -53,31 +54,27 @@ public class DocumentCategoriesWebScript extends AbstractRESTWebscript {
     protected void post(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
         String name = ParamUtils.getRequiredParameter(req, "name");
         String displayName = ParamUtils.getRequiredParameter(req, "displayName");
-        DocumentCategory saveDocumentCategory = updateDocumentCategory(nodeRef, name, displayName);
-        writeDocumentCategoryToResponse(saveDocumentCategory, res);
+        DocumentCategory savedDocumentCategory = createOrUpdateDocumentCategory(nodeRef, name, displayName);
+        writeDocumentCategoryToResponse(savedDocumentCategory, res);
     }
 
     @Override
     protected void delete(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
-        checkRequiredNodeRef(nodeRef);
+        checkRequiredParam(nodeRef, "nodeRef");
         DocumentCategory category = new DocumentCategory();
         category.setNodeRef(nodeRef);
         documentCategoryService.deleteDocumentCategory(category);
         res.getWriter().append("Deleted succesfully");
     }
 
-    private void checkRequiredNodeRef(NodeRef nodeRef) throws WebScriptException {
-        if (nodeRef == null) {
-            throw new WebScriptException("Required parameter is not defined: nodeRef");
-        }
-    }
+    
 
-    private DocumentCategory updateDocumentCategory(NodeRef nodeRef, String name, String displayName) {
+    private DocumentCategory createOrUpdateDocumentCategory(NodeRef nodeRef, String name, String displayName) {
         DocumentCategory category = new DocumentCategory();
         category.setNodeRef(nodeRef);
         category.setName(name);
         category.setDisplayName(displayName);
-        return documentCategoryService.saveDocumentCategory(category);
+        return documentCategoryService.createOrUpdateDocumentCategory(category);
     }
 
     private void writeDocumentCategoryToResponse(DocumentCategory documentCategory, WebScriptResponse res) throws JSONException, IOException {

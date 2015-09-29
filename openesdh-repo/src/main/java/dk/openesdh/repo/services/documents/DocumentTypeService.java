@@ -23,7 +23,7 @@ public interface DocumentTypeService {
      * @param documentType
      * @return
      */
-    public DocumentType saveDocumentType(DocumentType documentType);
+    public DocumentType createOrUpdateDocumentType(DocumentType documentType);
 
     /**
      * Read

@@ -3,7 +3,7 @@
     <description>Saves new/updated document category</description>
     <url>/api/openesdh/document/category?nodeRefId=</url>
     <format default="json"></format>
-    <authentication>user</authentication>
+    <authentication>admin</authentication>
     <transaction>required</transaction>
     <family>Case Document Tools</family>
 </webscript>

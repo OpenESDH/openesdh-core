@@ -23,7 +23,7 @@ public interface DocumentCategoryService {
      * @param documentCategory
      * @return
      */
-    public DocumentCategory saveDocumentCategory(DocumentCategory documentCategory);
+    public DocumentCategory createOrUpdateDocumentCategory(DocumentCategory documentCategory);
 
     /**
      * Read

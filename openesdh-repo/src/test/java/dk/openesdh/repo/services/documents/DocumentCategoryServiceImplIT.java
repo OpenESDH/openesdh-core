@@ -58,7 +58,7 @@ public class DocumentCategoryServiceImplIT {
         documentCategory1 = new DocumentCategory();
         documentCategory1.setName(TEST_CATEGORY_NAME_ANNEX);
         documentCategory1.setDisplayName(TEST_CATEGORY_NAME_ANNEX + "DN");
-        documentCategory1 = documentCategoryService.saveDocumentCategory(documentCategory1);
+        documentCategory1 = documentCategoryService.createOrUpdateDocumentCategory(documentCategory1);
         //read
         DocumentCategory saved = documentCategoryService.getDocumentCategory(documentCategory1.getNodeRef());
         assertEquals(documentCategory1.getNodeRef(), saved.getNodeRef());
@@ -67,7 +67,7 @@ public class DocumentCategoryServiceImplIT {
         //update
         saved.setName(TEST_CATEGORY_NAME_PROOF);
         saved.setDisplayName(TEST_CATEGORY_NAME_PROOF + "DN");
-        saved = documentCategoryService.saveDocumentCategory(saved);
+        saved = documentCategoryService.createOrUpdateDocumentCategory(saved);
         //get by name
         documentCategory2 = documentCategoryService.getDocumentCategoryByName(TEST_CATEGORY_NAME_PROOF)
                 .orElseThrow(AssertionError::new);
