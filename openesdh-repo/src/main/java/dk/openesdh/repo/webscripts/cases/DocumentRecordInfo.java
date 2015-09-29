@@ -1,12 +1,10 @@
 package dk.openesdh.repo.webscripts.cases;
 
-import dk.openesdh.repo.model.DocumentType;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.NodeInfoService;
-import dk.openesdh.repo.services.documents.DocumentService;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
+
+import dk.openesdh.repo.services.lock.OELockService;
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.PersonService.PersonInfo;
@@ -17,6 +15,11 @@ import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
+import dk.openesdh.repo.model.DocumentType;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.NodeInfoService;
+import dk.openesdh.repo.services.documents.DocumentService;
+
 /**
  * @author Lanre Abiwon
  */
@@ -24,6 +27,7 @@ public class DocumentRecordInfo extends AbstractWebScript {
 
     private NodeInfoService nodeInfoService;
     private DocumentService documentService;
+    private OELockService oeLockService;
 
     public void setNodeInfoService(NodeInfoService nodeInfoService) {
         this.nodeInfoService = nodeInfoService;
@@ -31,6 +35,10 @@ public class DocumentRecordInfo extends AbstractWebScript {
 
     public void setDocumentService(DocumentService documentService) {
         this.documentService = documentService;
+    }
+
+    public void setOeLockService(OELockService oeLockService) {
+        this.oeLockService = oeLockService;
     }
 
     @Override
@@ -51,7 +59,6 @@ public class DocumentRecordInfo extends AbstractWebScript {
 //            result.put("typeChoices", getDocumentTypeChoices());
 
             result.put("category", documentNodeInfo.properties.get(OpenESDHModel.PROP_DOC_CATEGORY));
-            result.put("state", documentNodeInfo.properties.get(OpenESDHModel.PROP_DOC_STATE));
             result.put("status", documentNodeInfo.properties.get(OpenESDHModel.PROP_OE_STATUS));
             result.put("title", documentNodeInfo.properties.get(ContentModel.PROP_TITLE));
 
@@ -62,6 +69,8 @@ public class DocumentRecordInfo extends AbstractWebScript {
             result.put("owner", docOwner.getFirstName() + " " + docOwner.getLastName());
             result.put("mainDocNodeRef", mainDocNodeRef.toString());
             result.put("statusChoices", documentService.getValidNextStatuses(documentNodeRef));
+            result.put("isLocked", oeLockService.isLocked(documentNodeRef));
+
 //            result.put("caseId", documentNodeInfo.properties.get(OpenESDHModel.PROP_OE_CASE_ID));
 
             result.write(res.getWriter());

@@ -106,7 +106,7 @@
     </bean>
 
     <bean id="webscript.dk.openesdh.caseinfo.get"
-          class="dk.openesdh.repo.webscripts.cases.CaseInfo"
+          class="dk.openesdh.repo.webscripts.cases.CaseInfoWebScript"
           parent="webscript">
         <property name="nodeInfoService" ref="NodeInfoService"/>
         <property name="dictionaryService" ref="dictionaryService"/>
@@ -118,6 +118,7 @@
           parent="webscript">
         <property name="nodeInfoService" ref="NodeInfoService"/>
         <property name="documentService" ref="DocumentService"/>
+        <property name="oeLockService" ref="OELockService"/>
     </bean>
 
     <bean id="webscript.dk.openesdh.iscasenode.get"
