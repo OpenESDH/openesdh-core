@@ -119,7 +119,7 @@ public class NodeInfoServiceImpl implements NodeInfoService {
         // Special handling of "TYPE" property
         if (OpenESDHModel.TYPE.equals(propertyQName)) {
             valueObj.put("type", "String");
-            valueObj.put("value", dictionaryService.getType(nodeInfo.nodeClassName).getTitle(dictionaryService));
+            valueObj.put("value", nodeInfo.nodeClassName.toPrefixString(namespaceService));
             return valueObj;
         }
 
