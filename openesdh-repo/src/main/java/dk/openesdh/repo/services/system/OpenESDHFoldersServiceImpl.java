@@ -39,6 +39,11 @@ public class OpenESDHFoldersServiceImpl implements OpenESDHFoldersService {
         return getFolder(getClassificationsRootNodeRef(), DOCUMENT_TYPES);
     }
 
+    @Override
+    public NodeRef getDocumentCategoriesRootNodeRef() {
+        return getFolder(getClassificationsRootNodeRef(), DOCUMENT_CATEGORIES);
+    }
+
     private NodeRef getFolder(NodeRef parent, String folderName) {
         NodeRef folderNodeRef = nodeService.getChildByName(parent, ContentModel.ASSOC_CONTAINS, folderName);
         if (folderNodeRef == null) {

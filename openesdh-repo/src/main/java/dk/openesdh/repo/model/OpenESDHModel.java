@@ -51,6 +51,7 @@ public interface OpenESDHModel {
     public static final QName TYPE_DOC_SIMPLE = QName.createQName(DOC_URI, TYPE_SIMPLE_NAME);
 
     public static final QName TYPE_DOC_TYPE = QName.createQName(DOC_URI, "dtype");
+    public static final QName TYPE_DOC_CATEGORY = QName.createQName(DOC_URI, "dcategory");
     public static final QName TYPE_DOC_FILE = QName.createQName(DOC_URI, "file");
     public static final QName TYPE_DOC_DIGITAL_FILE = QName.createQName(DOC_URI, "digitalFile");
     public static final QName TYPE_DOC_PHYSICAL_FILE = QName.createQName(DOC_URI, "physicalFile");
@@ -65,6 +66,7 @@ public interface OpenESDHModel {
     /**
      * Aspects
      */
+    public static final QName ASPECT_OE_JOURNALIZABLE = QName.createQName(OE_URI, "journalizable");
     public static final QName ASPECT_OE_LOCKED = QName.createQName(OE_URI, "locked");
     public static final QName ASPECT_OE_CASE_ID = QName.createQName(OE_URI, "caseId");
 
@@ -84,6 +86,7 @@ public interface OpenESDHModel {
     public static final QName ASSOC_CASE_OWNERS = QName.createQName(CASE_URI, "owners");
 
     public static final QName ASSOC_DOC_TYPE = QName.createQName(DOC_URI, "atype");
+    public static final QName ASSOC_DOC_CATEGORY = QName.createQName(DOC_URI, "acategory");
     public static final QName ASSOC_DOC_OWNER = QName.createQName(DOC_URI, "owner");
     public static final QName ASSOC_DOC_RESPONSIBLE_PERSON = QName.createQName(DOC_URI, "responsible");
     public static final QName ASSOC_DOC_MAIN = QName.createQName(DOC_URI, "main");
@@ -113,6 +116,8 @@ public interface OpenESDHModel {
     public static final QName PROP_OE_ORIGINAL_OWNER = QName.createQName(OE_URI, "originalOwner");
     public static final QName PROP_OE_JOURNALKEY = QName.createQName(OE_URI, "journalKey");
     public static final QName PROP_OE_JOURNALFACET = QName.createQName(OE_URI, "journalFacet");
+    public static final QName PROP_OE_JOURNALKEY_INDEXED = QName.createQName(OE_URI, "journalKeyIndexed");
+    public static final QName PROP_OE_JOURNALFACET_INDEXED = QName.createQName(OE_URI, "journalFacetIndexed");
     public static final QName PROP_OE_CASE_ID = QName.createQName(OE_URI, "caseId");
     public static final QName PROP_CASE_STARTDATE = QName.createQName(CASE_URI, "startDate");
 
@@ -124,11 +129,15 @@ public interface OpenESDHModel {
 
 
     public static final QName PROP_DOC_ARRIVAL_DATE = QName.createQName(DOC_URI, "arrivalDate");
-    public static final QName PROP_DOC_CATEGORY = QName.createQName(DOC_URI, "category");
     public static final QName PROP_DOC_VARIANT = QName.createQName(DOC_URI, "variant");
+    //document types
     public static final QName PROP_DOC_TYPE = QName.createQName(DOC_URI, "type");
     public static final QName PROP_DOC_TYPE_DISPLAY_NAME = QName.createQName(DOC_URI, "typeDisplayName");
     public static final QName PROP_DOC_TYPE_SYSTEM = QName.createQName(DOC_URI, "systemType");
+    //document categories
+    public static final QName PROP_DOC_CATEGORY = QName.createQName(DOC_URI, "category");
+    public static final QName PROP_DOC_CATEGORY_DISPLAY_NAME = QName.createQName(DOC_URI, "categoryDisplayName");
+    public static final QName PROP_DOC_CATEGORY_SYSTEM = QName.createQName(DOC_URI, "systemCategory");
 
     public static final QName PROP_CONTACT_EMAIL = QName.createQName(CONTACT_URI, "email");
     public static final QName PROP_CONTACT_TYPE = QName.createQName(CONTACT_URI, "contactType");
@@ -206,8 +215,8 @@ public interface OpenESDHModel {
     public static final String DOCUMENT_TYPE_LETTER = "letter";
     public static final String DOCUMENT_TYPE_INVOICE = "invoice";
 
+    public static final String DOCUMENT_CATEGORY_ANNEX = "annex";
     public static final String DOCUMENT_CATEGORY_OTHER = "other";
-    public static final String DOCUMENT_CATEGORY_CONTRACT = "contract";
 
     public static final String DOCUMENT_STATE_RECEIVED = "received";
     public static final String DOCUMENT_STATE_FINALISED = "finalised";

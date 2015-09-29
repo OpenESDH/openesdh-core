@@ -9,6 +9,7 @@ public interface OpenESDHFoldersService {
     public static String CASES_TYPES_ROOT = "types";
     public static String CLASSIFICATIONS = "classifications";
     public static String DOCUMENT_TYPES = "document_types";
+    public static String DOCUMENT_CATEGORIES = "document_categories";
 
     public NodeRef getOpenESDHRootFolder();
 
@@ -19,4 +20,6 @@ public interface OpenESDHFoldersService {
     public NodeRef getClassificationsRootNodeRef();
 
     public NodeRef getDocumentTypesRootNodeRef();
+
+    public NodeRef getDocumentCategoriesRootNodeRef();
 }

@@ -1,5 +1,6 @@
 package dk.openesdh.repo.webscripts.xsearch;
 
+import dk.openesdh.repo.model.DocumentCategory;
 import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.DocumentService;
@@ -38,6 +39,11 @@ public class DocumentSearch extends XSearchWebscript {
             DocumentType documentType = documentService.getDocumentType(nodeRef);
             if (documentType != null) {
                 json.put("doc:type", documentType.getDisplayName());
+            }
+            //get document category
+            DocumentCategory documentCategory = documentService.getDocumentCategory(nodeRef);
+            if (documentCategory != null) {
+                json.put("doc:category", documentCategory.getDisplayName());
             }
 
             //Get the main document version string

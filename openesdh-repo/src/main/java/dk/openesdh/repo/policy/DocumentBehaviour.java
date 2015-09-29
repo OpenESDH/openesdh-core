@@ -1,11 +1,17 @@
 package dk.openesdh.repo.policy;
 
+import dk.openesdh.repo.model.DocumentCategory;
+import dk.openesdh.repo.model.DocumentType;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.documents.DocumentCategoryService;
+import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.services.documents.DocumentTypeService;
+import dk.openesdh.repo.utils.Utils;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
-
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.copy.CopyServicePolicies.BeforeCopyPolicy;
 import org.alfresco.repo.copy.CopyServicePolicies.OnCopyCompletePolicy;
@@ -21,28 +27,19 @@ import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.namespace.RegexQNamePattern;
 import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.util.CollectionUtils;
-
-import dk.openesdh.repo.model.DocumentType;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.services.documents.DocumentTypeService;
-import dk.openesdh.repo.utils.Utils;
 
 /**
  * Created by rasmutor on 2/11/15.
  */
 public class DocumentBehaviour implements OnCreateChildAssociationPolicy, BeforeCopyPolicy, OnCopyCompletePolicy {
 
-    private static final Log logger = LogFactory.getLog(DocumentBehaviour.class);
     private NodeService nodeService;
     private PolicyComponent policyComponent;
     private DocumentService documentService;
     private DocumentTypeService documentTypeService;
+    private DocumentCategoryService documentCategoryService;
 
     private Behaviour onCreateChildAssociation;
     private Behaviour onCreateCaseDocContent;
@@ -89,7 +86,7 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
         );
     }
 
-    public void onCreateDocRecordBehaviour (ChildAssociationRef childRef) {
+    public void onCreateDocRecordBehaviour(ChildAssociationRef childRef) {
         NodeRef nodeRef = childRef.getChildRef();
         if (!nodeService.exists(childRef.getParentRef()) || !nodeService.exists(nodeRef)) {
             return;
@@ -175,30 +172,26 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
              * so the meta-data needed for the doc record is grafted on the main doc then applied to the document record
              * here and removed from the main document.
              */
-
             String title = (String) nodeService.getProperty(fileRef, ContentModel.PROP_TITLE);
             if (title != null || nodeService.getProperty(docRecord, ContentModel.PROP_NAME).equals(nodeService.getProperty(fileRef, ContentModel.PROP_NAME))) {
                 nodeService.setProperty(docRecord, ContentModel.PROP_TITLE, title);
             }
 
-            String doc_category, doc_state, doc_type;
-            try {
-                //First check if the docRecord has any of the mandatory props. If any of these are null we handle the
-                //exception in the catch.
-                nodeService.getProperty(docRecord, OpenESDHModel.PROP_DOC_CATEGORY).toString();
-            } catch (NullPointerException npe) {
-                //if not check that the document itself has the mandatory properties and set it on the docRecord (uploads)
-                doc_category = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY).toString();
-                doc_type = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_TYPE).toString();
-                DocumentType documentType = documentTypeService.getDocumentType(new NodeRef(doc_type));
-                if (StringUtils.isAnyEmpty(doc_category) || documentType == null) {
-                    throw new WebScriptException(npe.getMessage() + "\nThe following meta-data is required for a main document:\n\tCategory\n\tState\n\ttype");
-                } else {
-                    this.nodeService.setProperty(docRecord, OpenESDHModel.PROP_DOC_CATEGORY, doc_category);
-                    this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY);
-                    documentService.updateDocumentType(docRecord, documentType);
-                    this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_TYPE);
-                }
+            //category
+            String doc_category = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY).toString();
+            DocumentCategory documentCategory = documentCategoryService.getDocumentCategory(new NodeRef(doc_category));
+            //type
+            String doc_type = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_TYPE).toString();
+            DocumentType documentType = documentTypeService.getDocumentType(new NodeRef(doc_type));
+            if (documentCategory == null || documentType == null) {
+                throw new WebScriptException("The following meta-data is required for a main document:\n\tCategory\n\ttype");
+            } else {
+                //category
+                documentService.updateDocumentCategory(docRecord, documentCategory);
+                this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY);
+                //type
+                documentService.updateDocumentType(docRecord, documentType);
+                this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_TYPE);
             }
         }
 
@@ -286,5 +279,9 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
 
     public void setDocumentTypeService(DocumentTypeService documentTypeService) {
         this.documentTypeService = documentTypeService;
+    }
+
+    public void setDocumentCategoryService(DocumentCategoryService documentCategoryService) {
+        this.documentCategoryService = documentCategoryService;
     }
 }

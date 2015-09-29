@@ -1,7 +1,7 @@
 package dk.openesdh.repo.webscripts.documents;
 
-import dk.openesdh.repo.model.DocumentType;
-import dk.openesdh.repo.services.documents.DocumentTypeService;
+import dk.openesdh.repo.model.DocumentCategory;
+import dk.openesdh.repo.services.documents.DocumentCategoryService;
 import dk.openesdh.repo.webscripts.AbstractRESTWebscript;
 import dk.openesdh.repo.webscripts.ParamUtils;
 import static dk.openesdh.repo.webscripts.ParamUtils.checkRequiredParam;
@@ -16,12 +16,12 @@ import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
-public class DocumentTypesWebScript extends AbstractRESTWebscript {
+public class DocumentCategoriesWebScript extends AbstractRESTWebscript {
 
-    private DocumentTypeService documentTypeService;
+    private DocumentCategoryService documentCategoryService;
 
-    public void setDocumentTypeService(DocumentTypeService documentTypeService) {
-        this.documentTypeService = documentTypeService;
+    public void setDocumentCategoryService(DocumentCategoryService documentCategoryService) {
+        this.documentCategoryService = documentCategoryService;
     }
 
     @Override
@@ -37,45 +37,47 @@ public class DocumentTypesWebScript extends AbstractRESTWebscript {
     @Override
     protected void get(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
         if (nodeRef == null) {
-            new JSONArray(documentTypeService.getDocumentTypes().stream()
-                    .map(DocumentType::toJSONObject)
+            new JSONArray(documentCategoryService.getDocumentCategories().stream()
+                    .map(DocumentCategory::toJSONObject)
                     .collect(Collectors.toList())
             ).write(res.getWriter());
             return;
         }
-        DocumentType documentType = documentTypeService.getDocumentType(nodeRef);
-        if (documentType == null) {
-            throw new WebScriptException("Document type not found");
+        DocumentCategory documentCategory = documentCategoryService.getDocumentCategory(nodeRef);
+        if (documentCategory == null) {
+            throw new WebScriptException("Document category not found");
         }
-        writeDocumentTypeToResponse(documentType, res);
+        writeDocumentCategoryToResponse(documentCategory, res);
     }
 
     @Override
     protected void post(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
         String name = ParamUtils.getRequiredParameter(req, "name");
         String displayName = ParamUtils.getRequiredParameter(req, "displayName");
-        DocumentType saveDocumentType = createOrUpdateDocumentType(nodeRef, name, displayName);
-        writeDocumentTypeToResponse(saveDocumentType, res);
+        DocumentCategory savedDocumentCategory = createOrUpdateDocumentCategory(nodeRef, name, displayName);
+        writeDocumentCategoryToResponse(savedDocumentCategory, res);
     }
 
     @Override
     protected void delete(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
         checkRequiredParam(nodeRef, "nodeRef");
-        DocumentType type = new DocumentType();
-        type.setNodeRef(nodeRef);
-        documentTypeService.deleteDocumentType(type);
+        DocumentCategory category = new DocumentCategory();
+        category.setNodeRef(nodeRef);
+        documentCategoryService.deleteDocumentCategory(category);
         res.getWriter().append("Deleted succesfully");
     }
 
-    private DocumentType createOrUpdateDocumentType(NodeRef nodeRef, String name, String displayName) {
-        DocumentType type = new DocumentType();
-        type.setNodeRef(nodeRef);
-        type.setName(name);
-        type.setDisplayName(displayName);
-        return documentTypeService.createOrUpdateDocumentType(type);
+    
+
+    private DocumentCategory createOrUpdateDocumentCategory(NodeRef nodeRef, String name, String displayName) {
+        DocumentCategory category = new DocumentCategory();
+        category.setNodeRef(nodeRef);
+        category.setName(name);
+        category.setDisplayName(displayName);
+        return documentCategoryService.createOrUpdateDocumentCategory(category);
     }
 
-    private void writeDocumentTypeToResponse(DocumentType documentType, WebScriptResponse res) throws JSONException, IOException {
-        documentType.toJSONObject().write(res.getWriter());
+    private void writeDocumentCategoryToResponse(DocumentCategory documentCategory, WebScriptResponse res) throws JSONException, IOException {
+        documentCategory.toJSONObject().write(res.getWriter());
     }
 }

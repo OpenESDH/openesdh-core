@@ -3,7 +3,7 @@
     <description>Saves new/updated document type</description>
     <url>/api/openesdh/document/type?nodeRefId=</url>
     <format default="json"></format>
-    <authentication>user</authentication>
+    <authentication>admin</authentication>
     <transaction>required</transaction>
     <family>Case Document Tools</family>
 </webscript>
