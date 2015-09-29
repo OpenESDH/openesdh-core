@@ -7,6 +7,7 @@ import dk.openesdh.repo.utils.Utils;
 import java.util.Map;
 import java.util.Set;
 import org.alfresco.model.ContentModel;
+import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.commons.io.FilenameUtils;
 import org.json.JSONException;
@@ -45,8 +46,8 @@ public class DocumentSearch extends XSearchWebscript {
 
             //also return the filename extension
             String fileName = (String) nodeService.getProperty(mainDocNodeRef, ContentModel.PROP_NAME);
-            String extension = FilenameUtils.getExtension(fileName);
-            json.put("fileType", extension);
+            ContentData docData = (ContentData) nodeService.getProperty(mainDocNodeRef, ContentModel.PROP_CONTENT);
+            json.put("fileMimeType", docData.getMimetype());
         }
         return json;
     }
