@@ -76,7 +76,7 @@ import org.springframework.security.access.AccessDeniedException;
 /**
  * Created by torben on 19/08/14.
  */
-public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdatePropertiesPolicy {
+public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdatePropertiesPolicy, NodeServicePolicies.OnUpdateNodePolicy {
 
     private static final String MSG_NO_CASE_CREATOR_PERMISSION_DEFINED = "security.permission.err_no_case_creator_permission_defined";
     private static final String MSG_NO_CASE_CREATOR_GROUP_DEFINED = "security.permission.err_no_case_creator_group_defined";
@@ -172,6 +172,31 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
                 NodeServicePolicies.OnUpdatePropertiesPolicy.QNAME,
                 OpenESDHModel.TYPE_CASE_BASE,
                 onUpdatePropertiesBehaviour);
+
+        this.policyComponent.bindClassBehaviour(
+                NodeServicePolicies.OnUpdateNodePolicy.QNAME,
+                OpenESDHModel.ASPECT_OE_JOURNALIZABLE,
+                new JavaBehaviour(this, "onUpdateNode"));
+    }
+
+    public void onUpdateNode(NodeRef nodeRef) {
+        // Handle updating journalKeyIndexed and journalFacetIndexed
+        // properties based on journalKey and journalFacet properties,
+        // respectively.
+        NodeRef journalKey = (NodeRef) nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_JOURNALKEY);
+        if (journalKey != null) {
+            Map<QName, Serializable> properties = nodeService.getProperties(journalKey);
+            nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_JOURNALKEY_INDEXED, properties.get(ContentModel.PROP_NAME) + " " + properties.get(ContentModel.PROP_TITLE));
+        } else {
+            nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_JOURNALKEY_INDEXED, null);
+        }
+        NodeRef journalFacet = (NodeRef) nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_JOURNALFACET);
+        if (journalFacet != null) {
+            Map<QName, Serializable> properties = nodeService.getProperties(journalFacet);
+            nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_JOURNALFACET_INDEXED, properties.get(ContentModel.PROP_NAME) + " " + properties.get(ContentModel.PROP_TITLE));
+        } else {
+            nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_JOURNALFACET_INDEXED, null);
+        }
     }
 
     @Override

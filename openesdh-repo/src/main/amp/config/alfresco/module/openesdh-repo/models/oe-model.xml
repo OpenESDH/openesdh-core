@@ -64,7 +64,7 @@
                     <multiple>false</multiple>
                     <index enabled="true">
                         <atomic>true</atomic>
-                        <stored>true</stored>
+                        <stored>false</stored>
                         <tokenised>false</tokenised>
                     </index>
                 </property>
@@ -74,8 +74,31 @@
                     <multiple>false</multiple>
                     <index enabled="true">
                         <atomic>true</atomic>
-                        <stored>true</stored>
+                        <stored>false</stored>
                         <tokenised>false</tokenised>
+                    </index>
+                </property>
+
+                <property name="oe:journalKeyIndexed">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                    <multiple>false</multiple>
+                    <index enabled="true">
+                        <atomic>true</atomic>
+                        <stored>false</stored>
+                        <tokenised>both</tokenised>
+                        <facetable>true</facetable>
+                    </index>
+                </property>
+
+                <property name="oe:journalFacetIndexed">
+                    <type>d:text</type>
+                    <multiple>false</multiple>
+                    <index enabled="true">
+                        <atomic>true</atomic>
+                        <stored>false</stored>
+                        <tokenised>both</tokenised>
+                        <facetable>true</facetable>
                     </index>
                 </property>
 
