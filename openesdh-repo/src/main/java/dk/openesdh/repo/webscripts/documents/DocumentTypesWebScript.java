@@ -8,6 +8,8 @@ import static dk.openesdh.repo.webscripts.ParamUtils.checkRequiredParam;
 import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.codehaus.plexus.util.StringUtils;
 import org.json.JSONArray;
@@ -36,6 +38,7 @@ public class DocumentTypesWebScript extends AbstractRESTWebscript {
 
     @Override
     protected void get(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
+        res.setContentEncoding(WebScriptUtils.CONTENT_ENCODING_UTF_8);
         if (nodeRef == null) {
             new JSONArray(documentTypeService.getDocumentTypes().stream()
                     .map(DocumentType::toJSONObject)
@@ -55,6 +58,7 @@ public class DocumentTypesWebScript extends AbstractRESTWebscript {
         String name = ParamUtils.getRequiredParameter(req, "name");
         String displayName = ParamUtils.getRequiredParameter(req, "displayName");
         DocumentType saveDocumentType = createOrUpdateDocumentType(nodeRef, name, displayName);
+        res.setContentEncoding(WebScriptUtils.CONTENT_ENCODING_UTF_8);
         writeDocumentTypeToResponse(saveDocumentType, res);
     }
 
