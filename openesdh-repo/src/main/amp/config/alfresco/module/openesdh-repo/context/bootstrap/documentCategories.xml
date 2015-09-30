@@ -7,7 +7,10 @@
     <doc:dcategory view:childName="doc:acategory">
         <cm:name>annex</cm:name>
         <view:properties>
-            <doc:categoryDisplayName>Annex</doc:categoryDisplayName>
+            <doc:categoryDisplayName>
+                <view:mlvalue view:locale="en">Annex</view:mlvalue>
+                <view:mlvalue view:locale="da">Bilag</view:mlvalue>
+            </doc:categoryDisplayName>
             <doc:systemCategory>true</doc:systemCategory>
             <sys:store-protocol>workspace</sys:store-protocol>
             <sys:store-identifier>SpacesStore</sys:store-identifier>
@@ -17,7 +20,10 @@
     <doc:dcategory view:childName="doc:acategory">
         <cm:name>proof</cm:name>
         <view:properties>
-            <doc:categoryDisplayName>Proof</doc:categoryDisplayName>
+            <doc:categoryDisplayName>
+                <view:mlvalue view:locale="en">Proof</view:mlvalue>
+                <view:mlvalue view:locale="da">Bevis</view:mlvalue>
+            </doc:categoryDisplayName>
             <sys:store-protocol>workspace</sys:store-protocol>
             <sys:store-identifier>SpacesStore</sys:store-identifier>
             <sys:node-uuid>c609e430-368e-4120-a7e9-7cc14e094491</sys:node-uuid>
@@ -26,7 +32,10 @@
     <doc:dcategory view:childName="doc:acategory">
         <cm:name>contract</cm:name>
         <view:properties>
-            <doc:categoryDisplayName>Contract</doc:categoryDisplayName>
+            <doc:categoryDisplayName>
+                <view:mlvalue view:locale="en">Contract</view:mlvalue>
+                <view:mlvalue view:locale="da">Kontrakt</view:mlvalue>
+            </doc:categoryDisplayName>
             <sys:store-protocol>workspace</sys:store-protocol>
             <sys:store-identifier>SpacesStore</sys:store-identifier>
             <sys:node-uuid>ce63ee40-31ff-4874-85fb-23653f265878</sys:node-uuid>
@@ -35,7 +44,10 @@
     <doc:dcategory view:childName="doc:acategory">
         <cm:name>note</cm:name>
         <view:properties>
-            <doc:categoryDisplayName>Note</doc:categoryDisplayName>
+            <doc:categoryDisplayName>
+                <view:mlvalue view:locale="en">Note</view:mlvalue>
+                <view:mlvalue view:locale="da">Notat</view:mlvalue>
+            </doc:categoryDisplayName>
             <sys:store-protocol>workspace</sys:store-protocol>
             <sys:store-identifier>SpacesStore</sys:store-identifier>
             <sys:node-uuid>22f280df-46cd-46b6-acd1-0a700f5f4a3b</sys:node-uuid>
@@ -44,7 +56,10 @@
     <doc:dcategory view:childName="doc:acategory">
         <cm:name>report</cm:name>
         <view:properties>
-            <doc:categoryDisplayName>Report</doc:categoryDisplayName>
+            <doc:categoryDisplayName>
+                <view:mlvalue view:locale="en">Report</view:mlvalue>
+                <view:mlvalue view:locale="da">Rapport</view:mlvalue>
+            </doc:categoryDisplayName>
             <sys:store-protocol>workspace</sys:store-protocol>
             <sys:store-identifier>SpacesStore</sys:store-identifier>
             <sys:node-uuid>69c60e83-0616-493a-b4ad-dc185cb79988</sys:node-uuid>
@@ -53,7 +68,10 @@
     <doc:dcategory view:childName="doc:acategory">
         <cm:name>proxy</cm:name>
         <view:properties>
-            <doc:categoryDisplayName>Proxy</doc:categoryDisplayName>
+            <doc:categoryDisplayName>
+                <view:mlvalue view:locale="en">Proxy</view:mlvalue>
+                <view:mlvalue view:locale="da">Fuldmagt</view:mlvalue>
+            </doc:categoryDisplayName>
             <sys:store-protocol>workspace</sys:store-protocol>
             <sys:store-identifier>SpacesStore</sys:store-identifier>
             <sys:node-uuid>8d023aae-12c9-4b44-90c5-18337f59b247</sys:node-uuid>
@@ -62,7 +80,10 @@
     <doc:dcategory view:childName="doc:acategory">
         <cm:name>warranty</cm:name>
         <view:properties>
-            <doc:categoryDisplayName>Warranty</doc:categoryDisplayName>
+            <doc:categoryDisplayName>
+                <view:mlvalue view:locale="en">Warranty</view:mlvalue>
+                <view:mlvalue view:locale="da">Garanti</view:mlvalue>
+            </doc:categoryDisplayName>
             <sys:store-protocol>workspace</sys:store-protocol>
             <sys:store-identifier>SpacesStore</sys:store-identifier>
             <sys:node-uuid>cccf712f-32cb-45af-b31f-a0205f17caec</sys:node-uuid>
@@ -71,7 +92,10 @@
     <doc:dcategory view:childName="doc:acategory">
         <cm:name>part</cm:name>
         <view:properties>
-            <doc:categoryDisplayName>Part</doc:categoryDisplayName>
+            <doc:categoryDisplayName>
+                <view:mlvalue view:locale="en">Part</view:mlvalue>
+                <view:mlvalue view:locale="da">Afgørelse</view:mlvalue>
+            </doc:categoryDisplayName>
             <sys:store-protocol>workspace</sys:store-protocol>
             <sys:store-identifier>SpacesStore</sys:store-identifier>
             <sys:node-uuid>14cfe9a2-d2bc-4102-8f36-ee44204a55e7</sys:node-uuid>
@@ -80,7 +104,10 @@
     <doc:dcategory view:childName="doc:acategory">
         <cm:name>statement</cm:name>
         <view:properties>
-            <doc:categoryDisplayName>Statement</doc:categoryDisplayName>
+            <doc:categoryDisplayName>
+                <view:mlvalue view:locale="en">Statement</view:mlvalue>
+                <view:mlvalue view:locale="da">Opgørelse</view:mlvalue>
+            </doc:categoryDisplayName>
             <sys:store-protocol>workspace</sys:store-protocol>
             <sys:store-identifier>SpacesStore</sys:store-identifier>
             <sys:node-uuid>60f4f4cd-741c-43c6-b1f9-060c460237c0</sys:node-uuid>
@@ -89,7 +116,10 @@
     <doc:dcategory view:childName="doc:acategory">
         <cm:name>summary</cm:name>
         <view:properties>
-            <doc:categoryDisplayName>Summary</doc:categoryDisplayName>
+            <doc:categoryDisplayName>
+                <view:mlvalue view:locale="en">Summary</view:mlvalue>
+                <view:mlvalue view:locale="da">Referat</view:mlvalue>
+            </doc:categoryDisplayName>
             <sys:store-protocol>workspace</sys:store-protocol>
             <sys:store-identifier>SpacesStore</sys:store-identifier>
             <sys:node-uuid>88c7f9c1-1f94-4765-b516-30e128909191</sys:node-uuid>
@@ -98,16 +128,22 @@
     <doc:dcategory view:childName="doc:acategory">
         <cm:name>accounting</cm:name>
         <view:properties>
-            <doc:categoryDisplayName>Accounting</doc:categoryDisplayName>
+            <doc:categoryDisplayName>
+                <view:mlvalue view:locale="en">Accounting</view:mlvalue>
+                <view:mlvalue view:locale="da">Regnskab</view:mlvalue>
+            </doc:categoryDisplayName>
             <sys:store-protocol>workspace</sys:store-protocol>
             <sys:store-identifier>SpacesStore</sys:store-identifier>
             <sys:node-uuid>b0f1cad8-5e1d-4ba5-bcc7-455020a12700</sys:node-uuid>
         </view:properties>
     </doc:dcategory>
     <doc:dcategory view:childName="doc:acategory">
-        <cm:name>offers</cm:name>
+        <cm:name>offer</cm:name>
         <view:properties>
-            <doc:categoryDisplayName>Offers</doc:categoryDisplayName>
+            <doc:categoryDisplayName>
+                <view:mlvalue view:locale="en">Offer</view:mlvalue>
+                <view:mlvalue view:locale="da">Tilbud</view:mlvalue>
+            </doc:categoryDisplayName>
             <sys:store-protocol>workspace</sys:store-protocol>
             <sys:store-identifier>SpacesStore</sys:store-identifier>
             <sys:node-uuid>614d1838-102e-4a18-bc17-d63b309fda5a</sys:node-uuid>
@@ -116,7 +152,10 @@
     <doc:dcategory view:childName="doc:acategory">
         <cm:name>other</cm:name>
         <view:properties>
-            <doc:categoryDisplayName>Other</doc:categoryDisplayName>
+            <doc:categoryDisplayName>
+                <view:mlvalue view:locale="en">Other</view:mlvalue>
+                <view:mlvalue view:locale="da">Andet</view:mlvalue>
+            </doc:categoryDisplayName>
             <doc:systemCategory>true</doc:systemCategory>
             <sys:store-protocol>workspace</sys:store-protocol>
             <sys:store-identifier>SpacesStore</sys:store-identifier>
