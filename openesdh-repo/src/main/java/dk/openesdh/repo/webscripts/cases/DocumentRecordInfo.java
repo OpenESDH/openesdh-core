@@ -9,6 +9,8 @@ import dk.openesdh.repo.services.lock.OELockService;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
+
+import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.PersonService.PersonInfo;
@@ -75,6 +77,7 @@ public class DocumentRecordInfo extends AbstractWebScript {
 
 //            result.put("caseId", documentNodeInfo.properties.get(OpenESDHModel.PROP_OE_CASE_ID));
 
+            res.setContentEncoding(WebScriptUtils.CONTENT_ENCODING_UTF_8);
             result.write(res.getWriter());
         } catch (JSONException jse) {
             throw new WebScriptException("Error when retrieving document details: " + jse.getMessage());
