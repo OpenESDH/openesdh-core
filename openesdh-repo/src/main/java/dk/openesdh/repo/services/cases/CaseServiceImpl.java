@@ -507,7 +507,7 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
                 String escNameFilter = SearchLanguageConversion.escapeLuceneQuery(filter);
                 String[] tokenizedFilter = SearchLanguageConversion.tokenizeString(escNameFilter);
                 for (String aTokenizedFilter : tokenizedFilter) {
-                    query.append(aTokenizedFilter).append("*");
+                    query.append(aTokenizedFilter).append("* ");
                 }
                 query.append(")");
             }
