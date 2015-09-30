@@ -11,7 +11,6 @@ import org.alfresco.service.cmr.search.SearchParameters;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.ISO9075;
-import org.alfresco.util.SearchLanguageConversion;
 import org.apache.commons.lang.StringUtils;
 
 import java.util.ArrayList;
@@ -53,23 +52,13 @@ public class ClassificationSearchServiceImpl extends AbstractXSearchService {
                     "classification field name: " + field);
         }
 
-        // Tokenize the filter and wildcard each token
-        String escapedTerm = SearchLanguageConversion.escapeLuceneQuery(term);
-        String[] tokenizedTerm = SearchLanguageConversion.tokenizeString
-                (escapedTerm);
-        // Add wildcard after each token in the term
-        String filter = "";
-        for (String token : tokenizedTerm) {
-            filter += token + "* ";
-        }
-
         // Search on name OR title
         // Note the use of = prefix on the name field: this is to force it
         // NOT to use tokenisation of the name field.
 
         // Note: This is FTS search syntax
         String query = "PATH:\"" + queryPath + "\" AND (=name:\"" +
-                filter + "\" title:\"" + filter + "\")";
+                term + "*\" OR title:\"*" + term + "*\")";
 
         // Quick hack for demo
         // TODO: The discontinued date should be stored as a category
