@@ -352,6 +352,8 @@
                                 </goals>
                                 <phase>integration-test</phase>
                                 <configuration>
+                                    <!-- The default is ISO-8859-1 -->
+                                    <uriEncoding>utf-8</uriEncoding>
                                     <useTestClasspath>false</useTestClasspath>
                                     <ignorePackaging>true</ignorePackaging>
                                     <useSeparateTomcatClassLoader>true</useSeparateTomcatClassLoader>
