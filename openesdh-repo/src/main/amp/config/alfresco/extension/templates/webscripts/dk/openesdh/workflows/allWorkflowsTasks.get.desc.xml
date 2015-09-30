@@ -1,0 +1,10 @@
+<webscript>
+  <shortname>Webscript to get tasks of all workflow instances</shortname>
+  <description>
+    Retrieves all tasks of all workflow instances
+  </description>
+  <url>/api/openesdh/workflow/tasks</url>
+  <authentication>admin</authentication>
+  <family>Case Workflow Tools</family>
+  <format default="json">argument</format>
+</webscript>
