@@ -100,6 +100,7 @@ public class LiveSearchCaseDocuments extends DeclarativeWebScript {
             ContentData docData = (ContentData) docProps.get(ContentModel.PROP_CONTENT);
 
             documentObj.put("name", docProps.get(ContentModel.PROP_NAME));
+            documentObj.put("title", docProps.get(ContentModel.PROP_TITLE));
             documentObj.put("nodeRef", document);
             documentObj.put("docRecordNodeRef", docRecord);
             documentObj.put("docStatus", nodeService.getProperty(docRecord, OpenESDHModel.PROP_OE_STATUS));
