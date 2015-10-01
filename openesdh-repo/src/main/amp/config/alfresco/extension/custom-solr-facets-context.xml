@@ -47,7 +47,6 @@
         <property name="specialFacetIds">
             <set>
                 <value>SITE</value>
-                <value>CASE</value>
                 <value>TAG</value>
                 <value>ANCESTOR</value>
                 <value>PARENT</value>
