@@ -319,11 +319,6 @@
         <property name="caseService" ref="CaseService" />
     </bean>
     
-    <bean id="webscript.dk.openesdh.workflows.startWorkflow.post" parent="webscript"
-          class="dk.openesdh.repo.webscripts.workflows.StartWorkflowWebScript">
-        <property name="workflowService" ref="CaseWorkflowService" />
-    </bean>
-
     <bean id="webscript.dk.openesdh.case.caseemail.post" parent="webscript"
           class="dk.openesdh.repo.webscripts.cases.CaseEmail">
         <property name="mailService" ref="mailService"/>
