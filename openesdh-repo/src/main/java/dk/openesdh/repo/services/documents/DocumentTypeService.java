@@ -1,6 +1,7 @@
 package dk.openesdh.repo.services.documents;
 
 import dk.openesdh.repo.model.DocumentType;
+import dk.openesdh.repo.services.system.MultiLanguageValue;
 import java.util.List;
 import java.util.Optional;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -21,9 +22,10 @@ public interface DocumentTypeService {
      * Create/Update
      *
      * @param documentType
+     * @param mlDisplayNames
      * @return
      */
-    public DocumentType createOrUpdateDocumentType(DocumentType documentType);
+    public DocumentType createOrUpdateDocumentType(DocumentType documentType, MultiLanguageValue mlDisplayNames);
 
     /**
      * Read
@@ -33,6 +35,14 @@ public interface DocumentTypeService {
      */
     public DocumentType getDocumentType(NodeRef nodeRef);
     public Optional<DocumentType> getDocumentTypeByName(String typeName);
+
+    /**
+     * returns display names of all saved locales
+     *
+     * @param nodeRef
+     * @return
+     */
+    public MultiLanguageValue getMultiLanguageDisplayNames(NodeRef nodeRef);
 
     /**
      * Delete

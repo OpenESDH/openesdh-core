@@ -2,6 +2,8 @@ package dk.openesdh.repo.services.documents;
 
 import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.system.MultiLanguagePropertyService;
+import dk.openesdh.repo.services.system.MultiLanguageValue;
 import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 import java.io.Serializable;
 import java.util.Arrays;
@@ -17,15 +19,25 @@ import org.alfresco.service.cmr.repository.InvalidNodeRefException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
+import org.springframework.extensions.surf.util.I18NUtil;
 
 public class DocumentTypeServiceImpl implements DocumentTypeService {
 
     public static List<String> SYSTEM_TYPES = Arrays.asList("invoice", "letter");
     private OpenESDHFoldersService openESDHFoldersService;
     private NodeService nodeService;
+    private MultiLanguagePropertyService multiLanguagePropertyService;
 
     @Override
-    public DocumentType createOrUpdateDocumentType(DocumentType documentType) {
+    public List<DocumentType> getDocumentTypes() {
+        return nodeService.getChildAssocs(openESDHFoldersService.getDocumentTypesRootNodeRef())
+                .stream()
+                .map(assocItem -> getDocumentType(assocItem.getChildRef()))
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public DocumentType createOrUpdateDocumentType(DocumentType documentType, MultiLanguageValue mlDisplayNames) {
         Map<QName, Serializable> properties = getProperties(documentType.getNodeRef());
         if (isSystemType(properties)) {
             throwErrorIfSystemNameWasChanged(properties, documentType);
@@ -33,7 +45,9 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
             properties.put(OpenESDHModel.PROP_DOC_TYPE_SYSTEM, false);
         }
         properties.put(ContentModel.PROP_NAME, documentType.getName());
-        properties.put(OpenESDHModel.PROP_DOC_TYPE_DISPLAY_NAME, documentType.getDisplayName());
+
+        properties.remove(OpenESDHModel.PROP_DOC_TYPE_DISPLAY_NAME);
+        documentType.setDisplayName((String) mlDisplayNames.get(I18NUtil.getContentLocale().getLanguage()));
 
         if (documentType.getNodeRef() == null) {
             ChildAssociationRef createdNode = nodeService.createNode(
@@ -43,32 +57,15 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
                     OpenESDHModel.TYPE_DOC_TYPE,
                     properties);
             documentType.setNodeRef(createdNode.getChildRef());
+            setMLDisplayNames(documentType, mlDisplayNames);
             return documentType;
         }
         nodeService.setProperties(documentType.getNodeRef(), properties);
+
+        setMLDisplayNames(documentType,
+                mlDisplayNames);
+
         return documentType;
-    }
-
-    private boolean isSystemType(Map<QName, Serializable> properties) {
-        return properties.get(OpenESDHModel.PROP_DOC_TYPE_SYSTEM) != null
-                && (Boolean) properties.get(OpenESDHModel.PROP_DOC_TYPE_SYSTEM);
-    }
-
-    private void throwErrorIfSystemNameWasChanged(Map<QName, Serializable> properties, DocumentType documentType) throws AlfrescoRuntimeException {
-        if (!properties.get(ContentModel.PROP_NAME).equals(documentType.getName())) {
-            throw new AlfrescoRuntimeException("Can not change name of system document type");
-        }
-    }
-
-    private Map<QName, Serializable> getProperties(NodeRef nodeRef) throws InvalidNodeRefException {
-        if (nodeRef == null) {
-            return new HashMap<>();
-        }
-        return nodeService.getProperties(nodeRef);
-    }
-
-    private NodeRef getDocumentTypesRoot() {
-        return openESDHFoldersService.getDocumentTypesRootNodeRef();
     }
 
     @Override
@@ -101,6 +98,11 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
     }
 
     @Override
+    public MultiLanguageValue getMultiLanguageDisplayNames(NodeRef nodeRef) {
+        return multiLanguagePropertyService.getMLValues(nodeRef, OpenESDHModel.PROP_DOC_TYPE_DISPLAY_NAME);
+    }
+
+    @Override
     public void deleteDocumentType(DocumentType documentType) {
         if ((Boolean) nodeService.getProperty(documentType.getNodeRef(), OpenESDHModel.PROP_DOC_TYPE_SYSTEM)) {
             throw new AlfrescoRuntimeException("Cannot delete system document type.");
@@ -109,12 +111,33 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
 
     }
 
-    @Override
-    public List<DocumentType> getDocumentTypes() {
-        return nodeService.getChildAssocs(openESDHFoldersService.getDocumentTypesRootNodeRef())
-                .stream()
-                .map(assocItem -> getDocumentType(assocItem.getChildRef()))
-                .collect(Collectors.toList());
+    private boolean isSystemType(Map<QName, Serializable> properties) {
+        return properties.get(OpenESDHModel.PROP_DOC_TYPE_SYSTEM) != null
+                && (Boolean) properties.get(OpenESDHModel.PROP_DOC_TYPE_SYSTEM);
+    }
+
+    private void throwErrorIfSystemNameWasChanged(Map<QName, Serializable> properties, DocumentType documentType) throws AlfrescoRuntimeException {
+        if (!properties.get(ContentModel.PROP_NAME).equals(documentType.getName())) {
+            throw new AlfrescoRuntimeException("Can not change name of system document type");
+        }
+    }
+
+    private void setMLDisplayNames(DocumentType documentType, MultiLanguageValue mlDisplayNames) {
+        multiLanguagePropertyService.setMLValues(
+                documentType.getNodeRef(),
+                OpenESDHModel.PROP_DOC_TYPE_DISPLAY_NAME,
+                mlDisplayNames);
+    }
+
+    private Map<QName, Serializable> getProperties(NodeRef nodeRef) throws InvalidNodeRefException {
+        if (nodeRef == null) {
+            return new HashMap<>();
+        }
+        return nodeService.getProperties(nodeRef);
+    }
+
+    private NodeRef getDocumentTypesRoot() {
+        return openESDHFoldersService.getDocumentTypesRootNodeRef();
     }
 
     public void setNodeService(NodeService nodeService) {
@@ -125,4 +148,7 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
         this.openESDHFoldersService = openESDHFoldersService;
     }
 
+    public void setMultiLanguagePropertyService(MultiLanguagePropertyService multiLanguagePropertyService) {
+        this.multiLanguagePropertyService = multiLanguagePropertyService;
+    }
 }
