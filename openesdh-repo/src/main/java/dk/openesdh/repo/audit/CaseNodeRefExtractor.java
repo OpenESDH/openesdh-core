@@ -104,14 +104,18 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
     private String getNodeRefFromCaseID(String caseID) {
         int dashIndex = caseID.lastIndexOf('-');
         if (dashIndex != -1) {
-            NodeRef nodeRef = nodeService.getNodeRef(Long.parseLong(caseID.substring(dashIndex + 1)));
-            return nodeRef.toString();
+            return getNodeRefFromCaseDbID(caseID.substring(dashIndex + 1));
         } else {
             return null;
         }
     }
 
     private String getNodeRefFromCaseDbID(String caseDbID) {
-        return nodeService.getNodeRef(Long.parseLong(caseDbID)).toString();
+        NodeRef nodeRef = nodeService.getNodeRef(Long.parseLong(caseDbID));
+        if (nodeRef != null) {
+            return nodeRef.toString();
+        } else {
+            return null;
+        }
     }
 }

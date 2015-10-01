@@ -512,7 +512,6 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
                 query.append(")");
             }
 
-            System.out.println(query);
             SearchParameters sp = new SearchParameters();
             sp.addQueryTemplate("_CASES", "|%oe:id |%title " +
                     "|%description |%oe:journalKeyIndexed " +

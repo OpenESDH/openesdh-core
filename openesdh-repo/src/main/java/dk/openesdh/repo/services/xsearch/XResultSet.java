@@ -30,7 +30,7 @@ public class XResultSet {
      * Construct an empty result set.
      */
     XResultSet() {
-        this.nodeRefs = new LinkedList<NodeRef>();
+        this.nodeRefs = new LinkedList<>();
         this.numberFound = 0;
     }
 
