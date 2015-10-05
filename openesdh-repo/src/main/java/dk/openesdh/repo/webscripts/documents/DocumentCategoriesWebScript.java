@@ -2,18 +2,19 @@ package dk.openesdh.repo.webscripts.documents;
 
 import dk.openesdh.repo.model.DocumentCategory;
 import dk.openesdh.repo.services.documents.DocumentCategoryService;
+import dk.openesdh.repo.services.system.MultiLanguageValue;
 import dk.openesdh.repo.webscripts.AbstractRESTWebscript;
 import dk.openesdh.repo.webscripts.ParamUtils;
 import static dk.openesdh.repo.webscripts.ParamUtils.checkRequiredParam;
+import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 import java.io.IOException;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.codehaus.plexus.util.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
@@ -50,16 +51,24 @@ public class DocumentCategoriesWebScript extends AbstractRESTWebscript {
         if (documentCategory == null) {
             throw new WebScriptException("Document category not found");
         }
-        writeDocumentCategoryToResponse(documentCategory, res);
+        createJSONObjectWithMultilanguage(documentCategory)
+                .write(res.getWriter());
+    }
+
+    private JSONObject createJSONObjectWithMultilanguage(DocumentCategory documentCategory) throws JSONException {
+        JSONObject json = documentCategory.toJSONObject();
+        json.put("mlDisplayNames", documentCategoryService.getMultiLanguageDisplayNames(documentCategory.getNodeRef()).toJSONArray());
+        return json;
     }
 
     @Override
     protected void post(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
         String name = ParamUtils.getRequiredParameter(req, "name");
-        String displayName = ParamUtils.getRequiredParameter(req, "displayName");
-        DocumentCategory savedDocumentCategory = createOrUpdateDocumentCategory(nodeRef, name, displayName);
+        String mlDisplayNames = ParamUtils.getRequiredParameter(req, "mlDisplayNames");
+        DocumentCategory savedDocumentCategory = createOrUpdateDocumentCategory(nodeRef, name, mlDisplayNames);
         res.setContentEncoding(WebScriptUtils.CONTENT_ENCODING_UTF_8);
-        writeDocumentCategoryToResponse(savedDocumentCategory, res);
+        savedDocumentCategory.toJSONObject()
+                .write(res.getWriter());
     }
 
     @Override
@@ -71,17 +80,12 @@ public class DocumentCategoriesWebScript extends AbstractRESTWebscript {
         res.getWriter().append("Deleted succesfully");
     }
 
-    
-
-    private DocumentCategory createOrUpdateDocumentCategory(NodeRef nodeRef, String name, String displayName) {
+    private DocumentCategory createOrUpdateDocumentCategory(NodeRef nodeRef, String name, String mlDisplayNames) throws JSONException {
         DocumentCategory category = new DocumentCategory();
         category.setNodeRef(nodeRef);
         category.setName(name);
-        category.setDisplayName(displayName);
-        return documentCategoryService.createOrUpdateDocumentCategory(category);
-    }
-
-    private void writeDocumentCategoryToResponse(DocumentCategory documentCategory, WebScriptResponse res) throws JSONException, IOException {
-        documentCategory.toJSONObject().write(res.getWriter());
+        return documentCategoryService.createOrUpdateDocumentCategory(
+                category,
+                MultiLanguageValue.createFromJSONString(mlDisplayNames));
     }
 }

@@ -2,6 +2,8 @@ package dk.openesdh.repo.services.documents;
 
 import dk.openesdh.repo.model.DocumentCategory;
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.system.MultiLanguagePropertyService;
+import dk.openesdh.repo.services.system.MultiLanguageValue;
 import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 import java.io.Serializable;
 import java.util.Arrays;
@@ -17,12 +19,14 @@ import org.alfresco.service.cmr.repository.InvalidNodeRefException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
+import org.springframework.extensions.surf.util.I18NUtil;
 
 public class DocumentCategoryServiceImpl implements DocumentCategoryService {
 
     public static List<String> SYSTEM_TYPES = Arrays.asList("annex");
     private OpenESDHFoldersService openESDHFoldersService;
     private NodeService nodeService;
+    private MultiLanguagePropertyService multiLanguagePropertyService;
 
     @Override
     public List<DocumentCategory> getDocumentCategories() {
@@ -33,7 +37,7 @@ public class DocumentCategoryServiceImpl implements DocumentCategoryService {
     }
 
     @Override
-    public DocumentCategory createOrUpdateDocumentCategory(DocumentCategory documentCategory) {
+    public DocumentCategory createOrUpdateDocumentCategory(DocumentCategory documentCategory, MultiLanguageValue mlDisplayNames) {
         Map<QName, Serializable> properties = getProperties(documentCategory.getNodeRef());
         if (isSystemCategory(properties)) {
             throwErrorIfSystemNameWasChanged(properties, documentCategory);
@@ -41,7 +45,8 @@ public class DocumentCategoryServiceImpl implements DocumentCategoryService {
             properties.put(OpenESDHModel.PROP_DOC_CATEGORY_SYSTEM, false);
         }
         properties.put(ContentModel.PROP_NAME, documentCategory.getName());
-        properties.put(OpenESDHModel.PROP_DOC_CATEGORY_DISPLAY_NAME, documentCategory.getDisplayName());
+        properties.remove(OpenESDHModel.PROP_DOC_CATEGORY_DISPLAY_NAME);
+        documentCategory.setDisplayName((String) mlDisplayNames.get(I18NUtil.getContentLocale().getLanguage()));
 
         if (documentCategory.getNodeRef() == null) {
             ChildAssociationRef createdNode = nodeService.createNode(
@@ -51,9 +56,11 @@ public class DocumentCategoryServiceImpl implements DocumentCategoryService {
                     OpenESDHModel.TYPE_DOC_CATEGORY,
                     properties);
             documentCategory.setNodeRef(createdNode.getChildRef());
+            setMLDisplayNames(documentCategory, mlDisplayNames);
             return documentCategory;
         }
         nodeService.setProperties(documentCategory.getNodeRef(), properties);
+        setMLDisplayNames(documentCategory, mlDisplayNames);
         return documentCategory;
     }
 
@@ -87,6 +94,11 @@ public class DocumentCategoryServiceImpl implements DocumentCategoryService {
     }
 
     @Override
+    public MultiLanguageValue getMultiLanguageDisplayNames(NodeRef nodeRef) {
+        return multiLanguagePropertyService.getMLValues(nodeRef, OpenESDHModel.PROP_DOC_CATEGORY_DISPLAY_NAME);
+    }
+
+    @Override
     public void deleteDocumentCategory(DocumentCategory documentCategory) {
         if (isSystemCategory(documentCategory.getNodeRef())) {
             throw new AlfrescoRuntimeException("Cannot delete system document type.");
@@ -112,6 +124,13 @@ public class DocumentCategoryServiceImpl implements DocumentCategoryService {
         }
     }
 
+    private void setMLDisplayNames(DocumentCategory documentCategory, MultiLanguageValue mlDisplayNames) {
+        multiLanguagePropertyService.setMLValues(
+                documentCategory.getNodeRef(),
+                OpenESDHModel.PROP_DOC_CATEGORY_DISPLAY_NAME,
+                mlDisplayNames);
+    }
+
     private Map<QName, Serializable> getProperties(NodeRef nodeRef) throws InvalidNodeRefException {
         if (nodeRef == null) {
             return new HashMap<>();
@@ -129,5 +148,9 @@ public class DocumentCategoryServiceImpl implements DocumentCategoryService {
 
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
+    }
+
+    public void setMultiLanguagePropertyService(MultiLanguagePropertyService multiLanguagePropertyService) {
+        this.multiLanguagePropertyService = multiLanguagePropertyService;
     }
 }
