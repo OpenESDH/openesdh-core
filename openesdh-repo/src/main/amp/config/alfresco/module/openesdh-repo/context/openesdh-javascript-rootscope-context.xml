@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN'
+        'http://www.springframework.org/dtd/spring-beans.dtd'>
+<beans>
+    <!--Rootscope javascript objects-->
+    <bean id="${project.artifactId}_scriptCaseUtils"
+          parent="baseJavaScriptExtension"
+          class="dk.openesdh.repo.rootScopeExt.CaseUtils"
+          depends-on="${project.artifactId}_dictionaryBootstrap">
+        <property name="extensionName">
+            <value>caseUtils</value>
+        </property>
+        <property name="caseService" ref="CaseService"/>
+        <property name="documentService" ref="DocumentService"/>
+        <property name="services" ref="ServiceRegistry"/>
+    </bean>
+</beans>
