@@ -50,16 +50,13 @@ public abstract class AbstractXSearchService implements XSearchService {
         sp.setLanguage(SearchService.LANGUAGE_LUCENE);
         setSearchParameters(sp);
 
-        ResultSet results;
-        List<NodeRef> nodeRefs = new LinkedList<>();
-        results = searchService.query(sp);
+        ResultSet results = searchService.query(sp);
         if (results != null) {
-            nodeRefs = results.getNodeRefs();
+            List<NodeRef> nodeRefs = results.getNodeRefs();
             results.close();
             return new XResultSet(nodeRefs, results.getNumberFound());
         } else {
-            results.close();
-            return new XResultSet(nodeRefs);
+            return new XResultSet();
         }
     }
 

@@ -2,7 +2,6 @@ package dk.openesdh.repo.services.cases;
 
 import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
-import dk.openesdh.SimpleCaseModel;
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.OpenESDHModel;
 import org.alfresco.error.AlfrescoRuntimeException;
@@ -26,6 +25,7 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -34,6 +34,7 @@ import java.time.LocalDate;
 import java.util.*;
 
 import static org.alfresco.repo.security.authentication.AuthenticationUtil.*;
+import static org.hamcrest.core.Is.isA;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
@@ -109,7 +110,7 @@ public class CreateCaseIT {
         assertNotNull(day);
     }
 
-    @Test(expected=AlfrescoRuntimeException.class) //For now this works. Check later to look for the AccessDeniedException class
+    @Test
     public void shouldFailCausedByMissingPermissions() throws Exception {
         setFullyAuthenticatedUser(getAdminUserName());
 
@@ -117,6 +118,9 @@ public class CreateCaseIT {
             authorityService.removeAuthority(PermissionService.GROUP_PREFIX + CaseHelper.CASE_CREATOR_ROLE, getAdminUserName());
             final String name = UUID.randomUUID().toString();
             NodeRef owner = personService.getPerson(getAdminUserName());
+
+            expectedException.expect(AlfrescoRuntimeException.class);
+            expectedException.expectCause(isA(AccessDeniedException.class));
 
             caseHelper.createSimpleCase(name, getAdminUserName(), owner);
             return null;
