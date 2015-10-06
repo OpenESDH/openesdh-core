@@ -24,7 +24,7 @@ import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.xsearch.ContactSearchService;
 import dk.openesdh.repo.services.xsearch.XResultSet;
 import dk.openesdh.repo.utils.Utils;
-import dk.openesdh.repo.webscripts.utils.ContactUtils;
+import dk.openesdh.repo.webscripts.contacts.ContactUtils;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 public class ContactSearch extends AbstractWebScript {

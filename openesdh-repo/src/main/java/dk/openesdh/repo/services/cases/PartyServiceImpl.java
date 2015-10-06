@@ -142,6 +142,10 @@ public class PartyServiceImpl implements PartyService {
         if (!caseRole.getFirst()) {
             return false;
         }
+
+        NodeRef caseNodeRef = caseService.getCaseById(caseId);
+        caseService.checkCanUpdateCaseRoles(caseNodeRef);
+
         try {
             NodeRef partyRef = getContactNodeRefId(partyId);
             this.nodeService.removeChild(caseRole.getSecond(), partyRef);

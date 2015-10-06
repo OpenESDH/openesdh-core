@@ -1,10 +1,11 @@
 package dk.openesdh.repo.webscripts.utils;
 
+import com.github.dynamicextensionsalfresco.webscripts.AnnotationWebscriptResponse;
+import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
-
 import org.alfresco.repo.content.MimetypeMap;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
@@ -18,8 +19,6 @@ import org.springframework.http.HttpInputMessage;
 import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
-
-import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 
 public class WebScriptUtils {
 
@@ -96,7 +95,7 @@ public class WebScriptUtils {
 
     private static HttpInputMessage getHttpInputMessage(WebScriptRequest req) {
         return new HttpInputMessage() {
-    
+
             @Override
             public HttpHeaders getHeaders() {
                 HttpHeaders httpHeaders = new HttpHeaders();
@@ -104,10 +103,10 @@ public class WebScriptUtils {
                         .stream()
                         .forEach(headerName -> httpHeaders.put(headerName,
                                         Arrays.asList(req.getHeaderValues(headerName))
-                                        ));
+                                ));
                 return httpHeaders;
             }
-    
+
             @Override
             public InputStream getBody() throws IOException {
                 return req.getContent().getInputStream();
@@ -129,12 +128,47 @@ public class WebScriptUtils {
         res.getWriter().flush();
     }
 
+    /**
+     * prepares response and executes action
+     *
+     * @param response
+     * @param action
+     * @throws IOException
+     */
+    private static void write(AnnotationWebscriptResponse res, WriteAction action) throws Exception {
+        res.setContentType(MimetypeMap.MIMETYPE_JSON);
+        res.setContentEncoding(CONTENT_ENCODING_UTF_8);
+        res.setHeader("Cache-Control", "no-cache,no-store");
+        action.execute();
+    }
+
+    private interface WriteAction {
+
+        public void execute() throws Exception;
+    }
+
     public static Resolution jsonResolution(Object o) {
-        return (req, res, params) -> {
-            res.setContentType(MimetypeMap.MIMETYPE_JSON);
-            res.setContentEncoding(CONTENT_ENCODING_UTF_8);
-            res.setHeader("Cache-Control", "no-cache,no-store");
-            writeJson(o, res);
-        };
+        return (req, res, params) -> write(res, ()
+                -> writeJson(o, res));
+    }
+
+    public static Resolution jsonResolution(org.json.JSONObject o) {
+        return (req, res, params) -> write(res, ()
+                -> o.write(res.getWriter()));
+    }
+
+    public static Resolution jsonResolution(org.json.JSONArray o) {
+        return (req, res, params) -> write(res, ()
+                -> o.write(res.getWriter()));
+    }
+
+    /**
+     *
+     * @param o - {@link org.json.simple.JSONObject}, {@link org.json.simple.JSONArray} and etc.
+     * @return
+     */
+    public static Resolution jsonResolution(org.json.simple.JSONStreamAware o) {
+        return (req, res, params) -> write(res, ()
+                -> o.writeJSONString(res.getWriter()));
     }
 }

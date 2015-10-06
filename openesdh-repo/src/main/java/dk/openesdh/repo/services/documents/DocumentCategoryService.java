@@ -1,6 +1,7 @@
 package dk.openesdh.repo.services.documents;
 
 import dk.openesdh.repo.model.DocumentCategory;
+import dk.openesdh.repo.services.system.MultiLanguageValue;
 import java.util.List;
 import java.util.Optional;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -23,7 +24,7 @@ public interface DocumentCategoryService {
      * @param documentCategory
      * @return
      */
-    public DocumentCategory createOrUpdateDocumentCategory(DocumentCategory documentCategory);
+    public DocumentCategory createOrUpdateDocumentCategory(DocumentCategory documentCategory, MultiLanguageValue mlDisplayNames);
 
     /**
      * Read
@@ -34,6 +35,14 @@ public interface DocumentCategoryService {
     public DocumentCategory getDocumentCategory(NodeRef nodeRef);
 
     public Optional<DocumentCategory> getDocumentCategoryByName(String categoryName);
+
+    /**
+     * returns display names of all saved locales
+     *
+     * @param nodeRef
+     * @return
+     */
+    public MultiLanguageValue getMultiLanguageDisplayNames(NodeRef nodeRef);
 
     /**
      * Delete

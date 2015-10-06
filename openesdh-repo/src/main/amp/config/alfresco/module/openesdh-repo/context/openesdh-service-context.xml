@@ -68,6 +68,9 @@
         <property name="openESDHFoldersService">
             <ref bean="OpenESDHFoldersService"/>
         </property>
+        <property name="multiLanguagePropertyService">
+            <ref bean="MultiLanguagePropertyService"/>
+        </property>
     </bean>
     
     <bean id="DocumentCategoryService" class="dk.openesdh.repo.services.documents.DocumentCategoryServiceImpl">
@@ -76,6 +79,9 @@
         </property>
         <property name="openESDHFoldersService">
             <ref bean="OpenESDHFoldersService"/>
+        </property>
+        <property name="multiLanguagePropertyService">
+            <ref bean="MultiLanguagePropertyService"/>
         </property>
     </bean>
 
@@ -325,6 +331,10 @@
         <property name="contentService" ref="ContentService" />
         <property name="repositoryHelper" ref="repositoryHelper" />
         <property name="mimetypeService" ref="mimetypeService"/>
+    </bean>
+    
+    <bean id="MultiLanguagePropertyService" class="dk.openesdh.repo.services.system.MultiLanguagePropertyServiceImpl">
+        <property name="nodeService" ref="nodeService" />
     </bean>
 
 </beans>

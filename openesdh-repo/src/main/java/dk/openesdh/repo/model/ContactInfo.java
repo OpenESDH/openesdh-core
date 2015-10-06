@@ -3,15 +3,14 @@ package dk.openesdh.repo.model;
 import java.io.Serializable;
 import java.util.Map;
 import java.util.StringJoiner;
-
 import org.alfresco.repo.security.permissions.PermissionCheckValue;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
+import org.apache.commons.lang3.BooleanUtils;
 
 /**
  * @author by Lanre Abiwon.
  */
-
 public class ContactInfo implements PermissionCheckValue {
 
     private final NodeRef nodeRef;
@@ -33,7 +32,7 @@ public class ContactInfo implements PermissionCheckValue {
     public static final String PROP_NAME_CONTACT_POST_BOX = "postBox";
 
     //Create this from nodeRef of the same type
-    public ContactInfo(NodeRef nodeRef, ContactType type, Map<QName, Serializable> props){
+    public ContactInfo(NodeRef nodeRef, ContactType type, Map<QName, Serializable> props) {
 
         allProps = props;
         this.nodeRef = nodeRef;
@@ -50,11 +49,11 @@ public class ContactInfo implements PermissionCheckValue {
         return this.email;
     }
 
-    public String getType(){
+    public String getType() {
         return this.type;
     }
 
-    public String getName(){
+    public String getName() {
         if (!this.type.equalsIgnoreCase("PERSON")) {
             return (String) this.allProps.get(OpenESDHModel.PROP_CONTACT_ORGANIZATION_NAME);
         }
@@ -100,22 +99,23 @@ public class ContactInfo implements PermissionCheckValue {
     }
 
     //Some other common properties that we might want to access on a regular basis when working with contacts
-    public String getIDNumebr(){
-       return this.type.equalsIgnoreCase("PERSON") ?  getStringProp(OpenESDHModel.PROP_CONTACT_CPR_NUMBER): getStringProp(OpenESDHModel.PROP_CONTACT_CVR_NUMBER);
+    public String getIDNumebr() {
+        return this.type.equalsIgnoreCase("PERSON") ? getStringProp(OpenESDHModel.PROP_CONTACT_CPR_NUMBER) : getStringProp(OpenESDHModel.PROP_CONTACT_CVR_NUMBER);
     }
-    public boolean isInternal(){
-        return this.allProps.containsKey(OpenESDHModel.PROP_CONTACT_INTERNAL)
-                && (boolean) this.allProps.get(OpenESDHModel.PROP_CONTACT_INTERNAL)
-                && this.allProps.containsKey(OpenESDHModel.PROP_CONTACT_REGISTERED)
-                && (boolean) this.allProps.get(OpenESDHModel.PROP_CONTACT_REGISTERED);
+
+    public boolean isInternal() {
+        Boolean internal = (Boolean) this.allProps.get(OpenESDHModel.PROP_CONTACT_INTERNAL);
+        Boolean registered = (Boolean) this.allProps.get(OpenESDHModel.PROP_CONTACT_REGISTERED);
+        return BooleanUtils.toBoolean(internal) && BooleanUtils.toBoolean(registered);
     }
 
     private String getStringProp(QName qName) {
         return (String) this.allProps.get(qName);
     }
+
     private String getIntPropString(QName qName) {
         Integer value = (Integer) this.allProps.get(qName);
-        if(value != null){
+        if (value != null) {
             return value.toString();
         }
         return null;

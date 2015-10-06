@@ -1,30 +1,49 @@
 package dk.openesdh.repo.webscripts.contacts;
 
+import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
+import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 import dk.openesdh.repo.model.ContactType;
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.contacts.ContactService;
+import static dk.openesdh.repo.webscripts.contacts.ContactUtils.addContactProperties;
+import static dk.openesdh.repo.webscripts.contacts.ContactUtils.getNodeRef;
+import static dk.openesdh.repo.webscripts.contacts.ContactUtils.getOrNull;
+import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
-import org.alfresco.error.AlfrescoRuntimeException;
+import java.util.Map;
+import java.util.stream.Stream;
 import org.alfresco.service.cmr.repository.InvalidNodeRefException;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONException;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
+import org.springframework.stereotype.Component;
 
-/**
- * @author Lanre Abiwon
- */
-public class ContactWebscript extends ContactAbstractWebscript {
+@Component
+@WebScript(description = "Contact CRUD operations", families = {"Contact"})
+public class ContactWebscript {
 
-    @Override
-    public void post(WebScriptRequest req, WebScriptResponse res) {
+    @Autowired
+    private NodeService nodeService;
+    @Autowired
+    private ContactService contactService;
+
+    @Uri(value = "/api/openesdh/contacts/create", method = HttpMethod.PUT, defaultFormat = "json")
+    public Resolution post(WebScriptRequest req, WebScriptResponse res) {
         JSONObject parsedRequest;
         try {
             //Get the information from the JSON structure from the request
@@ -40,12 +59,12 @@ public class ContactWebscript extends ContactAbstractWebscript {
 
             String email = getOrNull(parsedRequest, "email");
             if (StringUtils.isBlank(email)) {
-                throw new WebScriptException("The email is required to create the contact.");
+                throw new WebScriptException(Status.STATUS_BAD_REQUEST, "The email is required to create the contact.");
             }
 
             String contactTypeParam = getOrNull(parsedRequest, "contactType");
             if (StringUtils.isBlank(contactTypeParam)) {
-                throw new WebScriptException("No contact type was specified.");
+                throw new WebScriptException(Status.STATUS_BAD_REQUEST, "No contact type was specified.");
             }
             ContactType contactType = ContactType.getContactType(contactTypeParam);
 
@@ -63,15 +82,15 @@ public class ContactWebscript extends ContactAbstractWebscript {
                 obj = new JSONObject();
                 obj.put("message", "uncreated");
             }
-            obj.writeJSONString(res.getWriter());
-
+            return WebScriptUtils.jsonResolution(obj);
         } catch (Exception ge) { //Any generic exception
             throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Issue creating contact: " + ge.getMessage());
         }
     }
 
-    @Override
-    public void put(NodeRef contactNodeRef, WebScriptRequest req, WebScriptResponse res) {
+    @Uri(value = "/api/openesdh/contact/{store_type}/{store_id}/{id}", method = HttpMethod.PUT, defaultFormat = "json")
+    public Resolution put(WebScriptRequest req, WebScriptResponse res) {
+        NodeRef nodeRef = getNodeRef(req);
         JSONObject parsedRequest;
         try {
             //Get the information from the JSON structure from the request
@@ -87,41 +106,43 @@ public class ContactWebscript extends ContactAbstractWebscript {
 
             String email = getOrNull(parsedRequest, "email");
             if (StringUtils.isBlank(email)) {
-                throw new WebScriptException("The contact email is missing. Unable to further proceed.");
+                throw new WebScriptException(Status.STATUS_BAD_REQUEST, "The contact email is missing. Unable to further proceed.");
             }
 
-            QName contactTypeQName = this.nodeService.getType(contactNodeRef);
+            QName contactTypeQName = this.nodeService.getType(nodeRef);
             ContactType contactType = contactTypeQName.equals(OpenESDHModel.TYPE_CONTACT_PERSON) ? ContactType.PERSON : ContactType.ORGANIZATION;
 
             addContactProperties(contactType, parsedRequest, typeProps);
 
-            this.nodeService.setProperties(contactNodeRef, typeProps);
+            this.nodeService.setProperties(nodeRef, typeProps);
 
             JSONObject obj;
 
-            if (contactNodeRef != null) {
-                obj = buildJSON(contactNodeRef);
+            if (nodeRef != null) {
+                obj = buildJSON(nodeRef);
             } else {
                 obj = new JSONObject();
                 obj.put("message", "Contact not updated");
             }
-            obj.writeJSONString(res.getWriter());
-
+            return WebScriptUtils.jsonResolution(obj);
         } catch (Exception ge) { //Any generic exception
-            throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Issue updating contact: " + ge.getMessage());
+            throw new WebScriptException("Issue updating contact: " + ge.getMessage());
         }
     }
 
-    @Override
-    public void get(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException {
+    @Uri(value = {
+        "/api/openesdh/contact/{store_type}/{store_id}/{id}",
+        "/api/openesdh/contact?email=",
+        "/api/openesdh/contact?parentNodeRefId="},
+            method = HttpMethod.GET, defaultFormat = "json")
+    public Resolution get(WebScriptRequest req, WebScriptResponse res) throws IOException {
+        NodeRef nodeRef = getNodeRef(req);
         try {
             String parentNodeRefId = req.getParameter("parentNodeRefId");
             if (nodeRef == null && StringUtils.isNotEmpty(parentNodeRefId)) {
-                getAssociations(new NodeRef(parentNodeRefId))
-                        .writeJSONString(res.getWriter());
-                return;
+                return WebScriptUtils.jsonResolution(
+                        getAssociations(new NodeRef(parentNodeRefId)));
             }
-
             String emailId = req.getParameter("email");
             if (nodeRef == null && StringUtils.isNotEmpty(emailId)) {
                 nodeRef = contactService.getContactById(emailId);
@@ -130,18 +151,43 @@ public class ContactWebscript extends ContactAbstractWebscript {
                     throw new WebScriptException("Unable to retrieve the contact by email.");
                 }
             }
-            buildJSON(nodeRef).writeJSONString(res.getWriter());
+            return WebScriptUtils.jsonResolution(
+                    buildJSON(nodeRef));
         } catch (WebScriptException | InvalidNodeRefException npe) {
-            throw new AlfrescoRuntimeException("Unable to get the person by nodeRef because: " + npe.getMessage());
+            throw new WebScriptException("Unable to get the person by nodeRef because: " + npe.getMessage());
         }
     }
 
-    @Override
-    protected void delete(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) {
+    @Uri(value = "/api/openesdh/contact/{store_type}/{store_id}/{id}", method = HttpMethod.DELETE, defaultFormat = "json")
+    public void delete(WebScriptRequest req, WebScriptResponse res) {
         try {
-            this.nodeService.deleteNode(nodeRef);
+            this.nodeService.deleteNode(getNodeRef(req));
         } catch (Exception ge) { //Any generic exception
             throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Issue deleting contact: " + ge.getMessage());
         }
+    }
+
+    private JSONObject buildJSON(NodeRef contactNode) {
+        Map<QName, Serializable> props = this.nodeService.getProperties(contactNode);
+        return ContactUtils.createContactJson(contactNode, props);
+    }
+
+    private JSONArray getAssociations(NodeRef contactNode) {
+        JSONArray associations = new JSONArray();
+        final Serializable department = this.nodeService.getProperty(contactNode, OpenESDHModel.PROP_CONTACT_DEPARTMENT);
+        Stream<NodeRef> organizationPersons = contactService.getOrganizationPersons(contactNode);
+        organizationPersons.forEach(item -> {
+            JSONObject personJson = buildJSON(item);
+            personJson.put(OpenESDHModel.PROP_CONTACT_DEPARTMENT.getLocalName(), department);
+            associations.add(personJson);
+        });
+        return associations;
+    }
+
+    private void createAssociation(NodeRef contactNodeRef, JSONObject parsedRequest) throws JSONException {
+        if (!parsedRequest.containsKey("parentNodeRefId")) {
+            return;
+        }
+        contactService.addPersonToOrganization(new NodeRef(getOrNull(parsedRequest, "parentNodeRefId")), contactNodeRef);
     }
 }

@@ -9,9 +9,11 @@ import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.system.MultiLanguageValue;
 import java.util.List;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.transaction.TransactionService;
 import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
@@ -19,8 +21,10 @@ import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mozilla.javascript.NativeObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -29,15 +33,20 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @ContextConfiguration({"classpath:alfresco/application-context.xml", "classpath:alfresco/extension/openesdh-test-context.xml"})
 public class DocumentTypeServiceImplIT {
 
+    private static final String TEST_TYPE_NAME_LETTER = "testLetter";
+    private static final String TEST_TYPE_NAME_INVOICE = "testInvoice";
+    private DocumentType documentType1;
+    private DocumentType documentType2;
+
     @Autowired
     @Qualifier("DocumentTypeService")
     protected DocumentTypeServiceImpl documentTypeService;
     @Autowired
     @Qualifier("NodeService")
     protected NodeService nodeService;
-
-    private DocumentType documentType1;
-    private DocumentType documentType2;
+    @Autowired
+    @Qualifier("TransactionService")
+    private TransactionService transactionService;
 
     @Before
     public void setUp() {
@@ -50,35 +59,51 @@ public class DocumentTypeServiceImplIT {
         safelyDelete(documentType2);
     }
 
+    private MultiLanguageValue createMLName(String name) {
+        MultiLanguageValue names = new MultiLanguageValue();
+        names.defineProperty(
+                I18NUtil.getContentLocale().getLanguage(),
+                name,
+                NativeObject.PERMANENT);
+        return names;
+    }
+
     @Test
     public void documentTypeCrudExecutesSuccessfully() {
-        //create
-        documentType1 = new DocumentType();
-        documentType1.setName("testInvoice");
-        documentType1.setDisplayName("testInvoiceDN");
-        documentType1 = documentTypeService.createOrUpdateDocumentType(documentType1);
-        //read
-        DocumentType saved = documentTypeService.getDocumentType(documentType1.getNodeRef());
-        assertEquals(documentType1.getNodeRef(), saved.getNodeRef());
-        assertEquals("testInvoice", saved.getName());
-        assertEquals("testInvoiceDN", saved.getDisplayName());
-        //update
-        saved.setName("testLetter");
-        saved.setDisplayName("testLetterDN");
-        saved = documentTypeService.createOrUpdateDocumentType(saved);
-        //get by name
-        documentType2 = documentTypeService.getDocumentTypeByName("testLetter")
-                .orElseThrow(AssertionError::new);
-        assertEquals(saved.getNodeRef().toString(), documentType2.getNodeRef().toString());
-        assertEquals("testLetter", saved.getName());
-        assertEquals("testLetterDN", saved.getDisplayName());
-        //readList
-        List<DocumentType> documentTypes = documentTypeService.getDocumentTypes();
-        assertTrue(documentTypes.size() > 0);
-        //delete
-        documentTypeService.deleteDocumentType(saved);
-        saved = documentTypeService.getDocumentType(saved.getNodeRef());
-        assertNull(saved);
+        transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
+            //create
+            documentType1 = new DocumentType();
+            documentType1.setName(TEST_TYPE_NAME_INVOICE);
+            documentType1 = documentTypeService.createOrUpdateDocumentType(documentType1, createMLName(TEST_TYPE_NAME_INVOICE + "DN"));
+            //read
+            DocumentType saved = documentTypeService.getDocumentType(documentType1.getNodeRef());
+            assertEquals(documentType1.getNodeRef(), saved.getNodeRef());
+            assertEquals(TEST_TYPE_NAME_INVOICE, saved.getName());
+            assertEquals(TEST_TYPE_NAME_INVOICE + "DN", saved.getDisplayName());
+            assertEquals(TEST_TYPE_NAME_INVOICE + "DN", documentTypeService
+                    .getMultiLanguageDisplayNames(saved.getNodeRef())
+                    .get(I18NUtil.getContentLocale().getLanguage()));
+            //update
+            saved.setName(TEST_TYPE_NAME_LETTER);
+            saved = documentTypeService.createOrUpdateDocumentType(saved, createMLName(TEST_TYPE_NAME_LETTER + "DN"));
+            //get by name
+            documentType2 = documentTypeService.getDocumentTypeByName(TEST_TYPE_NAME_LETTER)
+                    .orElseThrow(AssertionError::new);
+            assertEquals(saved.getNodeRef().toString(), documentType2.getNodeRef().toString());
+            assertEquals(TEST_TYPE_NAME_LETTER, saved.getName());
+            assertEquals(TEST_TYPE_NAME_LETTER + "DN", saved.getDisplayName());
+            assertEquals(TEST_TYPE_NAME_LETTER + "DN", documentTypeService
+                    .getMultiLanguageDisplayNames(saved.getNodeRef())
+                    .get(I18NUtil.getContentLocale().getLanguage()));
+            //readList
+            List<DocumentType> documentTypes = documentTypeService.getDocumentTypes();
+            assertTrue(documentTypes.size() > 0);
+            //delete
+            documentTypeService.deleteDocumentType(saved);
+            saved = documentTypeService.getDocumentType(saved.getNodeRef());
+            assertNull(saved);
+            return null;
+        });
     }
 
     @Test
