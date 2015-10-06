@@ -42,7 +42,7 @@ public class ContactWebscript {
     @Autowired
     private ContactService contactService;
 
-    @Uri(value = "/api/openesdh/contacts/create", method = HttpMethod.PUT, defaultFormat = "json")
+    @Uri(value = "/api/openesdh/contacts/create", method = HttpMethod.POST, defaultFormat = "json")
     public Resolution post(WebScriptRequest req, WebScriptResponse res) {
         JSONObject parsedRequest;
         try {
