@@ -1,47 +1,47 @@
 package dk.openesdh.repo.webscripts.contacts;
 
+import com.google.gdata.util.common.base.Joiner;
 import dk.openesdh.repo.model.ContactType;
 import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.contacts.ContactService;
-import dk.openesdh.repo.webscripts.utils.ContactUtils;
-import java.io.IOException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
-import org.json.JSONException;
-import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
-import org.springframework.extensions.webscripts.WebScriptResponse;
 
-/**
- * @author Lanre
- */
-public abstract class ContactAbstractWebscript extends AbstractWebScript {
+public class ContactUtils {
 
     private static final String NODE_ID = "id";
     private static final String STORE_ID = "store_id";
     private static final String STORE_TYPE = "store_type";
 
-    protected NodeService nodeService;
-    protected ContactService contactService;
+    public static JSONObject createContactJson(NodeRef contactNode, Map<QName, Serializable> props) {
+        JSONObject result = new JSONObject();
+        result.put("nodeRefId", contactNode.toString());
+        result.put("storeType", contactNode.getStoreRef().getProtocol());
+        result.put("storeId", contactNode.getStoreRef().getIdentifier());
+        result.put("id", contactNode.getId());
+        props.entrySet().stream()
+                .filter((Map.Entry<QName, Serializable> t)
+                        -> t.getValue() != null && !isKeyOfSystemModelNamepace(t.getKey()))
+                .forEach((entry)
+                        -> result.put(entry.getKey().getLocalName(), entry.getValue()));
+        result.put("address", Joiner.on(", ").skipNulls().join(
+                props.get(OpenESDHModel.PROP_CONTACT_ADDRESS_LINE1),
+                props.get(OpenESDHModel.PROP_CONTACT_ADDRESS_LINE2)));
+        return result;
+    }
 
-    protected abstract void get(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException;
+    private static boolean isKeyOfSystemModelNamepace(QName key) {
+        return key.getNamespaceURI().equalsIgnoreCase(NamespaceService.SYSTEM_MODEL_1_0_URI);
+    }
 
-    protected abstract void post(WebScriptRequest req, WebScriptResponse res);
-
-    protected abstract void put(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res);
-
-    protected abstract void delete(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res);
-
-    @Override
-    public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
+    static NodeRef getNodeRef(WebScriptRequest req) {
         Map<String, String> templateArgs = req.getServiceMatch().getTemplateVars();
         NodeRef nodeRef = null;
         String storeType = templateArgs.get(STORE_TYPE);
@@ -50,62 +50,17 @@ public abstract class ContactAbstractWebscript extends AbstractWebScript {
         if (storeType != null && storeId != null && nodeId != null) {
             nodeRef = new NodeRef(storeType, storeId, nodeId);
         }
-
-        String method = req.getServiceMatch().getWebScript().getDescription().getMethod();
-        switch (method) {
-            case "GET":
-                get(nodeRef, req, res);
-                break;
-            case "POST":
-                post(req, res);
-                break;
-            case "PUT":
-                put(nodeRef, req, res);
-                break;
-            case "DELETE":
-                delete(nodeRef, req, res);
-                break;
-        }
+        return nodeRef;
     }
 
-    /**
-     * Grabbed from the org.alfresco.repo.web.scripts.discussion.AbstractDiscussionWebScript
-     *
-     * @param json
-     * @param key
-     * @return
-     */
-    public String getOrNull(JSONObject json, String key) {
+    static String getOrNull(JSONObject json, String key) {
         if (json.containsKey(key)) {
             return Objects.toString(json.get(key));
         }
         return null;
     }
 
-    public JSONObject buildJSON(NodeRef contactNode) {
-        Map<QName, Serializable> props = this.nodeService.getProperties(contactNode);
-        return ContactUtils.createContactJson(contactNode, props);
-    }
-
-    protected JSONArray getAssociations(NodeRef contactNode) {
-        JSONArray associations = new JSONArray();
-        final Serializable department = this.nodeService.getProperty(contactNode, OpenESDHModel.PROP_CONTACT_DEPARTMENT);
-        contactService.getOrganizationPersons(contactNode).forEach(item -> {
-            JSONObject personJson = buildJSON(item);
-            personJson.put(OpenESDHModel.PROP_CONTACT_DEPARTMENT.getLocalName(), department);
-            associations.add(personJson);
-        });
-        return associations;
-    }
-
-    protected void createAssociation(NodeRef contactNodeRef, JSONObject parsedRequest) throws JSONException {
-        if (!parsedRequest.containsKey("parentNodeRefId")) {
-            return;
-        }
-        contactService.addPersonToOrganization(new NodeRef(getOrNull(parsedRequest, "parentNodeRefId")), contactNodeRef);
-    }
-
-    void addContactProperties(ContactType contactType, JSONObject fromParsedRequest, HashMap<QName, Serializable> toTypeProps) {
+    static void addContactProperties(ContactType contactType, JSONObject fromParsedRequest, HashMap<QName, Serializable> toTypeProps) {
         switch (contactType) {
             case PERSON:
                 copyProperty(fromParsedRequest, toTypeProps, OpenESDHModel.PROP_CONTACT_FIRST_NAME);
@@ -134,7 +89,7 @@ public abstract class ContactAbstractWebscript extends AbstractWebScript {
         addAddressProperties(fromParsedRequest, toTypeProps);
     }
 
-    private void addAddressProperties(JSONObject fromObj, HashMap<QName, Serializable> toTypeProps) {
+    static void addAddressProperties(JSONObject fromObj, HashMap<QName, Serializable> toTypeProps) {
         copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_ADDRESS);
         copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_ADDRESS_LINE1);
         copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_ADDRESS_LINE2);
@@ -156,18 +111,7 @@ public abstract class ContactAbstractWebscript extends AbstractWebScript {
         copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_MAIL_SUBLOCATION_ID);
     }
 
-    void copyProperty(JSONObject fromObj, HashMap<QName, Serializable> toTypeProps, QName property) {
+    static void copyProperty(JSONObject fromObj, HashMap<QName, Serializable> toTypeProps, QName property) {
         toTypeProps.put(property, getOrNull(fromObj, property.getLocalName()));
     }
-
-    //<editor-fold desc="Injected service bean setters">
-    public void setNodeService(NodeService nodeService) {
-        this.nodeService = nodeService;
-    }
-
-    public void setContactService(ContactService contactService) {
-        this.contactService = contactService;
-    }
-    //</editor-fold>
-
 }
