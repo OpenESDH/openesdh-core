@@ -30,13 +30,24 @@ public class WebScriptUtils {
 
     public static final String TASK_ID = "taskId";
 
-    public static void checkContentTypeJson(WebScriptRequest req) {
+    public static final String TEMPLATE_ENGINE_FREEMARKER = "freemarker";
+
+    public static final String WEBSCRIPT_TEMPLATES_FOLDER_PATH = "alfresco/extension/templates/webscripts";
+
+    public static final String webScriptTemplatePath(String relativeTemplatePath) {
+        return WEBSCRIPT_TEMPLATES_FOLDER_PATH + "/" + relativeTemplatePath;
+    }
+
+    public static boolean isContentTypeJson(WebScriptRequest req) {
         String contentType = req.getContentType();
         if (contentType != null && contentType.indexOf(';') != -1) {
             contentType = contentType.substring(0, contentType.indexOf(';'));
         }
+        return MimetypeMap.MIMETYPE_JSON.equals(contentType);
+    }
 
-        if (!MimetypeMap.MIMETYPE_JSON.equals(contentType)) {
+    public static void checkContentTypeJson(WebScriptRequest req) {
+        if (!isContentTypeJson(req)) {
             throw new WebScriptException(Status.STATUS_UNSUPPORTED_MEDIA_TYPE, "Wrong Content-Type");
         }
     }

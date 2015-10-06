@@ -140,6 +140,27 @@
             <version>1.0-SNAPSHOT</version>
             <classifier>classes</classifier>
         </dependency>
+        <dependency>
+        	<groupId>fr.opensagres.xdocreport</groupId>
+        	<artifactId>
+        		fr.opensagres.xdocreport.document.odt
+        	</artifactId>
+        	<version>1.0.5</version>
+        </dependency>
+        <dependency>
+        	<groupId>fr.opensagres.xdocreport</groupId>
+        	<artifactId>
+        		fr.opensagres.xdocreport.template.freemarker
+        	</artifactId>
+        	<version>1.0.5</version>
+        </dependency>
+        <dependency>
+        	<groupId>fr.opensagres.xdocreport</groupId>
+        	<artifactId>
+        		fr.opensagres.xdocreport.converter.odt.odfdom
+        	</artifactId>
+        	<version>1.0.5</version>
+        </dependency>
     </dependencies>
 
     <build>
