@@ -1,9 +1,0 @@
-<webscript>
-    <shortname>create contact testing</shortname>
-    <description>Contact creation</description>
-    <url>/api/openesdh/contacts/create</url>
-    <format default="json"></format>
-    <authentication>user</authentication>
-    <transaction>required</transaction>
-    <family>Contact</family>
-</webscript>
