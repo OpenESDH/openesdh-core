@@ -108,7 +108,6 @@ public class PrintCaseServiceImpl implements PrintCaseService {
             }
 
             Options options = Options.getTo(ConverterTypeTo.PDF).via(ConverterTypeVia.ODFDOM);
-            // ByteArrayOutputStream caseInfoPdf = new ByteArrayOutputStream();
             ContentWriter writer = contentService.getTempWriter();
             report.convert(context, options, writer.getContentOutputStream());
 
