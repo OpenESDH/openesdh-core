@@ -9,9 +9,6 @@
     http://www.springframework.org/schema/context/spring-context-3.0.xsd">
 	<!-- This is filtered by Maven at build time, so that module name is single sourced. -->
 	
-	<context:annotation-config/>
-    <context:component-scan base-package="dk.openesdh.repo.webscripts" />
-
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-model-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-service-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-repository-context.xml" />
@@ -22,4 +19,7 @@
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-classification-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-audit-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-javascript-rootscope-context.xml" />
+    
+    <context:annotation-config/>
+    <context:component-scan base-package="dk.openesdh.repo.services, dk.openesdh.repo.webscripts" />
 </beans>

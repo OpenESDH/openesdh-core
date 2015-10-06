@@ -104,7 +104,10 @@ public class ContactInfo implements PermissionCheckValue {
        return this.type.equalsIgnoreCase("PERSON") ?  getStringProp(OpenESDHModel.PROP_CONTACT_CPR_NUMBER): getStringProp(OpenESDHModel.PROP_CONTACT_CVR_NUMBER);
     }
     public boolean isInternal(){
-        return (boolean)this.allProps.get(OpenESDHModel.PROP_CONTACT_INTERNAL) && (boolean)this.allProps.get(OpenESDHModel.PROP_CONTACT_REGISTERED);
+        return this.allProps.containsKey(OpenESDHModel.PROP_CONTACT_INTERNAL)
+                && (boolean) this.allProps.get(OpenESDHModel.PROP_CONTACT_INTERNAL)
+                && this.allProps.containsKey(OpenESDHModel.PROP_CONTACT_REGISTERED)
+                && (boolean) this.allProps.get(OpenESDHModel.PROP_CONTACT_REGISTERED);
     }
 
     private String getStringProp(QName qName) {
