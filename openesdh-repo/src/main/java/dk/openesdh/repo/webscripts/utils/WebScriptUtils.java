@@ -19,6 +19,8 @@ import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
+import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
+
 public class WebScriptUtils {
 
     public static final String CASE_ID = "caseId";
@@ -114,5 +116,14 @@ public class WebScriptUtils {
         json.put("message", message);
         json.writeJSONString(res.getWriter());
         res.getWriter().flush();
+    }
+
+    public static Resolution jsonResolution(Object o) {
+        return (req, res, params) -> {
+            res.setContentType(MimetypeMap.MIMETYPE_JSON);
+            res.setContentEncoding(CONTENT_ENCODING_UTF_8);
+            res.setHeader("Cache-Control", "no-cache,no-store");
+            writeJson(o, res);
+        };
     }
 }

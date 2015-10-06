@@ -1,34 +1,30 @@
 package dk.openesdh.repo.webscripts.workflows;
 
-import java.io.IOException;
 import java.util.Map;
 
-import org.springframework.extensions.webscripts.AbstractWebScript;
-import org.springframework.extensions.webscripts.WebScriptRequest;
-import org.springframework.extensions.webscripts.WebScriptResponse;
-import org.springframework.util.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
+import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 
 import dk.openesdh.repo.services.workflow.WorkflowTaskService;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
-public class WorkflowTaskDetailsWebScript extends AbstractWebScript {
+@Component
+@WebScript(description = "Retrieves details of the provided workflow task.", families = { "Case Workflow Tools" })
+public class WorkflowTaskDetailsWebScript {
 
+    @Autowired
     private WorkflowTaskService workflowTaskService;
 
-    public void setWorkflowTaskService(WorkflowTaskService workflowTaskService) {
-        this.workflowTaskService = workflowTaskService;
-    }
-
-    @Override
-    public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
-        Map<String, String> templateArgs = req.getServiceMatch().getTemplateVars();
-        String taskId = templateArgs.get(WebScriptUtils.TASK_ID);
-        if (StringUtils.isEmpty(taskId)) {
-            return;
-        }
+    @Uri(value = "/api/openesdh/workflow/task/{taskId}/details", method = HttpMethod.GET, defaultFormat = "json")
+    public Resolution getWorkflowTaskDetails(@UriVariable(WebScriptUtils.TASK_ID) final String taskId) {
         Map<String, Object> task = workflowTaskService.getWorkflowTask(taskId);
-        res.setContentEncoding(WebScriptUtils.CONTENT_ENCODING_UTF_8);
-        WebScriptUtils.writeJson(task, res);
+        return WebScriptUtils.jsonResolution(task);
     }
 
 }
