@@ -48,6 +48,8 @@ public class KLEClassificationSynchronizerIT {
     @Qualifier("repositoryHelper")
     protected Repository repositoryHelper;
 
+    private static final String CHANGED_CATEGORY_SUFFIX = "-CHANGED";
+
     @Before
     public void setUp() throws Exception {
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getSystemUserName());
@@ -60,11 +62,23 @@ public class KLEClassificationSynchronizerIT {
         // Load test XML files
         classificationSynchronizer.synchronizeInternal();
 
-        checkEmneplan();
-        checkFacetter();
+        checkEmneplan(false);
+        checkFacetter(false);
     }
 
-    private void checkEmneplan() {
+    @Test
+    public void testSynchronizeChanges() throws Exception {
+        classificationSynchronizer.setKleEmneplanURL("classpath:openesdh/classification/kle/test-kle-emneplan-changed.xml");
+        classificationSynchronizer.setKleFacetterURL("classpath:openesdh/classification/kle/test-kle-facetter-changed.xml");
+        classificationSynchronizer.synchronizeInternal();
+
+        checkEmneplan(true);
+        checkFacetter(true);
+    }
+
+    private void checkEmneplan(boolean changed) {
+        String suffix = changed ? CHANGED_CATEGORY_SUFFIX : "";
+
         assertTrue("KLE Emneplan Root category is created", classificationSynchronizer.rootCategoryExists(KLEClassificationSynchronizer.EmneplanLoader.ROOT_CATEGORY_NAME));
 
         // Hovedgruppe
@@ -72,20 +86,23 @@ public class KLEClassificationSynchronizerIT {
         ChildAssociationRef hovedGruppe = categoryService.getCategory
                 (rootCategory, ContentModel.ASPECT_GEN_CLASSIFIABLE, "00");
         assertNotNull("Hovedgruppe is created", hovedGruppe);
-        assertEquals("Hovedgruppe title is set correctly", "Kommunens styrelse", nodeService.getProperty(hovedGruppe.getChildRef(), ContentModel.PROP_TITLE));
+        assertEquals("Hovedgruppe title is set correctly", "Kommunens styrelse" + suffix, nodeService.getProperty(hovedGruppe
+                .getChildRef(), ContentModel.PROP_TITLE));
 
         // Gruppe
         ChildAssociationRef gruppe = categoryService.getCategory(hovedGruppe.getChildRef(), ContentModel.ASPECT_GEN_CLASSIFIABLE, "00.01");
         assertNotNull("Gruppe is created", gruppe);
-        assertEquals("Gruppe title is set correctly", "Kommunens styrelse", nodeService.getProperty(gruppe.getChildRef(), ContentModel.PROP_TITLE));
+        assertEquals("Gruppe title is set correctly", "Kommunens styrelse" + suffix, nodeService.getProperty(gruppe.getChildRef(), ContentModel.PROP_TITLE));
 
         // Emne
         ChildAssociationRef emne = categoryService.getCategory(gruppe.getChildRef(), ContentModel.ASPECT_GEN_CLASSIFIABLE, "00.01.00");
         assertNotNull("Emne is created", emne);
-        assertEquals("Emne title is set correctly", "Kommunens styrelse i almindelighed", nodeService.getProperty(emne.getChildRef(), ContentModel.PROP_TITLE));
+        assertEquals("Emne title is set correctly", "Kommunens styrelse i almindelighed" + suffix, nodeService.getProperty(emne.getChildRef(), ContentModel.PROP_TITLE));
     }
 
-    private void checkFacetter() {
+    private void checkFacetter(boolean changed) {
+        String suffix = changed ? CHANGED_CATEGORY_SUFFIX : "";
+
         assertTrue("KLE Facetter Root category is created",
                 classificationSynchronizer.rootCategoryExists(KLEClassificationSynchronizer.FacetterLoader.ROOT_CATEGORY_NAME));
 
@@ -93,12 +110,12 @@ public class KLEClassificationSynchronizerIT {
         NodeRef rootCategoryFacetter = classificationSynchronizer.getOrCreateRootCategory(KLEClassificationSynchronizer.FacetterLoader.ROOT_CATEGORY_NAME);
         ChildAssociationRef facetKategori = categoryService.getCategory(rootCategoryFacetter, ContentModel.ASPECT_GEN_CLASSIFIABLE, "A");
         assertNotNull("HandlingsfacetKategori is created", facetKategori);
-        assertEquals("HandlingsfacetKategori title is set correctly", "Organisering mv.", nodeService.getProperty(facetKategori.getChildRef(), ContentModel.PROP_TITLE));
+        assertEquals("HandlingsfacetKategori title is set correctly", "Organisering mv." + suffix, nodeService.getProperty(facetKategori.getChildRef(), ContentModel.PROP_TITLE));
 
         // Handlingsfacet
         ChildAssociationRef facet = categoryService.getCategory(facetKategori.getChildRef(), ContentModel.ASPECT_GEN_CLASSIFIABLE, "A00");
         assertNotNull("Handlingsfacet is created", facet);
-        assertEquals("Handlingsfacet title is set correctly", "Organisering mv. i almindelighed", nodeService.getProperty(facet.getChildRef(), ContentModel.PROP_TITLE));
+        assertEquals("Handlingsfacet title is set correctly", "Organisering mv. i almindelighed" + suffix, nodeService.getProperty(facet.getChildRef(), ContentModel.PROP_TITLE));
     }
 
     @After
