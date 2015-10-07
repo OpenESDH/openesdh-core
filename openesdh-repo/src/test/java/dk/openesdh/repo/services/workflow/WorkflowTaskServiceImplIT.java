@@ -69,7 +69,9 @@ public class WorkflowTaskServiceImplIT {
     @Qualifier("CaseDocumentTestHelper")
     protected CaseDocumentTestHelper docTestHelper;
 
-    protected WorkflowTaskServiceImpl service;
+    @Autowired
+    protected WorkflowTaskService service;
+
     protected CaseWorkflowServiceImpl caseWorkflowService;
 
     private NodeRef testFolder;
@@ -84,15 +86,6 @@ public class WorkflowTaskServiceImplIT {
     public void setUp() throws Exception {
         AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();
         personNodeRef = personService.getPerson(AuthenticationUtil.getFullyAuthenticatedUser());
-
-        service = new WorkflowTaskServiceImpl();
-        service.setWorkflowService(workflowService);
-        service.setNamespaceService(namespaceService);
-        service.setNodeService(nodeService);
-        service.setPersonService(personService);
-        service.setDictionaryService(dictionaryService);
-        service.setAuthenticationService(authenticationService);
-        service.setAuthorityService(authorityService);
 
         caseWorkflowService = new CaseWorkflowServiceImpl();
         caseWorkflowService.setNodeService(nodeService);
