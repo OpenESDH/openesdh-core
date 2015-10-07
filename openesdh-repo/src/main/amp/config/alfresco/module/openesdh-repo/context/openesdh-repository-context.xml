@@ -360,5 +360,13 @@
         <property name="authenticationService" ref="AuthenticationService"/>
         <property name="workflowService" ref="WorkflowService"/>
     </bean>
+    
+    <!--Adding members to group-->
+    <bean id="webscript.org.alfresco.repository.groups.children.put" parent="webscript"
+          class="dk.openesdh.repo.webscripts.groups.Members">
+        <property name="authorityService" ref="authorityService"/>
+        <property name="personService" ref="personService"/>
+    </bean>
+
 </beans>
 
