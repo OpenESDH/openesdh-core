@@ -153,7 +153,7 @@ public class KLEClassificationSynchronizer extends AbstractLifecycleBean impleme
         if (childAssoc != null) {
             // Update existing category metadata
             NodeRef nodeRef = childAssoc.getChildRef();
-            Map<QName, Serializable> properties = new HashMap<>();
+            Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
             properties.put(ContentModel.PROP_TITLE, title);
             // TODO: Set other metadata
             nodeService.setProperties(nodeRef, properties);

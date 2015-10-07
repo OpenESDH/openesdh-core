@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<KLE-Emneplan xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+              xsi:noNamespaceSchemaLocation="http://www.klxml.dk/download/XSD-ver-2-0/KLE-Emneplan-version-2-0.xsd">
+    <UdgivelsesDato>2015-05-01</UdgivelsesDato>
+    <Hovedgruppe>
+        <HovedgruppeNr>00</HovedgruppeNr>
+        <HovedgruppeTitel>Kommunens styrelse-CHANGED</HovedgruppeTitel>
+        <Gruppe>
+            <GruppeNr>00.01</GruppeNr>
+            <GruppeTitel>Kommunens styrelse-CHANGED</GruppeTitel>
+            <Emne>
+                <EmneNr>00.01.00</EmneNr>
+                <EmneTitel>Kommunens styrelse i almindelighed-CHANGED</EmneTitel>
+            </Emne>
+        </Gruppe>
+    </Hovedgruppe>
+</KLE-Emneplan>
