@@ -1,0 +1,17 @@
+<webscript>
+    <shortname>Add group or user to a group</shortname>
+    <description><![CDATA[
+      This is a supplement to the POST method.
+      Adds group(s) or user(s) to a group. This webscript will not create a sub group if one does not already exist.
+
+      <br />You must have "administrator" privileges to modify groups.
+      <br />If the authority is for a group and does not exist then it will not be created.
+      <br />The webscript returns Status_OK and returns the group.
+   ]]>
+    </description>
+    <url>/api/groups/{shortName}/children</url>
+    <format default="json">argument</format>
+    <authentication>user</authentication>
+    <transaction>required</transaction>
+    <lifecycle>internal</lifecycle>
+</webscript>
