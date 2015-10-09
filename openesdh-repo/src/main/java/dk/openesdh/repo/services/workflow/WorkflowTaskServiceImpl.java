@@ -1,5 +1,6 @@
 package dk.openesdh.repo.services.workflow;
 
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -16,9 +17,12 @@ import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.workflow.WorkflowService;
 import org.alfresco.service.cmr.workflow.WorkflowTask;
 import org.alfresco.service.namespace.NamespaceService;
+import org.alfresco.service.namespace.QName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import dk.openesdh.repo.services.documents.DocumentService;
 
 @Service
 public class WorkflowTaskServiceImpl implements WorkflowTaskService {
@@ -38,6 +42,8 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
     private AuthenticationService authenticationService;
     @Autowired
     private AuthorityService authorityService;
+    @Autowired
+    private DocumentService documentService;
 
     @Override
     public Map<String, Object> getWorkflowTask(String taskId) {
@@ -61,14 +67,21 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
     protected Map<String, Object> getPackageItem(NodeRef nodeRef){
         Map<String, Object> item = new HashMap<String, Object>();
         item.put(WorkflowTaskService.NODE_REF, nodeRef.toString());
-        item.put(WorkflowTaskService.PACKAGE_ITEM_NAME, nodeService.getProperty(nodeRef, ContentModel.PROP_NAME));
-        item.put(WorkflowTaskService.PACKAGE_ITEM_MODIFIED,
-                nodeService.getProperty(nodeRef, ContentModel.PROP_MODIFIED));
-        item.put(WorkflowTaskService.PACKAGE_ITEM_DESCRIPTION,
-                nodeService.getProperty(nodeRef, ContentModel.PROP_DESCRIPTION));
-        String person = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_CREATOR);
+
+        Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
+
+        item.put(WorkflowTaskService.PACKAGE_ITEM_NAME, properties.get(ContentModel.PROP_NAME));
+        item.put(WorkflowTaskService.PACKAGE_ITEM_MODIFIED, properties.get(ContentModel.PROP_MODIFIED));
+        item.put(WorkflowTaskService.PACKAGE_ITEM_DESCRIPTION, properties.get(ContentModel.PROP_DESCRIPTION));
+        String person = properties.get(ContentModel.PROP_CREATOR).toString();
         item.put(WorkflowTaskService.PACKAGE_ITEM_CREATEDBY,
                 personService.getPerson(personService.getPerson(person)));
+
+        NodeRef mainDocNodeRef = documentService.getMainDocument(nodeRef);
+        if (mainDocNodeRef != null) {
+            item.put(WorkflowTaskService.PACKAGE_ITEM_MAIN_DOC_NODE_REF, mainDocNodeRef.toString());
+        }
+
         return item;
     }
 
