@@ -826,4 +826,13 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
     public void updateDocumentCategory(NodeRef docNodeRef, DocumentCategory category) {
         nodeService.setAssociations(docNodeRef, OpenESDHModel.ASSOC_DOC_CATEGORY, Arrays.asList(category.getNodeRef()));
     }
+
+    @Override
+    public NodeRef getDocRecordNodeRef(NodeRef docOrAttachmentNodeRef) {
+        return nodeService.getParentAssocs(docOrAttachmentNodeRef)
+                .stream()
+                .findFirst()
+                .map(assoc -> assoc.getParentRef())
+                .get();
+    }
 }
