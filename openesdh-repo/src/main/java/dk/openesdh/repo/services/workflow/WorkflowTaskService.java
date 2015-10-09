@@ -9,6 +9,7 @@ public interface WorkflowTaskService {
     public static final String PACKAGE_ITEM_MODIFIED = "modified";
     public static final String PACKAGE_ITEM_DESCRIPTION = "description";
     public static final String PACKAGE_ITEM_CREATEDBY = "createdBy";
+    public static final String PACKAGE_ITEM_MAIN_DOC_NODE_REF = "mainDocNodeRef";
 
     public static final String NODE_REF = "nodeRef";
 
