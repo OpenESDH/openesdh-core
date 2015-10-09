@@ -22,6 +22,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.documents.DocumentService;
 
 @Service
@@ -55,6 +56,12 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
         WorkflowModelBuilder modelBuilder = new WorkflowModelBuilder(namespaceService, nodeService,
                 authenticationService, personService, workflowService, dictionaryService);
         Map<String, Object> taskMap = modelBuilder.buildSimple(task, null);
+
+        Map<QName, Serializable> pathProps = workflowService.getPathProperties(task.getPath().getId());
+        if (pathProps.containsKey(OpenESDHModel.PROP_OE_CASE_ID)) {
+            taskMap.put(WorkflowTaskService.TASK_CASE_ID, pathProps.get(OpenESDHModel.PROP_OE_CASE_ID));
+        }
+
         List<NodeRef> contents = workflowService.getPackageContents(task.getId());
         List<Map<String, Object>> packageItems = contents
                 .stream()
@@ -80,6 +87,9 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
         NodeRef mainDocNodeRef = documentService.getMainDocument(nodeRef);
         if (mainDocNodeRef != null) {
             item.put(WorkflowTaskService.PACKAGE_ITEM_MAIN_DOC_NODE_REF, mainDocNodeRef.toString());
+        } else {
+            item.put(WorkflowTaskService.PACKAGE_ITEM_DOC_RECORD_NODE_REF,
+                    documentService.getDocRecordNodeRef(nodeRef).toString());
         }
 
         return item;
