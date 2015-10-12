@@ -1,9 +1,0 @@
-<webscript>
-    <shortname>Case Info</shortname>
-    <description>Retrieve metadata about a case</description>
-    <url>/api/openesdh/caseinfo</url>
-    <url>/api/openesdh/caseinfo/{caseId}</url>
-    <format default="json"></format>
-    <authentication>user</authentication>
-    <transaction>required</transaction>
-</webscript>

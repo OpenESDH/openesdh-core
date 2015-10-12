@@ -105,14 +105,6 @@
         <property name="contactSearchService" ref="ContactSearchService"/>
     </bean>
 
-    <bean id="webscript.dk.openesdh.caseinfo.get"
-          class="dk.openesdh.repo.webscripts.cases.CaseInfoWebScript"
-          parent="webscript">
-        <property name="nodeInfoService" ref="NodeInfoService"/>
-        <property name="dictionaryService" ref="dictionaryService"/>
-        <property name="caseService" ref="CaseService"/>
-    </bean>
-
     <bean id="webscript.dk.openesdh.case.docRecordInfo.get"
           class="dk.openesdh.repo.webscripts.cases.DocumentRecordInfo"
           parent="webscript">
