@@ -66,6 +66,7 @@ public interface OpenESDHModel {
     /**
      * Aspects
      */
+    public static final QName ASPECT_OE_OPENE_TYPE = QName.createQName(OpenESDHModel.OE_URI, "openeType");
     public static final QName ASPECT_OE_JOURNALIZABLE = QName.createQName(OE_URI, "journalizable");
     public static final QName ASPECT_OE_LOCKED = QName.createQName(OE_URI, "locked");
     public static final QName ASPECT_OE_CASE_ID = QName.createQName(OE_URI, "caseId");
@@ -110,6 +111,7 @@ public interface OpenESDHModel {
     /**
      * Properties
      */
+    public static final QName PROP_OE_OPENE_TYPE = QName.createQName(OpenESDHModel.OE_URI, "openeType");
     public static final QName PROP_OE_ID = QName.createQName(OE_URI, "id");
     public static final QName PROP_OE_LOCKED_BY = QName.createQName(OE_URI, "lockedBy");
     public static final QName PROP_OE_LOCKED_DATE = QName.createQName(OE_URI, "lockedDate");
