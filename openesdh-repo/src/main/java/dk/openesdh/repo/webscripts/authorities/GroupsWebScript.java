@@ -1,13 +1,12 @@
 package dk.openesdh.repo.webscripts.authorities;
 
 import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
 import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 import dk.openesdh.repo.model.OpenESDHModel;
-import static dk.openesdh.repo.webscripts.ParamUtils.getOptionalParameter;
-import static dk.openesdh.repo.webscripts.ParamUtils.getRequiredParameter;
-import static dk.openesdh.repo.webscripts.ParamUtils.getRequiredTemplateParam;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 import java.io.Serializable;
 import java.util.HashMap;
@@ -26,15 +25,12 @@ import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.namespace.QName;
-import org.apache.commons.lang.math.NumberUtils;
-import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.extensions.webscripts.WebScriptException;
-import org.springframework.extensions.webscripts.WebScriptRequest;
-import org.springframework.extensions.webscripts.WebScriptResponse;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -52,29 +48,31 @@ public class GroupsWebScript {
     private NodeService nodeService;
 
     @Uri(value = "/api/groups/{shortName}/create", method = HttpMethod.POST, defaultFormat = "json")
-    public Resolution createGroup(WebScriptRequest req, WebScriptResponse res) throws JSONException {
-        String shortName = getRequiredTemplateParam(req, PARAM_SHORT_NAME_KEY);
-        String displayName = getRequiredParameter(req, PARAM_DISPLAY_NAME_KEY);
+    public Resolution createGroup(
+            @UriVariable final String shortName,
+            @RequestParam(required = true) final String displayName
+    ) throws JSONException {
         String fullName = authorityService.createAuthority(AuthorityType.GROUP, shortName, displayName, authorityService.getDefaultZones());
         addAspectTypeOPENE(fullName);
         return WebScriptUtils.jsonResolution(toGroupJSON(new AuthorityInfo(null, displayName, fullName)));
     }
 
     @Uri(value = "/api/groups/list/{type}", method = HttpMethod.GET, defaultFormat = "json")
-    public Resolution getAuthorities(WebScriptRequest req, WebScriptResponse res) throws JSONException {
-        String type = getRequiredTemplateParam(req, "type");
-        String filter = getOptionalParameter(req, "filter");
-        String sortBy = getOptionalParameter(req, "sortBy", "displayName");
-        boolean sortAsc = BooleanUtils.toBoolean(getOptionalParameter(req, "sortAsc", "true"));
-        int skipCount = NumberUtils.toInt(getOptionalParameter(req, "skipCount"));
-        int maxItems = NumberUtils.toInt(getOptionalParameter(req, "maxItems"), MAX_ITEMS);
+    public Resolution getAuthorities(
+            @UriVariable final String type,
+            @RequestParam(required = false) final String zone,
+            @RequestParam(required = false) final String filter,
+            @RequestParam(required = false, defaultValue = "displayName") final String sortBy,
+            @RequestParam(required = false, defaultValue = "true") final Boolean sortAsc,
+            @RequestParam(required = false, defaultValue = "0") final Integer skipCount,
+            @RequestParam(required = false, defaultValue = "" + MAX_ITEMS) final Integer maxItems
+    ) throws JSONException {
         Stream<AuthorityInfo> stream;
         JSONObject pagingJson = new JSONObject();
         pagingJson.put("skipCount", skipCount);
         pagingJson.put("maxItems", maxItems);
         switch (type) {
             case "ALL": {
-                String zone = getOptionalParameter(req, "zone");
                 PagingRequest paging = new PagingRequest(skipCount, maxItems);
                 paging.setRequestTotalCountMax(MAX_ITEMS);
                 PagingResults<AuthorityInfo> groups = authorityService.getAuthoritiesInfo(AuthorityType.GROUP, zone, filter, sortBy, sortAsc, paging);
@@ -83,21 +81,20 @@ public class GroupsWebScript {
                 break;
             }
             case "SYS": {
-                String zone = getOptionalParameter(req, "zone");
                 stream = getFilteredAndPagedGroups(info -> !hasAspectTypeOPENE(info.getAuthorityName()),
                         zone, filter, sortBy, sortAsc, type, pagingJson, skipCount, maxItems);
                 break;
             }
             case "OE": {
-                String zone = getOptionalParameter(req, "zone", AuthorityService.ZONE_APP_DEFAULT);
+                String zoneDef = StringUtils.defaultIfEmpty(zone, AuthorityService.ZONE_APP_DEFAULT);
                 stream = getFilteredAndPagedGroups(info -> hasAspectTypeOPENE(info.getAuthorityName()),
-                        zone, filter, sortBy, sortAsc, type, pagingJson, skipCount, maxItems);
+                        zoneDef, filter, sortBy, sortAsc, type, pagingJson, skipCount, maxItems);
                 break;
             }
             default: {
-                String zone = getOptionalParameter(req, "zone", AuthorityService.ZONE_APP_DEFAULT);
+                String zoneDef = StringUtils.defaultIfEmpty(zone, AuthorityService.ZONE_APP_DEFAULT);
                 stream = getFilteredAndPagedGroups(info -> typeEqualsOpenEType(type, info.getAuthorityName()),
-                        zone, filter, sortBy, sortAsc, type, pagingJson, skipCount, maxItems);
+                        zoneDef, filter, sortBy, sortAsc, type, pagingJson, skipCount, maxItems);
                 break;
             }
         }

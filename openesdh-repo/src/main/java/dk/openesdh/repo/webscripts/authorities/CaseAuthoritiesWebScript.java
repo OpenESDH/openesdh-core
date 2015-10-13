@@ -1,12 +1,13 @@
 package dk.openesdh.repo.webscripts.authorities;
 
 import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
 import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 import com.google.common.base.Joiner;
 import dk.openesdh.repo.model.OpenESDHModel;
-import static dk.openesdh.repo.webscripts.ParamUtils.getRequiredTemplateParam;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 import java.util.Arrays;
 import java.util.List;
@@ -30,8 +31,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.extensions.webscripts.WebScriptException;
-import org.springframework.extensions.webscripts.WebScriptRequest;
-import org.springframework.extensions.webscripts.WebScriptResponse;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -59,24 +58,26 @@ public class CaseAuthoritiesWebScript {
     private PersonService personService;
 
     @Uri(value = "/api/openesdh/{caseType}/authorities", method = HttpMethod.GET, defaultFormat = "json")
-    public Resolution getCaseAuthorities(WebScriptRequest req, WebScriptResponse res) throws JSONException {
-        String caseType = getRequiredTemplateParam(req, "caseType");
+    public Resolution getCaseAuthorities(
+            @UriVariable final String caseType,
+            @RequestParam(required = false) final String filter
+    ) throws JSONException {
         //groups for case type
-        List<JSONObject> jsonAuthorities = getAuthoritiesByType(req, caseType);
+        List<JSONObject> jsonAuthorities = getAuthoritiesByType(caseType, filter);
         //other groups created in openE
-        jsonAuthorities.addAll(getAuthoritiesByType(req, null));
+        jsonAuthorities.addAll(getAuthoritiesByType(null, filter));
         //users
-        jsonAuthorities.addAll(getPeople(req));
+        jsonAuthorities.addAll(getPeople(filter));
         return WebScriptUtils.jsonResolution(
                 new JSONObject().put("data",
                         new JSONObject().put("items",
                                 new JSONArray(jsonAuthorities))));
     }
 
-    private List<JSONObject> getAuthoritiesByType(WebScriptRequest req, String caseType) throws JSONException {
+    private List<JSONObject> getAuthoritiesByType(String caseType, String filter) throws JSONException {
         PagingResults<AuthorityInfo> authorities = authorityService.getAuthoritiesInfo(AuthorityType.GROUP,
                 null,//zone
-                req.getParameter("filter"),
+                filter,
                 "displayName", //sortBy
                 true, //sortAsc
                 PAGING_REQUEST);
@@ -87,9 +88,9 @@ public class CaseAuthoritiesWebScript {
                 .collect(Collectors.toList());
     }
 
-    private List<JSONObject> getPeople(WebScriptRequest req) {
+    private List<JSONObject> getPeople(String filter) {
         PagingResults<PersonService.PersonInfo> people = personService.getPeople(
-                req.getParameter("filter"), FILTER_PROPS, SORT_PROPS, PAGING_REQUEST);
+                filter, FILTER_PROPS, SORT_PROPS, PAGING_REQUEST);
         return people.getPage()
                 .stream()
                 .map(info -> createPersonListJSON(info))
