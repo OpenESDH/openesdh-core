@@ -134,6 +134,13 @@
                 </property>
             </properties>
         </aspect>
+        <aspect name="oe:openeType">
+            <properties>
+                <property name="oe:openeType">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                </property>
+            </properties>
+        </aspect>
     </aspects>
-
 </model>

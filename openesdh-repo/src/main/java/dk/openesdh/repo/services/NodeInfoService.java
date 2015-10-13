@@ -13,6 +13,9 @@ import org.json.JSONObject;
  * Created by torben on 11/09/14.
  */
 public interface NodeInfoService {
+
+    String NODE_TYPE_PROPERTY = "TYPE";
+
     class NodeInfo {
         public Map<QName, Serializable> properties;
         public Set<QName> aspects;

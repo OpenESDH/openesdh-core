@@ -1,20 +1,24 @@
 package dk.openesdh.repo.webscripts.cases;
 
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 import org.alfresco.model.ContentModel;
-import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.extensions.webscripts.AbstractWebScript;
-import org.springframework.extensions.webscripts.WebScriptRequest;
-import org.springframework.extensions.webscripts.WebScriptResponse;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+
+import com.github.dynamicextensionsalfresco.webscripts.annotations.Authentication;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.AuthenticationType;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
+import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.NodeInfoService;
@@ -24,58 +28,52 @@ import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 /**
  * Created by torben on 11/09/14.
  */
-public class CaseInfoWebScript extends AbstractWebScript {
+@Component
+@WebScript(description = "Retrieves case info either by caseId or case nodeRef", defaultFormat = "json", baseUri = "/api/openesdh/caseinfo", families = "Case Tools")
+public class CaseInfoWebScript {
 
+    @Autowired
     private NodeInfoService nodeInfoService;
-    private DictionaryService dictionaryService;
+    @Autowired
     private CaseService caseService;
 
-    public void setNodeInfoService(NodeInfoService nodeInfoService) {
-        this.nodeInfoService = nodeInfoService;
+    @Authentication(AuthenticationType.USER)
+    @Uri(value = "/{caseId}", method = HttpMethod.GET)
+    public Resolution getCaseInfoById(@UriVariable(WebScriptUtils.CASE_ID) final String caseId) {
+        NodeRef caseNodeRef = caseService.getCaseById(caseId);
+        return getCaseInfo(caseNodeRef);
     }
 
-    public void setDictionaryService(DictionaryService dictionaryService) {
-        this.dictionaryService = dictionaryService;
+    @Authentication(AuthenticationType.USER)
+    @Uri(method = HttpMethod.GET)
+    public Resolution getCaseInfoByNodeRef(@RequestParam(value = WebScriptUtils.NODE_REF) NodeRef caseNodeRef) {
+        return getCaseInfo(caseNodeRef);
     }
 
-    public void setCaseService(CaseService caseService) {
-        this.caseService = caseService;
-    }
-
-    @Override
-    public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
-        Map<String, String> templateArgs = req.getServiceMatch().getTemplateVars();
-        String caseId = templateArgs.get ("caseId");
-        NodeRef caseNodeRef;
-        
-        if(caseId == null)
-            caseNodeRef = new NodeRef(req.getParameter("nodeRef"));
-        else
-            caseNodeRef = caseService.getCaseById(caseId);
-
+    private Resolution getCaseInfo(NodeRef caseNodeRef) {
         NodeInfoService.NodeInfo nodeInfo = nodeInfoService.getNodeInfo(caseNodeRef);
         List<QName> requiredProps = Arrays.asList(OpenESDHModel.PROP_OE_ID, ContentModel.PROP_TITLE,
-                OpenESDHModel.ASSOC_CASE_OWNERS, OpenESDHModel.PROP_OE_STATUS,
-                ContentModel.PROP_CREATOR, ContentModel.PROP_CREATED, ContentModel.PROP_MODIFIED,
-                ContentModel.PROP_MODIFIER, ContentModel.PROP_DESCRIPTION,
-                OpenESDHModel.PROP_OE_JOURNALKEY, OpenESDHModel.PROP_OE_JOURNALFACET, OpenESDHModel.PROP_OE_LOCKED_BY,
-                OpenESDHModel.PROP_OE_LOCKED_DATE, OpenESDHModel.PROP_CASE_STARTDATE
-        );
+                OpenESDHModel.ASSOC_CASE_OWNERS, OpenESDHModel.PROP_OE_STATUS, ContentModel.PROP_CREATOR,
+                ContentModel.PROP_CREATED, ContentModel.PROP_MODIFIED, ContentModel.PROP_MODIFIER,
+                ContentModel.PROP_DESCRIPTION, OpenESDHModel.PROP_OE_JOURNALKEY,
+                OpenESDHModel.PROP_OE_JOURNALFACET, OpenESDHModel.PROP_OE_LOCKED_BY,
+                OpenESDHModel.PROP_OE_LOCKED_DATE, OpenESDHModel.PROP_CASE_STARTDATE);
 
         JSONObject json = nodeInfoService.getSelectedProperties(nodeInfo, requiredProps);
-        String user = AuthenticationUtil.getFullyAuthenticatedUser();
-
-        res.setContentEncoding(WebScriptUtils.CONTENT_ENCODING_UTF_8);
         try {
-            ((JSONObject) json.get("properties")).put("nodeRef", caseNodeRef.toString());
-            json.put("allProps", nodeInfoService.buildJSON(nodeInfo));
+            JSONObject allProps = nodeInfoService.buildJSON(nodeInfo);
+            json.put("allProps", allProps);
             json.put("isLocked", caseService.isLocked(caseNodeRef));
             json.put("statusChoices", caseService.getValidNextStatuses(caseNodeRef));
-            json.write(res.getWriter());
+
+            JSONObject properties = (JSONObject) json.get("properties");
+            properties.put("nodeRef", caseNodeRef.toString());
+            properties.put("type", allProps.get(NodeInfoService.NODE_TYPE_PROPERTY));
         } catch (JSONException e) {
             e.printStackTrace();
+            return null;
         }
+        return WebScriptUtils.jsonResolution(json);
     }
-
 
 }

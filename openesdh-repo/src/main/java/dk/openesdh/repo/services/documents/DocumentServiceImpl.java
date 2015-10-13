@@ -1,15 +1,5 @@
 package dk.openesdh.repo.services.documents;
 
-import dk.openesdh.repo.model.CaseDocument;
-import dk.openesdh.repo.model.CaseDocumentAttachment;
-import dk.openesdh.repo.model.DocumentCategory;
-import dk.openesdh.repo.model.DocumentStatus;
-import dk.openesdh.repo.model.DocumentType;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.model.ResultSet;
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.lock.OELockService;
-import dk.openesdh.repo.webscripts.documents.Documents;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -22,6 +12,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.content.MimetypeMap;
@@ -65,6 +56,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.security.access.AccessDeniedException;
+
+import dk.openesdh.repo.model.CaseDocument;
+import dk.openesdh.repo.model.CaseDocumentAttachment;
+import dk.openesdh.repo.model.DocumentCategory;
+import dk.openesdh.repo.model.DocumentStatus;
+import dk.openesdh.repo.model.DocumentType;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.model.ResultSet;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.lock.OELockService;
+import dk.openesdh.repo.webscripts.documents.Documents;
 
 /**
  * Created by torben on 11/09/14.
@@ -362,9 +364,12 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
 
     @Override
     public NodeRef getMainDocument(NodeRef caseDocNodeRef) {
-        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(caseDocNodeRef, OpenESDHModel
-                .ASSOC_DOC_MAIN, QName.createQName(OpenESDHModel.DOC_URI, "main"));
-        return childAssocs.get(0).getChildRef();
+        return nodeService
+                .getChildAssocs(caseDocNodeRef, OpenESDHModel.ASSOC_DOC_MAIN, OpenESDHModel.ASSOC_DOC_MAIN)
+                    .stream()
+                    .map(assoc -> assoc.getChildRef())
+                    .findAny()
+                    .orElse(null);
     }
 
     @Override
@@ -820,5 +825,14 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
     @Override
     public void updateDocumentCategory(NodeRef docNodeRef, DocumentCategory category) {
         nodeService.setAssociations(docNodeRef, OpenESDHModel.ASSOC_DOC_CATEGORY, Arrays.asList(category.getNodeRef()));
+    }
+
+    @Override
+    public NodeRef getDocRecordNodeRef(NodeRef docOrAttachmentNodeRef) {
+        return nodeService.getParentAssocs(docOrAttachmentNodeRef)
+                .stream()
+                .findFirst()
+                .map(assoc -> assoc.getParentRef())
+                .get();
     }
 }

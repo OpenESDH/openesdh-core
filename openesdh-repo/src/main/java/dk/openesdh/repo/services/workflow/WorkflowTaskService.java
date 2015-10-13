@@ -5,10 +5,13 @@ import java.util.Map;
 public interface WorkflowTaskService {
 
     public static final String TASK_PACKAGE_ITEMS = "packageItems";
+    public static final String TASK_CASE_ID = "caseId";
     public static final String PACKAGE_ITEM_NAME = "name";
     public static final String PACKAGE_ITEM_MODIFIED = "modified";
     public static final String PACKAGE_ITEM_DESCRIPTION = "description";
     public static final String PACKAGE_ITEM_CREATEDBY = "createdBy";
+    public static final String PACKAGE_ITEM_MAIN_DOC_NODE_REF = "mainDocNodeRef";
+    public static final String PACKAGE_ITEM_DOC_RECORD_NODE_REF = "docRecordNodeRef";
 
     public static final String NODE_REF = "nodeRef";
 

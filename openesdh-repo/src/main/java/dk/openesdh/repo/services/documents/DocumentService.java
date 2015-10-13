@@ -1,5 +1,15 @@
 package dk.openesdh.repo.services.documents;
 
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+
+import org.alfresco.service.cmr.repository.ChildAssociationRef;
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.security.PersonService;
+import org.alfresco.service.namespace.QName;
+import org.json.JSONObject;
+
 import dk.openesdh.repo.model.CaseDocument;
 import dk.openesdh.repo.model.CaseDocumentAttachment;
 import dk.openesdh.repo.model.DocumentCategory;
@@ -7,14 +17,6 @@ import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.ResultSet;
 import dk.openesdh.repo.services.HasStatus;
 import dk.openesdh.repo.webscripts.documents.Documents;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
-import org.alfresco.service.cmr.repository.ChildAssociationRef;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.security.PersonService;
-import org.alfresco.service.namespace.QName;
-import org.json.JSONObject;
 
 /**
  * Created by torben on 11/09/14.
@@ -166,4 +168,14 @@ public interface DocumentService extends HasStatus {
      * @param category
      */
     public void updateDocumentCategory(NodeRef docNodeRef, DocumentCategory category);
+
+    /**
+     * Retrieves document record nodeRef for provided document or attachment
+     * 
+     * @param docOrAttachmentNodeRef
+     *            nodeRef of the document or attachment to get the document
+     *            record for
+     * @return nodeRef of the document record
+     */
+    public NodeRef getDocRecordNodeRef(NodeRef docOrAttachmentNodeRef);
 }
