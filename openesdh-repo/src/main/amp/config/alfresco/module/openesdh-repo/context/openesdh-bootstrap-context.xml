@@ -85,4 +85,11 @@
         <property name="model" value="alfresco/module/openesdh-repo/models/permission-model-extension.xml" />
     </bean>
 
+	<bean id="${project.artifactId}_workflowBootstrap" parent="workflowDeployer">
+	    <property name="labels">
+	        <list>
+	            <value>alfresco/module/${project.artifactId}/messages/workflow-messages</value>
+	        </list>
+	    </property>
+	</bean>
 </beans>
