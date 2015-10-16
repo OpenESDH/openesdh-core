@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<model name="wf:OpeneWorkflowModel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+
+   <imports>
+      <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>
+      <import uri="http://www.alfresco.org/model/bpm/1.0" prefix="bpm"/>
+   </imports>
+
+   <namespaces>
+      <namespace uri="http://www.alfresco.org/model/workflow/1.0" prefix="wf"/>
+   </namespaces>
+      
+   <types>
+        <type name="wf:activitiSequentialReviewTask">
+            <parent>bpm:activitiOutcomeTask</parent>
+            <properties>
+                <property name="wf:seqReviewOutcome">
+                    <type>d:text</type>
+                    <default>Reject</default>
+                    <constraints>
+                        <constraint name="wf:reviewOutcomeOptions" type="LIST">
+                            <parameter name="allowedValues">
+                                <list>
+                                    <value>Approve</value>
+                                    <value>Reject</value>
+                                </list>
+                            </parameter>
+                        </constraint>
+                    </constraints>
+                </property>
+            </properties>
+            <overrides>
+                <property name="bpm:packageItemActionGroup">
+                    <default>edit_package_item_actions</default>
+                </property>
+                <property name="bpm:outcomePropertyName">
+                    <default>{http://www.alfresco.org/model/workflow/1.0}seqReviewOutcome</default>
+                </property>
+            </overrides>
+            <mandatory-aspects>
+                <aspect>wf:reviewComments</aspect>
+            </mandatory-aspects>
+        </type>
+        
+        <type name="wf:sequentialApprovedTask">
+	        <parent>bpm:workflowTask</parent>
+	        <mandatory-aspects>
+                <aspect>wf:reviewComments</aspect>
+            </mandatory-aspects>
+        </type>
+	
+	    <type name="wf:sequentialRejectedTask">
+	        <parent>bpm:workflowTask</parent>
+	        <mandatory-aspects>
+	            <aspect>wf:reviewComments</aspect>
+	        </mandatory-aspects>
+	    </type>
+   </types>
+
+    <aspects>
+      <aspect name="wf:reviewComments">
+         <properties>
+            <property name="wf:comments">
+                 <type>d:text</type>
+            </property>
+         </properties> 
+      </aspect>
+   </aspects>
+</model>

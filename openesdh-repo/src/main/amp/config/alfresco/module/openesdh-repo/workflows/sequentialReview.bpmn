@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<definitions xmlns="http://www.omg.org/spec/BPMN/20100524/MODEL" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:activiti="http://activiti.org/bpmn" xmlns:bpmndi="http://www.omg.org/spec/BPMN/20100524/DI" xmlns:omgdc="http://www.omg.org/spec/DD/20100524/DC" xmlns:omgdi="http://www.omg.org/spec/DD/20100524/DI" typeLanguage="http://www.w3.org/2001/XMLSchema" expressionLanguage="http://www.w3.org/1999/XPath" targetNamespace="http://openesdh.dk">
+  <process id="activitySequentialReview" name="Sequential Review And Approve Activiti Process" isExecutable="true">
+    <startEvent id="start" activiti:formKey="wf:submitAdhocTask">
+      <extensionElements>
+        <activiti:executionListener event="end" class="org.alfresco.repo.workflow.activiti.listener.ScriptExecutionListener">
+          <activiti:field name="script">
+            <activiti:string><![CDATA[var assigneeNodeRef = bpm_assignees.get(0);            
+var assignee = utils.getNodeFromString(assigneeNodeRef);
+execution.setVariable('wf_assignee', assignee.properties["cm:userName"]);
+execution.setVariable('wf_assigneeNodeRef', assigneeNodeRef);]]></activiti:string>
+          </activiti:field>
+        </activiti:executionListener>
+      </extensionElements>
+    </startEvent>
+    <endEvent id="endevent1" name="End"></endEvent>
+    <userTask id="rejected" name="Document Rejected" activiti:assignee="${initiator.exists() ? initiator.properties.userName : 'admin'}" activiti:formKey="wf:sequentialRejectedTask">
+      <documentation>The document was reviewed and rejected.</documentation>
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.alfresco.repo.workflow.activiti.tasklistener.ScriptTaskListener">
+          <activiti:field name="script">
+            <activiti:string><![CDATA[if (typeof bpm_workflowDueDate != 'undefined') task.dueDate = bpm_workflowDueDate;
+                if (typeof bpm_workflowPriority != 'undefined') task.priority = bpm_workflowPriority;
+                var comments = execution.getVariable('comments');
+                if(comments != null){
+                    task.setVariable('wf_comments', comments);
+                }]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow3" sourceRef="exclusivegateway1" targetRef="rejected">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${wf_resultOutcome == 'Reject'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow4" sourceRef="rejected" targetRef="endevent1"></sequenceFlow>
+    <userTask id="documentApproved" name="Document Approved" activiti:assignee="${initiator.exists() ? initiator.properties.userName : 'admin'}" activiti:formKey="wf:sequentialApprovedTask">
+      <documentation>The document was reviewed and approved.</documentation>
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.alfresco.repo.workflow.activiti.tasklistener.ScriptTaskListener">
+          <activiti:field name="script">
+            <activiti:string><![CDATA[if (typeof bpm_workflowDueDate != 'undefined') task.dueDate = bpm_workflowDueDate;
+                if (typeof bpm_workflowPriority != 'undefined') task.priority = bpm_workflowPriority;
+                var comments = execution.getVariable('comments');
+                if(comments != null){
+                    task.setVariable('wf_comments', comments);
+                }]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <sequenceFlow id="flow5" sourceRef="exclusivegateway1" targetRef="documentApproved">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${wf_resultOutcome == 'Approve'}]]></conditionExpression>
+    </sequenceFlow>
+    <sequenceFlow id="flow6" sourceRef="documentApproved" targetRef="endevent1"></sequenceFlow>
+    <sequenceFlow id="flow8" sourceRef="exclusivegateway1" targetRef="reviewTask">
+      <conditionExpression xsi:type="tFormalExpression"><![CDATA[${wf_resultOutcome == 'Review'}]]></conditionExpression>
+    </sequenceFlow>
+    <userTask id="reviewTask" name="Sequential Review Task" activiti:assignee="${wf_assignee}" activiti:formKey="wf:activitiSequentialReviewTask">
+      <documentation>Review the document and approve.</documentation>
+      <extensionElements>
+        <activiti:taskListener event="create" class="org.alfresco.repo.workflow.activiti.tasklistener.ScriptTaskListener">
+          <activiti:field name="script">
+            <activiti:string><![CDATA[if (typeof bpm_workflowDueDate != 'undefined') task.dueDate = bpm_workflowDueDate;
+                if (typeof bpm_workflowPriority != 'undefined') task.priority = bpm_workflowPriority;
+                var comments = execution.getVariable('comments');
+                if(comments != null){
+                    task.setVariable('wf_comments', comments);
+                }]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+        <activiti:taskListener event="complete" class="org.alfresco.repo.workflow.activiti.tasklistener.ScriptTaskListener">
+          <activiti:field name="script">
+            <activiti:string><![CDATA[importPackage(java.lang);
+            importPackage(org.json);
+            
+            var reviewOutcome = task.getVariable('wf_seqReviewOutcome');
+            var wf_assigneeNodeRef = execution.getVariable('wf_assigneeNodeRef');
+            var currentAssigneeIndex = bpm_assignees.indexOf(wf_assigneeNodeRef);
+            
+            var commentsJsonString = execution.getVariable('comments');
+            var comments = null;
+            if(commentsJsonString == null){
+                comments = new org.json.JSONArray();
+            }else{
+                comments = new org.json.JSONArray(commentsJsonString);
+            }
+            var taskComment = task.getVariable('bpm_comment');
+            if(taskComment != null){
+                logger.debug('storing comment: ' + taskComment);
+                var currentAssignee = utils.getNodeFromString(wf_assigneeNodeRef);
+                var comment = {
+                    date: new Date().getTime(),
+                    firstName: currentAssignee.properties["cm:firstName"],
+                    lastName: currentAssignee.properties["cm:lastName"],
+                    text: taskComment
+                };
+                comments.put(new org.json.JSONObject(comment));
+                execution.setVariable('comments', comments.toString());
+            }
+            
+            if(reviewOutcome == 'Approve'){
+                if(bpm_assignees.size() <= currentAssigneeIndex + 1){
+		          execution.setVariable('wf_resultOutcome', 'Approve');
+		        }else{
+		            var nextAssigneeNodeRef = bpm_assignees.get(currentAssigneeIndex + 1);
+				    var nextAssignee = utils.getNodeFromString(nextAssigneeNodeRef);
+				    execution.setVariable('wf_assignee', nextAssignee.properties["cm:userName"]);
+				    execution.setVariable('wf_assigneeNodeRef', nextAssigneeNodeRef);
+				    execution.setVariable('wf_resultOutcome', 'Review');
+		        }
+		    }else{
+		          if(currentAssigneeIndex - 1 < 0){
+		              execution.setVariable('wf_resultOutcome', 'Reject');
+		          }else{
+		              var previousAssigneeNodeRef = bpm_assignees.get(currentAssigneeIndex - 1);
+					  var previousAssignee = utils.getNodeFromString(previousAssigneeNodeRef);
+					  execution.setVariable('wf_assignee', previousAssignee.properties["cm:userName"]);
+					  execution.setVariable('wf_assigneeNodeRef', previousAssigneeNodeRef);
+					  execution.setVariable('wf_resultOutcome', 'Review');  
+		          }
+		    }]]></activiti:string>
+          </activiti:field>
+        </activiti:taskListener>
+      </extensionElements>
+    </userTask>
+    <exclusiveGateway id="exclusivegateway1" name="Exclusive Gateway"></exclusiveGateway>
+    <sequenceFlow id="flow9" sourceRef="start" targetRef="reviewTask"></sequenceFlow>
+    <sequenceFlow id="flow10" sourceRef="reviewTask" targetRef="exclusivegateway1"></sequenceFlow>
+  </process>
+  <bpmndi:BPMNDiagram id="BPMNDiagram_activitySequentialReview">
+    <bpmndi:BPMNPlane bpmnElement="activitySequentialReview" id="BPMNPlane_activitySequentialReview">
+      <bpmndi:BPMNShape bpmnElement="start" id="BPMNShape_start">
+        <omgdc:Bounds height="35.0" width="35.0" x="170.0" y="380.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="endevent1" id="BPMNShape_endevent1">
+        <omgdc:Bounds height="35.0" width="35.0" x="983.0" y="380.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="rejected" id="BPMNShape_rejected">
+        <omgdc:Bounds height="71.0" width="141.0" x="683.0" y="500.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="documentApproved" id="BPMNShape_documentApproved">
+        <omgdc:Bounds height="81.0" width="131.0" x="688.0" y="357.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="reviewTask" id="BPMNShape_reviewTask">
+        <omgdc:Bounds height="92.0" width="151.0" x="320.0" y="351.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNShape bpmnElement="exclusivegateway1" id="BPMNShape_exclusivegateway1">
+        <omgdc:Bounds height="40.0" width="40.0" x="561.0" y="376.0"></omgdc:Bounds>
+      </bpmndi:BPMNShape>
+      <bpmndi:BPMNEdge bpmnElement="flow3" id="BPMNEdge_flow3">
+        <omgdi:waypoint x="581.0" y="416.0"></omgdi:waypoint>
+        <omgdi:waypoint x="582.0" y="535.0"></omgdi:waypoint>
+        <omgdi:waypoint x="683.0" y="535.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow4" id="BPMNEdge_flow4">
+        <omgdi:waypoint x="824.0" y="535.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1000.0" y="535.0"></omgdi:waypoint>
+        <omgdi:waypoint x="1000.0" y="415.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow5" id="BPMNEdge_flow5">
+        <omgdi:waypoint x="601.0" y="396.0"></omgdi:waypoint>
+        <omgdi:waypoint x="647.0" y="396.0"></omgdi:waypoint>
+        <omgdi:waypoint x="688.0" y="397.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow6" id="BPMNEdge_flow6">
+        <omgdi:waypoint x="819.0" y="397.0"></omgdi:waypoint>
+        <omgdi:waypoint x="983.0" y="397.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow8" id="BPMNEdge_flow8">
+        <omgdi:waypoint x="581.0" y="376.0"></omgdi:waypoint>
+        <omgdi:waypoint x="580.0" y="305.0"></omgdi:waypoint>
+        <omgdi:waypoint x="394.0" y="305.0"></omgdi:waypoint>
+        <omgdi:waypoint x="395.0" y="351.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow9" id="BPMNEdge_flow9">
+        <omgdi:waypoint x="205.0" y="397.0"></omgdi:waypoint>
+        <omgdi:waypoint x="320.0" y="397.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+      <bpmndi:BPMNEdge bpmnElement="flow10" id="BPMNEdge_flow10">
+        <omgdi:waypoint x="471.0" y="397.0"></omgdi:waypoint>
+        <omgdi:waypoint x="561.0" y="396.0"></omgdi:waypoint>
+      </bpmndi:BPMNEdge>
+    </bpmndi:BPMNPlane>
+  </bpmndi:BPMNDiagram>
+</definitions>

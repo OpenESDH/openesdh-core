@@ -79,7 +79,7 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
         params.put(WorkflowModel.PROP_WORKFLOW_DUE_DATE, workflow.getDueDate());
         params.put(WorkflowModel.PROP_WORKFLOW_DESCRIPTION, workflow.getMessage());
         params.put(WorkflowModel.PROP_SEND_EMAIL_NOTIFICATIONS, workflow.isSendEmailNotifications());
-        params.put(WorkflowModel.PROP_PRIORITY, workflow.getPriority());
+        params.put(WorkflowModel.PROP_WORKFLOW_PRIORITY, workflow.getPriority());
 
         params.putAll(parseProperties(workflow.getProperties()));
 
