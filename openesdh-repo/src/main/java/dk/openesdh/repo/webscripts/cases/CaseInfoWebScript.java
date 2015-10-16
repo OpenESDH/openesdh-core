@@ -9,6 +9,8 @@ import org.alfresco.service.namespace.QName;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.extensions.webscripts.Status;
+import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.stereotype.Component;
 
 import com.github.dynamicextensionsalfresco.webscripts.annotations.Authentication;
@@ -41,6 +43,9 @@ public class CaseInfoWebScript {
     @Uri(value = "/{caseId}", method = HttpMethod.GET)
     public Resolution getCaseInfoById(@UriVariable(WebScriptUtils.CASE_ID) final String caseId) {
         NodeRef caseNodeRef = caseService.getCaseById(caseId);
+        if (caseNodeRef == null) {
+            throw new WebScriptException(Status.STATUS_BAD_REQUEST, "CASE_NOT_FOUND");
+        }
         return getCaseInfo(caseNodeRef);
     }
 

@@ -1,17 +1,11 @@
 package dk.openesdh.repo.policy;
 
-import dk.openesdh.repo.model.DocumentCategory;
-import dk.openesdh.repo.model.DocumentType;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.documents.DocumentCategoryService;
-import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.services.documents.DocumentTypeService;
-import dk.openesdh.repo.utils.Utils;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.copy.CopyServicePolicies.BeforeCopyPolicy;
 import org.alfresco.repo.copy.CopyServicePolicies.OnCopyCompletePolicy;
@@ -29,6 +23,14 @@ import org.alfresco.service.namespace.RegexQNamePattern;
 import org.apache.commons.io.FilenameUtils;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.util.CollectionUtils;
+
+import dk.openesdh.repo.model.DocumentCategory;
+import dk.openesdh.repo.model.DocumentType;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.documents.DocumentCategoryService;
+import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.services.documents.DocumentTypeService;
+import dk.openesdh.repo.utils.Utils;
 
 /**
  * Created by rasmutor on 2/11/15.
@@ -154,6 +156,8 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
             return;
         }
         NodeRef docRecord = childAssocRef.getParentRef();
+
+        fillEmptyTitleFromName(fileRef);
         // Set the first child as main document
         if (nodeService.countChildAssocs(docRecord, true) == 1) {
 
@@ -199,6 +203,12 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
         nodeService.setType(fileRef, OpenESDHModel.TYPE_DOC_DIGITAL_FILE);
         // TODO Get start value, localize
 //        nodeService.setProperty(fileRef, OpenESDHModel.PROP_DOC_VARIANT, "Produktion");
+    }
+
+    private void fillEmptyTitleFromName(NodeRef fileRef) {
+        if (nodeService.getProperty(fileRef, ContentModel.PROP_TITLE) == null) {
+            nodeService.setProperty(fileRef, ContentModel.PROP_TITLE, nodeService.getProperty(fileRef, ContentModel.PROP_NAME));
+        }
     }
 
     //<editor-fold desc="private methods">
