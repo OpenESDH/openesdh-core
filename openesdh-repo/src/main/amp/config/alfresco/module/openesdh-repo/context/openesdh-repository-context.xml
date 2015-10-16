@@ -214,19 +214,9 @@
         <property name="contentService" ref="ContentService" />
     </bean>
 
-    <bean id="webscript.dk.openesdh.caseemail.post" class="dk.openesdh.repo.webscripts.documents.EmailDocument" parent="webscript">
-        <property name="caseService" ref="CaseService" />
-        <property name="documentService" ref="DocumentService" />
-        <property name="documentTypeService" ref="DocumentTypeService" />
-        <property name="documentCategoryService" ref="DocumentCategoryService" />
-        <property name="personService" ref="PersonService" />
-        <property name="nodeService" ref="NodeService"/>
-        <property name="contentService" ref="ContentService" />
-    </bean>
-
     <bean id="openesdhNotesWebscript"
-          class="dk.openesdh.repo.webscripts.notes.NotesWebScript"
-          parent="webscript">
+              class="dk.openesdh.repo.webscripts.notes.NotesWebScript"
+              parent="webscript">
         <property name="noteService" ref="NoteService"/>
     </bean>
     <bean id="webscript.dk.openesdh.notes.notes.get" parent="openesdhNotesWebscript"></bean>

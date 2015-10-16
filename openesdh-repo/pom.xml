@@ -21,6 +21,7 @@
         <alfresco.data.location>alf_data_dev</alfresco.data.location>
         <alfresco.client.war>alfresco</alfresco.client.war>
         <alfresco.client.contextPath>/alfresco</alfresco.client.contextPath>
+        <dynamicextensionsalfresco.version>1.0-SNAPSHOT</dynamicextensionsalfresco.version>
         <!--<index.subsystem.name>solr4</index.subsystem.name>-->
 
         <!--This will build a jar with a “classes” classifier containing the classes, for use in other modules where
@@ -110,53 +111,53 @@
         <dependency>
             <groupId>com.github.dynamicextensionsalfresco</groupId>
             <artifactId>annotations</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${dynamicextensionsalfresco.version}</version>
             <type>amp</type>
         </dependency>
         <dependency>
             <groupId>com.github.dynamicextensionsalfresco</groupId>
             <artifactId>webscripts</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${dynamicextensionsalfresco.version}</version>
             <type>amp</type>
         </dependency>
         <dependency>
             <groupId>com.github.dynamicextensionsalfresco</groupId>
             <artifactId>annotations-runtime</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${dynamicextensionsalfresco.version}</version>
             <type>amp</type>
         </dependency>
         <dependency>
-        	<groupId>com.github.dynamicextensionsalfresco</groupId>
-        	<artifactId>annotations</artifactId>
-        	<version>1.0-SNAPSHOT</version>
-        	<classifier>classes</classifier>
+            <groupId>com.github.dynamicextensionsalfresco</groupId>
+            <artifactId>annotations</artifactId>
+            <version>${dynamicextensionsalfresco.version}</version>
+            <classifier>classes</classifier>
         </dependency>
         <dependency>
             <groupId>com.github.dynamicextensionsalfresco</groupId>
             <artifactId>webscripts</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>${dynamicextensionsalfresco.version}</version>
             <classifier>classes</classifier>
         </dependency>
         <dependency>
-        	<groupId>fr.opensagres.xdocreport</groupId>
-        	<artifactId>
-        		fr.opensagres.xdocreport.document.odt
-        	</artifactId>
-        	<version>1.0.5</version>
+            <groupId>fr.opensagres.xdocreport</groupId>
+            <artifactId>
+                fr.opensagres.xdocreport.document.odt
+            </artifactId>
+            <version>1.0.5</version>
         </dependency>
         <dependency>
-        	<groupId>fr.opensagres.xdocreport</groupId>
-        	<artifactId>
-        		fr.opensagres.xdocreport.template.freemarker
-        	</artifactId>
-        	<version>1.0.5</version>
+            <groupId>fr.opensagres.xdocreport</groupId>
+            <artifactId>
+                fr.opensagres.xdocreport.template.freemarker
+            </artifactId>
+            <version>1.0.5</version>
         </dependency>
         <dependency>
-        	<groupId>fr.opensagres.xdocreport</groupId>
-        	<artifactId>
-        		fr.opensagres.xdocreport.converter.odt.odfdom
-        	</artifactId>
-        	<version>1.0.5</version>
+            <groupId>fr.opensagres.xdocreport</groupId>
+            <artifactId>
+                fr.opensagres.xdocreport.converter.odt.odfdom
+            </artifactId>
+            <version>1.0.5</version>
         </dependency>
     </dependencies>
 
@@ -320,27 +321,27 @@
                         </configuration>
                     </plugin>
                     <!-- Replaces backslashes for windows paths -->
-				      <plugin>
-				        <groupId>org.codehaus.mojo</groupId>
-				        <artifactId>build-helper-maven-plugin</artifactId>
-				        <version>1.9.1</version>
-				        <executions>
-				          <execution>
-				            <id>regex-property</id>
-				            <goals>
-				              <goal>regex-property</goal>
-				            </goals>
-				            <configuration>
-				              <name>alfresco_solr_home</name>
-				              <value>${alfresco.solr.home}</value>
-				              <regex>\\</regex>
-				              <replacement>/</replacement>
-				              <failIfNoMatch>false</failIfNoMatch>
-				            </configuration>
-				          </execution>
-				        </executions>
-				      </plugin>
-				      <!-- Replaces values in Solr config -->
+                    <plugin>
+                        <groupId>org.codehaus.mojo</groupId>
+                        <artifactId>build-helper-maven-plugin</artifactId>
+                        <version>1.9.1</version>
+                        <executions>
+                            <execution>
+                                <id>regex-property</id>
+                                <goals>
+                                    <goal>regex-property</goal>
+                                </goals>
+                                <configuration>
+                                    <name>alfresco_solr_home</name>
+                                    <value>${alfresco.solr.home}</value>
+                                    <regex>\\</regex>
+                                    <replacement>/</replacement>
+                                    <failIfNoMatch>false</failIfNoMatch>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <!-- Replaces values in Solr config -->
                     <plugin>
                         <groupId>com.google.code.maven-replacer-plugin</groupId>
                         <artifactId>replacer</artifactId>
