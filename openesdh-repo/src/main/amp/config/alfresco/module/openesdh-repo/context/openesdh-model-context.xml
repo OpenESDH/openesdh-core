@@ -10,6 +10,7 @@
                 <value>alfresco/module/${project.artifactId}/models/case-model.xml</value>
                 <value>alfresco/module/${project.artifactId}/models/doc-model.xml</value>
                 <value>alfresco/module/${project.artifactId}/models/note-model.xml</value>
+                <value>alfresco/module/${project.artifactId}/models/workflow-model.xml</value>
             </list>
         </property>
         <property name="labels">
