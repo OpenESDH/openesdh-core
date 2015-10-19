@@ -157,7 +157,6 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
         }
         NodeRef docRecord = childAssocRef.getParentRef();
 
-        fillEmptyTitleFromName(fileRef);
         // Set the first child as main document
         if (nodeService.countChildAssocs(docRecord, true) == 1) {
 
@@ -203,12 +202,6 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
         nodeService.setType(fileRef, OpenESDHModel.TYPE_DOC_DIGITAL_FILE);
         // TODO Get start value, localize
 //        nodeService.setProperty(fileRef, OpenESDHModel.PROP_DOC_VARIANT, "Produktion");
-    }
-
-    private void fillEmptyTitleFromName(NodeRef fileRef) {
-        if (nodeService.getProperty(fileRef, ContentModel.PROP_TITLE) == null) {
-            nodeService.setProperty(fileRef, ContentModel.PROP_TITLE, nodeService.getProperty(fileRef, ContentModel.PROP_NAME));
-        }
     }
 
     //<editor-fold desc="private methods">
