@@ -389,6 +389,8 @@ function main()
                 newFile.properties["doc:type"] = doc_type;
             if (title)
                 newFile.properties["cm:title"] = title;
+            if(description && description != "")
+                newFile.properties["cm:description"] = description;
 
             newFile.save();
 
