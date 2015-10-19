@@ -14,6 +14,7 @@ import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.PersonService.PersonInfo;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.extensions.webscripts.AbstractWebScript;
@@ -46,10 +47,12 @@ public class DocumentRecordInfo extends AbstractWebScript {
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
         Map<String, String> templateArgs = req.getServiceMatch().getTemplateVars();
         NodeRef documentNodeRef = new NodeRef(templateArgs.get("store_type"), templateArgs.get("store_id"), templateArgs.get("id"));
-        NodeInfoService.NodeInfo documentNodeInfo = nodeInfoService.getNodeInfo(documentNodeRef);
+        NodeRef mainDocNodeRef = documentService.getMainDocument(documentNodeRef);
 
         PersonInfo docOwner = documentService.getDocumentOwner(documentNodeRef);
-        NodeRef mainDocNodeRef = documentService.getMainDocument(documentNodeRef);
+        NodeInfoService.NodeInfo documentNodeInfo = nodeInfoService.getNodeInfo(documentNodeRef);
+        NodeInfoService.NodeInfo mainDocNodeInfo = nodeInfoService.getNodeInfo(mainDocNodeRef);
+
         DocumentType documentType = documentService.getDocumentType(documentNodeRef);
         DocumentCategory documentCategory = documentService.getDocumentCategory(documentNodeRef);
 
@@ -72,6 +75,8 @@ public class DocumentRecordInfo extends AbstractWebScript {
 
             result.put("owner", docOwner.getFirstName() + " " + docOwner.getLastName());
             result.put("mainDocNodeRef", mainDocNodeRef.toString());
+            String description = mainDocNodeInfo.properties.get(ContentModel.PROP_DESCRIPTION).toString();
+            result.put("description", StringUtils.isNotBlank(description)? description : "");
             result.put("statusChoices", documentService.getValidNextStatuses(documentNodeRef));
             result.put("isLocked", oeLockService.isLocked(documentNodeRef));
 
