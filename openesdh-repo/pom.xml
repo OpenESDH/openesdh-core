@@ -469,7 +469,7 @@
                 </dependency>
             </dependencies>
         </profile>
-        <!--Java melody-->
+        <!--Java melody see ==> https://github.com/javamelody/javamelody/wiki/UserGuide-->
         <profile>
             <id>add-javamelody</id>
             <activation><activeByDefault>true</activeByDefault></activation>
