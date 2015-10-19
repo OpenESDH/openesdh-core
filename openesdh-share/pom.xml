@@ -24,6 +24,8 @@
         <app.amp.client.war.artifactId>${alfresco.share.artifactId}</app.amp.client.war.artifactId>
 
         <alfresco.repo.url>http://localhost:8080/alfresco</alfresco.repo.url>
+        <!--<alfresco.repo.url>http://demo.openesdh.dk/alfresco</alfresco.repo.url>-->
+        <!--<alfresco.repo.url>http://test.openesdh.dk/alfresco</alfresco.repo.url>-->
         <!-- Since Alfresco is already running on port 8080, we run Share on port 8081 -->
         <maven.tomcat.port>8081</maven.tomcat.port>
     </properties>
