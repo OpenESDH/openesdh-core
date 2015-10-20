@@ -1,16 +1,21 @@
 package dk.openesdh.repo.services.workflow;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.repo.workflow.WorkflowModel;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthorityService;
+import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.workflow.WorkflowDefinition;
 import org.alfresco.service.cmr.workflow.WorkflowPath;
@@ -34,7 +39,9 @@ import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.model.WorkflowInfo;
+import dk.openesdh.repo.services.cases.CaseService;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -70,7 +77,9 @@ public class CaseWorkflowServiceImplIT {
     protected CaseDocumentTestHelper docTestHelper;
 
     @Autowired
-    @Qualifier("CaseWorkflowService")
+    private CaseService caseService;
+
+    @Autowired
     protected CaseWorkflowService service;
 
     private static final String TEST_FOLDER_NAME = "CaseWorkflowServiceImplIT";
@@ -79,11 +88,17 @@ public class CaseWorkflowServiceImplIT {
     private static final String ACTIVITY_PARALLEL_GROUP_REVIEW_WORKFLOW_NAME = "activiti$activitiParallelGroupReview";
     private static final String ACTIVITY_PARALLEL_REVIEW_WORKFLOW_NAME = "activiti$activitiParallelReview";
     private static final String REQUIRED_APPROVE_PERCENT_PROPERTY = "wf_requiredApprovePercent";
+    private static final String TEST_GROUP_SHORT_NAME = "assigneesGroup";
+    private static final String TEST_GROUP_SHORT_NAME2 = "assigneesGroup2";
 
     private NodeRef testFolder;
     private NodeRef testDocument;
     private NodeRef personNodeRef;
     private NodeRef caseCreatorsGroupNodeRef;
+    private String testGroupAuthorityName;
+    private String testGroupAuthorityName2;
+
+    private NodeRef caseNodeRef;
 
     @Before
     public void setUp() throws Exception {
@@ -103,6 +118,19 @@ public class CaseWorkflowServiceImplIT {
         if (testFolder != null) {
             nodeService.deleteNode(testFolder);
         }
+
+        if (caseNodeRef != null) {
+            docTestHelper.removeNodesAndDeleteUsersInTransaction(new ArrayList<NodeRef>(0),
+                    Arrays.asList(caseNodeRef), new ArrayList<String>(0));
+        }
+
+        if (testGroupAuthorityName != null && authorityService.authorityExists(testGroupAuthorityName)) {
+            authorityService.deleteAuthority(testGroupAuthorityName);
+        }
+
+        if (testGroupAuthorityName2 != null && authorityService.authorityExists(testGroupAuthorityName2)) {
+            authorityService.deleteAuthority(testGroupAuthorityName2);
+        }
     }
 
     @Test
@@ -118,6 +146,7 @@ public class CaseWorkflowServiceImplIT {
         wi.setMessage("Worflow for assignee group person");
         wi.setSendEmailNotifications(false);
         wi.setAssignTo(personNodeRef.toString());
+        wi.getProperties().put("oe_caseId", createCase());
 
         WorkflowPath wfPath = service.startWorkflow(wi);
 
@@ -143,6 +172,7 @@ public class CaseWorkflowServiceImplIT {
         wi.setSendEmailNotifications(false);
         wi.getAssignees().add(personNodeRef.toString());
         wi.getProperties().put(REQUIRED_APPROVE_PERCENT_PROPERTY, "100");
+        wi.getProperties().put("oe_caseId", createCase());
 
         WorkflowPath wfPath = service.startWorkflow(wi);
         String wfInstanceId = wfPath.getInstance().getId();
@@ -180,6 +210,7 @@ public class CaseWorkflowServiceImplIT {
         wi.setMessage("Workflow for assignee group");
         wi.setSendEmailNotifications(false);
         wi.setAssignToGroup(caseCreatorsGroupNodeRef.toString());
+        wi.getProperties().put("oe_caseId", createCase());
 
         WorkflowPath wfPath = service.startWorkflow(wi);
         String wfInstanceId = wfPath.getInstance().getId();
@@ -201,6 +232,102 @@ public class CaseWorkflowServiceImplIT {
         String endTaskId = workflowService.getTasksForWorkflowPath(wfPath.getId()).get(0).getId();
         workflowService.endTask(endTaskId, null);
 
+    }
+
+    @Test
+    public void shouldCreateCaseThenAddWorkflowAssigneeAsCaseMember() {
+        String caseId = createCase();
+        CaseWorkflowServiceImpl caseWorkflowService = (CaseWorkflowServiceImpl) service;
+
+        Map<QName, Serializable> params = new HashMap<QName, Serializable>();
+        params.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
+        params.put(WorkflowModel.ASSOC_ASSIGNEE, personService.getPerson(CaseHelper.ALICE_BEECHER));
+        caseWorkflowService.grantCaseAccessToAssignee(params);
+
+        Set<String> caseReadMembers = caseService.getMembersByRole(caseNodeRef, true, false).get(
+                CaseHelper.CASE_READER_ROLE);
+        Assert.assertNotNull("Case members with READ permissions should exist", caseReadMembers);
+        Assert.assertTrue("[abeecher] user should be among case members with READ permissions",
+                caseReadMembers.contains(CaseHelper.ALICE_BEECHER));
+    }
+
+    @Test
+    public void shouldCreateCaseThenAddWorkflowAssigneeListAsCaseMembers() {
+        String caseId = createCase();
+        CaseWorkflowServiceImpl caseWorkflowService = (CaseWorkflowServiceImpl) service;
+
+        Map<QName, Serializable> params = new HashMap<QName, Serializable>();
+        params.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
+        params.put(
+                WorkflowModel.ASSOC_ASSIGNEES,
+                (Serializable) Arrays.asList(personService.getPerson(CaseHelper.ALICE_BEECHER),
+                        personService.getPerson(CaseHelper.MIKE_JACKSON)));
+        caseWorkflowService.grantCaseAccessToAssignees(params);
+
+        Set<String> caseReadMembers = caseService.getMembersByRole(caseNodeRef, true, false).get(
+                CaseHelper.CASE_READER_ROLE);
+        Assert.assertNotNull("Case members with READ permissions should exist", caseReadMembers);
+        Assert.assertTrue("[abeecher] user should be among case members with READ permissions",
+                caseReadMembers.contains(CaseHelper.ALICE_BEECHER));
+        Assert.assertTrue("[mjackson] user should be among case members with READ permissions",
+                caseReadMembers.contains(CaseHelper.MIKE_JACKSON));
+    }
+
+    @Test
+    public void shouldCreateCaseThenCreateGroupWithUsersThenAddWorkflowGroupAssigneeAsCaseMembers() {
+        testGroupAuthorityName = authorityService.createAuthority(AuthorityType.GROUP, TEST_GROUP_SHORT_NAME);
+        authorityService.addAuthority(testGroupAuthorityName, CaseHelper.ALICE_BEECHER);
+        authorityService.addAuthority(testGroupAuthorityName, CaseHelper.MIKE_JACKSON);
+
+        NodeRef groupNodeRef = authorityService.getAuthorityNodeRef(testGroupAuthorityName);
+
+        String caseId = createCase();
+        CaseWorkflowServiceImpl caseWorkflowService = (CaseWorkflowServiceImpl) service;
+
+        Map<QName, Serializable> params = new HashMap<QName, Serializable>();
+        params.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
+        params.put(WorkflowModel.ASSOC_GROUP_ASSIGNEE, groupNodeRef);
+        caseWorkflowService.grantCaseAccessToWorkflowAssignees(params);
+
+        Set<String> caseReadMembers = caseService.getMembersByRole(caseNodeRef, true, false).get(
+                CaseHelper.CASE_READER_ROLE);
+        Assert.assertNotNull("Case members with READ permissions should exist", caseReadMembers);
+        Assert.assertTrue("[abeecher] user should be among case members with READ permissions",
+                caseReadMembers.contains(CaseHelper.ALICE_BEECHER));
+        Assert.assertTrue("[mjackson] user should be among case members with READ permissions",
+                caseReadMembers.contains(CaseHelper.MIKE_JACKSON));
+    }
+
+    @Test
+    public void shouldCreateCaseThenSeveralGroupsWithUsersThenAddWorkflowGroupsAssigneesAsCaseMembers() {
+        testGroupAuthorityName = authorityService.createAuthority(AuthorityType.GROUP, TEST_GROUP_SHORT_NAME);
+        authorityService.addAuthority(testGroupAuthorityName, CaseHelper.ALICE_BEECHER);
+        NodeRef groupNodeRef = authorityService.getAuthorityNodeRef(testGroupAuthorityName);
+
+        testGroupAuthorityName2 = authorityService.createAuthority(AuthorityType.GROUP, TEST_GROUP_SHORT_NAME2);
+        authorityService.addAuthority(testGroupAuthorityName2, CaseHelper.MIKE_JACKSON);
+        NodeRef groupNodeRef2 = authorityService.getAuthorityNodeRef(testGroupAuthorityName2);
+
+        String caseId = createCase();
+        CaseWorkflowServiceImpl caseWorkflowService = (CaseWorkflowServiceImpl) service;
+
+        Map<QName, Serializable> params = new HashMap<QName, Serializable>();
+        params.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
+        params.put(WorkflowModel.ASSOC_GROUP_ASSIGNEES, (Serializable) Arrays.asList(groupNodeRef, groupNodeRef2));
+        caseWorkflowService.grantCaseAccessToWorkflowAssignees(params);
+
+        Set<String> caseReadMembers = caseService.getMembersByRole(caseNodeRef, true, false).get(
+                CaseHelper.CASE_READER_ROLE);
+        Assert.assertNotNull("Case members with READ permissions should exist", caseReadMembers);
+        Assert.assertTrue("[abeecher] user should be among case members with READ permissions",
+                caseReadMembers.contains(CaseHelper.ALICE_BEECHER));
+        Assert.assertTrue("[mjackson] user should be among case members with READ permissions",
+                caseReadMembers.contains(CaseHelper.MIKE_JACKSON));
+    }
+
+    private String createCase() {
+        caseNodeRef = docTestHelper.createCaseBehaviourOn("Test case1", testFolder, CaseHelper.DEFAULT_USERNAME);
+        return caseService.getCaseId(caseNodeRef);
     }
 }
 
