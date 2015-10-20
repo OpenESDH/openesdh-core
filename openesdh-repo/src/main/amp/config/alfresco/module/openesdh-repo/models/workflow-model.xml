@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<model name="wf:OpeneWorkflowModel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+<model name="oewf:OpeneWorkflowModel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
 
    <imports>
       <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>
@@ -8,60 +8,36 @@
    </imports>
 
    <namespaces>
-      <namespace uri="http://www.alfresco.org/model/workflow/1.0" prefix="wf"/>
+      <namespace uri="http://openesdh.dk/model/workflow/1.0" prefix="oewf"/>
    </namespaces>
       
    <types>
-        <type name="wf:activitiSequentialReviewTask">
+        <type name="oewf:activitiSequentialReviewTask">
             <parent>bpm:activitiOutcomeTask</parent>
-            <properties>
-                <property name="wf:seqReviewOutcome">
-                    <type>d:text</type>
-                    <default>Reject</default>
-                    <constraints>
-                        <constraint name="wf:reviewOutcomeOptions" type="LIST">
-                            <parameter name="allowedValues">
-                                <list>
-                                    <value>Approve</value>
-                                    <value>Reject</value>
-                                </list>
-                            </parameter>
-                        </constraint>
-                    </constraints>
-                </property>
-            </properties>
-            <overrides>
-                <property name="bpm:packageItemActionGroup">
-                    <default>edit_package_item_actions</default>
-                </property>
-                <property name="bpm:outcomePropertyName">
-                    <default>{http://www.alfresco.org/model/workflow/1.0}seqReviewOutcome</default>
-                </property>
-            </overrides>
             <mandatory-aspects>
-                <aspect>wf:reviewComments</aspect>
+                <aspect>oewf:reviewComments</aspect>
             </mandatory-aspects>
         </type>
         
-        <type name="wf:sequentialApprovedTask">
+        <type name="oewf:sequentialApprovedTask">
 	        <parent>bpm:workflowTask</parent>
 	        <mandatory-aspects>
-                <aspect>wf:reviewComments</aspect>
+                <aspect>oewf:reviewComments</aspect>
             </mandatory-aspects>
         </type>
 	
-	    <type name="wf:sequentialRejectedTask">
+	    <type name="oewf:sequentialRejectedTask">
 	        <parent>bpm:workflowTask</parent>
 	        <mandatory-aspects>
-	            <aspect>wf:reviewComments</aspect>
+	            <aspect>oewf:reviewComments</aspect>
 	        </mandatory-aspects>
 	    </type>
    </types>
 
     <aspects>
-      <aspect name="wf:reviewComments">
+      <aspect name="oewf:reviewComments">
          <properties>
-            <property name="wf:comments">
+            <property name="oewf:comments">
                  <type>d:text</type>
             </property>
          </properties> 
