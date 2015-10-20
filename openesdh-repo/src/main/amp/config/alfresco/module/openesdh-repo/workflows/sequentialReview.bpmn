@@ -14,7 +14,7 @@ execution.setVariable('wf_assigneeNodeRef', assigneeNodeRef);]]></activiti:strin
       </extensionElements>
     </startEvent>
     <endEvent id="endevent1" name="End"></endEvent>
-    <userTask id="rejected" name="Document Rejected" activiti:assignee="${initiator.exists() ? initiator.properties.userName : 'admin'}" activiti:formKey="wf:sequentialRejectedTask">
+    <userTask id="rejected" name="Document Rejected" activiti:assignee="${initiator.exists() ? initiator.properties.userName : 'admin'}" activiti:formKey="oewf:sequentialRejectedTask">
       <documentation>The document was reviewed and rejected.</documentation>
       <extensionElements>
         <activiti:taskListener event="create" class="org.alfresco.repo.workflow.activiti.tasklistener.ScriptTaskListener">
@@ -23,7 +23,7 @@ execution.setVariable('wf_assigneeNodeRef', assigneeNodeRef);]]></activiti:strin
                 if (typeof bpm_workflowPriority != 'undefined') task.priority = bpm_workflowPriority;
                 var comments = execution.getVariable('comments');
                 if(comments != null){
-                    task.setVariable('wf_comments', comments);
+                    task.setVariable('oewf_comments', comments);
                 }]]></activiti:string>
           </activiti:field>
         </activiti:taskListener>
@@ -33,7 +33,7 @@ execution.setVariable('wf_assigneeNodeRef', assigneeNodeRef);]]></activiti:strin
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${wf_resultOutcome == 'Reject'}]]></conditionExpression>
     </sequenceFlow>
     <sequenceFlow id="flow4" sourceRef="rejected" targetRef="endevent1"></sequenceFlow>
-    <userTask id="documentApproved" name="Document Approved" activiti:assignee="${initiator.exists() ? initiator.properties.userName : 'admin'}" activiti:formKey="wf:sequentialApprovedTask">
+    <userTask id="documentApproved" name="Document Approved" activiti:assignee="${initiator.exists() ? initiator.properties.userName : 'admin'}" activiti:formKey="oewf:sequentialApprovedTask">
       <documentation>The document was reviewed and approved.</documentation>
       <extensionElements>
         <activiti:taskListener event="create" class="org.alfresco.repo.workflow.activiti.tasklistener.ScriptTaskListener">
@@ -42,7 +42,7 @@ execution.setVariable('wf_assigneeNodeRef', assigneeNodeRef);]]></activiti:strin
                 if (typeof bpm_workflowPriority != 'undefined') task.priority = bpm_workflowPriority;
                 var comments = execution.getVariable('comments');
                 if(comments != null){
-                    task.setVariable('wf_comments', comments);
+                    task.setVariable('oewf_comments', comments);
                 }]]></activiti:string>
           </activiti:field>
         </activiti:taskListener>
@@ -55,7 +55,7 @@ execution.setVariable('wf_assigneeNodeRef', assigneeNodeRef);]]></activiti:strin
     <sequenceFlow id="flow8" sourceRef="exclusivegateway1" targetRef="reviewTask">
       <conditionExpression xsi:type="tFormalExpression"><![CDATA[${wf_resultOutcome == 'Review'}]]></conditionExpression>
     </sequenceFlow>
-    <userTask id="reviewTask" name="Sequential Review Task" activiti:assignee="${wf_assignee}" activiti:formKey="wf:activitiSequentialReviewTask">
+    <userTask id="reviewTask" name="Sequential Review Task" activiti:assignee="${wf_assignee}" activiti:formKey="oewf:activitiSequentialReviewTask">
       <documentation>Review the document and approve.</documentation>
       <extensionElements>
         <activiti:taskListener event="create" class="org.alfresco.repo.workflow.activiti.tasklistener.ScriptTaskListener">
@@ -64,7 +64,7 @@ execution.setVariable('wf_assigneeNodeRef', assigneeNodeRef);]]></activiti:strin
                 if (typeof bpm_workflowPriority != 'undefined') task.priority = bpm_workflowPriority;
                 var comments = execution.getVariable('comments');
                 if(comments != null){
-                    task.setVariable('wf_comments', comments);
+                    task.setVariable('oewf_comments', comments);
                 }]]></activiti:string>
           </activiti:field>
         </activiti:taskListener>
