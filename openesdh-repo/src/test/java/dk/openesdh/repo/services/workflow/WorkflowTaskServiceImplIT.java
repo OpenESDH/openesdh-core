@@ -1,5 +1,7 @@
 package dk.openesdh.repo.services.workflow;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -30,7 +32,9 @@ import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
+import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.WorkflowInfo;
+import dk.openesdh.repo.services.cases.CaseService;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -39,40 +43,44 @@ public class WorkflowTaskServiceImplIT {
 
     @Autowired
     @Qualifier("NodeService")
-    protected NodeService nodeService;
+    private NodeService nodeService;
 
     @Autowired
     @Qualifier("WorkflowService")
-    protected WorkflowService workflowService;
+    private WorkflowService workflowService;
 
     @Autowired
     @Qualifier("PersonService")
-    protected PersonService personService;
+    private PersonService personService;
 
     @Autowired
     @Qualifier("AuthorityService")
-    protected AuthorityService authorityService;
+    private AuthorityService authorityService;
 
     @Autowired
     @Qualifier("NamespaceService")
-    protected NamespaceService namespaceService;
+    private NamespaceService namespaceService;
 
     @Autowired
     @Qualifier("DictionaryService")
-    protected DictionaryService dictionaryService;
+    private DictionaryService dictionaryService;
 
     @Autowired
     @Qualifier("AuthenticationService")
-    protected AuthenticationService authenticationService;
+    private AuthenticationService authenticationService;
 
     @Autowired
     @Qualifier("CaseDocumentTestHelper")
-    protected CaseDocumentTestHelper docTestHelper;
+    private CaseDocumentTestHelper docTestHelper;
 
     @Autowired
-    protected WorkflowTaskService service;
+    private CaseService caseService;
 
-    protected CaseWorkflowServiceImpl caseWorkflowService;
+    @Autowired
+    private WorkflowTaskService service;
+
+    @Autowired
+    private CaseWorkflowService caseWorkflowService;
 
     private NodeRef testFolder;
     private NodeRef testDocument;
@@ -82,14 +90,12 @@ public class WorkflowTaskServiceImplIT {
     private static final String TEST_DOCUMENT_NAME = "test_document.txt";
     private static final String ACTIVITY_ADHOC_WORKFLOW_NAME = "activiti$activitiAdhoc";
 
+    private NodeRef caseNodeRef;
+
     @Before
     public void setUp() throws Exception {
         AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();
         personNodeRef = personService.getPerson(AuthenticationUtil.getFullyAuthenticatedUser());
-
-        caseWorkflowService = new CaseWorkflowServiceImpl();
-        caseWorkflowService.setNodeService(nodeService);
-        caseWorkflowService.setWorkflowService(workflowService);
 
         testFolder = docTestHelper.createFolder(TEST_FOLDER_NAME);
         testDocument = docTestHelper.createDocument(TEST_DOCUMENT_NAME, testFolder);
@@ -102,6 +108,11 @@ public class WorkflowTaskServiceImplIT {
         }
         if (testFolder != null) {
             nodeService.deleteNode(testFolder);
+        }
+
+        if (caseNodeRef != null) {
+            docTestHelper.removeNodesAndDeleteUsersInTransaction(new ArrayList<NodeRef>(0),
+                    Arrays.asList(caseNodeRef), new ArrayList<String>(0));
         }
     }
 
@@ -119,6 +130,7 @@ public class WorkflowTaskServiceImplIT {
         wi.setMessage("Worflow to test task info retrieving with package contents");
         wi.setSendEmailNotifications(false);
         wi.setAssignTo(personNodeRef.toString());
+        wi.getProperties().put("oe_caseId", createCase());
 
         WorkflowPath wfPath = caseWorkflowService.startWorkflow(wi);
 
@@ -138,6 +150,11 @@ public class WorkflowTaskServiceImplIT {
 
         tasks = workflowService.getTasksForWorkflowPath(wfPath.getId());
         workflowService.endTask(tasks.get(0).getId(), null);
+    }
+
+    private String createCase() {
+        caseNodeRef = docTestHelper.createCaseBehaviourOn("Test case1", testFolder, CaseHelper.DEFAULT_USERNAME);
+        return caseService.getCaseId(caseNodeRef);
     }
 
 }

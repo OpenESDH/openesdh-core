@@ -84,11 +84,6 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
 
     private static final String ASSIGN_CASE_ID_RULE_TITLE = "Assign caseId to case documents";
 
-    private static final String CASE = "Case";
-    private static final String CREATOR = "Creator";
-    private static final String READER = "Reader";
-    private static final String WRITER = "Writer";
-
     private static Logger LOGGER = Logger.getLogger(CaseServiceImpl.class);
     Behaviour onUpdatePropertiesBehaviour;
     /**
@@ -1041,8 +1036,8 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
 
         Set<PermissionReference> allPermissions = permissionsModelDAO.getAllPermissions(caseTypeQName);
 
-        Predicate<PermissionReference> isCaseCreatorPermission = p -> p.getName().startsWith(CASE)
-                && p.getName().endsWith(CREATOR);
+        Predicate<PermissionReference> isCaseCreatorPermission = p -> p.getName().startsWith(CaseService.CASE)
+                && p.getName().endsWith(CaseService.CREATOR);
 
         for (PermissionReference permission : allPermissions) {
             if (isCaseCreatorPermission.test(permission)) {

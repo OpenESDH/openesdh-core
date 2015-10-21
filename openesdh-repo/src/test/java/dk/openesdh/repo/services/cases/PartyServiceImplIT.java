@@ -1,13 +1,5 @@
 package dk.openesdh.repo.services.cases;
 
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
-import dk.openesdh.repo.helper.CaseDocumentTestHelper;
-import dk.openesdh.repo.helper.CaseHelper;
-import dk.openesdh.repo.model.ContactInfo;
-import dk.openesdh.repo.model.ContactType;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.contacts.ContactServiceImpl;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.permissions.AccessDeniedException;
@@ -41,6 +34,16 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
+
+import dk.openesdh.repo.helper.CaseDocumentTestHelper;
+import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.model.ContactInfo;
+import dk.openesdh.repo.model.ContactType;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.contacts.ContactServiceImpl;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -79,9 +82,6 @@ public class PartyServiceImplIT {
 
     //<editor-fold desc="Global variables">
     private static Logger logger = Logger.getLogger(PartyServiceImplIT.class);
-    private static final String ADMIN_USER_NAME = "admin";
-    private static final String ABEECHER = "abeecher";
-    private static final String MJACKSON = "mjackson";
     private static final String TEST_CASE_NAME = "Test_case";
     private static final String SENDER_ROLE = "Afsender";
     private static final String RECEIVER_ROLE = "Modtager";
@@ -99,7 +99,7 @@ public class PartyServiceImplIT {
 
     @Before
     public void setUp() throws Exception {
-        AuthenticationUtil.setFullyAuthenticatedUser(ADMIN_USER_NAME);
+        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ADMIN_USER_NAME);
 
         //<editor-fold desc="Services that are needed">
         partyService = new PartyServiceImpl();
@@ -120,7 +120,7 @@ public class PartyServiceImplIT {
         transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Void>() {
             @Override
             public Void execute() throws Throwable {
-                AuthenticationUtil.setFullyAuthenticatedUser(ADMIN_USER_NAME);
+                        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ADMIN_USER_NAME);
                 HashMap<QName, Serializable> personProps = new HashMap<QName, Serializable>();
                 personProps.put(OpenESDHModel.PROP_CONTACT_EMAIL, TEST_PERSON_CONTACT_EMAIL);
                 testPersonContact = contactService.createContact(TEST_PERSON_CONTACT_EMAIL, ContactType.PERSON.name(), personProps);
@@ -135,7 +135,7 @@ public class PartyServiceImplIT {
 
     @After
     public void tearDown() throws Exception {
-        AuthenticationUtil.setFullyAuthenticatedUser(ADMIN_USER_NAME);
+        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ADMIN_USER_NAME);
         ArrayList<NodeRef> nodes = new ArrayList<NodeRef>();
         if (partyGroupNodeRef != null) {
             nodes.add(partyGroupNodeRef);
@@ -227,7 +227,7 @@ public class PartyServiceImplIT {
         createPartyAssertNotNUll(caseId, SENDER_ROLE);
 
         //login as other user
-        AuthenticationUtil.setFullyAuthenticatedUser(MJACKSON);
+        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.MIKE_JACKSON);
 
         //should fail
         partyService.addContactsToParty(caseId, partyGroupNodeRef, SENDER_ROLE,
