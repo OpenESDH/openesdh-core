@@ -332,17 +332,6 @@
     <bean id="webscript.dk.openesdh.documents.categories.doccategory.post" parent="documentCategoriesWebscript"></bean>
     <bean id="webscript.dk.openesdh.documents.categories.doccategory.delete" parent="documentCategoriesWebscript"></bean>
     
-    <bean id="webscript.dk.openesdh.workflows.allWorkflowsTasks.get"
-          class="dk.openesdh.repo.webscripts.workflows.TasksOfAllWorkflowInstancesWebScript"
-          parent="webscript">
-        <property name="namespaceService" ref="NamespaceService"/>
-        <property name="nodeService" ref="NodeService"/>
-        <property name="personService" ref="PersonService"/>
-        <property name="dictionaryService" ref="DictionaryService"/>
-        <property name="authenticationService" ref="AuthenticationService"/>
-        <property name="workflowService" ref="WorkflowService"/>
-    </bean>
-    
     <!--Adding members to group-->
     <bean id="webscript.org.alfresco.repository.groups.children.put" parent="webscript"
           class="dk.openesdh.repo.webscripts.groups.Members">
