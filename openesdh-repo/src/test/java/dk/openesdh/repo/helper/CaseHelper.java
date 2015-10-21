@@ -79,6 +79,9 @@ public class CaseHelper {
     @Autowired
     private CaseService caseService;
 
+    public static final String MIKE_JACKSON = "mjackson";
+    public static final String ALICE_BEECHER = "abeecher";
+
     public static final String CASE_WRITER_ROLE = "CaseSimpleWriter";
     public static final String CASE_READER_ROLE = "CaseSimpleReader";
     public static final String CASE_CREATOR_ROLE = "CaseSimpleCreator";

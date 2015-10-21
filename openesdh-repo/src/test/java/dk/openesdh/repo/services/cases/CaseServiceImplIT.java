@@ -87,9 +87,6 @@ public class CaseServiceImplIT {
     @Qualifier("CaseService")
     private CaseServiceImpl caseService;
 
-    private static final String ALICE_BEECHER = "abeecher";
-    private static final String MIKE_JACKSON = "mjackson";
-
     private final DynamicNamespacePrefixResolver namespacePrefixResolver = new DynamicNamespacePrefixResolver(null);
     private NodeRef casesRootNoderef;
     private NodeRef temporaryCaseNodeRef;
@@ -368,8 +365,8 @@ public class CaseServiceImplIT {
             caseService.addAuthorityToRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", nonAdminCreatedCaseNr);
             //System.out.println("\n\nCaseServiceImpl:440\n\t\t\t=>currentUserAuthorities : " + authorityService.getAuthoritiesForUser(ALICE_BEECHER).toString());
 
-            caseService.addAuthorityToRole(ALICE_BEECHER, "CaseOwners", nonAdminCreatedCaseNr);
-            caseService.addAuthorityToRole(MIKE_JACKSON, "CaseSimpleWriter", nonAdminCreatedCaseNr);
+            caseService.addAuthorityToRole(CaseHelper.ALICE_BEECHER, "CaseOwners", nonAdminCreatedCaseNr);
+            caseService.addAuthorityToRole(CaseHelper.MIKE_JACKSON, "CaseSimpleWriter", nonAdminCreatedCaseNr);
             return null;
         });
         Map<String, Set<String>> membersByRole = caseService.getMembersByRole(nonAdminCreatedCaseNr, false, true);
@@ -377,20 +374,20 @@ public class CaseServiceImplIT {
         assertTrue(membersByRole.get("CaseSimpleReader").contains(AuthenticationUtil.getAdminUserName()));
         Set<String> caseOwners = membersByRole.get("CaseOwners");
         assertNotNull(caseOwners);
-        assertTrue(caseOwners.contains(ALICE_BEECHER));
-        assertTrue(membersByRole.get("CaseSimpleWriter").contains(MIKE_JACKSON));
+        assertTrue(caseOwners.contains(CaseHelper.ALICE_BEECHER));
+        assertTrue(membersByRole.get("CaseSimpleWriter").contains(CaseHelper.MIKE_JACKSON));
         //remove 2 out of 3 from groups
 
         transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
             caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", nonAdminCreatedCaseNr);
-            caseService.removeAuthorityFromRole(MIKE_JACKSON, "CaseSimpleWriter", nonAdminCreatedCaseNr);
+            caseService.removeAuthorityFromRole(CaseHelper.MIKE_JACKSON, "CaseSimpleWriter", nonAdminCreatedCaseNr);
             return null;
         });
         //retrieve and test role memeberships
         membersByRole = caseService.getMembersByRole(nonAdminCreatedCaseNr, false, true);
         assertFalse(membersByRole.get("CaseSimpleReader").contains(AuthenticationUtil.getAdminUserName()));
-        assertFalse(membersByRole.get("CaseSimpleWriter").contains(MIKE_JACKSON));
-        assertTrue(membersByRole.get("CaseOwners").contains(ALICE_BEECHER));
+        assertFalse(membersByRole.get("CaseSimpleWriter").contains(CaseHelper.MIKE_JACKSON));
+        assertTrue(membersByRole.get("CaseOwners").contains(CaseHelper.ALICE_BEECHER));
 
     }
 

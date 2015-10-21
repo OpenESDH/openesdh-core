@@ -1,11 +1,10 @@
 package dk.openesdh.repo.services.cases;
 
-import dk.openesdh.repo.model.CaseInfo;
-import dk.openesdh.repo.services.HasStatus;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
+
 import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -13,6 +12,9 @@ import org.alfresco.service.namespace.QName;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.springframework.security.access.AccessDeniedException;
+
+import dk.openesdh.repo.model.CaseInfo;
+import dk.openesdh.repo.services.HasStatus;
 
 /**
  * Created by torben on 19/08/14.
@@ -26,6 +28,14 @@ public interface CaseService extends HasStatus {
     String OPENESDH_ROOT_CONTEXT_PATH = "/app:company_home/oe:OpenESDH/oe:cases/";
 
     Pattern CASE_ID_PATTERN = Pattern.compile("\\d+-(\\d+)");
+
+    String CASE = "Case";
+
+    String CREATOR = "Creator";
+
+    String WRITER = "Writer";
+
+    String READER = "Reader";
 
     /**
      * Get the root folder for storing cases
