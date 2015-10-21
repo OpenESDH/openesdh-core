@@ -244,11 +244,7 @@ public class CaseWorkflowServiceImplIT {
         params.put(WorkflowModel.ASSOC_ASSIGNEE, personService.getPerson(CaseHelper.ALICE_BEECHER));
         caseWorkflowService.grantCaseAccessToAssignee(params);
 
-        Set<String> caseReadMembers = caseService.getMembersByRole(caseNodeRef, true, false).get(
-                CaseHelper.CASE_READER_ROLE);
-        Assert.assertNotNull("Case members with READ permissions should exist", caseReadMembers);
-        Assert.assertTrue("[abeecher] user should be among case members with READ permissions",
-                caseReadMembers.contains(CaseHelper.ALICE_BEECHER));
+        assertTrueUsersAmidstCaseReadMembers(CaseHelper.ALICE_BEECHER);
     }
 
     @Test
@@ -264,13 +260,7 @@ public class CaseWorkflowServiceImplIT {
                         personService.getPerson(CaseHelper.MIKE_JACKSON)));
         caseWorkflowService.grantCaseAccessToAssignees(params);
 
-        Set<String> caseReadMembers = caseService.getMembersByRole(caseNodeRef, true, false).get(
-                CaseHelper.CASE_READER_ROLE);
-        Assert.assertNotNull("Case members with READ permissions should exist", caseReadMembers);
-        Assert.assertTrue("[abeecher] user should be among case members with READ permissions",
-                caseReadMembers.contains(CaseHelper.ALICE_BEECHER));
-        Assert.assertTrue("[mjackson] user should be among case members with READ permissions",
-                caseReadMembers.contains(CaseHelper.MIKE_JACKSON));
+        assertTrueUsersAmidstCaseReadMembers(CaseHelper.ALICE_BEECHER, CaseHelper.MIKE_JACKSON);
     }
 
     @Test
@@ -289,13 +279,7 @@ public class CaseWorkflowServiceImplIT {
         params.put(WorkflowModel.ASSOC_GROUP_ASSIGNEE, groupNodeRef);
         caseWorkflowService.grantCaseAccessToWorkflowAssignees(params);
 
-        Set<String> caseReadMembers = caseService.getMembersByRole(caseNodeRef, true, false).get(
-                CaseHelper.CASE_READER_ROLE);
-        Assert.assertNotNull("Case members with READ permissions should exist", caseReadMembers);
-        Assert.assertTrue("[abeecher] user should be among case members with READ permissions",
-                caseReadMembers.contains(CaseHelper.ALICE_BEECHER));
-        Assert.assertTrue("[mjackson] user should be among case members with READ permissions",
-                caseReadMembers.contains(CaseHelper.MIKE_JACKSON));
+        assertTrueUsersAmidstCaseReadMembers(CaseHelper.ALICE_BEECHER, CaseHelper.MIKE_JACKSON);
     }
 
     @Test
@@ -316,13 +300,51 @@ public class CaseWorkflowServiceImplIT {
         params.put(WorkflowModel.ASSOC_GROUP_ASSIGNEES, (Serializable) Arrays.asList(groupNodeRef, groupNodeRef2));
         caseWorkflowService.grantCaseAccessToWorkflowAssignees(params);
 
+        assertTrueUsersAmidstCaseReadMembers(CaseHelper.ALICE_BEECHER, CaseHelper.MIKE_JACKSON);
+    }
+
+    @Test
+    public void shouldNotAddWorkflowAssigneeToCaseMembersIfSheAlreadyIsWriteMember() {
+        String caseId = createCase();
+        caseService.addAuthorityToRole(CaseHelper.ALICE_BEECHER, getCaseMemberWriteRole(), caseNodeRef);
+
+        CaseWorkflowServiceImpl caseWorkflowService = (CaseWorkflowServiceImpl) service;
+
+        Map<QName, Serializable> params = new HashMap<QName, Serializable>();
+        params.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
+        params.put(
+                WorkflowModel.ASSOC_ASSIGNEES,
+                (Serializable) Arrays.asList(personService.getPerson(CaseHelper.ALICE_BEECHER),
+                        personService.getPerson(CaseHelper.MIKE_JACKSON)));
+        caseWorkflowService.grantCaseAccessToAssignees(params);
+
+        assertTrueUsersAmidstCaseReadMembers(CaseHelper.MIKE_JACKSON);
+        assertFalseUsersAmidstCaseReadMembers(CaseHelper.ALICE_BEECHER);
+    }
+
+    private void assertTrueUsersAmidstCaseReadMembers(String... userNames) {
         Set<String> caseReadMembers = caseService.getMembersByRole(caseNodeRef, true, false).get(
                 CaseHelper.CASE_READER_ROLE);
         Assert.assertNotNull("Case members with READ permissions should exist", caseReadMembers);
-        Assert.assertTrue("[abeecher] user should be among case members with READ permissions",
-                caseReadMembers.contains(CaseHelper.ALICE_BEECHER));
-        Assert.assertTrue("[mjackson] user should be among case members with READ permissions",
-                caseReadMembers.contains(CaseHelper.MIKE_JACKSON));
+        for (String userName : userNames) {
+            Assert.assertTrue("[" + userName + "] user should be among case members with READ permissions",
+                    caseReadMembers.contains(userName));
+        }
+    }
+
+    private void assertFalseUsersAmidstCaseReadMembers(String... userNames) {
+        Set<String> caseReadMembers = caseService.getMembersByRole(caseNodeRef, true, false).get(
+                CaseHelper.CASE_READER_ROLE);
+        Assert.assertNotNull("Case members with READ permissions should exist", caseReadMembers);
+        for (String userName : userNames) {
+            Assert.assertFalse("[" + userName + "] user should NOT be among case members with READ permissions",
+                    caseReadMembers.contains(userName));
+        }
+    }
+
+    private String getCaseMemberWriteRole() {
+        return caseService.getRoles(caseNodeRef).stream().filter(role -> role.contains(CaseService.WRITER))
+                .findAny().get();
     }
 
     private String createCase() {
