@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import org.alfresco.error.AlfrescoRuntimeException;
@@ -33,6 +34,7 @@ import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.ContentIOException;
 import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.ContentService;
+import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.CopyService;
 import org.alfresco.service.cmr.repository.MimetypeService;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -479,6 +481,50 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
         return documentAssociationRef;
     }
 
+    public NodeRef createCaseDocument(String caseId, String title, String fileName, String docType,
+            String docCatagory, Consumer<ContentWriter> contentWriter) {
+        return createCaseDocument(caseService.getCaseById(caseId), title, fileName, docType, docCatagory, contentWriter);
+    }
+
+    public NodeRef createCaseDocument(NodeRef caseNodeRef, String title, String fileName, String docType,
+            String docCatagory, Consumer<ContentWriter> contentWriter) {
+        NodeRef caseDocumentsFolder = caseService.getDocumentsFolder(caseNodeRef);
+
+        //we need new transaction for DocumentBehavior to kick in
+        boolean requiresNew = true;
+        NodeRef file = transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
+            String titleT = StringUtils.defaultIfEmpty(title, fileName);
+            String fileNameT = getUniqueName(caseDocumentsFolder, sanitizeName(StringUtils.defaultIfEmpty(fileName, title)), true);
+            return createDocumentFile(caseDocumentsFolder, titleT, fileNameT, docType, docCatagory, contentWriter);
+        }, false, requiresNew);
+
+        return nodeService.getPrimaryParent(file).getParentRef();
+    }
+
+    public NodeRef createDocumentFile(NodeRef documentFolder, String title, String fileName, String docType, String docCatagory,
+            Consumer<ContentWriter> contentWriter) {
+        Map<QName, Serializable> props;
+        String name = sanitizeName(fileName);
+        props = new HashMap<>();
+        props.put(ContentModel.PROP_NAME, name);
+        props.put(ContentModel.PROP_TITLE, title);
+        props.put(OpenESDHModel.PROP_DOC_TYPE, docType);
+        props.put(OpenESDHModel.PROP_DOC_CATEGORY, docCatagory);
+        NodeRef node = nodeService.createNode(
+                documentFolder,
+                ContentModel.ASSOC_CONTAINS,
+                QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, name),
+                ContentModel.TYPE_CONTENT,
+                props).getChildRef();
+        ContentWriter writer = contentService.getWriter(node, ContentModel.PROP_CONTENT, true);
+        contentWriter.accept(writer);
+        return node;
+    }
+
+    public static String sanitizeName(String name) {
+        return name.replaceAll("[^a-zA-Z0-9_() \\.]", "_");
+    }
+
     /**
      * Gets the nodeRef of a document or folder within a case by recursively trawling up the tree until the caseType is detected
      *
@@ -834,5 +880,25 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
                 .findFirst()
                 .map(assoc -> assoc.getParentRef())
                 .get();
+    }
+
+    @Override
+    public String getUniqueName(NodeRef inFolder, String name, boolean isUniqueWithoutExtension) {
+        String baseName = FilenameUtils.removeExtension(name);
+        String extension = getExtensionOrEmpty(name);
+        int counter = 1;
+        NodeRef child;
+        String newName;
+        do {
+            newName = baseName + (counter > 1 ? "(" + counter + ")" : "") + (isUniqueWithoutExtension ? "" : extension);
+            child = nodeService.getChildByName(inFolder, ContentModel.ASSOC_CONTAINS, newName);
+            counter++;
+        } while (child != null);
+        return newName + (isUniqueWithoutExtension ? extension : "");
+    }
+
+    private String getExtensionOrEmpty(String name) {
+        String extension = FilenameUtils.getExtension(name);
+        return StringUtils.isEmpty(extension) ? "" : "." + extension;
     }
 }

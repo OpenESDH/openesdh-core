@@ -3,8 +3,10 @@ package dk.openesdh.repo.services.documents;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
+import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
@@ -54,13 +56,51 @@ public interface DocumentService extends HasStatus {
      */
     boolean isDocNode(NodeRef nodeRef);
 
-    public java.util.List<ChildAssociationRef> getDocumentsForCase(NodeRef nodeRef);
+    public List<ChildAssociationRef> getDocumentsForCase(NodeRef nodeRef);
 
     JSONObject buildJSON(List<ChildAssociationRef> childAssociationRefs, Documents documents, NodeRef caseNodeRef);
 
     public ChildAssociationRef createDocumentFolder(final NodeRef documentsFolder, final String name);
 
     public ChildAssociationRef createDocumentFolder(final NodeRef documentsFolder, final String name, Map<QName, Serializable> props);
+
+    /**
+     *
+     * @param caseId
+     * @param title
+     * @param fileName
+     * @param docType nodeRefId
+     * @param docCatagory nodeRefId
+     * @param contentWriter writer -> {writer.setMimetype(MimetypeMap.MIMETYPE_TEXT_PLAIN); writer.putContent(content);}
+     * @return Created document folder
+     */
+    public NodeRef createCaseDocument(String caseId, String title, String fileName, String docType,
+            String docCatagory, Consumer<ContentWriter> contentWriter);
+    /**
+     *
+     * @param caseNodeRef
+     * @param title
+     * @param fileName
+     * @param docType nodeRefId
+     * @param docCatagory nodeRefId
+     * @param contentWriter writer -> {writer.setMimetype(MimetypeMap.MIMETYPE_TEXT_PLAIN); writer.putContent(content);}
+     * @return Created document folder
+     */
+    public NodeRef createCaseDocument(NodeRef caseNodeRef, String title, String fileName, String docType,
+            String docCatagory, Consumer<ContentWriter> contentWriter);
+
+    /**
+     *
+     * @param documentFolder
+     * @param title
+     * @param fileName
+     * @param docType nodeRefId
+     * @param docCatagory nodeRefId
+     * @param contentWriter writer -> {writer.setMimetype(MimetypeMap.MIMETYPE_TEXT_PLAIN); writer.putContent(content);}
+     * @return Created document folder
+     */
+    public NodeRef createDocumentFile(NodeRef documentFolder, String title, String fileName, String docType, String docCatagory,
+            Consumer<ContentWriter> contentWriter);
 
     /**
      * This method gets the <code>case:simple</code> NodeRef for the case which contains the given NodeRef.
@@ -91,10 +131,10 @@ public interface DocumentService extends HasStatus {
     /**
      * Copies provided document to the target case
      * 
-     * @param documentToCopy
-     *            NodeRef of the record folder of the document to copy
+     * @param documentToMove NodeRef of the record folder of the document to move
      * @param targetCaseId
      *            Id of the case to copy the document into
+     * @throws java.lang.Exception
      */
     public void copyDocumentToCase(final NodeRef documentToMove, final String targetCaseId) throws Exception;
 
@@ -178,4 +218,14 @@ public interface DocumentService extends HasStatus {
      * @return nodeRef of the document record
      */
     public NodeRef getDocRecordNodeRef(NodeRef docOrAttachmentNodeRef);
+
+    /**
+     * Checks if provided name exists in folder and adds a counter to make it unique
+     *
+     * @param inFolder
+     * @param name
+     * @param isUniqueWithoutExtension checking the uniqueness with or without extension
+     * @return
+     */
+    public String getUniqueName(NodeRef inFolder, String name, boolean isUniqueWithoutExtension);
 }
