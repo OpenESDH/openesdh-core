@@ -493,9 +493,7 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
         //we need new transaction for DocumentBehavior to kick in
         boolean requiresNew = true;
         NodeRef file = transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
-            String titleT = StringUtils.defaultIfEmpty(title, fileName);
-            String fileNameT = getUniqueName(caseDocumentsFolder, sanitizeName(StringUtils.defaultIfEmpty(fileName, title)), true);
-            return createDocumentFile(caseDocumentsFolder, titleT, fileNameT, docType, docCatagory, contentWriter);
+            return createDocumentFile(caseDocumentsFolder, title, fileName, docType, docCatagory, contentWriter);
         }, false, requiresNew);
 
         return nodeService.getPrimaryParent(file).getParentRef();
@@ -503,8 +501,9 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
 
     public NodeRef createDocumentFile(NodeRef documentFolder, String title, String fileName, String docType, String docCatagory,
             Consumer<ContentWriter> contentWriter) {
+        title = StringUtils.defaultIfEmpty(title, fileName);
+        String name = getUniqueName(documentFolder, sanitizeName(StringUtils.defaultIfEmpty(fileName, title)), true);
         Map<QName, Serializable> props;
-        String name = sanitizeName(fileName);
         props = new HashMap<>();
         props.put(ContentModel.PROP_NAME, name);
         props.put(ContentModel.PROP_TITLE, title);
