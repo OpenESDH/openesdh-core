@@ -1,34 +1,30 @@
 package dk.openesdh.repo.audit;
 
-import dk.openesdh.repo.services.cases.CaseService;
 import java.io.Serializable;
+import java.util.Map;
+import java.util.Optional;
 import java.util.regex.Matcher;
+
 import org.alfresco.model.ContentModel;
-import org.alfresco.repo.audit.extractor.AbstractDataExtractor;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-public final class CaseNodeRefExtractor extends AbstractDataExtractor {
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CaseService;
 
+@Service("audit.dk.openesdh.CaseIDExtractor")
+public final class CaseNodeRefExtractor extends AbstractAnnotatedDataExtractor {
+
+    @Autowired
     private NodeService nodeService;
+    @Autowired
     private CaseService caseService;
 
-    //<editor-fold desc="bean definition property setters">
-    public void setNodeService(NodeService nodeService) {
-        this.nodeService = nodeService;
-    }
-
-    public void setCaseService(CaseService caseService) {
-        this.caseService = caseService;
-    }
-
-    public boolean isSupported(Serializable data) {
-        return true;
-    }
-    //</editor-fold>
-
+    @SuppressWarnings("unchecked")
     public Serializable extractData(Serializable value) throws Throwable {
         String result = null;
         // TODO Ole,do we ever get an instance of a nodeRef?
@@ -46,9 +42,17 @@ public final class CaseNodeRefExtractor extends AbstractDataExtractor {
             }
         } else if (value instanceof String) {
             result = getNodeRefFromString((String) value);
+        } else if (value instanceof Map) {
+            result = getNodeRefFromMap((Map<QName, Serializable>) value);
         }
         // TODO: check that what is returned is actually a case, return null otherwise
         return result;
+    }
+
+    private String getNodeRefFromMap(Map<QName, Serializable> params) {
+        return Optional.ofNullable(params.get(OpenESDHModel.PROP_OE_CASE_ID))
+                .map(param -> getNodeRefFromCaseID(param.toString()))
+                .orElse(null);
     }
 
     private String getNodeRefFromString(String str) {
