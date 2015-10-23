@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.alfresco.model.ContentModel;
@@ -57,10 +58,7 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
                 authenticationService, personService, workflowService, dictionaryService);
         Map<String, Object> taskMap = modelBuilder.buildSimple(task, null);
 
-        Map<QName, Serializable> pathProps = workflowService.getPathProperties(task.getPath().getId());
-        if (pathProps.containsKey(OpenESDHModel.PROP_OE_CASE_ID)) {
-            taskMap.put(WorkflowTaskService.TASK_CASE_ID, pathProps.get(OpenESDHModel.PROP_OE_CASE_ID));
-        }
+        getWorkflowTaskCaseId(task).ifPresent(caseId -> taskMap.put(WorkflowTaskService.TASK_CASE_ID, caseId));
 
         List<NodeRef> contents = workflowService.getPackageContents(task.getId());
         List<Map<String, Object>> packageItems = contents
@@ -93,6 +91,16 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
         }
 
         return item;
+    }
+
+    @Override
+    public Optional<String> getWorkflowTaskCaseId(String taskId) {
+        return getWorkflowTaskCaseId(workflowService.getTaskById(taskId)).map(Object::toString);
+    }
+
+    protected Optional<Serializable> getWorkflowTaskCaseId(WorkflowTask task) {
+        return Optional.ofNullable(workflowService.getPathProperties(task.getPath().getId()).get(
+                OpenESDHModel.PROP_OE_CASE_ID));
     }
 
 }

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.workflow.WorkflowTaskService;
 
 @Service("audit.dk.openesdh.CaseIDExtractor")
 public final class CaseNodeRefExtractor extends AbstractAnnotatedDataExtractor {
@@ -23,6 +24,8 @@ public final class CaseNodeRefExtractor extends AbstractAnnotatedDataExtractor {
     private NodeService nodeService;
     @Autowired
     private CaseService caseService;
+    @Autowired
+    private WorkflowTaskService workflowTaskService;
 
     @SuppressWarnings("unchecked")
     public Serializable extractData(Serializable value) throws Throwable {
@@ -68,6 +71,10 @@ public final class CaseNodeRefExtractor extends AbstractAnnotatedDataExtractor {
                 return null;
             }
             return getNodeRefFromCaseDbID(parts[2]);
+        } else if (str.startsWith("activiti$") && !str.contains("start")) {
+            return workflowTaskService.getWorkflowTaskCaseId(str)
+                    .map(caseId -> getNodeRefFromCaseID(caseId))
+                    .orElse(null);
         }
         return getNodeRefFromPath(str);
     }

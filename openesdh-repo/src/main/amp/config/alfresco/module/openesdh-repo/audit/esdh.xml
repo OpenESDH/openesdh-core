@@ -42,6 +42,8 @@
         <PathMap source="/alfresco-api/post/NodeService/removeChild" target="/esdh/child/remove"/>
         
         <PathMap source="/alfresco-api/post/WorkflowService/startWorkflow" target="/esdh/workflow/start"/>
+        <PathMap source="/alfresco-api/pre/WorkflowService/endTask" target="/esdh/workflow/endTask"/>
+        
         
     </PathMappings>
 
@@ -167,6 +169,10 @@
                 <RecordValue key="case" dataExtractor="caseIDValue"  dataSource="/esdh/workflow/start/args/parameters" dataTrigger="/esdh/workflow/start/args/parameters"/>
                 <RecordValue key="initiator" dataExtractor="workflowInitiatorValue" dataSource="/esdh/workflow/start/args/parameters" dataTrigger="/esdh/workflow/start/args/parameters"/>
                 <RecordValue key="description" dataExtractor="workflowDescriptionValue" dataSource="/esdh/workflow/start/args/parameters" dataTrigger="/esdh/workflow/start/args/parameters"/>
+            </AuditPath>
+            <AuditPath key="endTask">
+                <RecordValue key="case" dataExtractor="caseIDValue"  dataSource="/esdh/workflow/endTask/args/taskId" dataTrigger="/esdh/workflow/endTask/args/taskId"/>
+                <RecordValue key="description" dataExtractor="workflowDescriptionValue" dataSource="/esdh/workflow/endTask/args/taskId" dataTrigger="/esdh/workflow/endTask/args/taskId"/>
             </AuditPath>
         </AuditPath>
     </Application>

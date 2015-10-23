@@ -47,7 +47,9 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
     private static final String PARTY_REMOVE_NAME = "/esdh/child/remove/args/contactName";
     private static final String PARTY_REMOVE_GROUP_NAME = "/esdh/child/remove/args/groupName";
     private static final String WORKFLOW_START_CASE = "/esdh/workflow/start/case";
-    private static final String WORKFLOW_START_DESCRIPTION = "/esdh/workflow/start/workflowDescription";
+    private static final String WORKFLOW_START_DESCRIPTION = "/esdh/workflow/start/description";
+    private static final String WORKFLOW_END_TASK_CASE = "/esdh/workflow/endTask/case";
+    private static final String WORKFLOW_END_TASK_DESCRIPTION = "/esdh/workflow/endTask/description";
 
     private static final int MAX_NOTE_TEXT_LENGTH = 40;
 
@@ -97,12 +99,13 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
 
     private Map<String, AuditEntryHandler> getAuditEntryHandlers() {
         Map<String, AuditEntryHandler> handlers = new HashMap<String, AuditEntryHandler>();
-        handlers.put(WORKFLOW_START_CASE, this::getEntryWorkflowStart);
         handlers.put(PARTY_REMOVE_NAME, this::getEntryPartyRemove);
         handlers.put(PARTY_ADD_NAME, this::getEntryPartyAdd);
         handlers.put(MEMBER_ADD_PATH, this::getEntryMemberAdd);
         handlers.put(MEMBER_REMOVE_PATH, this::getEntryMemberRemove);
         handlers.put(TRANSACTION_PATH, this::getEntryTransactionPath);
+        handlers.put(WORKFLOW_START_CASE, this::getEntryWorkflowStart);
+        handlers.put(WORKFLOW_END_TASK_CASE, this::getEntryWorkflowTaskEnd);
         return handlers;
     }
 
@@ -314,6 +317,15 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
         putAuditEntryType(auditEntry, "workflow");
         auditEntry.put("action",
                 I18NUtil.getMessage("auditlog.label.workflow.started", values.get(WORKFLOW_START_DESCRIPTION)));
+        return Optional.of(auditEntry);
+    }
+
+    private Optional<JSONObject> getEntryWorkflowTaskEnd(String user, long time, Map<String, Serializable> values)
+            throws JSONException {
+        JSONObject auditEntry = createNewAuditEntry(user, time);
+        putAuditEntryType(auditEntry, "workflow");
+        auditEntry.put("action",
+                I18NUtil.getMessage("auditlog.label.workflow.task.ended", values.get(WORKFLOW_END_TASK_DESCRIPTION)));
         return Optional.of(auditEntry);
     }
 
