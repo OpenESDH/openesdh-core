@@ -115,7 +115,7 @@ public class ContactSearchServiceImplIT {
     }
 
     private String getContactIdAndEmail(NodeRef nodeRef) throws InvalidNodeRefException {
-        return nodeRef.getId() + "|" + nodeService.getProperty(nodes.getNodeRefs().get(0), OpenESDHModel.PROP_CONTACT_EMAIL);
+        return nodeRef.getId() + "|" + nodeService.getProperty(nodeRef, OpenESDHModel.PROP_CONTACT_EMAIL);
     }
 
 }
