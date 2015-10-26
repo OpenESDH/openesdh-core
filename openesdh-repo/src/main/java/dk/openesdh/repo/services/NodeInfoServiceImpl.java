@@ -2,6 +2,7 @@ package dk.openesdh.repo.services;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -47,10 +48,7 @@ public class NodeInfoServiceImpl implements NodeInfoService {
     public JSONObject buildJSON(NodeInfo nodeInfo) {
         JSONObject result = new JSONObject();
         try {
-
-            ArrayList<QName> propertiesToRetrieve = new ArrayList<>(nodeInfo.properties.keySet());
-
-            result = getSelectedProperties(nodeInfo, propertiesToRetrieve);
+            result = getSelectedProperties(nodeInfo, nodeInfo.properties.keySet());
 
             JSONObject aspectsObj = new JSONObject();
             for (QName aspect : nodeInfo.aspects) {
@@ -58,7 +56,7 @@ public class NodeInfoServiceImpl implements NodeInfoService {
             }
             result.put("aspects", aspectsObj);
 
-            result.put("TYPE", nodeInfo.nodeClassName.toPrefixString(namespaceService));
+            result.put(NODE_TYPE_PROPERTY, nodeInfo.nodeClassName.toPrefixString(namespaceService));
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -66,7 +64,7 @@ public class NodeInfoServiceImpl implements NodeInfoService {
     }
 
     @Override
-    public JSONObject getSelectedProperties(NodeInfo nodeInfo, List<QName> objectProps) {
+    public JSONObject getSelectedProperties(NodeInfo nodeInfo, Collection<QName> objectProps) {
         JSONObject result = new JSONObject();
         JSONObject properties = new JSONObject();
         try {
