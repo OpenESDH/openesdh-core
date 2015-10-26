@@ -1,6 +1,7 @@
 package dk.openesdh.repo.services.workflow;
 
 import java.util.Map;
+import java.util.Optional;
 
 public interface WorkflowTaskService {
 
@@ -19,9 +20,18 @@ public interface WorkflowTaskService {
      * Retrieves workflow task with package contents
      * 
      * @param taskId
-     *            Id of the task to retreive
+     *            Id of the task to retrieve
      * @return a map with task properties and package items
      */
     Map<String, Object> getWorkflowTask(String taskId);
+
+    /**
+     * Retrieves case id for the provided workflow task
+     * 
+     * @param taskId
+     *            Id of the task to retrieve case id for
+     * @return case id
+     */
+    Optional<String> getWorkflowTaskCaseId(String taskId);
 
 }

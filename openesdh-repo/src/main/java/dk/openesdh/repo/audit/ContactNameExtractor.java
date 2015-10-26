@@ -1,14 +1,19 @@
 package dk.openesdh.repo.audit;
 
-import dk.openesdh.repo.model.OpenESDHModel;
 import java.io.Serializable;
-import org.alfresco.repo.audit.extractor.AbstractDataExtractor;
+
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
-public final class ContactNameExtractor extends AbstractDataExtractor {
+import dk.openesdh.repo.model.OpenESDHModel;
 
+@Service("audit.dk.openesdh.ContactNameExtractor")
+public final class ContactNameExtractor extends AbstractAnnotatedDataExtractor {
+
+    @Autowired
     private NodeService nodeService;
 
     public Serializable extractData(Serializable value) throws Throwable {
@@ -25,11 +30,4 @@ public final class ContactNameExtractor extends AbstractDataExtractor {
         return null;
     }
 
-    public void setNodeService(NodeService nodeService) {
-        this.nodeService = nodeService;
-    }
-
-    public boolean isSupported(Serializable data) {
-        return true;
-    }
 }
