@@ -1,13 +1,5 @@
 package dk.openesdh.repo.services.cases;
 
-import dk.openesdh.repo.model.CaseInfo;
-import dk.openesdh.repo.model.CaseInfoImpl;
-import dk.openesdh.repo.model.CaseStatus;
-import dk.openesdh.repo.model.DocumentStatus;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.services.lock.OELockService;
-import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -28,10 +20,10 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
-import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.node.NodeServicePolicies;
 import org.alfresco.repo.policy.Behaviour;
 import org.alfresco.repo.policy.JavaBehaviour;
@@ -48,6 +40,7 @@ import org.alfresco.service.cmr.dictionary.ClassDefinition;
 import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.dictionary.PropertyDefinition;
+import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -62,6 +55,7 @@ import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.OwnableService;
 import org.alfresco.service.cmr.security.PermissionService;
+import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
 import org.alfresco.util.SearchLanguageConversion;
@@ -73,6 +67,17 @@ import org.json.JSONObject;
 import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.security.access.AccessDeniedException;
 
+import com.google.gdata.util.common.base.Joiner;
+
+import dk.openesdh.repo.model.CaseInfo;
+import dk.openesdh.repo.model.CaseInfoImpl;
+import dk.openesdh.repo.model.CaseStatus;
+import dk.openesdh.repo.model.DocumentStatus;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.services.lock.OELockService;
+import dk.openesdh.repo.services.system.OpenESDHFoldersService;
+
 /**
  * Created by torben on 19/08/14.
  */
@@ -82,14 +87,8 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
     private static final String MSG_NO_CASE_CREATOR_GROUP_DEFINED = "security.permission.err_no_case_creator_group_defined";
     private static final String MSG_CASE_CREATOR_PERMISSION_VIOLATION = "security.permission.err_case_creator_permission_violation";
 
-    private static final String ASSIGN_CASE_ID_RULE_TITLE = "Assign caseId to case documents";
-
-    private static Logger LOGGER = Logger.getLogger(CaseServiceImpl.class);
+    private static final Logger LOGGER = Logger.getLogger(CaseServiceImpl.class);
     Behaviour onUpdatePropertiesBehaviour;
-    /**
-     * repositoryHelper cannot be autowired - seemingly
-     */
-    private Repository repositoryHelper;
     private NodeService nodeService;
     private SearchService searchService;
     private AuthorityService authorityService;
@@ -102,6 +101,7 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
     private DocumentService documentService;
     private OELockService oeLockService;
     private OpenESDHFoldersService openESDHFoldersService;
+    private PersonService personService;
 
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
@@ -127,10 +127,6 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
         this.permissionService = permissionService;
     }
 
-    public void setRepositoryHelper(Repository repositoryHelper) {
-        this.repositoryHelper = repositoryHelper;
-    }
-
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
     }
@@ -153,6 +149,10 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
 
     public void setOpenESDHFoldersService(OpenESDHFoldersService openESDHFoldersService) {
         this.openESDHFoldersService = openESDHFoldersService;
+    }
+
+    public void setPersonService(PersonService personService) {
+        this.personService = personService;
     }
 
     @Override
@@ -1157,6 +1157,29 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
             authorities.add(permission.getAuthority());
         }
         return authorities;
+    }
+
+    public JSONArray getCaseOwners(NodeRef nodeRef) throws JSONException {
+        JSONArray owners = new JSONArray();
+        List<AssociationRef> caseOwnersAssocList = nodeService.getTargetAssocs(nodeRef, OpenESDHModel.ASSOC_CASE_OWNERS);
+        for (AssociationRef caseOwnerAssoc : caseOwnersAssocList) {
+            JSONObject owner = new JSONObject();
+            owner.put("nodeRef", caseOwnerAssoc.getTargetRef().toString());
+            QName type = nodeService.getType(caseOwnerAssoc.getTargetRef());
+            if (type.isMatch(ContentModel.TYPE_AUTHORITY_CONTAINER)) {
+                owner.put("type", AuthorityType.GROUP);
+                String groupName = (String) nodeService.getProperty(caseOwnerAssoc.getTargetRef(), ContentModel.PROP_NAME);
+                owner.put("name", groupName);
+                owner.put("displayName", authorityService.getAuthorityDisplayName(groupName));
+            } else if (type.isMatch(ContentModel.TYPE_PERSON)) {
+                owner.put("type", AuthorityType.USER);
+                PersonService.PersonInfo person = personService.getPerson(caseOwnerAssoc.getTargetRef());
+                owner.put("name", person.getUserName());
+                owner.put("displayName", Joiner.on(" ").skipNulls().join(person.getFirstName(), person.getLastName()).trim());
+            }
+            owners.put(owner);
+        }
+        return owners;
     }
 
 }

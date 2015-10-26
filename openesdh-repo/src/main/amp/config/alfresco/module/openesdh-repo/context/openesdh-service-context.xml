@@ -28,10 +28,6 @@
             <ref bean="PermissionService"/>
         </property>
 
-        <property name="repositoryHelper">
-            <ref bean="repositoryHelper"/>
-        </property>
-
         <property name="transactionService">
             <ref bean="TransactionService"/>
         </property>
@@ -58,6 +54,10 @@
         
         <property name="openESDHFoldersService">
             <ref bean="OpenESDHFoldersService"/>
+        </property>
+        
+        <property name="personService">
+            <ref bean="PersonService"/>
         </property>
     </bean>
     

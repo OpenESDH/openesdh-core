@@ -8,13 +8,11 @@ import java.util.Map;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
-import org.alfresco.service.cmr.dictionary.AssociationDefinition;
 import org.alfresco.service.cmr.dictionary.Constraint;
 import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
 import org.alfresco.service.cmr.dictionary.DataTypeDefinition;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.dictionary.PropertyDefinition;
-import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.PersonService;
@@ -26,8 +24,6 @@ import org.json.JSONObject;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
-import dk.openesdh.repo.model.OpenESDHModel;
-
 /**
  * @author Torben Lauritzen.
  */
@@ -36,23 +32,7 @@ public class NodeInfoServiceImpl implements NodeInfoService {
     private NodeService nodeService;
     private DictionaryService dictionaryService;
     private PersonService personService;
-
     private NamespaceService namespaceService;
-    public void setNamespaceService(NamespaceService namespaceService) {
-        this.namespaceService = namespaceService;
-    }
-
-    public void setDictionaryService(DictionaryService dictionaryService) {
-        this.dictionaryService = dictionaryService;
-    }
-
-    public void setNodeService(NodeService nodeService) {
-        this.nodeService = nodeService;
-    }
-
-    public void setPersonService(PersonService personService) {
-        this.personService = personService;
-    }
 
     @Override
     public NodeInfo getNodeInfo(NodeRef nodeRef) {
@@ -60,9 +40,6 @@ public class NodeInfoServiceImpl implements NodeInfoService {
         nodeInfo.properties = nodeService.getProperties(nodeRef);
         nodeInfo.aspects = nodeService.getAspects(nodeRef);
         nodeInfo.nodeClassName = nodeService.getType(nodeRef);
-        
-        nodeInfo.properties.put(OpenESDHModel.ASSOC_CASE_OWNERS, getCaseOwnerUserNames(nodeRef));
-        
         return nodeInfo;
     }
 
@@ -71,8 +48,7 @@ public class NodeInfoServiceImpl implements NodeInfoService {
         JSONObject result = new JSONObject();
         try {
 
-            ArrayList<QName> propertiesToRetrieve = new ArrayList<QName>(nodeInfo.properties.keySet());
-            propertiesToRetrieve.add(OpenESDHModel.ASSOC_CASE_OWNERS);
+            ArrayList<QName> propertiesToRetrieve = new ArrayList<>(nodeInfo.properties.keySet());
 
             result = getSelectedProperties(nodeInfo, propertiesToRetrieve);
 
@@ -93,15 +69,12 @@ public class NodeInfoServiceImpl implements NodeInfoService {
     public JSONObject getSelectedProperties(NodeInfo nodeInfo, List<QName> objectProps) {
         JSONObject result = new JSONObject();
         JSONObject properties = new JSONObject();
-
         try {
-
-            for(QName propertyQName : objectProps){
+            for (QName propertyQName : objectProps) {
                 JSONObject valueObj = getNodePropertyValue(nodeInfo, propertyQName);
                 properties.put(propertyQName.toPrefixString(namespaceService), valueObj);
             }
             result.put("properties", properties);
-
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -109,18 +82,11 @@ public class NodeInfoServiceImpl implements NodeInfoService {
     }
 
     private JSONObject getNodePropertyValue(NodeInfo nodeInfo, QName propertyQName) throws JSONException {
-
-        if (OpenESDHModel.ASSOC_CASE_OWNERS.equals(propertyQName)) {
-            return getCaseOwners(nodeInfo);
-        }
-
         JSONObject valueObj = new JSONObject();
         Serializable value = nodeInfo.properties.get(propertyQName);
-
         if (value == null) {
             return valueObj;
         }
-
         PropertyDefinition propertyDefinition = getPropertyDefinition(nodeInfo, propertyQName);
 
         if (Date.class.equals(value.getClass())) {
@@ -151,19 +117,8 @@ public class NodeInfoServiceImpl implements NodeInfoService {
         return valueObj;
     }
 
-    private JSONObject getCaseOwners(NodeInfo nodeInfo) throws JSONException {
-        Serializable caseOwnerUserNames = nodeInfo.properties.get(OpenESDHModel.ASSOC_CASE_OWNERS);
-        if (caseOwnerUserNames == null) {
-            return new JSONObject();
-        }
-        JSONObject caseOwners = getPersonsValue((String[]) caseOwnerUserNames);
-        AssociationDefinition assocDef = dictionaryService.getAssociation(OpenESDHModel.ASSOC_CASE_OWNERS);
-        caseOwners.put("label", assocDef.getTitle(dictionaryService));
-        return caseOwners;
-    }
-
     private JSONObject getPersonValue(String userName) throws JSONException {
-        return getPersonsValue(new String[] { userName });
+        return getPersonsValue(new String[]{userName});
     }
 
     private JSONObject getPersonsValue(String[] userNames) throws JSONException {
@@ -172,8 +127,8 @@ public class NodeInfoServiceImpl implements NodeInfoService {
         valueObj.put("type", "UserName");
         valueObj.put("value", commaDelimitedUserNames);
 
-        ArrayList<String> fullNames = new ArrayList<String>();
-        List<String> nodeRefs = new ArrayList<String>();
+        ArrayList<String> fullNames = new ArrayList<>();
+        List<String> nodeRefs = new ArrayList<>();
         for (String userName : userNames) {
             NodeRef personNodeRef = personService.getPerson(userName);
             nodeRefs.add(personNodeRef.toString());
@@ -189,26 +144,8 @@ public class NodeInfoServiceImpl implements NodeInfoService {
         return valueObj;
     }
 
-    private String[] getCaseOwnerUserNames(NodeRef nodeRef) {
-
-        List<AssociationRef> caseOwnersAssocList = nodeService.getTargetAssocs(nodeRef,
-                OpenESDHModel.ASSOC_CASE_OWNERS);
-
-        if (CollectionUtils.isEmpty(caseOwnersAssocList)) {
-            return new String[0];
-        }
-
-        ArrayList<String> caseOwnerUserNames = new ArrayList<String>();
-        for (AssociationRef caseOwnerAssoc : caseOwnersAssocList) {
-            String caseOwnerUserName = personService.getPerson(caseOwnerAssoc.getTargetRef()).getUserName();
-            caseOwnerUserNames.add(caseOwnerUserName);
-        }
-
-        return caseOwnerUserNames.toArray(new String[0]);
-    }
 
     private PropertyDefinition getPropertyDefinition(NodeInfo nodeInfo, QName propertyQName) {
-
         PropertyDefinition propertyDefinition = dictionaryService
                 .getProperty(nodeInfo.nodeClassName, propertyQName);
         if (propertyDefinition == null) {
@@ -231,7 +168,22 @@ public class NodeInfoServiceImpl implements NodeInfoService {
                 return ((ListOfValuesConstraint) constraint).getDisplayLabel((String) value, dictionaryService);
             }
         }
-
         return value;
+    }
+
+    public void setNamespaceService(NamespaceService namespaceService) {
+        this.namespaceService = namespaceService;
+    }
+
+    public void setDictionaryService(DictionaryService dictionaryService) {
+        this.dictionaryService = dictionaryService;
+    }
+
+    public void setNodeService(NodeService nodeService) {
+        this.nodeService = nodeService;
+    }
+
+    public void setPersonService(PersonService personService) {
+        this.personService = personService;
     }
 }

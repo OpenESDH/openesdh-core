@@ -41,7 +41,7 @@ public class CaseInfoWebScript {
 
     @Authentication(AuthenticationType.USER)
     @Uri(value = "/{caseId}", method = HttpMethod.GET)
-    public Resolution getCaseInfoById(@UriVariable(WebScriptUtils.CASE_ID) final String caseId) {
+    public Resolution getCaseInfoById(@UriVariable(WebScriptUtils.CASE_ID) final String caseId) throws JSONException {
         NodeRef caseNodeRef = caseService.getCaseById(caseId);
         if (caseNodeRef == null) {
             throw new WebScriptException(Status.STATUS_BAD_REQUEST, "CASE_NOT_FOUND");
@@ -51,20 +51,21 @@ public class CaseInfoWebScript {
 
     @Authentication(AuthenticationType.USER)
     @Uri(method = HttpMethod.GET)
-    public Resolution getCaseInfoByNodeRef(@RequestParam(value = WebScriptUtils.NODE_REF) NodeRef caseNodeRef) {
+    public Resolution getCaseInfoByNodeRef(@RequestParam(value = WebScriptUtils.NODE_REF) NodeRef caseNodeRef) throws JSONException {
         return getCaseInfo(caseNodeRef);
     }
 
-    private Resolution getCaseInfo(NodeRef caseNodeRef) {
+    private Resolution getCaseInfo(NodeRef caseNodeRef) throws JSONException {
         NodeInfoService.NodeInfo nodeInfo = nodeInfoService.getNodeInfo(caseNodeRef);
         List<QName> requiredProps = Arrays.asList(OpenESDHModel.PROP_OE_ID, ContentModel.PROP_TITLE,
-                OpenESDHModel.ASSOC_CASE_OWNERS, OpenESDHModel.PROP_OE_STATUS, ContentModel.PROP_CREATOR,
+                OpenESDHModel.PROP_OE_STATUS, ContentModel.PROP_CREATOR,
                 ContentModel.PROP_CREATED, ContentModel.PROP_MODIFIED, ContentModel.PROP_MODIFIER,
                 ContentModel.PROP_DESCRIPTION, OpenESDHModel.PROP_OE_JOURNALKEY,
                 OpenESDHModel.PROP_OE_JOURNALFACET, OpenESDHModel.PROP_OE_LOCKED_BY,
                 OpenESDHModel.PROP_OE_LOCKED_DATE, OpenESDHModel.PROP_CASE_STARTDATE);
-
         JSONObject json = nodeInfoService.getSelectedProperties(nodeInfo, requiredProps);
+        json.getJSONObject("properties")
+                .put(OpenESDHModel.ASSOC_CASE_OWNERS.getLocalName(), caseService.getCaseOwners(caseNodeRef));
         try {
             JSONObject allProps = nodeInfoService.buildJSON(nodeInfo);
             json.put("allProps", allProps);
