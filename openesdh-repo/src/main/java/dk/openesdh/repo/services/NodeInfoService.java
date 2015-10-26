@@ -1,7 +1,7 @@
 package dk.openesdh.repo.services;
 
 import java.io.Serializable;
-import java.util.List;
+import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,7 +14,7 @@ import org.json.JSONObject;
  */
 public interface NodeInfoService {
 
-    String NODE_TYPE_PROPERTY = "TYPE";
+    String NODE_TYPE_PROPERTY = "type";
 
     class NodeInfo {
         public Map<QName, Serializable> properties;
@@ -26,6 +26,6 @@ public interface NodeInfoService {
 
     JSONObject buildJSON(NodeInfo nodeInfo);
 
-    JSONObject getSelectedProperties(NodeInfo nodeInfo, List<QName> objectProps);
+    JSONObject getSelectedProperties(NodeInfo nodeInfo, Collection<QName> objectProps);
 
 }

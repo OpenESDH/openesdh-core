@@ -5,6 +5,7 @@ import java.util.List;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -34,14 +35,25 @@ import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 @WebScript(description = "Retrieves case info either by caseId or case nodeRef", defaultFormat = "json", baseUri = "/api/openesdh/caseinfo", families = "Case Tools")
 public class CaseInfoWebScript {
 
+    private static final List<QName> NOT_NULL_PROPS = Arrays.asList(
+            OpenESDHModel.PROP_OE_ID, ContentModel.PROP_TITLE,
+            OpenESDHModel.PROP_OE_STATUS, ContentModel.PROP_CREATOR,
+            ContentModel.PROP_CREATED, ContentModel.PROP_MODIFIED, ContentModel.PROP_MODIFIER,
+            ContentModel.PROP_DESCRIPTION, OpenESDHModel.PROP_OE_JOURNALKEY,
+            OpenESDHModel.PROP_OE_JOURNALFACET, OpenESDHModel.PROP_OE_LOCKED_BY,
+            OpenESDHModel.PROP_OE_LOCKED_DATE, OpenESDHModel.PROP_CASE_STARTDATE
+    );
+
     @Autowired
     private NodeInfoService nodeInfoService;
     @Autowired
     private CaseService caseService;
+    @Autowired
+    private NamespaceService namespaceService;
 
     @Authentication(AuthenticationType.USER)
     @Uri(value = "/{caseId}", method = HttpMethod.GET)
-    public Resolution getCaseInfoById(@UriVariable(WebScriptUtils.CASE_ID) final String caseId) {
+    public Resolution getCaseInfoById(@UriVariable(WebScriptUtils.CASE_ID) final String caseId) throws JSONException {
         NodeRef caseNodeRef = caseService.getCaseById(caseId);
         if (caseNodeRef == null) {
             throw new WebScriptException(Status.STATUS_BAD_REQUEST, "CASE_NOT_FOUND");
@@ -51,34 +63,31 @@ public class CaseInfoWebScript {
 
     @Authentication(AuthenticationType.USER)
     @Uri(method = HttpMethod.GET)
-    public Resolution getCaseInfoByNodeRef(@RequestParam(value = WebScriptUtils.NODE_REF) NodeRef caseNodeRef) {
+    public Resolution getCaseInfoByNodeRef(@RequestParam(value = WebScriptUtils.NODE_REF) NodeRef caseNodeRef) throws JSONException {
         return getCaseInfo(caseNodeRef);
     }
 
-    private Resolution getCaseInfo(NodeRef caseNodeRef) {
+    private Resolution getCaseInfo(NodeRef caseNodeRef) throws JSONException {
         NodeInfoService.NodeInfo nodeInfo = nodeInfoService.getNodeInfo(caseNodeRef);
-        List<QName> requiredProps = Arrays.asList(OpenESDHModel.PROP_OE_ID, ContentModel.PROP_TITLE,
-                OpenESDHModel.ASSOC_CASE_OWNERS, OpenESDHModel.PROP_OE_STATUS, ContentModel.PROP_CREATOR,
-                ContentModel.PROP_CREATED, ContentModel.PROP_MODIFIED, ContentModel.PROP_MODIFIER,
-                ContentModel.PROP_DESCRIPTION, OpenESDHModel.PROP_OE_JOURNALKEY,
-                OpenESDHModel.PROP_OE_JOURNALFACET, OpenESDHModel.PROP_OE_LOCKED_BY,
-                OpenESDHModel.PROP_OE_LOCKED_DATE, OpenESDHModel.PROP_CASE_STARTDATE);
+        JSONObject json = nodeInfoService.buildJSON(nodeInfo);
+        json.put("isLocked", caseService.isLocked(caseNodeRef));
+        json.put("statusChoices", caseService.getValidNextStatuses(caseNodeRef));
 
-        JSONObject json = nodeInfoService.getSelectedProperties(nodeInfo, requiredProps);
-        try {
-            JSONObject allProps = nodeInfoService.buildJSON(nodeInfo);
-            json.put("allProps", allProps);
-            json.put("isLocked", caseService.isLocked(caseNodeRef));
-            json.put("statusChoices", caseService.getValidNextStatuses(caseNodeRef));
-
-            JSONObject properties = (JSONObject) json.get("properties");
-            properties.put("nodeRef", caseNodeRef.toString());
-            properties.put("type", allProps.get(NodeInfoService.NODE_TYPE_PROPERTY));
-        } catch (JSONException e) {
-            e.printStackTrace();
-            return null;
-        }
+        JSONObject properties = (JSONObject) json.get("properties");
+        addEmptyPropsIfNull(properties);
+        properties.put("nodeRef", caseNodeRef.toString());
+        properties.put("owners", caseService.getCaseOwners(caseNodeRef));
         return WebScriptUtils.jsonResolution(json);
     }
+
+    private void addEmptyPropsIfNull(JSONObject json) throws JSONException {
+        for (QName qname : NOT_NULL_PROPS) {
+            String property = qname.toPrefixString(namespaceService);
+            if (!json.has(property)) {
+                json.put(property, "");
+            }
+        }
+    }
+
 
 }

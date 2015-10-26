@@ -252,4 +252,12 @@ public interface CaseService extends HasStatus {
      * @throws AccessDeniedException
      */
     public void checkCanUpdateCaseRoles(NodeRef caseNodeRef) throws AccessDeniedException;
+
+    /**
+     *
+     * @param nodeRef
+     * @return
+     * @throws JSONException
+     */
+    public JSONArray getCaseOwners(NodeRef nodeRef) throws JSONException;
 }
