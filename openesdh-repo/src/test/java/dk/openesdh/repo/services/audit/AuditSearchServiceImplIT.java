@@ -135,6 +135,7 @@ public class AuditSearchServiceImplIT {
         return contactService.createContact(TEST_PERSON_CONTACT_EMAIL, ContactType.PERSON.name(), personProps);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testAuditLog() throws Exception {
         JSONArray result = auditSearchService.getAuditLogByCaseNodeRef(caseA, 1000);
