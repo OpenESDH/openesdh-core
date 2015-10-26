@@ -211,6 +211,7 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
                     auditEntry.put("action", I18NUtil.getMessage("auditlog.label.attachment.added") + " " + properties.get(name));
                     auditEntry.put("type", getTypeMessage("attachment"));
                 } else {
+                    return Optional.empty();
                     // Adding main doc, don't log an entry because you would
                     // get two entries when adding a document: one for the record
                     // and one for the main file
@@ -218,6 +219,8 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
             } else if (type.contains("doc:")) {
                 auditEntry.put("action", I18NUtil.getMessage("auditlog.label.document.added") + " " + properties.get(name));
                 auditEntry.put("type", getTypeMessage("document"));
+            } else {
+                return Optional.empty();
             }
         } else if (type.startsWith("note:")) {
             String trimmedNote = StringUtils.abbreviate((String) properties.get(OpenESDHModel.PROP_NOTE_CONTENT), MAX_NOTE_TEXT_LENGTH);
