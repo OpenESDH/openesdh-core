@@ -84,7 +84,7 @@ public class CaseInfoWebScript {
         for (QName qname : NOT_NULL_PROPS) {
             String property = qname.toPrefixString(namespaceService);
             if (!json.has(property)) {
-                json.put(property, JSONObject.NULL);
+                json.put(property, "");
             }
         }
     }
