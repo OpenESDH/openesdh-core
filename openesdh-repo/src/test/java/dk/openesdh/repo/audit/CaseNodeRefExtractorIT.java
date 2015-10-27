@@ -37,6 +37,7 @@ public class CaseNodeRefExtractorIT {
     @Qualifier("CaseService")
     protected CaseService caseService;
 
+    @Autowired
     private CaseNodeRefExtractor extractor;
 
     private static final String TEST_FOLDER_NAME = "DocumentServiceImpIT";
@@ -53,9 +54,6 @@ public class CaseNodeRefExtractorIT {
 
         testFolder = docTestHelper.createFolder(TEST_FOLDER_NAME);
         testCase1 = docTestHelper.createCaseBehaviourOn(TEST_CASE_NAME1, testFolder, CaseHelper.DEFAULT_USERNAME);
-
-        extractor = new CaseNodeRefExtractor();
-        extractor.setCaseService(caseService);
     }
 
     @After

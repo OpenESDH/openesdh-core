@@ -1,22 +1,12 @@
 package dk.openesdh.repo.services.documents;
 
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
-import dk.openesdh.repo.helper.CaseDocumentTestHelper;
-import dk.openesdh.repo.helper.CaseHelper;
-import dk.openesdh.repo.model.CaseDocument;
-import dk.openesdh.repo.model.CaseDocumentAttachment;
-import dk.openesdh.repo.model.DocumentCategory;
-import dk.openesdh.repo.model.DocumentStatus;
-import dk.openesdh.repo.model.DocumentType;
-import dk.openesdh.repo.model.ResultSet;
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.lock.OELockService;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
@@ -38,6 +28,21 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.CollectionUtils;
+
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
+
+import dk.openesdh.repo.helper.CaseDocumentTestHelper;
+import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.model.CaseDocument;
+import dk.openesdh.repo.model.CaseDocumentAttachment;
+import dk.openesdh.repo.model.DocumentCategory;
+import dk.openesdh.repo.model.DocumentStatus;
+import dk.openesdh.repo.model.DocumentType;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.model.ResultSet;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.lock.OELockService;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -304,7 +309,6 @@ public class DocumentServiceImplIT {
         Assert.assertFalse("Document attachment is locked after being finalized but should be unlocked", oeLockService.isLocked(testDocumentAttachment3));
     }
 
-    
     //TODO: Add this test back after demo: see OPENE-278
 //    @Test
 //    public void finalizeNonAcceptableFormatDocument() throws Exception {
@@ -353,5 +357,34 @@ public class DocumentServiceImplIT {
 
     private <T> T getSecondItemFrom(List<T> collection) {
         return collection.stream().skip(1).findFirst().get();
+    }
+
+    @Test
+    public void shouldCreateCaseDocumentInsideOfOwnFolder() {
+        int size = documentService.getDocumentsForCase(testCase2).size();
+        NodeRef createdDocFolderNode = creeateCaseTestDocument(testCase2);
+        Assert.assertTrue(nodeService.getType(createdDocFolderNode).isMatch(OpenESDHModel.TYPE_DOC_SIMPLE));
+        Assert.assertEquals("Size of documents increased by 1", size + 1, documentService.getDocumentsForCase(testCase2).size());
+    }
+
+    @Test
+    public void shouldCreateMoreThan2DocumentsWithSameName() {
+        int repeats = 3;
+        int size = documentService.getDocumentsForCase(testCase2).size();
+        for (int i = 0; i < repeats; i++) {
+            creeateCaseTestDocument(testCase2);
+        }
+        Assert.assertEquals("Size of documents increased by 2", size + repeats, documentService.getDocumentsForCase(testCase2).size());
+    }
+
+    private NodeRef creeateCaseTestDocument(NodeRef caseNodeRef) {
+        return documentService.createCaseDocument(caseNodeRef,
+                TEST_DOCUMENT_NAME, TEST_DOCUMENT_FILE_NAME,
+                documentTypeService.getDocumentTypeByName(OpenESDHModel.DOCUMENT_TYPE_LETTER).get().getNodeRef().toString(),
+                documentCategoryService.getDocumentCategoryByName(OpenESDHModel.DOCUMENT_CATEGORY_OTHER).get().getNodeRef().toString(),
+                writer -> {
+                    writer.setMimetype(MimetypeMap.MIMETYPE_TEXT_PLAIN);
+                    writer.putContent("Some content");
+                });
     }
 }

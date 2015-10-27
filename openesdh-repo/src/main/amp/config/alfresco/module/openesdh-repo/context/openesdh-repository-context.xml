@@ -214,19 +214,9 @@
         <property name="contentService" ref="ContentService" />
     </bean>
 
-    <bean id="webscript.dk.openesdh.caseemail.post" class="dk.openesdh.repo.webscripts.documents.EmailDocument" parent="webscript">
-        <property name="caseService" ref="CaseService" />
-        <property name="documentService" ref="DocumentService" />
-        <property name="documentTypeService" ref="DocumentTypeService" />
-        <property name="documentCategoryService" ref="DocumentCategoryService" />
-        <property name="personService" ref="PersonService" />
-        <property name="nodeService" ref="NodeService"/>
-        <property name="contentService" ref="ContentService" />
-    </bean>
-
     <bean id="openesdhNotesWebscript"
-          class="dk.openesdh.repo.webscripts.notes.NotesWebScript"
-          parent="webscript">
+              class="dk.openesdh.repo.webscripts.notes.NotesWebScript"
+              parent="webscript">
         <property name="noteService" ref="NoteService"/>
     </bean>
     <bean id="webscript.dk.openesdh.notes.notes.get" parent="openesdhNotesWebscript"></bean>
@@ -341,17 +331,6 @@
     <bean id="webscript.dk.openesdh.documents.categories.doccategory.get" parent="documentCategoriesWebscript"></bean>
     <bean id="webscript.dk.openesdh.documents.categories.doccategory.post" parent="documentCategoriesWebscript"></bean>
     <bean id="webscript.dk.openesdh.documents.categories.doccategory.delete" parent="documentCategoriesWebscript"></bean>
-    
-    <bean id="webscript.dk.openesdh.workflows.allWorkflowsTasks.get"
-          class="dk.openesdh.repo.webscripts.workflows.TasksOfAllWorkflowInstancesWebScript"
-          parent="webscript">
-        <property name="namespaceService" ref="NamespaceService"/>
-        <property name="nodeService" ref="NodeService"/>
-        <property name="personService" ref="PersonService"/>
-        <property name="dictionaryService" ref="DictionaryService"/>
-        <property name="authenticationService" ref="AuthenticationService"/>
-        <property name="workflowService" ref="WorkflowService"/>
-    </bean>
     
     <!--Adding members to group-->
     <bean id="webscript.org.alfresco.repository.groups.children.put" parent="webscript"

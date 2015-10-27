@@ -1,9 +1,14 @@
 package dk.openesdh.repo.services.audit;
 
-import dk.openesdh.repo.model.OpenESDHModel;
-
 import java.io.Serializable;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -13,7 +18,6 @@ import org.alfresco.model.BlogIntegrationModel;
 import org.alfresco.model.ContentModel;
 import org.alfresco.model.ForumModel;
 import org.alfresco.model.ImapModel;
-import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
 import org.alfresco.service.cmr.audit.AuditService;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.dictionary.PropertyDefinition;
@@ -23,6 +27,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.simple.JSONArray;
 import org.springframework.extensions.surf.util.I18NUtil;
+
+import dk.openesdh.repo.model.OpenESDHModel;
 
 /**
  * Created by flemmingheidepedersen on 18/11/14.
@@ -40,6 +46,10 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
     private static final String PARTY_ADD_GROUP_NAME = "/esdh/child/add/args/groupName";
     private static final String PARTY_REMOVE_NAME = "/esdh/child/remove/args/contactName";
     private static final String PARTY_REMOVE_GROUP_NAME = "/esdh/child/remove/args/groupName";
+    private static final String WORKFLOW_START_CASE = "/esdh/workflow/start/case";
+    private static final String WORKFLOW_START_DESCRIPTION = "/esdh/workflow/start/description";
+    private static final String WORKFLOW_END_TASK_CASE = "/esdh/workflow/endTask/case";
+    private static final String WORKFLOW_END_TASK_DESCRIPTION = "/esdh/workflow/endTask/description";
 
     private static final int MAX_NOTE_TEXT_LENGTH = 40;
 
@@ -69,71 +79,62 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
         return true;
     }
 
+    @SuppressWarnings("unchecked")
     @Override
     public boolean handleAuditEntry(Long entryId, String applicationName, String user, long time, Map<String, Serializable> values) {
-        try {
-            JSONObject auditEntry = new JSONObject();
-            auditEntry.put("user", user);
-            auditEntry.put("time", time);
 
-            // Added member to role
-            if (values.containsKey(MEMBER_ADD_PATH)) {
-                addEntryMemberAdd(values, auditEntry);
-                return true;
-            }
-
-            // Removed member from role
-            if (values.containsKey(MEMBER_REMOVE_PATH)) {
-                addEntryMemberRemove(values, auditEntry);
-                return true;
-            }
-
-            // file/folder CRUD transaction
-            if (values.containsKey(TRANSACTION_PATH)) {
-                switch ((String) values.get(TRANSACTION_ACTION)) {
-                    case "CREATE":
-                        addEntryTransactionCreate(values, auditEntry);
-                        break;
-                    case "DELETE":
-                        addEntryTransactionDelete(values, auditEntry);
-                        break;
-                    case "CHECK IN":
-                        addEntryTransactionCheckIn(values, auditEntry);
-                        break;
-                    case "updateNodeProperties":
-                        addEntryTransactionUpdateProperties(values, auditEntry);
-                        break;
-                    default:
-                        if (values.containsKey(TRANSACTION_SUB_ACTIONS)) {
-                            String subActions = (String) values.get(TRANSACTION_SUB_ACTIONS);
-                            if (subActions.contains("updateNodeProperties")) {
-                                addEntryTransactionUpdateProperties(values, auditEntry);
-                                return true;
-                            }
-                        }
-                        break;
-                }
-                return true;
-            }
-
-            // Added party
-            if (values.containsKey(PARTY_ADD_NAME)) {
-                addEntryPartyAdd(values, auditEntry);
-                return true;
-            }
-
-            // Removed party
-            if (values.containsKey(PARTY_REMOVE_NAME)) {
-                addEntryPartyRemove(values, auditEntry);
-                return true;
-            }
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
+        getAuditEntryHandler(values.keySet())
+            .flatMap(handler -> handler.createAuditEntry(user, time, values))
+            .ifPresent(auditEntry -> result.add(auditEntry));
         return true;
     }
 
-    private void addEntryTransactionUpdateProperties(Map<String, Serializable> values, JSONObject auditEntry) throws JSONException {
+    private Optional<AuditEntryHandler> getAuditEntryHandler(Set<String> auditValuesEntryKeys) {
+        return getAuditEntryHandlers().entrySet()
+                .stream()
+               .filter(handler -> auditValuesEntryKeys.contains(handler.getKey()))
+               .findAny()
+               .map(handler -> handler.getValue());
+    }
+
+    private Map<String, AuditEntryHandler> getAuditEntryHandlers() {
+        Map<String, AuditEntryHandler> handlers = new HashMap<String, AuditEntryHandler>();
+        handlers.put(PARTY_REMOVE_NAME, this::getEntryPartyRemove);
+        handlers.put(PARTY_ADD_NAME, this::getEntryPartyAdd);
+        handlers.put(MEMBER_ADD_PATH, this::getEntryMemberAdd);
+        handlers.put(MEMBER_REMOVE_PATH, this::getEntryMemberRemove);
+        handlers.put(TRANSACTION_PATH, this::getEntryTransactionPath);
+        handlers.put(WORKFLOW_START_CASE, this::getEntryWorkflowStart);
+        handlers.put(WORKFLOW_END_TASK_CASE, this::getEntryWorkflowTaskEnd);
+        return handlers;
+    }
+
+    private Optional<JSONObject> getEntryTransactionPath(String user, long time, Map<String, Serializable> values) throws JSONException{
+        
+        switch ((String) values.get(TRANSACTION_ACTION)) {
+        case "CREATE":
+            return getEntryTransactionCreate(user, time, values);
+        case "DELETE":
+            return getEntryTransactionDelete(user, time, values);
+        case "CHECK IN":
+            return getEntryTransactionCheckIn(user, time, values);
+        case "updateNodeProperties":
+            return getEntryTransactionUpdateProperties(user, time, values);
+
+            default:
+                if (values.containsKey(TRANSACTION_SUB_ACTIONS)) {
+                    String subActions = (String) values.get(TRANSACTION_SUB_ACTIONS);
+                    if (subActions.contains("updateNodeProperties")) {
+                        return getEntryTransactionUpdateProperties(user, time, values);
+                    }
+                }
+        }
+        return Optional.empty();
+    }
+
+    @SuppressWarnings("unchecked")
+    private Optional<JSONObject> getEntryTransactionUpdateProperties(String user, long time,
+            Map<String, Serializable> values) throws JSONException {
         QName nodeType = (QName) values.get("/esdh/transaction/nodeType");
         String type;
         if (dictionaryService.isSubClass(nodeType, OpenESDHModel.TYPE_CASE_BASE)) {
@@ -144,12 +145,12 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
             // TODO: Distinguish between main file and attachments
             type = "attachment";
         } else {
-            return;
+            return Optional.empty();
         }
         Map<QName, Serializable> fromMap = (Map<QName, Serializable>) values.get("/esdh/transaction/properties/from");
         Map<QName, Serializable> toMap = (Map<QName, Serializable>) values.get("/esdh/transaction/properties/to");
         if (fromMap == null || toMap == null) {
-            return;
+            return Optional.empty();
         }
         fromMap = filterUndesirableProps(fromMap);
         toMap = filterUndesirableProps(toMap);
@@ -160,11 +161,14 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
                     getPropertyTitle(qName), value.toString(), finalToMap
                             .get(qName).toString()));
         });
-        if (!changes.isEmpty()) {
-            auditEntry.put("type", getTypeMessage(type));
-            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.properties.updated", StringUtils.join(changes, ";\n")));
-            result.add(auditEntry);
+        if (changes.isEmpty()) {
+            return Optional.empty();
         }
+        JSONObject auditEntry = createNewAuditEntry(user, time);
+        auditEntry.put("type", getTypeMessage(type));
+        auditEntry.put("action",
+                I18NUtil.getMessage("auditlog.label.properties.updated", StringUtils.join(changes, ";\n")));
+        return Optional.of(auditEntry);
     }
 
     private String getPropertyTitle(QName qName) {
@@ -180,41 +184,23 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
 
 
     private Map<QName, Serializable> filterUndesirableProps(Map<QName, Serializable> map) {
-        return map.entrySet().stream().filter(
-                p -> !undesiredProps.contains(p.getKey()))
-                .collect(Collectors.toMap(p -> p.getKey(), p -> p.getValue()));
+        return map.entrySet()
+                .stream()
+                .filter(p -> !undesiredProps.contains(p.getKey()))
+                .collect(Collectors.toMap(p -> p.getKey(), p -> Optional.ofNullable(p.getValue()).orElse("")));
     }
 
-    private void addEntryMemberAdd(Map<String, Serializable> values, JSONObject auditEntry) throws JSONException {
-        String parent = (String) values.get(MEMBER_ADD_PATH);
-        String role = getRoleFromCaseGroupName(parent);
-        if (role != null) {
-            String authority = (String) values.get(MEMBER_ADD_CHILD);
-            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.member.added", authority, role));
-            auditEntry.put("type", getTypeMessage("member"));
-            result.add(auditEntry);
-        }
-    }
-
-    private void addEntryMemberRemove(Map<String, Serializable> values, JSONObject auditEntry) throws JSONException {
-        String parent = (String) values.get(MEMBER_REMOVE_PATH);
-        String role = getRoleFromCaseGroupName(parent);
-        if (role != null) {
-            String authority = (String) values.get(MEMBER_REMOVE_CHILD);
-            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.member.removed", authority, role));
-            auditEntry.put("type", getTypeMessage("member"));
-            result.add(auditEntry);
-        }
-    }
-
-    private void addEntryTransactionCreate(Map<String, Serializable> values, JSONObject auditEntry) throws JSONException {
+    @SuppressWarnings("unchecked")
+    private Optional<JSONObject> getEntryTransactionCreate(String user, long time, Map<String, Serializable> values)
+            throws JSONException {
         String type = (String) values.get("/esdh/transaction/type");
         String path = (String) values.get("/esdh/transaction/path");
         String[] pArray = path.split("/");
         Set<QName> aspectsAdd = (Set<QName>) values.get("/esdh/transaction/aspects/add");
 
-        Map properties = (Map) values.get("/esdh/transaction/properties/add");
-
+        Map<QName, Serializable> properties = (Map<QName, Serializable>) values
+                .get("/esdh/transaction/properties/add");
+        JSONObject auditEntry = createNewAuditEntry(user, time);
         if (path.contains(OpenESDHModel.DOCUMENTS_FOLDER_NAME)) {
             QName name = ContentModel.PROP_NAME;
             // TODO: These checks should check for subtypes using
@@ -224,8 +210,8 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
                 if (!isMainFile) {
                     auditEntry.put("action", I18NUtil.getMessage("auditlog.label.attachment.added") + " " + properties.get(name));
                     auditEntry.put("type", getTypeMessage("attachment"));
-                    result.add(auditEntry);
                 } else {
+                    return Optional.empty();
                     // Adding main doc, don't log an entry because you would
                     // get two entries when adding a document: one for the record
                     // and one for the main file
@@ -233,63 +219,128 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
             } else if (type.contains("doc:")) {
                 auditEntry.put("action", I18NUtil.getMessage("auditlog.label.document.added") + " " + properties.get(name));
                 auditEntry.put("type", getTypeMessage("document"));
-                result.add(auditEntry);
+            } else {
+                return Optional.empty();
             }
         } else if (type.startsWith("note:")) {
             String trimmedNote = StringUtils.abbreviate((String) properties.get(OpenESDHModel.PROP_NOTE_CONTENT), MAX_NOTE_TEXT_LENGTH);
             auditEntry.put("action", I18NUtil.getMessage("auditlog.label.note.added") + " " + trimmedNote);
             auditEntry.put("type", getTypeMessage("note"));
-            result.add(auditEntry);
         } else {
             auditEntry.put("action", I18NUtil.getMessage("auditlog.label.case.created") + " " + pArray[pArray.length - 1].split(":")[1]);
             auditEntry.put("type", getTypeMessage("case"));
-            result.add(auditEntry);
         }
+        return Optional.of(auditEntry);
     }
 
-    private void addEntryTransactionDelete(Map<String, Serializable> values, JSONObject auditEntry) throws JSONException {
-        HashSet<String> aspects = (HashSet) values.get("/esdh/transaction/aspects/delete");
+    @SuppressWarnings("unchecked")
+    private Optional<JSONObject> getEntryTransactionDelete(String user, long time, Map<String, Serializable> values)
+            throws JSONException {
+        HashSet<String> aspects = (HashSet<String>) values.get("/esdh/transaction/aspects/delete");
         String path = (String) values.get("/esdh/transaction/path");
         String[] pArray = path.split("/");
-
+        JSONObject auditEntry = createNewAuditEntry(user, time);
         if (aspects != null && aspects.contains(ContentModel.ASPECT_COPIEDFROM.toString())) {
             auditEntry.put("action", I18NUtil.getMessage("auditlog.label.finished.editing") + " " + pArray[pArray.length - 1].split(":")[1]);
             auditEntry.put("type", getTypeMessage("system"));
-            result.add(auditEntry);
         } else {
             auditEntry.put("action", I18NUtil.getMessage("auditlog.label.deleted.document") + " " + pArray[pArray.length - 1].split(":")[1]);
             auditEntry.put("type", getTypeMessage("system"));
-            result.add(auditEntry);
         }
+        return Optional.of(auditEntry);
     }
 
-    private void addEntryTransactionCheckIn(Map<String, Serializable> values, JSONObject auditEntry) throws JSONException {
+    private Optional<JSONObject> getEntryTransactionCheckIn(String user, long time, Map<String, Serializable> values)
+            throws JSONException {
         String path = (String) values.get("/esdh/transaction/path");
         String[] pArray = path.split("/");
-
+        JSONObject auditEntry = createNewAuditEntry(user, time);
         auditEntry.put("action", I18NUtil.getMessage("auditlog.label.checkedin") + " " + pArray[pArray.length - 1].split(":")[1]);
         auditEntry.put("type", getTypeMessage("system"));
-        result.add(auditEntry);
+        return Optional.of(auditEntry);
     }
 
-    private void addEntryPartyAdd(Map<String, Serializable> values, JSONObject auditEntry) throws JSONException {
+    private Optional<JSONObject> getEntryMemberAdd(String user, long time, Map<String, Serializable> values)
+            throws JSONException {
+        String parent = (String) values.get(MEMBER_ADD_PATH);
+        String role = getRoleFromCaseGroupName(parent);
+        if (role == null) {
+            return Optional.empty();
+        }
+        String authority = (String) values.get(MEMBER_ADD_CHILD);
+        JSONObject auditEntry = createNewAuditEntry(user, time);
+        auditEntry.put("action", I18NUtil.getMessage("auditlog.label.member.added", authority, role));
+        auditEntry.put("type", getTypeMessage("member"));
+        return Optional.of(auditEntry);
+    }
+
+    private Optional<JSONObject> getEntryMemberRemove(String user, long time, Map<String, Serializable> values)
+            throws JSONException {
+        String parent = (String) values.get(MEMBER_REMOVE_PATH);
+        String role = getRoleFromCaseGroupName(parent);
+        if (role == null) {
+            return Optional.empty();
+        }
+        String authority = (String) values.get(MEMBER_REMOVE_CHILD);
+        JSONObject auditEntry = createNewAuditEntry(user, time);
+        auditEntry.put("action", I18NUtil.getMessage("auditlog.label.member.removed", authority, role));
+        auditEntry.put("type", getTypeMessage("member"));
+        return Optional.of(auditEntry);
+    }
+
+    private Optional<JSONObject> getEntryPartyAdd(String user, long time, Map<String, Serializable> values)
+            throws JSONException {
         String contactName = (String) values.get(PARTY_ADD_NAME);
-        if (StringUtils.isNotEmpty(contactName)) {
-            String groupName = (String) values.get(PARTY_ADD_GROUP_NAME);
-            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.party.added", contactName, groupName));
-            auditEntry.put("type", getTypeMessage("party"));
-            result.add(auditEntry);
+        if (StringUtils.isEmpty(contactName)) {
+            return Optional.empty();
         }
+        JSONObject auditEntry = createNewAuditEntry(user, time);
+        String groupName = (String) values.get(PARTY_ADD_GROUP_NAME);
+        auditEntry.put("action", I18NUtil.getMessage("auditlog.label.party.added", contactName, groupName));
+        auditEntry.put("type", getTypeMessage("party"));
+        return Optional.of(auditEntry);
     }
 
-    private void addEntryPartyRemove(Map<String, Serializable> values, JSONObject auditEntry) throws JSONException {
+    private Optional<JSONObject> getEntryPartyRemove(String user, long time, Map<String, Serializable> values)
+            throws JSONException {
         String contactName = (String) values.get(PARTY_REMOVE_NAME);
-        if (StringUtils.isNotEmpty(contactName)) {
-            String groupName = (String) values.get(PARTY_REMOVE_GROUP_NAME);
-            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.party.removed", contactName, groupName));
-            auditEntry.put("type", getTypeMessage("party"));
-            result.add(auditEntry);
+        if (StringUtils.isEmpty(contactName)) {
+            return Optional.empty();
         }
+        JSONObject auditEntry = createNewAuditEntry(user, time);
+        String groupName = (String) values.get(PARTY_REMOVE_GROUP_NAME);
+        auditEntry.put("action", I18NUtil.getMessage("auditlog.label.party.removed", contactName, groupName));
+        auditEntry.put("type", getTypeMessage("party"));
+        return Optional.of(auditEntry);
+    }
+
+    private Optional<JSONObject> getEntryWorkflowStart(String user, long time, Map<String, Serializable> values)
+            throws JSONException {
+        JSONObject auditEntry = createNewAuditEntry(user, time);
+        putAuditEntryType(auditEntry, "workflow");
+        auditEntry.put("action",
+                I18NUtil.getMessage("auditlog.label.workflow.started", values.get(WORKFLOW_START_DESCRIPTION)));
+        return Optional.of(auditEntry);
+    }
+
+    private Optional<JSONObject> getEntryWorkflowTaskEnd(String user, long time, Map<String, Serializable> values)
+            throws JSONException {
+        JSONObject auditEntry = createNewAuditEntry(user, time);
+        putAuditEntryType(auditEntry, "workflow");
+        auditEntry.put("action",
+                I18NUtil.getMessage("auditlog.label.workflow.task.ended", values.get(WORKFLOW_END_TASK_DESCRIPTION)));
+        return Optional.of(auditEntry);
+    }
+
+    private JSONObject createNewAuditEntry(String user, long time) throws JSONException {
+        JSONObject auditEntry = new JSONObject();
+        auditEntry.put("user", user);
+        auditEntry.put("time", time);
+        return auditEntry;
+    }
+
+    private void putAuditEntryType(JSONObject auditEntry, String type) throws JSONException {
+        auditEntry.put("type", getTypeMessage(type));
     }
 
     private String getTypeMessage(String type) {
@@ -315,5 +366,20 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
     @Override
     public boolean handleAuditEntryError(Long entryId, String errorMsg, Throwable error) {
         throw new AlfrescoRuntimeException(errorMsg, error);
+    }
+
+    interface AuditEntryHandler {
+
+        Optional<JSONObject> handleEntry(String user, long time, Map<String, Serializable> values)
+                throws JSONException;
+
+        default Optional<JSONObject> createAuditEntry(String user, long time, Map<String, Serializable> values) {
+            try {
+                return handleEntry(user, time, values);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            return Optional.empty();
+        }
     }
 }

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<model name="oewf:OpeneWorkflowModel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+
+   <imports>
+      <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>
+      <import uri="http://www.alfresco.org/model/bpm/1.0" prefix="bpm"/>
+   </imports>
+
+   <namespaces>
+      <namespace uri="http://openesdh.dk/model/workflow/1.0" prefix="oewf"/>
+   </namespaces>
+      
+   <types>
+        <type name="oewf:activitiSequentialReviewTask">
+            <parent>bpm:activitiOutcomeTask</parent>
+            <mandatory-aspects>
+                <aspect>oewf:reviewComments</aspect>
+            </mandatory-aspects>
+        </type>
+        
+        <type name="oewf:sequentialApprovedTask">
+	        <parent>bpm:workflowTask</parent>
+	        <mandatory-aspects>
+                <aspect>oewf:reviewComments</aspect>
+            </mandatory-aspects>
+        </type>
+	
+	    <type name="oewf:sequentialRejectedTask">
+	        <parent>bpm:workflowTask</parent>
+	        <mandatory-aspects>
+	            <aspect>oewf:reviewComments</aspect>
+	        </mandatory-aspects>
+	    </type>
+   </types>
+
+    <aspects>
+      <aspect name="oewf:reviewComments">
+         <properties>
+            <property name="oewf:comments">
+                 <type>d:text</type>
+            </property>
+         </properties> 
+      </aspect>
+   </aspects>
+</model>

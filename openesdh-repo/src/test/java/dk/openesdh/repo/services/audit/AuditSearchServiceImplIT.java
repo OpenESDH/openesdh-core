@@ -1,19 +1,13 @@
 package dk.openesdh.repo.services.audit;
 
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
-import dk.openesdh.repo.helper.CaseDocumentTestHelper;
-import dk.openesdh.repo.helper.CaseHelper;
-import dk.openesdh.repo.model.ContactType;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.cases.PartyService;
-import dk.openesdh.repo.services.contacts.ContactServiceImpl;
+import static org.junit.Assert.assertTrue;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
+
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.audit.AuditService;
@@ -27,7 +21,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.simple.JSONArray;
 import org.junit.After;
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,6 +28,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
+
+import dk.openesdh.repo.helper.CaseDocumentTestHelper;
+import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.model.ContactType;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.cases.PartyService;
+import dk.openesdh.repo.services.contacts.ContactServiceImpl;
 
 /**
  * Created by flemming on 18/08/14.
@@ -87,8 +91,6 @@ public class AuditSearchServiceImplIT {
     private static final String SENDER_ROLE = "Afsender";
     private static final String NAME = "test1";
     private static final String DUMMY_USER = "dummyH" + new Date().getTime();
-    private static final String MJACKSON = "mjackson";
-    private static final String READER_ROLE = "CaseSimpleReader";
     private String caseAId;
     private NodeRef caseA = null;
     private NodeRef owner = null;
@@ -116,11 +118,11 @@ public class AuditSearchServiceImplIT {
             //remove party
             partyService.removePartyRole(caseAId, contact.toString(), SENDER_ROLE);
 
-            NodeRef mjacksonNodeRef = authorityService.getAuthorityNodeRef(MJACKSON);
+            NodeRef mjacksonNodeRef = authorityService.getAuthorityNodeRef(CaseHelper.MIKE_JACKSON);
             //add member
-            caseService.addAuthorityToRole(mjacksonNodeRef, READER_ROLE, caseA);
+            caseService.addAuthorityToRole(mjacksonNodeRef, CaseHelper.CASE_READER_ROLE, caseA);
             //remove member
-            caseService.removeAuthorityFromRole(MJACKSON, READER_ROLE, caseA);
+            caseService.removeAuthorityFromRole(CaseHelper.MIKE_JACKSON, CaseHelper.CASE_READER_ROLE, caseA);
             return null;
         });
     }
@@ -133,6 +135,7 @@ public class AuditSearchServiceImplIT {
         return contactService.createContact(TEST_PERSON_CONTACT_EMAIL, ContactType.PERSON.name(), personProps);
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void testAuditLog() throws Exception {
         JSONArray result = auditSearchService.getAuditLogByCaseNodeRef(caseA, 1000);

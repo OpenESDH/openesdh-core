@@ -28,10 +28,6 @@
             <ref bean="PermissionService"/>
         </property>
 
-        <property name="repositoryHelper">
-            <ref bean="repositoryHelper"/>
-        </property>
-
         <property name="transactionService">
             <ref bean="TransactionService"/>
         </property>
@@ -58,6 +54,10 @@
         
         <property name="openESDHFoldersService">
             <ref bean="OpenESDHFoldersService"/>
+        </property>
+        
+        <property name="personService">
+            <ref bean="PersonService"/>
         </property>
     </bean>
     
@@ -305,14 +305,6 @@
         <property name="namespacePrefixResolver" ref="namespaceService"/>
     </bean>
     
-    <bean id="CaseWorkflowService"
-          class="dk.openesdh.repo.services.workflow.CaseWorkflowServiceImpl">
-        <property name="nodeService" ref="NodeService" />
-        <property name="workflowService" ref="WorkflowService" />
-        <property name="namespaceService" ref="NamespaceService"/>
-        <property name="dictionaryService" ref="DictionaryService" />
-    </bean>
-
     <bean id="OfficeTemplateService"
           class="dk.openesdh.repo.services.officetemplate.OfficeTemplateServiceImpl"
           init-method="init">

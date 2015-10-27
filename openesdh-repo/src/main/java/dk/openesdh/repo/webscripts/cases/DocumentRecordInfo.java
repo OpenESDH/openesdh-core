@@ -1,25 +1,27 @@
 package dk.openesdh.repo.webscripts.cases;
 
-import dk.openesdh.repo.model.DocumentCategory;
-import dk.openesdh.repo.model.DocumentType;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.NodeInfoService;
-import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.services.lock.OELockService;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Map;
 
-import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.PersonService.PersonInfo;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
+
+import dk.openesdh.repo.model.DocumentCategory;
+import dk.openesdh.repo.model.DocumentType;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.NodeInfoService;
+import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.services.lock.OELockService;
+import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 /**
  * @author Lanre Abiwon
@@ -46,10 +48,12 @@ public class DocumentRecordInfo extends AbstractWebScript {
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
         Map<String, String> templateArgs = req.getServiceMatch().getTemplateVars();
         NodeRef documentNodeRef = new NodeRef(templateArgs.get("store_type"), templateArgs.get("store_id"), templateArgs.get("id"));
-        NodeInfoService.NodeInfo documentNodeInfo = nodeInfoService.getNodeInfo(documentNodeRef);
+        NodeRef mainDocNodeRef = documentService.getMainDocument(documentNodeRef);
 
         PersonInfo docOwner = documentService.getDocumentOwner(documentNodeRef);
-        NodeRef mainDocNodeRef = documentService.getMainDocument(documentNodeRef);
+        NodeInfoService.NodeInfo documentNodeInfo = nodeInfoService.getNodeInfo(documentNodeRef);
+        NodeInfoService.NodeInfo mainDocNodeInfo = nodeInfoService.getNodeInfo(mainDocNodeRef);
+
         DocumentType documentType = documentService.getDocumentType(documentNodeRef);
         DocumentCategory documentCategory = documentService.getDocumentCategory(documentNodeRef);
 
@@ -72,6 +76,7 @@ public class DocumentRecordInfo extends AbstractWebScript {
 
             result.put("owner", docOwner.getFirstName() + " " + docOwner.getLastName());
             result.put("mainDocNodeRef", mainDocNodeRef.toString());
+            result.put("description", StringUtils.defaultIfEmpty((String) mainDocNodeInfo.properties.get(ContentModel.PROP_DESCRIPTION), ""));
             result.put("statusChoices", documentService.getValidNextStatuses(documentNodeRef));
             result.put("isLocked", oeLockService.isLocked(documentNodeRef));
 
