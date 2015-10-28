@@ -13,7 +13,6 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
-import org.alfresco.util.Pair;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -26,8 +25,8 @@ import java.util.List;
  *
  * @author Lanre
  */
-public class CreateUserBehaviour implements NodeServicePolicies.OnCreateNodePolicy {
-    private static Log logger = LogFactory.getLog(CreateUserBehaviour.class);
+public class CheckUserEmailBehaviour implements NodeServicePolicies.OnCreateNodePolicy, NodeServicePolicies.OnUpdateNodePolicy {
+    private static Log logger = LogFactory.getLog(CheckUserEmailBehaviour.class);
 
     //<editor-fold desc="Dependencies">
     private NodeService nodeService;
@@ -37,39 +36,49 @@ public class CreateUserBehaviour implements NodeServicePolicies.OnCreateNodePoli
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
     }
-
     public void setPersonService(PersonService personService) {
         this.personService = personService;
     }
-
     public void setPolicyComponent(PolicyComponent policyComponent) {
         this.policyComponent = policyComponent;
     }
 
     // Behaviours
     private Behaviour onCreateNode;
+    private Behaviour onUpdateNode;
     //</editor-fold>
 
     public void init() {
 
         // Create behaviours
         this.onCreateNode = new JavaBehaviour(this, "onCreateNode", Behaviour.NotificationFrequency.TRANSACTION_COMMIT);
+        this.onUpdateNode = new JavaBehaviour(this, "onUpdateNode", Behaviour.NotificationFrequency.TRANSACTION_COMMIT);
 
         // Bind behaviours to node policies
         this.policyComponent.bindClassBehaviour(NodeServicePolicies.OnCreateNodePolicy.QNAME, ContentModel.TYPE_PERSON,
                 this.onCreateNode);
+        this.policyComponent.bindClassBehaviour(NodeServicePolicies.OnUpdateNodePolicy.QNAME, ContentModel.TYPE_PERSON,
+                this.onUpdateNode);
     }
 
     public void onCreateNode(ChildAssociationRef childAssocRef) {
         NodeRef personRef = childAssocRef.getChildRef();
         String email = this.nodeService.getProperty(personRef, ContentModel.PROP_EMAIL).toString();
+        if(checkIfEmailExists(email))
+            throw new AlfrescoRuntimeException("Error creating person: Email must be unique and already exists.");
+    }
+
+    public void onUpdateNode(NodeRef personRef) {
+        String email = this.nodeService.getProperty(personRef, ContentModel.PROP_EMAIL).toString();
+        if(checkIfEmailExists(email))
+            throw new AlfrescoRuntimeException("Error updating email: already exists.");
+    }
+
+    public boolean checkIfEmailExists(String email){
+        PagingRequest paging = new PagingRequest(5);
         List<QName> filterProps = new ArrayList<>();
         filterProps.add(ContentModel.PROP_EMAIL);
-        PagingRequest paging = new PagingRequest(10);
-
         PagingResults<PersonService.PersonInfo> persons = personService.getPeople(email, filterProps, null, paging);
-        if(persons.getPage().size() > 1)
-            throw new AlfrescoRuntimeException("Error creating person: Email must be unique and already exists. Page size: "+persons.getPage().size());
-
+        return persons.getPage().size() > 1;
     }
 }
