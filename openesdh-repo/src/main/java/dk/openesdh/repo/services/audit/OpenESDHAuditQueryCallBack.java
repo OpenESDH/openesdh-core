@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -27,6 +28,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.simple.JSONArray;
 import org.springframework.extensions.surf.util.I18NUtil;
+
+import com.google.common.base.Joiner;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 
@@ -50,6 +53,8 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
     private static final String WORKFLOW_START_DESCRIPTION = "/esdh/workflow/start/description";
     private static final String WORKFLOW_END_TASK_CASE = "/esdh/workflow/endTask/case";
     private static final String WORKFLOW_END_TASK_DESCRIPTION = "/esdh/workflow/endTask/description";
+    private static final String CASE_EMAIL_RECIPIENTS = "/esdh/action/case-email/recipients";
+    private static final String CASE_EMAIL_ATTACHMENTS = "/esdh/action/case-email/attachments";
 
     private static final int MAX_NOTE_TEXT_LENGTH = 40;
 
@@ -62,9 +67,9 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
             ImapModel.PROP_CHANGE_TOKEN, ImapModel.PROP_UIDVALIDITY,
             ImapModel.PROP_MAXUID, BlogIntegrationModel.PROP_LINK);
 
-    private JSONArray result = new JSONArray();
+    private final JSONArray result = new JSONArray();
 
-    private DictionaryService dictionaryService;
+    private final DictionaryService dictionaryService;
 
     public OpenESDHAuditQueryCallBack(DictionaryService dictionaryService) {
         this.dictionaryService = dictionaryService;
@@ -79,26 +84,24 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
         return true;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean handleAuditEntry(Long entryId, String applicationName, String user, long time, Map<String, Serializable> values) {
-
         getAuditEntryHandler(values.keySet())
-            .flatMap(handler -> handler.createAuditEntry(user, time, values))
-            .ifPresent(auditEntry -> result.add(auditEntry));
+                .flatMap(handler -> handler.createAuditEntry(user, time, values))
+                .ifPresent(auditEntry -> result.add(auditEntry));
         return true;
     }
 
     private Optional<AuditEntryHandler> getAuditEntryHandler(Set<String> auditValuesEntryKeys) {
         return getAuditEntryHandlers().entrySet()
                 .stream()
-               .filter(handler -> auditValuesEntryKeys.contains(handler.getKey()))
-               .findAny()
-               .map(handler -> handler.getValue());
+                .filter(handler -> auditValuesEntryKeys.contains(handler.getKey()))
+                .findAny()
+                .map(handler -> handler.getValue());
     }
 
     private Map<String, AuditEntryHandler> getAuditEntryHandlers() {
-        Map<String, AuditEntryHandler> handlers = new HashMap<String, AuditEntryHandler>();
+        Map<String, AuditEntryHandler> handlers = new HashMap<>();
         handlers.put(PARTY_REMOVE_NAME, this::getEntryPartyRemove);
         handlers.put(PARTY_ADD_NAME, this::getEntryPartyAdd);
         handlers.put(MEMBER_ADD_PATH, this::getEntryMemberAdd);
@@ -106,20 +109,21 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
         handlers.put(TRANSACTION_PATH, this::getEntryTransactionPath);
         handlers.put(WORKFLOW_START_CASE, this::getEntryWorkflowStart);
         handlers.put(WORKFLOW_END_TASK_CASE, this::getEntryWorkflowTaskEnd);
+        handlers.put(CASE_EMAIL_RECIPIENTS, this::getEntryCaseEmailSent);
         return handlers;
     }
 
-    private Optional<JSONObject> getEntryTransactionPath(String user, long time, Map<String, Serializable> values) throws JSONException{
-        
+    private Optional<JSONObject> getEntryTransactionPath(String user, long time, Map<String, Serializable> values) throws JSONException {
+
         switch ((String) values.get(TRANSACTION_ACTION)) {
-        case "CREATE":
-            return getEntryTransactionCreate(user, time, values);
-        case "DELETE":
-            return getEntryTransactionDelete(user, time, values);
-        case "CHECK IN":
-            return getEntryTransactionCheckIn(user, time, values);
-        case "updateNodeProperties":
-            return getEntryTransactionUpdateProperties(user, time, values);
+            case "CREATE":
+                return getEntryTransactionCreate(user, time, values);
+            case "DELETE":
+                return getEntryTransactionDelete(user, time, values);
+            case "CHECK IN":
+                return getEntryTransactionCheckIn(user, time, values);
+            case "updateNodeProperties":
+                return getEntryTransactionUpdateProperties(user, time, values);
 
             default:
                 if (values.containsKey(TRANSACTION_SUB_ACTIONS)) {
@@ -159,7 +163,7 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
         fromMap.forEach((qName, value) -> {
             changes.add(I18NUtil.getMessage("auditlog.label.property.update",
                     getPropertyTitle(qName), value.toString(), finalToMap
-                            .get(qName).toString()));
+                    .get(qName).toString()));
         });
         if (changes.isEmpty()) {
             return Optional.empty();
@@ -182,7 +186,6 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
         return qName.getLocalName();
     }
 
-
     private Map<QName, Serializable> filterUndesirableProps(Map<QName, Serializable> map) {
         return map.entrySet()
                 .stream()
@@ -202,13 +205,12 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
                 .get("/esdh/transaction/properties/add");
         JSONObject auditEntry = createNewAuditEntry(user, time);
         if (path.contains(OpenESDHModel.DOCUMENTS_FOLDER_NAME)) {
-            QName name = ContentModel.PROP_NAME;
             // TODO: These checks should check for subtypes using
             // dictionaryService
             if (type.equals("cm:content")) {
                 boolean isMainFile = aspectsAdd != null && aspectsAdd.contains(OpenESDHModel.ASPECT_DOC_IS_MAIN_FILE);
                 if (!isMainFile) {
-                    auditEntry.put("action", I18NUtil.getMessage("auditlog.label.attachment.added") + " " + properties.get(name));
+                    auditEntry.put("action", I18NUtil.getMessage("auditlog.label.attachment.added", localizedProperty(properties, ContentModel.PROP_TITLE)));
                     auditEntry.put("type", getTypeMessage("attachment"));
                 } else {
                     return Optional.empty();
@@ -217,20 +219,26 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
                     // and one for the main file
                 }
             } else if (type.contains("doc:")) {
-                auditEntry.put("action", I18NUtil.getMessage("auditlog.label.document.added") + " " + properties.get(name));
+                auditEntry.put("action", I18NUtil.getMessage("auditlog.label.document.added", localizedProperty(properties, ContentModel.PROP_TITLE)));
                 auditEntry.put("type", getTypeMessage("document"));
             } else {
                 return Optional.empty();
             }
         } else if (type.startsWith("note:")) {
             String trimmedNote = StringUtils.abbreviate((String) properties.get(OpenESDHModel.PROP_NOTE_CONTENT), MAX_NOTE_TEXT_LENGTH);
-            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.note.added") + " " + trimmedNote);
+            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.note.added", trimmedNote));
             auditEntry.put("type", getTypeMessage("note"));
         } else {
-            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.case.created") + " " + pArray[pArray.length - 1].split(":")[1]);
+            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.case.created", pArray[pArray.length - 1].split(":")[1]));
             auditEntry.put("type", getTypeMessage("case"));
         }
         return Optional.of(auditEntry);
+    }
+
+    private String localizedProperty(Map<QName, Serializable> properties, QName propQName) {
+        HashMap<Locale, String> property = (HashMap) properties.get(propQName);
+        String value = property.get(I18NUtil.getContentLocale());
+        return value == null ? property.get(Locale.ENGLISH) : "";
     }
 
     @SuppressWarnings("unchecked")
@@ -241,10 +249,10 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
         String[] pArray = path.split("/");
         JSONObject auditEntry = createNewAuditEntry(user, time);
         if (aspects != null && aspects.contains(ContentModel.ASPECT_COPIEDFROM.toString())) {
-            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.finished.editing") + " " + pArray[pArray.length - 1].split(":")[1]);
+            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.finished.editing", pArray[pArray.length - 1].split(":")[1]));
             auditEntry.put("type", getTypeMessage("system"));
         } else {
-            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.deleted.document") + " " + pArray[pArray.length - 1].split(":")[1]);
+            auditEntry.put("action", I18NUtil.getMessage("auditlog.label.deleted.document", pArray[pArray.length - 1].split(":")[1]));
             auditEntry.put("type", getTypeMessage("system"));
         }
         return Optional.of(auditEntry);
@@ -255,7 +263,7 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
         String path = (String) values.get("/esdh/transaction/path");
         String[] pArray = path.split("/");
         JSONObject auditEntry = createNewAuditEntry(user, time);
-        auditEntry.put("action", I18NUtil.getMessage("auditlog.label.checkedin") + " " + pArray[pArray.length - 1].split(":")[1]);
+        auditEntry.put("action", I18NUtil.getMessage("auditlog.label.checkedin", pArray[pArray.length - 1].split(":")[1]));
         auditEntry.put("type", getTypeMessage("system"));
         return Optional.of(auditEntry);
     }
@@ -298,6 +306,18 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
         String groupName = (String) values.get(PARTY_ADD_GROUP_NAME);
         auditEntry.put("action", I18NUtil.getMessage("auditlog.label.party.added", contactName, groupName));
         auditEntry.put("type", getTypeMessage("party"));
+        return Optional.of(auditEntry);
+    }
+
+    private Optional<JSONObject> getEntryCaseEmailSent(String user, long time, Map<String, Serializable> values)
+            throws JSONException {
+        JSONObject auditEntry = createNewAuditEntry(user, time);
+        List<String> participants = (List<String>) values.get(CASE_EMAIL_RECIPIENTS);
+        List<String> attachments = (List<String>) values.get(CASE_EMAIL_ATTACHMENTS);
+        auditEntry.put("action", I18NUtil.getMessage("auditlog.label.email.sent." + (attachments.size() == 1 ? "1" : "n"),
+                "\"" + Joiner.on("\", \"").join(attachments) + "\"",
+                Joiner.on(", ").join(participants)));
+        auditEntry.put("type", getTypeMessage("document"));
         return Optional.of(auditEntry);
     }
 
