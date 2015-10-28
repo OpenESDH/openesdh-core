@@ -55,6 +55,13 @@
         <property name="policyComponent" ref="policyComponent"/>
     </bean>
 
+    <!-- Keep user emails unique in the system-->
+    <bean id="userEmailCheckBehaviour" class="dk.openesdh.repo.policy.CreateUserBehaviour" init-method="init">
+        <property name="nodeService" ref="nodeService"/>
+        <property name="personService" ref="personService"/>
+        <property name="policyComponent" ref="policyComponent"/>
+    </bean>
+
     <!--  <bean id="documentsBehaviour" class="dk.openesdh.repo.policy.DocumentsBehaviour" init-method="init">
           <property name="nodeService">
               <ref bean="NodeService"/>
