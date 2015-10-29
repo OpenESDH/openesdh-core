@@ -14,6 +14,11 @@
    <types>
         <type name="oewf:activitiSequentialReviewTask">
             <parent>bpm:activitiOutcomeTask</parent>
+            <overrides>
+                <property name="bpm:outcomePropertyName">
+                    <default>{http://www.alfresco.org/model/workflow/1.0}seqReviewOutcome</default>
+                </property>
+            </overrides>
             <mandatory-aspects>
                 <aspect>oewf:reviewComments</aspect>
             </mandatory-aspects>

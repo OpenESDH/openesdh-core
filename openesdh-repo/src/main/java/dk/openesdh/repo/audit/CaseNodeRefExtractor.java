@@ -71,7 +71,7 @@ public final class CaseNodeRefExtractor extends AbstractAnnotatedDataExtractor {
             }
             return getNodeRefFromCaseDbID(parts[2]);
         } else if (str.startsWith("activiti$") && !str.contains("start")) {
-            return workflowTaskService.getWorkflowTaskCaseId(str)
+            return workflowTaskService.getWorkflowCaseId(str)
                     .map(caseId -> getNodeRefFromCaseID(caseId))
                     .orElse(null);
         } else if (CaseService.CASE_ID_PATTERN.matcher(str).matches()) {

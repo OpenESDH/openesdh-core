@@ -53,8 +53,12 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
     private static final String WORKFLOW_START_DESCRIPTION = "/esdh/workflow/start/description";
     private static final String WORKFLOW_END_TASK_CASE = "/esdh/workflow/endTask/case";
     private static final String WORKFLOW_END_TASK_DESCRIPTION = "/esdh/workflow/endTask/description";
+    private static final String WORKFLOW_END_TASK_REVIEW_OUTCOME = "/esdh/workflow/endTask/reviewOutcome";
     private static final String CASE_EMAIL_RECIPIENTS = "/esdh/action/case-email/recipients";
     private static final String CASE_EMAIL_ATTACHMENTS = "/esdh/action/case-email/attachments";
+
+    private static final String WORKFLOW_CANCEL_CASE = "/esdh/workflow/cancelWorkflow/case";
+    private static final String WORKFLOW_CANCEL_DESCRIPTION = "/esdh/workflow/cancelWorkflow/description";
 
     private static final int MAX_NOTE_TEXT_LENGTH = 40;
 
@@ -109,6 +113,7 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
         handlers.put(TRANSACTION_PATH, this::getEntryTransactionPath);
         handlers.put(WORKFLOW_START_CASE, this::getEntryWorkflowStart);
         handlers.put(WORKFLOW_END_TASK_CASE, this::getEntryWorkflowTaskEnd);
+        handlers.put(WORKFLOW_CANCEL_CASE, this::getEntryWorkflowCancel);
         handlers.put(CASE_EMAIL_RECIPIENTS, this::getEntryCaseEmailSent);
         return handlers;
     }
@@ -347,8 +352,22 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
             throws JSONException {
         JSONObject auditEntry = createNewAuditEntry(user, time);
         putAuditEntryType(auditEntry, "workflow");
+
+        String taskOutcome = Optional.ofNullable(values.get(WORKFLOW_END_TASK_REVIEW_OUTCOME)).orElse("ended")
+                .toString();
+
         auditEntry.put("action",
-                I18NUtil.getMessage("auditlog.label.workflow.task.ended", values.get(WORKFLOW_END_TASK_DESCRIPTION)));
+                I18NUtil.getMessage("auditlog.label.workflow.task." + taskOutcome,
+                        values.get(WORKFLOW_END_TASK_DESCRIPTION)));
+        return Optional.of(auditEntry);
+    }
+
+    private Optional<JSONObject> getEntryWorkflowCancel(String user, long time, Map<String, Serializable> values)
+            throws JSONException {
+        JSONObject auditEntry = createNewAuditEntry(user, time);
+        putAuditEntryType(auditEntry, "workflow");
+        auditEntry.put("action",
+                I18NUtil.getMessage("auditlog.label.workflow.canceled", values.get(WORKFLOW_CANCEL_DESCRIPTION)));
         return Optional.of(auditEntry);
     }
 
