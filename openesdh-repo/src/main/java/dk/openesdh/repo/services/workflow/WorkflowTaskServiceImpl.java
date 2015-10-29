@@ -70,7 +70,7 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
         return taskMap;
     }
     
-    protected Map<String, Object> getPackageItem(NodeRef nodeRef){
+    private Map<String, Object> getPackageItem(NodeRef nodeRef) {
         Map<String, Object> item = new HashMap<String, Object>();
         item.put(WorkflowTaskService.NODE_REF, nodeRef.toString());
 
@@ -101,17 +101,17 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
                 .map(Serializable::toString);
     }
 
-    protected Optional<Serializable> getCaseIdByTaskId(String taskId) {
+    private Optional<Serializable> getCaseIdByTaskId(String taskId) {
         return getCaseIdFromWorkflowPath(workflowService.getTaskById(taskId).getPath().getId());
     }
 
-    protected Optional<Serializable> getCaseIdByWorkflowId(String workflowId){
+    private Optional<Serializable> getCaseIdByWorkflowId(String workflowId) {
         return workflowService.getWorkflowPaths(workflowId).stream()
                 .findAny()
                 .flatMap(path -> getCaseIdFromWorkflowPath(path.getId()));
     }
 
-    protected Optional<Serializable> getCaseIdFromWorkflowPath(String pathId) {
+    private Optional<Serializable> getCaseIdFromWorkflowPath(String pathId) {
         return Optional.ofNullable(workflowService.getPathProperties(pathId).get(OpenESDHModel.PROP_OE_CASE_ID));
     }
 

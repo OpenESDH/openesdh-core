@@ -2,6 +2,7 @@ package dk.openesdh.repo.audit;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Optional;
 
 import org.alfresco.repo.workflow.WorkflowModel;
 import org.alfresco.service.cmr.workflow.WorkflowService;
@@ -20,10 +21,8 @@ public class CaseWorkflowReviewOutcomeExtractor extends AbstractAnnotatedDataExt
     @Override
     public Serializable extractData(Serializable value) throws Throwable {
         Map<QName, Serializable> taskProps = workflowService.getTaskById(value.toString()).getProperties();
-        return taskProps.entrySet().stream()
-                .filter(entry -> entry.getKey().equals(WorkflowModel.PROP_OUTCOME_PROPERTY_NAME))
-                .findAny()
-                .map(outcomePropName -> taskProps.get(outcomePropName.getValue()))
+        return Optional.ofNullable(taskProps.get(WorkflowModel.PROP_OUTCOME_PROPERTY_NAME))
+                .map(outcomePropName -> taskProps.get(outcomePropName))
                 .orElse(null);
     }
 
