@@ -31,8 +31,8 @@
     </properties>
 
     <!-- Following dependencies are needed for compiling Java code in src/main/java; 
-         <scope>provided</scope> is inherited for each of the following; 
-         for more info, please refer to alfresco-platform-distribution POM -->
+    <scope>provided</scope> is inherited for each of the following; 
+    for more info, please refer to alfresco-platform-distribution POM -->
     <dependencies>
         <dependency>
             <groupId>${alfresco.groupId}</groupId>
@@ -44,7 +44,7 @@
             <groupId>${alfresco.groupId}</groupId>
             <artifactId>alfresco-repository</artifactId>
         </dependency>
-
+        
         <dependency>
             <groupId>dk.openesdh.case</groupId>
             <artifactId>simple-case-repo</artifactId>
@@ -79,13 +79,6 @@
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
             <version>15.0</version>
-        </dependency>
-
-        <!-- Test dependencies -->
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <scope>test</scope>
         </dependency>
 
         <dependency>
@@ -159,6 +152,19 @@
             </artifactId>
             <version>1.0.5</version>
         </dependency>
+        
+        <!-- Test dependencies -->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <scope>test</scope>
+            <type>jar</type>
+        </dependency>
     </dependencies>
 
     <build>
@@ -201,7 +207,7 @@
                         </configuration>
                     </execution>
                     <!-- The reason for multiple executions is that there are
-                         duplicate elements in the XSDs. -->
+                    duplicate elements in the XSDs. -->
                     <execution>
                         <id>jaxb-kle-facetter</id>
                         <phase>generate-resources</phase>
@@ -231,9 +237,9 @@
             <id>enable-classification-sync</id>
             <properties>
                 <!-- Enable sync of KLE data, overriding any settings in
-                     alfresco-global.properties. Sync is normally disabled
-                     during testing, but can be enabled by activating this
-                     profile. -->
+                alfresco-global.properties. Sync is normally disabled
+                during testing, but can be enabled by activating this
+                profile. -->
                 <openesdh.classification.sync.enabled>true</openesdh.classification.sync.enabled>
             </properties>
         </profile>

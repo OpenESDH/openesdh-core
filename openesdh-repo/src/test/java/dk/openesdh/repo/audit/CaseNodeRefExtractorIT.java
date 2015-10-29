@@ -97,6 +97,13 @@ public class CaseNodeRefExtractorIT {
         Assert.assertEquals("Should extract case node ref from path ", testCase1.toString(), resultNodeRef);
     }
 
+    @Test
+    public void shouldFindDirectCaseId() throws Throwable {
+        String caseId = caseService.getCaseId(testCase1);
+        String resultNodeRef = (String) extractor.extractData(caseId);
+        Assert.assertEquals("Should extract case node ref from caseId ", testCase1.toString(), resultNodeRef);
+    }
+
     private String createPathOfTestCase1WithNoteId() {
         return createPathOfTestCase1() + "cm:note-1434092920935";
     }
