@@ -26,12 +26,12 @@ public interface WorkflowTaskService {
     Map<String, Object> getWorkflowTask(String taskId);
 
     /**
-     * Retrieves case id for the provided workflow task
+     * Retrieves case id for the provided workflow or task
      * 
-     * @param taskId
-     *            Id of the task to retrieve case id for
+     * @param workflowOrTaskId
+     *            Id of the workflow or task to retrieve case id for
      * @return case id
      */
-    Optional<String> getWorkflowTaskCaseId(String taskId);
+    Optional<String> getWorkflowCaseId(String workflowOrTaskId);
 
 }

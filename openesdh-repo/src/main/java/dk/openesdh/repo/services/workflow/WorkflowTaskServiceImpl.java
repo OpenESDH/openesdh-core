@@ -58,7 +58,8 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
                 authenticationService, personService, workflowService, dictionaryService);
         Map<String, Object> taskMap = modelBuilder.buildSimple(task, null);
 
-        getWorkflowTaskCaseId(task).ifPresent(caseId -> taskMap.put(WorkflowTaskService.TASK_CASE_ID, caseId));
+        getCaseIdFromWorkflowPath(task.getPath().getId()).ifPresent(
+                caseId -> taskMap.put(WorkflowTaskService.TASK_CASE_ID, caseId));
 
         List<NodeRef> contents = workflowService.getPackageContents(task.getId());
         List<Map<String, Object>> packageItems = contents
@@ -94,13 +95,24 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
     }
 
     @Override
-    public Optional<String> getWorkflowTaskCaseId(String taskId) {
-        return getWorkflowTaskCaseId(workflowService.getTaskById(taskId)).map(Object::toString);
+    public Optional<String> getWorkflowCaseId(String workflowOrTaskId) {
+        Optional<Serializable> optCaseId = getCaseIdByWorkflowId(workflowOrTaskId);
+        return (optCaseId.isPresent() ? optCaseId : getCaseIdByTaskId(workflowOrTaskId))
+                .map(Serializable::toString);
     }
 
-    protected Optional<Serializable> getWorkflowTaskCaseId(WorkflowTask task) {
-        return Optional.ofNullable(workflowService.getPathProperties(task.getPath().getId()).get(
-                OpenESDHModel.PROP_OE_CASE_ID));
+    protected Optional<Serializable> getCaseIdByTaskId(String taskId) {
+        return getCaseIdFromWorkflowPath(workflowService.getTaskById(taskId).getPath().getId());
+    }
+
+    protected Optional<Serializable> getCaseIdByWorkflowId(String workflowId){
+        return workflowService.getWorkflowPaths(workflowId).stream()
+                .findAny()
+                .flatMap(path -> getCaseIdFromWorkflowPath(path.getId()));
+    }
+
+    protected Optional<Serializable> getCaseIdFromWorkflowPath(String pathId) {
+        return Optional.ofNullable(workflowService.getPathProperties(pathId).get(OpenESDHModel.PROP_OE_CASE_ID));
     }
 
 }

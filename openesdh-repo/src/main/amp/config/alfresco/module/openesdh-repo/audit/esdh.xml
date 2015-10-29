@@ -12,6 +12,8 @@
         <DataExtractor name="groupNameValue" registeredName="audit.dk.openesdh.GroupNameExtractor" />
         <DataExtractor name="workflowInitiatorValue" registeredName="audit.dk.openesdh.CaseWorkflowInitiatorExtractor" />
         <DataExtractor name="workflowDescriptionValue" registeredName="audit.dk.openesdh.CaseWorkflowDescriptionExtractor" />
+        <DataExtractor name="workflowReviewOutcomeValue" registeredName="audit.dk.openesdh.CaseWorkflowReviewOutcomeExtractor" />
+        
     </DataExtractors>
 
     <DataGenerators>
@@ -43,7 +45,7 @@
         
         <PathMap source="/alfresco-api/post/WorkflowService/startWorkflow" target="/esdh/workflow/start"/>
         <PathMap source="/alfresco-api/pre/WorkflowService/endTask" target="/esdh/workflow/endTask"/>
-        
+        <PathMap source="/alfresco-api/pre/WorkflowService/cancelWorkflow" target="/esdh/workflow/cancelWorkflow"/>
         
     </PathMappings>
 
@@ -173,7 +175,13 @@
             <AuditPath key="endTask">
                 <RecordValue key="case" dataExtractor="caseIDValue"  dataSource="/esdh/workflow/endTask/args/taskId" dataTrigger="/esdh/workflow/endTask/args/taskId"/>
                 <RecordValue key="description" dataExtractor="workflowDescriptionValue" dataSource="/esdh/workflow/endTask/args/taskId" dataTrigger="/esdh/workflow/endTask/args/taskId"/>
+                <RecordValue key="reviewOutcome" dataExtractor="workflowReviewOutcomeValue" dataSource="/esdh/workflow/endTask/args/taskId" dataTrigger="/esdh/workflow/endTask/args/taskId"/>
+            </AuditPath>
+            <AuditPath key="cancelWorkflow">
+                <RecordValue key="case" dataExtractor="caseIDValue"  dataSource="/esdh/workflow/cancelWorkflow/args/workflowId" dataTrigger="/esdh/workflow/cancelWorkflow/args/workflowId"/>
+                <RecordValue key="description" dataExtractor="workflowDescriptionValue" dataSource="/esdh/workflow/cancelWorkflow/args/workflowId" dataTrigger="/esdh/workflow/cancelWorkflow/args/workflowId"/>
             </AuditPath>
         </AuditPath>
     </Application>
 </Audit>
+
