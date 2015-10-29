@@ -14,10 +14,13 @@ import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.webscripts.utils.AbstractWebScriptMockTest;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
+
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:alfresco/application-context.xml")
-public class GroupsWebScriptTest extends AbstractWebScriptMockTest {
+public class GroupsWebScriptIT extends AbstractWebScriptMockTest {
 
     @Autowired
     private GroupsWebScript script;
