@@ -27,7 +27,6 @@ public final class CaseNodeRefExtractor extends AbstractAnnotatedDataExtractor {
     @Autowired
     private WorkflowTaskService workflowTaskService;
 
-    @SuppressWarnings("unchecked")
     public Serializable extractData(Serializable value) throws Throwable {
         String result = null;
         // TODO Ole,do we ever get an instance of a nodeRef?
@@ -75,6 +74,8 @@ public final class CaseNodeRefExtractor extends AbstractAnnotatedDataExtractor {
             return workflowTaskService.getWorkflowCaseId(str)
                     .map(caseId -> getNodeRefFromCaseID(caseId))
                     .orElse(null);
+        } else if (CaseService.CASE_ID_PATTERN.matcher(str).matches()) {
+            return getNodeRefFromCaseID(str);
         }
         return getNodeRefFromPath(str);
     }
