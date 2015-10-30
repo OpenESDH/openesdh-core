@@ -13,6 +13,7 @@ public interface WorkflowTaskService {
     public static final String PACKAGE_ITEM_CREATEDBY = "createdBy";
     public static final String PACKAGE_ITEM_MAIN_DOC_NODE_REF = "mainDocNodeRef";
     public static final String PACKAGE_ITEM_DOC_RECORD_NODE_REF = "docRecordNodeRef";
+    public static final String WORKFLOW_ASSIGNEES = "workflowAssignees";
 
     public static final String NODE_REF = "nodeRef";
 

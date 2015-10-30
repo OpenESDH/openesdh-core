@@ -46,6 +46,8 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
     private AuthorityService authorityService;
     @Autowired
     private DocumentService documentService;
+    @Autowired
+    private CaseWorkflowService caseWorkflowService;
 
     @Override
     public Map<String, Object> getWorkflowTask(String taskId) {
@@ -53,12 +55,14 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
         return getTaskDataMap(task);
     }
 
-    protected Map<String, Object> getTaskDataMap(WorkflowTask task) {
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> getTaskDataMap(WorkflowTask task) {
         WorkflowModelBuilder modelBuilder = new WorkflowModelBuilder(namespaceService, nodeService,
                 authenticationService, personService, workflowService, dictionaryService);
         Map<String, Object> taskMap = modelBuilder.buildSimple(task, null);
 
-        getCaseIdFromWorkflowPath(task.getPath().getId()).ifPresent(
+        String pathId = task.getPath().getId();
+        getCaseIdFromWorkflowPath(pathId).ifPresent(
                 caseId -> taskMap.put(WorkflowTaskService.TASK_CASE_ID, caseId));
 
         List<NodeRef> contents = workflowService.getPackageContents(task.getId());
@@ -67,6 +71,11 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
                 .map(nodeRef -> getPackageItem(nodeRef))
                 .collect(Collectors.toList());
         taskMap.put(WorkflowTaskService.TASK_PACKAGE_ITEMS, packageItems);
+        
+        List<Map<String, Object>> assignees = caseWorkflowService.getWorkflowAssignees(pathId);
+        Map<String, Object> workflowInstance = (Map<String, Object>) taskMap.get(WorkflowModelBuilder.TASK_WORKFLOW_INSTANCE);
+        workflowInstance.put(WorkflowTaskService.WORKFLOW_ASSIGNEES, assignees);
+        
         return taskMap;
     }
     
