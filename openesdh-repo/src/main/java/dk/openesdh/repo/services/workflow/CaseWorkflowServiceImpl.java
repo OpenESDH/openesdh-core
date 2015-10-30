@@ -7,10 +7,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
+import org.alfresco.repo.web.scripts.workflow.WorkflowModelBuilder;
 import org.alfresco.repo.workflow.WorkflowModel;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.dictionary.PropertyDefinition;
@@ -57,7 +60,23 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
 
     @Autowired
     @Qualifier("retryingTransactionHelper")
-    protected RetryingTransactionHelper retryingTransactionHelper;
+    private RetryingTransactionHelper retryingTransactionHelper;
+
+    private final Map<QName, Function<Map<QName, Serializable>, List<Map<String, Object>>>> assigneesSuppliers;
+    private final Map<QName, Consumer<Map<QName, Serializable>>> caseAccessGranters = new HashMap<QName, Consumer<Map<QName, Serializable>>>();
+
+    {
+        assigneesSuppliers = new HashMap<QName, Function<Map<QName, Serializable>, List<Map<String, Object>>>>();
+        assigneesSuppliers.put(WorkflowModel.ASSOC_ASSIGNEE, this::getWorkflowAssignee);
+        assigneesSuppliers.put(WorkflowModel.ASSOC_ASSIGNEES, this::getWorkflowAssignees);
+        assigneesSuppliers.put(WorkflowModel.ASSOC_GROUP_ASSIGNEE, this::getWorkflowGroupAssignee);
+        assigneesSuppliers.put(WorkflowModel.ASSOC_GROUP_ASSIGNEES, this::getWorkflowGroupAssignees);
+
+        caseAccessGranters.put(WorkflowModel.ASSOC_ASSIGNEE, this::grantCaseAccessToAssignee);
+        caseAccessGranters.put(WorkflowModel.ASSOC_ASSIGNEES, this::grantCaseAccessToAssignees);
+        caseAccessGranters.put(WorkflowModel.ASSOC_GROUP_ASSIGNEE, this::grantCaseAccessToGroupAssignee);
+        caseAccessGranters.put(WorkflowModel.ASSOC_GROUP_ASSIGNEES, this::grantCaseAccessToGroupAssignees);
+    }
 
     @Override
     public WorkflowPath startWorkflow(WorkflowInfo workflow) {
@@ -76,6 +95,58 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
             signalStartTask(wfPath);
             return wfPath;
         });
+    }
+
+    @Override
+    public List<Map<String, Object>> getWorkflowAssignees(String pathId) {
+        Map<QName, Serializable> pathProps = workflowService.getPathProperties(pathId);
+        return assigneesSuppliers.entrySet()
+                .stream()
+                .filter(supplier -> pathProps.containsKey(supplier.getKey()))
+                .findAny()
+                .map(Map.Entry::getValue)
+                .get()
+                .apply(pathProps);
+    }
+    
+    private List<Map<String, Object>> getWorkflowAssignee(Map<QName, Serializable> props) {
+        NodeRef assigneeNodeRef = (NodeRef) props.get(WorkflowModel.ASSOC_ASSIGNEE);
+        return Arrays.asList(getPersonModel(assigneeNodeRef));
+    }
+
+    @SuppressWarnings("unchecked")
+    private List<Map<String, Object>> getWorkflowAssignees(Map<QName, Serializable> props) {
+        List<NodeRef> assigneeNodeRefs = (List<NodeRef>) props.get(WorkflowModel.ASSOC_ASSIGNEES);
+        return assigneeNodeRefs.stream()
+                .map(this::getPersonModel)
+                .collect(Collectors.toList());
+    }
+    
+    private List<Map<String, Object>> getWorkflowGroupAssignee(Map<QName, Serializable> props) {
+        NodeRef groupAssigneeNodeRef = (NodeRef) props.get(WorkflowModel.ASSOC_GROUP_ASSIGNEE);
+        return getPeopleFromGroup(groupAssigneeNodeRef).stream()
+                .map(personService::getPerson)
+                .map(this::getPersonModel)
+                .collect(Collectors.toList());
+    }
+    
+    @SuppressWarnings("unchecked")
+    private List<Map<String, Object>> getWorkflowGroupAssignees(Map<QName, Serializable> props) {
+        List<NodeRef> groupNodeRefs = (List<NodeRef>) props.get(WorkflowModel.ASSOC_GROUP_ASSIGNEES);
+        return groupNodeRefs.stream()
+                .flatMap(groupNodeRef -> getPeopleFromGroup(groupNodeRef).stream())
+                .map(personService::getPerson)
+                .map(this::getPersonModel)
+                .collect(Collectors.toList());
+    }
+    
+    private Map<String, Object> getPersonModel(NodeRef assigneeNodeRef){
+        PersonInfo assignee = personService.getPerson(assigneeNodeRef);
+        Map<String, Object> assigneeMap = new HashMap<String, Object>();
+        assigneeMap.put(WorkflowModelBuilder.PERSON_FIRST_NAME, assignee.getFirstName());
+        assigneeMap.put(WorkflowModelBuilder.PERSON_LAST_NAME, assignee.getLastName());
+        assigneeMap.put(WorkflowModelBuilder.PERSON_USER_NAME, assignee.getUserName());
+        return assigneeMap;
     }
 
     protected void signalStartTask(WorkflowPath path) {
@@ -102,20 +173,20 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
         return params;
     }
 
-    protected boolean grantCaseAccessToWorkflowAssignees(Map<QName, Serializable> workflowParams) {
-        return retryingTransactionHelper.doInTransaction(() -> {
-            return grantCaseAccessToAssignee(workflowParams)
-                || grantCaseAccessToAssignees(workflowParams)
-                || grantCaseAccessToGroupAssignee(workflowParams) 
-                || grantCaseAccessToGroupAssignees(workflowParams);
+    protected void grantCaseAccessToWorkflowAssignees(Map<QName, Serializable> workflowParams) {
+        retryingTransactionHelper.doInTransaction(() -> {
+            caseAccessGranters.entrySet()
+                .stream()
+                .filter(granter -> workflowParams.containsKey(granter.getKey()))
+                .findAny()
+                .map(Map.Entry::getValue)
+                .get()
+                .accept(workflowParams);
+            return null;
         });
     }
 
-    protected boolean grantCaseAccessToAssignee(Map<QName, Serializable> workflowParams) {
-        if (!workflowParams.containsKey(WorkflowModel.ASSOC_ASSIGNEE)) {
-            return false;
-        }
-
+    protected void grantCaseAccessToAssignee(Map<QName, Serializable> workflowParams) {
         NodeRef assigneeNodRef = (NodeRef) workflowParams.get(WorkflowModel.ASSOC_ASSIGNEE);
         PersonInfo assignee = personService.getPerson(assigneeNodRef);
         
@@ -124,16 +195,10 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
         if (!getCaseMembers(caseNodeRef).contains(assignee.getUserName())) {
             caseService.addAuthorityToRole(assigneeNodRef, getCaseReaderRole(caseNodeRef), caseNodeRef);
         }
-
-        return true;
     }
     
     @SuppressWarnings("unchecked")
-    protected boolean grantCaseAccessToAssignees(Map<QName, Serializable> workflowParams) {
-        if (!workflowParams.containsKey(WorkflowModel.ASSOC_ASSIGNEES)) {
-            return false;
-        }
-
+    protected void grantCaseAccessToAssignees(Map<QName, Serializable> workflowParams) {
         NodeRef caseNodeRef = getCaseNodeRef(workflowParams);
         List<String> caseMembers = getCaseMembers(caseNodeRef);
         
@@ -147,27 +212,15 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
         if (!nonMembersAssignees.isEmpty()) {
             caseService.addAuthoritiesToRole(nonMembersAssignees, getCaseReaderRole(caseNodeRef), caseNodeRef);
         }
-
-        return true;
     }
 
-    protected boolean grantCaseAccessToGroupAssignee(Map<QName, Serializable> workflowParams) {
-        if (!workflowParams.containsKey(WorkflowModel.ASSOC_GROUP_ASSIGNEE)) {
-            return false;
-        }
-
+    protected void grantCaseAccessToGroupAssignee(Map<QName, Serializable> workflowParams) {
         NodeRef groupAssigneeNodeRef = (NodeRef) workflowParams.get(WorkflowModel.ASSOC_GROUP_ASSIGNEE);
         grantCaseAccessToPeople(getPeopleFromGroup(groupAssigneeNodeRef), workflowParams);
-
-        return true;
     }
 
     @SuppressWarnings("unchecked")
-    protected boolean grantCaseAccessToGroupAssignees(Map<QName, Serializable> workflowParams) {
-        if (!workflowParams.containsKey(WorkflowModel.ASSOC_GROUP_ASSIGNEES)) {
-            return false;
-        }
-
+    protected void grantCaseAccessToGroupAssignees(Map<QName, Serializable> workflowParams) {
         List<NodeRef> groupNodeRefs = (List<NodeRef>) workflowParams
                 .get(WorkflowModel.ASSOC_GROUP_ASSIGNEES);
 
@@ -177,7 +230,6 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
                 .collect(Collectors.toSet());
 
         grantCaseAccessToPeople(peopleNames, workflowParams);
-        return true;
     }
 
     protected void grantCaseAccessToPeople(Set<String> peopleNames, Map<QName, Serializable> workflowParams) {
