@@ -13,8 +13,8 @@ import dk.openesdh.repo.classification.sync.kle.KLEClassificationSynchronizer;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 @Component
-@WebScript(families = { "somesome" }, description = "some description", defaultFormat = "json")
-public class SomeWebScript {
+@WebScript(families = { "Classification" }, description = "Starts KLE synchronization", defaultFormat = "json")
+public class KLEClassificationSynchronizerWebScript {
 
     @Autowired
     @Qualifier("kleClassificationSynchronizer")
