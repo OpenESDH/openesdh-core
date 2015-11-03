@@ -12,11 +12,20 @@ import org.apache.lucene.queryParser.QueryParser;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import dk.openesdh.repo.services.members.CaseMembersService;
 
 /**
  * Created by flemmingheidepedersen on 12/09/14.
  */
+@Service("XSearchService")
 public class XSearchServiceImpl extends AbstractXSearchService {
+
+    @Autowired
+    private CaseMembersService caseMembersService;
+
     public XResultSet getNodes(Map<String, String> params, int startIndex, int pageSize, String sortField, boolean ascending) {
         String baseType = params.get("baseType");
         if (baseType == null) {
@@ -109,7 +118,7 @@ public class XSearchServiceImpl extends AbstractXSearchService {
     List<Long> getCaseDbIdsWhereAuthoritiesHaveRole(String role, List<NodeRef> authorityNodeRefs) {
         List<Long> dbIds = new ArrayList<>();
         for (NodeRef authorityNodeRef : authorityNodeRefs) {
-            dbIds.addAll(caseService.getCaseDbIdsWhereAuthorityHasRole(authorityNodeRef, role));
+            dbIds.addAll(caseMembersService.getCaseDbIdsWhereAuthorityHasRole(authorityNodeRef, role));
         }
         return dbIds;
     }

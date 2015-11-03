@@ -1,25 +1,23 @@
 package dk.openesdh.repo.services.cases;
 
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
-import dk.openesdh.repo.helper.CaseDocumentTestHelper;
-import dk.openesdh.repo.helper.CaseHelper;
-import dk.openesdh.repo.model.CaseStatus;
-import dk.openesdh.repo.model.DocumentStatus;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.services.lock.OELockService;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
+
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -32,12 +30,6 @@ import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
 import org.junit.After;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -45,6 +37,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
+
+import dk.openesdh.repo.helper.CaseDocumentTestHelper;
+import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.model.CaseStatus;
+import dk.openesdh.repo.model.DocumentStatus;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.services.lock.OELockService;
+import dk.openesdh.repo.services.members.CaseMembersService;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -86,6 +90,10 @@ public class CaseServiceImplIT {
     @Autowired
     @Qualifier("CaseService")
     private CaseServiceImpl caseService;
+
+    @Autowired
+    @Qualifier("CaseMembersService")
+    private CaseMembersService caseMembersService;
 
     private final DynamicNamespacePrefixResolver namespacePrefixResolver = new DynamicNamespacePrefixResolver(null);
     private NodeRef casesRootNoderef;
@@ -285,113 +293,6 @@ public class CaseServiceImplIT {
     }
 
     @Test
-    public void testAddRemoveAuthorityRole() throws Exception {
-        caseService.setupPermissionGroups(temporaryCaseNodeRef,
-                caseService.getCaseId(temporaryCaseNodeRef));
-        caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader",
-                temporaryCaseNodeRef);
-        caseService.addAuthorityToRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader",
-                temporaryCaseNodeRef);
-        Map<String, Set<String>> membersByRoles = caseService.getMembersByRole(temporaryCaseNodeRef, true, false);
-        assertTrue(membersByRoles.get("CaseSimpleReader").contains(AuthenticationUtil.getAdminUserName()));
-
-        caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader",
-                temporaryCaseNodeRef);
-        membersByRoles = caseService.getMembersByRole(temporaryCaseNodeRef, true, false);
-        assertFalse(membersByRoles.get("CaseSimpleReader").contains(AuthenticationUtil.getAdminUserName()));
-    }
-
-    @Test
-    public void testAddAuthoritiesToRole() throws Exception {
-        caseService.setupPermissionGroups(temporaryCaseNodeRef,
-                caseService.getCaseId(temporaryCaseNodeRef));
-
-        caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader",
-                temporaryCaseNodeRef);
-
-        NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef(AuthenticationUtil.getAdminUserName());
-        List<NodeRef> authorities = new LinkedList<>();
-        authorities.add(authorityNodeRef);
-        caseService.addAuthoritiesToRole(authorities, "CaseSimpleReader",
-                temporaryCaseNodeRef);
-        Map<String, Set<String>> membersByRoles = caseService.getMembersByRole(temporaryCaseNodeRef, true, false);
-        assertTrue(membersByRoles.get("CaseSimpleReader").contains(AuthenticationUtil.getAdminUserName()));
-        caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader",
-                temporaryCaseNodeRef);
-    }
-
-    @Test
-    public void testChangeAuthorityRole() throws Exception {
-        caseService.setupPermissionGroups(temporaryCaseNodeRef,
-                caseService.getCaseId(temporaryCaseNodeRef));
-        caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader",
-                temporaryCaseNodeRef);
-        caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(),
-                "CaseSimpleWriter",
-                temporaryCaseNodeRef);
-        caseService.addAuthorityToRole(AuthenticationUtil.getAdminUserName(),
-                "CaseSimpleReader", temporaryCaseNodeRef);
-        caseService.changeAuthorityRole(AuthenticationUtil.getAdminUserName(),
-                "CaseSimpleReader", "CaseSimpleWriter", temporaryCaseNodeRef);
-        Map<String, Set<String>> membersByRoles = caseService.getMembersByRole(temporaryCaseNodeRef, true, false);
-        assertFalse(membersByRoles.get("CaseSimpleReader").contains(AuthenticationUtil.getAdminUserName()));
-        assertTrue(membersByRoles.get("CaseSimpleWriter").contains(AuthenticationUtil.getAdminUserName()));
-        caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(),
-                "CaseSimpleWriter", temporaryCaseNodeRef);
-    }
-
-    @Test
-    public void testGetMembersByRole() throws Exception {
-        //TODO: Does this still make sense? Are behaviours responsible for setting up permissions groups on temporaryCaseNodeRef?
-        caseService.setupPermissionGroups(temporaryCaseNodeRef,
-                caseService.getCaseId(temporaryCaseNodeRef));
-        caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(),
-                "CaseSimpleReader", temporaryCaseNodeRef);
-        caseService.addAuthorityToRole(AuthenticationUtil.getAdminUserName(),
-                "CaseSimpleReader", temporaryCaseNodeRef);
-        Map<String, Set<String>> membersByRole = caseService.getMembersByRole(temporaryCaseNodeRef, true, false);
-        assertTrue(membersByRole.get("CaseSimpleReader").contains(AuthenticationUtil.getAdminUserName()));
-        caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(),
-                "CaseSimpleReader", temporaryCaseNodeRef);
-        membersByRole = caseService.getMembersByRole(temporaryCaseNodeRef, true, false);
-        assertFalse(membersByRole.get("CaseSimpleReader").contains(AuthenticationUtil.getAdminUserName()));
-    }
-
-    @Test
-    public void testGetAllMembersByRole() throws Exception {
-        transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
-            //caseService.setupPermissionGroups(nonAdminCreatedCaseNr, caseService.getCaseId(nonAdminCreatedCaseNr));
-            //caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", nonAdminCreatedCaseNr);
-            caseService.addAuthorityToRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", nonAdminCreatedCaseNr);
-            //System.out.println("\n\nCaseServiceImpl:440\n\t\t\t=>currentUserAuthorities : " + authorityService.getAuthoritiesForUser(ALICE_BEECHER).toString());
-
-            caseService.addAuthorityToRole(CaseHelper.ALICE_BEECHER, "CaseOwners", nonAdminCreatedCaseNr);
-            caseService.addAuthorityToRole(CaseHelper.MIKE_JACKSON, "CaseSimpleWriter", nonAdminCreatedCaseNr);
-            return null;
-        });
-        Map<String, Set<String>> membersByRole = caseService.getMembersByRole(nonAdminCreatedCaseNr, false, true);
-        //check everyone's permissions
-        assertTrue(membersByRole.get("CaseSimpleReader").contains(AuthenticationUtil.getAdminUserName()));
-        Set<String> caseOwners = membersByRole.get("CaseOwners");
-        assertNotNull(caseOwners);
-        assertTrue(caseOwners.contains(CaseHelper.ALICE_BEECHER));
-        assertTrue(membersByRole.get("CaseSimpleWriter").contains(CaseHelper.MIKE_JACKSON));
-        //remove 2 out of 3 from groups
-
-        transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
-            caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(), "CaseSimpleReader", nonAdminCreatedCaseNr);
-            caseService.removeAuthorityFromRole(CaseHelper.MIKE_JACKSON, "CaseSimpleWriter", nonAdminCreatedCaseNr);
-            return null;
-        });
-        //retrieve and test role memeberships
-        membersByRole = caseService.getMembersByRole(nonAdminCreatedCaseNr, false, true);
-        assertFalse(membersByRole.get("CaseSimpleReader").contains(AuthenticationUtil.getAdminUserName()));
-        assertFalse(membersByRole.get("CaseSimpleWriter").contains(CaseHelper.MIKE_JACKSON));
-        assertTrue(membersByRole.get("CaseOwners").contains(CaseHelper.ALICE_BEECHER));
-
-    }
-
-    @Test
     public void testClose() throws Exception {
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
 
@@ -454,7 +355,7 @@ public class CaseServiceImplIT {
 
         // Test that the owner cannot change permissions on the case
         try {
-            caseService.removeAuthorityFromRole(CaseHelper.DEFAULT_USERNAME,
+            caseMembersService.removeAuthorityFromRole(CaseHelper.DEFAULT_USERNAME,
                     "CaseOwners", nonAdminCreatedCaseNr);
             fail("An authority could be removed from a role on a closed case");
         } catch (Exception e) {
@@ -462,7 +363,7 @@ public class CaseServiceImplIT {
 
         // Test that the owner cannot add an authority to a role on the case
         try {
-            caseService.addAuthorityToRole(OpenESDHModel.ADMIN_USER_NAME,
+            caseMembersService.addAuthorityToRole(OpenESDHModel.ADMIN_USER_NAME,
                     "CaseSimpleReader", nonAdminCreatedCaseNr);
             fail("An authority could be added to a role on a closed case");
         } catch (Exception e) {

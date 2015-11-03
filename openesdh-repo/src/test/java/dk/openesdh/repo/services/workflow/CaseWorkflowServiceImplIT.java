@@ -42,6 +42,7 @@ import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.model.WorkflowInfo;
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.members.CaseMembersService;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -78,6 +79,9 @@ public class CaseWorkflowServiceImplIT {
 
     @Autowired
     private CaseService caseService;
+
+    @Autowired
+    private CaseMembersService caseMembersService;
 
     @Autowired
     protected CaseWorkflowService service;
@@ -306,7 +310,7 @@ public class CaseWorkflowServiceImplIT {
     @Test
     public void shouldNotAddWorkflowAssigneeToCaseMembersIfSheAlreadyIsWriteMember() {
         String caseId = createCase();
-        caseService.addAuthorityToRole(CaseHelper.ALICE_BEECHER, getCaseMemberWriteRole(), caseNodeRef);
+        caseMembersService.addAuthorityToRole(CaseHelper.ALICE_BEECHER, getCaseMemberWriteRole(), caseNodeRef);
 
         CaseWorkflowServiceImpl caseWorkflowService = (CaseWorkflowServiceImpl) service;
 
@@ -323,7 +327,7 @@ public class CaseWorkflowServiceImplIT {
     }
 
     private void assertTrueUsersAmidstCaseReadMembers(String... userNames) {
-        Set<String> caseReadMembers = caseService.getMembersByRole(caseNodeRef, true, false).get(
+        Set<String> caseReadMembers = caseMembersService.getMembersByRole(caseNodeRef, true, false).get(
                 CaseHelper.CASE_READER_ROLE);
         Assert.assertNotNull("Case members with READ permissions should exist", caseReadMembers);
         for (String userName : userNames) {
@@ -333,7 +337,7 @@ public class CaseWorkflowServiceImplIT {
     }
 
     private void assertFalseUsersAmidstCaseReadMembers(String... userNames) {
-        Set<String> caseReadMembers = caseService.getMembersByRole(caseNodeRef, true, false).get(
+        Set<String> caseReadMembers = caseMembersService.getMembersByRole(caseNodeRef, true, false).get(
                 CaseHelper.CASE_READER_ROLE);
         Assert.assertNotNull("Case members with READ permissions should exist", caseReadMembers);
         for (String userName : userNames) {
