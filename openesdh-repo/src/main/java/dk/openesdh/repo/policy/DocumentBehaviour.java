@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import javax.annotation.PostConstruct;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.copy.CopyServicePolicies.BeforeCopyPolicy;
 import org.alfresco.repo.copy.CopyServicePolicies.OnCopyCompletePolicy;
@@ -21,7 +23,10 @@ import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.namespace.RegexQNamePattern;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.extensions.webscripts.WebScriptException;
+import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import dk.openesdh.repo.model.DocumentCategory;
@@ -35,12 +40,23 @@ import dk.openesdh.repo.utils.Utils;
 /**
  * Created by rasmutor on 2/11/15.
  */
+@Service("documentBehaviour")
 public class DocumentBehaviour implements OnCreateChildAssociationPolicy, BeforeCopyPolicy, OnCopyCompletePolicy {
 
+    @Autowired
+    @Qualifier("NodeService")
     private NodeService nodeService;
+    @Autowired
+    @Qualifier("policyComponent")
     private PolicyComponent policyComponent;
+    @Autowired
+    @Qualifier("DocumentService")
     private DocumentService documentService;
+    @Autowired
+    @Qualifier("DocumentTypeService")
     private DocumentTypeService documentTypeService;
+    @Autowired
+    @Qualifier("DocumentCategoryService")
     private DocumentCategoryService documentCategoryService;
 
     private Behaviour onCreateChildAssociation;
@@ -48,6 +64,7 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
     private Behaviour beforeCopyDocumentFolder;
     private Behaviour afterCopyDocumentFolder;
 
+    @PostConstruct
     public void init() {
         beforeCopyDocumentFolder = new JavaBehaviour(this, "beforeCopy");
         afterCopyDocumentFolder = new JavaBehaviour(this, "onCopyComplete", Behaviour.NotificationFrequency.TRANSACTION_COMMIT);
@@ -273,25 +290,5 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
         }
 
         return childAssocList.get(0);
-    }
-
-    public void setPolicyComponent(PolicyComponent policyComponent) {
-        this.policyComponent = policyComponent;
-    }
-
-    public void setNodeService(NodeService nodeService) {
-        this.nodeService = nodeService;
-    }
-
-    public void setDocumentService(DocumentService documentService) {
-        this.documentService = documentService;
-    }
-
-    public void setDocumentTypeService(DocumentTypeService documentTypeService) {
-        this.documentTypeService = documentTypeService;
-    }
-
-    public void setDocumentCategoryService(DocumentCategoryService documentCategoryService) {
-        this.documentCategoryService = documentCategoryService;
     }
 }

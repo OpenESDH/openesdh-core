@@ -1,49 +1,49 @@
 package dk.openesdh.repo.policy;
 
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.cases.CaseService;
+import javax.annotation.PostConstruct;
+
 import org.alfresco.repo.node.NodeServicePolicies;
 import org.alfresco.repo.policy.Behaviour;
 import org.alfresco.repo.policy.JavaBehaviour;
 import org.alfresco.repo.policy.PolicyComponent;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.AssociationRef;
-import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.members.CaseMembersService;
 
 /**
  * Created by torben on 19/08/14.
  */
+@Service("caseOwnersBehaviour")
 public class CaseOwnersBehaviour implements NodeServicePolicies.OnCreateAssociationPolicy,
         NodeServicePolicies.OnDeleteAssociationPolicy {
 
     private static Log LOGGER = LogFactory.getLog(CaseOwnersBehaviour.class);
 
-    // Dependencies
-    private CaseService caseService;
+    @Autowired
+    @Qualifier("CaseMembersService")
+    private CaseMembersService caseMembersService;
+    @Autowired
+    @Qualifier("policyComponent")
     private PolicyComponent policyComponent;
+    @Autowired
+    @Qualifier("NodeService")
     private NodeService nodeService;
 
     // Behaviours
     private Behaviour onCreateAssociation;
     private Behaviour onDeleteAssociation;
 
-    public void setCaseService(CaseService caseService) {
-        this.caseService = caseService;
-    }
-
-    public void setPolicyComponent(PolicyComponent policyComponent) {
-        this.policyComponent = policyComponent;
-    }
-
-    public void setNodeService(NodeService nodeService) {
-        this.nodeService = nodeService;
-    }
-
+    @PostConstruct
     public void init() {
 
         // Create behaviours
@@ -75,7 +75,7 @@ public class CaseOwnersBehaviour implements NodeServicePolicies.OnCreateAssociat
                     () {
                 @Override
                 public Object doWork() throws Exception {
-                    caseService.addAuthorityToRole(nodeAssocRef.getTargetRef(),
+                    caseMembersService.addAuthorityToRole(nodeAssocRef.getTargetRef(),
                             "CaseOwners", nodeAssocRef.getSourceRef());
                     return null;
                 }
@@ -86,7 +86,7 @@ public class CaseOwnersBehaviour implements NodeServicePolicies.OnCreateAssociat
     @Override
     public void onDeleteAssociation(AssociationRef nodeAssocRef) {
         if (nodeService.exists(nodeAssocRef.getTargetRef()) && nodeService.exists(nodeAssocRef.getSourceRef())) {
-            caseService.removeAuthorityFromRole(nodeAssocRef.getTargetRef(),
+            caseMembersService.removeAuthorityFromRole(nodeAssocRef.getTargetRef(),
                     "CaseOwners", nodeAssocRef.getSourceRef());
         }
     }

@@ -1,6 +1,7 @@
 package dk.openesdh.repo.policy;
 
-import dk.openesdh.repo.services.contacts.ContactService;
+import javax.annotation.PostConstruct;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.node.NodeServicePolicies.BeforeDeleteChildAssociationPolicy;
 import org.alfresco.repo.node.NodeServicePolicies.OnCreateChildAssociationPolicy;
@@ -10,35 +11,45 @@ import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthorityService;
-import org.alfresco.service.cmr.security.PersonService;
-import org.alfresco.service.namespace.QName;
 import org.alfresco.util.PropertyCheck;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Map;
+import dk.openesdh.repo.services.contacts.ContactService;
 
 
 /**
  * @author Lanre Abiwon
  */
+@Service("contact.group.policies")
 public class ContactsGroupPolicy implements BeforeDeleteChildAssociationPolicy, OnCreateChildAssociationPolicy {
 
     /* logger */
     private static Log logger = LogFactory.getLog(ContactsGroupPolicy.class);
 
     /* Services */
+    @Autowired
+    @Qualifier("NodeService")
     private NodeService nodeService;
+    @Autowired
+    @Qualifier("ContactService")
     private ContactService contactService;
+    @Autowired
+    @Qualifier("policyComponent")
     private PolicyComponent policyComponent;
+    @Autowired
+    @Qualifier("AuthorityService")
     private AuthorityService authorityService;
-    private String contactsGroup;
+
+    private static final String contactsGroup = "GROUP_CONTACTS";
 
     /**
      * Spring bean init method
      */
+    @PostConstruct
     public void init() {
         PropertyCheck.mandatory(this, "authorityService", authorityService);
         PropertyCheck.mandatory(this, "policyComponent", policyComponent);
@@ -70,35 +81,4 @@ public class ContactsGroupPolicy implements BeforeDeleteChildAssociationPolicy, 
         }
 
     }
-
-    public void setContactsGroup(String contactsGroup) {
-        this.contactsGroup = contactsGroup;
-    }
-
-    /**
-     * @param nodeService the nodeService to set
-     */
-    public void setNodeService(NodeService nodeService) {
-        this.nodeService = nodeService;
-    }
-
-    /**
-     * @param policyComponent the policyComponent to set
-     */
-    public void setPolicyComponent(PolicyComponent policyComponent) {
-        this.policyComponent = policyComponent;
-    }
-
-    public void setContactService(ContactService contactService) {
-        this.contactService = contactService;
-    }
-
-    public void setAuthorityService (AuthorityService authorityService) {
-        this.authorityService = authorityService;
-    }
-
-
-
-
-
 }
