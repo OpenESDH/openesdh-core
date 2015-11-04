@@ -62,12 +62,12 @@
         <property name="policyComponent" ref="policyComponent"/>
     </bean>
 
-    <!--  <bean id="documentsBehaviour" class="dk.openesdh.repo.policy.DocumentsBehaviour" init-method="init">
+      <bean id="documentTemplateBehaviour" class="dk.openesdh.repo.policy.DocumentTemplateBehaviour" init-method="init">
           <property name="nodeService">
               <ref bean="NodeService"/>
           </property>
           <property name="policyComponent">
               <ref bean="policyComponent"/>
           </property>
-      </bean>-->
+      </bean>
 </beans>

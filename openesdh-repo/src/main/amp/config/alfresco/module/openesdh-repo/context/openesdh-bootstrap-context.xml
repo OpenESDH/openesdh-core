@@ -3,12 +3,12 @@
 
 <beans>
     <!--The initial openESDH folder context-->
-    <bean id="${project.artifactId}_bootstrap" parent="spacesStoreImporter" >
-        <property name="log"> 
-            <value>false</value> 
+    <bean id="${project.artifactId}_bootstrap" parent="spacesStoreImporter">
+        <property name="log">
+            <value>false</value>
         </property>
-        <property name="useExistingStore"> 
-            <value>true</value> 
+        <property name="useExistingStore">
+            <value>true</value>
         </property>
         <property name="transactionService" ref="transactionService"/>
         <property name="bootstrapViews">
@@ -19,16 +19,22 @@
                     <prop key="uuidBinding">UPDATE_EXISTING</prop>
                     <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/folders.xml</prop>
                 </props>
+                <props>
+                    <prop key="path">app:company_home/oe:OpenESDH/oe:subsystems/oe:officeTemplates</prop>
+                    <prop key="uuidBinding">UPDATE_EXISTING</prop>
+                    <prop key="childAssocType">rule:ruleFolder</prop>
+                    <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/templateRuleFolder.xml</prop>
+                </props>
             </list>
         </property>
     </bean>
     <!-- initial document types -->
-    <bean id="${project.artifactId}_docTypesBootstrap" parent="spacesStoreImporter" >
-        <property name="log"> 
-            <value>true</value> 
+    <bean id="${project.artifactId}_docTypesBootstrap" parent="spacesStoreImporter">
+        <property name="log">
+            <value>true</value>
         </property>
-        <property name="useExistingStore"> 
-            <value>true</value> 
+        <property name="useExistingStore">
+            <value>true</value>
         </property>
         <property name="transactionService" ref="transactionService"/>
         <property name="bootstrapViews">
@@ -36,18 +42,19 @@
                 <props>
                     <prop key="path">app:company_home/oe:OpenESDH/oe:classifications/oe:document_types</prop>
                     <prop key="uuidBinding">UPDATE_EXISTING</prop>
-                    <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/documentTypes.xml</prop>
+                    <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/documentTypes.xml
+                    </prop>
                 </props>
             </list>
         </property>
     </bean>
     <!-- initial document categories -->
-    <bean id="${project.artifactId}_docCategBootstrap" parent="spacesStoreImporter" >
-        <property name="log"> 
-            <value>true</value> 
+    <bean id="${project.artifactId}_docCategBootstrap" parent="spacesStoreImporter">
+        <property name="log">
+            <value>true</value>
         </property>
-        <property name="useExistingStore"> 
-            <value>true</value> 
+        <property name="useExistingStore">
+            <value>true</value>
         </property>
         <property name="transactionService" ref="transactionService"/>
         <property name="bootstrapViews">
@@ -55,18 +62,20 @@
                 <props>
                     <prop key="path">app:company_home/oe:OpenESDH/oe:classifications/oe:document_categories</prop>
                     <prop key="uuidBinding">UPDATE_EXISTING</prop>
-                    <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/documentCategories.xml</prop>
+                    <prop key="location">
+                        alfresco/module/${project.artifactId}/context/bootstrap/documentCategories.xml
+                    </prop>
                 </props>
             </list>
         </property>
     </bean>
     <!--Contacts store-->
-    <bean id="${project.artifactId}_contactBootstrap" parent="spacesStoreImporter" >
-        <property name="log"> 
-            <value>false</value> 
+    <bean id="${project.artifactId}_contactBootstrap" parent="spacesStoreImporter">
+        <property name="log">
+            <value>false</value>
         </property>
-        <property name="useExistingStore"> 
-            <value>true</value> 
+        <property name="useExistingStore">
+            <value>true</value>
         </property>
         <property name="transactionService" ref="transactionService"/>
 
@@ -80,26 +89,26 @@
             </list>
         </property>
     </bean>
-    
+
     <bean id="${project.artifactId}_permissionModelBootstrap" parent="permissionModelBootstrap">
-        <property name="model" value="alfresco/module/openesdh-repo/models/permission-model-extension.xml" />
+        <property name="model" value="alfresco/module/openesdh-repo/models/permission-model-extension.xml"/>
     </bean>
-    
+
     <bean id="${project.artifactId}_workflowBootstrap" parent="workflowDeployer">
-	    <property name="workflowDefinitions">
-	        <list>
-	            <props>
-	                <prop key="engineId">activiti</prop>
-	                <prop key="location">alfresco/module/${project.artifactId}/workflows/sequentialReview.bpmn</prop>
-	                <prop key="mimetype">text/xml</prop>
-	                <prop key="redeploy">false</prop>
-	            </props>
-	        </list>
-	    </property>
-	    <property name="labels">
+        <property name="workflowDefinitions">
+            <list>
+                <props>
+                    <prop key="engineId">activiti</prop>
+                    <prop key="location">alfresco/module/${project.artifactId}/workflows/sequentialReview.bpmn</prop>
+                    <prop key="mimetype">text/xml</prop>
+                    <prop key="redeploy">false</prop>
+                </props>
+            </list>
+        </property>
+        <property name="labels">
             <list>
                 <value>alfresco/module/${project.artifactId}/messages/workflow-messages</value>
             </list>
         </property>
-	</bean>
+    </bean>
 </beans>

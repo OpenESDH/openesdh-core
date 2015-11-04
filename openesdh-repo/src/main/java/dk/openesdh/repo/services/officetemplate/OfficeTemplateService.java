@@ -13,6 +13,19 @@ import java.util.Map;
  * Created by syastrov on 9/23/15.
  */
 public interface OfficeTemplateService {
+
+    /**
+     * The default path for where the templates are to be located.
+     */
+    String OPENESDH_DOC_TEMPLATES_DEFAULT_PATH = "OpenESDH/subsystems/officeTemplates";
+
+    /**
+     * Returns the a nodeRef representing the templates directory root.
+     * @return
+     * @throws org.alfresco.error.AlfrescoRuntimeException
+     */
+    NodeRef getTemplateDirectory();
+
     /**
      * Get the available templates for the current user.
      * @return
