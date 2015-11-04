@@ -103,6 +103,7 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
     private OpenESDHFoldersService openESDHFoldersService;
     private PersonService personService;
 
+    //<editor-fold desc="injected stuff">
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
     }
@@ -154,6 +155,7 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
     public void setPersonService(PersonService personService) {
         this.personService = personService;
     }
+    //</editor-fold>
 
     @Override
     public NodeRef getCasesRootNodeRef() {
