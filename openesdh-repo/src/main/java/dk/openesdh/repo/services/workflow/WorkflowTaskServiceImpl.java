@@ -46,6 +46,8 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
     private AuthorityService authorityService;
     @Autowired
     private DocumentService documentService;
+    @Autowired
+    private CaseWorkflowService caseWorkflowService;
 
     @Override
     public Map<String, Object> getWorkflowTask(String taskId) {
@@ -53,12 +55,15 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
         return getTaskDataMap(task);
     }
 
-    protected Map<String, Object> getTaskDataMap(WorkflowTask task) {
+    @SuppressWarnings("unchecked")
+    private Map<String, Object> getTaskDataMap(WorkflowTask task) {
         WorkflowModelBuilder modelBuilder = new WorkflowModelBuilder(namespaceService, nodeService,
                 authenticationService, personService, workflowService, dictionaryService);
         Map<String, Object> taskMap = modelBuilder.buildSimple(task, null);
 
-        getWorkflowTaskCaseId(task).ifPresent(caseId -> taskMap.put(WorkflowTaskService.TASK_CASE_ID, caseId));
+        String pathId = task.getPath().getId();
+        getCaseIdFromWorkflowPath(pathId).ifPresent(
+                caseId -> taskMap.put(WorkflowTaskService.TASK_CASE_ID, caseId));
 
         List<NodeRef> contents = workflowService.getPackageContents(task.getId());
         List<Map<String, Object>> packageItems = contents
@@ -66,10 +71,15 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
                 .map(nodeRef -> getPackageItem(nodeRef))
                 .collect(Collectors.toList());
         taskMap.put(WorkflowTaskService.TASK_PACKAGE_ITEMS, packageItems);
+        
+        List<Map<String, Object>> assignees = caseWorkflowService.getWorkflowAssignees(pathId);
+        Map<String, Object> workflowInstance = (Map<String, Object>) taskMap.get(WorkflowModelBuilder.TASK_WORKFLOW_INSTANCE);
+        workflowInstance.put(WorkflowTaskService.WORKFLOW_ASSIGNEES, assignees);
+        
         return taskMap;
     }
     
-    protected Map<String, Object> getPackageItem(NodeRef nodeRef){
+    private Map<String, Object> getPackageItem(NodeRef nodeRef) {
         Map<String, Object> item = new HashMap<String, Object>();
         item.put(WorkflowTaskService.NODE_REF, nodeRef.toString());
 
@@ -94,13 +104,24 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
     }
 
     @Override
-    public Optional<String> getWorkflowTaskCaseId(String taskId) {
-        return getWorkflowTaskCaseId(workflowService.getTaskById(taskId)).map(Object::toString);
+    public Optional<String> getWorkflowCaseId(String workflowOrTaskId) {
+        Optional<Serializable> optCaseId = getCaseIdByWorkflowId(workflowOrTaskId);
+        return (optCaseId.isPresent() ? optCaseId : getCaseIdByTaskId(workflowOrTaskId))
+                .map(Serializable::toString);
     }
 
-    protected Optional<Serializable> getWorkflowTaskCaseId(WorkflowTask task) {
-        return Optional.ofNullable(workflowService.getPathProperties(task.getPath().getId()).get(
-                OpenESDHModel.PROP_OE_CASE_ID));
+    private Optional<Serializable> getCaseIdByTaskId(String taskId) {
+        return getCaseIdFromWorkflowPath(workflowService.getTaskById(taskId).getPath().getId());
+    }
+
+    private Optional<Serializable> getCaseIdByWorkflowId(String workflowId) {
+        return workflowService.getWorkflowPaths(workflowId).stream()
+                .findAny()
+                .flatMap(path -> getCaseIdFromWorkflowPath(path.getId()));
+    }
+
+    private Optional<Serializable> getCaseIdFromWorkflowPath(String pathId) {
+        return Optional.ofNullable(workflowService.getPathProperties(pathId).get(OpenESDHModel.PROP_OE_CASE_ID));
     }
 
 }

@@ -13,6 +13,7 @@ public interface WorkflowTaskService {
     public static final String PACKAGE_ITEM_CREATEDBY = "createdBy";
     public static final String PACKAGE_ITEM_MAIN_DOC_NODE_REF = "mainDocNodeRef";
     public static final String PACKAGE_ITEM_DOC_RECORD_NODE_REF = "docRecordNodeRef";
+    public static final String WORKFLOW_ASSIGNEES = "workflowAssignees";
 
     public static final String NODE_REF = "nodeRef";
 
@@ -26,12 +27,12 @@ public interface WorkflowTaskService {
     Map<String, Object> getWorkflowTask(String taskId);
 
     /**
-     * Retrieves case id for the provided workflow task
+     * Retrieves case id for the provided workflow or task
      * 
-     * @param taskId
-     *            Id of the task to retrieve case id for
+     * @param workflowOrTaskId
+     *            Id of the workflow or task to retrieve case id for
      * @return case id
      */
-    Optional<String> getWorkflowTaskCaseId(String taskId);
+    Optional<String> getWorkflowCaseId(String workflowOrTaskId);
 
 }

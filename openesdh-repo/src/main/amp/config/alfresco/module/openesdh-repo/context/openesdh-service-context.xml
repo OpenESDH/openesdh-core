@@ -59,6 +59,14 @@
         <property name="personService">
             <ref bean="PersonService"/>
         </property>
+        
+        <property name="namespaceService">
+            <ref bean="NamespaceService"/>
+        </property>
+        
+        <property name="nodeInfoService">
+            <ref bean="NodeInfoService"/>
+        </property>
     </bean>
     
     <bean id="DocumentTypeService" class="dk.openesdh.repo.services.documents.DocumentTypeServiceImpl">

@@ -112,11 +112,7 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
         Map<QName, Serializable> properties = nodeService.getProperties(templateNodeRef);
         OfficeTemplate template = new OfficeTemplate();
         template.setName((String) properties.get(ContentModel.PROP_NAME));
-        String title = (String) properties.get(ContentModel.PROP_TITLE);
-        if (title == null) {
-            title = StringUtils.stripFilenameExtension(template.getName());
-        }
-        template.setTitle(title);
+        template.setTitle((String) properties.get(ContentModel.PROP_TITLE));
         template.setNodeRef(templateNodeRef.toString());
 
         if (withFields) {
