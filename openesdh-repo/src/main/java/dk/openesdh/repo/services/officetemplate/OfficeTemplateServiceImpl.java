@@ -1,5 +1,6 @@
 package dk.openesdh.repo.services.officetemplate;
 
+import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.repo.content.filestore.FileContentReader;
@@ -10,6 +11,7 @@ import org.alfresco.service.cmr.model.FileInfo;
 import org.alfresco.service.cmr.model.FileNotFoundException;
 import org.alfresco.service.cmr.repository.*;
 import org.alfresco.service.namespace.QName;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.log4j.Logger;
 import org.odftoolkit.odfdom.doc.OdfDocument;
 import org.odftoolkit.odfdom.dom.element.text.TextUserFieldDeclElement;
@@ -33,8 +35,11 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
     private Repository repositoryHelper;
     private ContentService contentService;
     private MimetypeService mimetypeService;
+    private Properties properties;
+
 
     private static final String DEFAULT_TARGET_MIME_TYPE = MimetypeMap.MIMETYPE_PDF;
+    private List<String> templateMimeTypes;
 
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
@@ -56,31 +61,46 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
         this.mimetypeService = mimetypeService;
     }
 
+    public void setProperties(Properties properties) {
+        this.properties = properties;
+    }
+
     public void init() {
         // TODO: Behaviour for extracting fields from templates when they
         // are added
     }
 
     @Override
-    public List<OfficeTemplate> getTemplates() {
+    public NodeRef getTemplateDirectory(){
         NodeRef rootNode = repositoryHelper.getCompanyHome();
         FileInfo folderInfo;
         try {
-            folderInfo = fileFolderService.resolveNamePath(rootNode, Arrays.asList("OpenESDH/subsystems/officeTemplates".split("/")));
+            folderInfo = fileFolderService.resolveNamePath(rootNode, Arrays.asList(OPENESDH_DOC_TEMPLATES_DEFAULT_PATH.split("/")));
+            return folderInfo.getNodeRef();
         } catch (FileNotFoundException e) {
-            return Collections.emptyList();
+            //This should be bootstrapped by default, ideally we should create it if it doesn't exist but that would hide
+            //The problem that there was something wrong with the bootstrapping so we throw an error here attached with
+            //an error locator id number to help the admin locate the issue in the logs.
+            String errorLocator = RandomStringUtils.randomAlphanumeric(10);
+            LOGGER.error("\n=====> OpenESDH Error ("+errorLocator+") <=====\n\t\t");
+            LOGGER.error("Attempting to locate document template root resulted in the following error:\n" + e.getMessage() + "\n\n");
+            throw new AlfrescoRuntimeException("Unable to locate the folder where templates are stored.\nPlease contact your administrator and pass on the code: "+errorLocator);
         }
+    }
+
+    @Override
+    public List<OfficeTemplate> getTemplates() {
+        NodeRef templateDirNode = getTemplateDirectory();
 
         // TODO: Lookup templates recursively
-        return fileFolderService.listFiles(folderInfo.getNodeRef()).stream()
-                .map(fileInfo -> {
-                    try {
-                        return getTemplate(fileInfo.getNodeRef(), false);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        return null;
-                    }
-                }).collect(Collectors.toList());
+        return fileFolderService.listFiles(templateDirNode).stream().map(fileInfo -> {
+            try {
+                return getTemplate(fileInfo.getNodeRef(), false);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return null;
+            }
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -194,5 +214,9 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
         }
 
         return writer.getReader();
+    }
+
+    public void setTemplateMimeTypes(List<String> templateMimeTypes) {
+        this.templateMimeTypes = templateMimeTypes;
     }
 }

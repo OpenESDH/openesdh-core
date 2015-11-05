@@ -107,6 +107,7 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
     private PersonService personService;
     private NamespaceService namespaceService;
 
+    //<editor-fold desc="injected stuff">
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
     }
@@ -158,6 +159,7 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
     public void setPersonService(PersonService personService) {
         this.personService = personService;
     }
+    //</editor-fold>
 
     public void setNodeInfoService(NodeInfoService nodeInfoService) {
         this.nodeInfoService = nodeInfoService;

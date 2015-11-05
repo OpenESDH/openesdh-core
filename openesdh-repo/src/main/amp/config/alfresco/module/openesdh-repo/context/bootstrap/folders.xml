@@ -157,7 +157,7 @@
                             <sys:store-protocol>workspace</sys:store-protocol>
                             <sys:store-identifier>SpacesStore</sys:store-identifier>
                             <sys:node-uuid>329bc79a-5693-4d79-9d0b-365ecc02277d</sys:node-uuid>
-                            <cm:description>The openESDH file templates root</cm:description>
+                            <cm:description>The openESDH document templates root</cm:description>
                         </view:properties>
                     </cm:folder>
                 </cm:contains>
