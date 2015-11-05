@@ -56,31 +56,26 @@ public class DocumentTemplateBehaviour implements NodeServicePolicies.OnAddAspec
             logger.error("Unable to add mimetype to object. Reason: \n" + ge.getMessage());
         }
 
-        QName thumbnailRenditionName = QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "docTemplateThumbnail");
+        QName thumbnailRenditionName = QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "cardViewThumbnail");
 
         // Trigger the renditionService to create Thumbnail image.
         List<RenditionDefinition> definitions = renditionService.loadRenditionDefinitions();
-        for(RenditionDefinition rdef: definitions)
-            System.out.println("\nThumbnail => "+rdef.getRenditionName().toString());
-
         RenditionDefinition docTemplateThumbnailRendition = renditionService.loadRenditionDefinition(thumbnailRenditionName);
-
         renditionService.render(nodeRef, docTemplateThumbnailRendition, new RenderCallback() {
             public void handleFailedRendition(Throwable t) {
                 // In the event of a failed (re-)rendition, delete the rendition node
 //                if (logger.isDebugEnabled()) {
-                    logger.warn("Unable to render thumbnail (docTemplateThumbnail) for template.", t);
+                    logger.warn("Unable to render thumbnail (cardViewThumbnail) for template.", t);
 //                }
             }
 
             public void handleSuccessfulRendition(ChildAssociationRef primaryParentOfNewRendition) {
                 String name = nodeService.getProperty(nodeRef, ContentModel.PROP_TITLE).toString();
-                logger.info("==> Successfully rendered docTemplateThumbnail thumbanil for: ");
+                logger.info("==> Successfully rendered cardViewThumbnail for: ");
             }
         });
 
     }
-
 
     public void setPolicyComponent(PolicyComponent policyComponent) {
         this.policyComponent = policyComponent;

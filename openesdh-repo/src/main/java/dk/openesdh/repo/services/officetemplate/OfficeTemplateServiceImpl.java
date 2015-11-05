@@ -39,6 +39,7 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
 
 
     private static final String DEFAULT_TARGET_MIME_TYPE = MimetypeMap.MIMETYPE_PDF;
+    private List<String> templateMimeTypes;
 
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
@@ -90,7 +91,6 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
     @Override
     public List<OfficeTemplate> getTemplates() {
         NodeRef templateDirNode = getTemplateDirectory();
-
 
         // TODO: Lookup templates recursively
         return fileFolderService.listFiles(templateDirNode).stream().map(fileInfo -> {
@@ -218,5 +218,9 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
         }
 
         return writer.getReader();
+    }
+
+    public void setTemplateMimeTypes(List<String> templateMimeTypes) {
+        this.templateMimeTypes = templateMimeTypes;
     }
 }

@@ -313,6 +313,11 @@
         <property name="contentService" ref="ContentService" />
         <property name="repositoryHelper" ref="repositoryHelper" />
         <property name="mimetypeService" ref="mimetypeService"/>
+        <property name="templateMimeTypes">
+            <list>
+                <value>application/vnd.oasis.opendocument.text-template</value>
+            </list>
+        </property>
     </bean>
     
     <bean id="MultiLanguagePropertyService" class="dk.openesdh.repo.services.system.MultiLanguagePropertyServiceImpl">

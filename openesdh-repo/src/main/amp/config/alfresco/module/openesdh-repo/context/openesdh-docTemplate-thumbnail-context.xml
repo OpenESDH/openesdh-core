@@ -9,7 +9,7 @@
             <list>
                 <!-- Asset Preview - thumbnail options -->
                 <bean class="org.alfresco.repo.thumbnail.ThumbnailDefinition">
-                    <property name="name" value="docTemplateThumbnail" />
+                    <property name="name" value="cardViewThumbnail" />
                     <property name="mimetype" value="image/png"/>
                     <property name="transformationOptions">
                         <bean class="org.alfresco.repo.content.transform.magick.ImageTransformationOptions">
