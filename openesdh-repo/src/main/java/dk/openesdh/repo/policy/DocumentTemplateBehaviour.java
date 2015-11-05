@@ -19,6 +19,7 @@ import org.alfresco.util.PropertyCheck;
 import org.apache.log4j.Logger;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -55,22 +56,26 @@ public class DocumentTemplateBehaviour implements NodeServicePolicies.OnAddAspec
             logger.error("Unable to add mimetype to object. Reason: \n" + ge.getMessage());
         }
 
-        QName thumbnailRenditionName = QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "assetThumbnail");
+        QName thumbnailRenditionName = QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "docTemplateThumbnail");
 
         // Trigger the renditionService to create Thumbnail image.
-        RenditionDefinition assetThumbnailRendition = renditionService.loadRenditionDefinition(thumbnailRenditionName);
+        List<RenditionDefinition> definitions = renditionService.loadRenditionDefinitions();
+        for(RenditionDefinition rdef: definitions)
+            System.out.println("\nThumbnail => "+rdef.getRenditionName().toString());
 
-        renditionService.render(nodeRef, assetThumbnailRendition, new RenderCallback() {
+        RenditionDefinition docTemplateThumbnailRendition = renditionService.loadRenditionDefinition(thumbnailRenditionName);
+
+        renditionService.render(nodeRef, docTemplateThumbnailRendition, new RenderCallback() {
             public void handleFailedRendition(Throwable t) {
                 // In the event of a failed (re-)rendition, delete the rendition node
-                if (logger.isDebugEnabled()) {
-                    logger.debug("Stuff went wrong", t);
-                }
+//                if (logger.isDebugEnabled()) {
+                    logger.warn("Unable to render thumbnail (docTemplateThumbnail) for template.", t);
+//                }
             }
 
-            public void handleSuccessfulRendition(
-                    ChildAssociationRef primaryParentOfNewRendition) {
-                // Stuff went right
+            public void handleSuccessfulRendition(ChildAssociationRef primaryParentOfNewRendition) {
+                String name = nodeService.getProperty(nodeRef, ContentModel.PROP_TITLE).toString();
+                logger.info("==> Successfully rendered docTemplateThumbnail thumbanil for: ");
             }
         });
 
@@ -83,5 +88,9 @@ public class DocumentTemplateBehaviour implements NodeServicePolicies.OnAddAspec
 
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
+    }
+
+    public void setRenditionService(RenditionService renditionService) {
+        this.renditionService = renditionService;
     }
 }
