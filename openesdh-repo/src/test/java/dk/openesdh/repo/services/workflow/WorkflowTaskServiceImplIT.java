@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.repo.web.scripts.workflow.WorkflowModelBuilder;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -145,6 +146,14 @@ public class WorkflowTaskServiceImplIT {
         Map<String, Object> item = packageItems.get(0);
         Assert.assertEquals("Wrong task package item retrieved", TEST_DOCUMENT_NAME,
                 item.get(WorkflowTaskService.PACKAGE_ITEM_NAME));
+
+        Map<String, Object> workflowMap = (Map<String, Object>) taskMap
+                .get(WorkflowModelBuilder.TASK_WORKFLOW_INSTANCE);
+        List<Map<String, Object>> assignees = (List<Map<String, Object>>) workflowMap
+                .get(WorkflowTaskService.WORKFLOW_ASSIGNEES);
+        Map<String, Object> assignee = assignees.get(0);
+        Assert.assertEquals("Should retrieve workflow assignee", AuthenticationUtil.getFullyAuthenticatedUser(),
+                assignee.get(WorkflowModelBuilder.PERSON_USER_NAME));
 
         workflowService.endTask(wfTask.getId(), null);
 

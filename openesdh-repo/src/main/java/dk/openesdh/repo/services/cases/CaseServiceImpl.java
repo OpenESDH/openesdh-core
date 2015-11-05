@@ -56,6 +56,7 @@ import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.OwnableService;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.security.PersonService;
+import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
 import org.alfresco.util.SearchLanguageConversion;
@@ -74,6 +75,7 @@ import dk.openesdh.repo.model.CaseInfoImpl;
 import dk.openesdh.repo.model.CaseStatus;
 import dk.openesdh.repo.model.DocumentStatus;
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.NodeInfoService;
 import dk.openesdh.repo.services.documents.DocumentService;
 import dk.openesdh.repo.services.lock.OELockService;
 import dk.openesdh.repo.services.system.OpenESDHFoldersService;
@@ -90,6 +92,7 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
     private static final Logger LOGGER = Logger.getLogger(CaseServiceImpl.class);
     Behaviour onUpdatePropertiesBehaviour;
     private NodeService nodeService;
+    private NodeInfoService nodeInfoService;
     private SearchService searchService;
     private AuthorityService authorityService;
     private PermissionService permissionService;
@@ -102,6 +105,7 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
     private OELockService oeLockService;
     private OpenESDHFoldersService openESDHFoldersService;
     private PersonService personService;
+    private NamespaceService namespaceService;
 
     //<editor-fold desc="injected stuff">
     public void setNodeService(NodeService nodeService) {
@@ -156,6 +160,14 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
         this.personService = personService;
     }
     //</editor-fold>
+
+    public void setNodeInfoService(NodeInfoService nodeInfoService) {
+        this.nodeInfoService = nodeInfoService;
+    }
+
+    public void setNamespaceService(NamespaceService namespaceService) {
+        this.namespaceService = namespaceService;
+    }
 
     @Override
     public NodeRef getCasesRootNodeRef() {
@@ -1161,7 +1173,7 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
         return authorities;
     }
 
-    public JSONArray getCaseOwners(NodeRef nodeRef) throws JSONException {
+    private JSONArray getCaseOwners(NodeRef nodeRef) throws JSONException {
         JSONArray owners = new JSONArray();
         List<AssociationRef> caseOwnersAssocList = nodeService.getTargetAssocs(nodeRef, OpenESDHModel.ASSOC_CASE_OWNERS);
         for (AssociationRef caseOwnerAssoc : caseOwnersAssocList) {
@@ -1182,6 +1194,35 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
             owners.put(owner);
         }
         return owners;
+    }
+
+    @Override
+    public JSONObject getCaseInfoJson(NodeRef caseNodeRef) throws JSONException {
+        NodeInfoService.NodeInfo nodeInfo = nodeInfoService.getNodeInfo(caseNodeRef);
+        JSONObject json = nodeInfoService.buildJSON(nodeInfo);
+        json.put("isLocked", isLocked(caseNodeRef));
+        json.put("statusChoices", getValidNextStatuses(caseNodeRef));
+
+        JSONObject properties = (JSONObject) json.get("properties");
+        addEmptyPropsIfNull(properties);
+        properties.put("nodeRef", caseNodeRef.toString());
+        properties.put("owners", getCaseOwners(caseNodeRef));
+        return json;
+    }
+
+    private static final List<QName> NOT_NULL_PROPS = Arrays.asList(OpenESDHModel.PROP_OE_ID,
+            ContentModel.PROP_TITLE, OpenESDHModel.PROP_OE_STATUS, ContentModel.PROP_CREATOR,
+            ContentModel.PROP_CREATED, ContentModel.PROP_MODIFIED, ContentModel.PROP_MODIFIER,
+            ContentModel.PROP_DESCRIPTION, OpenESDHModel.PROP_OE_JOURNALKEY, OpenESDHModel.PROP_OE_JOURNALFACET,
+            OpenESDHModel.PROP_OE_LOCKED_BY, OpenESDHModel.PROP_OE_LOCKED_DATE, OpenESDHModel.PROP_CASE_STARTDATE);
+
+    private void addEmptyPropsIfNull(JSONObject json) throws JSONException {
+        for (QName qname : NOT_NULL_PROPS) {
+            String property = qname.toPrefixString(namespaceService);
+            if (!json.has(property)) {
+                json.put(property, "");
+            }
+        }
     }
 
 }

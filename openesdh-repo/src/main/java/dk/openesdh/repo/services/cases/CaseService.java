@@ -11,6 +11,7 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.security.access.AccessDeniedException;
 
 import dk.openesdh.repo.model.CaseInfo;
@@ -253,11 +254,5 @@ public interface CaseService extends HasStatus {
      */
     public void checkCanUpdateCaseRoles(NodeRef caseNodeRef) throws AccessDeniedException;
 
-    /**
-     *
-     * @param nodeRef
-     * @return
-     * @throws JSONException
-     */
-    public JSONArray getCaseOwners(NodeRef nodeRef) throws JSONException;
+    public JSONObject getCaseInfoJson(NodeRef caseNodeRef) throws JSONException;
 }

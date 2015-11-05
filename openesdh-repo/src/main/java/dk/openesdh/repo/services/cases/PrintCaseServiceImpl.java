@@ -17,13 +17,11 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
 import org.json.JSONException;
-import org.json.JSONObject;
 import org.json.simple.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.model.CasePrintInfo;
-import dk.openesdh.repo.services.NodeInfoService;
 import dk.openesdh.repo.services.audit.AuditSearchService;
 import dk.openesdh.repo.services.notes.NoteService;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
@@ -56,9 +54,6 @@ public class PrintCaseServiceImpl implements PrintCaseService {
     private NoteService noteService;
 
     @Autowired
-    private NodeInfoService nodeInfoService;
-
-    @Autowired
     private NodeService nodeService;
 
     @Autowired
@@ -88,7 +83,7 @@ public class PrintCaseServiceImpl implements PrintCaseService {
             context.put("i18n", i18n);
 
             if (printInfo.isCaseDetails()) {
-                context.put("case", getCaseInfo(caseNodeRef).get("properties"));
+                context.put("case", caseService.getCaseInfoJson(caseNodeRef).get("properties"));
             }
 
             if (printInfo.isCaseHistoryLog()) {
@@ -119,17 +114,13 @@ public class PrintCaseServiceImpl implements PrintCaseService {
         return printInfo.getDocuments()
                 .stream()
                 .map(docNodeRef -> getDocumentPdfThumbnailStream(docNodeRef))
-                .filter(inputStreamOptional -> inputStreamOptional.isPresent())
-                .map(inputStreamOptional -> inputStreamOptional.get())
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .collect(Collectors.toList());
     }
 
     private InputStream getCasePrintOdtTemplate() {
         return getClass().getClassLoader().getResourceAsStream(CASE_PRINT_TEMPLATE_PATH);
-    }
-
-    private JSONObject getCaseInfo(NodeRef caseNodeRef) {
-        return nodeInfoService.buildJSON(nodeInfoService.getNodeInfo(caseNodeRef));
     }
 
     private Optional<InputStream> getDocumentPdfThumbnailStream(NodeRef documentNodeRef) {
