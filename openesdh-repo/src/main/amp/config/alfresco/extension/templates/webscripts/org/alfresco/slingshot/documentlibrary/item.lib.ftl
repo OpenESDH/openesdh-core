@@ -38,7 +38,7 @@
     "nodeRef": "${node.nodeRef}",
     "nodeType": "${shortQName(node.type)}",
     "type": "${item.type}",
-    "caseId": "${item.caseId?string!""}",
+    <#if caseId??>"caseId": "${item.caseId?string!""}",</#if>
     "mimetype": "${node.mimetype!""}",
     "isFolder": <#if item.linkedNode??>${item.linkedNode.isContainer?string}<#else>${node.isContainer?string}</#if>,
     "isLink": ${(item.isLink!false)?string},

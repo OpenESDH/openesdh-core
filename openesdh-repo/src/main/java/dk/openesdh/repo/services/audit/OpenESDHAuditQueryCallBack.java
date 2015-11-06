@@ -243,7 +243,10 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
     private String localizedProperty(Map<QName, Serializable> properties, QName propQName) {
         HashMap<Locale, String> property = (HashMap) properties.get(propQName);
         String value = property.get(I18NUtil.getContentLocale());
-        return value == null ? property.get(Locale.ENGLISH) : "";
+        if (value == null) {
+            value = property.get(Locale.ENGLISH);
+        }
+        return value != null ? value : "";
     }
 
     @SuppressWarnings("unchecked")

@@ -1,0 +1,34 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+<beans>
+    <!--No need to create a whole bean class for this instead just invoke the method when we need-->
+    <bean id="docTemplateThumbnail" class="org.springframework.beans.factory.config.MethodInvokingFactoryBean">
+        <property name="targetObject" ref="thumbnailRegistry" />
+        <property name="targetMethod" value="addThumbnailDefinition" />
+        <property name="arguments">
+            <list>
+                <!-- Asset Preview - thumbnail options -->
+                <bean class="org.alfresco.repo.thumbnail.ThumbnailDefinition">
+                    <property name="name" value="cardViewThumbnail" />
+                    <property name="mimetype" value="image/png"/>
+                    <property name="transformationOptions">
+                        <bean class="org.alfresco.repo.content.transform.magick.ImageTransformationOptions">
+                            <property name="resizeOptions">
+                                <bean class="org.alfresco.repo.content.transform.magick.ImageResizeOptions">
+                                    <property name="width" value="141"/>
+                                    <property name="height" value="200"/>
+                                    <property name="maintainAspectRatio" value="true"/>
+                                    <property name="resizeToThumbnail" value="true" />
+                                    <property name="allowEnlargement" value="false" />
+                                </bean>
+                            </property>
+                        </bean>
+                    </property>
+                    <property name="placeHolderResourcePath" value="alfresco/thumbnail/thumbnail_placeholder_imgpreview.png" />
+                    <property name="runAs" value="System"/>
+                    <property name="failureHandlingOptions" ref="standardFailureOptions"/>
+                </bean>
+            </list>
+        </property>
+    </bean>
+</beans>

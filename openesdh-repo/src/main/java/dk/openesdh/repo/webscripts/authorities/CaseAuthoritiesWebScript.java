@@ -58,10 +58,7 @@ public class CaseAuthoritiesWebScript {
     private PersonService personService;
 
     @Uri(value = "/api/openesdh/{caseType}/authorities", method = HttpMethod.GET, defaultFormat = "json")
-    public Resolution getCaseAuthorities(
-            @UriVariable final String caseType,
-            @RequestParam(required = false) final String filter
-    ) throws JSONException {
+    public Resolution getCaseAuthorities(@UriVariable final String caseType, @RequestParam(required = false) final String filter ) throws JSONException {
         //groups for case type
         List<JSONObject> jsonAuthorities = getAuthoritiesByType(caseType, filter);
         //other groups created in openE

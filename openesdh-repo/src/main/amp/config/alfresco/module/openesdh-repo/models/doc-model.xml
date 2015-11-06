@@ -283,6 +283,7 @@
                 </property>
             </properties>
         </type>
+
     </types>
 
     <aspects>
@@ -329,6 +330,16 @@
                     <type>d:int</type>
                     <mandatory>true</mandatory>
                     <default>0</default>
+                </property>
+            </properties>
+        </aspect>
+
+        <!-- document templates-->
+        <aspect name="doc:template">
+            <properties>
+                <property name="doc:templateType">
+                    <description>Textual representation of the template type, i.e. ott/dotx/e.t.c</description>
+                    <type>d:text</type>
                 </property>
             </properties>
         </aspect>
