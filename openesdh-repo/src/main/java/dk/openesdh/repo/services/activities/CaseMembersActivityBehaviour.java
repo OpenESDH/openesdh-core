@@ -1,5 +1,6 @@
 package dk.openesdh.repo.services.activities;
 
+import java.util.Optional;
 import java.util.regex.Matcher;
 
 import javax.annotation.PostConstruct;
@@ -21,6 +22,9 @@ import dk.openesdh.repo.services.members.CaseMembersService;
 @Service("caseMembersActivityBehaviour")
 public class CaseMembersActivityBehaviour implements OnCreateChildAssociationPolicy, OnDeleteChildAssociationPolicy {
 
+    @Autowired
+    @Qualifier("CaseService")
+    private CaseService caseService;
     @Autowired
     @Qualifier("CaseMembersService")
     private CaseMembersService caseMembersService;
@@ -60,7 +64,9 @@ public class CaseMembersActivityBehaviour implements OnCreateChildAssociationPol
         }
         String caseId = matcher.group(1);
         String role = matcher.group(2);
-        activity.post(caseId, childAssocRef.getChildRef(), role);
+        
+        Optional.ofNullable(caseService.getCaseById(caseId))
+            .ifPresent(caseNodeRef -> activity.post(caseId, childAssocRef.getChildRef(), role));
     }
 
     private interface CaseMemberActivity {

@@ -2,6 +2,7 @@ package dk.openesdh.repo.services.activities;
 
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -55,9 +56,8 @@ public class CaseActivityServiceImpl implements CaseActivityService {
     @SuppressWarnings("unchecked")
     @Override
     public void postOnCaseMemberRemove(String caseId, NodeRef authority, String role) {
-        NodeRef caseNodeRef = caseService.getCaseById(caseId);
-        postActivity(caseNodeRef, CaseActivityService.ACTIVITY_TYPE_CASE_MEMBER_REMOVE, () -> {
-            JSONObject json = createNewActivity(caseNodeRef);
+        postActivity(caseId, CaseActivityService.ACTIVITY_TYPE_CASE_MEMBER_REMOVE, (caseNodeRef) -> {
+            JSONObject json = createNewActivity(caseId, caseNodeRef);
             json.put("role", role);
             json.put("member", getAuthorityDisplayName(authority));
             return json;
@@ -67,9 +67,8 @@ public class CaseActivityServiceImpl implements CaseActivityService {
     @SuppressWarnings("unchecked")
     @Override
     public void postOnCaseMemberAdd(String caseId, NodeRef authority, String role) {
-        NodeRef caseNodeRef = caseService.getCaseById(caseId);
-        postActivity(caseNodeRef, CaseActivityService.ACTIVITY_TYPE_CASE_MEMBER_ADD, () -> {
-            JSONObject json = createNewActivity(caseNodeRef);
+        postActivity(caseId, CaseActivityService.ACTIVITY_TYPE_CASE_MEMBER_ADD, (caseNodeRef) -> {
+            JSONObject json = createNewActivity(caseId, caseNodeRef);
             json.put("role", role);
             json.put("member", getAuthorityDisplayName(authority));
             return json;
@@ -79,8 +78,7 @@ public class CaseActivityServiceImpl implements CaseActivityService {
     @SuppressWarnings("unchecked")
     @Override
     public void postOnCaseWorkflowStart(String caseId, String description) {
-        NodeRef caseNodeRef = caseService.getCaseById(caseId);
-        postActivity(caseNodeRef, CaseActivityService.ACTIVITY_TYPE_CASE_WORKFLOW_START, () -> {
+        postActivity(caseId, CaseActivityService.ACTIVITY_TYPE_CASE_WORKFLOW_START, (caseNodeRef) -> {
             JSONObject json = createNewActivity(caseId, caseNodeRef);
             json.put("workflowDescription", description);
             return json;
@@ -90,8 +88,7 @@ public class CaseActivityServiceImpl implements CaseActivityService {
     @SuppressWarnings("unchecked")
     @Override
     public void postOnCaseWorkflowCancel(String caseId, String description) {
-        NodeRef caseNodeRef = caseService.getCaseById(caseId);
-        postActivity(caseNodeRef, CaseActivityService.ACTIVITY_TYPE_CASE_WORKFLOW_CANCEL, () -> {
+        postActivity(caseId, CaseActivityService.ACTIVITY_TYPE_CASE_WORKFLOW_CANCEL, (caseNodeRef) -> {
             JSONObject json = createNewActivity(caseId, caseNodeRef);
             json.put("workflowDescription", description);
             return json;
@@ -101,10 +98,9 @@ public class CaseActivityServiceImpl implements CaseActivityService {
     @SuppressWarnings("unchecked")
     @Override
     public void postOnEndCaseWorkflowTask(String caseId, String description, Optional<String> taskOutcome) {
-        NodeRef caseNodeRef = caseService.getCaseById(caseId);
         String activityType = CaseActivityService.ACTIVITY_TYPE_CASE_WORKFLOW_TASK_
                 + taskOutcome.map(outcome -> outcome.toLowerCase()).orElse("end");
-        postActivity(caseNodeRef, activityType, () -> {
+        postActivity(caseId, activityType, (caseNodeRef) -> {
             JSONObject json = createNewActivity(caseId, caseNodeRef);
             json.put("workflowDescription", description);
             return json;
@@ -181,6 +177,11 @@ public class CaseActivityServiceImpl implements CaseActivityService {
             return person.getFirstName() + " " + person.getLastName();
         }
         return caseMembersService.getAuthorityName(authority);
+    }
+
+    private void postActivity(String caseId, String activityType, Function<NodeRef, JSONObject> activityJsonFunction) {
+        NodeRef caseNodeRef = caseService.getCaseById(caseId);
+        postActivity(caseNodeRef, activityType, () -> activityJsonFunction.apply(caseNodeRef));
     }
 
     private void postActivity(NodeRef caseNodeRef, String activityType, Supplier<JSONObject> activityJsonSupplier) {
