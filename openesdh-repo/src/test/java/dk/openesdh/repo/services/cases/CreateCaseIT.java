@@ -144,6 +144,7 @@ public class CreateCaseIT {
             final String name = UUID.randomUUID().toString();
 
             NodeRef owner = personService.getPerson(getAdminUserName());
+            System.out.println(" @@@@@@@@@@ owner noderef " + owner.toString());
 
             return caseHelper.createSimpleCase(name, getAdminUserName(), owner);
         });
