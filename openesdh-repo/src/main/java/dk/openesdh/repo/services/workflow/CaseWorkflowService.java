@@ -9,9 +9,13 @@ import dk.openesdh.repo.model.WorkflowInfo;
 
 public interface CaseWorkflowService {
 
+    String NAME = "CaseWorkflowService";
+
     String WORKFLOW_PRIORITY_HIGH = "1";
     String WORKFLOW_PRIORITY_MEDIUM = "2";
     String WORKFLOW_PRIORITY_LOW = "3";
+
+    String WORKFLOW_START_TASK_ID = "activiti$start";
 
     WorkflowPath startWorkflow(WorkflowInfo workflow);
 

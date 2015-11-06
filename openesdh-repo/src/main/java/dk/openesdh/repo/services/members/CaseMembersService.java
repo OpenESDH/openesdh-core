@@ -72,4 +72,10 @@ public interface CaseMembersService {
      * @return
      */
     List<Long> getCaseDbIdsWhereAuthorityHasRole(NodeRef authorityNodeRef, String role);
+
+    String getAuthorityName(NodeRef authorityRef);
+
+    boolean isAuthorityGroup(NodeRef authorityRef);
+
+    boolean isAuthorityPerson(NodeRef authorityRef);
 }

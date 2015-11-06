@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.workflow.CaseWorkflowService;
 import dk.openesdh.repo.services.workflow.WorkflowTaskService;
 
 @Service("audit.dk.openesdh.CaseIDExtractor")
@@ -70,7 +71,7 @@ public final class CaseNodeRefExtractor extends AbstractAnnotatedDataExtractor {
                 return null;
             }
             return getNodeRefFromCaseDbID(parts[2]);
-        } else if (str.startsWith("activiti$") && !str.contains("start")) {
+        } else if (str.startsWith("activiti$") && !str.contains(CaseWorkflowService.WORKFLOW_START_TASK_ID)) {
             return workflowTaskService.getWorkflowCaseId(str)
                     .map(caseId -> getNodeRefFromCaseID(caseId))
                     .orElse(null);

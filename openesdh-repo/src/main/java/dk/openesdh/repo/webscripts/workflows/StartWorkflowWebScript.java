@@ -6,6 +6,7 @@ import java.util.Map;
 
 import org.alfresco.service.cmr.workflow.WorkflowPath;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.stereotype.Component;
 
@@ -24,6 +25,7 @@ import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 public class StartWorkflowWebScript {
 
     @Autowired
+    @Qualifier(CaseWorkflowService.NAME)
     private CaseWorkflowService workflowService;
 
     @Attribute

@@ -11,7 +11,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.alfresco.error.AlfrescoRuntimeException;
@@ -32,6 +31,7 @@ import org.springframework.extensions.surf.util.I18NUtil;
 import com.google.common.base.Joiner;
 
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CaseService;
 
 /**
  * Created by flemmingheidepedersen on 18/11/14.
@@ -393,8 +393,7 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
      * @return
      */
     private String getRoleFromCaseGroupName(String groupName) {
-        Pattern pattern = Pattern.compile("GROUP_case_([\\d\\-]+)_(.+)");
-        Matcher matcher = pattern.matcher(groupName);
+        Matcher matcher = CaseService.CASE_ROLE_GROUP_NAME_PATTERN.matcher(groupName);
         if (matcher.matches()) {
             return matcher.group(2);
         } else {

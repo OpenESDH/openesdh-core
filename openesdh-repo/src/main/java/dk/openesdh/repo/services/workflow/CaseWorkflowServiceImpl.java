@@ -40,7 +40,7 @@ import dk.openesdh.repo.model.WorkflowInfo;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.members.CaseMembersService;
 
-@Service
+@Service("caseWorkflowService")
 public class CaseWorkflowServiceImpl implements CaseWorkflowService {
 
     @Autowired

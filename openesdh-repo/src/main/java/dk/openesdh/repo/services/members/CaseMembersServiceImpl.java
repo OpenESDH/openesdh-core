@@ -135,21 +135,36 @@ public class CaseMembersServiceImpl implements CaseMembersService, RunInTransact
 
     // Copied (almost directly) from AuthorityDAOImpl because it is not exposed
     // in the AuthorityService public API
-    private String getAuthorityName(NodeRef authorityRef) {
+    @Override
+    public String getAuthorityName(NodeRef authorityRef) {
         if (!nodeService.exists(authorityRef)) {
             return null;
         }
 
-        QName type = nodeService.getType(authorityRef);
-        if (dictionaryService.isSubClass(type, ContentModel.TYPE_AUTHORITY_CONTAINER)) {
+        if (isAuthorityGroup(authorityRef)) {
             return (String) nodeService.getProperty(authorityRef, ContentModel.PROP_AUTHORITY_NAME);
         }
 
-        if (dictionaryService.isSubClass(type, ContentModel.TYPE_PERSON)) {
+        if (isAuthorityPerson(authorityRef)) {
             return (String) nodeService.getProperty(authorityRef, ContentModel.PROP_USERNAME);
         }
 
         return null;
+    }
+
+    @Override
+    public boolean isAuthorityGroup(NodeRef authorityRef) {
+        return isAuthorityOfType(authorityRef, ContentModel.TYPE_AUTHORITY_CONTAINER);
+    }
+
+    @Override
+    public boolean isAuthorityPerson(NodeRef authorityRef) {
+        return isAuthorityOfType(authorityRef, ContentModel.TYPE_PERSON);
+    }
+
+    private boolean isAuthorityOfType(NodeRef authorityRef, QName type) {
+        QName authorityType = nodeService.getType(authorityRef);
+        return dictionaryService.isSubClass(authorityType, type);
     }
 
     @Override

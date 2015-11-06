@@ -47,6 +47,7 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
     @Autowired
     private DocumentService documentService;
     @Autowired
+    @Qualifier(CaseWorkflowService.NAME)
     private CaseWorkflowService caseWorkflowService;
 
     @Override

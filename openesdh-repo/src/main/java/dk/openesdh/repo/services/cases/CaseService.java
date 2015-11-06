@@ -30,6 +30,8 @@ public interface CaseService extends HasStatus {
 
     Pattern CASE_ID_PATTERN = Pattern.compile("\\d+-(\\d+)");
 
+    Pattern CASE_ROLE_GROUP_NAME_PATTERN = Pattern.compile("GROUP_case_([\\d\\-]+)_(.+)");
+
     String CASE = "Case";
 
     String CREATOR = "Creator";
