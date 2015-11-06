@@ -242,12 +242,10 @@ public class CaseWorkflowServiceImplIT {
     @Test
     public void shouldCreateCaseThenAddWorkflowAssigneeAsCaseMember() {
         String caseId = createCase();
-        CaseWorkflowServiceImpl caseWorkflowService = (CaseWorkflowServiceImpl) service;
-
         Map<QName, Serializable> params = new HashMap<QName, Serializable>();
         params.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
         params.put(WorkflowModel.ASSOC_ASSIGNEE, personService.getPerson(CaseHelper.ALICE_BEECHER));
-        caseWorkflowService.grantCaseAccessToAssignee(params);
+        service.grantCaseAccessToWorkflowAssignees(params);
 
         assertTrueUsersAmidstCaseReadMembers(CaseHelper.ALICE_BEECHER);
     }
@@ -255,7 +253,6 @@ public class CaseWorkflowServiceImplIT {
     @Test
     public void shouldCreateCaseThenAddWorkflowAssigneeListAsCaseMembers() {
         String caseId = createCase();
-        CaseWorkflowServiceImpl caseWorkflowService = (CaseWorkflowServiceImpl) service;
 
         Map<QName, Serializable> params = new HashMap<QName, Serializable>();
         params.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
@@ -263,7 +260,7 @@ public class CaseWorkflowServiceImplIT {
                 WorkflowModel.ASSOC_ASSIGNEES,
                 (Serializable) Arrays.asList(personService.getPerson(CaseHelper.ALICE_BEECHER),
                         personService.getPerson(CaseHelper.MIKE_JACKSON)));
-        caseWorkflowService.grantCaseAccessToAssignees(params);
+        service.grantCaseAccessToWorkflowAssignees(params);
 
         assertTrueUsersAmidstCaseReadMembers(CaseHelper.ALICE_BEECHER, CaseHelper.MIKE_JACKSON);
     }
@@ -277,12 +274,11 @@ public class CaseWorkflowServiceImplIT {
         NodeRef groupNodeRef = authorityService.getAuthorityNodeRef(testGroupAuthorityName);
 
         String caseId = createCase();
-        CaseWorkflowServiceImpl caseWorkflowService = (CaseWorkflowServiceImpl) service;
 
         Map<QName, Serializable> params = new HashMap<QName, Serializable>();
         params.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
         params.put(WorkflowModel.ASSOC_GROUP_ASSIGNEE, groupNodeRef);
-        caseWorkflowService.grantCaseAccessToWorkflowAssignees(params);
+        service.grantCaseAccessToWorkflowAssignees(params);
 
         assertTrueUsersAmidstCaseReadMembers(CaseHelper.ALICE_BEECHER, CaseHelper.MIKE_JACKSON);
     }
@@ -298,12 +294,11 @@ public class CaseWorkflowServiceImplIT {
         NodeRef groupNodeRef2 = authorityService.getAuthorityNodeRef(testGroupAuthorityName2);
 
         String caseId = createCase();
-        CaseWorkflowServiceImpl caseWorkflowService = (CaseWorkflowServiceImpl) service;
 
         Map<QName, Serializable> params = new HashMap<QName, Serializable>();
         params.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
         params.put(WorkflowModel.ASSOC_GROUP_ASSIGNEES, (Serializable) Arrays.asList(groupNodeRef, groupNodeRef2));
-        caseWorkflowService.grantCaseAccessToWorkflowAssignees(params);
+        service.grantCaseAccessToWorkflowAssignees(params);
 
         assertTrueUsersAmidstCaseReadMembers(CaseHelper.ALICE_BEECHER, CaseHelper.MIKE_JACKSON);
     }
@@ -313,15 +308,13 @@ public class CaseWorkflowServiceImplIT {
         String caseId = createCase();
         caseMembersService.addAuthorityToRole(CaseHelper.ALICE_BEECHER, getCaseMemberWriteRole(), caseNodeRef);
 
-        CaseWorkflowServiceImpl caseWorkflowService = (CaseWorkflowServiceImpl) service;
-
         Map<QName, Serializable> params = new HashMap<QName, Serializable>();
         params.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
         params.put(
                 WorkflowModel.ASSOC_ASSIGNEES,
                 (Serializable) Arrays.asList(personService.getPerson(CaseHelper.ALICE_BEECHER),
                         personService.getPerson(CaseHelper.MIKE_JACKSON)));
-        caseWorkflowService.grantCaseAccessToAssignees(params);
+        service.grantCaseAccessToWorkflowAssignees(params);
 
         assertTrueUsersAmidstCaseReadMembers(CaseHelper.MIKE_JACKSON);
         assertFalseUsersAmidstCaseReadMembers(CaseHelper.ALICE_BEECHER);

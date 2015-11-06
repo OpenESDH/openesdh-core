@@ -176,7 +176,8 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
         return params;
     }
 
-    protected void grantCaseAccessToWorkflowAssignees(Map<QName, Serializable> workflowParams) {
+    @Override
+    public void grantCaseAccessToWorkflowAssignees(Map<QName, Serializable> workflowParams) {
         retryingTransactionHelper.doInTransaction(() -> {
             caseAccessGranters.entrySet()
                 .stream()
