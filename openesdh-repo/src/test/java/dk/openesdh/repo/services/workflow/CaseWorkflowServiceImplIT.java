@@ -84,6 +84,7 @@ public class CaseWorkflowServiceImplIT {
     private CaseMembersService caseMembersService;
 
     @Autowired
+    @Qualifier(CaseWorkflowService.NAME)
     protected CaseWorkflowService service;
 
     private static final String TEST_FOLDER_NAME = "CaseWorkflowServiceImplIT";

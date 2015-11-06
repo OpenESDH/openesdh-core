@@ -81,6 +81,7 @@ public class WorkflowTaskServiceImplIT {
     private WorkflowTaskService service;
 
     @Autowired
+    @Qualifier(CaseWorkflowService.NAME)
     private CaseWorkflowService caseWorkflowService;
 
     private NodeRef testFolder;
