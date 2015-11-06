@@ -108,9 +108,9 @@ public class CaseServiceImplIT {
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
 
         transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
-                    dummyUser = caseHelper.createDummyUser(CaseHelper.DUMMY_USERNAME_123);
+            dummyUser = caseHelper.createDummyUser();
             NodeRef adminUserNodeRef = this.personService.getPerson(OpenESDHModel.ADMIN_USER_NAME);
-                    authorityService.addAuthority(CaseHelper.CASE_CREATOR_GROUP, CaseHelper.DUMMY_USERNAME_123);
+            authorityService.addAuthority(CaseHelper.CASE_CREATOR_GROUP, CaseHelper.DEFAULT_USERNAME);
 
             casesRootNoderef = caseService.getCasesRootNodeRef();
 
@@ -122,8 +122,7 @@ public class CaseServiceImplIT {
 
             // Create a case with a non-admin user
             caseName = "nonAdminUserCreatedCase";
-                    nonAdminCreatedCaseNr = caseHelper.createSimpleCase(caseName, CaseHelper.DUMMY_USERNAME_123,
-                            dummyUser);
+            nonAdminCreatedCaseNr = caseHelper.createSimpleCase(caseName, CaseHelper.DEFAULT_USERNAME, dummyUser);
             return null;
         });
     }
@@ -147,7 +146,7 @@ public class CaseServiceImplIT {
                 nodeService.deleteNode(temporaryCaseNodeRef);
                 temporaryCaseNodeRef = null;
             }
-                caseHelper.deleteDummyUser(CaseHelper.DUMMY_USERNAME_123);
+            caseHelper.deleteDummyUser();
             return true;
         });
     }
@@ -238,7 +237,7 @@ public class CaseServiceImplIT {
 
     @Test
     public void testBehaviourOnAddRemoveOwner() throws Exception {
-        // AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DUMMY_USERNAME_123);
+//        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
 
         String groupName = caseService.getCaseRoleGroupName(caseService.getCaseId(nonAdminCreatedCaseNr), "CaseOwners");
         NodeRef adminNodeRef = personService.getPerson(AuthenticationUtil.getAdminUserName());
@@ -306,7 +305,7 @@ public class CaseServiceImplIT {
         assertFalse("Case should not be closed when initially created",
                 caseService.isLocked(nonAdminCreatedCaseNr));
 
-        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DUMMY_USERNAME_123);
+        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
 
         caseService.changeNodeStatus(nonAdminCreatedCaseNr, CaseStatus.ACTIVE);
 
@@ -356,7 +355,7 @@ public class CaseServiceImplIT {
 
         // Test that the owner cannot change permissions on the case
         try {
-            caseMembersService.removeAuthorityFromRole(CaseHelper.DUMMY_USERNAME_123,
+            caseMembersService.removeAuthorityFromRole(CaseHelper.DEFAULT_USERNAME,
                     "CaseOwners", nonAdminCreatedCaseNr);
             fail("An authority could be removed from a role on a closed case");
         } catch (Exception e) {
@@ -379,7 +378,7 @@ public class CaseServiceImplIT {
         // Close the case again. This shouldn't do anything.
         caseService.changeNodeStatus(nonAdminCreatedCaseNr, CaseStatus.CLOSED);
 
-        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DUMMY_USERNAME_123);
+        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
 
         try {
             caseService.changeNodeStatus(nonAdminCreatedCaseNr, CaseStatus.ACTIVE);
@@ -407,7 +406,7 @@ public class CaseServiceImplIT {
         assertEquals("Document in finalized case can be changed back to "
                 + "DRAFT status after reopening", DocumentStatus.DRAFT, documentService.getNodeStatus(docRecordNodeRef));
 
-        // AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DUMMY_USERNAME_123);
+//        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
         // Test that a user can write again: these would throw exceptions if
         // they failed.
         nodeService.setProperty(nonAdminCreatedCaseNr,
@@ -430,7 +429,7 @@ public class CaseServiceImplIT {
 
     @Test
     public void shouldReturnWritePermissionsForOwner() {
-        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DUMMY_USERNAME_123);
+        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
         String caseId = caseService.getCaseId(nonAdminCreatedCaseNr);
         List<String> permissions = caseService.getCaseUserPermissions(caseId);
         assertTrue("Case owner should contain permissions for the case", permissions.contains("CaseOwners"));

@@ -23,6 +23,7 @@ import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -38,7 +39,6 @@ public class CaseHelper {
 
     public static final String ADMIN_USER_NAME = "admin";
     public final static String DEFAULT_USERNAME = "username12";
-    public final static String DUMMY_USERNAME_123 = "username123";
 
     //<editor-fold desc="Autowired services">
     @Autowired
