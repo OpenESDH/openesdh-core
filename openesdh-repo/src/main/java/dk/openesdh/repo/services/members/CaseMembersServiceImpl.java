@@ -76,6 +76,7 @@ public class CaseMembersServiceImpl implements CaseMembersService, RunInTransact
         String caseId = caseService.getCaseId(caseNodeRef);
         String groupName = caseService.getCaseRoleGroupName(caseId, role);
         try {
+            System.out.println("%%%%%% adding to group: " + groupName + " authority: " + authorityName);
             authorityService.addAuthority(groupName, authorityName);
         } catch (Exception ex) {
             ex.printStackTrace();
