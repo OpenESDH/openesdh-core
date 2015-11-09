@@ -1,11 +1,16 @@
 package dk.openesdh.repo.webscripts;
 
 import java.util.Map;
+
+import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 
 public class ParamUtils {
+    private static final String NODE_ID = "id";
+    private static final String STORE_ID = "store_id";
+    private static final String STORE_TYPE = "store_type";
 
     public static String getRequiredParameter(WebScriptRequest req, String paramKey) {
         String result = getOptionalParameter(req, paramKey);
@@ -38,6 +43,18 @@ public class ParamUtils {
         String value = templateArgs.get(paramKey);
         ParamUtils.checkRequiredParam(value, paramKey);
         return value;
+    }
+
+    public static NodeRef getNodeRef(WebScriptRequest req) {
+        Map<String, String> templateArgs = req.getServiceMatch().getTemplateVars();
+        NodeRef nodeRef = null;
+        String storeType = templateArgs.get(STORE_TYPE);
+        String storeId = templateArgs.get(STORE_ID);
+        String nodeId = templateArgs.get(NODE_ID);
+        if (storeType != null && storeId != null && nodeId != null) {
+            nodeRef = new NodeRef(storeType, storeId, nodeId);
+        }
+        return nodeRef;
     }
 
 }

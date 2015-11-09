@@ -4,8 +4,10 @@ import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
+import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 import dk.openesdh.repo.services.officetemplate.OfficeTemplateService;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
+import fr.opensagres.xdocreport.document.json.JSONObject;
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.model.FileInfo;
@@ -23,14 +25,16 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 
+import static dk.openesdh.repo.webscripts.ParamUtils.getNodeRef;
+
 /**
  * @author lanre.
  */
 
 @Component
 @WebScript(families = {"OpenESDH Office Template"}, description = "The upload webscript for document templates", defaultFormat = "json")
-public class DocTemplatePost extends AbstractWebScript {
-    private static Logger logger = Logger.getLogger(DocTemplatePost.class);
+public class DocTemplate  {
+    private static Logger logger = Logger.getLogger(DocTemplate.class);
     private static final long serialVersionUID = 1L;
 
     @Autowired
@@ -38,9 +42,8 @@ public class DocTemplatePost extends AbstractWebScript {
     @Autowired
     private OfficeTemplateService officeTemplateService;
 
-    @Override
     @Uri(value = "/api/openesdh/officetemplate", method = HttpMethod.POST)
-    public void execute(@RequestParam(required = false) WebScriptRequest req, WebScriptResponse res) throws IOException {
+    public Resolution post (@RequestParam(required = false) WebScriptRequest req, WebScriptResponse res) throws IOException {
 
         System.out.println("For debugging purposes");
         /** Multi-part form data, if provided */
@@ -76,7 +79,21 @@ public class DocTemplatePost extends AbstractWebScript {
             if (StringUtils.isNotBlank(description))
                 serviceRegistry.getNodeService().setProperty(templatefileNodeRef, ContentModel.PROP_DESCRIPTION, formDataMap.get("description"));
         }
-        WebScriptUtils.respondSuccess(res, "The the template was successfully uploaded.");
+        JSONObject response = new JSONObject();
+        response.put("message", "The the template was successfully uploaded.");
+        return WebScriptUtils.jsonResolution(response);
+    }
+
+    @Uri(value = "/api/openesdh/officetemplate/{store_type}/{store_id}/{id}", method = HttpMethod.DELETE)
+    public Resolution delete(WebScriptRequest req, WebScriptResponse res) throws IOException {
+        try {
+            this.serviceRegistry.getNodeService().deleteNode(getNodeRef(req));
+            JSONObject response = new JSONObject();
+            response.put("message", "The template was successfully deleted.");
+            return WebScriptUtils.jsonResolution(response);
+        } catch (Exception ge) { //Any generic exception
+            throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Issue deleting template: " + ge.getMessage());
+        }
     }
 
     /**
