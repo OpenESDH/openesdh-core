@@ -73,14 +73,12 @@ public class CaseMembersServiceImpl implements CaseMembersService, RunInTransact
     @Override
     public void addAuthorityToRole(final String authorityName, final String role, final NodeRef caseNodeRef) {
         caseService.checkCanUpdateCaseRoles(caseNodeRef);
-        String caseId = caseService.getCaseId(caseNodeRef);
-        String groupName = caseService.getCaseRoleGroupName(caseId, role);
-        try {
-            System.out.println("%%%%%% adding to group: " + groupName + " authority: " + authorityName);
+        runAsAdmin(() -> {
+            String caseId = caseService.getCaseId(caseNodeRef);
+            String groupName = caseService.getCaseRoleGroupName(caseId, role);
             authorityService.addAuthority(groupName, authorityName);
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
+            return null;
+        });
     }
 
     @Override

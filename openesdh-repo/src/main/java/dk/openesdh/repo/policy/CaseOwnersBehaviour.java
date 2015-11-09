@@ -6,11 +6,11 @@ import org.alfresco.repo.node.NodeServicePolicies;
 import org.alfresco.repo.policy.Behaviour;
 import org.alfresco.repo.policy.JavaBehaviour;
 import org.alfresco.repo.policy.PolicyComponent;
-import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
+import org.alfresco.service.transaction.TransactionService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.RunInTransactionAsAdmin;
 import dk.openesdh.repo.services.members.CaseMembersService;
 
 /**
@@ -25,7 +26,7 @@ import dk.openesdh.repo.services.members.CaseMembersService;
  */
 @Service("caseOwnersBehaviour")
 public class CaseOwnersBehaviour implements NodeServicePolicies.OnCreateAssociationPolicy,
-        NodeServicePolicies.OnDeleteAssociationPolicy {
+        NodeServicePolicies.OnDeleteAssociationPolicy, RunInTransactionAsAdmin {
 
     private static Log LOGGER = LogFactory.getLog(CaseOwnersBehaviour.class);
 
@@ -38,6 +39,10 @@ public class CaseOwnersBehaviour implements NodeServicePolicies.OnCreateAssociat
     @Autowired
     @Qualifier("NodeService")
     private NodeService nodeService;
+
+    @Autowired
+    @Qualifier("TransactionService")
+    private TransactionService transactionService;
 
     // Behaviours
     private Behaviour onCreateAssociation;
@@ -71,15 +76,11 @@ public class CaseOwnersBehaviour implements NodeServicePolicies.OnCreateAssociat
     @Override
     public void onCreateAssociation(final AssociationRef nodeAssocRef) {
         if (nodeAssocRef.getSourceRef() != null) {
-            AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Object>
-                    () {
-                @Override
-                public Object doWork() throws Exception {
-                    caseMembersService.addAuthorityToRole(nodeAssocRef.getTargetRef(),
-                            "CaseOwners", nodeAssocRef.getSourceRef());
-                    return null;
-                }
-            }, AuthenticationUtil.getAdminUserName());
+            runAsAdmin(() -> {
+                caseMembersService.addAuthorityToRole(nodeAssocRef.getTargetRef(), "CaseOwners",
+                        nodeAssocRef.getSourceRef());
+                return null;
+            });
         }
     }
 
@@ -89,5 +90,10 @@ public class CaseOwnersBehaviour implements NodeServicePolicies.OnCreateAssociat
             caseMembersService.removeAuthorityFromRole(nodeAssocRef.getTargetRef(),
                     "CaseOwners", nodeAssocRef.getSourceRef());
         }
+    }
+
+    @Override
+    public TransactionService getTransactionService() {
+        return transactionService;
     }
 }
