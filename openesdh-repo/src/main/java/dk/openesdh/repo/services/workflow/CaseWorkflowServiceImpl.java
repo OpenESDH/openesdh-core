@@ -38,8 +38,9 @@ import org.springframework.util.StringUtils;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.model.WorkflowInfo;
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.members.CaseMembersService;
 
-@Service
+@Service("caseWorkflowService")
 public class CaseWorkflowServiceImpl implements CaseWorkflowService {
 
     @Autowired
@@ -57,6 +58,8 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
     private AuthorityService authorityService;
     @Autowired
     private CaseService caseService;
+    @Autowired
+    private CaseMembersService caseMembersService;
 
     @Autowired
     @Qualifier("retryingTransactionHelper")
@@ -173,7 +176,8 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
         return params;
     }
 
-    protected void grantCaseAccessToWorkflowAssignees(Map<QName, Serializable> workflowParams) {
+    @Override
+    public void grantCaseAccessToWorkflowAssignees(Map<QName, Serializable> workflowParams) {
         retryingTransactionHelper.doInTransaction(() -> {
             caseAccessGranters.entrySet()
                 .stream()
@@ -193,7 +197,7 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
         NodeRef caseNodeRef = getCaseNodeRef(workflowParams);
 
         if (!getCaseMembers(caseNodeRef).contains(assignee.getUserName())) {
-            caseService.addAuthorityToRole(assigneeNodRef, getCaseReaderRole(caseNodeRef), caseNodeRef);
+            caseMembersService.addAuthorityToRole(assigneeNodRef, getCaseReaderRole(caseNodeRef), caseNodeRef);
         }
     }
     
@@ -210,7 +214,8 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
                 .collect(Collectors.toList());
         
         if (!nonMembersAssignees.isEmpty()) {
-            caseService.addAuthoritiesToRole(nonMembersAssignees, getCaseReaderRole(caseNodeRef), caseNodeRef);
+            caseMembersService.addAuthoritiesToRole(nonMembersAssignees, getCaseReaderRole(caseNodeRef),
+                    caseNodeRef);
         }
     }
 
@@ -247,7 +252,8 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
                 .collect(Collectors.toList());
 
         if (!nonMembersAssignees.isEmpty()) {
-            caseService.addAuthoritiesToRole(nonMembersAssignees, getCaseReaderRole(caseNodeRef), caseNodeRef);
+            caseMembersService.addAuthoritiesToRole(nonMembersAssignees, getCaseReaderRole(caseNodeRef),
+                    caseNodeRef);
         }
     }
 
@@ -263,7 +269,7 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
 
     protected List<String> getCaseMembers(NodeRef caseNodeRef) {
 
-        Map<String, Set<String>> caseMembers = caseService.getMembersByRole(caseNodeRef, true, true); 
+        Map<String, Set<String>> caseMembers = caseMembersService.getMembersByRole(caseNodeRef, true, true);
         return caseMembers.keySet()
                 .stream()
                 .map(key -> caseMembers.get(key))

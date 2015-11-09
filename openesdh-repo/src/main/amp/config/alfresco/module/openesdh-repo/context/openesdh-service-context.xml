@@ -186,18 +186,6 @@
         </property>
     </bean>
 
-    <bean id="XSearchService" class="dk.openesdh.repo.services.xsearch.XSearchServiceImpl">
-        <property name="caseService">
-            <ref bean="CaseService"/>
-        </property>
-        <property name="searchService">
-            <ref bean="SearchService"/>
-        </property>
-        <property name="repositoryHelper">
-            <ref bean="repositoryHelper"/>
-        </property>
-    </bean>
-
     <bean id="AuditSearchService" class="dk.openesdh.repo.services.audit.AuditSearchServiceImpl">
         <property name="auditService">
             <ref bean="AuditService"/>
@@ -258,8 +246,7 @@
     </bean>
 
     <bean id="CaseDocumentsSearchService"
-          class="dk.openesdh.repo.services.xsearch.CaseDocumentsSearchServiceImpl"
-          parent="XSearchService">
+          class="dk.openesdh.repo.services.xsearch.CaseDocumentsSearchServiceImpl">
         <property name="caseService" ref="CaseService"/>
         <property name="documentService" ref="DocumentService"/>
         <property name="nodeService" ref="NodeService"/>
@@ -267,8 +254,7 @@
         <property name="namespaceService" ref="NamespaceService"/>
     </bean>
 
-    <bean id="ContactSearchService" class="dk.openesdh.repo.services.xsearch.ContactSearchServiceImpl"
-          parent="XSearchService">
+    <bean id="ContactSearchService" class="dk.openesdh.repo.services.xsearch.ContactSearchServiceImpl">
         <property name="dictionaryService">
             <ref bean="dictionaryService"/>
         </property>

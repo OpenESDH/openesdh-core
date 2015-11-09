@@ -90,6 +90,26 @@
         </property>
     </bean>
 
+    <bean id="${project.artifactId}_activitiesEmailBootstrap" parent="spacesStoreImporter" >
+        <property name="log"> 
+            <value>false</value> 
+        </property>
+        <property name="useExistingStore"> 
+            <value>true</value> 
+        </property>
+        <property name="transactionService" ref="transactionService"/>
+
+        <property name="bootstrapViews">
+            <list>
+                <props>
+                    <prop key="path">/app:company_home/app:dictionary/app:email_templates</prop>
+                    <prop key="uuidBinding">UPDATE_EXISTING</prop>
+                    <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/activities-email-templates.xml</prop>
+                </props>
+            </list>
+        </property>
+    </bean>
+    
     <bean id="${project.artifactId}_permissionModelBootstrap" parent="permissionModelBootstrap">
         <property name="model" value="alfresco/module/openesdh-repo/models/permission-model-extension.xml"/>
     </bean>

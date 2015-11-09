@@ -1,24 +1,28 @@
 package dk.openesdh.repo.services.xsearch;
 
-import dk.openesdh.repo.services.cases.CaseService;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
 import org.alfresco.repo.model.Repository;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.search.LimitBy;
 import org.alfresco.service.cmr.search.ResultSet;
 import org.alfresco.service.cmr.search.SearchParameters;
 import org.alfresco.service.cmr.search.SearchService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 
 /**
  * Created by flemmingheidepedersen on 12/09/14.
  */
 public abstract class AbstractXSearchService implements XSearchService {
-    protected CaseService caseService;
-
+    @Autowired
+    @Qualifier("repositoryHelper")
     protected Repository repositoryHelper;
+    @Autowired
+    @Qualifier("SearchService")
     protected SearchService searchService;
+
     @Override
     public abstract XResultSet getNodes(Map<String, String> params, int startIndex, int pageSize, String sortField, boolean ascending);
 
@@ -95,9 +99,5 @@ public abstract class AbstractXSearchService implements XSearchService {
 
     public XResultSet getNodes(Map<String, String> params) {
         return getNodes(params, 0, -1, "cm:name", true);
-    }
-
-    public void setCaseService(CaseService caseService) {
-        this.caseService = caseService;
     }
 }

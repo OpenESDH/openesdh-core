@@ -18,7 +18,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.alfresco.error.AlfrescoRuntimeException;
@@ -237,37 +236,6 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
         return roles;
     }
 
-    @Override
-    public List<Long> getCaseDbIdsWhereAuthorityHasRole(NodeRef authorityNodeRef, String role) {
-        List<Long> caseDbIds = new ArrayList<>();
-        Set<String> containingAuthorities = authorityService.getContainingAuthorities(null,
-                getAuthorityName(authorityNodeRef), false);
-
-        Pattern pattern = Pattern.compile("GROUP_case_\\d+-(\\d+)_" + role);
-        for (String containingAuthority : containingAuthorities) {
-            Matcher matcher = pattern.matcher(containingAuthority);
-            if (matcher.matches()) {
-                caseDbIds.add(Long.parseLong(matcher.group(1)));
-            }
-        }
-        return caseDbIds;
-    }
-
-    @Override
-    public Map<String, Set<String>> getMembersByRole(NodeRef caseNodeRef, boolean noExpandGroups, boolean includeOwner) {
-        String caseId = getCaseId(caseNodeRef);
-        Set<String> roles = includeOwner ? getAllRoles(caseNodeRef) : getRoles(caseNodeRef);
-        Map<String, Set<String>> membersByRole = new HashMap<>();
-        for (String role : roles) {
-            String groupName = getCaseRoleGroupName(caseId, role);
-            Set<String> authorities = authorityService.getContainedAuthorities
-                    (null, groupName, noExpandGroups);
-            membersByRole.put(role, authorities);
-
-        }
-        return membersByRole;
-    }
-
     public String getCaseId(NodeRef caseNodeRef) {
         return (String) nodeService.getProperty(caseNodeRef, OpenESDHModel.PROP_OE_ID);
     }
@@ -322,88 +290,6 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
     @Override
     public CaseInfo getCaseInfo(String caseId) {
         return getCaseInfo(getCaseById(caseId));
-    }
-
-    @Override
-    public void removeAuthorityFromRole(final String authorityName, final String role, final NodeRef caseNodeRef) {
-        checkCanUpdateCaseRoles(caseNodeRef);
-        runAsAdmin(() -> {
-            String caseId = getCaseId(caseNodeRef);
-            String groupName = getCaseRoleGroupName(caseId, role);
-            if (authorityService.authorityExists(groupName) && authorityService.authorityExists(authorityName)) {
-                authorityService.removeAuthority(groupName, authorityName);
-            }
-            return null;
-        });
-    }
-
-    @Override
-    public void removeAuthorityFromRole(final NodeRef authorityNodeRef, final String role, final NodeRef caseNodeRef) {
-        removeAuthorityFromRole(getAuthorityName(authorityNodeRef), role, caseNodeRef);
-    }
-
-    @Override
-    public void addAuthorityToRole(final String authorityName, final String role, final NodeRef caseNodeRef) {
-        checkCanUpdateCaseRoles(caseNodeRef);
-
-        runAsAdmin(() -> {
-            String caseId = getCaseId(caseNodeRef);
-            String groupName = getCaseRoleGroupName(caseId, role);
-            authorityService.addAuthority(groupName, authorityName);
-            return null;
-        });
-    }
-
-    @Override
-    public void addAuthorityToRole(final NodeRef authorityNodeRef, final String role, final NodeRef caseNodeRef) {
-        addAuthorityToRole(getAuthorityName(authorityNodeRef), role,
-                caseNodeRef);
-    }
-
-    @Override
-    public void addAuthoritiesToRole(final List<NodeRef> authorities, final String role, final NodeRef caseNodeRef) {
-        checkCanUpdateCaseRoles(caseNodeRef);
-
-        runAsAdmin(() -> {
-            String caseId = getCaseId(caseNodeRef);
-            final String groupName = getCaseRoleGroupName(caseId, role);
-            if (!authorityService.authorityExists(groupName)) {
-                return null;
-            }
-            transactionService.getRetryingTransactionHelper().doInTransaction(
-                    new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
-                        @Override
-                        public Object execute() throws Throwable {
-                            for (NodeRef authorityNodeRef : authorities) {
-                                String authority = getAuthorityName(authorityNodeRef);
-                                if (authority != null) {
-                                    authorityService.addAuthority(groupName, authority);
-                                }
-                            }
-                            return null;
-                        }
-                    });
-            return null;
-        });
-    }
-
-    @Override
-    public void changeAuthorityRole(final String authorityName, final String fromRole, final String toRole, final NodeRef caseNodeRef) {
-        checkCanUpdateCaseRoles(caseNodeRef);
-
-        runAsAdmin(() -> {
-            // Do in transaction
-            transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper
-                    .RetryingTransactionCallback<Object>() {
-                @Override
-                public Object execute() throws Throwable {
-                    removeAuthorityFromRole(authorityName, fromRole, caseNodeRef);
-                    addAuthorityToRole(authorityName, toRole, caseNodeRef);
-                    return null;
-                }
-            });
-            return null;
-        });
     }
 
     @Override
@@ -937,21 +823,6 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
         return authorities.contains(user);
     }
 
-    // Copied (almost directly) from AuthorityDAOImpl because it is not exposed
-    // in the AuthorityService public API
-    protected String getAuthorityName(NodeRef authorityRef) {
-        String name = null;
-        if (nodeService.exists(authorityRef)) {
-            QName type = nodeService.getType(authorityRef);
-            if (dictionaryService.isSubClass(type, ContentModel.TYPE_AUTHORITY_CONTAINER)) {
-                name = (String) nodeService.getProperty(authorityRef, ContentModel.PROP_AUTHORITY_NAME);
-            } else if (dictionaryService.isSubClass(type, ContentModel.TYPE_PERSON)) {
-                name = (String) nodeService.getProperty(authorityRef, ContentModel.PROP_USERNAME);
-            }
-        }
-        return name;
-    }
-
     /**
      * Creates individual groups for provided case and sets appropriate
      * permissions
@@ -1099,15 +970,12 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
         return (long) nodeService.getProperty(caseNodeRef, ContentModel.PROP_NODE_DBID);
     }
 
-    protected String getCaseRoleGroupName(String role) {
-        return PermissionService.GROUP_PREFIX + role;
-    }
-
-    protected String getCaseRoleGroupName(String caseId, String role) {
+    @Override
+    public String getCaseRoleGroupName(String caseId, String role) {
         return authorityService.getName(AuthorityType.GROUP, getCaseRoleGroupAuthorityName(caseId, role));
     }
 
-    protected String getCaseRoleGroupAuthorityName(String caseId, String role) {
+    private String getCaseRoleGroupAuthorityName(String caseId, String role) {
         return "case_" + caseId + "_" + role;
     }
 
@@ -1141,6 +1009,7 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
         // CaseOwners group
     }
 
+    @Override
     public void checkCanUpdateCaseRoles(NodeRef caseNodeRef) throws AccessDeniedException {
         String user = AuthenticationUtil.getRunAsUser();
         if (!canUpdateCaseRoles(user, caseNodeRef)) {
@@ -1225,4 +1094,21 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
         }
     }
 
+    @Override
+    public Set<String> getCaseOwnersUserIds(NodeRef caseNodeRef) {
+        return nodeService.getTargetAssocs(caseNodeRef, OpenESDHModel.ASSOC_CASE_OWNERS).stream()
+                .flatMap(assoc -> getUserIds(assoc.getTargetRef()).stream()).collect(Collectors.toSet());
+    }
+
+    @SuppressWarnings("unchecked")
+    private Set<String> getUserIds(NodeRef authorityNodeRef) {
+        QName type = nodeService.getType(authorityNodeRef);
+        if (type.isMatch(ContentModel.TYPE_AUTHORITY_CONTAINER)) {
+            String groupName = (String) nodeService.getProperty(authorityNodeRef, ContentModel.PROP_NAME);
+            return authorityService.getContainedAuthorities(AuthorityType.USER, groupName, false);
+        } else if (type.isMatch(ContentModel.TYPE_PERSON)) {
+            return new HashSet<String>(Arrays.asList(personService.getPerson(authorityNodeRef).getUserName()));
+        }
+        return Collections.EMPTY_SET;
+    }
 }

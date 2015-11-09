@@ -1,6 +1,11 @@
 package dk.openesdh.repo.policy;
 
-import dk.openesdh.repo.model.OpenESDHModel;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+
+import javax.annotation.PostConstruct;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.node.NodeServicePolicies;
 import org.alfresco.repo.policy.Behaviour;
@@ -17,21 +22,30 @@ import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.PropertyCheck;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
+import dk.openesdh.repo.model.OpenESDHModel;
 
 /**
  * @author Lanre.
  */
+@Service("DocumentTemplateBehaviour")
 public class DocumentTemplateBehaviour implements NodeServicePolicies.OnAddAspectPolicy {
     private static Logger logger = Logger.getLogger(DocumentTemplateBehaviour.class);
 
+    @Autowired
+    @Qualifier("NodeService")
     private NodeService nodeService;
+    @Autowired
+    @Qualifier("RenditionService")
     private RenditionService renditionService;
+    @Autowired
+    @Qualifier("policyComponent")
     private PolicyComponent policyComponent;
 
+    @PostConstruct
     public void init() {
         PropertyCheck.mandatory(this, "policyComponent", policyComponent);
         PropertyCheck.mandatory(this, "nodeService", nodeService);
@@ -75,17 +89,5 @@ public class DocumentTemplateBehaviour implements NodeServicePolicies.OnAddAspec
             }
         });
 
-    }
-
-    public void setPolicyComponent(PolicyComponent policyComponent) {
-        this.policyComponent = policyComponent;
-    }
-
-    public void setNodeService(NodeService nodeService) {
-        this.nodeService = nodeService;
-    }
-
-    public void setRenditionService(RenditionService renditionService) {
-        this.renditionService = renditionService;
     }
 }

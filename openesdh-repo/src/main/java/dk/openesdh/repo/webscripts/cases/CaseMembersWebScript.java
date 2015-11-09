@@ -1,16 +1,15 @@
 package dk.openesdh.repo.webscripts.cases;
 
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.webscripts.AbstractRESTWebscript;
 import static dk.openesdh.repo.webscripts.ParamUtils.getOptionalParameter;
 import static dk.openesdh.repo.webscripts.ParamUtils.getRequiredParameter;
 import static dk.openesdh.repo.webscripts.ParamUtils.getRequiredParameters;
-import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
 import org.alfresco.service.cmr.repository.DuplicateChildNodeNameException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.AuthorityService;
@@ -22,9 +21,15 @@ import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.members.CaseMembersService;
+import dk.openesdh.repo.webscripts.AbstractRESTWebscript;
+import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
+
 public class CaseMembersWebScript extends AbstractRESTWebscript {
 
     private CaseService caseService;
+    private CaseMembersService caseMembersService;
     private AuthorityService authorityService;
     private PersonService personService;
 
@@ -36,7 +41,7 @@ public class CaseMembersWebScript extends AbstractRESTWebscript {
 
     @Override
     protected void get(NodeRef caseNodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
-        Map<String, Set<String>> membersByRole = caseService.getMembersByRole(caseNodeRef, true, true);
+        Map<String, Set<String>> membersByRole = caseMembersService.getMembersByRole(caseNodeRef, true, true);
         JSONArray json = buildJSON(membersByRole);
         json.write(res.getWriter());
     }
@@ -51,11 +56,11 @@ public class CaseMembersWebScript extends AbstractRESTWebscript {
             if (fromRole != null) {
                 // When "fromRole" is specified, move the authority
                 String authority = getRequiredParameter(req, "authority");
-                caseService.changeAuthorityRole(authority, fromRole, role, caseNodeRef);
+                caseMembersService.changeAuthorityRole(authority, fromRole, role, caseNodeRef);
             } else {
                 String[] authorityNodeRefsStr = getRequiredParameters(req, "authorityNodeRefs");
                 List<NodeRef> authorities = convertToNodeRefsList(authorityNodeRefsStr);
-                caseService.addAuthoritiesToRole(authorities, role, caseNodeRef);
+                caseMembersService.addAuthoritiesToRole(authorities, role, caseNodeRef);
             }
         } catch (DuplicateChildNodeNameException e) {
             json.put("duplicate", true);
@@ -69,7 +74,7 @@ public class CaseMembersWebScript extends AbstractRESTWebscript {
         String authority = getRequiredParameter(req, "authority");
         String role = getRequiredParameter(req, "role");
 
-        caseService.removeAuthorityFromRole(authority, role, caseNodeRef);
+        caseMembersService.removeAuthorityFromRole(authority, role, caseNodeRef);
 
         JSONObject json = new JSONObject();
         json.put("success", true);
@@ -122,6 +127,10 @@ public class CaseMembersWebScript extends AbstractRESTWebscript {
 
     public void setPersonService(PersonService personService) {
         this.personService = personService;
+    }
+
+    public void setCaseMembersService(CaseMembersService caseMembersService) {
+        this.caseMembersService = caseMembersService;
     }
 
 }

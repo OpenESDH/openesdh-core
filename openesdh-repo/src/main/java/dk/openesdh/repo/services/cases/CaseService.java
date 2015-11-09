@@ -30,6 +30,8 @@ public interface CaseService extends HasStatus {
 
     Pattern CASE_ID_PATTERN = Pattern.compile("\\d+-(\\d+)");
 
+    Pattern CASE_ROLE_GROUP_NAME_PATTERN = Pattern.compile("GROUP_case_([\\d\\-]+)_(.+)");
+
     String CASE = "Case";
 
     String CREATOR = "Creator";
@@ -62,29 +64,6 @@ public interface CaseService extends HasStatus {
     Set<String> getAllRoles(NodeRef caseNodeRef);
 
     /**
-     * Get a list of case db-id's where the given authority has the given role.
-     *
-     * @param authorityNodeRef
-     * @param role
-     * @return
-     */
-    List<Long> getCaseDbIdsWhereAuthorityHasRole(NodeRef authorityNodeRef, String role);
-
-    /**
-     * Get the members on the case grouped by role.
-     * Includes groups and users. If noExpandGroups,
-     * then only all authorities within the immediate
-     * group is returned else include users of subgroups
-     * instead of just immediate groups.
-     *
-     * @param caseNodeRef
-     * @param noExpandGroups expand subgroups
-     * @param includeOwner   inculde case owner
-     * @return
-     */
-    Map<String, Set<String>> getMembersByRole(NodeRef caseNodeRef, boolean noExpandGroups, boolean includeOwner);
-
-    /**
      * Get the ID number of the case.
      *
      * @param caseNodeRef
@@ -115,47 +94,6 @@ public interface CaseService extends HasStatus {
      * @return
      */
     CaseInfo getCaseInfo(String caseId);
-
-    /**
-     * Remove the authority from the given role group on the case.
-     *
-     * @param authorityName
-     * @param role
-     * @param caseNodeRef
-     */
-    void removeAuthorityFromRole(String authorityName, String role, NodeRef caseNodeRef);
-
-    void removeAuthorityFromRole(NodeRef authorityNodeRef, String role, NodeRef caseNodeRef);
-
-    /**
-     * Add the authority to the given role group on the case.
-     *
-     * @param authorityName
-     * @param role
-     * @param caseNodeRef
-     */
-    void addAuthorityToRole(String authorityName, String role, NodeRef caseNodeRef);
-
-    void addAuthorityToRole(NodeRef authorityNodeRef, String role, NodeRef caseNodeRef);
-
-    /**
-     * Add the list of authorities to the given role group on the case.
-     *
-     * @param authorities
-     * @param role
-     * @param caseNodeRef
-     */
-    void addAuthoritiesToRole(List<NodeRef> authorities, String role, NodeRef caseNodeRef);
-
-    /**
-     * Moves an authority from one role to another on a case.
-     *
-     * @param authorityName
-     * @param fromRole
-     * @param toRole
-     * @param caseNodeRef
-     */
-    void changeAuthorityRole(String authorityName, String fromRole, String toRole, NodeRef caseNodeRef);
 
     /**
      * Return whether a user can update case roles.
@@ -255,4 +193,8 @@ public interface CaseService extends HasStatus {
     public void checkCanUpdateCaseRoles(NodeRef caseNodeRef) throws AccessDeniedException;
 
     public JSONObject getCaseInfoJson(NodeRef caseNodeRef) throws JSONException;
+
+    public Set<String> getCaseOwnersUserIds(NodeRef caseNodeRef);
+
+    public String getCaseRoleGroupName(String caseId, String role);
 }
