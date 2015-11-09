@@ -1,5 +1,10 @@
 package dk.openesdh.repo.policy;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.annotation.PostConstruct;
+
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.query.PagingRequest;
@@ -15,9 +20,9 @@ import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import java.util.ArrayList;
-import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 /**
  * Here we guard against duplicate user emails in the system. just like we need the user name to be unique so must
@@ -25,29 +30,27 @@ import java.util.List;
  *
  * @author Lanre
  */
+@Service("userEmailCheckBehaviour")
 public class CheckUserEmailBehaviour implements NodeServicePolicies.OnCreateNodePolicy, NodeServicePolicies.OnUpdateNodePolicy {
     private static Log logger = LogFactory.getLog(CheckUserEmailBehaviour.class);
 
     //<editor-fold desc="Dependencies">
+    @Autowired
+    @Qualifier("NodeService")
     private NodeService nodeService;
+    @Autowired
+    @Qualifier("PersonService")
     private PersonService personService;
+    @Autowired
+    @Qualifier("policyComponent")
     private PolicyComponent policyComponent;
-
-    public void setNodeService(NodeService nodeService) {
-        this.nodeService = nodeService;
-    }
-    public void setPersonService(PersonService personService) {
-        this.personService = personService;
-    }
-    public void setPolicyComponent(PolicyComponent policyComponent) {
-        this.policyComponent = policyComponent;
-    }
 
     // Behaviours
     private Behaviour onCreateNode;
     private Behaviour onUpdateNode;
     //</editor-fold>
 
+    @PostConstruct
     public void init() {
 
         // Create behaviours
@@ -74,7 +77,7 @@ public class CheckUserEmailBehaviour implements NodeServicePolicies.OnCreateNode
             throw new AlfrescoRuntimeException("Error updating email: already exists.");
     }
 
-    public boolean checkIfEmailExists(String email){
+    private boolean checkIfEmailExists(String email) {
         PagingRequest paging = new PagingRequest(5);
         List<QName> filterProps = new ArrayList<>();
         filterProps.add(ContentModel.PROP_EMAIL);

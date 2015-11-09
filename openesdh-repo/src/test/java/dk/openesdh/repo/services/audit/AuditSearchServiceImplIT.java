@@ -9,7 +9,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.audit.AuditService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -36,9 +35,11 @@ import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.ContactType;
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.RunInTransactionAsAdmin;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.cases.PartyService;
 import dk.openesdh.repo.services.contacts.ContactServiceImpl;
+import dk.openesdh.repo.services.members.CaseMembersService;
 
 /**
  * Created by flemming on 18/08/14.
@@ -46,7 +47,7 @@ import dk.openesdh.repo.services.contacts.ContactServiceImpl;
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:alfresco/application-context.xml")
-public class AuditSearchServiceImplIT {
+public class AuditSearchServiceImplIT implements RunInTransactionAsAdmin {
 
     @Autowired
     @Qualifier("NodeService")
@@ -63,6 +64,10 @@ public class AuditSearchServiceImplIT {
     @Autowired
     @Qualifier("CaseService")
     private CaseService caseService;
+
+    @Autowired
+    @Qualifier("CaseMembersService")
+    private CaseMembersService caseMembersService;
 
     @Autowired
     @Qualifier("PartyService")
@@ -107,22 +112,24 @@ public class AuditSearchServiceImplIT {
         owner = caseHelper.createDummyUser(DUMMY_USER);
         caseA = caseHelper.createSimpleCase(CASE_A_TITLE, CaseHelper.ADMIN_USER_NAME, owner);
 
-        doInTransaction(() -> {
+        runInTransaction(() -> {
             caseAId = caseService.getCaseId(caseA);
             contact = createTestContact();
             return null;
         });
-        doInTransaction(() -> {
+        runInTransaction(() -> {
             //add party
             partyService.addContactToParty(caseAId, null, SENDER_ROLE, contact.toString());
             //remove party
             partyService.removePartyRole(caseAId, contact.toString(), SENDER_ROLE);
 
             NodeRef mjacksonNodeRef = authorityService.getAuthorityNodeRef(CaseHelper.MIKE_JACKSON);
-            //add member
-            caseService.addAuthorityToRole(mjacksonNodeRef, CaseHelper.CASE_READER_ROLE, caseA);
-            //remove member
-            caseService.removeAuthorityFromRole(CaseHelper.MIKE_JACKSON, CaseHelper.CASE_READER_ROLE, caseA);
+            // add member
+            caseMembersService.addAuthorityToRole(mjacksonNodeRef, CaseHelper.CASE_READER_ROLE, caseA);
+            // remove member
+            caseMembersService.removeAuthorityFromRole(CaseHelper.MIKE_JACKSON,
+             CaseHelper.CASE_READER_ROLE, caseA);
+
             return null;
         });
     }
@@ -167,7 +174,7 @@ public class AuditSearchServiceImplIT {
     @After
     public void tearDown() throws Exception {
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ADMIN_USER_NAME);
-        doInTransaction(() -> {
+        runInTransaction(() -> {
             if (caseA != null) {
                 nodeService.deleteNode(caseA);
             }
@@ -179,7 +186,8 @@ public class AuditSearchServiceImplIT {
         });
     }
 
-    protected <R> R doInTransaction(RetryingTransactionHelper.RetryingTransactionCallback<R> cb) {
-        return transactionService.getRetryingTransactionHelper().doInTransaction(cb);
+    @Override
+    public TransactionService getTransactionService() {
+        return transactionService;
     }
 }

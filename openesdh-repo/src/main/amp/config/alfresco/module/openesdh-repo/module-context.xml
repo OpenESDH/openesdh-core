@@ -12,7 +12,6 @@
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-model-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-service-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-repository-context.xml" />
-    <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-policy-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-action-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-resourcebundles-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-bootstrap-context.xml" />
@@ -21,7 +20,7 @@
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-javascript-rootscope-context.xml" />
     
     <context:annotation-config/>
-    <context:component-scan base-package="dk.openesdh.repo.services, dk.openesdh.repo.audit, dk.openesdh.repo.webscripts, " />
+    <context:component-scan base-package="dk.openesdh.repo.services, dk.openesdh.repo.audit, dk.openesdh.repo.policy, dk.openesdh.repo.webscripts, " />
     
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-public-service-context.xml" />
 </beans>

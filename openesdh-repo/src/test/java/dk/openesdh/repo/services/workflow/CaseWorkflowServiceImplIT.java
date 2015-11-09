@@ -42,6 +42,7 @@ import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.model.WorkflowInfo;
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.members.CaseMembersService;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -80,6 +81,10 @@ public class CaseWorkflowServiceImplIT {
     private CaseService caseService;
 
     @Autowired
+    private CaseMembersService caseMembersService;
+
+    @Autowired
+    @Qualifier(CaseWorkflowService.NAME)
     protected CaseWorkflowService service;
 
     private static final String TEST_FOLDER_NAME = "CaseWorkflowServiceImplIT";
@@ -121,7 +126,7 @@ public class CaseWorkflowServiceImplIT {
 
         if (caseNodeRef != null) {
             docTestHelper.removeNodesAndDeleteUsersInTransaction(new ArrayList<NodeRef>(0),
-                    Arrays.asList(caseNodeRef), new ArrayList<String>(0));
+                    Arrays.asList(caseNodeRef), Arrays.asList(CaseHelper.DEFAULT_USERNAME));
         }
 
         if (testGroupAuthorityName != null && authorityService.authorityExists(testGroupAuthorityName)) {
@@ -237,12 +242,10 @@ public class CaseWorkflowServiceImplIT {
     @Test
     public void shouldCreateCaseThenAddWorkflowAssigneeAsCaseMember() {
         String caseId = createCase();
-        CaseWorkflowServiceImpl caseWorkflowService = (CaseWorkflowServiceImpl) service;
-
         Map<QName, Serializable> params = new HashMap<QName, Serializable>();
         params.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
         params.put(WorkflowModel.ASSOC_ASSIGNEE, personService.getPerson(CaseHelper.ALICE_BEECHER));
-        caseWorkflowService.grantCaseAccessToAssignee(params);
+        service.grantCaseAccessToWorkflowAssignees(params);
 
         assertTrueUsersAmidstCaseReadMembers(CaseHelper.ALICE_BEECHER);
     }
@@ -250,7 +253,6 @@ public class CaseWorkflowServiceImplIT {
     @Test
     public void shouldCreateCaseThenAddWorkflowAssigneeListAsCaseMembers() {
         String caseId = createCase();
-        CaseWorkflowServiceImpl caseWorkflowService = (CaseWorkflowServiceImpl) service;
 
         Map<QName, Serializable> params = new HashMap<QName, Serializable>();
         params.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
@@ -258,7 +260,7 @@ public class CaseWorkflowServiceImplIT {
                 WorkflowModel.ASSOC_ASSIGNEES,
                 (Serializable) Arrays.asList(personService.getPerson(CaseHelper.ALICE_BEECHER),
                         personService.getPerson(CaseHelper.MIKE_JACKSON)));
-        caseWorkflowService.grantCaseAccessToAssignees(params);
+        service.grantCaseAccessToWorkflowAssignees(params);
 
         assertTrueUsersAmidstCaseReadMembers(CaseHelper.ALICE_BEECHER, CaseHelper.MIKE_JACKSON);
     }
@@ -272,12 +274,11 @@ public class CaseWorkflowServiceImplIT {
         NodeRef groupNodeRef = authorityService.getAuthorityNodeRef(testGroupAuthorityName);
 
         String caseId = createCase();
-        CaseWorkflowServiceImpl caseWorkflowService = (CaseWorkflowServiceImpl) service;
 
         Map<QName, Serializable> params = new HashMap<QName, Serializable>();
         params.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
         params.put(WorkflowModel.ASSOC_GROUP_ASSIGNEE, groupNodeRef);
-        caseWorkflowService.grantCaseAccessToWorkflowAssignees(params);
+        service.grantCaseAccessToWorkflowAssignees(params);
 
         assertTrueUsersAmidstCaseReadMembers(CaseHelper.ALICE_BEECHER, CaseHelper.MIKE_JACKSON);
     }
@@ -293,12 +294,11 @@ public class CaseWorkflowServiceImplIT {
         NodeRef groupNodeRef2 = authorityService.getAuthorityNodeRef(testGroupAuthorityName2);
 
         String caseId = createCase();
-        CaseWorkflowServiceImpl caseWorkflowService = (CaseWorkflowServiceImpl) service;
 
         Map<QName, Serializable> params = new HashMap<QName, Serializable>();
         params.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
         params.put(WorkflowModel.ASSOC_GROUP_ASSIGNEES, (Serializable) Arrays.asList(groupNodeRef, groupNodeRef2));
-        caseWorkflowService.grantCaseAccessToWorkflowAssignees(params);
+        service.grantCaseAccessToWorkflowAssignees(params);
 
         assertTrueUsersAmidstCaseReadMembers(CaseHelper.ALICE_BEECHER, CaseHelper.MIKE_JACKSON);
     }
@@ -306,9 +306,7 @@ public class CaseWorkflowServiceImplIT {
     @Test
     public void shouldNotAddWorkflowAssigneeToCaseMembersIfSheAlreadyIsWriteMember() {
         String caseId = createCase();
-        caseService.addAuthorityToRole(CaseHelper.ALICE_BEECHER, getCaseMemberWriteRole(), caseNodeRef);
-
-        CaseWorkflowServiceImpl caseWorkflowService = (CaseWorkflowServiceImpl) service;
+        caseMembersService.addAuthorityToRole(CaseHelper.ALICE_BEECHER, getCaseMemberWriteRole(), caseNodeRef);
 
         Map<QName, Serializable> params = new HashMap<QName, Serializable>();
         params.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
@@ -316,14 +314,14 @@ public class CaseWorkflowServiceImplIT {
                 WorkflowModel.ASSOC_ASSIGNEES,
                 (Serializable) Arrays.asList(personService.getPerson(CaseHelper.ALICE_BEECHER),
                         personService.getPerson(CaseHelper.MIKE_JACKSON)));
-        caseWorkflowService.grantCaseAccessToAssignees(params);
+        service.grantCaseAccessToWorkflowAssignees(params);
 
         assertTrueUsersAmidstCaseReadMembers(CaseHelper.MIKE_JACKSON);
         assertFalseUsersAmidstCaseReadMembers(CaseHelper.ALICE_BEECHER);
     }
 
     private void assertTrueUsersAmidstCaseReadMembers(String... userNames) {
-        Set<String> caseReadMembers = caseService.getMembersByRole(caseNodeRef, true, false).get(
+        Set<String> caseReadMembers = caseMembersService.getMembersByRole(caseNodeRef, true, false).get(
                 CaseHelper.CASE_READER_ROLE);
         Assert.assertNotNull("Case members with READ permissions should exist", caseReadMembers);
         for (String userName : userNames) {
@@ -333,7 +331,7 @@ public class CaseWorkflowServiceImplIT {
     }
 
     private void assertFalseUsersAmidstCaseReadMembers(String... userNames) {
-        Set<String> caseReadMembers = caseService.getMembersByRole(caseNodeRef, true, false).get(
+        Set<String> caseReadMembers = caseMembersService.getMembersByRole(caseNodeRef, true, false).get(
                 CaseHelper.CASE_READER_ROLE);
         Assert.assertNotNull("Case members with READ permissions should exist", caseReadMembers);
         for (String userName : userNames) {

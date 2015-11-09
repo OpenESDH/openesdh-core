@@ -136,6 +136,7 @@
           class="dk.openesdh.repo.webscripts.cases.CaseMembersWebScript"
           parent="webscript">
         <property name="caseService" ref="CaseService"/>
+        <property name="caseMembersService" ref="CaseMembersService"/>
         <property name="authorityService" ref="AuthorityService"/>
         <property name="personService" ref="PersonService"/>
     </bean>
@@ -146,6 +147,7 @@
     <bean id="webscript.dk.openesdh.case.memberslist.get" class="dk.openesdh.repo.webscripts.cases.MembersList" parent="webscript">
         <property name="authorityService" ref="AuthorityService" />
         <property name="caseService" ref="CaseService" />
+        <property name="caseMembersService" ref="CaseMembersService"/>
         <property name="personService" ref="PersonService" />
         <property name="nodeService" ref="nodeService" />
         <property name="dictionaryService" ref="dictionaryService" />

@@ -1,5 +1,7 @@
 package dk.openesdh.repo.policy;
 
+import javax.annotation.PostConstruct;
+
 import org.alfresco.repo.node.NodeServicePolicies.BeforeCreateNodePolicy;
 import org.alfresco.repo.node.NodeServicePolicies.OnCreateNodePolicy;
 import org.alfresco.repo.policy.Behaviour;
@@ -8,8 +10,9 @@ import org.alfresco.repo.policy.PolicyComponent;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
@@ -17,26 +20,21 @@ import dk.openesdh.repo.services.cases.CaseService;
 /**
  * Created by torben on 19/08/14.
  */
+@Service("caseBehaviour")
 public class CaseBehaviour implements OnCreateNodePolicy, BeforeCreateNodePolicy {
 
-    private static Log LOGGER = LogFactory.getLog(CaseBehaviour.class);
-
-    // Dependencies
+    @Autowired
+    @Qualifier("CaseService")
     private CaseService caseService;
+    @Autowired
+    @Qualifier("policyComponent")
     private PolicyComponent policyComponent;
 
     // Behaviours
     private Behaviour onCreateNode;
     private Behaviour beforeCreateNode;
 
-    public void setCaseService(CaseService caseService) {
-        this.caseService = caseService;
-    }
-
-    public void setPolicyComponent(PolicyComponent policyComponent) {
-        this.policyComponent = policyComponent;
-    }
-
+    @PostConstruct
     public void init() {
 
         // Create behaviours
@@ -63,3 +61,4 @@ public class CaseBehaviour implements OnCreateNodePolicy, BeforeCreateNodePolicy
         caseService.checkCaseCreatorPermissions(caseTypeQName);
     }
 }
+

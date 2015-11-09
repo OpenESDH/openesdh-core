@@ -1,10 +1,9 @@
 package dk.openesdh.repo.webscripts.cases;
 
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.utils.Utils;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -22,6 +21,10 @@ import org.springframework.extensions.webscripts.DeclarativeWebScript;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.members.CaseMembersService;
+import dk.openesdh.repo.utils.Utils;
+
 /**
  * @author Lanre Abiwon.
  * @deprecated used only in Share. Please use {@link dk.openesdh.repo.webscripts.cases.CaseMembersWebScript}
@@ -31,6 +34,7 @@ public class MembersList extends DeclarativeWebScript {
 
     private static Log logger = LogFactory.getLog(MembersList.class);
     private CaseService caseService;
+    private CaseMembersService caseMembersService;
     private AuthorityService authorityService;
     private PersonService personService;
     private NodeService nodeService;
@@ -58,7 +62,7 @@ public class MembersList extends DeclarativeWebScript {
             else
                 caseNode = this.caseService.getCaseById(caseId);
 
-            Map<String, Set<String>> membersByRole = caseService.getMembersByRole(caseNode, true, true);
+            Map<String, Set<String>> membersByRole = caseMembersService.getMembersByRole(caseNode, true, true);
             JSONArray json = buildJSON(membersByRole);
 
             // construct model for response template to render
@@ -167,6 +171,10 @@ public class MembersList extends DeclarativeWebScript {
 
     public void setDictionaryService(DictionaryService dictionaryService) {
         this.dictionaryService = dictionaryService;
+    }
+
+    public void setCaseMembersService(CaseMembersService caseMembersService) {
+        this.caseMembersService = caseMembersService;
     }
 
     //endregion

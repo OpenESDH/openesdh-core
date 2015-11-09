@@ -151,7 +151,8 @@ public class CreateCaseIT {
         Map<QName, Serializable> childProps = nodeService.getProperties(caseNode);
         assertTrue(childProps.containsKey(OpenESDHModel.PROP_OE_ID));
 
-        NodeRef documentsFolder = nodeService.getChildByName(caseNode, ContentModel.ASSOC_CONTAINS, OpenESDHModel.DOCUMENTS_FOLDER_NAME);
+        NodeRef documentsFolder = nodeService.getChildByName(caseNode, ContentModel.ASSOC_CONTAINS,
+                OpenESDHModel.DOCUMENTS_FOLDER_NAME);
         assertNotNull(documentsFolder);
         Set<QName> aspects = nodeService.getAspects(documentsFolder);
         assertTrue(aspects.contains(OpenESDHModel.ASPECT_DOCUMENT_CONTAINER));
