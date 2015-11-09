@@ -32,7 +32,7 @@ import static dk.openesdh.repo.webscripts.ParamUtils.getNodeRef;
  */
 
 @Component
-@WebScript(families = {"OpenESDH Office Template"}, description = "The upload webscript for document templates", defaultFormat = "json")
+@WebScript(families = {"OpenESDH Office Template"}, description = "The CRUD webscripts for  document templates")
 public class DocTemplate  {
     private static Logger logger = Logger.getLogger(DocTemplate.class);
     private static final long serialVersionUID = 1L;
@@ -42,7 +42,7 @@ public class DocTemplate  {
     @Autowired
     private OfficeTemplateService officeTemplateService;
 
-    @Uri(value = "/api/openesdh/officetemplate", method = HttpMethod.POST)
+    @Uri(value = "/api/openesdh/officeDocTemplate", method = HttpMethod.POST, defaultFormat = "json")
     public Resolution post (@RequestParam(required = false) WebScriptRequest req, WebScriptResponse res) throws IOException {
 
         System.out.println("For debugging purposes");
@@ -84,7 +84,7 @@ public class DocTemplate  {
         return WebScriptUtils.jsonResolution(response);
     }
 
-    @Uri(value = "/api/openesdh/officetemplate/{store_type}/{store_id}/{id}", method = HttpMethod.DELETE)
+    @Uri(value = "/api/openesdh/officeDocTemplate/{store_type}/{store_id}/{id}", method = HttpMethod.DELETE, defaultFormat = "json")
     public Resolution delete(WebScriptRequest req, WebScriptResponse res) throws IOException {
         try {
             this.serviceRegistry.getNodeService().deleteNode(getNodeRef(req));
