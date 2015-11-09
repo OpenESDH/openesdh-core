@@ -126,7 +126,7 @@ public class CaseWorkflowServiceImplIT {
 
         if (caseNodeRef != null) {
             docTestHelper.removeNodesAndDeleteUsersInTransaction(new ArrayList<NodeRef>(0),
-                    Arrays.asList(caseNodeRef), new ArrayList<String>(0));
+                    Arrays.asList(caseNodeRef), Arrays.asList(CaseHelper.DEFAULT_USERNAME));
         }
 
         if (testGroupAuthorityName != null && authorityService.authorityExists(testGroupAuthorityName)) {

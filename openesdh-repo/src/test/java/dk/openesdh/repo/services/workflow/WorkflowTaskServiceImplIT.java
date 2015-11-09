@@ -19,6 +19,7 @@ import org.alfresco.service.cmr.workflow.WorkflowPath;
 import org.alfresco.service.cmr.workflow.WorkflowService;
 import org.alfresco.service.cmr.workflow.WorkflowTask;
 import org.alfresco.service.namespace.NamespaceService;
+import org.alfresco.service.transaction.TransactionService;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -35,12 +36,13 @@ import com.tradeshift.test.remote.RemoteTestRunner;
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.WorkflowInfo;
+import dk.openesdh.repo.services.RunInTransactionAsAdmin;
 import dk.openesdh.repo.services.cases.CaseService;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:alfresco/application-context.xml")
-public class WorkflowTaskServiceImplIT {
+public class WorkflowTaskServiceImplIT implements RunInTransactionAsAdmin {
 
     @Autowired
     @Qualifier("NodeService")
@@ -71,6 +73,10 @@ public class WorkflowTaskServiceImplIT {
     private AuthenticationService authenticationService;
 
     @Autowired
+    @Qualifier("TransactionService")
+    private TransactionService transactionService;
+
+    @Autowired
     @Qualifier("CaseDocumentTestHelper")
     private CaseDocumentTestHelper docTestHelper;
 
@@ -96,32 +102,36 @@ public class WorkflowTaskServiceImplIT {
 
     @Before
     public void setUp() throws Exception {
-        AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();
-        personNodeRef = personService.getPerson(AuthenticationUtil.getFullyAuthenticatedUser());
-
-        testFolder = docTestHelper.createFolder(TEST_FOLDER_NAME);
-        testDocument = docTestHelper.createDocument(TEST_DOCUMENT_NAME, testFolder);
+        runInTransactionAsAdmin(() -> {
+            personNodeRef = personService.getPerson(AuthenticationUtil.getFullyAuthenticatedUser());
+            testFolder = docTestHelper.createFolder(TEST_FOLDER_NAME);
+            testDocument = docTestHelper.createDocument(TEST_DOCUMENT_NAME, testFolder);
+            return null;
+        });
     }
 
     @After
     public void tearDown() {
-        if (testDocument != null) {
-            nodeService.deleteNode(testDocument);
-        }
-        if (testFolder != null) {
-            nodeService.deleteNode(testFolder);
-        }
+        runInTransactionAsAdmin(() -> {
+            if (testDocument != null) {
+                nodeService.deleteNode(testDocument);
+            }
+            if (testFolder != null) {
+                nodeService.deleteNode(testFolder);
+            }
 
-        if (caseNodeRef != null) {
-            docTestHelper.removeNodesAndDeleteUsersInTransaction(new ArrayList<NodeRef>(0),
-                    Arrays.asList(caseNodeRef), new ArrayList<String>(0));
-        }
+            if (caseNodeRef != null) {
+                docTestHelper.removeNodesAndDeleteUsersInTransaction(new ArrayList<NodeRef>(0),
+                        Arrays.asList(caseNodeRef), Arrays.asList(CaseHelper.DEFAULT_USERNAME));
+            }
+            return null;
+        });
     }
 
     @SuppressWarnings("unchecked")
     @Test
     public void shouldStartWorkflowWithAttachmentThenRetrieveTaskWithPackageContents() {
-
+        AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();
         WorkflowDefinition wfDef = workflowService.getDefinitionByName(ACTIVITY_ADHOC_WORKFLOW_NAME);
 
         WorkflowInfo wi = new WorkflowInfo();
@@ -165,6 +175,11 @@ public class WorkflowTaskServiceImplIT {
     private String createCase() {
         caseNodeRef = docTestHelper.createCaseBehaviourOn("Test case1", testFolder, CaseHelper.DEFAULT_USERNAME);
         return caseService.getCaseId(caseNodeRef);
+    }
+
+    @Override
+    public TransactionService getTransactionService() {
+        return transactionService;
     }
 
 }
