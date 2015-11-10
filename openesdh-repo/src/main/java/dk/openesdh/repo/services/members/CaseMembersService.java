@@ -24,6 +24,21 @@ public interface CaseMembersService {
     Map<String, Set<String>> getMembersByRole(NodeRef caseNodeRef, boolean noExpandGroups, boolean includeOwner);
 
     /**
+     * Get the members on the case. Includes groups and users. If
+     * noExpandGroups, then only all authorities within the immediate group is
+     * returned else include users of subgroups instead of just immediate
+     * groups.
+     *
+     * @param caseNodeRef
+     * @param noExpandGroups
+     *            expand subgroups
+     * @param includeOwner
+     *            inculde case owner
+     * @return
+     */
+    Set<String> getMembers(NodeRef caseNodeRef, boolean noExpandGroups, boolean includeOwner);
+
+    /**
      * Remove the authority from the given role group on the case.
      *
      * @param authorityName

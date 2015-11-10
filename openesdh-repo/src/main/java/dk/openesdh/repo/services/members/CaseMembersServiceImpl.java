@@ -53,6 +53,16 @@ public class CaseMembersServiceImpl implements CaseMembersService, RunInTransact
     }
 
     @Override
+    public Set<String> getMembers(NodeRef caseNodeRef, boolean noExpandGroups, boolean includeOwner) {
+        String caseId = caseService.getCaseId(caseNodeRef);
+        Set<String> roles = includeOwner ? caseService.getAllRoles(caseNodeRef) : caseService.getRoles(caseNodeRef);
+        return roles.stream().flatMap(role -> {
+            String groupName = caseService.getCaseRoleGroupName(caseId, role);
+            return authorityService.getContainedAuthorities(null, groupName, noExpandGroups).stream();
+        }).collect(Collectors.toSet());
+    }
+
+    @Override
     public void removeAuthorityFromRole(final String authorityName, final String role, final NodeRef caseNodeRef) {
         caseService.checkCanUpdateCaseRoles(caseNodeRef);
         runInTransactionAsAdmin(() -> {
