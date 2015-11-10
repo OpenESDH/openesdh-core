@@ -1,8 +1,8 @@
 package dk.openesdh.repo.services.workflow;
 
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -115,6 +115,7 @@ public class CaseWorkflowServiceImplIT {
         testDocument = docTestHelper.createDocument(TEST_DOCUMENT_NAME, testFolder);
     }
 
+    @SuppressWarnings("unchecked")
     @After
     public void tearDown() {
         if (testDocument != null) {
@@ -125,8 +126,8 @@ public class CaseWorkflowServiceImplIT {
         }
 
         if (caseNodeRef != null) {
-            docTestHelper.removeNodesAndDeleteUsersInTransaction(new ArrayList<NodeRef>(0),
-                    Arrays.asList(caseNodeRef), Arrays.asList(CaseHelper.DEFAULT_USERNAME));
+            docTestHelper.removeNodesAndDeleteUsersInTransaction(Collections.EMPTY_LIST,
+                    Arrays.asList(caseNodeRef), Collections.EMPTY_LIST);
         }
 
         if (testGroupAuthorityName != null && authorityService.authorityExists(testGroupAuthorityName)) {
@@ -136,6 +137,9 @@ public class CaseWorkflowServiceImplIT {
         if (testGroupAuthorityName2 != null && authorityService.authorityExists(testGroupAuthorityName2)) {
             authorityService.deleteAuthority(testGroupAuthorityName2);
         }
+
+        docTestHelper.removeNodesAndDeleteUsersInTransaction(Collections.EMPTY_LIST, Collections.EMPTY_LIST,
+                Arrays.asList(CaseHelper.DEFAULT_USERNAME));
     }
 
     @Test

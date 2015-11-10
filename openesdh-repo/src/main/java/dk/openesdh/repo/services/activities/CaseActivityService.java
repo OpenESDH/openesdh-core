@@ -2,6 +2,9 @@ package dk.openesdh.repo.services.activities;
 
 import java.util.Optional;
 
+import org.alfresco.query.PagingRequest;
+import org.alfresco.query.PagingResults;
+import org.alfresco.repo.domain.activities.ActivityFeedEntity;
 import org.alfresco.service.cmr.repository.NodeRef;
 
 public interface CaseActivityService {
@@ -56,4 +59,6 @@ public interface CaseActivityService {
     void postOnCaseDocumentNewVersionUpload(NodeRef documentNodeRef);
 
     void postOnCaseDocumentAttachmentNewVersionUpload(NodeRef attachmentNodeRef);
+
+    PagingResults<ActivityFeedEntity> getCurrentUserActivities(PagingRequest paging);
 }
