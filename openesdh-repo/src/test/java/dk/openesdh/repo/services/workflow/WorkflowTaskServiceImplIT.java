@@ -1,7 +1,7 @@
 package dk.openesdh.repo.services.workflow;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -106,10 +106,13 @@ public class WorkflowTaskServiceImplIT implements RunInTransactionAsAdmin {
             personNodeRef = personService.getPerson(AuthenticationUtil.getFullyAuthenticatedUser());
             testFolder = docTestHelper.createFolder(TEST_FOLDER_NAME);
             testDocument = docTestHelper.createDocument(TEST_DOCUMENT_NAME, testFolder);
+            caseNodeRef = docTestHelper
+                    .createCaseBehaviourOn("Test case1", testFolder, CaseHelper.DEFAULT_USERNAME);
             return null;
         });
     }
 
+    @SuppressWarnings("unchecked")
     @After
     public void tearDown() {
         runInTransactionAsAdmin(() -> {
@@ -121,9 +124,11 @@ public class WorkflowTaskServiceImplIT implements RunInTransactionAsAdmin {
             }
 
             if (caseNodeRef != null) {
-                docTestHelper.removeNodesAndDeleteUsersInTransaction(new ArrayList<NodeRef>(0),
-                        Arrays.asList(caseNodeRef), Arrays.asList(CaseHelper.DEFAULT_USERNAME));
+                docTestHelper.removeNodesAndDeleteUsersInTransaction(Collections.EMPTY_LIST,
+                        Arrays.asList(caseNodeRef), Collections.EMPTY_LIST);
             }
+            docTestHelper.removeNodesAndDeleteUsersInTransaction(Collections.EMPTY_LIST, Collections.EMPTY_LIST,
+                    Arrays.asList(CaseHelper.DEFAULT_USERNAME));
             return null;
         });
     }
@@ -142,7 +147,7 @@ public class WorkflowTaskServiceImplIT implements RunInTransactionAsAdmin {
         wi.setMessage("Worflow to test task info retrieving with package contents");
         wi.setSendEmailNotifications(false);
         wi.setAssignTo(personNodeRef.toString());
-        wi.getProperties().put("oe_caseId", createCase());
+        wi.getProperties().put("oe_caseId", caseService.getCaseId(caseNodeRef));
 
         WorkflowPath wfPath = caseWorkflowService.startWorkflow(wi);
 
@@ -170,11 +175,6 @@ public class WorkflowTaskServiceImplIT implements RunInTransactionAsAdmin {
 
         tasks = workflowService.getTasksForWorkflowPath(wfPath.getId());
         workflowService.endTask(tasks.get(0).getId(), null);
-    }
-
-    private String createCase() {
-        caseNodeRef = docTestHelper.createCaseBehaviourOn("Test case1", testFolder, CaseHelper.DEFAULT_USERNAME);
-        return caseService.getCaseId(caseNodeRef);
     }
 
     @Override
