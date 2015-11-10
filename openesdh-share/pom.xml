@@ -38,7 +38,7 @@
             <groupId>org.alfresco</groupId>
             <artifactId>aikau</artifactId>
             <!--<version>1.0.29</version>-->
-            <version>1.0.34</version>
+            <version>1.0.9</version>
             <!-- Exclude Aikau's dependency from the AMP -->
             <exclusions>
                 <exclusion>
