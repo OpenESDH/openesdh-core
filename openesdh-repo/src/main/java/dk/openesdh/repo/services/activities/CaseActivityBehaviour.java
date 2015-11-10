@@ -2,6 +2,7 @@ package dk.openesdh.repo.services.activities;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.annotation.PostConstruct;
 
@@ -39,6 +40,7 @@ public class CaseActivityBehaviour implements OnUpdatePropertiesPolicy {
 
     @Override
     public void onUpdateProperties(NodeRef nodeRef, Map<QName, Serializable> before, Map<QName, Serializable> after) {
-        activityService.postOnCaseUpdate(nodeRef);
+        Optional.ofNullable(caseService.getCaseId(nodeRef)).ifPresent(
+                caseId -> activityService.postOnCaseUpdate(nodeRef));
     }
 }
