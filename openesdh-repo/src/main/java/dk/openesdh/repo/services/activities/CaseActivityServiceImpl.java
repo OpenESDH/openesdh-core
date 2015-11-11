@@ -163,7 +163,8 @@ public class CaseActivityServiceImpl implements CaseActivityService, RunInTransa
 
     @Override
     public int countCurrentUserNewActivities() {
-        int minFeedId = Optional.ofNullable(getCurrentUserLastReadFeedId()).map(maxId -> Integer.parseInt(maxId))
+        int minFeedId = Optional.ofNullable(getCurrentUserLastReadFeedId())
+                .map(maxId -> Integer.parseInt(maxId) + 1)
                 .orElse(-1);
         return countCurrentUserActivities(minFeedId);
     }
