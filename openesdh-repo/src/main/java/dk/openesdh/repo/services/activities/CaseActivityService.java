@@ -61,4 +61,8 @@ public interface CaseActivityService {
     void postOnCaseDocumentAttachmentNewVersionUpload(NodeRef attachmentNodeRef);
 
     PagingResults<ActivityFeedEntity> getCurrentUserActivities(PagingRequest paging);
+
+    int countCurrentUserNewActivities();
+
+    void setCurrentUserLastReadActivityFeedId(String feedId);
 }
