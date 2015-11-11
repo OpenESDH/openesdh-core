@@ -1,0 +1,19 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<web-app xmlns="http://java.sun.com/xml/ns/j2ee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-app_2_4.xsd"
+         version="2.4">
+
+    <!--This filter is meant to be added to the web.xml file of a deployed alfresco.-->
+    <!--It allows us to be able to change the header for 401s so that the browsers do not render their native auth dialog-->
+    <filter>
+        <description>Changes the WWW-Authenticate header value to FormBased</description>
+        <filter-name>OpenESDH 401 auth filter</filter-name>
+        <filter-class>dk.openesdh.repo.rootScopeExt.ResponseServletFilter</filter-class>
+    </filter>
+
+    <filter-mapping>
+        <filter-name>OpenESDH 401 auth filter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+</web-app>
