@@ -1,5 +1,8 @@
 package dk.openesdh.repo.services.activities;
 
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
@@ -38,6 +41,7 @@ import dk.openesdh.repo.services.members.CaseMembersService;
 public class CaseActivityServiceImpl implements CaseActivityService, RunInTransactionAsAdmin {
 
     private static final String PREFERENCE_FAVOURITE_CASE = "dk_openesdh_cases_favourites";
+    private static final String PREFERENCE_LAST_READ_FEED_ID = "dk_openesdh_last_read_feed_id";
 
     @Autowired
     @Qualifier("NodeService")
@@ -152,10 +156,28 @@ public class CaseActivityServiceImpl implements CaseActivityService, RunInTransa
 
     @Override
     public PagingResults<ActivityFeedEntity> getCurrentUserActivities(PagingRequest paging) {
-
         return activityService.getPagedUserFeedEntries(AuthenticationUtil.getFullyAuthenticatedUser(), null, false,
                 true,
                 -1, paging);
+    }
+
+    @Override
+    public int countCurrentUserNewActivities() {
+        int minFeedId = Optional.ofNullable(getCurrentUserLastReadFeedId()).map(maxId -> Integer.parseInt(maxId))
+                .orElse(-1);
+        return countCurrentUserActivities(minFeedId);
+    }
+
+    @Override
+    public void setCurrentUserLastReadActivityFeedId(String feedId) {
+        Map<String, Serializable> preferences = new HashMap<>();
+        preferences.put(PREFERENCE_LAST_READ_FEED_ID, feedId);
+        preferenceService.setPreferences(AuthenticationUtil.getFullyAuthenticatedUser(), preferences);
+    }
+
+    private int countCurrentUserActivities(int minFeedId) {
+        return activityService.getUserFeedEntries(AuthenticationUtil.getFullyAuthenticatedUser(), null, false,
+                true, minFeedId).size();
     }
 
     @SuppressWarnings("unchecked")
@@ -268,6 +290,14 @@ public class CaseActivityServiceImpl implements CaseActivityService, RunInTransa
      * @return
      */
     private String getFavouriteCasesPreference(String userName) {
+        return getUserPreferenceValue(userName, PREFERENCE_FAVOURITE_CASE);
+    }
+
+    private String getCurrentUserLastReadFeedId() {
+        return getUserPreferenceValue(AuthenticationUtil.getFullyAuthenticatedUser(), PREFERENCE_LAST_READ_FEED_ID);
+    }
+
+    private String getUserPreferenceValue(String userName, String preferenceName) {
         NodeRef personNodeRef = this.personService.getPerson(userName);
         if (personNodeRef == null || !this.nodeService.hasAspect(personNodeRef, ContentModel.ASPECT_PREFERENCES)) {
             return null;
@@ -279,7 +309,7 @@ public class CaseActivityServiceImpl implements CaseActivityService, RunInTransa
         JSONParser parser = new JSONParser();
         try {
             JSONObject jsonPrefs = (JSONObject) parser.parse(reader.getContentString());
-            return (String) jsonPrefs.get(PREFERENCE_FAVOURITE_CASE);
+            return (String) jsonPrefs.get(preferenceName);
         } catch (ContentIOException | ParseException e) {
             e.printStackTrace();
         }
