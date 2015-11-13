@@ -17,10 +17,7 @@ import java.util.stream.Collectors;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.content.MimetypeMap;
-import org.alfresco.repo.node.NodeServicePolicies;
 import org.alfresco.repo.policy.Behaviour;
-import org.alfresco.repo.policy.JavaBehaviour;
-import org.alfresco.repo.policy.PolicyComponent;
 import org.alfresco.repo.rendition.executer.ReformatRenderingEngine;
 import org.alfresco.repo.search.impl.lucene.LuceneQueryParserException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -74,7 +71,7 @@ import dk.openesdh.repo.webscripts.documents.Documents;
  * Created by torben on 11/09/14.
  */
 
-public class DocumentServiceImpl implements DocumentService, NodeServicePolicies.OnUpdatePropertiesPolicy {
+public class DocumentServiceImpl implements DocumentService {
 
     private static final QName FINAL_PDF_RENDITION_DEFINITION_NAME = QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "finalPdfRenditionDefinition");
     private static final Log logger = LogFactory.getLog(DocumentServiceImpl.class);
@@ -87,7 +84,6 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
     private CopyService copyService;
     private OELockService oeLockService;
     private VersionService versionService;
-    private PolicyComponent policyComponent;
     private Behaviour onUpdatePropertiesBehaviour;
     private ContentService contentService;
     private MimetypeService mimetypeService;
@@ -141,10 +137,6 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
         this.oeLockService = oeLockService;
     }
 
-    public void setPolicyComponent(PolicyComponent policyComponent) {
-        this.policyComponent = policyComponent;
-    }
-
     public void setNamespaceService(NamespaceService namespaceService) {
         this.namespaceService = namespaceService;
     }
@@ -193,26 +185,6 @@ public class DocumentServiceImpl implements DocumentService, NodeServicePolicies
                 acceptableFinalizedFileMimeTypes.add(mimetype);
             }
         }
-
-        onUpdatePropertiesBehaviour = new JavaBehaviour(this, "onUpdateProperties");
-        this.policyComponent.bindClassBehaviour(
-                NodeServicePolicies.OnUpdatePropertiesPolicy.QNAME,
-                OpenESDHModel.TYPE_DOC_BASE, onUpdatePropertiesBehaviour);
-    }
-
-    @Override
-    public void onUpdateProperties(NodeRef nodeRef, Map<QName, Serializable> before, Map<QName, Serializable> after) {
-        String beforeStatus = (String) before.get(OpenESDHModel.PROP_OE_STATUS);
-        if (beforeStatus == null) {
-            return;
-        }
-        String afterStatus = (String) after.get(OpenESDHModel.PROP_OE_STATUS);
-        if (beforeStatus.equals(afterStatus)) {
-            return;
-        }
-        throw new AlfrescoRuntimeException("Document status cannot be " +
-                "changed directly. Must call the DocumentService" +
-                ".changeDocumentStatus method.");
     }
 
     protected boolean canLeaveStatus(String status, String user, NodeRef nodeRef) {
