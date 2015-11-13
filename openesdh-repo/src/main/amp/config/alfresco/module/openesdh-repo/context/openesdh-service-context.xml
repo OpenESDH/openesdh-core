@@ -181,6 +181,9 @@
         <property name="finalizedFileFormat">
             <value>${openesdh.document.finalizedFileFormat}</value>
         </property>
+        <property name="behaviourFilter">
+            <ref bean="policyBehaviourFilter"/>
+        </property>
     </bean>
 
     <bean id="AuditSearchService" class="dk.openesdh.repo.services.audit.AuditSearchServiceImpl">

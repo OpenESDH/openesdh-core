@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.content.MimetypeMap;
-import org.alfresco.repo.policy.Behaviour;
+import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.rendition.executer.ReformatRenderingEngine;
 import org.alfresco.repo.search.impl.lucene.LuceneQueryParserException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -84,13 +84,13 @@ public class DocumentServiceImpl implements DocumentService {
     private CopyService copyService;
     private OELockService oeLockService;
     private VersionService versionService;
-    private Behaviour onUpdatePropertiesBehaviour;
     private ContentService contentService;
     private MimetypeService mimetypeService;
     private RenditionService renditionService;
     private TransactionService transactionService;
     private DocumentTypeService documentTypeService;
     private DocumentCategoryService documentCategoryService;
+    private BehaviourFilter behaviourFilter;
 
     private String finalizedFileFormat;
     private String acceptableFinalizedFileFormats;
@@ -175,6 +175,10 @@ public class DocumentServiceImpl implements DocumentService {
 
     public void setTransactionService(TransactionService transactionService) {
         this.transactionService = transactionService;
+    }
+
+    public void setBehaviourFilter(BehaviourFilter behaviourFilter) {
+        this.behaviourFilter = behaviourFilter;
     }
 
     public void init() {
@@ -327,10 +331,10 @@ public class DocumentServiceImpl implements DocumentService {
             try {
                 // Disable status behaviour to allow the system to set the
                 // status directly.
-                onUpdatePropertiesBehaviour.disable();
+                behaviourFilter.disableBehaviour(nodeRef);
                 changeStatusImpl(nodeRef, fromStatus, newStatus);
             } finally {
-                onUpdatePropertiesBehaviour.enable();
+                behaviourFilter.enableBehaviour(nodeRef);
             }
             return null;
         });
