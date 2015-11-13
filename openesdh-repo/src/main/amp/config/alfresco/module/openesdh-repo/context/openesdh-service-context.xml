@@ -40,10 +40,6 @@
             <ref bean="permissionsModelDAO"/>
         </property>
 
-        <property name="policyComponent">
-            <ref bean="policyComponent"/>
-        </property>
-
         <property name="documentService">
             <ref bean="DocumentService"/>
         </property>
@@ -66,6 +62,10 @@
         
         <property name="nodeInfoService">
             <ref bean="NodeInfoService"/>
+        </property>
+        
+        <property name="behaviourFilter">
+            <ref bean="policyBehaviourFilter"/>
         </property>
     </bean>
     
@@ -160,9 +160,6 @@
         <property name="versionService">
             <ref bean="VersionService"/>
         </property>
-        <property name="policyComponent">
-            <ref bean="policyComponent"/>
-        </property>
         <property name="oeLockService">
             <ref bean="OELockService"/>
         </property>
@@ -183,6 +180,9 @@
         </property>
         <property name="finalizedFileFormat">
             <value>${openesdh.document.finalizedFileFormat}</value>
+        </property>
+        <property name="behaviourFilter">
+            <ref bean="policyBehaviourFilter"/>
         </property>
     </bean>
 

@@ -23,10 +23,7 @@ import java.util.stream.Collectors;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
-import org.alfresco.repo.node.NodeServicePolicies;
-import org.alfresco.repo.policy.Behaviour;
-import org.alfresco.repo.policy.JavaBehaviour;
-import org.alfresco.repo.policy.PolicyComponent;
+import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.search.impl.lucene.LuceneQueryParserException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
@@ -82,14 +79,13 @@ import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 /**
  * Created by torben on 19/08/14.
  */
-public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdatePropertiesPolicy, NodeServicePolicies.OnUpdateNodePolicy {
+public class CaseServiceImpl implements CaseService {
 
     private static final String MSG_NO_CASE_CREATOR_PERMISSION_DEFINED = "security.permission.err_no_case_creator_permission_defined";
     private static final String MSG_NO_CASE_CREATOR_GROUP_DEFINED = "security.permission.err_no_case_creator_group_defined";
     private static final String MSG_CASE_CREATOR_PERMISSION_VIOLATION = "security.permission.err_case_creator_permission_violation";
 
     private static final Logger LOGGER = Logger.getLogger(CaseServiceImpl.class);
-    Behaviour onUpdatePropertiesBehaviour;
     private NodeService nodeService;
     private NodeInfoService nodeInfoService;
     private SearchService searchService;
@@ -99,12 +95,12 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
     private TransactionService transactionService;
     private DictionaryService dictionaryService;
     private OwnableService ownableService;
-    private PolicyComponent policyComponent;
     private DocumentService documentService;
     private OELockService oeLockService;
     private OpenESDHFoldersService openESDHFoldersService;
     private PersonService personService;
     private NamespaceService namespaceService;
+    private BehaviourFilter behaviourFilter;
 
     //<editor-fold desc="injected stuff">
     public void setNodeService(NodeService nodeService) {
@@ -147,10 +143,6 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
         this.permissionsModelDAO = permissionsModelDAO;
     }
 
-    public void setPolicyComponent(PolicyComponent policyComponent) {
-        this.policyComponent = policyComponent;
-    }
-
     public void setOpenESDHFoldersService(OpenESDHFoldersService openESDHFoldersService) {
         this.openESDHFoldersService = openESDHFoldersService;
     }
@@ -168,60 +160,17 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
         this.namespaceService = namespaceService;
     }
 
+    public void setBehaviourFilter(BehaviourFilter behaviourFilter) {
+        this.behaviourFilter = behaviourFilter;
+    }
+
     @Override
     public NodeRef getCasesRootNodeRef() {
         return openESDHFoldersService.getCasesRootNodeRef();
     }
 
     public void init() {
-        onUpdatePropertiesBehaviour = new JavaBehaviour(this,
-                "onUpdateProperties");
-        this.policyComponent.bindClassBehaviour(
-                NodeServicePolicies.OnUpdatePropertiesPolicy.QNAME,
-                OpenESDHModel.TYPE_CASE_BASE,
-                onUpdatePropertiesBehaviour);
 
-        this.policyComponent.bindClassBehaviour(
-                NodeServicePolicies.OnUpdateNodePolicy.QNAME,
-                OpenESDHModel.ASPECT_OE_JOURNALIZABLE,
-                new JavaBehaviour(this, "onUpdateNode"));
-    }
-
-    public void onUpdateNode(NodeRef nodeRef) {
-        // Handle updating journalKeyIndexed and journalFacetIndexed
-        // properties based on journalKey and journalFacet properties,
-        // respectively.
-        NodeRef journalKey = (NodeRef) nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_JOURNALKEY);
-        if (journalKey != null) {
-            Map<QName, Serializable> properties = nodeService.getProperties(journalKey);
-            nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_JOURNALKEY_INDEXED, properties.get(ContentModel.PROP_NAME) + " " + properties.get(ContentModel.PROP_TITLE));
-        } else {
-            nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_JOURNALKEY_INDEXED, null);
-        }
-        NodeRef journalFacet = (NodeRef) nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_JOURNALFACET);
-        if (journalFacet != null) {
-            Map<QName, Serializable> properties = nodeService.getProperties(journalFacet);
-            nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_JOURNALFACET_INDEXED, properties.get(ContentModel.PROP_NAME) + " " + properties.get(ContentModel.PROP_TITLE));
-        } else {
-            nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_JOURNALFACET_INDEXED, null);
-        }
-    }
-
-    @Override
-    public void onUpdateProperties(NodeRef nodeRef, Map<QName, Serializable> before, Map<QName, Serializable> after) {
-        String beforeStatus = (String) before.get(OpenESDHModel.PROP_OE_STATUS);
-        if (beforeStatus == null) {
-            return;
-        }
-        String afterStatus = (String) after.get(OpenESDHModel.PROP_OE_STATUS);
-        if (beforeStatus.equals(afterStatus)) {
-            return;
-        }
-        if (isCaseNode(nodeRef)) {
-            throw new AlfrescoRuntimeException("Case status cannot be " +
-                    "changed directly. Must call the CaseService" +
-                    ".changeCaseStatus method.");
-        }
     }
 
     @Override
@@ -673,10 +622,10 @@ public class CaseServiceImpl implements CaseService, NodeServicePolicies.OnUpdat
                 try {
                     // Disable status behaviour to allow the system to set the
                     // status directly.
-                    onUpdatePropertiesBehaviour.disable();
+                    behaviourFilter.disableBehaviour(nodeRef);
                     changeStatusImpl(nodeRef, fromStatus, newStatus);
                 } finally {
-                    onUpdatePropertiesBehaviour.enable();
+                    behaviourFilter.enableBehaviour(nodeRef);
                 }
                 return null;
             }

@@ -8,11 +8,13 @@ import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
+import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.copy.CopyServicePolicies.BeforeCopyPolicy;
 import org.alfresco.repo.copy.CopyServicePolicies.OnCopyCompletePolicy;
 import org.alfresco.repo.node.NodeServicePolicies;
 import org.alfresco.repo.node.NodeServicePolicies.OnCreateChildAssociationPolicy;
+import org.alfresco.repo.node.NodeServicePolicies.OnUpdatePropertiesPolicy;
 import org.alfresco.repo.policy.Behaviour;
 import org.alfresco.repo.policy.JavaBehaviour;
 import org.alfresco.repo.policy.PolicyComponent;
@@ -41,7 +43,8 @@ import dk.openesdh.repo.utils.Utils;
  * Created by rasmutor on 2/11/15.
  */
 @Service("documentBehaviour")
-public class DocumentBehaviour implements OnCreateChildAssociationPolicy, BeforeCopyPolicy, OnCopyCompletePolicy {
+public class DocumentBehaviour implements OnCreateChildAssociationPolicy, BeforeCopyPolicy, OnCopyCompletePolicy,
+        OnUpdatePropertiesPolicy {
 
     @Autowired
     @Qualifier("NodeService")
@@ -103,6 +106,9 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
                 OpenESDHModel.TYPE_DOC_BASE,
                 new JavaBehaviour(this, "onCreateDocRecordBehaviour", Behaviour.NotificationFrequency.TRANSACTION_COMMIT)
         );
+
+        this.policyComponent.bindClassBehaviour(NodeServicePolicies.OnUpdatePropertiesPolicy.QNAME,
+                OpenESDHModel.TYPE_DOC_BASE, new JavaBehaviour(this, "onUpdateProperties"));
     }
 
     public void onCreateDocRecordBehaviour(ChildAssociationRef childRef) {
@@ -290,5 +296,19 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
         }
 
         return childAssocList.get(0);
+    }
+
+    @Override
+    public void onUpdateProperties(NodeRef nodeRef, Map<QName, Serializable> before, Map<QName, Serializable> after) {
+        String beforeStatus = (String) before.get(OpenESDHModel.PROP_OE_STATUS);
+        if (beforeStatus == null) {
+            return;
+        }
+        String afterStatus = (String) after.get(OpenESDHModel.PROP_OE_STATUS);
+        if (beforeStatus.equals(afterStatus)) {
+            return;
+        }
+        throw new AlfrescoRuntimeException("Document status cannot be "
+                + "changed directly. Must call the DocumentService" + ".changeDocumentStatus method.");
     }
 }
