@@ -23,7 +23,6 @@ import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.RandomUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
@@ -185,7 +184,7 @@ public class CaseHelper {
                     }
                 });
             }
-        }, AuthenticationUtil.getAdminUserName());
+        }, username);
         // We have to do in a transaction because we must set the case:owner
         // association before commit, to avoid an integrity error.
     }
