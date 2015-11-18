@@ -160,7 +160,8 @@ public class CreateCaseIT {
 
     @Test
     public void testCreateCaseAsOrdinaryUser() throws Exception {
-        String userName = CaseHelper.ALICE_BEECHER;
+        setFullyAuthenticatedUser(getAdminUserName());
+        String userName = CaseHelper.MIKE_JACKSON;
         enableTestUser(userName);
 
         giveUserCreateAccess(userName);

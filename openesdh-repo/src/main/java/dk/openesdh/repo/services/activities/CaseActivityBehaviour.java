@@ -17,14 +17,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.cases.CaseService;
 
 @Service("caseActivityBehaviour")
-public class CaseActivityBehaviour implements OnUpdatePropertiesPolicy {
+public class CaseActivityBehaviour implements OnUpdatePropertiesPolicy{
 
-    @Autowired
-    @Qualifier("CaseService")
-    private CaseService caseService;
     @Autowired
     @Qualifier("policyComponent")
     private PolicyComponent policyComponent;
@@ -40,7 +36,8 @@ public class CaseActivityBehaviour implements OnUpdatePropertiesPolicy {
 
     @Override
     public void onUpdateProperties(NodeRef nodeRef, Map<QName, Serializable> before, Map<QName, Serializable> after) {
-        Optional.ofNullable(caseService.getCaseId(nodeRef)).ifPresent(
-                caseId -> activityService.postOnCaseUpdate(nodeRef));
+        Optional.ofNullable(before.get(OpenESDHModel.PROP_OE_ID))
+            .map(Object::toString)
+            .ifPresent(caseId -> activityService.postOnCaseUpdate(nodeRef));
     }
 }
