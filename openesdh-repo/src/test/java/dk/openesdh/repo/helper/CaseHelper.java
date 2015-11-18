@@ -184,7 +184,7 @@ public class CaseHelper {
                     }
                 });
             }
-        }, username);
+        }, AuthenticationUtil.getAdminUserName());
         // We have to do in a transaction because we must set the case:owner
         // association before commit, to avoid an integrity error.
     }
