@@ -29,6 +29,7 @@ public class PreventAdminDeleteBehaviour implements NodeServicePolicies.BeforeDe
     @Autowired
     @Qualifier("PersonService")
     private PersonService personService;
+
     @Autowired
     @Qualifier("policyComponent")
     private PolicyComponent policyComponent;
@@ -37,8 +38,9 @@ public class PreventAdminDeleteBehaviour implements NodeServicePolicies.BeforeDe
     @PostConstruct
     public void init() {
 
-        // Create behaviours
-        Behaviour beforeDeleteNode = new JavaBehaviour(this, "beforeDeleteNode", Behaviour.NotificationFrequency.TRANSACTION_COMMIT);
+        //Change the notification frequency because "on transaction commit" (the default) means the node actually
+        //does not exist and will throw an error.
+        Behaviour beforeDeleteNode = new JavaBehaviour(this, "beforeDeleteNode", Behaviour.NotificationFrequency.EVERY_EVENT);
 
         // Bind behaviours to node policies
         this.policyComponent.bindClassBehaviour(NodeServicePolicies.BeforeDeleteNodePolicy.QNAME, ContentModel.TYPE_PERSON,
