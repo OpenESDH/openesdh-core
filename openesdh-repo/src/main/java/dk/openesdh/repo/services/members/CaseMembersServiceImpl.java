@@ -180,4 +180,9 @@ public class CaseMembersServiceImpl implements CaseMembersService, RunInTransact
     public TransactionService getTransactionService() {
         return transactionService;
     }
+
+    @Override
+    public boolean isAuthorityPerson(String authorityName) {
+        return isAuthorityPerson(authorityService.getAuthorityNodeRef(authorityName));
+    }
 }

@@ -93,4 +93,6 @@ public interface CaseMembersService {
     boolean isAuthorityGroup(NodeRef authorityRef);
 
     boolean isAuthorityPerson(NodeRef authorityRef);
+
+    boolean isAuthorityPerson(String authorityName);
 }

@@ -262,6 +262,7 @@ public class CaseActivityServiceImpl implements CaseActivityService, RunInTransa
         return runAsAdmin(() -> {
             return caseMembersService.getMembers(caseNodeRef, false, false)
                     .stream()
+                    .filter(member -> caseMembersService.isAuthorityPerson(member))
                     .filter(member -> memberHasFavouriteCase(member, caseId))
                     .collect(Collectors.toSet());
         });
