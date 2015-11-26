@@ -1,8 +1,6 @@
 package dk.openesdh.repo.services.cases;
 
-import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -21,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.google.common.collect.Sets;
 import com.google.gdata.util.common.base.Joiner;
 
 import dk.openesdh.repo.model.OpenESDHModel;
@@ -90,7 +89,7 @@ public class CaseOwnersServiceImpl implements CaseOwnersService {
             String groupName = (String) nodeService.getProperty(authorityNodeRef, ContentModel.PROP_NAME);
             return authorityService.getContainedAuthorities(AuthorityType.USER, groupName, false);
         } else if (type.isMatch(ContentModel.TYPE_PERSON)) {
-            return new HashSet<String>(Arrays.asList(personService.getPerson(authorityNodeRef).getUserName()));
+            return Sets.newHashSet(personService.getPerson(authorityNodeRef).getUserName());
         }
         return Collections.emptySet();
     }
