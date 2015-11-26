@@ -33,17 +33,13 @@ public class UserGroupsWebScript {
 
     private static final String EMAIL_GROUP_PREFIX = "GROUP_EMAIL_";
 
-    private static final List<String> nonCaseOwnersGroupPrefixes = new ArrayList<String>();
-
-    static {
-        nonCaseOwnersGroupPrefixes.addAll(Arrays.asList(
-                CaseService.CASE_ROLE_GROUP_NAME_PREFIX, 
-                SITE_GROUP_PREFIX,
-                SITE_GROUP_PREFIX2, 
-                ALFRESCO_GROUP_PREFIX, 
-                EMAIL_GROUP_PREFIX
-        ));
-    }
+    private static final List<String> nonCaseOwnersGroupPrefixes = Arrays.asList(
+            CaseService.CASE_ROLE_GROUP_NAME_PREFIX, 
+            SITE_GROUP_PREFIX,
+            SITE_GROUP_PREFIX2, 
+            ALFRESCO_GROUP_PREFIX, 
+            EMAIL_GROUP_PREFIX
+    );
 
     @Autowired
     @Qualifier("AuthorityService")
