@@ -52,10 +52,6 @@
             <ref bean="OpenESDHFoldersService"/>
         </property>
         
-        <property name="personService">
-            <ref bean="PersonService"/>
-        </property>
-        
         <property name="namespaceService">
             <ref bean="NamespaceService"/>
         </property>

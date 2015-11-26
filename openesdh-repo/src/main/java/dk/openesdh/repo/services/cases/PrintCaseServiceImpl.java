@@ -17,6 +17,7 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
 import org.json.JSONException;
+import org.json.JSONObject;
 import org.json.simple.JSONArray;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -46,6 +47,9 @@ public class PrintCaseServiceImpl implements PrintCaseService {
 
     @Autowired
     private CaseService caseService;
+
+    @Autowired
+    private CaseOwnersService caseOwnersService;
 
     @Autowired
     private AuditSearchService auditSearchService;
@@ -83,7 +87,7 @@ public class PrintCaseServiceImpl implements PrintCaseService {
             context.put("i18n", i18n);
 
             if (printInfo.isCaseDetails()) {
-                context.put("case", caseService.getCaseInfoJson(caseNodeRef).get("properties"));
+                context.put("case", getCaseInfoPropertiesJson(caseNodeRef));
             }
 
             if (printInfo.isCaseHistoryLog()) {
@@ -108,6 +112,12 @@ public class PrintCaseServiceImpl implements PrintCaseService {
 
             return Optional.of(writer.getReader().getContentInputStream());
         }
+    }
+
+    private JSONObject getCaseInfoPropertiesJson(NodeRef caseNodeRef) throws JSONException {
+        JSONObject properties = (JSONObject) caseService.getCaseInfoJson(caseNodeRef).get("properties");
+        properties.put("owners", caseOwnersService.getCaseOwners(caseNodeRef));
+        return properties;
     }
 
     public List<InputStream> getDocumentsToPrint(CasePrintInfo printInfo) {

@@ -32,7 +32,6 @@ import com.tradeshift.test.remote.RemoteTestRunner;
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.cases.CaseServiceImpl;
 import dk.openesdh.repo.services.documents.DocumentService;
 import dk.openesdh.repo.services.lock.OELockService;
 import dk.openesdh.repo.services.members.CaseMembersService;
@@ -227,7 +226,8 @@ public class CaseMembersServiceImplIT {
                 // authorityService.getAuthoritiesForUser(ALICE_BEECHER).toString());
 
                 caseMembersService
-                        .addAuthorityToRole(CaseHelper.ALICE_BEECHER, "CaseOwners", nonAdminCreatedCaseNr);
+.addAuthorityToRole(CaseHelper.ALICE_BEECHER,
+                        OpenESDHModel.PERMISSION_NAME_CASE_OWNERS, nonAdminCreatedCaseNr);
                 caseMembersService.addAuthorityToRole(CaseHelper.MIKE_JACKSON, "CaseSimpleWriter",
                         nonAdminCreatedCaseNr);
                 return null;
@@ -236,7 +236,7 @@ public class CaseMembersServiceImplIT {
                 true);
         // check everyone's permissions
         assertTrue(membersByRole.get("CaseSimpleReader").contains(AuthenticationUtil.getAdminUserName()));
-        Set<String> caseOwners = membersByRole.get("CaseOwners");
+        Set<String> caseOwners = membersByRole.get(OpenESDHModel.PERMISSION_NAME_CASE_OWNERS);
         assertNotNull(caseOwners);
         assertTrue(caseOwners.contains(CaseHelper.ALICE_BEECHER));
         assertTrue(membersByRole.get("CaseSimpleWriter").contains(CaseHelper.MIKE_JACKSON));
@@ -255,7 +255,7 @@ public class CaseMembersServiceImplIT {
         membersByRole = caseMembersService.getMembersByRole(nonAdminCreatedCaseNr, false, true);
         assertFalse(membersByRole.get("CaseSimpleReader").contains(AuthenticationUtil.getAdminUserName()));
         assertFalse(membersByRole.get("CaseSimpleWriter").contains(CaseHelper.MIKE_JACKSON));
-        assertTrue(membersByRole.get("CaseOwners").contains(CaseHelper.ALICE_BEECHER));
+        assertTrue(membersByRole.get(OpenESDHModel.PERMISSION_NAME_CASE_OWNERS).contains(CaseHelper.ALICE_BEECHER));
 
     }
 }

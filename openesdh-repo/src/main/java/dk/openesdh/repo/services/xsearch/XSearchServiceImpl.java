@@ -15,6 +15,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.members.CaseMembersService;
 
 /**
@@ -138,7 +139,8 @@ public class XSearchServiceImpl extends AbstractXSearchService {
             for (int i = 0; i < owners.length(); i++) {
                 ownersNodeRefs.add(new NodeRef((String) owners.get(i)));
             }
-            List<Long> dbIds = getCaseDbIdsWhereAuthoritiesHaveRole("CaseOwners", ownersNodeRefs);
+            List<Long> dbIds = getCaseDbIdsWhereAuthoritiesHaveRole(OpenESDHModel.PERMISSION_NAME_CASE_OWNERS,
+                    ownersNodeRefs);
 
             name = "sys:node-dbid";
             JSONArray dbIdsJsonArray = new JSONArray();

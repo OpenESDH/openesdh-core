@@ -27,6 +27,7 @@ public interface CaseService extends HasStatus {
     String CASES_ROOT = "cases";
     String CASES_TYPES_ROOT = "types";
     String OPENESDH_ROOT_CONTEXT_PATH = "/app:company_home/oe:OpenESDH/oe:cases/";
+    String CASE_ROLE_GROUP_NAME_PREFIX = "GROUP_case_";
 
     Pattern CASE_ID_PATTERN = Pattern.compile("\\d+-(\\d+)");
 
@@ -193,8 +194,6 @@ public interface CaseService extends HasStatus {
     public void checkCanUpdateCaseRoles(NodeRef caseNodeRef) throws AccessDeniedException;
 
     public JSONObject getCaseInfoJson(NodeRef caseNodeRef) throws JSONException;
-
-    public Set<String> getCaseOwnersUserIds(NodeRef caseNodeRef);
 
     public String getCaseRoleGroupName(String caseId, String role);
 }

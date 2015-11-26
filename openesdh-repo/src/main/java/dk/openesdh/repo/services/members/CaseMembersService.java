@@ -49,6 +49,8 @@ public interface CaseMembersService {
 
     void removeAuthorityFromRole(NodeRef authorityNodeRef, String role, NodeRef caseNodeRef);
 
+    void removeAuthoritiesFromRole(List<String> authorityNames, String role, NodeRef caseNodeRef);
+
     /**
      * Add the authority to the given role group on the case.
      *
@@ -68,6 +70,8 @@ public interface CaseMembersService {
      * @param caseNodeRef
      */
     void addAuthoritiesToRole(List<NodeRef> authorities, String role, NodeRef caseNodeRef);
+
+    void addAuthoritiesListToRole(List<String> authorities, String role, NodeRef caseNodeRef);
 
     /**
      * Moves an authority from one role to another on a case.

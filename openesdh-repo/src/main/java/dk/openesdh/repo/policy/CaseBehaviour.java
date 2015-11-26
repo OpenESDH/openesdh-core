@@ -103,7 +103,12 @@ public class CaseBehaviour implements OnCreateNodePolicy, BeforeCreateNodePolicy
     }
 
     @Override
-    public void onUpdateProperties(NodeRef nodeRef, Map<QName, Serializable> before, Map<QName, Serializable> after) {
+    public void onUpdateProperties(NodeRef caseNodeRef, Map<QName, Serializable> before,
+            Map<QName, Serializable> after) {
+        checkCaseStatus(caseNodeRef, before, after);
+    }
+
+    private void checkCaseStatus(NodeRef nodeRef, Map<QName, Serializable> before, Map<QName, Serializable> after) {
         String beforeStatus = (String) before.get(OpenESDHModel.PROP_OE_STATUS);
         if (beforeStatus == null) {
             return;
