@@ -89,7 +89,7 @@ public class XSearchServiceImpl extends AbstractXSearchService {
         }
 
         Optional<JSONArray> optArrayValue = getJSONValueArray(filter);
-        if (optValue.isPresent()) {
+        if (optArrayValue.isPresent()) {
             JSONArray value = optArrayValue.get();
             List<String> list = new ArrayList<>();
             for (int i = 0; i < value.length(); i++) {
