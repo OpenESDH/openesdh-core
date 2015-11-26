@@ -1,14 +1,16 @@
 package dk.openesdh.repo.services.xsearch;
 
-import org.alfresco.service.cmr.repository.NodeRef;
-
 import java.util.LinkedList;
 import java.util.List;
+
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.json.JSONArray;
 
 public class XResultSet {
 
     List<NodeRef> nodeRefs;
     long numberFound;
+    JSONArray nodes;
 
     public void setNodeRefs(List<NodeRef> nodeRefs) {
         this.nodeRefs = nodeRefs;
@@ -24,6 +26,14 @@ public class XResultSet {
 
     public int getLength() {
         return nodeRefs.size();
+    }
+
+    public JSONArray getNodes() {
+        return nodes;
+    }
+
+    public void setNodes(JSONArray nodes) {
+        this.nodes = nodes;
     }
 
     /**

@@ -5,7 +5,7 @@ import java.util.Map;
 /**
  * Created by lanre on 26/02/2015.
  */
-public interface CaseDocumentsSearchService {
+public interface CaseDocumentsAttachmentsSearchService extends XSearchService {
 
     public XResultSet getAttachments(Map<String, String> params);
 

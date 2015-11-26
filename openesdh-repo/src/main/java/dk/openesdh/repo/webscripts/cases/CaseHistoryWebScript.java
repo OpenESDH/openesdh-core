@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.apache.log4j.Logger;
 import org.json.simple.JSONArray;
+import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 import org.springframework.util.StringUtils;
@@ -19,7 +21,9 @@ import dk.openesdh.repo.webscripts.xsearch.XSearchWebscript;
 /**
  * Created by flemming on 19/09/14.
  */
-public class CaseHistoryWebScript extends XSearchWebscript {
+public class CaseHistoryWebScript extends AbstractWebScript {
+
+    private static Logger logger = Logger.getLogger(XSearchWebscript.class);
 
     private AuditSearchService auditSearchService;
 
@@ -46,7 +50,7 @@ public class CaseHistoryWebScript extends XSearchWebscript {
         }
 
         int startIndex = 0;
-        int pageSize = defaultPageSize;
+        int pageSize = PageableWebScript.DEFAULT_PAGE_SIZE;
 
         String rangeHeader = req.getHeader("x-range");
         int[] range = PageableWebScript.parseRangeHeader(rangeHeader);

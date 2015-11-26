@@ -231,25 +231,6 @@
         </property>
     </bean>
 
-    <bean id="ClassificationSearchService"
-          class="dk.openesdh.repo.services.classification.ClassificationSearchServiceImpl">
-        <property name="searchService">
-            <ref bean="SearchService"/>
-        </property>
-        <property name="repositoryHelper">
-            <ref bean="repositoryHelper"/>
-        </property>
-    </bean>
-
-    <bean id="CaseDocumentsSearchService"
-          class="dk.openesdh.repo.services.xsearch.CaseDocumentsSearchServiceImpl">
-        <property name="caseService" ref="CaseService"/>
-        <property name="documentService" ref="DocumentService"/>
-        <property name="nodeService" ref="NodeService"/>
-        <property name="fileFolderService" ref="FileFolderService"/>
-        <property name="namespaceService" ref="NamespaceService"/>
-    </bean>
-
     <bean id="ContactSearchService" class="dk.openesdh.repo.services.xsearch.ContactSearchServiceImpl">
         <property name="dictionaryService">
             <ref bean="dictionaryService"/>
