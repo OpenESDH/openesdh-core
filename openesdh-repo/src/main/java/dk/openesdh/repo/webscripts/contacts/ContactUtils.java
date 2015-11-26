@@ -1,18 +1,21 @@
 package dk.openesdh.repo.webscripts.contacts;
 
-import com.google.gdata.util.common.base.Joiner;
-import dk.openesdh.repo.model.ContactType;
-import dk.openesdh.repo.model.OpenESDHModel;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.json.simple.JSONObject;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
+
+import com.google.gdata.util.common.base.Joiner;
+
+import dk.openesdh.repo.model.ContactType;
+import dk.openesdh.repo.model.OpenESDHModel;
 
 public class ContactUtils {
 
@@ -31,10 +34,14 @@ public class ContactUtils {
                         -> t.getValue() != null && !isKeyOfSystemModelNamepace(t.getKey()))
                 .forEach((entry)
                         -> result.put(entry.getKey().getLocalName(), entry.getValue()));
-        result.put("address", Joiner.on(", ").skipNulls().join(
-                props.get(OpenESDHModel.PROP_CONTACT_ADDRESS_LINE1),
-                props.get(OpenESDHModel.PROP_CONTACT_ADDRESS_LINE2)));
+        result.put("address", getAddress(props));
         return result;
+    }
+
+    public static String getAddress(Map<QName, Serializable> props) {
+        return Joiner.on(", ").skipNulls().join(
+                props.get(OpenESDHModel.PROP_CONTACT_ADDRESS_LINE1),
+                props.get(OpenESDHModel.PROP_CONTACT_ADDRESS_LINE2));
     }
 
     private static boolean isKeyOfSystemModelNamepace(QName key) {
