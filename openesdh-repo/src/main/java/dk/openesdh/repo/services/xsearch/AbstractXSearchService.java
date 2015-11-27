@@ -122,17 +122,20 @@ public abstract class AbstractXSearchService implements XSearchService {
     }
     
     private void addAssocToArray(AssociationRef association, JSONArray refs) throws JSONException {
-        QName type = nodeService.getType(association.getTargetRef());
+        NodeRef targetRef = association.getTargetRef();
+        QName type = nodeService.getType(targetRef);
         if (type.isMatch(ContentModel.TYPE_PERSON)) {
-            PersonService.PersonInfo info = personService.getPerson(association.getTargetRef());
+            PersonService.PersonInfo info = personService.getPerson(targetRef);
             JSONObject json = new JSONObject();
+            json.put("nodeRef", targetRef.toString());
             json.put("value", info.getUserName());
             json.put("fullname", info.getFirstName() + " " + info.getLastName());
             refs.put(json);
         } else if (type.isMatch(ContentModel.TYPE_AUTHORITY_CONTAINER)) {
-            String groupName = (String) nodeService.getProperty(association.getTargetRef(),
+            String groupName = (String) nodeService.getProperty(targetRef,
                     ContentModel.PROP_AUTHORITY_NAME);
             JSONObject json = new JSONObject();
+            json.put("nodeRef", targetRef.toString());
             json.put("value", groupName);
             json.put("fullname", authorityService.getAuthorityDisplayName(groupName));
             refs.put(json);
