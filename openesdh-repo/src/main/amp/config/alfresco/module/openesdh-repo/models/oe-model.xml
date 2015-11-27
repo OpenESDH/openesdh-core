@@ -32,6 +32,21 @@
     </types>
 
     <aspects>
+        <aspect name="oe:ownable">
+            <properties>
+	            <property name="oe:owners">
+	                <type>d:text</type>
+	                <mandatory>true</mandatory>
+	                <multiple>true</multiple>
+	                <index enabled="true">
+	                    <atomic>true</atomic>
+	                    <stored>false</stored>
+	                    <tokenised>both</tokenised>
+	                    <facetable>true</facetable>
+	                </index>
+	            </property>
+            </properties>
+        </aspect>
         <aspect name="oe:partied">
             <associations>
                 <association name="oe:parties">

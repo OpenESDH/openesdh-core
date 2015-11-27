@@ -1,7 +1,9 @@
 package dk.openesdh.repo.services.members;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -64,13 +66,21 @@ public class CaseMembersServiceImpl implements CaseMembersService, RunInTransact
 
     @Override
     public void removeAuthorityFromRole(final String authorityName, final String role, final NodeRef caseNodeRef) {
+        removeAuthoritiesFromRole(Arrays.asList(authorityName), role, caseNodeRef);
+    }
+    
+    @Override
+    public void removeAuthoritiesFromRole(final List<String> authorityNames, final String role, final NodeRef caseNodeRef) {
         caseService.checkCanUpdateCaseRoles(caseNodeRef);
         runInTransactionAsAdmin(() -> {
             String caseId = caseService.getCaseId(caseNodeRef);
             String groupName = caseService.getCaseRoleGroupName(caseId, role);
-            if (authorityService.authorityExists(groupName) && authorityService.authorityExists(authorityName)) {
-                authorityService.removeAuthority(groupName, authorityName);
+            if (!authorityService.authorityExists(groupName)){
+                return null;
             }
+            authorityNames.stream()
+                .filter(authorityService::authorityExists)
+                .forEach(authority -> authorityService.removeAuthority(groupName, authority));
             return null;
         });
     }
@@ -82,13 +92,7 @@ public class CaseMembersServiceImpl implements CaseMembersService, RunInTransact
 
     @Override
     public void addAuthorityToRole(final String authorityName, final String role, final NodeRef caseNodeRef) {
-        caseService.checkCanUpdateCaseRoles(caseNodeRef);
-        runAsAdmin(() -> {
-            String caseId = caseService.getCaseId(caseNodeRef);
-            String groupName = caseService.getCaseRoleGroupName(caseId, role);
-            authorityService.addAuthority(groupName, authorityName);
-            return null;
-        });
+        addAuthoritiesListToRole(Arrays.asList(authorityName), role, caseNodeRef);
     }
 
     @Override
@@ -98,6 +102,15 @@ public class CaseMembersServiceImpl implements CaseMembersService, RunInTransact
 
     @Override
     public void addAuthoritiesToRole(final List<NodeRef> authorities, final String role, final NodeRef caseNodeRef) {
+        List<String> authoritiesNames = authorities.stream()
+.map(this::getAuthorityName).filter(Objects::nonNull)
+                .collect(Collectors.toList());
+        addAuthoritiesListToRole(authoritiesNames, role, caseNodeRef);
+    }
+
+    @Override
+    public void addAuthoritiesListToRole(final List<String> authorities, final String role,
+            final NodeRef caseNodeRef) {
         caseService.checkCanUpdateCaseRoles(caseNodeRef);
 
         runInTransactionAsAdmin(() -> {
@@ -106,13 +119,7 @@ public class CaseMembersServiceImpl implements CaseMembersService, RunInTransact
             if (!authorityService.authorityExists(groupName)) {
                 return null;
             }
-
-            for (NodeRef authorityNodeRef : authorities) {
-                String authority = getAuthorityName(authorityNodeRef);
-                if (authority != null) {
-                    authorityService.addAuthority(groupName, authority);
-                }
-            }
+            authorities.stream().forEach(authority -> authorityService.addAuthority(groupName, authority));
             return null;
         });
     }
@@ -179,5 +186,10 @@ public class CaseMembersServiceImpl implements CaseMembersService, RunInTransact
     @Override
     public TransactionService getTransactionService() {
         return transactionService;
+    }
+
+    @Override
+    public boolean isAuthorityPerson(String authorityName) {
+        return isAuthorityPerson(authorityService.getAuthorityNodeRef(authorityName));
     }
 }

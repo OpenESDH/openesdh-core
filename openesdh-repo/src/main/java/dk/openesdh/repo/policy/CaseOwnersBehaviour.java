@@ -1,12 +1,17 @@
 package dk.openesdh.repo.policy;
 
+import java.io.Serializable;
+import java.util.Set;
+
 import javax.annotation.PostConstruct;
 
 import org.alfresco.repo.node.NodeServicePolicies;
 import org.alfresco.repo.policy.Behaviour;
+import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.policy.JavaBehaviour;
 import org.alfresco.repo.policy.PolicyComponent;
 import org.alfresco.service.cmr.repository.AssociationRef;
+import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
@@ -19,6 +24,7 @@ import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.RunInTransactionAsAdmin;
+import dk.openesdh.repo.services.cases.CaseOwnersService;
 import dk.openesdh.repo.services.members.CaseMembersService;
 
 /**
@@ -34,11 +40,17 @@ public class CaseOwnersBehaviour implements NodeServicePolicies.OnCreateAssociat
     @Qualifier("CaseMembersService")
     private CaseMembersService caseMembersService;
     @Autowired
+    @Qualifier("CaseOwnersService")
+    private CaseOwnersService caseOwnersService;
+    @Autowired
     @Qualifier("policyComponent")
     private PolicyComponent policyComponent;
     @Autowired
     @Qualifier("NodeService")
     private NodeService nodeService;
+    @Autowired
+    @Qualifier("policyBehaviourFilter")
+    private BehaviourFilter behaviourFilter;
 
     @Autowired
     @Qualifier("TransactionService")
@@ -60,25 +72,20 @@ public class CaseOwnersBehaviour implements NodeServicePolicies.OnCreateAssociat
         // Bind behaviours to node policies
         this.policyComponent.bindAssociationBehaviour(
                 QName.createQName(NamespaceService.ALFRESCO_URI, "onCreateAssociation"),
-                OpenESDHModel.TYPE_CASE_BASE,
-                OpenESDHModel.ASSOC_CASE_OWNERS,
-                this.onCreateAssociation
-        );
+                OpenESDHModel.TYPE_CASE_BASE, OpenESDHModel.ASSOC_CASE_OWNERS, this.onCreateAssociation);
         this.policyComponent.bindAssociationBehaviour(
-                QName.createQName(NamespaceService.ALFRESCO_URI,
-                        "onDeleteAssociation"),
-                OpenESDHModel.TYPE_CASE_BASE,
-                OpenESDHModel.ASSOC_CASE_OWNERS,
-                this.onDeleteAssociation
-        );
+                QName.createQName(NamespaceService.ALFRESCO_URI, "onDeleteAssociation"),
+                OpenESDHModel.TYPE_CASE_BASE, OpenESDHModel.ASSOC_CASE_OWNERS, this.onDeleteAssociation);
     }
 
     @Override
     public void onCreateAssociation(final AssociationRef nodeAssocRef) {
         if (nodeAssocRef.getSourceRef() != null) {
             runAsAdmin(() -> {
-                caseMembersService.addAuthorityToRole(nodeAssocRef.getTargetRef(), "CaseOwners",
+                caseMembersService.addAuthorityToRole(nodeAssocRef.getTargetRef(),
+                        OpenESDHModel.PERMISSION_NAME_CASE_OWNERS,
                         nodeAssocRef.getSourceRef());
+                syncOwnersProperty(nodeAssocRef.getSourceRef());
                 return null;
             });
         }
@@ -88,12 +95,20 @@ public class CaseOwnersBehaviour implements NodeServicePolicies.OnCreateAssociat
     public void onDeleteAssociation(AssociationRef nodeAssocRef) {
         if (nodeService.exists(nodeAssocRef.getTargetRef()) && nodeService.exists(nodeAssocRef.getSourceRef())) {
             caseMembersService.removeAuthorityFromRole(nodeAssocRef.getTargetRef(),
-                    "CaseOwners", nodeAssocRef.getSourceRef());
+                    OpenESDHModel.PERMISSION_NAME_CASE_OWNERS, nodeAssocRef.getSourceRef());
+            syncOwnersProperty(nodeAssocRef.getSourceRef());
         }
     }
 
     @Override
     public TransactionService getTransactionService() {
         return transactionService;
+    }
+
+    private void syncOwnersProperty(NodeRef caseNodeRef) {
+        Set<String> owners = caseOwnersService.getCaseOwnersAuthorityNames(caseNodeRef);
+        behaviourFilter.disableBehaviour(caseNodeRef);
+        nodeService.setProperty(caseNodeRef, OpenESDHModel.PROP_OE_OWNERS, (Serializable) owners);
+        behaviourFilter.enableBehaviour(caseNodeRef);
     }
 }

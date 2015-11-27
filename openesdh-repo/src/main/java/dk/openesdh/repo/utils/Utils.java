@@ -1,9 +1,9 @@
 package dk.openesdh.repo.utils;
 
 import java.nio.charset.Charset;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.i18n.MessageLookup;
@@ -39,13 +39,22 @@ public class Utils {
         if (queryStringStart != -1) {
             queryString = url.substring(queryStringStart+1);
         }
-        List<NameValuePair> params = URLEncodedUtils.parse(queryString,
-                Charset.forName("UTF-8"));
-        Map<String, String> parameters = new HashMap<>();
-        for (NameValuePair param : params) {
-            parameters.put(param.getName(), param.getValue());
-        }
+        Map<String, String> parameters = URLEncodedUtils
+                .parse(queryString, Charset.forName("UTF-8"))
+                .stream()
+                .collect(
+                        Collectors.groupingBy(
+                                NameValuePair::getName,
+                                Collectors.collectingAndThen(Collectors.toList(), Utils::paramValuesToString)));
         return parameters;
+    }
+    
+    private static String paramValuesToString(List<NameValuePair> paramValues) {
+        if (paramValues.size() == 1) {
+            return paramValues.get(0).getValue();
+        }
+        List<String> values = paramValues.stream().map(NameValuePair::getValue).collect(Collectors.toList());
+        return "[" + StringUtils.join(values, ",") + "]";
     }
 
     /**

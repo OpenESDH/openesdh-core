@@ -36,7 +36,6 @@ import org.alfresco.service.cmr.dictionary.ClassDefinition;
 import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.dictionary.PropertyDefinition;
-import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -51,7 +50,6 @@ import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.OwnableService;
 import org.alfresco.service.cmr.security.PermissionService;
-import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
@@ -63,8 +61,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.security.access.AccessDeniedException;
-
-import com.google.gdata.util.common.base.Joiner;
 
 import dk.openesdh.repo.model.CaseInfo;
 import dk.openesdh.repo.model.CaseInfoImpl;
@@ -98,7 +94,6 @@ public class CaseServiceImpl implements CaseService {
     private DocumentService documentService;
     private OELockService oeLockService;
     private OpenESDHFoldersService openESDHFoldersService;
-    private PersonService personService;
     private NamespaceService namespaceService;
     private BehaviourFilter behaviourFilter;
 
@@ -147,9 +142,6 @@ public class CaseServiceImpl implements CaseService {
         this.openESDHFoldersService = openESDHFoldersService;
     }
 
-    public void setPersonService(PersonService personService) {
-        this.personService = personService;
-    }
     //</editor-fold>
 
     public void setNodeInfoService(NodeInfoService nodeInfoService) {
@@ -181,7 +173,7 @@ public class CaseServiceImpl implements CaseService {
     @Override
     public Set<String> getAllRoles(NodeRef caseNodeRef) {
         Set<String> roles = getRoles(caseNodeRef);
-        roles.add("CaseOwners");
+        roles.add(OpenESDHModel.PERMISSION_NAME_CASE_OWNERS);
         return roles;
     }
 
@@ -767,7 +759,7 @@ public class CaseServiceImpl implements CaseService {
         String caseId = getCaseId(caseNodeRef);
         // Check that the user is a case owner
         Set<String> authorities = authorityService.getContainedAuthorities(
-                AuthorityType.USER, getCaseRoleGroupName(caseId, "CaseOwners"),
+                AuthorityType.USER, getCaseRoleGroupName(caseId, OpenESDHModel.PERMISSION_NAME_CASE_OWNERS),
                 false);
         return authorities.contains(user);
     }
@@ -947,8 +939,8 @@ public class CaseServiceImpl implements CaseService {
         // GROUP_EVERYONE set to Consumer, which we do not want)
         permissionService.setInheritParentPermissions(caseNodeRef, false);
 
-        String ownersPermissionGroupName = setupPermissionGroup(caseNodeRef,
-                caseId, "CaseOwners");
+        setupPermissionGroup(caseNodeRef,
+                caseId, OpenESDHModel.PERMISSION_NAME_CASE_OWNERS);
 
         setupCaseTypePermissionGroups(caseNodeRef, caseId);
 
@@ -991,29 +983,6 @@ public class CaseServiceImpl implements CaseService {
         return authorities;
     }
 
-    private JSONArray getCaseOwners(NodeRef nodeRef) throws JSONException {
-        JSONArray owners = new JSONArray();
-        List<AssociationRef> caseOwnersAssocList = nodeService.getTargetAssocs(nodeRef, OpenESDHModel.ASSOC_CASE_OWNERS);
-        for (AssociationRef caseOwnerAssoc : caseOwnersAssocList) {
-            JSONObject owner = new JSONObject();
-            owner.put("nodeRef", caseOwnerAssoc.getTargetRef().toString());
-            QName type = nodeService.getType(caseOwnerAssoc.getTargetRef());
-            if (type.isMatch(ContentModel.TYPE_AUTHORITY_CONTAINER)) {
-                owner.put("type", AuthorityType.GROUP);
-                String groupName = (String) nodeService.getProperty(caseOwnerAssoc.getTargetRef(), ContentModel.PROP_NAME);
-                owner.put("name", groupName);
-                owner.put("displayName", authorityService.getAuthorityDisplayName(groupName));
-            } else if (type.isMatch(ContentModel.TYPE_PERSON)) {
-                owner.put("type", AuthorityType.USER);
-                PersonService.PersonInfo person = personService.getPerson(caseOwnerAssoc.getTargetRef());
-                owner.put("name", person.getUserName());
-                owner.put("displayName", Joiner.on(" ").skipNulls().join(person.getFirstName(), person.getLastName()).trim());
-            }
-            owners.put(owner);
-        }
-        return owners;
-    }
-
     @Override
     public JSONObject getCaseInfoJson(NodeRef caseNodeRef) throws JSONException {
         NodeInfoService.NodeInfo nodeInfo = nodeInfoService.getNodeInfo(caseNodeRef);
@@ -1024,12 +993,11 @@ public class CaseServiceImpl implements CaseService {
         JSONObject properties = (JSONObject) json.get("properties");
         addEmptyPropsIfNull(properties);
         properties.put("nodeRef", caseNodeRef.toString());
-        properties.put("owners", getCaseOwners(caseNodeRef));
         return json;
     }
 
     private static final List<QName> NOT_NULL_PROPS = Arrays.asList(OpenESDHModel.PROP_OE_ID,
-            ContentModel.PROP_TITLE, OpenESDHModel.PROP_OE_STATUS, ContentModel.PROP_CREATOR,
+            ContentModel.PROP_TITLE, OpenESDHModel.PROP_OE_STATUS, OpenESDHModel.PROP_OE_OWNERS, ContentModel.PROP_CREATOR,
             ContentModel.PROP_CREATED, ContentModel.PROP_MODIFIED, ContentModel.PROP_MODIFIER,
             ContentModel.PROP_DESCRIPTION, OpenESDHModel.PROP_OE_JOURNALKEY, OpenESDHModel.PROP_OE_JOURNALFACET,
             OpenESDHModel.PROP_OE_LOCKED_BY, OpenESDHModel.PROP_OE_LOCKED_DATE, OpenESDHModel.PROP_CASE_STARTDATE);
@@ -1041,23 +1009,5 @@ public class CaseServiceImpl implements CaseService {
                 json.put(property, "");
             }
         }
-    }
-
-    @Override
-    public Set<String> getCaseOwnersUserIds(NodeRef caseNodeRef) {
-        return nodeService.getTargetAssocs(caseNodeRef, OpenESDHModel.ASSOC_CASE_OWNERS).stream()
-                .flatMap(assoc -> getUserIds(assoc.getTargetRef()).stream()).collect(Collectors.toSet());
-    }
-
-    @SuppressWarnings("unchecked")
-    private Set<String> getUserIds(NodeRef authorityNodeRef) {
-        QName type = nodeService.getType(authorityNodeRef);
-        if (type.isMatch(ContentModel.TYPE_AUTHORITY_CONTAINER)) {
-            String groupName = (String) nodeService.getProperty(authorityNodeRef, ContentModel.PROP_NAME);
-            return authorityService.getContainedAuthorities(AuthorityType.USER, groupName, false);
-        } else if (type.isMatch(ContentModel.TYPE_PERSON)) {
-            return new HashSet<String>(Arrays.asList(personService.getPerson(authorityNodeRef).getUserName()));
-        }
-        return Collections.EMPTY_SET;
     }
 }

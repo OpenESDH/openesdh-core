@@ -33,6 +33,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.services.RunInTransactionAsAdmin;
+import dk.openesdh.repo.services.cases.CaseOwnersService;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.DocumentService;
 import dk.openesdh.repo.services.members.CaseMembersService;
@@ -55,6 +56,9 @@ public class CaseActivityServiceImpl implements CaseActivityService, RunInTransa
     @Autowired
     @Qualifier("CaseService")
     private CaseService caseService;
+    @Autowired
+    @Qualifier("CaseOwnersService")
+    private CaseOwnersService caseOwnersService;
     @Autowired
     @Qualifier("CaseMembersService")
     private CaseMembersService caseMembersService;
@@ -251,7 +255,7 @@ public class CaseActivityServiceImpl implements CaseActivityService, RunInTransa
     
     private Set<String> getUsersToNotify(String caseId, NodeRef caseNodeRef) {
         String currentUser = AuthenticationUtil.getFullyAuthenticatedUser();
-        Set<String> result = caseService.getCaseOwnersUserIds(caseNodeRef);
+        Set<String> result = caseOwnersService.getCaseOwnersUserIds(caseNodeRef);
         result.addAll(getMembersWithFavouriteCase(caseId, caseNodeRef));
         return result.stream()
                 .filter(userId -> !userId.equals(currentUser))
@@ -262,6 +266,7 @@ public class CaseActivityServiceImpl implements CaseActivityService, RunInTransa
         return runAsAdmin(() -> {
             return caseMembersService.getMembers(caseNodeRef, false, false)
                     .stream()
+                    .filter(member -> caseMembersService.isAuthorityPerson(member))
                     .filter(member -> memberHasFavouriteCase(member, caseId))
                     .collect(Collectors.toSet());
         });

@@ -1,40 +1,49 @@
 package dk.openesdh.repo.services.xsearch;
 
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.documents.DocumentService;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+
+import org.alfresco.model.ContentModel;
 import org.alfresco.query.PagingRequest;
 import org.alfresco.query.PagingResults;
 import org.alfresco.service.cmr.model.FileFolderService;
 import org.alfresco.service.cmr.model.FileInfo;
-import org.alfresco.service.cmr.repository.ChildAssociationRef;
+import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.repository.Path;
-import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
-import org.alfresco.service.namespace.QNamePattern;
-import org.alfresco.util.ISO9075;
 import org.alfresco.util.Pair;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
-import java.util.*;
+import dk.openesdh.repo.model.DocumentCategory;
+import dk.openesdh.repo.model.DocumentType;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.documents.DocumentService;
 
 /**
  * Lists all the documents in a given case
  */
-public class CaseDocumentsSearchServiceImpl extends AbstractXSearchService implements CaseDocumentsSearchService{
+@Service("CaseDocumentsSearchService")
+public class CaseDocumentsSearchServiceImpl extends AbstractXSearchService {
 
+    @Autowired
+    @Qualifier("CaseService")
     protected CaseService caseService;
 
+    @Autowired
+    @Qualifier("DocumentService")
     protected DocumentService documentService;
 
+    @Autowired
+    @Qualifier("FileFolderService")
     protected FileFolderService fileFolderService;
 
-    protected NodeService nodeService;
-
-    protected NamespaceService namespaceService;
     public XResultSet getNodes(Map<String, String> params, int startIndex, int pageSize, String sortField, boolean ascending) {
-        NodeRef caseNodeRef = new NodeRef(params.get("nodeRef"));
+        NodeRef caseNodeRef = new NodeRef(params.get(XSearchService.NODE_REF));
         NodeRef documentsNodeRef = caseService.getDocumentsFolder(caseNodeRef);
         List<Pair<QName, Boolean>> sortProps = new ArrayList<>(2);
 
@@ -80,28 +89,43 @@ public class CaseDocumentsSearchServiceImpl extends AbstractXSearchService imple
 //                + "/*");
 //        return executeQuery(query, startIndex, pageSize, sortField, ascending);
     }
-    public XResultSet getAttachments(Map<String, String> params) {
-        NodeRef documentsNodeRef = new NodeRef(params.get("nodeRef"));
-        return new XResultSet(documentService.getAttachments(documentsNodeRef));
-    }
 
-    public void setCaseService(CaseService caseService) {
-        this.caseService = caseService;
-    }
+    /**
+     * Adds the main document nodeRef to the results.
+     *
+     * @param nodeRef
+     * @return
+     * @throws JSONException
+     */
+    @Override
+    protected JSONObject nodeToJSON(NodeRef nodeRef) throws JSONException {
+        JSONObject json = super.nodeToJSON(nodeRef);
+        NodeRef mainDocNodeRef = documentService.getMainDocument(nodeRef);
 
-    public void setNodeService(NodeService nodeService) {
-        this.nodeService = nodeService;
-    }
+        if (mainDocNodeRef == null) {
+            return json;
+        }
 
-    public void setNamespaceService(NamespaceService namespaceService) {
-        this.namespaceService = namespaceService;
-    }
+        json.put("mainDocNodeRef", mainDocNodeRef.toString());
+        // get document type
+        DocumentType documentType = documentService.getDocumentType(nodeRef);
+        if (documentType != null) {
+            json.put("doc:type", documentType.getDisplayName());
+        }
+        // get document category
+        DocumentCategory documentCategory = documentService.getDocumentCategory(nodeRef);
+        if (documentCategory != null) {
+            json.put("doc:category", documentCategory.getDisplayName());
+        }
 
-    public void setDocumentService(DocumentService documentService) {
-        this.documentService = documentService;
-    }
+        // Get the main document version string
+        String mainDocVersion = (String) nodeService.getProperty(mainDocNodeRef, ContentModel.PROP_VERSION_LABEL);
+        json.put("mainDocVersion", mainDocVersion);
 
-    public void setFileFolderService(FileFolderService fileFolderService) {
-        this.fileFolderService = fileFolderService;
+        // also return the filename extension
+        String fileName = (String) nodeService.getProperty(mainDocNodeRef, ContentModel.PROP_NAME);
+        ContentData docData = (ContentData) nodeService.getProperty(mainDocNodeRef, ContentModel.PROP_CONTENT);
+        json.put("fileMimeType", docData.getMimetype());
+        return json;
     }
 }

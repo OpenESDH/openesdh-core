@@ -123,6 +123,7 @@ public interface OpenESDHModel {
     QName PROP_OE_JOURNALKEY_INDEXED = QName.createQName(OE_URI, "journalKeyIndexed");
     QName PROP_OE_JOURNALFACET_INDEXED = QName.createQName(OE_URI, "journalFacetIndexed");
     QName PROP_OE_CASE_ID = QName.createQName(OE_URI, "caseId");
+    QName PROP_OE_OWNERS = QName.createQName(OE_URI, "owners");
     QName PROP_CASE_STARTDATE = QName.createQName(CASE_URI, "startDate");
 
     QName PROP_CASE_ENDDATE = QName.createQName(CASE_URI, "endDate");

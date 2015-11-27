@@ -1,27 +1,29 @@
 package dk.openesdh.repo.services.classification;
 
-import dk.openesdh.repo.classification.sync.ClassificationSynchronizer;
-import dk.openesdh.repo.classification.sync.kle.KLEClassificationSynchronizer;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.xsearch.AbstractXSearchService;
-import dk.openesdh.repo.services.xsearch.XResultSet;
-import dk.openesdh.repo.services.xsearch.XSearchService;
+import java.io.Serializable;
+import java.util.Arrays;
+import java.util.Map;
+import java.util.stream.Collectors;
+
 import org.alfresco.error.AlfrescoRuntimeException;
+import org.alfresco.model.ContentModel;
+import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.search.SearchParameters;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.ISO9075;
-import org.apache.commons.lang.StringUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import dk.openesdh.repo.classification.sync.kle.KLEClassificationSynchronizer;
+import dk.openesdh.repo.services.xsearch.AbstractXSearchService;
+import dk.openesdh.repo.services.xsearch.XResultSet;
 
 /**
  * Created by syastrov on 9/16/15.
  */
+@Service("ClassificationSearchService")
 public class ClassificationSearchServiceImpl extends AbstractXSearchService {
     @Override
     public XResultSet getNodes(Map<String, String> params, int startIndex, int pageSize, String sortField, boolean ascending) {
@@ -74,6 +76,17 @@ public class ClassificationSearchServiceImpl extends AbstractXSearchService {
 
         return executeQuery(query, startIndex, pageSize, sortField,
                 ascending);
+    }
+
+    @Override
+    protected JSONObject nodeToJSON(NodeRef nodeRef) throws JSONException {
+        JSONObject json = new JSONObject();
+        Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
+        json.put("name", properties.get(ContentModel.PROP_NAME));
+        json.put("title", properties.getOrDefault(ContentModel.PROP_TITLE, ""));
+        json.put("description", properties.getOrDefault(ContentModel.PROP_DESCRIPTION, ""));
+        json.put("nodeRef", nodeRef.toString());
+        return json;
     }
 
     @Override
