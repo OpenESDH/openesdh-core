@@ -1,5 +1,14 @@
 package dk.openesdh.repo.services.cases;
 
+import dk.openesdh.repo.model.CaseInfo;
+import dk.openesdh.repo.model.CaseInfoImpl;
+import dk.openesdh.repo.model.CaseStatus;
+import dk.openesdh.repo.model.DocumentStatus;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.NodeInfoService;
+import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.services.lock.OELockService;
+import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -19,7 +28,6 @@ import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
-
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
@@ -61,16 +69,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.security.access.AccessDeniedException;
-
-import dk.openesdh.repo.model.CaseInfo;
-import dk.openesdh.repo.model.CaseInfoImpl;
-import dk.openesdh.repo.model.CaseStatus;
-import dk.openesdh.repo.model.DocumentStatus;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.NodeInfoService;
-import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.services.lock.OELockService;
-import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 
 /**
  * Created by torben on 19/08/14.
@@ -997,8 +995,8 @@ public class CaseServiceImpl implements CaseService {
     }
 
     private static final List<QName> NOT_NULL_PROPS = Arrays.asList(OpenESDHModel.PROP_OE_ID,
-            ContentModel.PROP_TITLE, OpenESDHModel.PROP_OE_STATUS, OpenESDHModel.PROP_OE_OWNERS, ContentModel.PROP_CREATOR,
-            ContentModel.PROP_CREATED, ContentModel.PROP_MODIFIED, ContentModel.PROP_MODIFIER,
+            ContentModel.PROP_TITLE, OpenESDHModel.PROP_OE_STATUS, ContentModel.PROP_CREATOR,
+            ContentModel.PROP_CREATED, OpenESDHModel.PROP_CASE_ENDDATE, ContentModel.PROP_MODIFIED, ContentModel.PROP_MODIFIER,
             ContentModel.PROP_DESCRIPTION, OpenESDHModel.PROP_OE_JOURNALKEY, OpenESDHModel.PROP_OE_JOURNALFACET,
             OpenESDHModel.PROP_OE_LOCKED_BY, OpenESDHModel.PROP_OE_LOCKED_DATE, OpenESDHModel.PROP_CASE_STARTDATE);
 
