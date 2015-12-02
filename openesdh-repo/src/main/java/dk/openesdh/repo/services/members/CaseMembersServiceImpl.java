@@ -1,5 +1,7 @@
 package dk.openesdh.repo.services.members;
 
+import dk.openesdh.repo.services.RunInTransactionAsAdmin;
+import dk.openesdh.repo.services.cases.CaseService;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -8,7 +10,6 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -20,11 +21,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import dk.openesdh.repo.services.RunInTransactionAsAdmin;
-import dk.openesdh.repo.services.cases.CaseService;
-
 @Service("CaseMembersService")
 public class CaseMembersServiceImpl implements CaseMembersService, RunInTransactionAsAdmin {
+
     @Autowired
     @Qualifier("NodeService")
     private NodeService nodeService;
@@ -50,7 +49,7 @@ public class CaseMembersServiceImpl implements CaseMembersService, RunInTransact
                     .collect(Collectors.toMap(role -> role, (String role) -> {
                         String groupName = caseService.getCaseRoleGroupName(caseId, role);
                         return authorityService.getContainedAuthorities(null, groupName, noExpandGroups);
-            }));
+                    }));
         });
     }
 
@@ -68,19 +67,19 @@ public class CaseMembersServiceImpl implements CaseMembersService, RunInTransact
     public void removeAuthorityFromRole(final String authorityName, final String role, final NodeRef caseNodeRef) {
         removeAuthoritiesFromRole(Arrays.asList(authorityName), role, caseNodeRef);
     }
-    
+
     @Override
     public void removeAuthoritiesFromRole(final List<String> authorityNames, final String role, final NodeRef caseNodeRef) {
         caseService.checkCanUpdateCaseRoles(caseNodeRef);
         runInTransactionAsAdmin(() -> {
             String caseId = caseService.getCaseId(caseNodeRef);
             String groupName = caseService.getCaseRoleGroupName(caseId, role);
-            if (!authorityService.authorityExists(groupName)){
+            if (!authorityService.authorityExists(groupName)) {
                 return null;
             }
             authorityNames.stream()
-                .filter(authorityService::authorityExists)
-                .forEach(authority -> authorityService.removeAuthority(groupName, authority));
+                    .filter(authorityService::authorityExists)
+                    .forEach(authority -> authorityService.removeAuthority(groupName, authority));
             return null;
         });
     }
@@ -103,7 +102,7 @@ public class CaseMembersServiceImpl implements CaseMembersService, RunInTransact
     @Override
     public void addAuthoritiesToRole(final List<NodeRef> authorities, final String role, final NodeRef caseNodeRef) {
         List<String> authoritiesNames = authorities.stream()
-.map(this::getAuthorityName).filter(Objects::nonNull)
+                .map(this::getAuthorityName).filter(Objects::nonNull)
                 .collect(Collectors.toList());
         addAuthoritiesListToRole(authoritiesNames, role, caseNodeRef);
     }
@@ -119,9 +118,15 @@ public class CaseMembersServiceImpl implements CaseMembersService, RunInTransact
             if (!authorityService.authorityExists(groupName)) {
                 return null;
             }
-            authorities.stream().forEach(authority -> authorityService.addAuthority(groupName, authority));
+            authorities.stream()
+                    .filter(authority -> !hasAuthority(groupName, authority))
+                    .forEach(authority -> authorityService.addAuthority(groupName, authority));
             return null;
         });
+    }
+
+    private boolean hasAuthority(String groupName, String authorityName) {
+        return authorityService.getContainedAuthorities(null, groupName, false).contains(authorityName);
     }
 
     @Override
@@ -143,10 +148,10 @@ public class CaseMembersServiceImpl implements CaseMembersService, RunInTransact
                 getAuthorityName(authorityNodeRef), false);
 
         return containingAuthorities.stream()
-                    .map(authority -> pattern.matcher(authority))
-                    .filter(Matcher::matches)
-                    .map(matcher -> Long.parseLong(matcher.group(1)))
-                    .collect(Collectors.toList());
+                .map(authority -> pattern.matcher(authority))
+                .filter(Matcher::matches)
+                .map(matcher -> Long.parseLong(matcher.group(1)))
+                .collect(Collectors.toList());
     }
 
     // Copied (almost directly) from AuthorityDAOImpl because it is not exposed
