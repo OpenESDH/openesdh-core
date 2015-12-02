@@ -1,10 +1,7 @@
 package dk.openesdh.repo.services.cases;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
-
+import dk.openesdh.repo.model.CaseInfo;
+import dk.openesdh.repo.services.HasStatus;
 import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -14,8 +11,11 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.security.access.AccessDeniedException;
 
-import dk.openesdh.repo.model.CaseInfo;
-import dk.openesdh.repo.services.HasStatus;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
 
 /**
  * Created by torben on 19/08/14.
@@ -79,6 +79,13 @@ public interface CaseService extends HasStatus {
      * @return the nodeRef for a case corresponding with the ID supplied or null
      */
     NodeRef getCaseById(String caseId);
+
+    /**
+     * Get the list of case types that exist on the system.
+     * Returns a collection of the case types registered on the system
+     * @return
+     */
+    Collection<QName> getRegisteredCaseTypes();
 
     /**
      * returns case info data structure given a nodeRef
