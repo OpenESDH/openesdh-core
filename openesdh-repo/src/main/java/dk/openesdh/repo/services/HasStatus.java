@@ -1,8 +1,7 @@
 package dk.openesdh.repo.services;
 
-import org.alfresco.service.cmr.repository.NodeRef;
-
 import java.util.List;
+import org.alfresco.service.cmr.repository.NodeRef;
 
 /**
  * Created by syastrov on 9/9/15.
