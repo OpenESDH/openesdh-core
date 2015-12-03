@@ -50,7 +50,8 @@ public class DocTemplate  {
         final FormData formData = (FormData) req.parseContent();
 //        final ResourceBundle resourceBundle =  getResources(); //TODO Need to use this to provide localized messages.
         if (formData == null || !formData.getIsMultiPart()) {
-            throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Something wrong with the form data. \nPlease contact administrator is problem persists");
+            throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Something wrong with the form data." +
+                    "\nPlease contact administrator is problem persists");
         }
         boolean processed = false;
         int n = 1;
@@ -58,7 +59,8 @@ public class DocTemplate  {
         NodeRef templatefileNodeRef = null;
         HashMap<String, Serializable> formDataMap = new HashMap<>();
         for (FormData.FormField field : formfields) {
-            //Put every field into a hashMap. So that we can get what we want arbitrarily target any field we want without having to loop through teh array
+            //Put every field into a hashMap. So that we can get what we want arbitrarily target any field we want
+            //without having to loop through the array
             formDataMap.put(field.getName(), field.getValue());
             if (field.getIsFile()) {
                 templatefileNodeRef = processUpload(field);
@@ -68,7 +70,8 @@ public class DocTemplate  {
             n++;
         }
         if (!processed) {
-            throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, "Unable to process uploaded template file. Please consult you administrator");
+            throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, "Unable to process uploaded template " +
+                    "file. Please consult you administrator");
         }
         if (!formDataMap.isEmpty() && templatefileNodeRef != null) {
             String title = formDataMap.get("title").toString();
@@ -77,7 +80,8 @@ public class DocTemplate  {
                 serviceRegistry.getNodeService().setProperty(templatefileNodeRef, ContentModel.PROP_TITLE, title);
             else throw new WebScriptException(Status.STATUS_BAD_REQUEST, "The name of the template is required ");
             if (StringUtils.isNotBlank(description))
-                serviceRegistry.getNodeService().setProperty(templatefileNodeRef, ContentModel.PROP_DESCRIPTION, formDataMap.get("description"));
+                serviceRegistry.getNodeService().setProperty(templatefileNodeRef, ContentModel.PROP_DESCRIPTION,
+                                                             formDataMap.get("description"));
         }
         JSONObject response = new JSONObject();
         response.put("message", "The the template was successfully uploaded.");

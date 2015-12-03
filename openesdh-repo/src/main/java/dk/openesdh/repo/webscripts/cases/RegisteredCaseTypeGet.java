@@ -10,7 +10,6 @@ import dk.openesdh.repo.utils.Utils;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.namespace.QName;
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -28,18 +27,16 @@ import java.util.List;
  * Annotated webscript to replace: dk.openesdh.repo.modelCaseTypes
  * @author lanre.
  */
-
 @Component
 @WebScript(families = {"Case tools"}, description = "Return a list of all the case types on the system")
 public class RegisteredCaseTypeGet {
-    private static Logger logger = Logger.getLogger(RegisteredCaseTypeGet.class);
-    private static final long serialVersionUID = 1L;
 
+    //<editor-fold desc="DescInjected services
     @Autowired
     private CaseService caseService;
-
     @Autowired
     private DictionaryService dictionaryService;
+    //</editor-fold>
 
     @Uri(value = "/api/openesdh/casetypes", method = HttpMethod.GET, defaultFormat = "json")
     public Resolution get (@RequestParam(required = false) WebScriptRequest req, WebScriptResponse res) throws IOException {
