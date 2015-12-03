@@ -1,5 +1,18 @@
 package dk.openesdh.repo.services.officetemplate;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Properties;
+import java.util.stream.Collectors;
+
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.content.MimetypeMap;
@@ -9,7 +22,14 @@ import org.alfresco.repo.model.Repository;
 import org.alfresco.service.cmr.model.FileFolderService;
 import org.alfresco.service.cmr.model.FileInfo;
 import org.alfresco.service.cmr.model.FileNotFoundException;
-import org.alfresco.service.cmr.repository.*;
+import org.alfresco.service.cmr.repository.ContentIOException;
+import org.alfresco.service.cmr.repository.ContentReader;
+import org.alfresco.service.cmr.repository.ContentService;
+import org.alfresco.service.cmr.repository.ContentWriter;
+import org.alfresco.service.cmr.repository.MimetypeService;
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.repository.TransformationOptions;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.log4j.Logger;
@@ -17,12 +37,7 @@ import org.odftoolkit.odfdom.doc.OdfDocument;
 import org.odftoolkit.odfdom.dom.element.text.TextUserFieldDeclElement;
 import org.odftoolkit.simple.TextDocument;
 import org.odftoolkit.simple.common.field.VariableField;
-import org.springframework.util.StringUtils;
 import org.w3c.dom.NodeList;
-
-import java.io.*;
-import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * Created by syastrov on 9/23/15.
@@ -147,6 +162,13 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
     @Override
     public ContentReader renderTemplate(NodeRef templateNodeRef, Map<String, Serializable> values) throws Exception {
         ContentReader templateReader = contentService.getReader(templateNodeRef, ContentModel.PROP_CONTENT);
+
+        //The option is needed for transformation to work on windows platform.
+        //Seems like OpenOffice on windows requires file extension to be present.
+        //The OOoContentTransformer uses sourceNodeRef to retrieve file name with extension.
+        TransformationOptions options = new TransformationOptions();
+        options.setSourceNodeRef(templateNodeRef);
+
         InputStream inputStream = templateReader.getContentInputStream();
 
         Map<String, Serializable> model = new HashMap<>();
@@ -159,7 +181,7 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
 
             ContentReader reader = new FileContentReader(file);
             reader.setMimetype(mimetypeService.guessMimetype(null, templateReader));
-            ContentReader transformedReader = transformContent(reader, DEFAULT_TARGET_MIME_TYPE);
+            ContentReader transformedReader = transformContent(reader, DEFAULT_TARGET_MIME_TYPE, options);
             reader.setMimetype(DEFAULT_TARGET_MIME_TYPE);
             if (transformedReader != null) {
                 return transformedReader;
@@ -191,13 +213,14 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
         doc.save(outputStream);
     }
 
-    private ContentReader transformContent(ContentReader sourceReader, String targetMimetype) {
+    private ContentReader transformContent(ContentReader sourceReader, String targetMimetype,
+            TransformationOptions options) {
         // Create a temporary writer
         ContentWriter writer = contentService.getTempWriter();
         writer.setMimetype(DEFAULT_TARGET_MIME_TYPE);
 
-        ContentTransformer transformer = contentService.getTransformer(
-                sourceReader.getMimetype(), targetMimetype);
+        ContentTransformer transformer = contentService.getTransformer(sourceReader.getContentUrl(),
+                sourceReader.getMimetype(), sourceReader.getSize(), targetMimetype, options);
 
         if (transformer == null) {
             LOGGER.error("Transformer to " + targetMimetype + " unavailable for " +
@@ -207,7 +230,7 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
 
         // Transform the document to PDF
         try {
-            transformer.transform(sourceReader, writer);
+            contentService.transform(sourceReader, writer, options);
         } catch (ContentIOException e) {
             LOGGER.error("Exception during transformation to " + targetMimetype, e);
             return null;
