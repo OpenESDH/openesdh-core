@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model name="alfrescoModelNotes" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+    <description>openESDH Document Model</description>
+    <author>Lanre Abiwon</author>
+    <version>1.0</version>
+
+    <imports>
+        <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d" />
+        <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm" />
+    </imports>
+    <namespaces>
+        <namespace uri="http://openesdh.dk/model/general/notes" prefix="oegn" />
+    </namespaces>
+
+    <!--This file is there such that we can put in resources that pertain to modelling without having to waste time on
+    endless searching online-->
+
+    <!--1 - Notes on alfresco data modelling: https://wiki.alfresco.com/wiki/Data_Dictionary_Guide#Step_1:_Create_a_new_Model-->
+
+</model>
