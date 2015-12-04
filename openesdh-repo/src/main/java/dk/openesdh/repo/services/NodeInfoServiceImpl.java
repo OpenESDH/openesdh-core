@@ -6,7 +6,6 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
 import org.alfresco.service.cmr.dictionary.Constraint;
@@ -92,6 +91,9 @@ public class NodeInfoServiceImpl implements NodeInfoService {
             valueObj.put("value", ((Date) value).getTime());
         } else if (propertyQName.getPrefixString().equals("modifier") || propertyQName.getPrefixString().equals("creator")) {
             valueObj = getPersonValue((String) value);
+        } else if (propertyDefinition == null) {
+            valueObj.put("value", value.toString());
+            valueObj.put("type", "String");
         } else if (propertyDefinition.getDataType().getName().equals(DataTypeDefinition.CATEGORY)) {
             valueObj = getCategoryValue((NodeRef) value);
         } else {
@@ -100,7 +102,9 @@ public class NodeInfoServiceImpl implements NodeInfoService {
             valueObj.put("type", "String");
         }
 
-        valueObj.put("label", propertyDefinition.getTitle(dictionaryService));
+        if (propertyDefinition != null) {
+            valueObj.put("label", propertyDefinition.getTitle(dictionaryService));
+        }
 
         return valueObj;
     }
@@ -141,7 +145,6 @@ public class NodeInfoServiceImpl implements NodeInfoService {
 
         return valueObj;
     }
-
 
     private PropertyDefinition getPropertyDefinition(NodeInfo nodeInfo, QName propertyQName) {
         PropertyDefinition propertyDefinition = dictionaryService
