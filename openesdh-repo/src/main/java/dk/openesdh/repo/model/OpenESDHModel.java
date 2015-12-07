@@ -191,6 +191,7 @@ public interface OpenESDHModel {
 
     //For document templates
     QName PROP_TEMPLATE_TYPE = QName.createQName(DOC_URI, "templateType");
+    QName PROP_ASSIGNED_CASE_TYPES = QName.createQName(DOC_URI, "assignedCaseTypes");
 
 
 

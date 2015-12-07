@@ -6,7 +6,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.Arrays;
+import java.util.Map;
+
 import org.alfresco.repo.content.MimetypeMap;
+import org.alfresco.service.cmr.repository.NodeRef;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -22,6 +25,11 @@ import org.springframework.http.converter.json.MappingJackson2HttpMessageConvert
 
 public class WebScriptUtils {
 
+
+    //Get nodeRef from request uri
+    private static final String NODE_ID = "node_id";
+    private static final String STORE_ID = "store_id";
+    private static final String STORE_TYPE = "store_type";
     public static final String CASE_ID = "caseId";
 
     public static final String NODE_REF = "nodeRef";
@@ -50,6 +58,24 @@ public class WebScriptUtils {
         if (!isContentTypeJson(req)) {
             throw new WebScriptException(Status.STATUS_UNSUPPORTED_MEDIA_TYPE, "Wrong Content-Type");
         }
+    }
+
+    /**
+     * Returns a noderef from the request uri the template args must be of the form {store_type}/{store_id}/{id} with
+     * the variables names as such
+     * @param req
+     * @return
+     */
+    public static NodeRef getNodeRefFromRequest(WebScriptRequest req) {
+        Map<String, String> templateArgs = req.getServiceMatch().getTemplateVars();
+        NodeRef nodeRef = null;
+        String storeType = templateArgs.get(STORE_TYPE);
+        String storeId = templateArgs.get(STORE_ID);
+        String nodeId = templateArgs.get(NODE_ID);
+        if (storeType != null && storeId != null && nodeId != null) {
+            nodeRef = new NodeRef(storeType, storeId, nodeId);
+        }
+        return nodeRef;
     }
 
     public static JSONObject readJson(WebScriptRequest req) {
