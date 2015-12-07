@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class DocumentPDFServiceImpl implements DocumentPDFService {
 
-    private static final QName FINAL_PDF_RENDITION_DEFINITION_NAME = QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "finalPdfRenditionDefinition");
+    private static final QName PDF_RENDITION = QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "pdfRenditionDefinition");
     private RenditionDefinition pdfRenditionDefinition;
 
     @Autowired
@@ -64,12 +64,9 @@ public class DocumentPDFServiceImpl implements DocumentPDFService {
     private void initRenditionDefinition() {
         if (pdfRenditionDefinition == null) {
             AuthenticationUtil.runAsSystem(() -> {
-                // For now, we only support transform to PDF.
-                // Create the final rendition definition if it doesn't already exist.
-                // For now, we only support PDF
-                pdfRenditionDefinition = renditionService.loadRenditionDefinition(FINAL_PDF_RENDITION_DEFINITION_NAME);
+                pdfRenditionDefinition = renditionService.loadRenditionDefinition(PDF_RENDITION);
                 if (pdfRenditionDefinition == null) {
-                    pdfRenditionDefinition = renditionService.createRenditionDefinition(FINAL_PDF_RENDITION_DEFINITION_NAME, ReformatRenderingEngine.NAME);
+                    pdfRenditionDefinition = renditionService.createRenditionDefinition(PDF_RENDITION, ReformatRenderingEngine.NAME);
                     pdfRenditionDefinition.setParameterValue(ReformatRenderingEngine.PARAM_MIME_TYPE, MimetypeMap.MIMETYPE_PDF);
                     renditionService.saveRenditionDefinition(pdfRenditionDefinition);
                 }
