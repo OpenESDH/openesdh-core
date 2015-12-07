@@ -1,0 +1,18 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+ 
+<beans>
+    <bean id="transformer.complex.img2pdf" class="org.alfresco.repo.content.transform.ComplexContentTransformer" parent="baseContentTransformer">
+        <property name="transformers">
+            <list>
+                <ref bean="transformer.ImageMagick" />
+                <ref bean="transformer.ImageMagick" />
+            </list>
+        </property>
+        <property name="intermediateMimetypes">
+            <list>
+                <value>image/tiff</value>
+            </list>
+        </property>
+    </bean>
+</beans>

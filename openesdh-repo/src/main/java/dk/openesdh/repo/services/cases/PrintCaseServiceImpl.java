@@ -1,29 +1,8 @@
 package dk.openesdh.repo.services.cases;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-
-import org.alfresco.model.ContentModel;
-import org.alfresco.repo.content.MimetypeMap;
-import org.alfresco.service.cmr.rendition.RenditionService;
-import org.alfresco.service.cmr.repository.ContentReader;
-import org.alfresco.service.cmr.repository.ContentService;
-import org.alfresco.service.cmr.repository.ContentWriter;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.namespace.QName;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.json.simple.JSONArray;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import dk.openesdh.repo.model.CasePrintInfo;
 import dk.openesdh.repo.services.audit.AuditSearchService;
+import dk.openesdh.repo.services.documents.DocumentPDFService;
 import dk.openesdh.repo.services.notes.NoteService;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 import fr.opensagres.xdocreport.converter.ConverterTypeTo;
@@ -38,6 +17,19 @@ import fr.opensagres.xdocreport.template.formatter.FieldsMetadata;
 import freemarker.ext.beans.BeansWrapper;
 import freemarker.template.TemplateHashModel;
 import freemarker.template.TemplateModelException;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import org.alfresco.service.cmr.repository.ContentService;
+import org.alfresco.service.cmr.repository.ContentWriter;
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.simple.JSONArray;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
 
 @Service
 public class PrintCaseServiceImpl implements PrintCaseService {
@@ -58,13 +50,10 @@ public class PrintCaseServiceImpl implements PrintCaseService {
     private NoteService noteService;
 
     @Autowired
-    private NodeService nodeService;
-
-    @Autowired
     private ContentService contentService;
 
     @Autowired
-    private RenditionService renditionService;
+    private DocumentPDFService documentPDFService;
 
     public Optional<InputStream> getCaseInfoPdfToPrint(String caseId, CasePrintInfo printInfo) throws IOException,
             XDocReportException, JSONException, TemplateModelException {
@@ -123,7 +112,7 @@ public class PrintCaseServiceImpl implements PrintCaseService {
     public List<InputStream> getDocumentsToPrint(CasePrintInfo printInfo) {
         return printInfo.getDocuments()
                 .stream()
-                .map(docNodeRef -> getDocumentPdfThumbnailStream(docNodeRef))
+                .map(documentPDFService::getDocumentPdfThumbnailStream)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
@@ -131,28 +120,5 @@ public class PrintCaseServiceImpl implements PrintCaseService {
 
     private InputStream getCasePrintOdtTemplate() {
         return getClass().getClassLoader().getResourceAsStream(CASE_PRINT_TEMPLATE_PATH);
-    }
-
-    private Optional<InputStream> getDocumentPdfThumbnailStream(NodeRef documentNodeRef) {
-
-        Optional<ContentReader> pdfContentOpt = renditionService.getRenditions(documentNodeRef).stream()
-                .map(assoc -> getContentReader(assoc.getChildRef()))
-                .filter(contentReader -> contentReader.getMimetype().startsWith(MimetypeMap.MIMETYPE_PDF))
-                .findFirst();
-
-        if (!pdfContentOpt.isPresent()) {
-            return Optional.empty();
-        }
-        return Optional.of(pdfContentOpt.get().getContentInputStream());
-    }
-
-    private ContentReader getContentReader(NodeRef nodeRef) {
-        return contentService.getReader(nodeRef, getContentProperty(nodeRef));
-    }
-
-    private QName getContentProperty(NodeRef nodeRef) {
-        Serializable contentPropertyName = nodeService
-                .getProperty(nodeRef, ContentModel.PROP_CONTENT_PROPERTY_NAME);
-        return contentPropertyName != null ? (QName) contentPropertyName : ContentModel.PROP_CONTENT;
     }
 }
