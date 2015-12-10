@@ -1,12 +1,19 @@
 package dk.openesdh.repo.webscripts.cases;
 
+import dk.openesdh.repo.model.DocumentCategory;
+import dk.openesdh.repo.model.DocumentType;
+import dk.openesdh.repo.services.NodeInfoService;
+import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.services.lock.OELockService;
+import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
-
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.PersonService.PersonInfo;
+import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -14,14 +21,6 @@ import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
-
-import dk.openesdh.repo.model.DocumentCategory;
-import dk.openesdh.repo.model.DocumentType;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.NodeInfoService;
-import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.services.lock.OELockService;
-import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 /**
  * @author Lanre Abiwon
@@ -66,26 +65,27 @@ public class DocumentRecordInfo extends AbstractWebScript {
             result.put("categoryId", documentCategory.getNodeRef().toString());
             result.put("categoryName", documentCategory.getName());
             result.put("categoryDisplayName", documentCategory.getDisplayName());
-
-            result.put("status", documentNodeInfo.properties.get(OpenESDHModel.PROP_OE_STATUS));
-            result.put("title", documentNodeInfo.properties.get(ContentModel.PROP_TITLE));
-
-            Date created = (Date) documentNodeInfo.properties.get(ContentModel.PROP_CREATED);
-            // Returning date in Long format to make it parsable
-            result.put("created", created.getTime());
-
             result.put("owner", docOwner.getFirstName() + " " + docOwner.getLastName());
             result.put("mainDocNodeRef", mainDocNodeRef.toString());
             result.put("description", StringUtils.defaultIfEmpty((String) mainDocNodeInfo.properties.get(ContentModel.PROP_DESCRIPTION), ""));
             result.put("statusChoices", documentService.getValidNextStatuses(documentNodeRef));
             result.put("isLocked", oeLockService.isLocked(documentNodeRef));
 
-//            result.put("caseId", documentNodeInfo.properties.get(OpenESDHModel.PROP_OE_CASE_ID));
+            addAllProperties(result, documentNodeInfo.properties);
 
             res.setContentEncoding(WebScriptUtils.CONTENT_ENCODING_UTF_8);
             result.write(res.getWriter());
         } catch (JSONException jse) {
             throw new WebScriptException("Error when retrieving document details: " + jse.getMessage());
         }
+    }
+
+    private void addAllProperties(JSONObject result, Map<QName, Serializable> properties) {
+        properties.forEach((name, value) -> {
+            try {
+                result.put(name.getLocalName(), value instanceof Date ? ((Date) value).getTime() : value);
+            } catch (JSONException skipExceptions) {
+            }
+        });
     }
 }
