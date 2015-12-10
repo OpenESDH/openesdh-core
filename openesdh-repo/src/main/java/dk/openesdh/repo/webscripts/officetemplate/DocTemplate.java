@@ -5,6 +5,7 @@ import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
 import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
+import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.officetemplate.OfficeTemplateService;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 import fr.opensagres.xdocreport.document.json.JSONObject;
@@ -23,6 +24,8 @@ import org.springframework.stereotype.Component;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import static dk.openesdh.repo.webscripts.ParamUtils.getNodeRef;
@@ -54,19 +57,23 @@ public class DocTemplate  {
                     "\nPlease contact administrator is problem persists");
         }
         boolean processed = false;
-        int n = 1;
+        int n = 0;
         FormData.FormField[] formfields = formData.getFields();
         NodeRef templatefileNodeRef = null;
         HashMap<String, Serializable> formDataMap = new HashMap<>();
         for (FormData.FormField field : formfields) {
             //Put every field into a hashMap. So that we can get what we want arbitrarily target any field we want
-            //without having to loop through the array
+            //without having to loop through the array. but first test for the caseTypes property
+            if(field.getName().equalsIgnoreCase("caseTypes")){
+                ArrayList<String> cTypeNames = new ArrayList<>(Arrays.asList(field.getValue().split(",")));
+                formDataMap.put("assignedCaseTypes", cTypeNames);
+            }
             formDataMap.put(field.getName(), field.getValue());
             if (field.getIsFile()) {
                 templatefileNodeRef = processUpload(field);
                 processed = true;
             } else
-                System.out.println("\n" + n + "Field name: " + field.getName() + " => " + field.getValue());
+                System.out.println("\n" + n + " Field name: " + field.getName() + " => " + field.getValue());
             n++;
         }
         if (!processed) {
@@ -82,6 +89,9 @@ public class DocTemplate  {
             if (StringUtils.isNotBlank(description))
                 serviceRegistry.getNodeService().setProperty(templatefileNodeRef, ContentModel.PROP_DESCRIPTION,
                                                              formDataMap.get("description"));
+            if (StringUtils.isNotBlank(formDataMap.get("assignedCaseTypes").toString()))
+                serviceRegistry.getNodeService().setProperty(templatefileNodeRef, OpenESDHModel.PROP_ASSIGNED_CASE_TYPES,
+                                                             formDataMap.get("assignedCaseTypes"));
         }
         JSONObject response = new JSONObject();
         response.put("message", "The the template was successfully uploaded.");
