@@ -1,13 +1,10 @@
 package dk.openesdh.repo.webscripts.officetemplate;
 
-import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
-import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
-import dk.openesdh.repo.services.officetemplate.OfficeTemplateService;
-import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
-import fr.opensagres.xdocreport.document.json.JSONObject;
+import static dk.openesdh.repo.webscripts.ParamUtils.getNodeRef;
+
+import java.io.IOException;
+import java.io.InputStream;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.model.FileInfo;
@@ -16,16 +13,24 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.extensions.webscripts.*;
+import org.springframework.extensions.webscripts.Status;
+import org.springframework.extensions.webscripts.WebScriptException;
+import org.springframework.extensions.webscripts.WebScriptRequest;
+import org.springframework.extensions.webscripts.WebScriptResponse;
 import org.springframework.extensions.webscripts.servlet.FormData;
+import org.springframework.extensions.webscripts.servlet.FormData.FormField;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Serializable;
-import java.util.HashMap;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.FileField;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
+import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 
-import static dk.openesdh.repo.webscripts.ParamUtils.getNodeRef;
+import dk.openesdh.repo.services.officetemplate.OfficeTemplateService;
+import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
+import fr.opensagres.xdocreport.document.json.JSONObject;
 
 /**
  * @author lanre.
@@ -42,46 +47,20 @@ public class DocTemplate  {
     @Autowired
     private OfficeTemplateService officeTemplateService;
 
-    @Uri(value = "/api/openesdh/officeDocTemplate", method = HttpMethod.POST, defaultFormat = "json")
-    public Resolution post (@RequestParam(required = false) WebScriptRequest req, WebScriptResponse res) throws IOException {
+    @Uri(value = "/api/openesdh/officeDocTemplate", method = HttpMethod.POST, defaultFormat = "json", multipartProcessing = true)
+    public Resolution post(@RequestParam(value = "title", required = true) String title,
+            @RequestParam(value = "description", required = false) String description,
+            @FileField("filedata") FormField fileField) throws IOException {
 
-        System.out.println("For debugging purposes");
-        /** Multi-part form data, if provided */
-        final FormData formData = (FormData) req.parseContent();
-//        final ResourceBundle resourceBundle =  getResources(); //TODO Need to use this to provide localized messages.
-        if (formData == null || !formData.getIsMultiPart()) {
-            throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Something wrong with the form data." +
-                    "\nPlease contact administrator is problem persists");
-        }
-        boolean processed = false;
-        int n = 1;
-        FormData.FormField[] formfields = formData.getFields();
-        NodeRef templatefileNodeRef = null;
-        HashMap<String, Serializable> formDataMap = new HashMap<>();
-        for (FormData.FormField field : formfields) {
-            //Put every field into a hashMap. So that we can get what we want arbitrarily target any field we want
-            //without having to loop through the array
-            formDataMap.put(field.getName(), field.getValue());
-            if (field.getIsFile()) {
-                templatefileNodeRef = processUpload(field);
-                processed = true;
-            } else
-                System.out.println("\n" + n + "Field name: " + field.getName() + " => " + field.getValue());
-            n++;
-        }
-        if (!processed) {
-            throw new WebScriptException(Status.STATUS_INTERNAL_SERVER_ERROR, "Unable to process uploaded template " +
-                    "file. Please consult you administrator");
-        }
-        if (!formDataMap.isEmpty() && templatefileNodeRef != null) {
-            String title = formDataMap.get("title").toString();
-            String description = formDataMap.get("description").toString();
-            if (StringUtils.isNotBlank(title))
+        NodeRef templatefileNodeRef = processUpload(fileField);
+        if (templatefileNodeRef != null) {
+            if (StringUtils.isNotBlank(title)) {
                 serviceRegistry.getNodeService().setProperty(templatefileNodeRef, ContentModel.PROP_TITLE, title);
-            else throw new WebScriptException(Status.STATUS_BAD_REQUEST, "The name of the template is required ");
-            if (StringUtils.isNotBlank(description))
+            }
+            if (StringUtils.isNotBlank(description)) {
                 serviceRegistry.getNodeService().setProperty(templatefileNodeRef, ContentModel.PROP_DESCRIPTION,
-                                                             formDataMap.get("description"));
+                        description);
+            }
         }
         JSONObject response = new JSONObject();
         response.put("message", "The the template was successfully uploaded.");
