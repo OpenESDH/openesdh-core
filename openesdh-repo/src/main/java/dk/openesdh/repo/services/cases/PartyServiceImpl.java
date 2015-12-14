@@ -46,7 +46,7 @@ public class PartyServiceImpl implements PartyService {
     public static final Set<String> PARTY_ZONES = new HashSet<>();
 
     static {
-        PARTY_ZONES.add(AuthorityService.ZONE_APP_DEFAULT);
+        PARTY_ZONES.add(AuthorityService.ZONE_AUTH_ALFRESCO);
         PARTY_ZONES.add(AuthorityService.ZONE_APP_SHARE); //Adding to this zone prevents searching within authority Finder
     }
 
