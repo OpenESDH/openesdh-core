@@ -25,7 +25,6 @@ import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.namespace.QName;
-import org.apache.commons.lang.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -38,8 +37,6 @@ import org.springframework.stereotype.Component;
 public class GroupsWebScript {
 
     private static final String CREATED_ON_OPEN_E = "OPENE";
-    private static final String PARAM_SHORT_NAME_KEY = "shortName";
-    private static final String PARAM_DISPLAY_NAME_KEY = "displayName";
     private static final int MAX_ITEMS = 10000;
 
     @Autowired
@@ -60,7 +57,7 @@ public class GroupsWebScript {
     @Uri(value = "/api/groups/list/{type}", method = HttpMethod.GET, defaultFormat = "json")
     public Resolution getAuthorities(
             @UriVariable final String type,
-            @RequestParam(required = false) final String zone,
+            @RequestParam(required = false, defaultValue = AuthorityService.ZONE_APP_DEFAULT) final String zone,
             @RequestParam(required = false) final String filter,
             @RequestParam(required = false, defaultValue = "displayName") final String sortBy,
             @RequestParam(required = false, defaultValue = "true") final Boolean sortAsc,
@@ -86,19 +83,17 @@ public class GroupsWebScript {
                 break;
             }
             case "OE": {
-                String zoneDef = StringUtils.defaultIfEmpty(zone, AuthorityService.ZONE_APP_DEFAULT);
                 stream = getFilteredAndPagedGroups(info -> hasAspectTypeOPENE(info.getAuthorityName()),
-                        zoneDef, filter, sortBy, sortAsc, type, pagingJson, skipCount, maxItems);
+                        zone, filter, sortBy, sortAsc, type, pagingJson, skipCount, maxItems);
                 break;
             }
             default: {
-                String zoneDef = StringUtils.defaultIfEmpty(zone, AuthorityService.ZONE_APP_DEFAULT);
                 stream = getFilteredAndPagedGroups(info -> typeEqualsOpenEType(type, info.getAuthorityName()),
-                        zoneDef, filter, sortBy, sortAsc, type, pagingJson, skipCount, maxItems);
+                        zone, filter, sortBy, sortAsc, type, pagingJson, skipCount, maxItems);
                 break;
             }
         }
-        List<JSONObject> jsonAuthorities = stream.map(info -> toGroupJSON(info)).collect(Collectors.toList());
+        List<JSONObject> jsonAuthorities = stream.map(this::toGroupJSON).collect(Collectors.toList());
         JSONObject json = new JSONObject()
                 .put("data", new JSONArray(jsonAuthorities))
                 .put("paging", pagingJson);
