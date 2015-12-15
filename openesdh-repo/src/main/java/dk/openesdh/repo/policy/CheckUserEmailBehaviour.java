@@ -68,7 +68,7 @@ public class CheckUserEmailBehaviour implements NodeServicePolicies.OnCreateNode
         NodeRef personRef = childAssocRef.getChildRef();
         String email = this.nodeService.getProperty(personRef, ContentModel.PROP_EMAIL).toString();
         if(checkIfEmailExists(email))
-            throw new AlfrescoRuntimeException("Error creating person: Email must be unique and already exists.");
+            throw new AlfrescoRuntimeException("Error creating person: Email must be unique and already exists: " + email);
     }
 
     public void onUpdateNode(NodeRef personRef) {
