@@ -1,36 +1,36 @@
 package dk.openesdh.repo.webscripts.authorities;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
+import org.alfresco.query.PagingRequest;
+import org.alfresco.query.PagingResults;
+import org.alfresco.repo.security.authority.AuthorityInfo;
+import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.security.AuthorityService;
+import org.alfresco.service.cmr.security.AuthorityType;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.extensions.webscripts.WebScriptException;
+import org.springframework.extensions.webscripts.servlet.FormData.FormField;
+import org.springframework.stereotype.Component;
+
+import com.github.dynamicextensionsalfresco.webscripts.annotations.FileField;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
 import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
-import dk.openesdh.repo.model.OpenESDHModel;
+
+import dk.openesdh.repo.services.authorities.GroupsService;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import org.alfresco.query.PagingRequest;
-import org.alfresco.query.PagingResults;
-import org.alfresco.repo.security.authority.AuthorityInfo;
-import org.alfresco.service.cmr.dictionary.InvalidAspectException;
-import org.alfresco.service.cmr.repository.InvalidNodeRefException;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.security.AuthorityService;
-import org.alfresco.service.cmr.security.AuthorityType;
-import org.alfresco.service.namespace.QName;
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.extensions.webscripts.WebScriptException;
-import org.springframework.stereotype.Component;
 
 @Component
 @WebScript(description = "Manage groups", families = {"Authorities"})
@@ -38,11 +38,14 @@ public class GroupsWebScript {
 
     private static final String CREATED_ON_OPEN_E = "OPENE";
     private static final int MAX_ITEMS = 10000;
-
+    
     @Autowired
     private AuthorityService authorityService;
     @Autowired
     private NodeService nodeService;
+    @Autowired
+    @Qualifier("GroupsService")
+    private GroupsService groupsService;
 
     @Uri(value = "/api/groups/{shortName}/create", method = HttpMethod.POST, defaultFormat = "json")
     public Resolution createGroup(
@@ -50,7 +53,7 @@ public class GroupsWebScript {
             @RequestParam(required = true) final String displayName
     ) throws JSONException {
         String fullName = authorityService.createAuthority(AuthorityType.GROUP, shortName, displayName, authorityService.getDefaultZones());
-        addAspectTypeOPENE(fullName);
+        groupsService.addAspectTypeOPENE(fullName);
         return WebScriptUtils.jsonResolution(toGroupJSON(new AuthorityInfo(null, displayName, fullName)));
     }
 
@@ -78,17 +81,17 @@ public class GroupsWebScript {
                 break;
             }
             case "SYS": {
-                stream = getFilteredAndPagedGroups(info -> !hasAspectTypeOPENE(info.getAuthorityName()),
+                stream = getFilteredAndPagedGroups(info -> !groupsService.hasAspectTypeOPENE(info.getAuthorityName()),
                         zone, filter, sortBy, sortAsc, type, pagingJson, skipCount, maxItems);
                 break;
             }
             case "OE": {
-                stream = getFilteredAndPagedGroups(info -> hasAspectTypeOPENE(info.getAuthorityName()),
+                stream = getFilteredAndPagedGroups(info -> groupsService.hasAspectTypeOPENE(info.getAuthorityName()),
                         zone, filter, sortBy, sortAsc, type, pagingJson, skipCount, maxItems);
                 break;
             }
             default: {
-                stream = getFilteredAndPagedGroups(info -> typeEqualsOpenEType(type, info.getAuthorityName()),
+                stream = getFilteredAndPagedGroups(info -> groupsService.typeEqualsOpenEType(type, info.getAuthorityName()),
                         zone, filter, sortBy, sortAsc, type, pagingJson, skipCount, maxItems);
                 break;
             }
@@ -97,6 +100,22 @@ public class GroupsWebScript {
         JSONObject json = new JSONObject()
                 .put("data", new JSONArray(jsonAuthorities))
                 .put("paging", pagingJson);
+        return WebScriptUtils.jsonResolution(json);
+    }
+
+    @Uri(value = "/api/openesdh/groups/upload", multipartProcessing = true, method = HttpMethod.POST)
+    public Resolution uploadGroupsCSVFile(@FileField("filedata") FormField fileField) throws IOException,
+            JSONException {
+        JSONObject json = new JSONObject();
+        try {
+            groupsService.uploadGroupsCSV(fileField.getInputStream());
+            json.put("STATUS", "SUCCESS");
+        } catch (Exception ex) {
+            json.put("STATUS", "FAILED");
+            json.put("message", ex.getMessage());
+            return WebScriptUtils.jsonResolution(json);
+        }
+        json.put("message", "Successfully uploaded");
         return WebScriptUtils.jsonResolution(json);
     }
 
@@ -131,20 +150,5 @@ public class GroupsWebScript {
         } catch (JSONException ex) {
             throw new WebScriptException(ex.getMessage(), ex);
         }
-    }
-
-    private boolean typeEqualsOpenEType(String type, String authorityName) throws InvalidNodeRefException {
-        return type.equals(nodeService.getProperty(authorityService.getAuthorityNodeRef(authorityName), OpenESDHModel.PROP_OE_OPENE_TYPE));
-    }
-
-    private boolean hasAspectTypeOPENE(String authorityName) {
-        return nodeService.hasAspect(authorityService.getAuthorityNodeRef(authorityName), OpenESDHModel.ASPECT_OE_OPENE_TYPE);
-    }
-
-    private void addAspectTypeOPENE(String fullName) throws InvalidNodeRefException, InvalidAspectException {
-        NodeRef nodeRef = authorityService.getAuthorityNodeRef(fullName);
-        Map<QName, Serializable> aspectProps = new HashMap<>();
-        aspectProps.put(OpenESDHModel.PROP_OE_OPENE_TYPE, CREATED_ON_OPEN_E);
-        nodeService.addAspect(nodeRef, OpenESDHModel.ASPECT_OE_OPENE_TYPE, aspectProps);
     }
 }
