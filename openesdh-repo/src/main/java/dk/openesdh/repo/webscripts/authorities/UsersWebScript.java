@@ -1,9 +1,12 @@
 package dk.openesdh.repo.webscripts.authorities;
 
+import java.io.IOException;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.extensions.webscripts.WebScriptResponse;
 import org.springframework.extensions.webscripts.servlet.FormData.FormField;
 import org.springframework.stereotype.Component;
 
@@ -20,6 +23,8 @@ import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 @WebScript(description = "Manage users", families = { "Authorities" })
 public class UsersWebScript {
 
+    private static final String CSV_HEADER = "User Name,First Name,Last Name,E-mail Address,,Password,Company,Job Title,Location,Telephone,Mobile,Skype,IM,Google User Name,Address,Address Line 2,Address Line 3,Post Code,Telephone,Fax,Email,Member of groups\n";
+
     @Autowired
     @Qualifier("UsersService")
     private UsersService userService;
@@ -35,6 +40,12 @@ public class UsersWebScript {
             json.put("message", e.getMessage());
             return WebScriptUtils.jsonResolution(json);
         }
+    }
+
+    @Uri(value = "/api/openesdh/users/upload/sample", method = HttpMethod.GET)
+    public void downloadCsvFileSample(WebScriptResponse res) throws IOException {
+        res.addHeader("Content-Disposition", "attachment; filename=ExampleUserUpload.csv");
+        res.getWriter().append(CSV_HEADER);
     }
 
 }

@@ -18,6 +18,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.extensions.webscripts.WebScriptException;
+import org.springframework.extensions.webscripts.WebScriptResponse;
 import org.springframework.extensions.webscripts.servlet.FormData.FormField;
 import org.springframework.stereotype.Component;
 
@@ -38,6 +39,7 @@ public class GroupsWebScript {
 
     private static final String CREATED_ON_OPEN_E = "OPENE";
     private static final int MAX_ITEMS = 10000;
+    private static final String CSV_HEADER = "Group name,Display name,Member of groups,Simple case,Staff case\n";
     
     @Autowired
     private AuthorityService authorityService;
@@ -117,6 +119,12 @@ public class GroupsWebScript {
         }
         json.put("message", "Successfully uploaded");
         return WebScriptUtils.jsonResolution(json);
+    }
+
+    @Uri(value = "/api/openesdh/groups/upload/sample", method = HttpMethod.GET)
+    public void downloadCsvFileSample(WebScriptResponse res) throws IOException {
+        res.addHeader("Content-Disposition", "attachment; filename=ExampleGroupUpload.csv");
+        res.getWriter().append(CSV_HEADER);
     }
 
     private Stream<AuthorityInfo> getFilteredAndPagedGroups(Predicate<AuthorityInfo> streamFilter,
