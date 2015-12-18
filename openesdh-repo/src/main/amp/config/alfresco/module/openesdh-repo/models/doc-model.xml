@@ -338,7 +338,7 @@
         <aspect name="doc:template">
             <properties>
                 <property name="doc:templateType">
-                    <description>Textual representation of the template type, i.e. ott/dotx/e.t.c</description>
+                    <description>Textual representation of the template MIME type, i.e. ott/dotx/e.t.c</description>
                     <type>d:text</type>
                 </property>
                 <property name="doc:assignedCaseTypes">

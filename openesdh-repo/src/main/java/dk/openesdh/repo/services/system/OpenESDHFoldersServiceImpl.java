@@ -1,6 +1,5 @@
 package dk.openesdh.repo.services.system;
 
-import java.util.Optional;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
@@ -8,6 +7,8 @@ import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.InvalidNodeRefException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+
+import java.util.Optional;
 
 public class OpenESDHFoldersServiceImpl implements OpenESDHFoldersService {
 
@@ -28,10 +29,18 @@ public class OpenESDHFoldersServiceImpl implements OpenESDHFoldersService {
     public NodeRef getCasesTypeStorageRootNodeRef() {
         return getFolder(getCasesRootNodeRef(), CASES_TYPES_ROOT);
     }
+    @Override
+    public NodeRef getSubsystemRootNodeRef() {
+        return getFolder(getOpenESDHRootFolder(), SUBSYSTEM_ROOT);
+    }
 
     @Override
     public NodeRef getClassificationsRootNodeRef() {
         return getFolder(getOpenESDHRootFolder(), CLASSIFICATIONS);
+    }
+    @Override
+    public NodeRef getTemplatesRootNodeRef() {
+        return getFolder(getSubsystemRootNodeRef(), DOCUMENT_TEMPLATES);
     }
 
     @Override
