@@ -1,5 +1,8 @@
 package dk.openesdh.repo.services.audit;
 
+import com.google.common.base.Joiner;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CaseService;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,7 +15,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
-
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.BlogIntegrationModel;
 import org.alfresco.model.ContentModel;
@@ -27,11 +29,6 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.simple.JSONArray;
 import org.springframework.extensions.surf.util.I18NUtil;
-
-import com.google.common.base.Joiner;
-
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.cases.CaseService;
 
 /**
  * Created by flemmingheidepedersen on 18/11/14.
@@ -215,7 +212,11 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
             if (type.equals("cm:content")) {
                 boolean isMainFile = aspectsAdd != null && aspectsAdd.contains(OpenESDHModel.ASPECT_DOC_IS_MAIN_FILE);
                 if (!isMainFile) {
-                    auditEntry.put("action", I18NUtil.getMessage("auditlog.label.attachment.added", localizedProperty(properties, ContentModel.PROP_TITLE)));
+                    Optional<String> title = localizedProperty(properties, ContentModel.PROP_TITLE);
+                    if (!title.isPresent()) {
+                        return Optional.empty();
+                    }
+                    auditEntry.put("action", I18NUtil.getMessage("auditlog.label.attachment.added", title.get()));
                     auditEntry.put("type", getTypeMessage("attachment"));
                 } else {
                     return Optional.empty();
@@ -224,7 +225,11 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
                     // and one for the main file
                 }
             } else if (type.contains("doc:")) {
-                auditEntry.put("action", I18NUtil.getMessage("auditlog.label.document.added", localizedProperty(properties, ContentModel.PROP_TITLE)));
+                Optional<String> title = localizedProperty(properties, ContentModel.PROP_TITLE);
+                if (!title.isPresent()) {
+                    return Optional.empty();
+                }
+                auditEntry.put("action", I18NUtil.getMessage("auditlog.label.document.added", title.get()));
                 auditEntry.put("type", getTypeMessage("document"));
             } else {
                 return Optional.empty();
@@ -240,13 +245,16 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
         return Optional.of(auditEntry);
     }
 
-    private String localizedProperty(Map<QName, Serializable> properties, QName propQName) {
+    private Optional<String> localizedProperty(Map<QName, Serializable> properties, QName propQName) {
         HashMap<Locale, String> property = (HashMap) properties.get(propQName);
+        if (property == null) {
+            return Optional.empty();
+        }
         String value = property.get(I18NUtil.getContentLocale());
         if (value == null) {
             value = property.get(Locale.ENGLISH);
         }
-        return value != null ? value : "";
+        return Optional.ofNullable(value);
     }
 
     @SuppressWarnings("unchecked")
