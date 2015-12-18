@@ -123,7 +123,7 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
         tmplInfo.setTemplateType(properties.get(OpenESDHModel.PROP_TEMPLATE_TYPE).toString());
         tmplInfo.setCreatedDate(DefaultTypeConverter.INSTANCE.convert(Date.class, properties.get(ContentModel.PROP_CREATED)));
         tmplInfo.setLastModifiedDate(DefaultTypeConverter.INSTANCE.convert(Date.class, properties.get(ContentModel.PROP_MODIFIED)));
-        if (StringUtils.isNotBlank(properties.get(ContentModel.PROP_DESCRIPTION).toString()))
+        if (properties.containsKey(ContentModel.PROP_DESCRIPTION) && StringUtils.isNotBlank(properties.get(ContentModel.PROP_DESCRIPTION).toString()))
             tmplInfo.setDescription(properties.get(ContentModel.PROP_DESCRIPTION).toString());
 
         return tmplInfo;
