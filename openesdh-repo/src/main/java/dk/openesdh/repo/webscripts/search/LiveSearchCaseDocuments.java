@@ -1,9 +1,10 @@
 package dk.openesdh.repo.webscripts.search;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import dk.openesdh.repo.model.CaseInfo;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.utils.Utils;
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -18,18 +19,16 @@ import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.DeclarativeWebScript;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptRequest;
-import dk.openesdh.repo.model.CaseInfo;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.utils.Utils;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
- * IMPORTANT
- * Please note that this isn't teh function/method responsible for returning the results on the search page.
- * For that refer to openesdh-repo/src/main/amp/config/alfresco/extension/templates/webscripts/org/alfresco/slingshot/search/search.lib.js#L139
- * or on github https://github.com/OpenESDH/openesdh-core/blob/develop/openesdh-repo/src/main/amp/config/alfresco/extension/templates/webscripts/org/alfresco/slingshot/search/search.lib.js#L139
+ * Keeping this until not needed anymore
  */
+@Deprecated
 public class LiveSearchCaseDocuments extends DeclarativeWebScript {
 
     //<editor-fold desc="injected services and initialised properties">
