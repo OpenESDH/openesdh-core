@@ -1,26 +1,31 @@
 package dk.openesdh.repo.webscripts.cases;
 
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.documents.DocumentService;
-import org.alfresco.model.ContentModel;
-import org.alfresco.service.cmr.repository.*;
-import org.alfresco.service.namespace.NamespaceService;
-import org.alfresco.service.namespace.QName;
-import org.apache.commons.io.FilenameUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.json.JSONException;
-import org.json.JSONObject;
-import org.springframework.extensions.surf.util.Content;
-import org.springframework.extensions.webscripts.*;
-
-import javax.activation.MimeType;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.alfresco.model.ContentModel;
+import org.alfresco.service.cmr.repository.ContentService;
+import org.alfresco.service.cmr.repository.ContentWriter;
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.namespace.NamespaceService;
+import org.alfresco.service.namespace.QName;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.springframework.extensions.webscripts.AbstractWebScript;
+import org.springframework.extensions.webscripts.Status;
+import org.springframework.extensions.webscripts.WebScriptException;
+import org.springframework.extensions.webscripts.WebScriptRequest;
+import org.springframework.extensions.webscripts.WebScriptResponse;
+
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.documents.DocumentService;
 
 /**
  * Created by rasmutor on 2/6/15.
@@ -55,7 +60,7 @@ public class CaseDocument extends AbstractWebScript {
         LOG.debug("documentsFolder: " + documentsFolder.toString());
         NodeRef documentFolder;
 
-        String nameWithoutExtension =  FilenameUtils.removeExtension(documentName);
+        String nameWithoutExtension = FilenameUtils.removeExtension(documentName).trim();
 
         LOG.debug("document: " + nameWithoutExtension);
         try {

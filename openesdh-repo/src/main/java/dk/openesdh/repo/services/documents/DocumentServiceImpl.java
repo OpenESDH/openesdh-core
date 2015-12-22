@@ -859,7 +859,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public String getUniqueName(NodeRef inFolder, String name, boolean isUniqueWithoutExtension) {
-        String baseName = FilenameUtils.removeExtension(name);
+        String baseName = FilenameUtils.removeExtension(name).trim();
         String extension = getExtensionOrEmpty(name);
         int counter = 1;
         NodeRef child;
