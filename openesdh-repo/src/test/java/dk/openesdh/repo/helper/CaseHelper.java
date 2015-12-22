@@ -29,6 +29,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import dk.openesdh.SimpleCaseModel;
 import dk.openesdh.repo.model.CaseStatus;
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CasePermission;
 import dk.openesdh.repo.services.cases.CaseService;
 
 /**
@@ -83,11 +84,12 @@ public class CaseHelper {
     public static final String MIKE_JACKSON = "mjackson";
     public static final String ALICE_BEECHER = "abeecher";
 
-    public static final String CASE_WRITER_ROLE = "CaseSimpleWriter";
-    public static final String CASE_READER_ROLE = "CaseSimpleReader";
-    public static final String CASE_CREATOR_ROLE = "CaseSimpleCreator";
+    public static final String CASE_TYPE = "Simple";
+    public static final String CASE_SIMPLE_WRITER_ROLE = CasePermission.WRITER.getFullName(CASE_TYPE);
+    public static final String CASE_SIMPLE_READER_ROLE = CasePermission.READER.getFullName(CASE_TYPE);
+    public static final String CASE_SIMPLE_CREATOR_ROLE = CasePermission.CREATOR.getFullName(CASE_TYPE);
 
-    public static final String CASE_CREATOR_GROUP = "GROUP_CaseSimpleCreator";
+    public static final String CASE_SIMPLE_CREATOR_GROUP = "GROUP_" + CASE_SIMPLE_CREATOR_ROLE;
 
     //</editor-fold>
 

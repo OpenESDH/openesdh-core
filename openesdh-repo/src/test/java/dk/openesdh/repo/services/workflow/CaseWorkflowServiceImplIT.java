@@ -1,5 +1,8 @@
 package dk.openesdh.repo.services.workflow;
 
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
@@ -33,9 +36,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
@@ -109,7 +109,7 @@ public class CaseWorkflowServiceImplIT {
     public void setUp() throws Exception {
         AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();
         personNodeRef = personService.getPerson(AuthenticationUtil.getFullyAuthenticatedUser());
-        caseCreatorsGroupNodeRef = authorityService.getAuthorityNodeRef(CaseHelper.CASE_CREATOR_GROUP);
+        caseCreatorsGroupNodeRef = authorityService.getAuthorityNodeRef(CaseHelper.CASE_SIMPLE_CREATOR_GROUP);
 
         testFolder = docTestHelper.createFolder(TEST_FOLDER_NAME);
         testDocument = docTestHelper.createDocument(TEST_DOCUMENT_NAME, testFolder);
@@ -325,8 +325,7 @@ public class CaseWorkflowServiceImplIT {
     }
 
     private void assertTrueUsersAmidstCaseReadMembers(String... userNames) {
-        Set<String> caseReadMembers = caseMembersService.getMembersByRole(caseNodeRef, true, false).get(
-                CaseHelper.CASE_READER_ROLE);
+        Set<String> caseReadMembers = caseMembersService.getMembersByRole(caseNodeRef, true, false).get(CaseHelper.CASE_SIMPLE_READER_ROLE);
         Assert.assertNotNull("Case members with READ permissions should exist", caseReadMembers);
         for (String userName : userNames) {
             Assert.assertTrue("[" + userName + "] user should be among case members with READ permissions",
@@ -335,8 +334,7 @@ public class CaseWorkflowServiceImplIT {
     }
 
     private void assertFalseUsersAmidstCaseReadMembers(String... userNames) {
-        Set<String> caseReadMembers = caseMembersService.getMembersByRole(caseNodeRef, true, false).get(
-                CaseHelper.CASE_READER_ROLE);
+        Set<String> caseReadMembers = caseMembersService.getMembersByRole(caseNodeRef, true, false).get(CaseHelper.CASE_SIMPLE_READER_ROLE);
         Assert.assertNotNull("Case members with READ permissions should exist", caseReadMembers);
         for (String userName : userNames) {
             Assert.assertFalse("[" + userName + "] user should NOT be among case members with READ permissions",

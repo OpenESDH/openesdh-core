@@ -24,14 +24,6 @@ public interface OpenESDHModel {
     String NOTE_PREFIX = "note";
     String NOTE_URI = "http://openesdh.dk/model/note/1.0";
 
-
-    /**
-     * Permissions
-     */
-    String PERMISSION_NAME_CASE_OWNERS = "CaseOwners";
-    String PERMISSION_NAME_CASE_SIMPLE_READER = "CaseSimpleReader";
-    String PERMISSION_NAME_CASE_SIMPLE_WRITER = "CaseSimpleWriter";
-
     /**
      * Models
      */
@@ -44,7 +36,6 @@ public interface OpenESDHModel {
     QName TYPE_OE_BASE = QName.createQName(OE_URI, TYPE_BASE_NAME);
 
     QName TYPE_CASE_BASE = QName.createQName(CASE_URI, "case");
-    QName TYPE_CASE_SIMPLE = QName.createQName(CASE_URI, TYPE_SIMPLE_NAME);
     QName TYPE_CASE_COMPLAINT = QName.createQName(CASE_URI, "complaint");
 
     QName TYPE_DOC_BASE = QName.createQName(DOC_URI, TYPE_BASE_NAME);

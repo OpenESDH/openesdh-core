@@ -1,6 +1,7 @@
 package dk.openesdh.repo.services.audit;
 
-import static org.junit.Assert.assertTrue;
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -20,6 +21,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.json.simple.JSONArray;
 import org.junit.After;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,9 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
@@ -125,10 +124,10 @@ public class AuditSearchServiceImplIT implements RunInTransactionAsAdmin {
 
             NodeRef mjacksonNodeRef = authorityService.getAuthorityNodeRef(CaseHelper.MIKE_JACKSON);
             // add member
-            caseMembersService.addAuthorityToRole(mjacksonNodeRef, CaseHelper.CASE_READER_ROLE, caseA);
+            caseMembersService.addAuthorityToRole(mjacksonNodeRef, CaseHelper.CASE_SIMPLE_READER_ROLE, caseA);
             // remove member
             caseMembersService.removeAuthorityFromRole(CaseHelper.MIKE_JACKSON,
-             CaseHelper.CASE_READER_ROLE, caseA);
+                    CaseHelper.CASE_SIMPLE_READER_ROLE, caseA);
 
             return null;
         });

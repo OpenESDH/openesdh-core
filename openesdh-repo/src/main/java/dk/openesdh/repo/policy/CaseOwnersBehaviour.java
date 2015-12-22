@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.RunInTransactionAsAdmin;
 import dk.openesdh.repo.services.cases.CaseOwnersService;
+import dk.openesdh.repo.services.cases.CasePermissionService;
 import dk.openesdh.repo.services.members.CaseMembersService;
 
 /**
@@ -56,6 +57,9 @@ public class CaseOwnersBehaviour implements NodeServicePolicies.OnCreateAssociat
     @Qualifier("TransactionService")
     private TransactionService transactionService;
 
+    @Autowired
+    private CasePermissionService casePermissionService;
+
     // Behaviours
     private Behaviour onCreateAssociation;
     private Behaviour onDeleteAssociation;
@@ -83,7 +87,7 @@ public class CaseOwnersBehaviour implements NodeServicePolicies.OnCreateAssociat
         if (nodeAssocRef.getSourceRef() != null) {
             runAsAdmin(() -> {
                 caseMembersService.addAuthorityToRole(nodeAssocRef.getTargetRef(),
-                        OpenESDHModel.PERMISSION_NAME_CASE_OWNERS,
+                        getOwnerPermissionName(nodeAssocRef.getSourceRef()),
                         nodeAssocRef.getSourceRef());
                 syncOwnersProperty(nodeAssocRef.getSourceRef());
                 return null;
@@ -95,9 +99,14 @@ public class CaseOwnersBehaviour implements NodeServicePolicies.OnCreateAssociat
     public void onDeleteAssociation(AssociationRef nodeAssocRef) {
         if (nodeService.exists(nodeAssocRef.getTargetRef()) && nodeService.exists(nodeAssocRef.getSourceRef())) {
             caseMembersService.removeAuthorityFromRole(nodeAssocRef.getTargetRef(),
-                    OpenESDHModel.PERMISSION_NAME_CASE_OWNERS, nodeAssocRef.getSourceRef());
+                    getOwnerPermissionName(nodeAssocRef.getSourceRef()),
+                    nodeAssocRef.getSourceRef());
             syncOwnersProperty(nodeAssocRef.getSourceRef());
         }
+    }
+
+    private String getOwnerPermissionName(NodeRef nodeRef) {
+        return casePermissionService.getCaseOwnerName(nodeRef);
     }
 
     @Override
