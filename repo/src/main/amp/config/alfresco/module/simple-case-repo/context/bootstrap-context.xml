@@ -21,9 +21,7 @@
         </property>
     </bean>
     
-    <bean id="${project.artifactId}_extendPermissionModel"
-          parent="permissionModelBootstrap"
-          depends-on="openesdh-repo_permissionModelBootstrap">
+    <bean id="${project.artifactId}_permissionModel" parent="permissionModelBootstrap">
         <property name="model" value="alfresco/module/${project.artifactId}/model/permission-model-extension.xml" />
     </bean>
     
