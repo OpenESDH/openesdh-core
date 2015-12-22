@@ -240,7 +240,7 @@ public class CaseServiceImplIT {
 //        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
 
         String groupName = caseService.getCaseRoleGroupName(caseService.getCaseId(nonAdminCreatedCaseNr),
-                CaseHelper.CASE_SIMPLE_CREATOR_ROLE);
+                CaseHelper.CASE_SIMPLE_OWNER_ROLE);
         NodeRef adminNodeRef = personService.getPerson(AuthenticationUtil.getAdminUserName());
 
         // Add admin to owners
@@ -356,7 +356,7 @@ public class CaseServiceImplIT {
         // Test that the owner cannot change permissions on the case
         try {
             caseMembersService.removeAuthorityFromRole(CaseHelper.DEFAULT_USERNAME,
-                    CaseHelper.CASE_SIMPLE_CREATOR_ROLE, nonAdminCreatedCaseNr);
+                    CaseHelper.CASE_SIMPLE_OWNER_ROLE, nonAdminCreatedCaseNr);
             fail("An authority could be removed from a role on a closed case");
         } catch (Exception e) {
         }
@@ -430,6 +430,6 @@ public class CaseServiceImplIT {
         String caseId = caseService.getCaseId(nonAdminCreatedCaseNr);
         List<String> permissions = caseService.getCaseUserPermissions(caseId);
         assertTrue("Case owner should contain permissions for the case",
-                permissions.contains(CaseHelper.CASE_SIMPLE_CREATOR_ROLE));
+                permissions.contains(CaseHelper.CASE_SIMPLE_OWNER_ROLE));
     }
 }
