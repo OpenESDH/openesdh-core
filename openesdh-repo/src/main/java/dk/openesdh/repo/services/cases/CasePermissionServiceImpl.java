@@ -11,50 +11,18 @@ public class CasePermissionServiceImpl implements CasePermissionService {
     private NamespaceService namespaceService;
 
     @Override
-    public String getCaseReaderName(String caseType) {
-        return getPermision(caseType, CasePermission.READER);
+    public String getPermissionName(String caseType, CasePermission casePermission) {
+        return casePermission.getFullName(caseType);
     }
 
     @Override
-    public String getCaseReaderName(QName caseType) {
-        return getCaseReaderName(caseType.toPrefixString(namespaceService));
+    public String getPermissionName(QName caseType, CasePermission casePermission) {
+        return getPermissionName(caseType.toPrefixString(namespaceService), casePermission);
     }
 
     @Override
-    public String getCaseReaderName(NodeRef caseNodeRef) {
-        return getCaseReaderName(nodeService.getType(caseNodeRef));
-    }
-
-    @Override
-    public String getCaseWriterName(String caseType) {
-        return getPermision(caseType, CasePermission.WRITER);
-    }
-
-    @Override
-    public String getCaseWriterName(QName caseType) {
-        return getCaseWriterName(caseType.toPrefixString(namespaceService));
-    }
-
-    @Override
-    public String getCaseWriterName(NodeRef caseNodeRef) {
-        return getCaseWriterName(nodeService.getType(caseNodeRef));
-    }
-
-    public String getCaseOwnerName(String caseType) {
-        return getPermision(caseType, CasePermission.OWNER);
-    }
-
-    public String getCaseOwnerName(QName caseType) {
-        return getCaseOwnerName(caseType.toPrefixString(namespaceService));
-    }
-
-    public String getCaseOwnerName(NodeRef caseNodeRef) {
-        return getCaseOwnerName(nodeService.getType(caseNodeRef));
-    }
-
-
-    private String getPermision(String caseType, CasePermission role) {
-        return role.getFullName(caseType);
+    public String getPermissionName(NodeRef caseNodeRef, CasePermission casePermission) {
+        return getPermissionName(nodeService.getType(caseNodeRef), casePermission);
     }
 
     public void setNodeService(NodeService nodeService) {

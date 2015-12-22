@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.RunInTransactionAsAdmin;
 import dk.openesdh.repo.services.cases.CaseOwnersService;
+import dk.openesdh.repo.services.cases.CasePermission;
 import dk.openesdh.repo.services.cases.CasePermissionService;
 import dk.openesdh.repo.services.members.CaseMembersService;
 
@@ -106,7 +107,7 @@ public class CaseOwnersBehaviour implements NodeServicePolicies.OnCreateAssociat
     }
 
     private String getOwnerPermissionName(NodeRef nodeRef) {
-        return casePermissionService.getCaseOwnerName(nodeRef);
+        return casePermissionService.getPermissionName(nodeRef, CasePermission.OWNER);
     }
 
     @Override

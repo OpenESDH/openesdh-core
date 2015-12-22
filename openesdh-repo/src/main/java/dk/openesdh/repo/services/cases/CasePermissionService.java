@@ -5,21 +5,9 @@ import org.alfresco.service.namespace.QName;
 
 public interface CasePermissionService {
 
-    public String getCaseReaderName(String caseType);
+    public String getPermissionName(String caseType, CasePermission casePermission);
 
-    public String getCaseReaderName(QName caseType);
+    public String getPermissionName(QName caseType, CasePermission casePermission);
 
-    public String getCaseReaderName(NodeRef caseNodeRef);
-
-    public String getCaseWriterName(String caseType);
-
-    public String getCaseWriterName(QName caseType);
-
-    public String getCaseWriterName(NodeRef caseNodeRef);
-
-    public String getCaseOwnerName(String caseType);
-
-    public String getCaseOwnerName(QName caseType);
-
-    public String getCaseOwnerName(NodeRef caseNodeRef);
+    public String getPermissionName(NodeRef caseNodeRef, CasePermission casePermission);
 }

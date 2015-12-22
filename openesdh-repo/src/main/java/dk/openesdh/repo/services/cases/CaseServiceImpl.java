@@ -149,7 +149,7 @@ public class CaseServiceImpl implements CaseService {
     @Override
     public Set<String> getAllRoles(NodeRef caseNodeRef) {
         Set<String> roles = getRoles(caseNodeRef);
-        roles.add(casePermissionService.getCaseOwnerName(caseNodeRef));
+        roles.add(casePermissionService.getPermissionName(caseNodeRef, CasePermission.OWNER));
         return roles;
     }
 
@@ -222,8 +222,8 @@ public class CaseServiceImpl implements CaseService {
         if (isLocked(caseNodeRef)) {
             return false;
         }
-        return authorityService.isAdminAuthority(user) ||
-                isCaseOwner(user, caseNodeRef);
+        return authorityService.isAdminAuthority(user)
+                || isCaseOwner(user, caseNodeRef);
     }
 
     @Override
@@ -333,9 +333,9 @@ public class CaseServiceImpl implements CaseService {
             }
 
             SearchParameters sp = new SearchParameters();
-            sp.addQueryTemplate("_CASES", "|%oe:id |%title " +
-                    "|%description |%oe:journalKeyIndexed " +
-                    "|%oe:journalFacetIndexed");
+            sp.addQueryTemplate("_CASES", "|%oe:id |%title "
+                    + "|%description |%oe:journalKeyIndexed "
+                    + "|%oe:journalFacetIndexed");
             sp.setDefaultFieldName("_CASES");
             sp.addStore(caseRoot.getStoreRef());
             sp.setLanguage(SearchService.LANGUAGE_FTS_ALFRESCO);
@@ -361,7 +361,9 @@ public class CaseServiceImpl implements CaseService {
                 LOGGER.error("LuceneQueryParserException with findCases()", lqpe);
                 result = Collections.emptyList();
             } finally {
-                if (results != null) results.close();
+                if (results != null) {
+                    results.close();
+                }
             }
         }
 
@@ -453,15 +455,14 @@ public class CaseServiceImpl implements CaseService {
 
         // Consumer doesn't have _ReadPermissions permission therefore run as
         // syste
+        Set<AccessPermission> allPermissionsSetToCase
+                = AuthenticationUtil.runAsSystem(() -> permissionService.getAllSetPermissions(getCaseById(caseId)));
 
-        Set<AccessPermission> allPermissionsSetToCase =
-                AuthenticationUtil.runAsSystem(() -> permissionService.getAllSetPermissions(getCaseById(caseId)));
+        Set<String> currentUserAuthorities
+                = AuthenticationUtil.runAsSystem(() -> authorityService.getAuthoritiesForUser(AuthenticationUtil.getFullyAuthenticatedUser()));
 
-        Set<String> currentUserAuthorities =
-                AuthenticationUtil.runAsSystem(() -> authorityService.getAuthoritiesForUser(AuthenticationUtil.getFullyAuthenticatedUser()));
-
-        Predicate<AccessPermission> isPermissionGrantedForCurrentUser =
-                (permission) -> permission.getAccessStatus() == AccessStatus.ALLOWED && currentUserAuthorities.contains(permission.getAuthority());
+        Predicate<AccessPermission> isPermissionGrantedForCurrentUser
+                = (permission) -> permission.getAccessStatus() == AccessStatus.ALLOWED && currentUserAuthorities.contains(permission.getAuthority());
 
         return allPermissionsSetToCase.stream()
                 .filter(permission -> isPermissionGrantedForCurrentUser.test(permission))
@@ -476,13 +477,13 @@ public class CaseServiceImpl implements CaseService {
     public void checkCanChangeStatus(NodeRef nodeRef, String fromStatus, String toStatus) throws AccessDeniedException {
         String user = AuthenticationUtil.getRunAsUser();
         if (!isCaseNode(nodeRef)) {
-            throw new AlfrescoRuntimeException("Node is not a case node: " +
-                    nodeRef);
+            throw new AlfrescoRuntimeException("Node is not a case node: "
+                    + nodeRef);
         }
         if (!canChangeNodeStatus(fromStatus, toStatus, user, nodeRef)) {
-            throw new AccessDeniedException(user + " is not allowed to " +
-                    "switch case from status " + fromStatus + " to " +
-                    toStatus + " for case " + nodeRef);
+            throw new AccessDeniedException(user + " is not allowed to "
+                    + "switch case from status " + fromStatus + " to "
+                    + toStatus + " for case " + nodeRef);
         }
     }
 
@@ -579,9 +580,9 @@ public class CaseServiceImpl implements CaseService {
 
     @Override
     public boolean canChangeNodeStatus(String fromStatus, String toStatus, String user, NodeRef nodeRef) {
-        return isCaseNode(nodeRef) &&
-                CaseStatus.isValidTransition(fromStatus, toStatus) &&
-                canLeaveStatus(fromStatus, user, nodeRef) && canEnterStatus(toStatus, user, nodeRef);
+        return isCaseNode(nodeRef)
+                && CaseStatus.isValidTransition(fromStatus, toStatus)
+                && canLeaveStatus(fromStatus, user, nodeRef) && canEnterStatus(toStatus, user, nodeRef);
     }
 
     @Override
@@ -651,7 +652,6 @@ public class CaseServiceImpl implements CaseService {
                 return null;
             }
 
-
         });
     }
 
@@ -717,7 +717,6 @@ public class CaseServiceImpl implements CaseService {
                 return null;
             }
 
-
         });
     }
     //</editor-fold>
@@ -743,25 +742,22 @@ public class CaseServiceImpl implements CaseService {
         String caseId = getCaseId(caseNodeRef);
         // Check that the user is a case owner
         Set<String> authorities = authorityService.getContainedAuthorities(
-                AuthorityType.USER, getCaseRoleGroupName(caseId, casePermissionService.getCaseOwnerName(caseNodeRef)),
+                AuthorityType.USER,
+                getCaseRoleGroupName(caseId, casePermissionService.getPermissionName(caseNodeRef, CasePermission.OWNER)),
                 false);
         return authorities.contains(user);
     }
 
     /**
-     * Creates individual groups for provided case and sets appropriate
-     * permissions
+     * Creates individual groups for provided case and sets appropriate permissions
      *
      * @param caseNodeRef
      * @param caseId
      */
     void setupPermissionGroups(NodeRef caseNodeRef, String caseId) {
-        Set<String> settablePermissions = permissionService.getSettablePermissions(caseNodeRef);
-
-        for (Iterator<String> iterator = settablePermissions.iterator(); iterator.hasNext(); ) {
-            String permission = iterator.next();
-            setupPermissionGroup(caseNodeRef, caseId, permission);
-        }
+        permissionService.getSettablePermissions(caseNodeRef)
+                .stream()
+                .forEach(permission -> setupPermissionGroup(caseNodeRef, caseId, permission));
     }
 
     String setupPermissionGroup(NodeRef caseNodeRef, String caseId, String permission) {
@@ -830,18 +826,6 @@ public class CaseServiceImpl implements CaseService {
         return caseId.toString();
     }
 
-    private <T> Collection<T> reorderedValues(List<ClassDefinition> sortedClassDefs, Map<QName, T> dependent) {
-        ArrayList result = new ArrayList(sortedClassDefs.size());
-        Iterator i$ = sortedClassDefs.iterator();
-
-        while (i$.hasNext()) {
-            ClassDefinition classDef = (ClassDefinition) i$.next();
-            result.add(dependent.get(classDef.getName()));
-        }
-
-        return result;
-    }
-
     private String getCaseCreatorPermissionForCaseType(QName caseTypeQName) {
 
         Set<PermissionReference> allPermissions = permissionsModelDAO.getAllPermissions(caseTypeQName);
@@ -861,7 +845,7 @@ public class CaseServiceImpl implements CaseService {
     /**
      * Get a node in the calendarbased path of the casefolders
      *
-     * @param parent       The nodeRef to start from
+     * @param parent The nodeRef to start from
      * @param calendarType The type of calendar info to look up, i.e. Calendar.YEAR, Calendar.MONTH, or Calendar.DATE
      * @return
      */
@@ -878,16 +862,10 @@ public class CaseServiceImpl implements CaseService {
     /**
      * Gets a map containing all the case's properties
      *
-     * @return Map<QName, Serializable>    map containing all the properties of the case
+     * @return Map<QName, Serializable> map containing all the properties of the case
      */
     private Map<QName, Serializable> getCaseProperties(NodeRef caseNodeRef) {
-        Map<QName, Serializable> allProperties = new HashMap<QName, Serializable>();
-        Map<QName, Serializable> properties = this.nodeService.getProperties(caseNodeRef);
-
-        for (Map.Entry<QName, Serializable> entry : properties.entrySet()) {
-            allProperties.put(entry.getKey(), entry.getValue());
-        }
-        return allProperties;
+        return nodeService.getProperties(caseNodeRef);
     }
 
     long getCaseUniqueId(NodeRef caseNodeRef) {
@@ -935,8 +913,8 @@ public class CaseServiceImpl implements CaseService {
     public void checkCanUpdateCaseRoles(NodeRef caseNodeRef) throws AccessDeniedException {
         String user = AuthenticationUtil.getRunAsUser();
         if (!canUpdateCaseRoles(user, caseNodeRef)) {
-            throw new AccessDeniedException(user + " is not allowed to " +
-                    "update case roles for case " + caseNodeRef);
+            throw new AccessDeniedException(user + " is not allowed to "
+                    + "update case roles for case " + caseNodeRef);
         }
     }
 
