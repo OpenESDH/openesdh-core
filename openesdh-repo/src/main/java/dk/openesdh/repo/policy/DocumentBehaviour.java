@@ -133,7 +133,7 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
             NodeRef fileRef = childAssociationRef.getChildRef();
 
             String fileName = (String) nodeService.getProperty(fileRef, ContentModel.PROP_NAME);
-            String documentName = FilenameUtils.removeExtension(fileName);
+            String documentName = FilenameUtils.removeExtension(fileName).trim();
 
             // Set a temporary file name
             // This is to avoid duplicates child node exception when the
