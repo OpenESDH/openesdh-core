@@ -88,6 +88,7 @@ public class CaseHelper {
     public static final String CASE_SIMPLE_WRITER_ROLE = CasePermission.WRITER.getFullName(CASE_TYPE);
     public static final String CASE_SIMPLE_READER_ROLE = CasePermission.READER.getFullName(CASE_TYPE);
     public static final String CASE_SIMPLE_CREATOR_ROLE = CasePermission.CREATOR.getFullName(CASE_TYPE);
+    public static final String CASE_SIMPLE_OWNER_ROLE = CasePermission.OWNER.getFullName(CASE_TYPE);
 
     public static final String CASE_SIMPLE_CREATOR_GROUP = "GROUP_" + CASE_SIMPLE_CREATOR_ROLE;
 

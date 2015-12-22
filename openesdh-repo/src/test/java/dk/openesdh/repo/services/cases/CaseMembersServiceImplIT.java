@@ -82,24 +82,24 @@ public class CaseMembersServiceImplIT {
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
 
         transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
-                    dummyUser = caseHelper.createDummyUser();
-                    NodeRef adminUserNodeRef = this.personService.getPerson(OpenESDHModel.ADMIN_USER_NAME);
+            dummyUser = caseHelper.createDummyUser();
+            NodeRef adminUserNodeRef = this.personService.getPerson(OpenESDHModel.ADMIN_USER_NAME);
             authorityService.addAuthority(CaseHelper.CASE_SIMPLE_CREATOR_GROUP, CaseHelper.DEFAULT_USERNAME);
 
-                    namespacePrefixResolver.registerNamespace(NamespaceService.APP_MODEL_PREFIX,
-                            NamespaceService.APP_MODEL_1_0_URI);
-                    namespacePrefixResolver.registerNamespace(OpenESDHModel.CASE_PREFIX, OpenESDHModel.CASE_URI);
+            namespacePrefixResolver.registerNamespace(NamespaceService.APP_MODEL_PREFIX,
+                    NamespaceService.APP_MODEL_1_0_URI);
+            namespacePrefixResolver.registerNamespace(OpenESDHModel.CASE_PREFIX, OpenESDHModel.CASE_URI);
 
-                    String caseName = "adminUser createdC case";
-                    temporaryCaseNodeRef = caseHelper.createSimpleCase(caseName,
-                            AuthenticationUtil.getAdminUserName(), adminUserNodeRef);
+            String caseName = "adminUser createdC case";
+            temporaryCaseNodeRef = caseHelper.createSimpleCase(caseName,
+                    AuthenticationUtil.getAdminUserName(), adminUserNodeRef);
 
-                    // Create a case with a non-admin user
-                    caseName = "nonAdminUserCreatedCase";
-                    nonAdminCreatedCaseNr = caseHelper.createSimpleCase(caseName, CaseHelper.DEFAULT_USERNAME,
-                            dummyUser);
-                    return null;
-                });
+            // Create a case with a non-admin user
+            caseName = "nonAdminUserCreatedCase";
+            nonAdminCreatedCaseNr = caseHelper.createSimpleCase(caseName, CaseHelper.DEFAULT_USERNAME,
+                    dummyUser);
+            return null;
+        });
     }
 
     @After
@@ -201,42 +201,38 @@ public class CaseMembersServiceImplIT {
     @Test
     public void testGetAllMembersByRole() throws Exception {
         transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
-            // caseService.setupPermissionGroups(nonAdminCreatedCaseNr,
-            // caseService.getCaseId(nonAdminCreatedCaseNr));
-            // caseService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(),
-            // CaseHelper.CASE_SIMPLE_READER_ROLE, nonAdminCreatedCaseNr);
-            caseMembersService.addAuthorityToRole(AuthenticationUtil.getAdminUserName(), CaseHelper.CASE_SIMPLE_READER_ROLE,
-                    nonAdminCreatedCaseNr);
-            // System.out.println("\n\nCaseServiceImpl:440\n\t\t\t=>currentUserAuthorities : "
-            // +
-            // authorityService.getAuthoritiesForUser(ALICE_BEECHER).toString());
-
-            caseMembersService.addAuthorityToRole(CaseHelper.ALICE_BEECHER, CaseHelper.CASE_SIMPLE_CREATOR_ROLE, nonAdminCreatedCaseNr);
-            caseMembersService.addAuthorityToRole(CaseHelper.MIKE_JACKSON, CaseHelper.CASE_SIMPLE_WRITER_ROLE, nonAdminCreatedCaseNr);
+            caseMembersService.addAuthorityToRole(
+                    AuthenticationUtil.getAdminUserName(), CaseHelper.CASE_SIMPLE_READER_ROLE, nonAdminCreatedCaseNr);
+            caseMembersService.addAuthorityToRole(
+                    CaseHelper.ALICE_BEECHER, CaseHelper.CASE_SIMPLE_OWNER_ROLE, nonAdminCreatedCaseNr);
+            caseMembersService.addAuthorityToRole(
+                    CaseHelper.MIKE_JACKSON, CaseHelper.CASE_SIMPLE_WRITER_ROLE, nonAdminCreatedCaseNr);
             return null;
         });
-        Map<String, Set<String>> membersByRole = caseMembersService.getMembersByRole(nonAdminCreatedCaseNr, false,
-                true);
+        Map<String, Set<String>> membersByRole = caseMembersService.getMembersByRole(nonAdminCreatedCaseNr, false, true);
         // check everyone's permissions
         assertTrue(membersByRole.get(CaseHelper.CASE_SIMPLE_READER_ROLE).contains(AuthenticationUtil.getAdminUserName()));
-        Set<String> caseOwners = membersByRole.get(CaseHelper.CASE_SIMPLE_CREATOR_ROLE);
+        Set<String> caseOwners = membersByRole.get(CaseHelper.CASE_SIMPLE_OWNER_ROLE);
         assertNotNull(caseOwners);
         assertTrue(caseOwners.contains(CaseHelper.ALICE_BEECHER));
         assertTrue(membersByRole.get(CaseHelper.CASE_SIMPLE_WRITER_ROLE).contains(CaseHelper.MIKE_JACKSON));
         // remove 2 out of 3 from groups
 
         transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
-                    caseMembersService.removeAuthorityFromRole(AuthenticationUtil.getAdminUserName(),
-                            CaseHelper.CASE_SIMPLE_READER_ROLE,
-                            nonAdminCreatedCaseNr);
-            caseMembersService.removeAuthorityFromRole(CaseHelper.MIKE_JACKSON, CaseHelper.CASE_SIMPLE_WRITER_ROLE,                            nonAdminCreatedCaseNr);
-                    return null;
-                });
+            caseMembersService.removeAuthorityFromRole(
+                    AuthenticationUtil.getAdminUserName(),
+                    CaseHelper.CASE_SIMPLE_READER_ROLE,
+                    nonAdminCreatedCaseNr);
+            caseMembersService.removeAuthorityFromRole(
+                    CaseHelper.MIKE_JACKSON,
+                    CaseHelper.CASE_SIMPLE_WRITER_ROLE,
+                    nonAdminCreatedCaseNr);
+            return null;
+        });
         // retrieve and test role memeberships
         membersByRole = caseMembersService.getMembersByRole(nonAdminCreatedCaseNr, false, true);
         assertFalse(membersByRole.get(CaseHelper.CASE_SIMPLE_READER_ROLE).contains(AuthenticationUtil.getAdminUserName()));
         assertFalse(membersByRole.get(CaseHelper.CASE_SIMPLE_WRITER_ROLE).contains(CaseHelper.MIKE_JACKSON));
-        assertTrue(membersByRole.get(CaseHelper.CASE_SIMPLE_CREATOR_ROLE).contains(CaseHelper.ALICE_BEECHER));
-
+        assertTrue(membersByRole.get(CaseHelper.CASE_SIMPLE_OWNER_ROLE).contains(CaseHelper.ALICE_BEECHER));
     }
 }
