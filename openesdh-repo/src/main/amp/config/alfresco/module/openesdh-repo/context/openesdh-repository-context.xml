@@ -298,15 +298,5 @@
     <bean id="webscript.dk.openesdh.documents.types.doctype.get" parent="documentTypesWebscript"></bean>
     <bean id="webscript.dk.openesdh.documents.types.doctype.post" parent="documentTypesWebscript"></bean>
     <bean id="webscript.dk.openesdh.documents.types.doctype.delete" parent="documentTypesWebscript"></bean>
-    
-    <!--Document categories-->
-    <bean id="documentCategoriesWebscript"
-          class="dk.openesdh.repo.webscripts.documents.DocumentCategoriesWebScript"
-          parent="webscript">
-        <property name="documentCategoryService" ref="DocumentCategoryService"/>
-    </bean>
-    <bean id="webscript.dk.openesdh.documents.categories.doccategory.get" parent="documentCategoriesWebscript"></bean>
-    <bean id="webscript.dk.openesdh.documents.categories.doccategory.post" parent="documentCategoriesWebscript"></bean>
-    <bean id="webscript.dk.openesdh.documents.categories.doccategory.delete" parent="documentCategoriesWebscript"></bean>
 </beans>
 
