@@ -233,11 +233,4 @@
     <bean id="webscript.dk.openesdh.case.parties.party.post" parent="casePartyRoleWebscript"/>
     <bean id="webscript.dk.openesdh.case.parties.party.put" parent="casePartyRoleWebscript"/>
     <bean id="webscript.dk.openesdh.case.parties.party.delete" parent="casePartyRoleWebscript"/>
-
-    <!--Miscellaneous-->
-    <bean id="webscript.dk.openesdh.case.searchDefinition.get" parent="webscript"
-          class="dk.openesdh.repo.webscripts.cases.SearchDefinition">
-        <property name="caseService" ref="CaseService"/>
-        <property name="namespaceService" ref="namespaceService"/>
-    </bean>
 </beans>
