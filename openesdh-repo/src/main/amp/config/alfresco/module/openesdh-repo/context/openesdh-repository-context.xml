@@ -117,18 +117,6 @@
         <property name="nodeService" ref="NodeService"/>
     </bean>
 
-    <bean id="caseMemberWebscript"
-          class="dk.openesdh.repo.webscripts.cases.CaseMembersWebScript"
-          parent="webscript">
-        <property name="caseService" ref="CaseService"/>
-        <property name="caseMembersService" ref="CaseMembersService"/>
-        <property name="authorityService" ref="AuthorityService"/>
-        <property name="personService" ref="PersonService"/>
-    </bean>
-    <bean id="webscript.dk.openesdh.case.members.casemembers.get" parent="caseMemberWebscript"></bean>
-    <bean id="webscript.dk.openesdh.case.members.casemembers.post" parent="caseMemberWebscript"></bean>
-    <bean id="webscript.dk.openesdh.case.members.casemembers.delete" parent="caseMemberWebscript"></bean>
-
     <bean id="webscript.dk.openesdh.case.memberslist.get" class="dk.openesdh.repo.webscripts.cases.MembersList" parent="webscript">
         <property name="authorityService" ref="AuthorityService" />
         <property name="caseService" ref="CaseService" />
