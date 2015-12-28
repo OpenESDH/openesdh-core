@@ -244,11 +244,4 @@
           class="dk.openesdh.repo.webscripts.CurrentUser">
         <property name="personService" ref="PersonService"/>
     </bean>
-
-    <!--Constraint webscripts-->
-    <bean id="webscript.dk.openesdh.case.constraints.get" parent="webscript"
-          class="dk.openesdh.repo.webscripts.cases.CaseConstraints">
-        <property name="dictionaryService" ref="dictionaryService"/>
-        <property name="caseService" ref="CaseService" />
-    </bean>
 </beans>
