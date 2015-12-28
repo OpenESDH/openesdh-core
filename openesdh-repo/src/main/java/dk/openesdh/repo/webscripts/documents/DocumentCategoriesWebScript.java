@@ -42,7 +42,7 @@ public class DocumentCategoriesWebScript {
     }
 
     @Uri(value = "/api/openesdh/document/categories", method = HttpMethod.GET, defaultFormat = "json")
-    public Resolution getCategories() throws IOException, JSONException {
+    public Resolution getAllCategories() throws IOException, JSONException {
         return WebScriptUtils.jsonResolution(
                 new JSONArray(documentCategoryService.getDocumentCategories().stream()
                         .map(DocumentCategory::toJSONObject)
