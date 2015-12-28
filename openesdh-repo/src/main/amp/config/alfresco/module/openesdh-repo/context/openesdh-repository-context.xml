@@ -271,10 +271,5 @@
         <property name="documentTypeService" ref="DocumentTypeService"/>
         <property name="documentCategoryService" ref="DocumentCategoryService"/>
     </bean>
-
-    <bean id="webscript.dk.openesdh.case.caseUserPermissions.get" parent="webscript"
-          class="dk.openesdh.repo.webscripts.cases.CaseUserPermissions">
-        <property name="caseService" ref="CaseService" />
-    </bean>
 </beans>
 
