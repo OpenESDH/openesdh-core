@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -15,7 +16,7 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CasePermission;
 import dk.openesdh.repo.services.members.CaseMembersService;
 
 /**
@@ -57,11 +58,11 @@ public class XSearchServiceImpl extends AbstractXSearchService {
             JSONArray filters = optFilters.get();
             for (int i = 0; i < filters.length(); i++) {
                 processFilter(filters.getJSONObject(i))
-                    .ifPresent(searchTerm -> searchTerms.add(searchTerm));
+                        .ifPresent(searchTerm -> searchTerms.add(searchTerm));
             }
         } else {
             processFilter(new JSONObject(filtersJSON))
-                .ifPresent(searchTerm -> searchTerms.add(searchTerm));
+                    .ifPresent(searchTerm -> searchTerms.add(searchTerm));
         }
 
         searchTerms.add("TYPE:" + quote(baseType));
@@ -143,18 +144,17 @@ public class XSearchServiceImpl extends AbstractXSearchService {
     }
 
     List<Long> getCaseDbIdsWhereAuthoritiesHaveRole(String role, List<NodeRef> authorityNodeRefs) {
-        List<Long> dbIds = new ArrayList<>();
-        for (NodeRef authorityNodeRef : authorityNodeRefs) {
-            dbIds.addAll(caseMembersService.getCaseDbIdsWhereAuthorityHasRole(authorityNodeRef, role));
-        }
-        return dbIds;
+        return authorityNodeRefs.stream()
+                .flatMap(authorityNodeRef
+                        -> caseMembersService.getCaseDbIdsWhereAuthorityHasRole(authorityNodeRef, role).stream())
+                .collect(Collectors.toList());
     }
 
     Optional<String> processFilter(JSONObject filter) throws JSONException {
         String name = filter.getString("name");
         String operator = filter.getString("operator");
-        
-        if(IN_VALUE_LIST.equals(operator)){
+
+        if (IN_VALUE_LIST.equals(operator)) {
             return processValueListFilter(filter);
         }
 
@@ -169,8 +169,7 @@ public class XSearchServiceImpl extends AbstractXSearchService {
             for (int i = 0; i < owners.length(); i++) {
                 ownersNodeRefs.add(new NodeRef((String) owners.get(i)));
             }
-            List<Long> dbIds = getCaseDbIdsWhereAuthoritiesHaveRole(OpenESDHModel.PERMISSION_NAME_CASE_OWNERS,
-                    ownersNodeRefs);
+            List<Long> dbIds = getCaseDbIdsWhereAuthoritiesHaveRole(CasePermission.OWNER.getRegExp(false), ownersNodeRefs);
 
             name = "sys:node-dbid";
             JSONArray dbIdsJsonArray = new JSONArray();
@@ -189,20 +188,19 @@ public class XSearchServiceImpl extends AbstractXSearchService {
         return createFilter(name, operator, value);
     }
 
-
     private Optional<String> processValueListFilter(JSONObject filter) throws JSONException {
-        
+
         String name = filter.getString("name");
-        
+
         Optional<JSONArray> optValues = getJSONValueArray(filter);
-        if(!optValues.isPresent()){
+        if (!optValues.isPresent()) {
             return Optional.empty();
         }
         List<String> searchTerms = new ArrayList<>();
         JSONArray values = optValues.get();
         for (int i = 0; i < values.length(); i++) {
             createFilter(name, "", values.getString(i))
-                .ifPresent(searchTerm -> searchTerms.add(searchTerm));
+                    .ifPresent(searchTerm -> searchTerms.add(searchTerm));
         }
         if (searchTerms.isEmpty()) {
             return Optional.empty();

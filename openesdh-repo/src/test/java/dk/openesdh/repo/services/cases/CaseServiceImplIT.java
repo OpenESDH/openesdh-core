@@ -1,11 +1,7 @@
 package dk.openesdh.repo.services.cases;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNull;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
 
 import java.io.Serializable;
 import java.text.DateFormat;
@@ -30,6 +26,12 @@ import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
 import org.junit.After;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -37,9 +39,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
@@ -108,10 +107,10 @@ public class CaseServiceImplIT {
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
 
         transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
-                    caseHelper.deleteDummyUser();
+            caseHelper.deleteDummyUser();
             dummyUser = caseHelper.createDummyUser();
             NodeRef adminUserNodeRef = this.personService.getPerson(OpenESDHModel.ADMIN_USER_NAME);
-            authorityService.addAuthority(CaseHelper.CASE_CREATOR_GROUP, CaseHelper.DEFAULT_USERNAME);
+            authorityService.addAuthority(CaseHelper.CASE_SIMPLE_CREATOR_GROUP, CaseHelper.DEFAULT_USERNAME);
 
             casesRootNoderef = caseService.getCasesRootNodeRef();
 
@@ -225,12 +224,12 @@ public class CaseServiceImplIT {
         String caseId = caseService.getCaseId(uniqueNumber);
         caseService.setupPermissionGroups(temporaryCaseNodeRef, caseId);
 
-        String groupSuffix = "case_" + caseId + "_CaseSimpleReader";
+        String groupSuffix = "case_" + caseId + "_" + CaseHelper.CASE_SIMPLE_READER_ROLE;
         String groupName = authorityService.getName(AuthorityType.GROUP, groupSuffix);
         assertNotNull("No reader group created", groupName);
         authorityService.deleteAuthority(groupName);
 
-        groupSuffix = "case_" + caseId + "_CaseSimpleWriter";
+        groupSuffix = "case_" + caseId + "_" + CaseHelper.CASE_SIMPLE_WRITER_ROLE;
         groupName = authorityService.getName(AuthorityType.GROUP, groupSuffix);
         assertNotNull("No writer group created", groupName);
         authorityService.deleteAuthority(groupName);
@@ -241,7 +240,7 @@ public class CaseServiceImplIT {
 //        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
 
         String groupName = caseService.getCaseRoleGroupName(caseService.getCaseId(nonAdminCreatedCaseNr),
-                OpenESDHModel.PERMISSION_NAME_CASE_OWNERS);
+                CaseHelper.CASE_SIMPLE_OWNER_ROLE);
         NodeRef adminNodeRef = personService.getPerson(AuthenticationUtil.getAdminUserName());
 
         // Add admin to owners
@@ -259,9 +258,8 @@ public class CaseServiceImplIT {
         nodeService.removeAssociation(nonAdminCreatedCaseNr,
                 adminNodeRef, OpenESDHModel.ASSOC_CASE_OWNERS);
 
-        assertFalse("Removing case owner should remove them from CaseOwners "
-                + "group", authorityService
-                .getContainedAuthorities(
+        assertFalse("Removing case owner should remove them from CaseOwners group",
+                authorityService.getContainedAuthorities(
                         AuthorityType.USER,
                         groupName,
                         false).contains(AuthenticationUtil.getAdminUserName()));
@@ -290,8 +288,8 @@ public class CaseServiceImplIT {
         String caseId = caseService.getCaseId(uniqueNumber);
         caseService.setupPermissionGroups(temporaryCaseNodeRef, caseId);
         Set<String> permissionGroups = caseService.getRoles(temporaryCaseNodeRef);
-        assertTrue(permissionGroups.contains("CaseSimpleReader"));
-        assertTrue(permissionGroups.contains("CaseSimpleWriter"));
+        assertTrue(permissionGroups.contains(CaseHelper.CASE_SIMPLE_READER_ROLE));
+        assertTrue(permissionGroups.contains(CaseHelper.CASE_SIMPLE_WRITER_ROLE));
     }
 
     @Test
@@ -358,7 +356,7 @@ public class CaseServiceImplIT {
         // Test that the owner cannot change permissions on the case
         try {
             caseMembersService.removeAuthorityFromRole(CaseHelper.DEFAULT_USERNAME,
-                    OpenESDHModel.PERMISSION_NAME_CASE_OWNERS, nonAdminCreatedCaseNr);
+                    CaseHelper.CASE_SIMPLE_OWNER_ROLE, nonAdminCreatedCaseNr);
             fail("An authority could be removed from a role on a closed case");
         } catch (Exception e) {
         }
@@ -366,7 +364,7 @@ public class CaseServiceImplIT {
         // Test that the owner cannot add an authority to a role on the case
         try {
             caseMembersService.addAuthorityToRole(OpenESDHModel.ADMIN_USER_NAME,
-                    "CaseSimpleReader", nonAdminCreatedCaseNr);
+                    CaseHelper.CASE_SIMPLE_READER_ROLE, nonAdminCreatedCaseNr);
             fail("An authority could be added to a role on a closed case");
         } catch (Exception e) {
         }
@@ -384,8 +382,7 @@ public class CaseServiceImplIT {
 
         try {
             caseService.changeNodeStatus(nonAdminCreatedCaseNr, CaseStatus.ACTIVE);
-            fail("Should not be able to set closed case to active as a "
-                    + "regular user");
+            fail("Should not be able to set closed case to active as a regular user");
         } catch (Exception e) {
         }
 
@@ -394,8 +391,7 @@ public class CaseServiceImplIT {
 
         assertEquals("Status after reopening is active", caseService.getNodeStatus(nonAdminCreatedCaseNr), CaseStatus.ACTIVE);
 
-        assertFalse("Case isLocked returns false for a reopened case"
-                + "case", caseService.isLocked(nonAdminCreatedCaseNr));
+        assertFalse("Case isLocked returns false for a reopened case", caseService.isLocked(nonAdminCreatedCaseNr));
 
         assertEquals("Document in finalized case still has FINAL status after reopening",
                 DocumentStatus.FINAL, documentService.getNodeStatus(docRecordNodeRef));
@@ -405,8 +401,8 @@ public class CaseServiceImplIT {
         // deleting the case.
         documentService.changeNodeStatus(docRecordNodeRef, DocumentStatus.DRAFT);
 
-        assertEquals("Document in finalized case can be changed back to "
-                + "DRAFT status after reopening", DocumentStatus.DRAFT, documentService.getNodeStatus(docRecordNodeRef));
+        assertEquals("Document in finalized case can be changed back to DRAFT status after reopening",
+                DocumentStatus.DRAFT, documentService.getNodeStatus(docRecordNodeRef));
 
 //        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
         // Test that a user can write again: these would throw exceptions if
@@ -416,8 +412,7 @@ public class CaseServiceImplIT {
         nodeService.setProperty(nonAdminCreatedCaseNr,
                 ContentModel.PROP_TITLE, originalTitle);
 
-        assertFalse("Case node does not have the locked aspect after being "
-                + "reopened",
+        assertFalse("Case node does not have the locked aspect after being reopened",
                 nodeService.hasAspect(nonAdminCreatedCaseNr,
                         OpenESDHModel.ASPECT_OE_LOCKED));
     }
@@ -435,6 +430,6 @@ public class CaseServiceImplIT {
         String caseId = caseService.getCaseId(nonAdminCreatedCaseNr);
         List<String> permissions = caseService.getCaseUserPermissions(caseId);
         assertTrue("Case owner should contain permissions for the case",
-                permissions.contains(OpenESDHModel.PERMISSION_NAME_CASE_OWNERS));
+                permissions.contains(CaseHelper.CASE_SIMPLE_OWNER_ROLE));
     }
 }

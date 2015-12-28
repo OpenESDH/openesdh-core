@@ -1,11 +1,7 @@
 package dk.openesdh.repo.services.cases;
 
-import static org.alfresco.repo.security.authentication.AuthenticationUtil.getAdminUserName;
-import static org.alfresco.repo.security.authentication.AuthenticationUtil.runAs;
-import static org.alfresco.repo.security.authentication.AuthenticationUtil.setFullyAuthenticatedUser;
-import static org.hamcrest.core.Is.isA;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -18,6 +14,9 @@ import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
+import static org.alfresco.repo.security.authentication.AuthenticationUtil.getAdminUserName;
+import static org.alfresco.repo.security.authentication.AuthenticationUtil.runAs;
+import static org.alfresco.repo.security.authentication.AuthenticationUtil.setFullyAuthenticatedUser;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransactionCallback;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -27,7 +26,10 @@ import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
+import static org.hamcrest.core.Is.isA;
 import org.junit.After;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,9 +40,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.OpenESDHModel;
@@ -122,7 +121,7 @@ public class CreateCaseIT {
         setFullyAuthenticatedUser(getAdminUserName());
 
         retryingTransactionHelper.doInTransaction(() -> {
-            authorityService.removeAuthority(PermissionService.GROUP_PREFIX + CaseHelper.CASE_CREATOR_ROLE, getAdminUserName());
+            authorityService.removeAuthority(PermissionService.GROUP_PREFIX + CaseHelper.CASE_SIMPLE_CREATOR_ROLE, getAdminUserName());
             final String name = UUID.randomUUID().toString();
             NodeRef owner = personService.getPerson(getAdminUserName());
 
@@ -212,11 +211,11 @@ public class CreateCaseIT {
 
     private void giveUserReadAccess(final String userName) {
         runInTransactionAsAdmin(() -> {
-            if (!authorityService.authorityExists(PermissionService.GROUP_PREFIX + CaseHelper.CASE_READER_ROLE)) {
-                authorityService.createAuthority(AuthorityType.GROUP, CaseHelper.CASE_READER_ROLE);
+            if (!authorityService.authorityExists(PermissionService.GROUP_PREFIX + CaseHelper.CASE_SIMPLE_READER_ROLE)) {
+                authorityService.createAuthority(AuthorityType.GROUP, CaseHelper.CASE_SIMPLE_READER_ROLE);
             }
-            if (!authorityService.getAuthoritiesForUser(userName).contains(PermissionService.GROUP_PREFIX + CaseHelper.CASE_READER_ROLE)) {
-                authorityService.addAuthority(PermissionService.GROUP_PREFIX + CaseHelper.CASE_READER_ROLE, userName);
+            if (!authorityService.getAuthoritiesForUser(userName).contains(PermissionService.GROUP_PREFIX + CaseHelper.CASE_SIMPLE_READER_ROLE)) {
+                authorityService.addAuthority(PermissionService.GROUP_PREFIX + CaseHelper.CASE_SIMPLE_READER_ROLE, userName);
             }
             return null;
         });
@@ -224,11 +223,11 @@ public class CreateCaseIT {
 
     private void giveUserWriteAccess(final String userName) {
         runInTransactionAsAdmin(() -> {
-            if (!authorityService.authorityExists(PermissionService.GROUP_PREFIX + CaseHelper.CASE_WRITER_ROLE)) {
-                authorityService.createAuthority(AuthorityType.GROUP, CaseHelper.CASE_WRITER_ROLE);
+            if (!authorityService.authorityExists(PermissionService.GROUP_PREFIX + CaseHelper.CASE_SIMPLE_WRITER_ROLE)) {
+                authorityService.createAuthority(AuthorityType.GROUP, CaseHelper.CASE_SIMPLE_WRITER_ROLE);
             }
-            if (!authorityService.getAuthoritiesForUser(userName).contains(PermissionService.GROUP_PREFIX + CaseHelper.CASE_WRITER_ROLE)) {
-                authorityService.addAuthority(PermissionService.GROUP_PREFIX + CaseHelper.CASE_WRITER_ROLE, userName);
+            if (!authorityService.getAuthoritiesForUser(userName).contains(PermissionService.GROUP_PREFIX + CaseHelper.CASE_SIMPLE_WRITER_ROLE)) {
+                authorityService.addAuthority(PermissionService.GROUP_PREFIX + CaseHelper.CASE_SIMPLE_WRITER_ROLE, userName);
             }
             return null;
         });
@@ -236,11 +235,11 @@ public class CreateCaseIT {
 
     private void giveUserCreateAccess(final String userName) {
         runInTransactionAsAdmin(() -> {
-            if (!authorityService.authorityExists(PermissionService.GROUP_PREFIX + CaseHelper.CASE_CREATOR_ROLE)) {
-                authorityService.createAuthority(AuthorityType.GROUP, CaseHelper.CASE_CREATOR_ROLE);
+            if (!authorityService.authorityExists(PermissionService.GROUP_PREFIX + CaseHelper.CASE_SIMPLE_CREATOR_ROLE)) {
+                authorityService.createAuthority(AuthorityType.GROUP, CaseHelper.CASE_SIMPLE_CREATOR_ROLE);
             }
-            if (!authorityService.getAuthoritiesForUser(userName).contains(PermissionService.GROUP_PREFIX + CaseHelper.CASE_CREATOR_ROLE)) {
-                authorityService.addAuthority(PermissionService.GROUP_PREFIX + CaseHelper.CASE_CREATOR_ROLE, userName);
+            if (!authorityService.getAuthoritiesForUser(userName).contains(PermissionService.GROUP_PREFIX + CaseHelper.CASE_SIMPLE_CREATOR_ROLE)) {
+                authorityService.addAuthority(PermissionService.GROUP_PREFIX + CaseHelper.CASE_SIMPLE_CREATOR_ROLE, userName);
             }
             return null;
         });
