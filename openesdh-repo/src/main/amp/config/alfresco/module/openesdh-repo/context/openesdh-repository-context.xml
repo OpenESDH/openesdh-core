@@ -240,8 +240,4 @@
         <property name="caseService" ref="CaseService"/>
         <property name="namespaceService" ref="namespaceService"/>
     </bean>
-    <bean id="webscript.dk.openesdh.currentUser.get" parent="webscript"
-          class="dk.openesdh.repo.webscripts.CurrentUser">
-        <property name="personService" ref="PersonService"/>
-    </bean>
 </beans>

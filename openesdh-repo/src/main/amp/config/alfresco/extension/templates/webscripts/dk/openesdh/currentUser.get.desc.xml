@@ -1,8 +1,0 @@
-<webscript>
-    <shortname>Current logged in user</shortname>
-    <description>Retrieve information about the current logged in user</description>
-    <url>/api/openesdh/currentUser</url>
-    <format default="json"></format>
-    <authentication>user</authentication>
-    <transaction>required</transaction>
-</webscript>
