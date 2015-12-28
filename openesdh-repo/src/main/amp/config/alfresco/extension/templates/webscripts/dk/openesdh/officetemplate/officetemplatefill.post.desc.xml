@@ -1,9 +1,0 @@
-<webscript>
-    <shortname>Fill the office template</shortname>
-    <description>Fill the specified office template, and return a transformed document.</description>
-    <url>/api/openesdh/officetemplates/{store_type}/{store_id}/{node_id}/fill</url>
-    <format default="json"></format>
-    <authentication>user</authentication>
-    <transaction>required</transaction>
-    <family>OpenESDH Office Template</family>
-</webscript>

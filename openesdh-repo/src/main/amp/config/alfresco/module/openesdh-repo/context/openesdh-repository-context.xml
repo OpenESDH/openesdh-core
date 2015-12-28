@@ -282,11 +282,5 @@
           parent="webscript">
         <property name="officeTemplateService" ref="OfficeTemplateService"/>
     </bean>
-
-    <bean id="webscript.dk.openesdh.officetemplate.officetemplatefill.post"
-          class="dk.openesdh.repo.webscripts.officetemplate.OfficeTemplateFillPost"
-          parent="webscript">
-        <property name="officeTemplateService" ref="OfficeTemplateService"/>
-    </bean>
 </beans>
 
