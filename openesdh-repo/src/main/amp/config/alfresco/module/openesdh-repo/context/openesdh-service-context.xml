@@ -45,10 +45,6 @@
             <ref bean="DictionaryService"/>
         </property>
 
-        <property name="permissionsModelDAO">
-            <ref bean="permissionsModelDAO"/>
-        </property>
-
         <property name="documentService">
             <ref bean="DocumentService"/>
         </property>
