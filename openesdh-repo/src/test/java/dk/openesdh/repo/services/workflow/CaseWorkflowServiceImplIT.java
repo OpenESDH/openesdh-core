@@ -41,6 +41,8 @@ import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.model.WorkflowInfo;
+import dk.openesdh.repo.services.cases.CasePermission;
+import dk.openesdh.repo.services.cases.CasePermissionService;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.members.CaseMembersService;
 
@@ -82,6 +84,9 @@ public class CaseWorkflowServiceImplIT {
 
     @Autowired
     private CaseMembersService caseMembersService;
+
+    @Autowired
+    private CasePermissionService casePermissionService;
 
     @Autowired
     @Qualifier(CaseWorkflowService.NAME)
@@ -196,7 +201,7 @@ public class CaseWorkflowServiceImplIT {
                 .get();
 
         QName outcomePropName = QName.createQName(NamespaceService.WORKFLOW_MODEL_1_0_URI, "reviewOutcome");
-        Map<QName, Serializable> props = new HashMap<QName, Serializable>();
+        Map<QName, Serializable> props = new HashMap<>();
         props.put(outcomePropName, "Approve");
         workflowService.updateTask(task.getId(), props, null, null);
         workflowService.endTask(task.getId(), null);
@@ -233,7 +238,7 @@ public class CaseWorkflowServiceImplIT {
                 .findFirst()
                 .get();
         QName outcomePropName = QName.createQName(NamespaceService.WORKFLOW_MODEL_1_0_URI, "reviewOutcome");
-        Map<QName, Serializable> props = new HashMap<QName, Serializable>();
+        Map<QName, Serializable> props = new HashMap<>();
         props.put(outcomePropName, "Approve");
         workflowService.updateTask(task.getId(), props, null, null);
         workflowService.endTask(task.getId(), null);
@@ -246,7 +251,7 @@ public class CaseWorkflowServiceImplIT {
     @Test
     public void shouldCreateCaseThenAddWorkflowAssigneeAsCaseMember() {
         String caseId = createCase();
-        Map<QName, Serializable> params = new HashMap<QName, Serializable>();
+        Map<QName, Serializable> params = new HashMap<>();
         params.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
         params.put(WorkflowModel.ASSOC_ASSIGNEE, personService.getPerson(CaseHelper.ALICE_BEECHER));
         service.grantCaseAccessToWorkflowAssignees(params);
@@ -258,7 +263,7 @@ public class CaseWorkflowServiceImplIT {
     public void shouldCreateCaseThenAddWorkflowAssigneeListAsCaseMembers() {
         String caseId = createCase();
 
-        Map<QName, Serializable> params = new HashMap<QName, Serializable>();
+        Map<QName, Serializable> params = new HashMap<>();
         params.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
         params.put(
                 WorkflowModel.ASSOC_ASSIGNEES,
@@ -279,7 +284,7 @@ public class CaseWorkflowServiceImplIT {
 
         String caseId = createCase();
 
-        Map<QName, Serializable> params = new HashMap<QName, Serializable>();
+        Map<QName, Serializable> params = new HashMap<>();
         params.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
         params.put(WorkflowModel.ASSOC_GROUP_ASSIGNEE, groupNodeRef);
         service.grantCaseAccessToWorkflowAssignees(params);
@@ -299,7 +304,7 @@ public class CaseWorkflowServiceImplIT {
 
         String caseId = createCase();
 
-        Map<QName, Serializable> params = new HashMap<QName, Serializable>();
+        Map<QName, Serializable> params = new HashMap<>();
         params.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
         params.put(WorkflowModel.ASSOC_GROUP_ASSIGNEES, (Serializable) Arrays.asList(groupNodeRef, groupNodeRef2));
         service.grantCaseAccessToWorkflowAssignees(params);
@@ -312,7 +317,7 @@ public class CaseWorkflowServiceImplIT {
         String caseId = createCase();
         caseMembersService.addAuthorityToRole(CaseHelper.ALICE_BEECHER, getCaseMemberWriteRole(), caseNodeRef);
 
-        Map<QName, Serializable> params = new HashMap<QName, Serializable>();
+        Map<QName, Serializable> params = new HashMap<>();
         params.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
         params.put(
                 WorkflowModel.ASSOC_ASSIGNEES,
@@ -343,8 +348,7 @@ public class CaseWorkflowServiceImplIT {
     }
 
     private String getCaseMemberWriteRole() {
-        return caseService.getRoles(caseNodeRef).stream().filter(role -> role.contains(CaseService.WRITER))
-                .findAny().get();
+        return casePermissionService.getPermissionName(caseNodeRef, CasePermission.WRITER);
     }
 
     private String createCase() {
@@ -352,4 +356,3 @@ public class CaseWorkflowServiceImplIT {
         return caseService.getCaseId(caseNodeRef);
     }
 }
-
