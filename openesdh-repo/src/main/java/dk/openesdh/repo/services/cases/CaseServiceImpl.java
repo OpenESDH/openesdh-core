@@ -15,8 +15,6 @@ import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.search.impl.lucene.LuceneQueryParserException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
-import org.alfresco.repo.security.permissions.PermissionReference;
-import org.alfresco.repo.security.permissions.impl.ModelDAO;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.dictionary.*;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
@@ -61,7 +59,6 @@ public class CaseServiceImpl implements CaseService {
     private SearchService searchService;
     private AuthorityService authorityService;
     private PermissionService permissionService;
-    private ModelDAO permissionsModelDAO;
     private TransactionService transactionService;
     private DictionaryService dictionaryService;
     private OwnableService ownableService;
@@ -106,10 +103,6 @@ public class CaseServiceImpl implements CaseService {
 
     public void setDictionaryService(DictionaryService dictionaryService) {
         this.dictionaryService = dictionaryService;
-    }
-
-    public void setPermissionsModelDAO(ModelDAO permissionsModelDAO) {
-        this.permissionsModelDAO = permissionsModelDAO;
     }
 
     public void setOpenESDHFoldersService(OpenESDHFoldersService openESDHFoldersService) {
@@ -164,12 +157,7 @@ public class CaseServiceImpl implements CaseService {
             // Get the DBID from the case ID, and grab the NodeRef
             try {
                 final Long dbid = Long.parseLong(matcher.group(1));
-                NodeRef caseNodeRef = AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<NodeRef>() {
-                    @Override
-                    public NodeRef doWork() throws Exception {
-                        return nodeService.getNodeRef(dbid);
-                    }
-                });
+                NodeRef caseNodeRef = AuthenticationUtil.runAsSystem(() -> nodeService.getNodeRef(dbid));
 
                 // Check that it exists and is really a case node (extending type
                 // "case:base")
@@ -228,23 +216,20 @@ public class CaseServiceImpl implements CaseService {
 
     @Override
     public void createCase(final ChildAssociationRef childAssocRef) {
-        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Void>() {
-            @Override
-            public Void doWork() {
-                NodeRef caseNodeRef = childAssocRef.getChildRef();
-                LOGGER.info("caseNodeRef " + caseNodeRef);
+        AuthenticationUtil.runAs(() -> {
+            NodeRef caseNodeRef = childAssocRef.getChildRef();
+            LOGGER.info("caseNodeRef " + caseNodeRef);
 
-                //Create folder structure
-                NodeRef casesRootNodeRef = openESDHFoldersService.getCasesRootNodeRef();
+            //Create folder structure
+            NodeRef casesRootNodeRef = openESDHFoldersService.getCasesRootNodeRef();
 
-                NodeRef caseFolderNodeRef = getCaseFolderNodeRef(casesRootNodeRef);
-                // Get a unique number to append to the caseId.
-                long caseUniqueNumber = getCaseUniqueId(caseNodeRef);
+            NodeRef caseFolderNodeRef = getCaseFolderNodeRef(casesRootNodeRef);
+            // Get a unique number to append to the caseId.
+            long caseUniqueNumber = getCaseUniqueId(caseNodeRef);
 
-                setupCase(caseNodeRef, caseFolderNodeRef, caseUniqueNumber);
+            setupCase(caseNodeRef, caseFolderNodeRef, caseUniqueNumber);
 
-                return null;
-            }
+            return null;
         }, AuthenticationUtil.getAdminUserName());
     }
 
@@ -313,61 +298,58 @@ public class CaseServiceImpl implements CaseService {
 
         NodeRef caseRoot = openESDHFoldersService.getCasesRootNodeRef();
         if (caseRoot == null) {
-            result = Collections.emptyList();
-        } else {
-            // get the cases that match the specified names
-            StringBuilder query = new StringBuilder(128);
-            query.append("+TYPE:\"").append(OpenESDHModel.TYPE_CASE_BASE).append('"');
+            return Collections.emptyList();
+        }
+        // get the cases that match the specified names
+        StringBuilder query = new StringBuilder(128);
+        query.append("+TYPE:\"").append(OpenESDHModel.TYPE_CASE_BASE).append('"');
 
-            final boolean filterIsPresent = filter != null && filter.length() > 0;
+        final boolean filterIsPresent = filter != null && filter.length() > 0;
 
-            if (filterIsPresent) {
-                query.append(" AND (");
-                // Tokenize the filter and wildcard each token
-                String escNameFilter = SearchLanguageConversion.escapeLuceneQuery(filter);
-                String[] tokenizedFilter = SearchLanguageConversion.tokenizeString(escNameFilter);
-                for (String aTokenizedFilter : tokenizedFilter) {
-                    query.append(aTokenizedFilter).append("* ");
-                }
-                query.append(")");
+        if (filterIsPresent) {
+            query.append(" AND (");
+            // Tokenize the filter and wildcard each token
+            String escNameFilter = SearchLanguageConversion.escapeLuceneQuery(filter);
+            String[] tokenizedFilter = SearchLanguageConversion.tokenizeString(escNameFilter);
+            for (String aTokenizedFilter : tokenizedFilter) {
+                query.append(aTokenizedFilter).append("* ");
             }
-
-            SearchParameters sp = new SearchParameters();
-            sp.addQueryTemplate("_CASES", "|%oe:id |%title "
-                    + "|%description |%oe:journalKeyIndexed "
-                    + "|%oe:journalFacetIndexed");
-            sp.setDefaultFieldName("_CASES");
-            sp.addStore(caseRoot.getStoreRef());
-            sp.setLanguage(SearchService.LANGUAGE_FTS_ALFRESCO);
-            sp.setQuery(query.toString());
-            if (size > 0) {
-                sp.setLimit(size);
-                sp.setLimitBy(LimitBy.FINAL_SIZE);
-            }
-
-            if (LOGGER.isDebugEnabled()) {
-                LOGGER.debug("Search parameters are: " + sp);
-            }
-
-            ResultSet results = null;
-            try {
-                results = this.searchService.query(sp);
-                result = new ArrayList<CaseInfo>(results.length());
-                for (NodeRef site : results.getNodeRefs()) {
-                    result.add(getCaseInfo(site));
-                }
-            } catch (LuceneQueryParserException lqpe) {
-                //Log the error but suppress is from the user
-                LOGGER.error("LuceneQueryParserException with findCases()", lqpe);
-                result = Collections.emptyList();
-            } finally {
-                if (results != null) {
-                    results.close();
-                }
-            }
+            query.append(")");
         }
 
-        return result;
+        SearchParameters sp = new SearchParameters();
+        sp.addQueryTemplate("_CASES", "|%oe:id |%title "
+                + "|%description |%oe:journalKeyIndexed "
+                + "|%oe:journalFacetIndexed");
+        sp.setDefaultFieldName("_CASES");
+        sp.addStore(caseRoot.getStoreRef());
+        sp.setLanguage(SearchService.LANGUAGE_FTS_ALFRESCO);
+        sp.setQuery(query.toString());
+        if (size > 0) {
+            sp.setLimit(size);
+            sp.setLimitBy(LimitBy.FINAL_SIZE);
+        }
+
+        if (LOGGER.isDebugEnabled()) {
+            LOGGER.debug("Search parameters are: " + sp);
+        }
+
+        ResultSet results = null;
+        try {
+            return searchService.query(sp)
+                    .getNodeRefs()
+                    .stream()
+                    .map(this::getCaseInfo)
+                    .collect(Collectors.toList());
+        } catch (LuceneQueryParserException lqpe) {
+            //Log the error but suppress is from the user
+            LOGGER.error("LuceneQueryParserException with findCases()", lqpe);
+            return Collections.emptyList();
+        } finally {
+            if (results != null) {
+                results.close();
+            }
+        }
     }
 
     @Override
@@ -397,8 +379,6 @@ public class CaseServiceImpl implements CaseService {
                     propertyDefs.addAll(aspectProperties.values());
                 }
             }
-
-            Map<QName, AssociationDefinition> associations = classDefinition.getAssociations();
         }
 
         JSONObject availableFilters = new JSONObject();
@@ -426,7 +406,7 @@ public class CaseServiceImpl implements CaseService {
 
     @Override
     public void checkCaseCreatorPermissions(QName caseTypeQName) {
-        String caseCreatorPermissionName = getCaseCreatorPermissionForCaseType(caseTypeQName);
+        String caseCreatorPermissionName = casePermissionService.getPermissionName(caseTypeQName, CasePermission.CREATOR);
         if (StringUtils.isEmpty(caseCreatorPermissionName)) {
             throw new AccessDeniedException(I18NUtil.getMessage(MSG_NO_CASE_CREATOR_PERMISSION_DEFINED,
                     caseTypeQName.getLocalName()));
@@ -470,7 +450,7 @@ public class CaseServiceImpl implements CaseService {
                 .collect(Collectors.toList());
     }
 
-    protected <R> R runAsAdmin(RunAsWork<R> r) {
+    private <R> R runAsAdmin(RunAsWork<R> r) {
         return AuthenticationUtil.runAs(r, OpenESDHModel.ADMIN_USER_NAME);
     }
 
@@ -487,7 +467,7 @@ public class CaseServiceImpl implements CaseService {
         }
     }
 
-    protected boolean canLeaveStatus(String status, String user, NodeRef nodeRef) {
+    private boolean canLeaveStatus(String status, String user, NodeRef nodeRef) {
         switch (status) {
             case CaseStatus.ACTIVE:
                 return true;
@@ -502,7 +482,7 @@ public class CaseServiceImpl implements CaseService {
         }
     }
 
-    protected boolean canEnterStatus(String status, String user, NodeRef nodeRef) {
+    private boolean canEnterStatus(String status, String user, NodeRef nodeRef) {
         switch (status) {
             case CaseStatus.ACTIVE:
                 return true;
@@ -518,7 +498,7 @@ public class CaseServiceImpl implements CaseService {
         }
     }
 
-    protected void changeStatusImpl(NodeRef nodeRef, String fromStatus, String newStatus) throws Exception {
+    private void changeStatusImpl(NodeRef nodeRef, String fromStatus, String newStatus) throws Exception {
         switch (fromStatus) {
             case CaseStatus.ACTIVE:
                 switch (newStatus) {
@@ -593,27 +573,23 @@ public class CaseServiceImpl implements CaseService {
         }
         checkCanChangeStatus(nodeRef, fromStatus, newStatus);
 
-        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
-            @Override
-            public Object execute() throws Throwable {
-                try {
-                    // Disable status behaviour to allow the system to set the
-                    // status directly.
-                    behaviourFilter.disableBehaviour(nodeRef);
-                    changeStatusImpl(nodeRef, fromStatus, newStatus);
-                } finally {
-                    behaviourFilter.enableBehaviour(nodeRef);
-                }
-                return null;
+        transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
+            try {
+                // Disable status behaviour to allow the system to set the status directly.
+                behaviourFilter.disableBehaviour(nodeRef);
+                changeStatusImpl(nodeRef, fromStatus, newStatus);
+            } finally {
+                behaviourFilter.enableBehaviour(nodeRef);
             }
+            return null;
         });
     }
 
-    protected boolean canReopenCase(String user, NodeRef nodeRef) {
+    private boolean canReopenCase(String user, NodeRef nodeRef) {
         return authorityService.isAdminAuthority(user);
     }
 
-    protected boolean canCloseCase(String user, NodeRef nodeRef) {
+    private boolean canCloseCase(String user, NodeRef nodeRef) {
         return true;
     }
 
@@ -621,8 +597,9 @@ public class CaseServiceImpl implements CaseService {
      * Close a case node.
      *
      * @param nodeRef
+     * @throws java.lang.Exception
      */
-    protected void closeCase(NodeRef nodeRef) throws Exception {
+    private void closeCase(NodeRef nodeRef) throws Exception {
         if (!isCaseNode(nodeRef)) {
             throw new Exception("Cannot close a non-case node!");
         }
@@ -655,20 +632,16 @@ public class CaseServiceImpl implements CaseService {
         });
     }
 
-    protected void lockCaseGroups(final NodeRef caseNodeRef) {
-        AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Void>() {
-            @Override
-            public Void doWork() {
-                List<ChildAssociationRef> childAssociationRefs = nodeService.getChildAssocs(caseNodeRef);
-                Set<String> roles = getAllRoles(caseNodeRef);
-                for (String role : roles) {
-                    NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef(
-                            getCaseRoleGroupName(getCaseId(caseNodeRef), role));
-                    permissionService.setPermission(authorityNodeRef,
-                            PermissionService.ALL_AUTHORITIES, "LockPermissionsToDeny", false);
-                }
-                return null;
+    private void lockCaseGroups(final NodeRef caseNodeRef) {
+        AuthenticationUtil.runAsSystem(() -> {
+            Set<String> roles = getAllRoles(caseNodeRef);
+            for (String role : roles) {
+                NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef(
+                        getCaseRoleGroupName(getCaseId(caseNodeRef), role));
+                permissionService.setPermission(authorityNodeRef,
+                        PermissionService.ALL_AUTHORITIES, "LockPermissionsToDeny", false);
             }
+            return null;
         });
     }
 
@@ -679,12 +652,12 @@ public class CaseServiceImpl implements CaseService {
      *
      * @param nodeRef
      */
-    protected void passivate(NodeRef nodeRef) {
+    private void passivate(NodeRef nodeRef) {
         // TODO: Passivate documents in the case by adding an aspect
         // oe:passive
     }
 
-    protected void unPassivate(NodeRef nodeRef) {
+    private void unPassivate(NodeRef nodeRef) {
         // TODO: Unpassivate documents in the case by removing an aspect
         // oe:passive
     }
@@ -693,8 +666,9 @@ public class CaseServiceImpl implements CaseService {
      * Reopen a closed case node.
      *
      * @param nodeRef
+     * @throws java.lang.Exception
      */
-    protected void reopenCase(NodeRef nodeRef) throws Exception {
+    private void reopenCase(NodeRef nodeRef) throws Exception {
         if (!isCaseNode(nodeRef)) {
             throw new Exception("Not a case node");
         }
@@ -721,24 +695,20 @@ public class CaseServiceImpl implements CaseService {
     }
     //</editor-fold>
 
-    protected void unlockCaseGroups(final NodeRef caseNodeRef) {
-        AuthenticationUtil.runAsSystem(new AuthenticationUtil.RunAsWork<Void>() {
-            @Override
-            public Void doWork() {
-                List<ChildAssociationRef> childAssociationRefs = nodeService.getChildAssocs(caseNodeRef);
-                Set<String> roles = getAllRoles(caseNodeRef);
-                for (String role : roles) {
-                    NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef(
-                            getCaseRoleGroupName(getCaseId(caseNodeRef), role));
-                    permissionService.deletePermission(authorityNodeRef,
-                            PermissionService.ALL_AUTHORITIES, "LockPermissionsToDeny");
-                }
-                return null;
+    private void unlockCaseGroups(final NodeRef caseNodeRef) {
+        AuthenticationUtil.runAsSystem(() -> {
+            Set<String> roles = getAllRoles(caseNodeRef);
+            for (String role : roles) {
+                NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef(
+                        getCaseRoleGroupName(getCaseId(caseNodeRef), role));
+                permissionService.deletePermission(authorityNodeRef,
+                        PermissionService.ALL_AUTHORITIES, "LockPermissionsToDeny");
             }
+            return null;
         });
     }
 
-    protected boolean isCaseOwner(String user, NodeRef caseNodeRef) {
+    private boolean isCaseOwner(String user, NodeRef caseNodeRef) {
         String caseId = getCaseId(caseNodeRef);
         // Check that the user is a case owner
         Set<String> authorities = authorityService.getContainedAuthorities(
@@ -773,7 +743,6 @@ public class CaseServiceImpl implements CaseService {
             groupName = authorityService.createAuthority(AuthorityType.GROUP, groupSuffix, groupSuffix, shareZones);
         }
         permissionService.setPermission(caseNodeRef, groupName, permission, true);
-        NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef(groupName);
 
         // TODO: Allow only certain roles to read case members from case
         // role groups.
@@ -824,22 +793,6 @@ public class CaseServiceImpl implements CaseService {
         LOGGER.info("Case Id is " + caseId);
 
         return caseId.toString();
-    }
-
-    private String getCaseCreatorPermissionForCaseType(QName caseTypeQName) {
-
-        Set<PermissionReference> allPermissions = permissionsModelDAO.getAllPermissions(caseTypeQName);
-
-        Predicate<PermissionReference> isCaseCreatorPermission = p -> p.getName().startsWith(CaseService.CASE)
-                && p.getName().endsWith(CaseService.CREATOR);
-
-        for (PermissionReference permission : allPermissions) {
-            if (isCaseCreatorPermission.test(permission)) {
-                return permission.getName();
-            }
-        }
-
-        return null;
     }
 
     /**
@@ -918,7 +871,7 @@ public class CaseServiceImpl implements CaseService {
         }
     }
 
-    protected void setupCaseTypePermissionGroups(NodeRef caseNodeRef, String caseId) {
+    private void setupCaseTypePermissionGroups(NodeRef caseNodeRef, String caseId) {
 
         Set<String> settablePermissions = permissionService.getSettablePermissions(caseNodeRef);
 
@@ -933,13 +886,11 @@ public class CaseServiceImpl implements CaseService {
         }
     }
 
-    protected List<String> getAllAuthoritiesWithSetPermissions(NodeRef caseNodeRef) {
-        ArrayList<String> authorities = new ArrayList<String>();
-        Set<AccessPermission> permissions = permissionService.getAllSetPermissions(caseNodeRef);
-        for (AccessPermission permission : permissions) {
-            authorities.add(permission.getAuthority());
-        }
-        return authorities;
+    private List<String> getAllAuthoritiesWithSetPermissions(NodeRef caseNodeRef) {
+        return permissionService.getAllSetPermissions(caseNodeRef)
+                .stream()
+                .map(AccessPermission::getAuthority)
+                .collect(Collectors.toList());
     }
 
     @Override

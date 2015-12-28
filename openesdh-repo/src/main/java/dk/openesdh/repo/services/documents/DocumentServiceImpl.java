@@ -65,6 +65,7 @@ import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.model.ResultSet;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.lock.OELockService;
+import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 import dk.openesdh.repo.webscripts.documents.Documents;
 
 /**
@@ -620,7 +621,7 @@ public class DocumentServiceImpl implements DocumentService {
         } else {
             // get the cases that match the specified names
             StringBuilder query = new StringBuilder(128);
-            query.append("PATH:\"").append(CaseService.OPENESDH_ROOT_CONTEXT_PATH).append("/*\" ");
+            query.append("PATH:\"").append(OpenESDHFoldersService.CASES_ROOT_PATH).append("/*\" ");
             query.append(" AND +TYPE:\"").append(OpenESDHModel.TYPE_DOC_FILE).append('"');
             query.append(" AND(-TYPE:\"cm:thumbnail\" AND -TYPE:\"cm:failedThumbnail\" AND -TYPE:\"cm:rating\" AND -TYPE:\"fm:post\" AND -ASPECT:\"sys:hidden\" AND -cm:creator:system");
 
