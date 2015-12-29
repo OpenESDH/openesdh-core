@@ -1,9 +1,0 @@
-<webscript>
-    <shortname>Delete party role</shortname>
-    <description>Removes a party from a role. </description>
-    <url>/api/openesdh/case/{caseId}/party/{partyRole}</url>
-    <format default="json"></format>
-    <authentication>user</authentication>
-    <transaction>required</transaction>
-    <family>Case Tools</family>
-</webscript>

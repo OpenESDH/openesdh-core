@@ -1,7 +1,5 @@
 package dk.openesdh.repo.services.members;
 
-import dk.openesdh.repo.services.RunInTransactionAsAdmin;
-import dk.openesdh.repo.services.cases.CaseService;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -10,6 +8,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -20,6 +19,9 @@ import org.alfresco.service.transaction.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
+
+import dk.openesdh.repo.services.RunInTransactionAsAdmin;
+import dk.openesdh.repo.services.cases.CaseService;
 
 @Service("CaseMembersService")
 public class CaseMembersServiceImpl implements CaseMembersService, RunInTransactionAsAdmin {
@@ -44,13 +46,11 @@ public class CaseMembersServiceImpl implements CaseMembersService, RunInTransact
             boolean includeOwner) {
         String caseId = caseService.getCaseId(caseNodeRef);
         Set<String> roles = includeOwner ? caseService.getAllRoles(caseNodeRef) : caseService.getRoles(caseNodeRef);
-        return runInTransaction(() -> {
-            return roles.stream()
-                    .collect(Collectors.toMap(role -> role, (String role) -> {
-                        String groupName = caseService.getCaseRoleGroupName(caseId, role);
-                        return authorityService.getContainedAuthorities(null, groupName, noExpandGroups);
-                    }));
-        });
+        return roles.stream()
+                .collect(Collectors.toMap(role -> role, (String role) -> {
+                    String groupName = caseService.getCaseRoleGroupName(caseId, role);
+                    return authorityService.getContainedAuthorities(null, groupName, noExpandGroups);
+                }));
     }
 
     @Override

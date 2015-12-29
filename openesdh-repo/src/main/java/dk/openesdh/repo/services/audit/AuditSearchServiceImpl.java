@@ -1,10 +1,9 @@
 package dk.openesdh.repo.services.audit;
 
-import dk.openesdh.repo.model.OpenESDHModel;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.permissions.AccessDeniedException;
 import org.alfresco.service.cmr.audit.AuditQueryParameters;
@@ -18,6 +17,9 @@ import org.alfresco.service.cmr.security.PermissionService;
 import org.json.JSONObject;
 import org.json.simple.JSONArray;
 import org.springframework.extensions.surf.util.I18NUtil;
+
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CasePermission;
 
 /**
  * Created by flemmingheidepedersen on 18/11/14.
@@ -96,19 +98,17 @@ public class AuditSearchServiceImpl implements AuditSearchService {
     }
 
     private List<String> getCaseReadWriteOwnGroups(NodeRef nodeRef) {
-        List<String> rwoPermissions = Arrays.asList(new String[]{
-            OpenESDHModel.PERMISSION_NAME_CASE_SIMPLE_READER,
-            OpenESDHModel.PERMISSION_NAME_CASE_SIMPLE_WRITER,
-            OpenESDHModel.PERMISSION_NAME_CASE_OWNERS
-        });
         Set<AccessPermission> casePermissions = getAllCasePermissions(nodeRef);
         List<String> rwoGroups = casePermissions.stream()
-                .filter((accessPermission)
-                        -> (accessPermission.getAuthorityType() == AuthorityType.GROUP
-                        && rwoPermissions.contains(accessPermission.getPermission())))
+                .filter(this::isReaderWriterOwnerGroup)
                 .map(accessPermission -> accessPermission.getAuthority())
                 .collect(Collectors.toList());
         return rwoGroups;
+    }
+
+    private boolean isReaderWriterOwnerGroup(AccessPermission accessPermission) {
+        return accessPermission.getAuthorityType() == AuthorityType.GROUP
+                && accessPermission.getPermission().matches(CasePermission.REGEXP_ANY);
     }
 
     private Set<AccessPermission> getAllCasePermissions(final NodeRef nodeRef) {

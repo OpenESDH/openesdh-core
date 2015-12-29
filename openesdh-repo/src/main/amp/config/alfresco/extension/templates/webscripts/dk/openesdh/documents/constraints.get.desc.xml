@@ -1,9 +1,0 @@
-<webscript>
-    <shortname>OpenESDH document constraints</shortname>
-    <description>Returns all document constraints separated into different array within the structure</description>
-    <url>/api/openesdh/case/document/constraints</url>
-    <format default="json"></format>
-    <authentication>user</authentication>
-    <transaction>required</transaction>
-    <family>Case Document Tools</family>
-</webscript>

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 import dk.openesdh.repo.services.workflow.CaseWorkflowService;
 import dk.openesdh.repo.services.workflow.WorkflowTaskService;
 
@@ -82,7 +83,7 @@ public final class CaseNodeRefExtractor extends AbstractAnnotatedDataExtractor {
     }
 
     protected String getNodeRefFromPath(String path) {
-        String prefix = CaseService.OPENESDH_ROOT_CONTEXT_PATH;
+        String prefix = OpenESDHFoldersService.CASES_ROOT_PATH;
         if (!path.startsWith(prefix)) {
             return null;
         }

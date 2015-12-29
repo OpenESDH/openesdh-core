@@ -6,6 +6,15 @@
         <property name="repositoryHelper" ref="repositoryHelper" />
     </bean>
     
+    <bean id="casePermissionService" class="dk.openesdh.repo.services.cases.CasePermissionServiceImpl">
+        <property name="nodeService">
+            <ref bean="nodeService"/>
+        </property>
+        <property name="namespaceService">
+            <ref bean="namespaceService"/>
+        </property>
+    </bean>
+    
     <bean id="CaseService"
           class="dk.openesdh.repo.services.cases.CaseServiceImpl" init-method="init">
         <property name="nodeService">
@@ -36,10 +45,6 @@
             <ref bean="DictionaryService"/>
         </property>
 
-        <property name="permissionsModelDAO">
-            <ref bean="permissionsModelDAO"/>
-        </property>
-
         <property name="documentService">
             <ref bean="DocumentService"/>
         </property>
@@ -62,6 +67,10 @@
         
         <property name="behaviourFilter">
             <ref bean="policyBehaviourFilter"/>
+        </property>
+        
+        <property name="casePermissionService">
+            <ref bean="casePermissionService"/>
         </property>
     </bean>
     
@@ -208,7 +217,7 @@
             <ref bean="DictionaryService"/>
         </property>
     </bean>
-
+    
     <bean id="UserInvolvedSearchService" class="dk.openesdh.repo.services.xsearch.UserInvolvedSearchServiceImpl">
         <property name="searchService">
             <ref bean="SearchService"/>
