@@ -1,8 +1,0 @@
-<webscript>
-    <shortname>Case Members</shortname>
-    <description>Delete an authority's role from a case role group</description>
-    <url>/api/openesdh/case/{caseId}/member</url>
-    <format default="json"></format>
-    <authentication>user</authentication>
-    <transaction>required</transaction>
-</webscript>

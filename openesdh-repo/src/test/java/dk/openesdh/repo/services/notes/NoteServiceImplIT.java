@@ -1,8 +1,7 @@
 package dk.openesdh.repo.services.notes;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -18,6 +17,9 @@ import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
 import org.junit.After;
 import org.junit.Assert;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,9 +29,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
@@ -77,12 +76,9 @@ public class NoteServiceImplIT {
     protected CaseHelper caseHelper;
 
     private static final String TEST_CASE_NAME = "Test_case";
-    private static final String TEST_FOLDER_NAME = "Test_folder";
-    private static final String CASE_SIMPLE_WRITER_GROUP_NAME = AuthorityType.GROUP.getPrefixString()
-            + OpenESDHModel.PERMISSION_NAME_CASE_SIMPLE_WRITER;
+    private static final String CASE_SIMPLE_WRITER_GROUP_NAME = AuthorityType.GROUP.getPrefixString() + CaseHelper.CASE_SIMPLE_WRITER_ROLE;
 
-    private static final String CASE_SIMPLE_READER_GROUP_NAME = AuthorityType.GROUP.getPrefixString()
-            + OpenESDHModel.PERMISSION_NAME_CASE_SIMPLE_READER;
+    private static final String CASE_SIMPLE_READER_GROUP_NAME = AuthorityType.GROUP.getPrefixString() + CaseHelper.CASE_SIMPLE_READER_ROLE;
 
     private static final String CASE_READER_USER_NAME = "caseReaderUser";
     private static final String NON_CASE_READER_USER_NAME = "nonCaseReaderUser";
@@ -93,7 +89,7 @@ public class NoteServiceImplIT {
     private NodeRef parentNodeRef;
     private NodeRef caseNodeRef;
     private NodeRef noteNodeRef;
-    private List<NodeRef> notes = new ArrayList<NodeRef>();
+    private List<NodeRef> notes = new ArrayList<>();
 
     @Before
     public void setUp() throws Exception {
@@ -112,7 +108,7 @@ public class NoteServiceImplIT {
     public void tearDown() throws Exception {
         AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();
 
-        List<NodeRef> nodes = new ArrayList<NodeRef>();
+        List<NodeRef> nodes = new ArrayList<>();
         if (noteNodeRef != null) {
             nodes.add(noteNodeRef);
         }

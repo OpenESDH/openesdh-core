@@ -1,5 +1,8 @@
 package dk.openesdh.repo.audit;
 
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
+
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -16,12 +19,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
-
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -102,7 +103,7 @@ public class CaseNodeRefExtractorIT {
     }
 
     private String createPathOfTestCase1() {
-        String casesRootFolder = caseService.OPENESDH_ROOT_CONTEXT_PATH;
+        String casesRootFolder = OpenESDHFoldersService.CASES_ROOT_PATH;
         String caseId = caseService.getCaseId(testCase1);
         Calendar c = Calendar.getInstance();
         String casePath = String.join("/case:", 

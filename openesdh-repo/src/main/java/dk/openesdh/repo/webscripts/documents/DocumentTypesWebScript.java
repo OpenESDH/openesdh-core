@@ -1,57 +1,53 @@
 package dk.openesdh.repo.webscripts.documents;
 
-import dk.openesdh.repo.model.DocumentType;
-import dk.openesdh.repo.services.documents.DocumentTypeService;
-import dk.openesdh.repo.services.system.MultiLanguageValue;
-import dk.openesdh.repo.webscripts.AbstractRESTWebscript;
-import dk.openesdh.repo.webscripts.ParamUtils;
-import static dk.openesdh.repo.webscripts.ParamUtils.checkRequiredParam;
-import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.Authentication;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.AuthenticationType;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
+import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
+
 import java.io.IOException;
-import java.util.Map;
 import java.util.stream.Collectors;
+
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.codehaus.plexus.util.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.extensions.webscripts.WebScriptException;
-import org.springframework.extensions.webscripts.WebScriptRequest;
-import org.springframework.extensions.webscripts.WebScriptResponse;
+import org.springframework.stereotype.Component;
 
-public class DocumentTypesWebScript extends AbstractRESTWebscript {
+import dk.openesdh.repo.model.DocumentType;
+import dk.openesdh.repo.services.documents.DocumentTypeService;
+import dk.openesdh.repo.services.system.MultiLanguageValue;
+import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
+@Component
+@WebScript(description = "Manage document types", families = {"Case Document Tools"})
+public class DocumentTypesWebScript {
+
+    @Autowired
     private DocumentTypeService documentTypeService;
 
-    public void setDocumentTypeService(DocumentTypeService documentTypeService) {
-        this.documentTypeService = documentTypeService;
-    }
-
-    @Override
-    protected NodeRef getNodeRef(WebScriptRequest req, Map<String, String> templateArgs) {
-        String nodeRefId = req.getParameter("nodeRefId");
-        if (StringUtils.isNotEmpty(nodeRefId)) {
-            return new NodeRef(nodeRefId);
-        }
-        return super.getNodeRef(req, templateArgs);
-    }
-
-    @Override
-    protected void get(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
-        res.setContentEncoding(WebScriptUtils.CONTENT_ENCODING_UTF_8);
-        if (nodeRef == null) {
-            new JSONArray(documentTypeService.getDocumentTypes().stream()
-                    .map(DocumentType::toJSONObject)
-                    .collect(Collectors.toList())
-            ).write(res.getWriter());
-            return;
-        }
-        DocumentType documentType = documentTypeService.getDocumentType(nodeRef);
+    @Authentication(AuthenticationType.ADMIN)
+    @Uri(value = "/api/openesdh/document/type?nodeRefId=", method = HttpMethod.GET, defaultFormat = "json")
+    public Resolution get(@RequestParam(required = true) final NodeRef nodeRefId) throws JSONException {
+        DocumentType documentType = documentTypeService.getDocumentType(nodeRefId);
         if (documentType == null) {
             throw new WebScriptException("Document type not found");
         }
-        createJSONObjectWithMultilanguage(documentType)
-                .write(res.getWriter());
+        return WebScriptUtils.jsonResolution(createJSONObjectWithMultilanguage(documentType));
+    }
+
+    @Uri(value = "/api/openesdh/document/types", method = HttpMethod.GET, defaultFormat = "json")
+    public Resolution getAllTypes() throws IOException, JSONException {
+        return WebScriptUtils.jsonResolution(
+                new JSONArray(documentTypeService.getDocumentTypes().stream()
+                        .map(DocumentType::toJSONObject)
+                        .collect(Collectors.toList())
+                ));
     }
 
     private JSONObject createJSONObjectWithMultilanguage(DocumentType type) throws JSONException {
@@ -60,23 +56,24 @@ public class DocumentTypesWebScript extends AbstractRESTWebscript {
         return json;
     }
 
-    @Override
-    protected void post(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
-        String name = ParamUtils.getRequiredParameter(req, "name");
-        String mlDisplayNames = ParamUtils.getRequiredParameter(req, "mlDisplayNames");
-        DocumentType saveDocumentType = createOrUpdateDocumentType(nodeRef, name, mlDisplayNames);
-        res.setContentEncoding(WebScriptUtils.CONTENT_ENCODING_UTF_8);
-        saveDocumentType.toJSONObject()
-                .write(res.getWriter());
+    @Authentication(AuthenticationType.ADMIN)
+    @Uri(value = "/api/openesdh/document/type?nodeRefId=", method = HttpMethod.POST, defaultFormat = "json")
+    public Resolution post(
+            @RequestParam(required = false) final NodeRef nodeRefId,
+            @RequestParam(required = true) final String name,
+            @RequestParam(required = true) final String mlDisplayNames
+    ) throws IOException, JSONException {
+        DocumentType savedDocumentType = createOrUpdateDocumentType(nodeRefId, name, mlDisplayNames);
+        return WebScriptUtils.jsonResolution(savedDocumentType.toJSONObject());
     }
 
-    @Override
-    protected void delete(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
-        checkRequiredParam(nodeRef, "nodeRef");
+    @Authentication(AuthenticationType.ADMIN)
+    @Uri(value = "/api/openesdh/document/type?nodeRefId=", method = HttpMethod.DELETE, defaultFormat = "json")
+    public Resolution delete(@RequestParam(required = true) final NodeRef nodeRefId) throws IOException, JSONException {
         DocumentType type = new DocumentType();
-        type.setNodeRef(nodeRef);
+        type.setNodeRef(nodeRefId);
         documentTypeService.deleteDocumentType(type);
-        res.getWriter().append("Deleted succesfully");
+        return WebScriptUtils.jsonResolution("Deleted succesfully");
     }
 
     private DocumentType createOrUpdateDocumentType(NodeRef nodeRef, String name, String mlDisplayNames) throws JSONException {
