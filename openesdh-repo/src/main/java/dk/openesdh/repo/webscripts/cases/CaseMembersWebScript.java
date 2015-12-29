@@ -1,8 +1,11 @@
 package dk.openesdh.repo.webscripts.cases;
 
-import static dk.openesdh.repo.webscripts.ParamUtils.getOptionalParameter;
-import static dk.openesdh.repo.webscripts.ParamUtils.getRequiredParameter;
-import static dk.openesdh.repo.webscripts.ParamUtils.getRequiredParameters;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
+import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -17,68 +20,70 @@ import org.alfresco.service.cmr.security.PersonService;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.extensions.webscripts.Status;
+import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
-import org.springframework.extensions.webscripts.WebScriptResponse;
+import org.springframework.stereotype.Component;
 
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.members.CaseMembersService;
-import dk.openesdh.repo.webscripts.AbstractRESTWebscript;
+import static dk.openesdh.repo.webscripts.ParamUtils.checkRequiredParam;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
-public class CaseMembersWebScript extends AbstractRESTWebscript {
+@Component
+@WebScript(description = "Case Members managment", families = {"Case Tools"})
+public class CaseMembersWebScript {
 
+    @Autowired
     private CaseService caseService;
+    @Autowired
     private CaseMembersService caseMembersService;
+    @Autowired
     private AuthorityService authorityService;
+    @Autowired
     private PersonService personService;
 
-    @Override
-    protected NodeRef getNodeRef(WebScriptRequest req, Map<String, String> templateArgs) {
-        String caseId = templateArgs.get(WebScriptUtils.CASE_ID);
-        return caseService.getCaseById(caseId);
-    }
-
-    @Override
-    protected void get(NodeRef caseNodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
+    @Uri(value = "/api/openesdh/case/{caseId}/members", method = HttpMethod.GET, defaultFormat = "json")
+    public Resolution get(@UriVariable final String caseId) throws JSONException {
+        NodeRef caseNodeRef = caseService.getCaseById(caseId);
         Map<String, Set<String>> membersByRole = caseMembersService.getMembersByRole(caseNodeRef, true, true);
-        JSONArray json = buildJSON(membersByRole);
-        json.write(res.getWriter());
+        return WebScriptUtils.jsonResolution(buildJSON(membersByRole));
     }
 
-    @Override
-    protected void post(NodeRef caseNodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
-        String role = getRequiredParameter(req, "role");
-        String fromRole = getOptionalParameter(req, "fromRole");
-
-        JSONObject json = new JSONObject();
+    @Uri(value = "/api/openesdh/case/{caseId}/members", method = HttpMethod.POST, defaultFormat = "json")
+    public void post(
+            @UriVariable final String caseId,
+            @RequestParam(required = true) final String role,
+            @RequestParam(required = false) final String fromRole,
+            @RequestParam(required = false) final String authority,
+            @RequestParam(required = false) final String[] authorityNodeRefs,
+            WebScriptRequest req) throws JSONException {
+        NodeRef caseNodeRef = caseService.getCaseById(caseId);
         try {
             if (fromRole != null) {
                 // When "fromRole" is specified, move the authority
-                String authority = getRequiredParameter(req, "authority");
+                checkRequiredParam(authority, "authority");
                 caseMembersService.changeAuthorityRole(authority, fromRole, role, caseNodeRef);
             } else {
-                String[] authorityNodeRefsStr = getRequiredParameters(req, "authorityNodeRefs");
-                List<NodeRef> authorities = convertToNodeRefsList(authorityNodeRefsStr);
+                checkRequiredParam(authorityNodeRefs, "authorityNodeRefs");
+                List<NodeRef> authorities = convertToNodeRefsList(authorityNodeRefs);
                 caseMembersService.addAuthoritiesToRole(authorities, role, caseNodeRef);
             }
         } catch (DuplicateChildNodeNameException e) {
-            json.put("duplicate", true);
-            res.setStatus(Status.STATUS_CONFLICT);
+            throw new WebScriptException(Status.STATUS_CONFLICT, "dublicate", e);
         }
-        json.write(res.getWriter());
     }
 
-    @Override
-    protected void delete(NodeRef caseNodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
-        String authority = getRequiredParameter(req, "authority");
-        String role = getRequiredParameter(req, "role");
-
+    @Uri(value = "/api/openesdh/case/{caseId}/member", method = HttpMethod.DELETE, defaultFormat = "json")
+    public Resolution delete(
+            @UriVariable final String caseId,
+            @RequestParam final String role,
+            @RequestParam final String authority
+    ) throws IOException, JSONException {
+        NodeRef caseNodeRef = caseService.getCaseById(caseId);
         caseMembersService.removeAuthorityFromRole(authority, role, caseNodeRef);
-
-        JSONObject json = new JSONObject();
-        json.put("success", true);
-        json.write(res.getWriter());
+        return WebScriptUtils.jsonResolution(new JSONObject().put("success", true));
     }
 
     private JSONArray buildJSON(Map<String, Set<String>> membersByRole) throws JSONException {
@@ -116,21 +121,4 @@ public class CaseMembersWebScript extends AbstractRESTWebscript {
         }
         return authorities;
     }
-
-    public void setCaseService(CaseService caseService) {
-        this.caseService = caseService;
-    }
-
-    public void setAuthorityService(AuthorityService authorityService) {
-        this.authorityService = authorityService;
-    }
-
-    public void setPersonService(PersonService personService) {
-        this.personService = personService;
-    }
-
-    public void setCaseMembersService(CaseMembersService caseMembersService) {
-        this.caseMembersService = caseMembersService;
-    }
-
 }

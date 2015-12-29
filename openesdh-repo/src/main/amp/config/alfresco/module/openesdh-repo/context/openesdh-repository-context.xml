@@ -117,18 +117,6 @@
         <property name="nodeService" ref="NodeService"/>
     </bean>
 
-    <bean id="caseMemberWebscript"
-          class="dk.openesdh.repo.webscripts.cases.CaseMembersWebScript"
-          parent="webscript">
-        <property name="caseService" ref="CaseService"/>
-        <property name="caseMembersService" ref="CaseMembersService"/>
-        <property name="authorityService" ref="AuthorityService"/>
-        <property name="personService" ref="PersonService"/>
-    </bean>
-    <bean id="webscript.dk.openesdh.case.members.casemembers.get" parent="caseMemberWebscript"></bean>
-    <bean id="webscript.dk.openesdh.case.members.casemembers.post" parent="caseMemberWebscript"></bean>
-    <bean id="webscript.dk.openesdh.case.members.casemembers.delete" parent="caseMemberWebscript"></bean>
-
     <bean id="webscript.dk.openesdh.case.memberslist.get" class="dk.openesdh.repo.webscripts.cases.MembersList" parent="webscript">
         <property name="authorityService" ref="AuthorityService" />
         <property name="caseService" ref="CaseService" />
@@ -236,85 +224,4 @@
 
         <property name="dictionaryService" ref="dictionaryService"/>
     </bean>
-    
-    <bean id="casePartyRoleWebscript" class="dk.openesdh.repo.webscripts.cases.CasePartyRole" parent="webscript">
-        <property name="partyService" ref="PartyService"/>
-        <property name="contactService" ref="ContactService"/>
-    </bean>
-    <bean id="webscript.dk.openesdh.case.parties.party.get" parent="casePartyRoleWebscript"/>
-    <bean id="webscript.dk.openesdh.case.parties.party.post" parent="casePartyRoleWebscript"/>
-    <bean id="webscript.dk.openesdh.case.parties.party.put" parent="casePartyRoleWebscript"/>
-    <bean id="webscript.dk.openesdh.case.parties.party.delete" parent="casePartyRoleWebscript"/>
-
-    <!--Miscellaneous-->
-    <bean id="webscript.dk.openesdh.case.searchDefinition.get" parent="webscript"
-          class="dk.openesdh.repo.webscripts.cases.SearchDefinition">
-        <property name="caseService" ref="CaseService"/>
-        <property name="namespaceService" ref="namespaceService"/>
-    </bean>
-    <bean id="webscript.dk.openesdh.currentUser.get" parent="webscript"
-          class="dk.openesdh.repo.webscripts.CurrentUser">
-        <property name="personService" ref="PersonService"/>
-    </bean>
-
-    <!--Constraint webscripts-->
-    <bean id="webscript.dk.openesdh.case.constraints.get" parent="webscript"
-          class="dk.openesdh.repo.webscripts.cases.CaseConstraints">
-        <property name="dictionaryService" ref="dictionaryService"/>
-        <property name="caseService" ref="CaseService" />
-    </bean>
-
-    <bean id="webscript.dk.openesdh.documents.constraints.get" parent="webscript"
-          class="dk.openesdh.repo.webscripts.documents.DocumentConstraints">
-        <property name="dictionaryService" ref="dictionaryService"/>
-        <property name="caseService" ref="CaseService" />
-        <property name="documentTypeService" ref="DocumentTypeService"/>
-        <property name="documentCategoryService" ref="DocumentCategoryService"/>
-    </bean>
-
-    <bean id="webscript.dk.openesdh.case.caseUserPermissions.get" parent="webscript"
-          class="dk.openesdh.repo.webscripts.cases.CaseUserPermissions">
-        <property name="caseService" ref="CaseService" />
-    </bean>
-    
-    <bean id="webscript.dk.openesdh.officetemplate.officetemplate.get"
-          class="dk.openesdh.repo.webscripts.officetemplate.OfficeTemplateGet"
-          parent="webscript">
-        <property name="officeTemplateService" ref="OfficeTemplateService"/>
-    </bean>
-
-    <bean id="webscript.dk.openesdh.officetemplate.officetemplatefill.post"
-          class="dk.openesdh.repo.webscripts.officetemplate.OfficeTemplateFillPost"
-          parent="webscript">
-        <property name="officeTemplateService" ref="OfficeTemplateService"/>
-    </bean>
-    
-    <!--Document types-->
-    <bean id="documentTypesWebscript"
-          class="dk.openesdh.repo.webscripts.documents.DocumentTypesWebScript"
-          parent="webscript">
-        <property name="documentTypeService" ref="DocumentTypeService"/>
-    </bean>
-    <bean id="webscript.dk.openesdh.documents.types.doctype.get" parent="documentTypesWebscript"></bean>
-    <bean id="webscript.dk.openesdh.documents.types.doctype.post" parent="documentTypesWebscript"></bean>
-    <bean id="webscript.dk.openesdh.documents.types.doctype.delete" parent="documentTypesWebscript"></bean>
-    
-    <!--Document categories-->
-    <bean id="documentCategoriesWebscript"
-          class="dk.openesdh.repo.webscripts.documents.DocumentCategoriesWebScript"
-          parent="webscript">
-        <property name="documentCategoryService" ref="DocumentCategoryService"/>
-    </bean>
-    <bean id="webscript.dk.openesdh.documents.categories.doccategory.get" parent="documentCategoriesWebscript"></bean>
-    <bean id="webscript.dk.openesdh.documents.categories.doccategory.post" parent="documentCategoriesWebscript"></bean>
-    <bean id="webscript.dk.openesdh.documents.categories.doccategory.delete" parent="documentCategoriesWebscript"></bean>
-    
-    <!--Adding members to group-->
-    <bean id="webscript.org.alfresco.repository.groups.children.put" parent="webscript"
-          class="dk.openesdh.repo.webscripts.groups.Members">
-        <property name="authorityService" ref="authorityService"/>
-        <property name="personService" ref="personService"/>
-    </bean>
-
 </beans>
-
