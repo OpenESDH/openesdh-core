@@ -131,4 +131,30 @@
             </list>
         </property>
     </bean>
+    <bean id="patch.siteLoadPatch.opene" class="org.alfresco.repo.admin.patch.impl.SiteLoadPatch" parent="basePatch">
+        <property name="id"><value>patch.siteLoadPatch.opene</value></property>
+        <property name="description"><value>patch.siteLoadPatch.description</value></property>
+        <property name="fixesFromSchema"><value>0</value></property>
+        <property name="fixesToSchema"><value>${version.schema}</value></property>
+        <property name="targetSchema"><value>10000</value></property>
+        <property name="spacesBootstrap" ref="siteLoadBootstrap-Spaces" />
+        <property name="usersBootstrap" ref="siteLoadBootstrap-Users" />
+        <property name="siteService" ref="siteService" />
+        <property name="descriptorService" ref="descriptorComponent" />
+        <property name="authorityService" ref="authorityService" />
+        <property name="behaviourFilter" ref="policyBehaviourFilter" />
+        <property name="siteName">
+            <value>opene</value>
+        </property>
+        <property name="bootstrapViews">
+            <map>
+                <entry key="contents">
+                    <props>
+                        <prop key="path">app:company_home/st:sites</prop>
+                        <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/sites.xml</prop>
+                    </props>
+                </entry>
+            </map>
+        </property>
+    </bean>
 </beans>

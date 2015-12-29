@@ -180,6 +180,12 @@
         <property name="behaviourFilter">
             <ref bean="policyBehaviourFilter"/>
         </property>
+        <property name="permissionService">
+            <ref bean="PermissionService"/>
+        </property>
+        <property name="lockService">
+            <ref bean="LockService"/>
+        </property>
     </bean>
 
     <bean id="DocTemplateService" class="dk.openesdh.repo.services.documents.DocumentTemplateServiceImpl">

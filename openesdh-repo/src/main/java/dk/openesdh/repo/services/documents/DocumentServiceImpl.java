@@ -17,12 +17,14 @@ import java.util.stream.Collectors;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.content.MimetypeMap;
+import org.alfresco.repo.lock.mem.LockState;
 import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.rendition.executer.ReformatRenderingEngine;
 import org.alfresco.repo.search.impl.lucene.LuceneQueryParserException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.version.VersionModel;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
+import org.alfresco.service.cmr.lock.LockService;
 import org.alfresco.service.cmr.rendition.RenditionDefinition;
 import org.alfresco.service.cmr.rendition.RenditionService;
 import org.alfresco.service.cmr.rendition.RenditionServiceException;
@@ -39,7 +41,9 @@ import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.search.LimitBy;
 import org.alfresco.service.cmr.search.SearchParameters;
 import org.alfresco.service.cmr.search.SearchService;
+import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.security.PersonService;
+import org.alfresco.service.cmr.security.PersonService.PersonInfo;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionHistory;
 import org.alfresco.service.cmr.version.VersionService;
@@ -65,6 +69,7 @@ import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.model.ResultSet;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.lock.OELockService;
+import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 import dk.openesdh.repo.webscripts.documents.Documents;
 
 /**
@@ -91,6 +96,8 @@ public class DocumentServiceImpl implements DocumentService {
     private DocumentTypeService documentTypeService;
     private DocumentCategoryService documentCategoryService;
     private BehaviourFilter behaviourFilter;
+    private PermissionService permissionService;
+    private LockService lockService;
 
     private String finalizedFileFormat;
     private String acceptableFinalizedFileFormats;
@@ -179,6 +186,14 @@ public class DocumentServiceImpl implements DocumentService {
 
     public void setBehaviourFilter(BehaviourFilter behaviourFilter) {
         this.behaviourFilter = behaviourFilter;
+    }
+
+    public void setPermissionService(PermissionService permissionService) {
+        this.permissionService = permissionService;
+    }
+
+    public void setLockService(LockService lockService) {
+        this.lockService = lockService;
     }
 
     public void init() {
@@ -781,6 +796,16 @@ public class DocumentServiceImpl implements DocumentService {
         String extension = FilenameUtils.getExtension(attachment.getName());
         attachment.setFileType(extension);
 
+        LockState state = AuthenticationUtil.runAsSystem(() -> {
+            return lockService.getLockState(nodeRef);
+        });
+
+        if (state.isLockInfo()) {
+            attachment.setLocked(true);
+            attachment.setLockOwner(state.getOwner());
+            attachment.setLockOwnerInfo(getPersonInfo(state.getOwner()));
+        }
+
         NodeRef creatorNodeRef = personService
                 .getPersonOrNull(properties.get(ContentModel.PROP_CREATOR).toString());
         if (creatorNodeRef != null) {
@@ -855,6 +880,39 @@ public class DocumentServiceImpl implements DocumentService {
                 .findFirst()
                 .map(assoc -> assoc.getParentRef())
                 .get();
+    }
+
+    @Override
+    public String getDocumentEditOnlinePath(NodeRef docOrAttachmentNodeRef) {
+        return nodeService.getPaths(docOrAttachmentNodeRef, false)
+                .stream()
+                .map(path -> path.toDisplayPath(nodeService, permissionService))
+                .filter(path -> path.startsWith(OpenESDHFoldersService.OPENE_SITE_CASES_PATH))
+                .map(path -> path.replace(OpenESDHFoldersService.SITES_PATH_ROOT, ""))
+                .findAny()
+                .orElse("");
+    }
+
+    @Override
+    public JSONObject getDocumentEditLockState(NodeRef docOrAttachmentNodeRef) throws JSONException {
+        JSONObject lockState = new JSONObject();
+        LockState state = AuthenticationUtil.runAsSystem(() -> {
+            return lockService.getLockState(docOrAttachmentNodeRef);
+        });
+        lockState.put("isLocked", state.isLockInfo());
+        if (!state.isLockInfo()) {
+            return lockState;
+        }
+        String lockOwner = state.getOwner();
+        lockState.put("lockOwner", lockOwner);
+        lockState.put("lockOwnerInfo", getPersonInfo(lockOwner));
+        return lockState;
+    }
+
+    private String getPersonInfo(String userName) {
+        PersonInfo personInfo = personService.getPerson(personService.getPerson(userName));
+        String personInfoStr = personInfo.getFirstName() + " " + personInfo.getLastName();
+        return personInfoStr.trim();
     }
 
     @Override
