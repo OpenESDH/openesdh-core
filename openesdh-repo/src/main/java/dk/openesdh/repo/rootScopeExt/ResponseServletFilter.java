@@ -1,13 +1,19 @@
 package dk.openesdh.repo.rootScopeExt;
 
-import org.alfresco.httpclient.HttpMethodResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import java.io.IOException;
 
-import javax.servlet.*;
+import javax.servlet.Filter;
+import javax.servlet.FilterChain;
+import javax.servlet.FilterConfig;
+import javax.servlet.ServletException;
+import javax.servlet.ServletRequest;
+import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
-import java.io.IOException;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * This filter was created to prevent browsers rendering the basic auth dialog in respnse to a 401 message. For this to
@@ -46,12 +52,20 @@ public class ResponseServletFilter implements Filter {
             }
 
             @Override
+            // aaa
             public void setStatus(int code, String sm) {
                 super.setStatus(code, sm);
-                if(code == 401) changeAuthHeader();
+                if (code == 401)
+                    changeAuthHeader();
             }
 
             private void changeAuthHeader() {
+
+                HttpServletRequest httpRequest = (HttpServletRequest) request;
+                String dontChangeWwwAuthenticate = httpRequest.getHeader("DontChangeWwwAuthenticate");
+                if (dontChangeWwwAuthenticate != null && dontChangeWwwAuthenticate.length() != 0) {
+                    return;
+                }
                 this.setHeader("WWW-Authenticate", "FormBased");
             }
         };
