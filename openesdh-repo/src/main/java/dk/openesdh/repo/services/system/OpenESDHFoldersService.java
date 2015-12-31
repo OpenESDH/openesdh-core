@@ -13,6 +13,8 @@ public interface OpenESDHFoldersService {
     public static String DOCUMENT_TEMPLATES = "officeTemplates";
     public static String DOCUMENT_CATEGORIES = "document_categories";
     public static String SUBSYSTEM_ROOT = "subsystems";
+    public static String SITES_PATH_ROOT = "/Company Home/Sites";
+    public static String OPENE_SITE_CASES_PATH = "/Company Home/Sites/opene/cases";
 
     public NodeRef getOpenESDHRootFolder();
 

@@ -18,6 +18,9 @@ public class CaseDocumentAttachment {
     private String type;
     private String fileType;
     private String description;
+    private boolean locked;
+    private String lockOwner;
+    private String lockOwnerInfo;
     private List<CaseDocumentAttachment> versions = new ArrayList<CaseDocumentAttachment>();
 
     public String getName() {
@@ -106,6 +109,30 @@ public class CaseDocumentAttachment {
 
     public void setVersions(List<CaseDocumentAttachment> versions) {
         this.versions = versions;
+    }
+
+    public boolean isLocked() {
+        return locked;
+    }
+
+    public void setLocked(boolean locked) {
+        this.locked = locked;
+    }
+
+    public String getLockOwner() {
+        return lockOwner;
+    }
+
+    public void setLockOwner(String lockOwner) {
+        this.lockOwner = lockOwner;
+    }
+
+    public String getLockOwnerInfo() {
+        return lockOwnerInfo;
+    }
+
+    public void setLockOwnerInfo(String lockOwnerInfo) {
+        this.lockOwnerInfo = lockOwnerInfo;
     }
 
 }
