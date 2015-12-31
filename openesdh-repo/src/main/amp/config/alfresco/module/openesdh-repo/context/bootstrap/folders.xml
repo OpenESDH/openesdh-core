@@ -20,7 +20,9 @@
             |   |_contact_resolution
             |           |_<dSource resolution type> (e.g. cpr_broker)
             |_ clasification
-                |_ document_types
+            |   |_ document_types
+            |   |_ document_categories
+            |_ parameters
     -->
     <cm:folder view:childName="oe:OpenESDH">
         <app:uifacets />
@@ -190,6 +192,15 @@
                         </view:properties>
                     </cm:folder>
                 </cm:contains>
+            </cm:folder>
+            <cm:folder view:childName="oe:parameters">
+                <cm:name>parameters</cm:name>
+                <view:properties>
+                    <sys:store-protocol>workspace</sys:store-protocol>
+                    <sys:store-identifier>SpacesStore</sys:store-identifier>
+                    <sys:node-uuid>26677915-4312-465d-a6f1-5ed64fa9735c</sys:node-uuid>
+                    <cm:description>This folder stores all openESDH configuration parameters</cm:description>
+                </view:properties>
             </cm:folder>
         </cm:contains>
     </cm:folder>

@@ -13,6 +13,7 @@ public interface OpenESDHFoldersService {
     public static String DOCUMENT_TEMPLATES = "officeTemplates";
     public static String DOCUMENT_CATEGORIES = "document_categories";
     public static String SUBSYSTEM_ROOT = "subsystems";
+    public static String PARAMETERS_ROOT = "parameters";
 
     public NodeRef getOpenESDHRootFolder();
 
@@ -29,4 +30,6 @@ public interface OpenESDHFoldersService {
     public NodeRef getDocumentCategoriesRootNodeRef();
 
     public NodeRef getSubsystemRootNodeRef();
+
+    public NodeRef getParametersRootNodeRef();
 }

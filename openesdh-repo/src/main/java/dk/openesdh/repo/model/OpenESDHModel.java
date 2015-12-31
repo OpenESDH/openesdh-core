@@ -35,6 +35,8 @@ public interface OpenESDHModel {
      */
     QName TYPE_OE_BASE = QName.createQName(OE_URI, TYPE_BASE_NAME);
 
+    QName TYPE_OE_PARAMETER = QName.createQName(OE_URI, "parameter");
+
     QName TYPE_CASE_BASE = QName.createQName(CASE_URI, "case");
     QName TYPE_CASE_COMPLAINT = QName.createQName(CASE_URI, "complaint");
 
@@ -49,10 +51,9 @@ public interface OpenESDHModel {
 
     QName TYPE_CONTACT_BASE = QName.createQName(CONTACT_URI, "base");
     QName TYPE_CONTACT_PERSON = QName.createQName(CONTACT_URI, "person");
-    QName TYPE_CONTACT_ORGANIZATION = QName.createQName (CONTACT_URI, "organization");
+    QName TYPE_CONTACT_ORGANIZATION = QName.createQName(CONTACT_URI, "organization");
 
     QName TYPE_NOTE_NOTE = QName.createQName(NOTE_URI, "note");
-
 
     /**
      * Aspects
@@ -120,6 +121,8 @@ public interface OpenESDHModel {
     QName PROP_CASE_ENDDATE = QName.createQName(CASE_URI, "endDate");
     QName PROP_OE_STATUS = QName.createQName(OE_URI, "status");
     QName PROP_CASE_SUBJECT = QName.createQName(CASE_URI, "subject");//TODO This is a value used for testing
+
+    QName PROP_OE_PARAMETER_BOOL_VALUE = QName.createQName(OE_URI, "boolValue");
 
     QName PROP_CASE_UNIQUE_NUMBER = QName.createQName(CASE_URI, "uniqueNumber");
 
