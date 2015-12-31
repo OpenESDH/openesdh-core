@@ -5,6 +5,11 @@ import java.io.IOException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
+import com.github.dynamicextensionsalfresco.webscripts.AnnotationWebScriptRequest;
+import com.github.dynamicextensionsalfresco.webscripts.AnnotationWebscriptResponse;
+import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
+import com.github.dynamicextensionsalfresco.webscripts.resolutions.ResolutionParameters;
+
 import dk.openesdh.repo.model.ResultSet;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
@@ -51,6 +56,11 @@ public interface PageableWebScript<T> {
         res.setHeader("Content-Range", "items " + startIndex + "-" + resultsEnd + "/" + items.getTotalItems());
         res.setContentEncoding(WebScriptUtils.CONTENT_ENCODING_UTF_8);
         WebScriptUtils.writeJson(items.getResultList(), res);
+    }
+
+    static Resolution getItemsPage(PageableWebScript<?> ws) {
+        return (AnnotationWebScriptRequest req, AnnotationWebscriptResponse res, ResolutionParameters params) -> getItemsPage(
+                req, res, ws);
     }
 
     ResultSet<T> getItems(int startIndex, int pageSize);

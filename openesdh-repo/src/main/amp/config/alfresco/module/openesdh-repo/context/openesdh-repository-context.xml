@@ -66,11 +66,6 @@
         <property name="caseDocumentsSearchService" ref="CaseDocumentsAttachmentsSearchService"/>
     </bean>
     
-    <bean id="webscript.dk.openesdh.case.documentAttachmentsWithVersions.get" class="dk.openesdh.repo.webscripts.documents.CaseDocumentAttachmentsWithVersionsWebScript"
-          parent="webscript">
-        <property name="documentService" ref="DocumentService"/>
-    </bean>
-    
     <bean id="webscript.dk.openesdh.case.caseDocumentsWithAttachments.get" class="dk.openesdh.repo.webscripts.documents.CaseDocumentsWithAttachmentsWebScript"
           parent="webscript">
         <property name="documentService" ref="DocumentService"/>
@@ -89,15 +84,7 @@
         <property name="namespaceService" ref="namespaceService"/>
         <property name="contactSearchService" ref="ContactSearchService"/>
     </bean>
-
-    <bean id="webscript.dk.openesdh.case.docRecordInfo.get"
-          class="dk.openesdh.repo.webscripts.cases.DocumentRecordInfo"
-          parent="webscript">
-        <property name="nodeInfoService" ref="NodeInfoService"/>
-        <property name="documentService" ref="DocumentService"/>
-        <property name="oeLockService" ref="OELockService"/>
-    </bean>
-
+    
     <bean id="webscript.dk.openesdh.iscasenode.get"
           class="dk.openesdh.repo.webscripts.cases.IsCaseNode"
           parent="webscript">
