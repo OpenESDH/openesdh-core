@@ -3,12 +3,7 @@ package dk.openesdh.repo.services.system;
 import com.google.common.base.Joiner;
 import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
-import dk.openesdh.repo.model.OpenESDHModel;
-import static dk.openesdh.repo.services.system.OpenESDHFoldersService.CASES_ROOT;
-import static dk.openesdh.repo.services.system.OpenESDHFoldersService.CLASSIFICATIONS;
-import static dk.openesdh.repo.services.system.OpenESDHFoldersService.DOCUMENT_CATEGORIES;
-import static dk.openesdh.repo.services.system.OpenESDHFoldersService.DOCUMENT_TYPES;
-import static dk.openesdh.repo.services.system.OpenESDHFoldersService.OPENESDH_ROOT_CONTEXT;
+
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -22,6 +17,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import dk.openesdh.repo.model.OpenESDHModel;
+import static dk.openesdh.repo.services.system.OpenESDHFoldersService.CASES_ROOT;
+import static dk.openesdh.repo.services.system.OpenESDHFoldersService.CLASSIFICATIONS;
+import static dk.openesdh.repo.services.system.OpenESDHFoldersService.DOCUMENT_CATEGORIES;
+import static dk.openesdh.repo.services.system.OpenESDHFoldersService.DOCUMENT_TYPES;
+import static dk.openesdh.repo.services.system.OpenESDHFoldersService.OPENESDH_ROOT_CONTEXT;
+import static dk.openesdh.repo.services.system.OpenESDHFoldersService.PARAMETERS_ROOT;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -82,5 +85,10 @@ public class OpenESDHFoldersServiceImplIT {
     @Test
     public void testGetDocumentcategoriesRootNodeRef() {
         assertPath(openESDHFoldersService.getDocumentCategoriesRootNodeRef(), OPENESDH_ROOT_CONTEXT, CLASSIFICATIONS, DOCUMENT_CATEGORIES);
+    }
+
+    @Test
+    public void testGetParametersRootNodeRef() {
+        assertPath(openESDHFoldersService.getParametersRootNodeRef(), OPENESDH_ROOT_CONTEXT, PARAMETERS_ROOT);
     }
 }
