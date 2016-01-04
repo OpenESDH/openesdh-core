@@ -3,9 +3,38 @@
 
 <beans>
     <!--The initial openESDH folder context-->
+    <!-- load folders every time -->
+    <bean id="${project.artifactId}_bootstrap" parent="spacesStoreImporter">
+        <property name="log">
+            <value>false</value>
+        </property>
+        <property name="useExistingStore">
+            <value>true</value>
+        </property>
+        <property name="transactionService" ref="transactionService"/>
+        <property name="bootstrapViews">
+            <list>
+                <props>
+                    <prop key="path">app:company_home</prop>
+                    <!--<prop key="uuidBinding">REPLACE_EXISTING</prop>-->
+                    <prop key="uuidBinding">UPDATE_EXISTING</prop>
+                    <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/folders.xml</prop>
+                </props>
+                <props>
+                    <prop key="path">app:company_home/oe:OpenESDH/oe:subsystems/oe:officeTemplates</prop>
+                    <prop key="uuidBinding">UPDATE_EXISTING</prop>
+                    <prop key="childAssocType">rule:ruleFolder</prop>
+                    <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/templateRuleFolder.xml</prop>
+                </props>
+            </list>
+        </property>
+    </bean>
+    
+    <!-- load folders as patch for the first time -->
     <bean id="patch.foldersLoadPatch.opene" class="org.alfresco.repo.admin.patch.impl.GenericBootstrapPatch" parent="basePatch" >
         <property name="id"><value>patch.foldersLoadPatch.opene</value></property>
-        <property name="description"><value>patch.foldersLoadPatch.opene.description</value></property>
+        <property name="description"><value>Creates necessary folders for OpenESDH</value></property>
+        <property name="ignored"><value>true</value></property>
         <property name="fixesFromSchema"><value>0</value></property>
         <property name="fixesToSchema"><value>${version.schema}</value></property>
         <property name="targetSchema"><value>10000</value></property>
@@ -22,33 +51,9 @@
         </property>
     </bean>
     
-    <bean id="patch.rulesLoadPatch.opene" class="org.alfresco.repo.admin.patch.impl.GenericBootstrapPatch" parent="basePatch" >
-        <property name="id"><value>patch.rulesLoadPatch.opene</value></property>
-        <property name="description"><value>patch.rulesLoadPatch.opene.description</value></property>
-        <property name="fixesFromSchema"><value>0</value></property>
-        <property name="fixesToSchema"><value>${version.schema}</value></property>
-        <property name="targetSchema"><value>10000</value></property>
-        <property name="importerBootstrap">
-            <ref bean="spacesBootstrap" />
-        </property>
-        <property name="dependsOn" >
-            <list>
-                <ref bean="patch.foldersLoadPatch.opene" />
-            </list>
-        </property>
-        <property name="bootstrapView">
-            <props>
-                <prop key="path">/app:company_home/oe:OpenESDH/oe:subsystems/oe:officeTemplates</prop>
-                <prop key="childAssocType">rule:ruleFolder</prop>
-                <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/templateRuleFolder.xml</prop>
-                <prop key="uuidBinding">UPDATE_EXISTING</prop>
-            </props>
-        </property>
-    </bean>
-    
     <bean id="patch.siteLoadPatch.opene" class="org.alfresco.repo.admin.patch.impl.SiteLoadPatch" parent="basePatch">
         <property name="id"><value>patch.siteLoadPatch.opene</value></property>
-        <property name="description"><value>patch.siteLoadPatch.description</value></property>
+        <property name="description"><value>Creates site</value></property>
         <property name="fixesFromSchema"><value>0</value></property>
         <property name="fixesToSchema"><value>${version.schema}</value></property>
         <property name="targetSchema"><value>10000</value></property>
