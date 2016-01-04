@@ -8,7 +8,7 @@
         <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>
         <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>
         <import uri="http://www.alfresco.org/model/system/1.0" prefix="sys"/>
-        <import uri="http://openesdh.dk/model/contact/1.0" prefix="contact" />
+        <import uri="http://openesdh.dk/model/contact/1.0" prefix="contact"/>
     </imports>
     <namespaces>
         <namespace uri="http://openesdh.dk/model/openesdh/1.0" prefix="oe"/>
@@ -29,22 +29,32 @@
                 <aspect>oe:titled</aspect>
             </mandatory-aspects>
         </type>
+        <type name="oe:parameter">
+            <title>OpeneESDH parameter</title>
+            <parent>cm:cmobject</parent>
+            <properties>
+                <property name="oe:boolValue">
+                    <type>d:boolean</type>
+                    <default>false</default>
+                </property>
+            </properties>
+        </type>
     </types>
 
     <aspects>
         <aspect name="oe:ownable">
             <properties>
-	            <property name="oe:owners">
-	                <type>d:text</type>
-	                <mandatory>true</mandatory>
-	                <multiple>true</multiple>
-	                <index enabled="true">
-	                    <atomic>true</atomic>
-	                    <stored>false</stored>
-	                    <tokenised>both</tokenised>
-	                    <facetable>true</facetable>
-	                </index>
-	            </property>
+                <property name="oe:owners">
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                    <multiple>true</multiple>
+                    <index enabled="true">
+                        <atomic>true</atomic>
+                        <stored>false</stored>
+                        <tokenised>both</tokenised>
+                        <facetable>true</facetable>
+                    </index>
+                </property>
             </properties>
         </aspect>
         <aspect name="oe:partied">
