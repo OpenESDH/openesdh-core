@@ -1,8 +1,8 @@
 package dk.openesdh.repo.webscripts.documents;
 
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
+import java.io.IOException;
+import java.util.Map;
+
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -10,12 +10,12 @@ import org.json.simple.JSONObject;
 import org.springframework.extensions.webscripts.*;
 import org.springframework.util.StringUtils;
 
-import java.io.IOException;
-import java.util.Map;
+import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 public class ChangeDocumentStatus extends AbstractWebScript {
 
-	private static Log logger = LogFactory.getLog(ChangeDocumentStatus.class);
+    private static final Log logger = LogFactory.getLog(ChangeDocumentStatus.class);
 
 	private DocumentService documentService;
 

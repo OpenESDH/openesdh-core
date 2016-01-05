@@ -195,6 +195,9 @@
         <property name="lockService">
             <ref bean="LockService"/>
         </property>
+        <property name="authorityService">
+            <ref bean="AuthorityService"/>
+        </property>
     </bean>
 
     <bean id="DocTemplateService" class="dk.openesdh.repo.services.documents.DocumentTemplateServiceImpl">

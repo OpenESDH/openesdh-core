@@ -41,6 +41,7 @@ import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.search.LimitBy;
 import org.alfresco.service.cmr.search.SearchParameters;
 import org.alfresco.service.cmr.search.SearchService;
+import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.security.PersonService.PersonInfo;
@@ -75,7 +76,6 @@ import dk.openesdh.repo.webscripts.documents.Documents;
 /**
  * Created by torben on 11/09/14.
  */
-
 public class DocumentServiceImpl implements DocumentService {
 
     private static final QName FINAL_PDF_RENDITION_DEFINITION_NAME = QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "finalPdfRenditionDefinition");
@@ -98,6 +98,7 @@ public class DocumentServiceImpl implements DocumentService {
     private BehaviourFilter behaviourFilter;
     private PermissionService permissionService;
     private LockService lockService;
+    private AuthorityService authorityService;
 
     private String finalizedFileFormat;
     private String acceptableFinalizedFileFormats;
@@ -196,6 +197,10 @@ public class DocumentServiceImpl implements DocumentService {
         this.lockService = lockService;
     }
 
+    public void setAuthorityService(AuthorityService authorityService) {
+        this.authorityService = authorityService;
+    }
+
     public void init() {
         acceptableFinalizedFileMimeTypes = new HashSet<>(20);
         for (String extension : acceptableFinalizedFileFormats.split(",")) {
@@ -206,12 +211,12 @@ public class DocumentServiceImpl implements DocumentService {
         }
     }
 
-    protected boolean canLeaveStatus(String status, String user, NodeRef nodeRef) {
-        // For now anyone can exit any document status
-        return true;
+    private boolean canLeaveStatus(String status, String user, NodeRef nodeRef) {
+        return !DocumentStatus.FINAL.equals(status) //not locked
+                || authorityService.isAdminAuthority(user); //or admin
     }
 
-    protected boolean canEnterStatus(String status, String user, NodeRef nodeRef) {
+    private boolean canEnterStatus(String status, String user, NodeRef nodeRef) {
         // For now anyone can enter any document status
         return true;
     }
@@ -219,25 +224,28 @@ public class DocumentServiceImpl implements DocumentService {
     public void checkCanChangeStatus(NodeRef nodeRef, String fromStatus, String toStatus) throws AccessDeniedException {
         String user = AuthenticationUtil.getRunAsUser();
         if (!isDocNode(nodeRef)) {
-            throw new AlfrescoRuntimeException("Node is not a document node:" +
-                    " " + nodeRef);
+            throw new AlfrescoRuntimeException("Node is not a document node:"
+                    + " " + nodeRef);
         }
         if (!canChangeNodeStatus(fromStatus, toStatus, user, nodeRef)) {
-            throw new AccessDeniedException(user + " is not allowed to " +
-                    "switch document from status " + fromStatus + " to " +
-                    toStatus + " for document " + nodeRef);
+            throw new AccessDeniedException(user + " is not allowed to "
+                    + "switch document from status " + fromStatus + " to "
+                    + toStatus + " for document " + nodeRef);
         }
     }
 
     private void changeStatusImpl(NodeRef nodeRef, String fromStatus, String newStatus) {
         switch (newStatus) {
             case DocumentStatus.FINAL:
-                nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, newStatus);
-                // Transform main doc and attachments to finalized formats
-                // TODO: Re-enable this after demo: see OPENE-278
+                AuthenticationUtil.runAsSystem(() -> {
+                    nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, newStatus);
+                    // Transform main doc and attachments to finalized formats
+                    // TODO: Re-enable this after demo: see OPENE-278
 //                transformToFinalizedFileFormat(getMainDocument(nodeRef));
 //                getAttachments(nodeRef).forEach(this::transformToFinalizedFileFormat);
-                oeLockService.lock(nodeRef, true);
+                    oeLockService.lock(nodeRef, true);
+                    return null;
+                });
                 break;
             case DocumentStatus.DRAFT:
                 oeLockService.unlock(nodeRef, true);
@@ -259,11 +267,11 @@ public class DocumentServiceImpl implements DocumentService {
                 pdfRenditionDefinition = renditionService.loadRenditionDefinition(FINAL_PDF_RENDITION_DEFINITION_NAME);
             }
             if (pdfRenditionDefinition == null) {
-                    pdfRenditionDefinition = renditionService.createRenditionDefinition(FINAL_PDF_RENDITION_DEFINITION_NAME, ReformatRenderingEngine.NAME);
-                    pdfRenditionDefinition.setParameterValue(
-                            ReformatRenderingEngine.PARAM_MIME_TYPE,
-                            MimetypeMap.MIMETYPE_PDF);
-                    renditionService.saveRenditionDefinition(pdfRenditionDefinition);
+                pdfRenditionDefinition = renditionService.createRenditionDefinition(FINAL_PDF_RENDITION_DEFINITION_NAME, ReformatRenderingEngine.NAME);
+                pdfRenditionDefinition.setParameterValue(
+                        ReformatRenderingEngine.PARAM_MIME_TYPE,
+                        MimetypeMap.MIMETYPE_PDF);
+                renditionService.saveRenditionDefinition(pdfRenditionDefinition);
             }
             return null;
         });
@@ -328,9 +336,9 @@ public class DocumentServiceImpl implements DocumentService {
                 return false;
             }
         }
-        return isDocNode(nodeRef) &&
-                DocumentStatus.isValidTransition(fromStatus, toStatus) &&
-                canLeaveStatus(fromStatus, user, nodeRef) && canEnterStatus(toStatus, user, nodeRef);
+        return isDocNode(nodeRef)
+                && DocumentStatus.isValidTransition(fromStatus, toStatus)
+                && canLeaveStatus(fromStatus, user, nodeRef) && canEnterStatus(toStatus, user, nodeRef);
     }
 
     @Override
@@ -359,10 +367,10 @@ public class DocumentServiceImpl implements DocumentService {
     public NodeRef getMainDocument(NodeRef caseDocNodeRef) {
         return nodeService
                 .getChildAssocs(caseDocNodeRef, OpenESDHModel.ASSOC_DOC_MAIN, OpenESDHModel.ASSOC_DOC_MAIN)
-                    .stream()
-                    .map(assoc -> assoc.getChildRef())
-                    .findAny()
-                    .orElse(null);
+                .stream()
+                .map(assoc -> assoc.getChildRef())
+                .findAny()
+                .orElse(null);
     }
 
     @Override
@@ -371,8 +379,9 @@ public class DocumentServiceImpl implements DocumentService {
         PersonService.PersonInfo owner = null;
 
         if (ownerList.size() >= 1) //should always = 1 but just in case
+        {
             owner = this.personService.getPerson(ownerList.get(0).getTargetRef()); //return the first one in the list
-
+        }
         return owner;
     }
 
@@ -382,8 +391,9 @@ public class DocumentServiceImpl implements DocumentService {
         List<AssociationRef> responsibleList = this.nodeService.getTargetAssocs(caseDocNodeRef, OpenESDHModel.ASSOC_DOC_RESPONSIBLE_PERSON);
         List<PersonService.PersonInfo> responsibles = new ArrayList<>();
 
-        for (AssociationRef person : responsibleList)
+        for (AssociationRef person : responsibleList) {
             responsibles.add(this.personService.getPerson(person.getTargetRef()));
+        }
 
         return responsibles;
     }
@@ -409,8 +419,7 @@ public class DocumentServiceImpl implements DocumentService {
 
         try {
             result.put("documents", documentsJSON);
-            result.put("documentsNodeRef", caseService.getDocumentsFolder
-                    (caseNodeRef));
+            result.put("documentsNodeRef", caseService.getDocumentsFolder(caseNodeRef));
             for (int i = 0; i < childAssociationRefs.size(); i++) {
                 ChildAssociationRef childAssociationRef = childAssociationRefs.get(i);
                 NodeRef childNodeRef = childAssociationRef.getChildRef();
@@ -516,7 +525,8 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     /**
-     * Gets the nodeRef of a document or folder within a case by recursively trawling up the tree until the caseType is detected
+     * Gets the nodeRef of a document or folder within a case by recursively trawling up the tree until the caseType is
+     * detected
      *
      * @param nodeRef the node whose containing case is to be found.
      * @return the case container noderef
@@ -564,7 +574,6 @@ public class DocumentServiceImpl implements DocumentService {
         // Refer to CaseServiceImpl.setupAssignCaseIdRule and
         // AssignCaseIdActionExecuter
         // for automatic update of the caseId property rule.
-
     }
 
     @Override
@@ -590,7 +599,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public ResultSet<CaseDocumentAttachment> getAttachmentsWithVersions(NodeRef docRecordNodeRef, int startIndex,
-                                                                        int pageSize) {
+            int pageSize) {
         List<ChildAssociationRef> attachmentsAssocs = getAttachmentsChildAssociations(docRecordNodeRef);
         int totalItems = attachmentsAssocs.size();
         int resultEnd = startIndex + pageSize;
@@ -701,14 +710,16 @@ public class DocumentServiceImpl implements DocumentService {
                 logger.error("LuceneQueryParserException finding case documents", lqpe);
                 result = Collections.emptyList();
             } finally {
-                if (results != null) results.close();
+                if (results != null) {
+                    results.close();
+                }
             }
         }
 
         return result;
     }
 
-    protected CaseDocument getCaseDocument(NodeRef docRecordNodeRef) {
+    private CaseDocument getCaseDocument(NodeRef docRecordNodeRef) {
         CaseDocument caseDocument = new CaseDocument();
         caseDocument.setNodeRef(docRecordNodeRef.toString());
         caseDocument.setMainDocNodeRef(getMainDocument(docRecordNodeRef).toString());
@@ -727,7 +738,7 @@ public class DocumentServiceImpl implements DocumentService {
         return caseDocument;
     }
 
-    protected NodeRef getTargetCase(String targetCaseId) throws Exception {
+    private NodeRef getTargetCase(String targetCaseId) throws Exception {
         try {
             return caseService.getCaseById(targetCaseId);
         } catch (Exception e) {
@@ -735,19 +746,19 @@ public class DocumentServiceImpl implements DocumentService {
         }
     }
 
-    protected boolean isCaseContainsDocument(NodeRef targetCaseDocumentsFolder, NodeRef documentRecFolderToCopy) {
+    private boolean isCaseContainsDocument(NodeRef targetCaseDocumentsFolder, NodeRef documentRecFolderToCopy) {
         return nodeService.getChildAssocs(targetCaseDocumentsFolder).stream()
                 .filter(assoc -> assoc.getChildRef().equals(documentRecFolderToCopy)).findAny().isPresent();
     }
 
-    protected List<CaseDocumentAttachment> getAttachments(List<ChildAssociationRef> attachmentsAssocs) {
+    private List<CaseDocumentAttachment> getAttachments(List<ChildAssociationRef> attachmentsAssocs) {
         return attachmentsAssocs
                 .stream()
                 .map(assoc -> getAttachment(assoc.getChildRef()))
                 .collect(Collectors.toList());
     }
 
-    protected List<CaseDocumentAttachment> getAttachmentsWithVersions(
+    private List<CaseDocumentAttachment> getAttachmentsWithVersions(
             List<ChildAssociationRef> attachmentsAssocs) {
         return attachmentsAssocs
                 .stream()
@@ -755,7 +766,7 @@ public class DocumentServiceImpl implements DocumentService {
                 .collect(Collectors.toList());
     }
 
-    protected CaseDocumentAttachment getAttachmentWithVersions(NodeRef nodeRef) {
+    private CaseDocumentAttachment getAttachmentWithVersions(NodeRef nodeRef) {
         CaseDocumentAttachment attachment = getAttachment(nodeRef);
 
         if (!versionService.isVersioned(nodeRef)) {
@@ -783,7 +794,7 @@ public class DocumentServiceImpl implements DocumentService {
         return attachment;
     }
 
-    protected CaseDocumentAttachment getAttachment(NodeRef nodeRef) {
+    private CaseDocumentAttachment getAttachment(NodeRef nodeRef) {
         CaseDocumentAttachment attachment = new CaseDocumentAttachment();
         attachment.setNodeRef(nodeRef.toString());
 
@@ -820,7 +831,7 @@ public class DocumentServiceImpl implements DocumentService {
         return attachment;
     }
 
-    protected CaseDocumentAttachment createAttachmentVersion(Version version) {
+    private CaseDocumentAttachment createAttachmentVersion(Version version) {
         CaseDocumentAttachment docVers = new CaseDocumentAttachment();
         docVers.setName(version.getVersionProperty(OpenESDHModel.DOCUMENT_PROP_NAME).toString());
         docVers.setVersionLabel(version.getVersionLabel());
@@ -843,7 +854,7 @@ public class DocumentServiceImpl implements DocumentService {
         return docVers;
     }
 
-    protected List<ChildAssociationRef> getAttachmentsChildAssociations(NodeRef docRecordNodeRef) {
+    private List<ChildAssociationRef> getAttachmentsChildAssociations(NodeRef docRecordNodeRef) {
         NodeRef mainDocNodeRef = getMainDocument(docRecordNodeRef);
         return this.nodeService.getChildAssocs(docRecordNodeRef, null, null)
                 .stream()
@@ -903,6 +914,14 @@ public class DocumentServiceImpl implements DocumentService {
         if (!state.isLockInfo()) {
             return lockState;
         }
+        if (nodeService.hasAspect(docOrAttachmentNodeRef, OpenESDHModel.ASPECT_OE_LOCKED)) {
+            String lockOwner = (String) nodeService.getProperty(docOrAttachmentNodeRef, OpenESDHModel.PROP_OE_LOCKED_BY);
+            Date lockDate = (Date) nodeService.getProperty(docOrAttachmentNodeRef, OpenESDHModel.PROP_OE_LOCKED_DATE);
+            lockState.put("lockOwner", lockOwner);
+            lockState.put("lockDate", lockDate);
+            lockState.put("lockOwnerInfo", getPersonInfo(lockOwner));
+            return lockState;
+        }
         String lockOwner = state.getOwner();
         lockState.put("lockOwner", lockOwner);
         lockState.put("lockOwnerInfo", getPersonInfo(lockOwner));
@@ -910,9 +929,12 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     private String getPersonInfo(String userName) {
-        PersonInfo personInfo = personService.getPerson(personService.getPerson(userName));
-        String personInfoStr = personInfo.getFirstName() + " " + personInfo.getLastName();
-        return personInfoStr.trim();
+        if (authorityService.authorityExists(userName)) {
+            PersonInfo personInfo = personService.getPerson(personService.getPerson(userName));
+            String personInfoStr = personInfo.getFirstName() + " " + personInfo.getLastName();
+            return personInfoStr.trim();
+        }
+        return userName;
     }
 
     @Override
