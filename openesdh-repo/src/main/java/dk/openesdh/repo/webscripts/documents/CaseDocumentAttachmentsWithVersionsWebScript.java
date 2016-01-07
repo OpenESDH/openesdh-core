@@ -22,13 +22,11 @@ public class CaseDocumentAttachmentsWithVersionsWebScript{
     @Autowired
     @Qualifier("DocumentService")
     private DocumentService documentService;
-
-    @Uri(value = "/api/openesdh/case/document/attachments/versions", defaultFormat = "json")
-    public Resolution execute(@RequestParam(value = WebScriptUtils.NODE_REF) String nodeRef){
-
+    
+    @Uri(value = "/api/openesdh/case/document/version/attachments", defaultFormat = "json")
+    public Resolution getDocumentVersionAttachments(@RequestParam(value = WebScriptUtils.NODE_REF) String versionNodeRef){
         PageableWebScript<CaseDocumentAttachment> ws = 
-            (int startIndex, int pageSize) -> documentService.getAttachmentsWithVersions(new NodeRef(nodeRef), startIndex, pageSize);
-                
+                (int startIndex, int pageSize) -> documentService.getDocumentVersionAttachments(new NodeRef(versionNodeRef), startIndex, pageSize);
         return PageableWebScript.getItemsPage(ws);
     }
 

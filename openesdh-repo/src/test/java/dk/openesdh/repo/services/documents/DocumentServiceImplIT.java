@@ -14,6 +14,7 @@ import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
 import org.junit.After;
@@ -91,6 +92,10 @@ public class DocumentServiceImplIT {
     @Autowired
     @Qualifier("DocumentCategoryService")
     private DocumentCategoryServiceImpl documentCategoryService;
+
+    @Autowired
+    @Qualifier("VersionService")
+    private VersionService versionService;
 
     private static final String TEST_TITLE = "TEST TITLE";
     private static final String TEST_FOLDER_NAME = "DocumentServiceImpIT";
@@ -251,8 +256,7 @@ public class DocumentServiceImplIT {
         writer.putContent("some new content");
         checkOutCheckInService.checkin(workingCopy, null);
 
-        ResultSet<CaseDocumentAttachment> attachments = documentService.getAttachmentsWithVersions(
-                testDocumentRecFolder, 0, 1000);
+        ResultSet<CaseDocumentAttachment> attachments = documentService.getDocumentVersionAttachments(testDocument, 0, 1000);
         Assert.assertEquals("Wrong number of document attachments retrieved.", 1, attachments.getTotalItems());
         Assert.assertEquals("Wrong attachment current version.", "1.1", attachments.getResultList().get(0)
                 .getVersionLabel());
@@ -275,6 +279,30 @@ public class DocumentServiceImplIT {
                 .getAttachments().size());
         Assert.assertEquals("Wrong number of the second document attachments retrieved", 1, caseDocuments.get(1)
                 .getAttachments().size());
+    }
+
+    @Test
+    public void shouldCreateDocumentVersionWithAttachmentCorrespondence() {
+        NodeRef workingCopy = checkOutCheckInService.checkout(testDocument);
+        ContentWriter writer = contentService.getWriter(workingCopy, ContentModel.PROP_CONTENT, true);
+        writer.setMimetype("text");
+        writer.putContent("some new content");
+        checkOutCheckInService.checkin(workingCopy, null);
+
+        ResultSet<CaseDocumentAttachment> currentVersionAttachments = documentService
+                .getDocumentVersionAttachments(testDocument, 0, 1000);
+        Assert.assertEquals("New version of the case document shouldn't contain attachments.", 0,
+                currentVersionAttachments.getResultList().size());
+
+        NodeRef docVersionRef = versionService.getVersionHistory(testDocument).getVersion("1.0")
+                .getFrozenStateNodeRef();
+        List<CaseDocumentAttachment> previousVersionAttachments = documentService.getDocumentVersionAttachments(
+                docVersionRef, 0, 1000).getResultList();
+        Assert.assertEquals("Previous version of the case document should contain attachments.", 1,
+                previousVersionAttachments.size());
+        Assert.assertEquals("Wrong attachment found for the previous version of the document",
+                testDocumentAttachment.toString(), previousVersionAttachments.get(0).getNodeRef());
+
     }
 
     @Test
