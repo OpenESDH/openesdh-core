@@ -33,7 +33,6 @@
         <PathMap source="/alfresco-api/post/NodeService/removeChild/args/parentRef" target="/esdh/case"/>
         <PathMap source="/alfresco-access/transaction/path" target="/esdh/case" />
         <PathMap source="/alfresco-api/post/DocumentEmailService/send/args/caseId" target="/esdh/case" />
-        <!--<PathMap source="/esdh/addo/caseId" target="/esdh/case" />-->
 
         <PathMap source="/alfresco-api/post/ticketComponent/validateTicket/no-error" target="/esdh/login"/>
         <PathMap source="/alfresco-api/post/ticketComponent/validateTicket/error" target="/esdh/loginFailure"/>
@@ -52,8 +51,6 @@
         <PathMap source="/alfresco-api/post/DocumentEmailService/send/no-error" target="/esdh/action/case-email"/>
         <PathMap source="/alfresco-api/post/DocumentEmailService/send/args/attachments" target="/esdh/action/case-email-attachments"/>
         <PathMap source="/alfresco-api/post/DocumentEmailService/send/args/recipients" target="/esdh/action/case-email-recipients"/>
-        
-<!--        <PathMap source="/esdh/addo" target="/esdh/action/addo-initiate"/>-->
     </PathMappings>
 
     <Application name="esdh" key="esdh">
@@ -195,10 +192,6 @@
                 <RecordValue key="attachments" dataExtractor="nodeTitleValue" dataSource="/esdh/action/case-email-attachments" dataTrigger="/esdh/action/case-email" />
                 <RecordValue key="recipients" dataExtractor="contactNameValue" dataSource="/esdh/action/case-email-recipients" dataTrigger="/esdh/action/case-email" />
             </AuditPath>
-<!--            <AuditPath key="addo-initiate">
-                <RecordValue key="documents" dataExtractor="simpleValue" dataSource="/esdh/action/addo-initiate/documents" dataTrigger="/esdh/action/addo-initiate/documents" />
-                <RecordValue key="attachments" dataExtractor="simpleValue" dataSource="/esdh/action/addo-initiate/attachments" dataTrigger="/esdh/action/addo-initiate/attachments" />
-            </AuditPath>-->
         </AuditPath>
     </Application>
 </Audit>
