@@ -50,6 +50,7 @@ import org.alfresco.service.cmr.version.VersionHistory;
 import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
+import org.alfresco.service.namespace.RegexQNamePattern;
 import org.alfresco.service.transaction.TransactionService;
 import org.alfresco.util.SearchLanguageConversion;
 import org.apache.commons.io.FilenameUtils;
@@ -548,8 +549,8 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public List<NodeRef> getAttachments(NodeRef docRecordNodeRef) {
-
-        return getAttachmentsChildAssociations(docRecordNodeRef)
+        NodeRef mainDocNodeRef = getMainDocument(docRecordNodeRef);
+        return getAttachmentsChildAssociations(mainDocNodeRef)
                 .stream()
                 .map(childRef -> childRef.getChildRef())
                 .collect(Collectors.toList());
@@ -598,9 +599,9 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public ResultSet<CaseDocumentAttachment> getAttachmentsWithVersions(NodeRef docRecordNodeRef, int startIndex,
-            int pageSize) {
-        List<ChildAssociationRef> attachmentsAssocs = getAttachmentsChildAssociations(docRecordNodeRef);
+    public ResultSet<CaseDocumentAttachment> getDocumentVersionAttachments(NodeRef mainDocVersionNodeRef,
+            int startIndex, int pageSize) {
+        List<ChildAssociationRef> attachmentsAssocs = getAttachmentsChildAssociations(mainDocVersionNodeRef);
         int totalItems = attachmentsAssocs.size();
         int resultEnd = startIndex + pageSize;
         if (totalItems < resultEnd) {
@@ -720,9 +721,10 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     private CaseDocument getCaseDocument(NodeRef docRecordNodeRef) {
+        NodeRef mainDocNodeRef = getMainDocument(docRecordNodeRef);
         CaseDocument caseDocument = new CaseDocument();
         caseDocument.setNodeRef(docRecordNodeRef.toString());
-        caseDocument.setMainDocNodeRef(getMainDocument(docRecordNodeRef).toString());
+        caseDocument.setMainDocNodeRef(mainDocNodeRef.toString());
         Map<QName, Serializable> props = nodeService.getProperties(docRecordNodeRef);
         caseDocument.setTitle(props.get(ContentModel.PROP_TITLE).toString());
         caseDocument.setType(getDocumentType(docRecordNodeRef));
@@ -732,7 +734,7 @@ public class DocumentServiceImpl implements DocumentService {
         caseDocument.setModified((Date) props.get(ContentModel.PROP_MODIFIED));
         caseDocument.setOwner(getDocumentOwner(docRecordNodeRef));
 
-        List<ChildAssociationRef> attachmentsAssocs = getAttachmentsChildAssociations(docRecordNodeRef);
+        List<ChildAssociationRef> attachmentsAssocs = getAttachmentsChildAssociations(mainDocNodeRef);
         caseDocument.setAttachments(getAttachments(attachmentsAssocs));
 
         return caseDocument;
@@ -854,12 +856,9 @@ public class DocumentServiceImpl implements DocumentService {
         return docVers;
     }
 
-    private List<ChildAssociationRef> getAttachmentsChildAssociations(NodeRef docRecordNodeRef) {
-        NodeRef mainDocNodeRef = getMainDocument(docRecordNodeRef);
-        return this.nodeService.getChildAssocs(docRecordNodeRef, null, null)
-                .stream()
-                .filter(assoc -> !assoc.getChildRef().equals(mainDocNodeRef))
-                .collect(Collectors.toList());
+    private List<ChildAssociationRef> getAttachmentsChildAssociations(NodeRef mainDocNodeRef) {
+        return this.nodeService.getChildAssocs(mainDocNodeRef, OpenESDHModel.ASSOC_DOC_ATTACHMENTS,
+                RegexQNamePattern.MATCH_ALL);
     }
 
     @Override

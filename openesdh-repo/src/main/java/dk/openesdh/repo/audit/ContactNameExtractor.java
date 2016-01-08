@@ -16,6 +16,9 @@ public final class ContactNameExtractor extends AbstractNodeRefPropertyDataExtra
 
     @Override
     protected String extract(NodeRef nodeRef) {
+        if (!nodeService.exists(nodeRef)) {
+            return null;
+        }
         QName type = nodeService.getType(nodeRef);
         if (type.isMatch(OpenESDHModel.TYPE_CONTACT_ORGANIZATION)) {
             return (String) nodeService.getProperty(nodeRef, OpenESDHModel.PROP_CONTACT_ORGANIZATION_NAME);
