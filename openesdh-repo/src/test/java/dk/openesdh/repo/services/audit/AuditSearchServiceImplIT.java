@@ -17,9 +17,8 @@ import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
 import org.apache.commons.lang.StringUtils;
-import org.json.JSONException;
-import org.json.JSONObject;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.junit.After;
 import static org.junit.Assert.assertTrue;
 import org.junit.Before;
@@ -30,7 +29,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.ContactType;
 import dk.openesdh.repo.model.OpenESDHModel;
@@ -84,10 +82,6 @@ public class AuditSearchServiceImplIT implements RunInTransactionAsAdmin {
     @Qualifier("AuthorityService")
     private AuthorityService authorityService;
 
-    @Autowired
-    @Qualifier("CaseDocumentTestHelper")
-    protected CaseDocumentTestHelper docTestHelper;
-
     private AuditSearchServiceImpl auditSearchService = null;
 
     private static final String CASE_A_TITLE = "caseH" + new Date().getTime();
@@ -102,10 +96,9 @@ public class AuditSearchServiceImplIT implements RunInTransactionAsAdmin {
 
     @Before
     public void setUp() throws Exception {
-
         auditSearchService = new AuditSearchServiceImpl();
-        auditSearchService.setAuditService(auditService);
-        auditSearchService.setAuthorityService(authorityService);
+        auditSearchService.setService4Tests(auditService, authorityService);
+        auditSearchService.init();
 
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
         owner = caseHelper.createDummyUser(DUMMY_USER);
@@ -141,26 +134,21 @@ public class AuditSearchServiceImplIT implements RunInTransactionAsAdmin {
         return contactService.createContact(TEST_PERSON_CONTACT_EMAIL, ContactType.PERSON.name(), personProps);
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void testAuditLog() throws Exception {
         JSONArray result = auditSearchService.getAuditLogByCaseNodeRef(caseA, 1000);
         Set<String> visitedTypes = new HashSet<>();
 
         result.forEach(item -> {
-            try {
-                String type = (String) ((JSONObject) item).get("type");
-                String action = (String) ((JSONObject) item).get("action");
-                if (StringUtils.containsIgnoreCase(action, "added")) {
-                    type += " Added";
-                }
-                if (StringUtils.containsIgnoreCase(action, "removed")) {
-                    type += " Removed";
-                }
-                visitedTypes.add(type);
-            } catch (JSONException ex) {
-                throw new RuntimeException(ex);
+            String type = (String) ((JSONObject) item).get(AuditEntryHandler.TYPE);
+            String action = (String) ((JSONObject) item).get(AuditEntryHandler.ACTION);
+            if (StringUtils.containsIgnoreCase(action, "added")) {
+                type += " Added";
             }
+            if (StringUtils.containsIgnoreCase(action, "removed")) {
+                type += " Removed";
+            }
+            visitedTypes.add(type);
         });
 
         assertTrue("History should have Case creation record", visitedTypes.contains("Case"));

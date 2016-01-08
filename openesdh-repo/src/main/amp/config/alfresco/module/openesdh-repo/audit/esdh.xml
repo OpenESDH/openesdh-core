@@ -146,6 +146,7 @@
                 <RecordValue key="to" dataExtractor="simpleValue" dataSource="/esdh/transaction/properties/to" dataTrigger="/esdh/transaction/properties/to" />
                 <RecordValue key="add" dataExtractor="simpleValue" dataSource="/esdh/transaction/properties/add" dataTrigger="/esdh/transaction/properties/add" />
                 <RecordValue key="delete" dataExtractor="simpleValue" dataSource="/esdh/transaction/properties/delete" dataTrigger="/esdh/transaction/properties/delete" />
+                <RecordValue key="title" dataExtractor="nodeTitleValue" dataSource="/esdh/transaction/node" dataTrigger="/esdh/transaction/node" />
             </AuditPath>
 
             <AuditPath key="aspects">
