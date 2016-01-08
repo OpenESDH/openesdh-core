@@ -8,6 +8,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.apache.commons.lang.BooleanUtils;
 import org.json.simple.JSONObject;
 import org.springframework.extensions.surf.util.I18NUtil;
 
@@ -23,7 +24,8 @@ public class CaseEmailSentAuditEntryHandler extends AuditEntryHandler {
         JSONObject auditEntry = createNewAuditEntry(user, time);
         List<String> participants = (List<String>) values.get(CASE_EMAIL_RECIPIENTS);
         List<String> attachments = (List<String>) values.get(CASE_EMAIL_ATTACHMENTS);
-        auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.email.sent." + oneOrManyStr(attachments.size() == 1),
+        auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.email.sent."
+                + BooleanUtils.toString(attachments.size() == 1, "1", "n"),
                 attachments.stream().collect(Collectors.joining("\", \"", "\"", "\"")),
                 Joiner.on(", ").join(participants)));
         auditEntry.put(TYPE, getTypeMessage("document"));

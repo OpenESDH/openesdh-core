@@ -30,8 +30,4 @@ public abstract class AuditEntryHandler {
     protected String getTypeMessage(String type) {
         return I18NUtil.getMessage("auditlog.label.type." + type);
     }
-
-    protected String oneOrManyStr(boolean isOneItem) {
-        return isOneItem ? "1" : "n";
-    }
 }
