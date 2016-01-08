@@ -1,9 +1,20 @@
 package dk.openesdh.repo.services.audit;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
+
+import org.alfresco.model.BlogIntegrationModel;
+import org.alfresco.model.ContentModel;
+import org.alfresco.model.ForumModel;
+import org.alfresco.model.ImapModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.permissions.AccessDeniedException;
 import org.alfresco.service.cmr.audit.AuditQueryParameters;
@@ -14,44 +25,107 @@ import org.alfresco.service.cmr.security.AccessPermission;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.PermissionService;
-import org.json.JSONObject;
+import org.alfresco.service.namespace.QName;
+import org.apache.commons.lang.ObjectUtils;
 import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.extensions.surf.util.I18NUtil;
+import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.audit.entryhandlers.CaseEmailSentAuditEntryHandler;
+import static dk.openesdh.repo.services.audit.entryhandlers.CaseEmailSentAuditEntryHandler.CASE_EMAIL_RECIPIENTS;
+import dk.openesdh.repo.services.audit.entryhandlers.MemberAddAuditEntryHandler;
+import static dk.openesdh.repo.services.audit.entryhandlers.MemberAddAuditEntryHandler.MEMBER_ADD_PATH;
+import dk.openesdh.repo.services.audit.entryhandlers.MemberRemoveAuditEntryHandler;
+import static dk.openesdh.repo.services.audit.entryhandlers.MemberRemoveAuditEntryHandler.MEMBER_REMOVE_PATH;
+import dk.openesdh.repo.services.audit.entryhandlers.PartyAddAuditEntryHandler;
+import static dk.openesdh.repo.services.audit.entryhandlers.PartyAddAuditEntryHandler.PARTY_ADD_NAME;
+import dk.openesdh.repo.services.audit.entryhandlers.PartyRemoveAuditEntryHandler;
+import static dk.openesdh.repo.services.audit.entryhandlers.PartyRemoveAuditEntryHandler.PARTY_REMOVE_NAME;
+import dk.openesdh.repo.services.audit.entryhandlers.TransactionPathAuditEntryHandler;
+import static dk.openesdh.repo.services.audit.entryhandlers.TransactionPathAuditEntryHandler.TRANSACTION_PATH;
+import dk.openesdh.repo.services.audit.entryhandlers.WorkflowCancelAuditEntryHandler;
+import static dk.openesdh.repo.services.audit.entryhandlers.WorkflowCancelAuditEntryHandler.WORKFLOW_CANCEL_CASE;
+import dk.openesdh.repo.services.audit.entryhandlers.WorkflowStartAuditEntryHandler;
+import static dk.openesdh.repo.services.audit.entryhandlers.WorkflowStartAuditEntryHandler.WORKFLOW_START_CASE;
+import dk.openesdh.repo.services.audit.entryhandlers.WorkflowTaskEndAuditEntryHandler;
+import static dk.openesdh.repo.services.audit.entryhandlers.WorkflowTaskEndAuditEntryHandler.WORKFLOW_END_TASK_CASE;
 import dk.openesdh.repo.services.cases.CasePermission;
 
-/**
- * Created by flemmingheidepedersen on 18/11/14.
- */
+@Service
 public class AuditSearchServiceImpl implements AuditSearchService {
 
-    protected JSONObject result;
-
+    @Autowired
+    @Qualifier("AuditService")
     private AuditService auditService;
-
+    @Autowired
+    @Qualifier("AuthorityService")
     private AuthorityService authorityService;
-
+    @Autowired
+    @Qualifier("PermissionService")
     private PermissionService permissionService;
-
+    @Autowired
+    @Qualifier("DictionaryService")
     private DictionaryService dictionaryService;
 
     private static final String MSG_ACCESS_DENIED = "auditlog.permissions.err_access_denied";
 
-    public void setAuditService(AuditService auditService) {
-        this.auditService = auditService;
+    private final List<String> applications = new ArrayList<>();
+    private final Map<String, AuditEntryHandler> auditEntryHandlers = new HashMap<>();
+    private final List<QName> ignoredProperties = new ArrayList<>();
+
+    @PostConstruct
+    public void init() {
+        initApplications();
+        initAuditEntryHandlers();
+        initIgnoredProperties();
     }
 
-    public void setAuthorityService(AuthorityService authorityService) {
-        this.authorityService = authorityService;
+    private void initApplications() {
+        applications.add("esdh");
     }
 
-    public void setPermissionService(PermissionService permissionService) {
-        this.permissionService = permissionService;
+    private void initAuditEntryHandlers() {
+        auditEntryHandlers.put(PARTY_REMOVE_NAME, new PartyRemoveAuditEntryHandler());
+        auditEntryHandlers.put(PARTY_ADD_NAME, new PartyAddAuditEntryHandler());
+        auditEntryHandlers.put(MEMBER_ADD_PATH, new MemberAddAuditEntryHandler());
+        auditEntryHandlers.put(MEMBER_REMOVE_PATH, new MemberRemoveAuditEntryHandler());
+        auditEntryHandlers.put(TRANSACTION_PATH, new TransactionPathAuditEntryHandler(dictionaryService, ignoredProperties));
+        auditEntryHandlers.put(WORKFLOW_START_CASE, new WorkflowStartAuditEntryHandler());
+        auditEntryHandlers.put(WORKFLOW_END_TASK_CASE, new WorkflowTaskEndAuditEntryHandler());
+        auditEntryHandlers.put(WORKFLOW_CANCEL_CASE, new WorkflowCancelAuditEntryHandler());
+        auditEntryHandlers.put(CASE_EMAIL_RECIPIENTS, new CaseEmailSentAuditEntryHandler());
     }
 
-    public void setDictionaryService(DictionaryService dictionaryService) {
-        this.dictionaryService = dictionaryService;
+    private void initIgnoredProperties() {
+        ignoredProperties.add(ContentModel.PROP_DEAD_PROPERTIES);
+        ignoredProperties.add(ContentModel.PROP_NODE_REF);
+        ignoredProperties.add(ContentModel.PROP_MODIFIED);
+        ignoredProperties.add(ContentModel.PROP_MODIFIER);
+        ignoredProperties.add(ContentModel.PROP_VERSION_LABEL);
+        ignoredProperties.add(ForumModel.PROP_COMMENT_COUNT);
+        ignoredProperties.add(ImapModel.PROP_CHANGE_TOKEN);
+        ignoredProperties.add(ImapModel.PROP_UIDVALIDITY);
+        ignoredProperties.add(ImapModel.PROP_MAXUID);
+        ignoredProperties.add(BlogIntegrationModel.PROP_LINK);
+        ignoredProperties.add(ContentModel.PROP_LAST_THUMBNAIL_MODIFICATION_DATA);
+    }
+
+    public void registerApplication(String name) {
+        applications.add(name);
+    }
+
+    @Override
+    public void registerEntryHandler(String key, AuditEntryHandler handler) {
+        auditEntryHandlers.put(key, handler);
+    }
+
+    @Override
+    public void registerIgnoredProperties(QName... props) {
+        Collections.addAll(ignoredProperties, props);
     }
 
     @Override
@@ -61,26 +135,44 @@ public class AuditSearchServiceImpl implements AuditSearchService {
             throw new AccessDeniedException(I18NUtil.getMessage(MSG_ACCESS_DENIED));
         }
 
-        final AuditQueryParameters auditQueryParameters = new AuditQueryParameters();
-        auditQueryParameters.setForward(false);
-        auditQueryParameters.setApplicationName("esdh");
+        JSONArray result = new JSONArray();
+        for (String app : applications) {
+            final AuditQueryParameters auditQueryParameters = new AuditQueryParameters();
+            auditQueryParameters.setForward(false);
 
-        //auditQueryParameters.setFromTime((new Date(+1).getTime()));
-        auditQueryParameters.addSearchKey(null, nodeRef.toString());
+            //auditQueryParameters.setFromTime((new Date(+1).getTime()));
+            auditQueryParameters.addSearchKey(null, nodeRef.toString());
 
-        // create auditQueryCallback inside this method, putting it outside, will make it a singleton as the class is a service.
-        final OpenESDHAuditQueryCallBack auditQueryCallback = new OpenESDHAuditQueryCallBack(dictionaryService);
+            // create auditQueryCallback inside this method, putting it outside, will make it a singleton as the class is a service.
+            final OpenESDHAuditQueryCallBack auditQueryCallback = new OpenESDHAuditQueryCallBack(auditEntryHandlers);
 
-        // Only users with ACL_METHOD.ROLE_ADMINISTRATOR are allowed to call
-        // AuditService methods.
-        runAsAdmin(() -> {
-            auditService.auditQuery(auditQueryCallback, auditQueryParameters, OpenESDHModel.AUDIT_LOG_MAX);
-            return null;
-        });
+            // Only users with ACL_METHOD.ROLE_ADMINISTRATOR are allowed to call
+            // AuditService methods.
+            runAsAdmin(() -> {
+                auditQueryParameters.setApplicationName(app);
+                auditService.auditQuery(auditQueryCallback, auditQueryParameters, OpenESDHModel.AUDIT_LOG_MAX);
+                return null;
+            });
+            auditQueryCallback
+                    .getResult()
+                    .forEach(result::add);
+        }
+        // sortByTime
+        Collections.sort(result, timePropertyDescComparator());
+        return result;
+    }
 
-        // test comment
-        return auditQueryCallback.getResult();
+    private Comparator timePropertyDescComparator() {
+        return new Comparator() {
+            @Override
+            public int compare(Object o1, Object o2) {
+                return ObjectUtils.compare(getTime(o2), getTime(o1));
+            }
 
+            private long getTime(Object o) {
+                return o == null ? null : (long) ((JSONObject) o).get(AuditEntryHandler.TIME);
+            }
+        };
     }
 
     private boolean isCurrentUserReaderWriterOrOwner(NodeRef nodeRef) {
@@ -115,8 +207,12 @@ public class AuditSearchServiceImpl implements AuditSearchService {
         return runAsAdmin(() -> permissionService.getAllSetPermissions(nodeRef));
     }
 
-    protected <R> R runAsAdmin(AuthenticationUtil.RunAsWork<R> r) {
+    private <R> R runAsAdmin(AuthenticationUtil.RunAsWork<R> r) {
         return AuthenticationUtil.runAs(r, AuthenticationUtil.getAdminUserName());
     }
 
+    void setService4Tests(AuditService auditService, AuthorityService authorityService) {
+        this.auditService = auditService;
+        this.authorityService = authorityService;
+    }
 }

@@ -20,13 +20,6 @@
         <property name="dictionaryService" ref="dictionaryService"/>
     </bean>
 
-    <bean id="webscript.dk.openesdh.casehistory.get"
-          class="dk.openesdh.repo.webscripts.cases.CaseHistoryWebScript"
-          parent="webscript">
-        <property name="auditSearchService" ref="AuditSearchService"/>
-        <property name="caseService" ref="CaseService"/>
-    </bean>
-
     <bean id="xsearchWebscript" parent="webscript"
           class="dk.openesdh.repo.webscripts.xsearch.XSearchWebscript">
     </bean>

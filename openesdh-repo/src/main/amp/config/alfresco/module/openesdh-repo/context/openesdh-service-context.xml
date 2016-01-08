@@ -206,21 +206,6 @@
         <property name="openESDHFoldersService"  ref="OpenESDHFoldersService"/>
     </bean>
 
-    <bean id="AuditSearchService" class="dk.openesdh.repo.services.audit.AuditSearchServiceImpl">
-        <property name="auditService">
-            <ref bean="AuditService"/>
-        </property>
-        <property name="authorityService">
-            <ref bean="AuthorityService"/>
-        </property>
-        <property name="permissionService">
-            <ref bean="PermissionService"/>
-        </property>
-        <property name="dictionaryService">
-            <ref bean="DictionaryService"/>
-        </property>
-    </bean>
-    
     <bean id="UserInvolvedSearchService" class="dk.openesdh.repo.services.xsearch.UserInvolvedSearchServiceImpl">
         <property name="searchService">
             <ref bean="SearchService"/>
