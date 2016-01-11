@@ -148,9 +148,24 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
 
     private Optional<JSONObject> getEntryTransactionCheckIn(String user, long time, Map<String, Serializable> values) {
         JSONObject auditEntry = createNewAuditEntry(user, time);
-        auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.checkedin", getLastPathElement(values)[1]));
+        String title = getTitle(values);
+        String newVersion = (String) getFromPropertyMap(values, "/esdh/transaction/properties/to", ContentModel.PROP_VERSION_LABEL);
+        auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.checkedin", title, newVersion));
         auditEntry.put(TYPE, getTypeMessage(SYSTEM));
         return Optional.of(auditEntry);
+    }
+
+    private String getTitle(Map<String, Serializable> values) {
+        String title;
+        if (values.containsKey("/esdh/transaction/properties/title")) {
+            title = (String) values.get("/esdh/transaction/properties/title");
+        } else {
+            title = getLastPathElement(values)[1];
+            if (title.startsWith("content_")) {
+                title = title.replaceFirst("content_", "");
+            }
+        }
+        return title;
     }
 
     private Optional<JSONObject> getEntryTransactionUpdateVersion(String user, long time, Map<String, Serializable> values) {
@@ -160,7 +175,7 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
                 values, "/esdh/transaction/properties/to", ContentModel.PROP_VERSION_LABEL);
         JSONObject auditEntry = createNewAuditEntry(user, time);
         auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.office.edit",
-                values.getOrDefault("/esdh/transaction/properties/title", getLastPathElement(values)[1]),
+                getTitle(values),
                 oldVersion,
                 newVersion));
         auditEntry.put(TYPE, getTypeMessage(DOCUMENT));
@@ -192,9 +207,7 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
         List<String> changes = new ArrayList<>();
         final Map<QName, Serializable> finalToMap = toMap;
         fromMap.forEach((qName, value) -> {
-            String nodeTitle = StringUtils.defaultIfEmpty(
-                    (String) values.get("/esdh/transaction/properties/title"),
-                    getLastPathElement(values)[1]);
+            String nodeTitle = getTitle(values);
             if (StringUtils.isEmpty(nodeTitle)
                     //do not add case title in case history
                     || StringUtils.endsWith((String) values.get("/esdh/transaction/type"), ":case")) {
