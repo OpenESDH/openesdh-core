@@ -21,6 +21,7 @@ import org.springframework.extensions.surf.util.I18NUtil;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.audit.AuditEntryHandler;
+import static dk.openesdh.repo.services.audit.AuditEntryHandler.REC_TYPE.*;
 
 public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
 
@@ -83,7 +84,7 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
                         return Optional.empty();
                     }
                     auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.attachment.added", title.get()));
-                    auditEntry.put(TYPE, getTypeMessage("attachment"));
+                    auditEntry.put(TYPE, getTypeMessage(ATTACHMENT));
                 } else {
                     return Optional.empty();
                     // Adding main doc, don't log an entry because you would
@@ -96,17 +97,17 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
                     return Optional.empty();
                 }
                 auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.document.added", title.get()));
-                auditEntry.put(TYPE, getTypeMessage("document"));
+                auditEntry.put(TYPE, getTypeMessage(DOCUMENT));
             } else {
                 return Optional.empty();
             }
         } else if (type.startsWith("note:")) {
             String trimmedNote = StringUtils.abbreviate((String) properties.get(OpenESDHModel.PROP_NOTE_CONTENT), MAX_NOTE_TEXT_LENGTH);
             auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.note.added", trimmedNote));
-            auditEntry.put(TYPE, getTypeMessage("note"));
+            auditEntry.put(TYPE, getTypeMessage(NOTE));
         } else {
             auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.case.created", getLastPathElement(values)[1]));
-            auditEntry.put(TYPE, getTypeMessage("case"));
+            auditEntry.put(TYPE, getTypeMessage(CASE));
         }
         return Optional.of(auditEntry);
     }
@@ -117,22 +118,38 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
         String[] lastPathElement = getLastPathElement(values);
         if (aspects != null && aspects.contains(ContentModel.ASPECT_COPIEDFROM.toString())) {
             auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.finished.editing", lastPathElement[1]));
-            auditEntry.put(TYPE, getTypeMessage("system"));
+            auditEntry.put(TYPE, getTypeMessage(SYSTEM));
         } else {
-            if (lastPathElement[0].equals("doc") && lastPathElement[1].startsWith("content_")) {
-                //delete action on content of document folder is not shown to prevent duplicate records
-                return Optional.empty();
+            switch (values.get("/esdh/transaction/type").toString()) {
+                case "doc:digitalFile":
+                    if (isContent(lastPathElement)) {
+                        //delete action on content of document folder is not shown to prevent duplicate records
+                        return Optional.empty();
+                    }
+                    auditEntry.put(TYPE, getTypeMessage(ATTACHMENT));
+                    break;
+                case "doc:simple":
+                    auditEntry.put(TYPE, getTypeMessage(DOCUMENT));
+                    break;
+                case "cm:content":
+                    //delete action on content of document folder is not shown to prevent duplicate records
+                    return Optional.empty();
+                default:
+                    auditEntry.put(TYPE, getTypeMessage(SYSTEM));
             }
             auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.deleted.document", lastPathElement[1]));
-            auditEntry.put(TYPE, getTypeMessage("system"));
         }
         return Optional.of(auditEntry);
+    }
+
+    private boolean isContent(String[] lastPathElement) {
+        return lastPathElement[0].equals("doc") && lastPathElement[1].startsWith("content_");
     }
 
     private Optional<JSONObject> getEntryTransactionCheckIn(String user, long time, Map<String, Serializable> values) {
         JSONObject auditEntry = createNewAuditEntry(user, time);
         auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.checkedin", getLastPathElement(values)[1]));
-        auditEntry.put(TYPE, getTypeMessage("system"));
+        auditEntry.put(TYPE, getTypeMessage(SYSTEM));
         return Optional.of(auditEntry);
     }
 
@@ -146,21 +163,21 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
                 values.getOrDefault("/esdh/transaction/properties/title", getLastPathElement(values)[1]),
                 oldVersion,
                 newVersion));
-        auditEntry.put(TYPE, getTypeMessage("document"));
+        auditEntry.put(TYPE, getTypeMessage(DOCUMENT));
         return Optional.of(auditEntry);
     }
 
     private Optional<JSONObject> getEntryTransactionUpdateProperties(String user, long time,
             Map<String, Serializable> values) {
         QName nodeType = (QName) values.get("/esdh/transaction/nodeType");
-        String type;
+        REC_TYPE type;
         if (dictionaryService.isSubClass(nodeType, OpenESDHModel.TYPE_CASE_BASE)) {
-            type = "case";
+            type = CASE;
         } else if (dictionaryService.isSubClass(nodeType, OpenESDHModel.TYPE_DOC_BASE)) {
-            type = "document";
+            type = DOCUMENT;
         } else if (dictionaryService.isSubClass(nodeType, OpenESDHModel.TYPE_DOC_FILE)) {
             // TODO: Distinguish between main file and attachments
-            type = "attachment";
+            type = ATTACHMENT;
         } else {
             return Optional.empty();
         }
