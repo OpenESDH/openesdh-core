@@ -1,7 +1,5 @@
 package dk.openesdh.repo.webscripts.utils;
 
-import com.github.dynamicextensionsalfresco.webscripts.AnnotationWebscriptResponse;
-import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -23,6 +21,9 @@ import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
+import com.github.dynamicextensionsalfresco.webscripts.AnnotationWebscriptResponse;
+import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
+
 public class WebScriptUtils {
 
 
@@ -41,6 +42,8 @@ public class WebScriptUtils {
     public static final String TEMPLATE_ENGINE_FREEMARKER = "freemarker";
 
     public static final String WEBSCRIPT_TEMPLATES_FOLDER_PATH = "alfresco/extension/templates/webscripts";
+
+    public static final String JSON = "json";
 
     public static final String webScriptTemplatePath(String relativeTemplatePath) {
         return WEBSCRIPT_TEMPLATES_FOLDER_PATH + "/" + relativeTemplatePath;
