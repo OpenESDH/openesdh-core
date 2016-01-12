@@ -193,7 +193,6 @@
 
             <mandatory-aspects>
                 <aspect>doc:publicityExempted</aspect>
-                <aspect>cm:versionable</aspect>
             </mandatory-aspects>
         </type>
 
