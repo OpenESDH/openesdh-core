@@ -9,11 +9,13 @@ import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 import javax.servlet.http.HttpSession;
 
 import org.alfresco.repo.SessionUser;
+import org.alfresco.repo.webdav.WebDAV;
 import org.alfresco.repo.webdav.auth.AuthenticationDriver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,6 +45,25 @@ public class ResponseServletFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain filterChain) throws IOException, ServletException {
 
         filterNTLMRequestAuthorization((HttpServletRequest) request);
+
+        HttpServletRequest wrappedRequest = new HttpServletRequestWrapper((HttpServletRequest) request) {
+
+            /**
+             * This is a fix for Chrome browser to be able to use NTLM SSO.
+             */
+            @Override
+            public String getHeader(String name) {
+                if (!WebDAV.HEADER_USER_AGENT.equalsIgnoreCase(name)) {
+                    return super.getHeader(name);
+                }
+                String userAgent = super.getHeader(name);
+                if (userAgent.indexOf("Chrome") != -1) {
+                    return userAgent.replace("Safari", "Sfr");
+                }
+                return userAgent;
+            }
+
+        };
 
         HttpServletResponse wrappedResponse = new HttpServletResponseWrapper((HttpServletResponse) response) {
 
@@ -97,7 +118,7 @@ public class ResponseServletFilter implements Filter {
 
         };
 
-        filterChain.doFilter(request, wrappedResponse);
+        filterChain.doFilter(wrappedRequest, wrappedResponse);
     }
 
     /**
