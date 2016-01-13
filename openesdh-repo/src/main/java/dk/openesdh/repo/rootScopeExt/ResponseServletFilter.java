@@ -86,7 +86,6 @@ public class ResponseServletFilter implements Filter {
             }
 
             @Override
-            // aaa
             public void setStatus(int code, String sm) {
                 super.setStatus(code, sm);
                 if (code == 401)
@@ -110,8 +109,8 @@ public class ResponseServletFilter implements Filter {
 
             @Override
             public void setHeader(String name, String value) {
-                if (WWW_AUTHENTICATE.equals(name) && value != null && value.startsWith(AUTH_NTLM)) {
-                    isNtlmAuthentication = true;
+                if (WWW_AUTHENTICATE.equals(name)) {
+                    isNtlmAuthentication = isValidNtlmAuthentication(wrappedRequest, value);
                 }
                 super.setHeader(name, value);
             }
@@ -122,13 +121,44 @@ public class ResponseServletFilter implements Filter {
     }
 
     /**
+     * Checks whether NTLM authentication response is valid.
+     * If request contains failed NTLM blob then suppress NTLM authentication.
+     */
+    private boolean isValidNtlmAuthentication(HttpServletRequest request, String responseAuthHeader) {
+        if (!isNtlmAuth(responseAuthHeader)) {
+            return false;
+        }
+
+        if (isStartLoginChallenge(responseAuthHeader)) {
+            return noFailedNtlmAuth(request);
+        }
+
+        return true;
+    }
+
+    /**
+     * Checks whether response tries to initiate NTLM authentication process.
+     * The header contains NTLM blob with hash when it's a second or third handshake.
+     */
+    private boolean isStartLoginChallenge(String authHeader) {
+        return AUTH_NTLM.equals(authHeader.trim());
+    }
+
+    /**
+     * Checks whether request contains NTLM auth blob which failed to pass check. 
+     */
+    private boolean noFailedNtlmAuth(HttpServletRequest request) {
+        return !isNtlmAuth(request.getHeader(AUTHORIZATION));
+    }
+
+    /**
      * Prevents from NTLM authorization if current user has already been authenticated and web session has been established.
      * Thus redundant browser authentication pop-ups are suppressed. 
      * @param request
      */
     private void filterNTLMRequestAuthorization(HttpServletRequest request) {
         String authHdr = request.getHeader(AUTHORIZATION);
-        if (authHdr == null || !authHdr.startsWith(AUTH_NTLM)) {
+        if (!isNtlmAuth(authHdr)) {
             return;
         }
         HttpSession session = request.getSession();
@@ -137,6 +167,10 @@ public class ResponseServletFilter implements Filter {
             return;
         }
         request.setAttribute(NO_AUTH_REQUIRED, true);
+    }
+
+    private boolean isNtlmAuth(String headerValue) {
+        return headerValue != null && headerValue.startsWith(AUTH_NTLM);
     }
 
     @Override
