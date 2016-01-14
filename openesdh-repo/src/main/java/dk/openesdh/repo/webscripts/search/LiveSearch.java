@@ -70,6 +70,11 @@ public class LiveSearch {
         }
         JSONObject response = new JSONObject();
 
+        /**
+         * We should look at creating a (search) context object that can be configurable from xml so that we can use
+         * to initialise an array of contexts; for now though this will have to do.
+         */
+        //TODO Abstract to context object
         switch (context){
             case "cases": {
 

@@ -1,6 +1,15 @@
 <webscript>
        <shortname>OpenESDH Live Search - Cases</shortname>
-       <description>OpenESDH Live Search Component Data Webscript</description>
+       <description>
+           <![CDATA[
+    OpenESDH Live Search Component Data Webscript.
+    This webscript is now deprecated in favour of the
+    annotated webscript that handles all contexts.
+    See: openesdh-repo/src/main/java/dk/openesdh/repo/webscripts/search/LiveSearch.java
+    or
+    https://github.com/OpenESDH/openesdh-core/blob/develop/openesdh-repo/src/main/java/dk/openesdh/repo/webscripts/search/LiveSearch.java
+]]>
+       </description>
        <url>/openesdh/live-search-cases?t={term}</url>
        <format default="json">argument</format>
        <authentication>user</authentication>
