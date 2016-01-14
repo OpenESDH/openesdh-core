@@ -1,9 +1,0 @@
-<webscript>
-    <shortname>Case Documents Attachments With Versions</shortname>
-    <description>Retrieves the attachments with versions for the case document</description>
-    <url>/api/openesdh/case/document/attachments/versions</url>
-    <format default="json"></format>
-    <authentication>user</authentication>
-    <transaction>required</transaction>
-    <family>Case Document Tools</family>
-</webscript>

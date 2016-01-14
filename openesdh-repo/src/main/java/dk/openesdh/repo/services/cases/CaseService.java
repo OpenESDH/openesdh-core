@@ -1,7 +1,11 @@
 package dk.openesdh.repo.services.cases;
 
-import dk.openesdh.repo.model.CaseInfo;
-import dk.openesdh.repo.services.HasStatus;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.regex.Pattern;
+
 import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -11,11 +15,8 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.security.access.AccessDeniedException;
 
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.regex.Pattern;
+import dk.openesdh.repo.model.CaseInfo;
+import dk.openesdh.repo.services.HasStatus;
 
 /**
  * Created by torben on 19/08/14.
@@ -23,23 +24,11 @@ import java.util.regex.Pattern;
 public interface CaseService extends HasStatus {
     String DATE_FORMAT = "yyyyMMdd";
 
-    //Folder root contexts (i.e. the next 3 variables)
-    String CASES_ROOT = "cases";
-    String CASES_TYPES_ROOT = "types";
-    String OPENESDH_ROOT_CONTEXT_PATH = "/app:company_home/oe:OpenESDH/oe:cases/";
     String CASE_ROLE_GROUP_NAME_PREFIX = "GROUP_case_";
 
     Pattern CASE_ID_PATTERN = Pattern.compile("\\d+-(\\d+)");
 
     Pattern CASE_ROLE_GROUP_NAME_PATTERN = Pattern.compile("GROUP_case_([\\d\\-]+)_(.+)");
-
-    String CASE = "Case";
-
-    String CREATOR = "Creator";
-
-    String WRITER = "Writer";
-
-    String READER = "Reader";
 
     /**
      * Get the root folder for storing cases

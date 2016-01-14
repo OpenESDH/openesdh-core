@@ -37,6 +37,8 @@ import org.springframework.util.StringUtils;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.model.WorkflowInfo;
+import dk.openesdh.repo.services.cases.CasePermission;
+import dk.openesdh.repo.services.cases.CasePermissionService;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.members.CaseMembersService;
 
@@ -60,16 +62,18 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
     private CaseService caseService;
     @Autowired
     private CaseMembersService caseMembersService;
+    @Autowired
+    private CasePermissionService casePermissionService;
 
     @Autowired
     @Qualifier("retryingTransactionHelper")
     private RetryingTransactionHelper retryingTransactionHelper;
 
     private final Map<QName, Function<Map<QName, Serializable>, List<Map<String, Object>>>> assigneesSuppliers;
-    private final Map<QName, Consumer<Map<QName, Serializable>>> caseAccessGranters = new HashMap<QName, Consumer<Map<QName, Serializable>>>();
+    private final Map<QName, Consumer<Map<QName, Serializable>>> caseAccessGranters = new HashMap<>();
 
     {
-        assigneesSuppliers = new HashMap<QName, Function<Map<QName, Serializable>, List<Map<String, Object>>>>();
+        assigneesSuppliers = new HashMap<>();
         assigneesSuppliers.put(WorkflowModel.ASSOC_ASSIGNEE, this::getWorkflowAssignee);
         assigneesSuppliers.put(WorkflowModel.ASSOC_ASSIGNEES, this::getWorkflowAssignees);
         assigneesSuppliers.put(WorkflowModel.ASSOC_GROUP_ASSIGNEE, this::getWorkflowGroupAssignee);
@@ -145,22 +149,22 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
     
     private Map<String, Object> getPersonModel(NodeRef assigneeNodeRef){
         PersonInfo assignee = personService.getPerson(assigneeNodeRef);
-        Map<String, Object> assigneeMap = new HashMap<String, Object>();
+        Map<String, Object> assigneeMap = new HashMap<>();
         assigneeMap.put(WorkflowModelBuilder.PERSON_FIRST_NAME, assignee.getFirstName());
         assigneeMap.put(WorkflowModelBuilder.PERSON_LAST_NAME, assignee.getLastName());
         assigneeMap.put(WorkflowModelBuilder.PERSON_USER_NAME, assignee.getUserName());
         return assigneeMap;
     }
 
-    protected void signalStartTask(WorkflowPath path) {
+    private void signalStartTask(WorkflowPath path) {
         WorkflowTask startTask = workflowService.getStartTask(path.getInstance().getId());
         if (startTask != null) {
             workflowService.endTask(startTask.getId(), null);
         }
     }
 
-    protected Map<QName, Serializable> getWorkflowParams(WorkflowInfo workflow) {
-        Map<QName, Serializable> params = new HashMap<QName, Serializable>();
+    private Map<QName, Serializable> getWorkflowParams(WorkflowInfo workflow) {
+        Map<QName, Serializable> params = new HashMap<>();
 
         setNodeRefProp(params, WorkflowModel.ASSOC_ASSIGNEE, workflow.getAssignTo());
         setNodeRefProp(params, WorkflowModel.ASSOC_GROUP_ASSIGNEE, workflow.getAssignToGroup());
@@ -190,7 +194,7 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
         });
     }
 
-    protected void grantCaseAccessToAssignee(Map<QName, Serializable> workflowParams) {
+    private void grantCaseAccessToAssignee(Map<QName, Serializable> workflowParams) {
         NodeRef assigneeNodRef = (NodeRef) workflowParams.get(WorkflowModel.ASSOC_ASSIGNEE);
         PersonInfo assignee = personService.getPerson(assigneeNodRef);
         
@@ -202,7 +206,7 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
     }
     
     @SuppressWarnings("unchecked")
-    protected void grantCaseAccessToAssignees(Map<QName, Serializable> workflowParams) {
+    private void grantCaseAccessToAssignees(Map<QName, Serializable> workflowParams) {
         NodeRef caseNodeRef = getCaseNodeRef(workflowParams);
         List<String> caseMembers = getCaseMembers(caseNodeRef);
         
@@ -219,13 +223,13 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
         }
     }
 
-    protected void grantCaseAccessToGroupAssignee(Map<QName, Serializable> workflowParams) {
+    private void grantCaseAccessToGroupAssignee(Map<QName, Serializable> workflowParams) {
         NodeRef groupAssigneeNodeRef = (NodeRef) workflowParams.get(WorkflowModel.ASSOC_GROUP_ASSIGNEE);
         grantCaseAccessToPeople(getPeopleFromGroup(groupAssigneeNodeRef), workflowParams);
     }
 
     @SuppressWarnings("unchecked")
-    protected void grantCaseAccessToGroupAssignees(Map<QName, Serializable> workflowParams) {
+    private void grantCaseAccessToGroupAssignees(Map<QName, Serializable> workflowParams) {
         List<NodeRef> groupNodeRefs = (List<NodeRef>) workflowParams
                 .get(WorkflowModel.ASSOC_GROUP_ASSIGNEES);
 
@@ -237,7 +241,7 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
         grantCaseAccessToPeople(peopleNames, workflowParams);
     }
 
-    protected void grantCaseAccessToPeople(Set<String> peopleNames, Map<QName, Serializable> workflowParams) {
+    private void grantCaseAccessToPeople(Set<String> peopleNames, Map<QName, Serializable> workflowParams) {
         if (peopleNames.isEmpty()) {
             return;
         }
@@ -257,17 +261,17 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
         }
     }
 
-    protected Set<String> getPeopleFromGroup(NodeRef groupNodeRef) {
+    private Set<String> getPeopleFromGroup(NodeRef groupNodeRef) {
         String groupName = nodeService.getProperty(groupNodeRef, ContentModel.PROP_AUTHORITY_NAME).toString();
         return authorityService.getContainedAuthorities(AuthorityType.USER, groupName, true);
     }
 
-    protected NodeRef getCaseNodeRef(Map<QName, Serializable> workflowParams) {
+    private NodeRef getCaseNodeRef(Map<QName, Serializable> workflowParams) {
         String caseId = workflowParams.get(OpenESDHModel.PROP_OE_CASE_ID).toString();
         return caseService.getCaseById(caseId);
     }
 
-    protected List<String> getCaseMembers(NodeRef caseNodeRef) {
+    private List<String> getCaseMembers(NodeRef caseNodeRef) {
 
         Map<String, Set<String>> caseMembers = caseMembersService.getMembersByRole(caseNodeRef, true, true);
         return caseMembers.keySet()
@@ -277,22 +281,18 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
                 .collect(Collectors.toList());
     }
     
-    protected String getCaseReaderRole(NodeRef caseNodeRef) {
-        return caseService.getRoles(caseNodeRef)
-                .stream()
-                .filter(role -> role.contains(CaseService.READER))
-                .findAny()
-                .get();
+    private String getCaseReaderRole(NodeRef caseNodeRef) {
+        return casePermissionService.getPermissionName(caseNodeRef, CasePermission.READER);
     }
 
-    protected void setNodeRefProp(Map<QName, Serializable> params, QName prop, String value) {
+    private void setNodeRefProp(Map<QName, Serializable> params, QName prop, String value) {
         if (StringUtils.isEmpty(value)) {
             return;
         }
         params.put(prop, new NodeRef(value));
     }
     
-    protected void setNodeRefListProp(Map<QName, Serializable> params, QName prop, List<String> values) {
+    private void setNodeRefListProp(Map<QName, Serializable> params, QName prop, List<String> values) {
         if (CollectionUtils.isEmpty(values)) {
             return;
         }
@@ -304,8 +304,8 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
         params.put(prop, (Serializable) nodeRefList);
     }
 
-    protected Map<QName, Serializable> parseProperties(Map<String, Object> properties) {
-        Map<QName, Serializable> props = new HashMap<QName, Serializable>();
+    private Map<QName, Serializable> parseProperties(Map<String, Object> properties) {
+        Map<QName, Serializable> props = new HashMap<>();
         if (properties.keySet().isEmpty()) {
             return props;
         }
@@ -318,7 +318,7 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
         return props;
     }
 
-    protected Serializable parsePropertyValue(QName name, Object value) {
+    private Serializable parsePropertyValue(QName name, Object value) {
         if (value == null) {
             return null;
         }
@@ -336,7 +336,7 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
         return (Serializable) value;
     }
 
-    protected Serializable parsePropertyValueByDictionaryService(QName name, Object value){
+    private Serializable parsePropertyValueByDictionaryService(QName name, Object value) {
         PropertyDefinition prop = dictionaryService.getProperty(name);
         if(prop == null){
             return null;
@@ -353,7 +353,7 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
                 .collect(Collectors.toList());
     }
     
-    protected Serializable parseArrayOrCollection(QName name, Object value){
+    private Serializable parseArrayOrCollection(QName name, Object value) {
         if(!value.getClass().isArray() && !(value instanceof Collection<?>)){
             return null;
         }
@@ -365,14 +365,14 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
                 .collect(Collectors.toList());
     }
 
-    protected Collection<?> toCollection(Object value) {
+    private Collection<?> toCollection(Object value) {
         if (value instanceof Collection<?>) {
             return (Collection<?>) value;
         }
         return Arrays.asList((Object[]) value);
     }
 
-    protected void addItemsToWorkflowPackage(NodeRef workflowPackage, WorkflowInfo workflow) {
+    private void addItemsToWorkflowPackage(NodeRef workflowPackage, WorkflowInfo workflow) {
         workflow.getItems()
                 .stream()
                 .forEach(item -> {

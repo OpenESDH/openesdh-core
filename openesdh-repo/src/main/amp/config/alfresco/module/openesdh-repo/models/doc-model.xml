@@ -193,7 +193,6 @@
 
             <mandatory-aspects>
                 <aspect>doc:publicityExempted</aspect>
-                <aspect>cm:versionable</aspect>
             </mandatory-aspects>
         </type>
 
@@ -291,7 +290,17 @@
         child assoc, which is the primary means of indicating a file is
         the main file in a document record. This aspect is added/removed in a
         behaviour based on the doc:main child assoc. -->
-        <aspect name="doc:isMainFile"></aspect>
+        <aspect name="doc:isMainFile">
+            <associations>
+                <child-association name="doc:attachments">
+                    <target>
+                        <class>cm:content</class>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </target>
+                </child-association>
+            </associations>
+        </aspect>
 
         <aspect name="doc:publicityExempted">
             <properties>

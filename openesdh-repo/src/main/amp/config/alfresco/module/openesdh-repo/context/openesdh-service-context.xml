@@ -6,6 +6,15 @@
         <property name="repositoryHelper" ref="repositoryHelper" />
     </bean>
     
+    <bean id="casePermissionService" class="dk.openesdh.repo.services.cases.CasePermissionServiceImpl">
+        <property name="nodeService">
+            <ref bean="nodeService"/>
+        </property>
+        <property name="namespaceService">
+            <ref bean="namespaceService"/>
+        </property>
+    </bean>
+    
     <bean id="CaseService"
           class="dk.openesdh.repo.services.cases.CaseServiceImpl" init-method="init">
         <property name="nodeService">
@@ -36,10 +45,6 @@
             <ref bean="DictionaryService"/>
         </property>
 
-        <property name="permissionsModelDAO">
-            <ref bean="permissionsModelDAO"/>
-        </property>
-
         <property name="documentService">
             <ref bean="DocumentService"/>
         </property>
@@ -62,6 +67,10 @@
         
         <property name="behaviourFilter">
             <ref bean="policyBehaviourFilter"/>
+        </property>
+        
+        <property name="casePermissionService">
+            <ref bean="casePermissionService"/>
         </property>
     </bean>
     
@@ -180,27 +189,21 @@
         <property name="behaviourFilter">
             <ref bean="policyBehaviourFilter"/>
         </property>
+        <property name="permissionService">
+            <ref bean="PermissionService"/>
+        </property>
+        <property name="lockService">
+            <ref bean="LockService"/>
+        </property>
+        <property name="authorityService">
+            <ref bean="AuthorityService"/>
+        </property>
     </bean>
 
     <bean id="DocTemplateService" class="dk.openesdh.repo.services.documents.DocumentTemplateServiceImpl">
         <property name="nodeService" ref="NodeService"/>
         <property name="searchService" ref="SearchService"/>
         <property name="openESDHFoldersService"  ref="OpenESDHFoldersService"/>
-    </bean>
-
-    <bean id="AuditSearchService" class="dk.openesdh.repo.services.audit.AuditSearchServiceImpl">
-        <property name="auditService">
-            <ref bean="AuditService"/>
-        </property>
-        <property name="authorityService">
-            <ref bean="AuthorityService"/>
-        </property>
-        <property name="permissionService">
-            <ref bean="PermissionService"/>
-        </property>
-        <property name="dictionaryService">
-            <ref bean="DictionaryService"/>
-        </property>
     </bean>
 
     <bean id="UserInvolvedSearchService" class="dk.openesdh.repo.services.xsearch.UserInvolvedSearchServiceImpl">

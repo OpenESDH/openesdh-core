@@ -1,6 +1,10 @@
 package dk.openesdh.repo.services.lock;
 
-import dk.openesdh.repo.model.OpenESDHModel;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.lock.LockService;
@@ -15,13 +19,10 @@ import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
 import org.apache.log4j.Logger;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import dk.openesdh.repo.model.OpenESDHModel;
 
 public class OELockServiceImpl implements OELockService {
-    private static Logger LOGGER = Logger.getLogger(OELockServiceImpl.class);
+    private static final Logger LOGGER = Logger.getLogger(OELockServiceImpl.class);
 
     protected NodeService nodeService;
     protected OwnableService ownableService;

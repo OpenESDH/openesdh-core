@@ -16,12 +16,17 @@ import org.alfresco.repo.node.NodeServicePolicies;
 import org.alfresco.repo.node.NodeServicePolicies.OnCreateChildAssociationPolicy;
 import org.alfresco.repo.node.NodeServicePolicies.OnUpdatePropertiesPolicy;
 import org.alfresco.repo.policy.Behaviour;
+import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.policy.JavaBehaviour;
 import org.alfresco.repo.policy.PolicyComponent;
+import org.alfresco.repo.version.VersionModel;
+import org.alfresco.repo.version.VersionServicePolicies;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.version.Version;
+import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.namespace.RegexQNamePattern;
 import org.apache.commons.io.FilenameUtils;
@@ -61,6 +66,12 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
     @Autowired
     @Qualifier("DocumentCategoryService")
     private DocumentCategoryService documentCategoryService;
+    @Autowired
+    @Qualifier("VersionService")
+    private VersionService versionService;
+    @Autowired
+    @Qualifier("policyBehaviourFilter")
+    private BehaviourFilter behaviourFilter;
 
     private Behaviour onCreateChildAssociation;
     private Behaviour onCreateCaseDocContent;
@@ -109,6 +120,11 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
 
         this.policyComponent.bindClassBehaviour(NodeServicePolicies.OnUpdatePropertiesPolicy.QNAME,
                 OpenESDHModel.TYPE_DOC_BASE, new JavaBehaviour(this, "onUpdateProperties"));
+        
+        this.policyComponent.bindClassBehaviour(
+                VersionServicePolicies.AfterCreateVersionPolicy.QNAME, 
+                OpenESDHModel.ASPECT_DOC_IS_MAIN_FILE, 
+                new JavaBehaviour(this, "onDocumentUploadNewVersion"));
     }
 
     public void onCreateDocRecordBehaviour(ChildAssociationRef childRef) {
@@ -133,7 +149,7 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
             NodeRef fileRef = childAssociationRef.getChildRef();
 
             String fileName = (String) nodeService.getProperty(fileRef, ContentModel.PROP_NAME);
-            String documentName = FilenameUtils.removeExtension(fileName);
+            String documentName = FilenameUtils.removeExtension(fileName).trim();
 
             // Set a temporary file name
             // This is to avoid duplicates child node exception when the
@@ -178,54 +194,118 @@ public class DocumentBehaviour implements OnCreateChildAssociationPolicy, Before
         if (!nodeService.exists(fileRef)) {
             return;
         }
-        NodeRef docRecord = childAssocRef.getParentRef();
 
         fillEmptyTitleFromName(fileRef);
-        // Set the first child as main document
-        if (nodeService.countChildAssocs(docRecord, true) == 1) {
 
-            ChildAssociationRef childAssoc = nodeService.getChildAssocs(docRecord).get(0);
-            if (!OpenESDHModel.ASSOC_DOC_MAIN.equals(
-                    childAssoc.getTypeQName())) {
-                // Tag the file as the main file for the record
-                nodeService.addChild(docRecord, fileRef, OpenESDHModel.ASSOC_DOC_MAIN, OpenESDHModel.ASSOC_DOC_MAIN);
-                nodeService.addAspect(fileRef, OpenESDHModel.ASPECT_DOC_IS_MAIN_FILE, null);
-            }
+        setFirstChildAsMainDocument(childAssocRef);
 
-            //find a better way to do this
-            /**
-             * When a document is uploaded, the javascript controller upload.post.js creates the document in the
-             * documents directory for the case. Unfortunately it is only after creation that the document record exists
-             * so the meta-data needed for the doc record is grafted on the main doc then applied to the document record
-             * here and removed from the main document.
-             */
-            String title = (String) nodeService.getProperty(fileRef, ContentModel.PROP_TITLE);
-            if (title != null || nodeService.getProperty(docRecord, ContentModel.PROP_NAME).equals(nodeService.getProperty(fileRef, ContentModel.PROP_NAME))) {
-                nodeService.setProperty(docRecord, ContentModel.PROP_TITLE, title);
-            }
-
-            //category
-            String doc_category = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY).toString();
-            DocumentCategory documentCategory = documentCategoryService.getDocumentCategory(new NodeRef(doc_category));
-            //type
-            String doc_type = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_TYPE).toString();
-            DocumentType documentType = documentTypeService.getDocumentType(new NodeRef(doc_type));
-            if (documentCategory == null || documentType == null) {
-                throw new WebScriptException("The following meta-data is required for a main document:\n\tCategory\n\ttype");
-            } else {
-                //category
-                documentService.updateDocumentCategory(docRecord, documentCategory);
-                this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY);
-                //type
-                documentService.updateDocumentType(docRecord, documentType);
-                this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_TYPE);
-            }
-        }
+        ensureAttachmentsAssociation(childAssocRef);
 
         // Make sure all children get the type doc:digitalFile
         nodeService.setType(fileRef, OpenESDHModel.TYPE_DOC_DIGITAL_FILE);
         // TODO Get start value, localize
-//        nodeService.setProperty(fileRef, OpenESDHModel.PROP_DOC_VARIANT, "Produktion");
+        // nodeService.setProperty(fileRef, OpenESDHModel.PROP_DOC_VARIANT,
+        // "Produktion");
+    }
+    
+    public void onDocumentUploadNewVersion(NodeRef versionableNode, Version version){
+        removeAllAttachments(versionableNode);
+        refreshCurrentNodeVersionToSaveAssociationsHistory(versionableNode);
+    }
+    
+    private void removeAllAttachments(NodeRef mainDocNodeRef){
+        nodeService.getChildAssocs(mainDocNodeRef, OpenESDHModel.ASSOC_DOC_ATTACHMENTS, RegexQNamePattern.MATCH_ALL)
+            .stream()
+            .forEach(nodeService::removeChildAssociation);
+    }
+
+    private void setFirstChildAsMainDocument(ChildAssociationRef childAssocRef) {
+
+        NodeRef docRecord = childAssocRef.getParentRef();
+        if (nodeService.countChildAssocs(docRecord, true) != 1) {
+            return;
+        }
+
+        NodeRef fileRef = childAssocRef.getChildRef();
+
+        ChildAssociationRef childAssoc = nodeService.getChildAssocs(docRecord).get(0);
+        if (!OpenESDHModel.ASSOC_DOC_MAIN.equals(childAssoc.getTypeQName())) {
+            // Tag the file as the main file for the record
+            nodeService.addChild(docRecord, fileRef, OpenESDHModel.ASSOC_DOC_MAIN, OpenESDHModel.ASSOC_DOC_MAIN);
+            nodeService.addAspect(fileRef, OpenESDHModel.ASPECT_DOC_IS_MAIN_FILE, null);
+        }
+
+        // find a better way to do this
+        /**
+         * When a document is uploaded, the javascript controller upload.post.js
+         * creates the document in the documents directory for the case.
+         * Unfortunately it is only after creation that the document record
+         * exists so the meta-data needed for the doc record is grafted on the
+         * main doc then applied to the document record here and removed from
+         * the main document.
+         */
+        String title = (String) nodeService.getProperty(fileRef, ContentModel.PROP_TITLE);
+        if (title != null
+                || nodeService.getProperty(docRecord, ContentModel.PROP_NAME).equals(
+                        nodeService.getProperty(fileRef, ContentModel.PROP_NAME))) {
+            nodeService.setProperty(docRecord, ContentModel.PROP_TITLE, title);
+        }
+
+        // category
+        String doc_category = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY)
+                .toString();
+        DocumentCategory documentCategory = documentCategoryService.getDocumentCategory(new NodeRef(doc_category));
+        // type
+        String doc_type = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_TYPE)
+                .toString();
+        DocumentType documentType = documentTypeService.getDocumentType(new NodeRef(doc_type));
+        if (documentCategory == null || documentType == null) {
+            throw new WebScriptException(
+                    "The following meta-data is required for a main document:\n\tCategory\n\ttype");
+        } else {
+            //category
+            documentService.updateDocumentCategory(docRecord, documentCategory);
+            this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY);
+            //type
+            documentService.updateDocumentType(docRecord, documentType);
+            this.nodeService.removeProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_TYPE);
+        }
+    }
+
+    private void ensureAttachmentsAssociation(ChildAssociationRef childAssocRef) {
+        if (nodeService.hasAspect(childAssocRef.getChildRef(), OpenESDHModel.ASPECT_DOC_IS_MAIN_FILE)) {
+            return;
+        }
+        NodeRef attachmentRef = childAssocRef.getChildRef();
+        NodeRef docRecord = childAssocRef.getParentRef();
+
+        ChildAssociationRef docMainAssociation = getDocMainAssociation(docRecord);
+        if (docMainAssociation == null) {
+            return;
+        }
+
+        NodeRef mainDocRef = getDocMainAssociation(docRecord).getChildRef();
+        String attachmentName = (String) nodeService.getProperty(attachmentRef, ContentModel.PROP_NAME);
+        nodeService.addChild(mainDocRef, attachmentRef, OpenESDHModel.ASSOC_DOC_ATTACHMENTS,
+                QName.createQName(OpenESDHModel.DOC_URI, attachmentName));
+        
+        //Associations do not auto sync with the version history.
+        //In order to sync associations we have to recreate current version of the main document.
+        refreshCurrentNodeVersionToSaveAssociationsHistory(mainDocRef);
+    }
+    
+    private void refreshCurrentNodeVersionToSaveAssociationsHistory(NodeRef nodeRef){
+        behaviourFilter.disableBehaviour();
+        try {
+            Version currentVersion = versionService.getCurrentVersion(nodeRef);
+            versionService.deleteVersion(nodeRef, currentVersion);
+            Map<String, Serializable> props = new HashMap<>();
+            props.put(VersionModel.PROP_VERSION_TYPE, currentVersion.getVersionType());
+            versionService.createVersion(nodeRef, props);
+        } finally {
+            behaviourFilter.enableBehaviour();
+        }
+
     }
 
     private void fillEmptyTitleFromName(NodeRef fileRef) {

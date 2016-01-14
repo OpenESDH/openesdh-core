@@ -1,9 +1,0 @@
-<webscript>
-    <shortname>Get search definition for a case type</shortname>
-    <description>Returns the search definition of a case type</description>
-    <url>/api/openesdh/case/searchDefinition/{caseType}</url>
-    <format default="json"></format>
-    <authentication>user</authentication>
-    <transaction>required</transaction>
-    <family>Case Tools</family>
-</webscript>

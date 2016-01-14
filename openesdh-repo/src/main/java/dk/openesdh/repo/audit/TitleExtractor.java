@@ -1,6 +1,7 @@
 package dk.openesdh.repo.audit;
 
 import org.alfresco.model.ContentModel;
+import org.alfresco.service.cmr.repository.InvalidNodeRefException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +15,11 @@ public final class TitleExtractor extends AbstractNodeRefPropertyDataExtractor {
 
     @Override
     protected String extract(NodeRef nodeRef) {
-        return (String) nodeService.getProperty(nodeRef, ContentModel.PROP_TITLE);
+        try {
+            return (String) nodeService.getProperty(nodeRef, ContentModel.PROP_TITLE);
+        } catch (InvalidNodeRefException e) {
+            return null;
+        }
     }
 
 }

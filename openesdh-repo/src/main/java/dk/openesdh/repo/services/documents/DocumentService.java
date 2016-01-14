@@ -10,6 +10,7 @@ import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
+import org.json.JSONException;
 import org.json.JSONObject;
 
 import dk.openesdh.repo.model.CaseDocument;
@@ -150,15 +151,6 @@ public interface DocumentService extends HasStatus {
     public void copyDocumentToFolder(NodeRef caseDocument, NodeRef targetFolder) throws Exception;
 
     /**
-     * Retrieves attachments of the provided case document with versions
-     * 
-     * @param nodeRef
-     * @return list of the case document attachments
-     */
-    public ResultSet<CaseDocumentAttachment> getAttachmentsWithVersions(NodeRef nodeRef, int startIndex,
-            int pageSize);
-
-    /**
      * Retrieves case documents with attachments
      * 
      * @param caseId
@@ -228,4 +220,32 @@ public interface DocumentService extends HasStatus {
      * @return
      */
     public String getUniqueName(NodeRef inFolder, String name, boolean isUniqueWithoutExtension);
+
+    /**
+     * Retrieves document path for edit on line
+     * 
+     * @param docOrAttachmentNodeRef
+     *            nodeRef of the document or attachment
+     * @return path of the document for edit on line
+     */
+    public String getDocumentEditOnlinePath(NodeRef docOrAttachmentNodeRef);
+
+    /**
+     * Retrieves lock state of case document or attachment
+     * 
+     * @param docOrAttachmentNodeRef
+     *            nodeRef of the document or attachment
+     * @return lock state of case document or attachment
+     * @throws JSONException
+     */
+    public JSONObject getDocumentEditLockState(NodeRef docOrAttachmentNodeRef) throws JSONException;
+
+    /**
+     * Retrieves attachments of the provided case document version
+     * 
+     * @param nodeRef
+     * @return list of the case document attachments
+     */
+    ResultSet<CaseDocumentAttachment> getDocumentVersionAttachments(NodeRef mainDocVersionNodeRef, int startIndex,
+            int pageSize);
 }

@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<view:view xmlns:view="http://www.alfresco.org/view/repository/1.0">
+  <st:site xmlns="" xmlns:nt="http://www.jcp.org/jcr/nt/1.0" xmlns:rn="http://www.alfresco.org/model/rendition/1.0" xmlns:sys="http://www.alfresco.org/model/system/1.0" xmlns:lnk="http://www.alfresco.org/model/linksmodel/1.0" xmlns:webdav="http://www.alfresco.org/model/webdav/1.0" xmlns:gd="http://www.alfresco.org/model/googledocs/1.0" xmlns:pubwf="http://www.alfresco.org/model/publishingworkflow/1.0" xmlns:ver="http://www.alfresco.org/model/versionstore/1.0" xmlns:cmiscustom="http://www.alfresco.org/model/cmis/custom" xmlns:jcr="http://www.jcp.org/jcr/1.0" xmlns:emailserver="http://www.alfresco.org/model/emailserver/1.0" xmlns:fm="http://www.alfresco.org/model/forum/1.0" xmlns:ia="http://www.alfresco.org/model/calendar" xmlns:fdk="http://www.alfresco.org/model/fdk/1.0" xmlns:rule="http://www.alfresco.org/model/rule/1.0" xmlns:wcm="http://www.alfresco.org/model/wcmmodel/1.0" xmlns:sv="http://www.jcp.org/jcr/sv/1.0" xmlns:dl="http://www.alfresco.org/model/datalist/1.0" xmlns:st="http://www.alfresco.org/model/site/1.0" xmlns:usr="http://www.alfresco.org/model/user/1.0" xmlns:exif="http://www.alfresco.org/model/exif/1.0" xmlns:app="http://www.alfresco.org/model/application/1.0" xmlns:module="http://www.alfresco.org/system/modules/1.0" xmlns:d="http://www.alfresco.org/model/dictionary/1.0" xmlns:blg="http://www.alfresco.org/model/blogintegration/1.0" xmlns:alf="http://www.alfresco.org" xmlns:cmis="http://www.alfresco.org/model/cmis/1.0/cs01" xmlns:alfcmis="http://www.alfresco.org/model/cmis/1.0/alfcmis" xmlns:my="my.model" xmlns:pub="http://www.alfresco.org/model/publishing/1.0" xmlns:mix="http://www.jcp.org/jcr/mix/1.0" xmlns:wca="http://www.alfresco.org/model/wcmappmodel/1.0" xmlns:bpm="http://www.alfresco.org/model/bpm/1.0" xmlns:inwf="http://www.alfresco.org/model/workflow/invite/nominated/1.0" xmlns:imap="http://www.alfresco.org/model/imap/1.0" xmlns:cm="http://www.alfresco.org/model/content/1.0" xmlns:reg="http://www.alfresco.org/system/registry/1.0" xmlns:ver2="http://www.alfresco.org/model/versionstore/2.0" xmlns:stcp="http://www.alfresco.org/model/sitecustomproperty/1.0" xmlns:wcmwf="http://www.alfresco.org/model/wcmworkflow/1.0" xmlns:view="http://www.alfresco.org/view/repository/1.0" xmlns:imwf="http://www.alfresco.org/model/workflow/invite/moderated/1.0" xmlns:act="http://www.alfresco.org/model/action/1.0" xmlns:cmisext="http://www.alfresco.org/model/cmis/1.0/cs01ext" xmlns:wf="http://www.alfresco.org/model/workflow/1.0" xmlns:trx="http://www.alfresco.org/model/transfer/1.0" view:childName="cm:opene">
+    <view:aspects>
+      <sys:undeletable></sys:undeletable>
+      <cm:auditable></cm:auditable>
+      <cm:ownable></cm:ownable>
+      <cm:tagscope></cm:tagscope>
+      <sys:referenceable></sys:referenceable>
+      <cm:titled></cm:titled>
+      <sys:localized></sys:localized>
+    </view:aspects>
+    <view:acl view:inherit="false">
+      <view:ace view:access="ALLOWED">
+        <view:authority>GROUP_site_opene_SiteConsumer</view:authority>
+        <view:permission>SiteConsumer</view:permission>
+      </view:ace>
+      <view:ace view:access="ALLOWED">
+        <view:authority>GROUP_site_opene_SiteCollaborator</view:authority>
+        <view:permission>SiteCollaborator</view:permission>
+      </view:ace>
+      <view:ace view:access="ALLOWED">
+        <view:authority>GROUP_site_opene_SiteManager</view:authority>
+        <view:permission>SiteManager</view:permission>
+      </view:ace>
+      <view:ace view:access="ALLOWED">
+        <view:authority>GROUP_site_opene_SiteContributor</view:authority>
+        <view:permission>SiteContributor</view:permission>
+      </view:ace>
+    </view:acl>
+    <view:properties>
+      <cm:name>opene</cm:name>
+      <sys:node-dbid>5321</sys:node-dbid>
+      <sys:store-identifier>SpacesStore</sys:store-identifier>
+      <sys:locale>en_GB_</sys:locale>
+      <cm:owner>admin</cm:owner>
+      <sys:node-uuid>ab597a9a-3a33-44d7-8919-2d7fb89775dd</sys:node-uuid>
+      <st:siteVisibility>PRIVATE</st:siteVisibility>
+      <cm:creator>admin</cm:creator>
+      <cm:description>
+        <view:mlvalue view:locale="en_US">This is an OpenE site.</view:mlvalue>
+      </cm:description>
+      <st:sitePreset>site-dashboard</st:sitePreset>
+      <cm:tagScopeSummary>
+        <view:values></view:values>
+      </cm:tagScopeSummary>
+      <cm:title>
+        <view:mlvalue view:locale="en_US">OpenE</view:mlvalue>
+      </cm:title>
+      <sys:store-protocol>workspace</sys:store-protocol>
+    </view:properties>
+  </st:site>
+  <view:reference xmlns="" xmlns:cm="http://www.alfresco.org/model/content/1.0" xmlns:sys="http://www.alfresco.org/model/system/1.0"  xmlns:view="http://www.alfresco.org/view/repository/1.0"
+    view:pathref="cm:opene">
+    <view:associations>
+      <cm:contains>
+        <view:reference view:pathref="/app:company_home/oe:OpenESDH/oe:cases" view:childName="cases"></view:reference>        
+      </cm:contains>
+    </view:associations>
+  </view:reference>
+</view:view>

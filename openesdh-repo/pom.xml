@@ -272,6 +272,18 @@
             </build>
         </profile>
         <profile>
+            <id>spp</id>
+            <!-- sharepoint protocol for document editing -->
+            <dependencies>
+                <dependency>
+                    <groupId>${alfresco.groupId}</groupId>
+                    <artifactId>alfresco-spp</artifactId>
+                    <version>${alfresco.version}</version>
+                    <type>amp</type>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
             <id>amp-with-solr</id>
             <activation>
                 <property>

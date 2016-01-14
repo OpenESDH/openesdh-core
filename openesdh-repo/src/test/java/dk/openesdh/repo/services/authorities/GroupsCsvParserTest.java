@@ -13,7 +13,7 @@ import dk.openesdh.repo.services.authorities.GroupsCsvParser.Group;
 
 public class GroupsCsvParserTest {
     
-    private static String CSV_HEADER = "Group name,Display name,Member of groups,Simple case,Staff case\n";
+    private static final String CSV_HEADER = "Group name,Display name,Member of groups,Simple case,Staff case\n";
 
     @Test
     public void shouldParseGroups() throws IOException{
@@ -29,7 +29,7 @@ public class GroupsCsvParserTest {
         Group itGroup = groups.get(0);
         Assert.assertEquals("Wrong first group name", "IT", itGroup.getShortName());
         Assert.assertTrue("IT group should be able to read simple cases",
-                itGroup.getMemberOfGroups().contains(CaseHelper.CASE_READER_ROLE));
+                itGroup.getMemberOfGroups().contains(CaseHelper.CASE_SIMPLE_READER_ROLE));
 
         Group hrGroup = groups.get(1);
         Assert.assertEquals("Wrong second group name", "HR", hrGroup.getShortName());
