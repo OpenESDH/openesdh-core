@@ -1,1 +1,6 @@
 nbactions.xml
+repo/.classpath
+repo/.project
+repo/.settings/org.eclipse.core.resources.prefs
+repo/.settings/org.eclipse.jdt.core.prefs
+repo/.settings/org.eclipse.m2e.core.prefs

@@ -79,11 +79,11 @@
         </view:associations>
     </view:reference>
     
-    <!-- Add admin user into CaseSimpleCreator --> 
+    <!-- Add alfresco administrators group into CaseSimpleCreator --> 
     <view:reference view:pathref="${system.authorities_container.childname}/cm:GROUP_CaseSimpleCreator">
         <view:associations>
             <cm:member>
-                <view:reference view:pathref="/sys:system/sys:people/cm:admin" view:childName="cm:admin"></view:reference>           
+                <view:reference view:pathref="/sys:system/sys:authorities/cm:GROUP_ALFRESCO_ADMINISTRATORS" view:childName="cm:GROUP_ALFRESCO_ADMINISTRATORS"></view:reference>           
             </cm:member>
         </view:associations>
     </view:reference>
