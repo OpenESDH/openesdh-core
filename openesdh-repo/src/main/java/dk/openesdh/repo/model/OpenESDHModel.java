@@ -7,6 +7,8 @@ import org.alfresco.service.namespace.QName;
  */
 public interface OpenESDHModel {
 
+    String OPENESDH_REPO_MODULE_ID = "openesdh-repo";
+
     String CASE_URI = "http://openesdh.dk/model/case/base/1.0";
     String CASE_PREFIX = "base";
     String DOC_URI = "http://openesdh.dk/model/document/1.0";
