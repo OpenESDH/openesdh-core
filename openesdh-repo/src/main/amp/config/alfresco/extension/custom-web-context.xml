@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+<beans>
+    <!-- IMPORTANT -->
+    <!-- The reason for this file is that it seems to be the only way to make sure that the override is picked up -->
+    <!-- all other context file names (e.g. dev-context, custom-service-context) do not work.-->
+    <bean id="utilsScript" class="dk.openesdh.repo.utils.OEScriptUtils" parent="baseJavaScriptExtension">
+        <property name="extensionName">
+            <value>utils</value>
+        </property>
+
+        <property name="serviceRegistry">
+            <ref bean="ServiceRegistry" />
+        </property>
+        <property name="nodeService" ref="nodeService"/>
+        <property name="repositoryContainer">
+            <ref bean="webscripts.container" />
+        </property>
+    </bean>
+</beans>

@@ -10,6 +10,7 @@
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-model-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-service-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-webscript-context.xml" />
+    <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-node-locator-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-resourcebundles-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-bootstrap-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-docTemplate-thumbnail-context.xml" />
