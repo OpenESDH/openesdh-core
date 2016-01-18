@@ -8,9 +8,17 @@ import java.util.Properties;
 import java.util.stream.Collectors;
 
 import org.alfresco.repo.importer.ImporterBootstrap;
+import org.alfresco.repo.security.authentication.AuthenticationContext;
 import org.alfresco.repo.tenant.MultiTAdminServiceImpl;
+import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.module.ModuleDetails;
 import org.alfresco.service.cmr.module.ModuleService;
+import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.repository.StoreRef;
+import org.alfresco.service.cmr.view.ImporterService;
+import org.alfresco.service.namespace.NamespaceService;
+import org.alfresco.service.transaction.TransactionService;
+import org.apache.log4j.Logger;
 import org.springframework.aop.AfterReturningAdvice;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.NameMatchMethodPointcutAdvisor;
@@ -35,6 +43,8 @@ import dk.openesdh.repo.model.OpenESDHModel;
 @Service("MultiTenantAdminModulesAspect")
 public class MultiTenantAdminModulesAspect implements BeanFactoryAware {
     
+    private static final Logger LOGGER = Logger.getLogger(MultiTenantAdminModulesAspect.class);
+
     private static final String TENANT_ADMIN_SERVICE = "tenantAdminService";
     
     private static final String OPENE_MODULE_SERVICE = "OpeneMultiTenantModuleService";
@@ -42,9 +52,28 @@ public class MultiTenantAdminModulesAspect implements BeanFactoryAware {
     private ListableBeanFactory beanFactory;
 
     private List<String> moduleSpacesImporterBeanIds = Collections.emptyList();
-    private List<String> moduleSpaceBootstrapViewPropIds = Collections.emptyList();
     private List<String> openeModuleIdsWithMtSuffix = Collections.emptyList();
-    private boolean spaceViewPropsAppended = false;
+
+    @Autowired
+    @Qualifier("transactionService")
+    private TransactionService transactionService;
+    @Autowired
+    @Qualifier("storeImporterTransactionHelper")
+    private RetryingTransactionHelper retryingTransactionHelper;
+    @Autowired
+    @Qualifier("namespaceService")
+    private NamespaceService namespaceService;
+    @Autowired
+    @Qualifier("nodeService")
+    private NodeService nodeService;
+    @Autowired
+    @Qualifier("importerComponent")
+    private ImporterService importerService;
+    @Autowired
+    @Qualifier("authenticationContext")
+    private AuthenticationContext authenticationContext;
+
+    private ImporterBootstrap extraMtImporter;
 
     @Autowired
     @Qualifier("moduleService")
@@ -58,7 +87,7 @@ public class MultiTenantAdminModulesAspect implements BeanFactoryAware {
         this.beanFactory = (ListableBeanFactory) beanFactory;
         openeModuleIdsWithMtSuffix = getOpeneModuleIdsWithMtSuffix();
         moduleSpacesImporterBeanIds = getImporterBeanIds(ImporterBootstrap.class);
-        moduleSpaceBootstrapViewPropIds = getImporterBeanIds(Properties.class);
+        extraMtImporter = getExtraMtImporter();
         
         MultiTAdminServiceImpl tenantAdminService = (MultiTAdminServiceImpl) beanFactory
                 .getBean(TENANT_ADMIN_SERVICE);
@@ -72,8 +101,10 @@ public class MultiTenantAdminModulesAspect implements BeanFactoryAware {
     }
     
     public void afterStartModules(Object returnValue, Method method, Object[] args, Object target) {
-        appendSpacesBootstrapViewsToLastImporter();
         moduleSpacesImporterBeanIds.stream().forEach(this::runSpacesImporter);
+        LOGGER.debug("Running extra mt importer");
+        extraMtImporter.bootstrap();
+        LOGGER.debug("Done");
     }
     
     private List<String> getOpeneModuleIdsWithMtSuffix(){
@@ -107,24 +138,34 @@ public class MultiTenantAdminModulesAspect implements BeanFactoryAware {
                     .isPresent();
     }
 
-    private void appendSpacesBootstrapViewsToLastImporter() {
-        if (spaceViewPropsAppended) {
-            return;
-        }
-        ImporterBootstrap lastImporter = (ImporterBootstrap) beanFactory.getBean(moduleSpacesImporterBeanIds
-                .get(moduleSpacesImporterBeanIds.size() - 1));
-        moduleSpaceBootstrapViewPropIds
-            .stream()
-            .map(id -> Arrays.asList((Properties) beanFactory.getBean(id)))
-            .forEach(lastImporter::addBootstrapViews);
-        spaceViewPropsAppended = true;
+    private ImporterBootstrap getExtraMtImporter() {
+        ImporterBootstrap importer = new ImporterBootstrap();
+        importer.setTransactionService(transactionService);
+        importer.setRetryingTransactionHelper(retryingTransactionHelper);
+        importer.setNodeService(nodeService);
+        importer.setNamespaceService(namespaceService);
+        importer.setAuthenticationContext(authenticationContext);
+        importer.setImporterService(importerService);
+        importer.setStoreUrl(StoreRef.STORE_REF_WORKSPACE_SPACESSTORE.toString());
+        importer.setUseExistingStore(true);
+
+        Properties configuration = ((ImporterBootstrap) beanFactory.getBean(moduleSpacesImporterBeanIds.get(0)))
+                .getConfiguration();
+        importer.setConfiguration(configuration);
+
+        List<Properties> moduleSpacesBootstrapViews = getImporterBeanIds(Properties.class)
+                .stream()
+                .map(id -> (Properties) beanFactory.getBean(id))
+                .collect(Collectors.toList());
+        importer.setBootstrapViews(moduleSpacesBootstrapViews);
+        return importer;
     }
 
     private void runSpacesImporter(String beanId) {
         ImporterBootstrap importer = (ImporterBootstrap) beanFactory.getBean(beanId);
-        System.out.println("running importer: " + beanId);
+        LOGGER.debug("Running importer: " + beanId);
         importer.bootstrap();
-        System.out.println("done");
+        LOGGER.debug("Done");
     }
 
 }
