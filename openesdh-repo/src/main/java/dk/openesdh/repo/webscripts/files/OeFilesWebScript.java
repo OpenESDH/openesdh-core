@@ -1,5 +1,6 @@
 package dk.openesdh.repo.webscripts.files;
 
+import com.github.dynamicextensionsalfresco.webscripts.annotations.FileField;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
@@ -21,17 +22,14 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.extensions.webscripts.Status;
-import org.springframework.extensions.webscripts.WebScriptException;
-import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.servlet.FormData;
 import org.springframework.stereotype.Component;
 
 import dk.openesdh.repo.services.authorities.GroupsService;
+import dk.openesdh.repo.services.files.OeFilesService;
 import dk.openesdh.repo.utils.JSONArrayCollector;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 import static dk.openesdh.repo.webscripts.utils.WebScriptUtils.JSON;
-import dk.openesdh.repo.services.files.OeFilesService;
 
 @Component
 @WebScript(description = "Manage files", families = {"File Tools"})
@@ -67,29 +65,14 @@ public class OeFilesWebScript {
         return WebScriptUtils.jsonResolution(files);
     }
 
-    @Uri(value = "/api/openesdh/files", method = HttpMethod.POST, defaultFormat = JSON)
-    public void uploadFile(WebScriptRequest req) throws IOException, ParseException {
-        final FormData form = (FormData) req.parseContent();
-        if (form == null || !form.getIsMultiPart()) {
-            throw new WebScriptException(Status.STATUS_BAD_REQUEST, "");
-        }
-        InputStream fileInputStream = null;
-        String filename = null;
-        String mimetype = null;
-        NodeRef owner = null;
-
-        for (FormData.FormField field : form.getFields()) {
-            switch (field.getName()) {
-                case "file":
-                    fileInputStream = field.getInputStream();
-                    filename = field.getFilename();
-                    mimetype = field.getMimetype();
-                    break;
-                case "owner":
-                    owner = new NodeRef(field.getValue());
-                    break;
-            }
-        }
+    @Uri(value = "/api/openesdh/files", method = HttpMethod.POST, defaultFormat = JSON, multipartProcessing = true)
+    public void uploadFile(
+            @RequestParam NodeRef owner,
+            @FileField("file") FormData.FormField fileField
+    ) throws IOException, ParseException {
+        InputStream fileInputStream = fileField.getInputStream();
+        String filename = fileField.getFilename();
+        String mimetype = fileField.getMimetype();
         filesService.addFile(owner, filename, mimetype, fileInputStream);
     }
 
