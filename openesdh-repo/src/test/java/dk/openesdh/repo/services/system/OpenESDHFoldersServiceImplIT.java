@@ -23,6 +23,7 @@ import static dk.openesdh.repo.services.system.OpenESDHFoldersService.CASES_ROOT
 import static dk.openesdh.repo.services.system.OpenESDHFoldersService.CLASSIFICATIONS;
 import static dk.openesdh.repo.services.system.OpenESDHFoldersService.DOCUMENT_CATEGORIES;
 import static dk.openesdh.repo.services.system.OpenESDHFoldersService.DOCUMENT_TYPES;
+import static dk.openesdh.repo.services.system.OpenESDHFoldersService.FILES_ROOT;
 import static dk.openesdh.repo.services.system.OpenESDHFoldersService.OPENESDH_ROOT_CONTEXT;
 import static dk.openesdh.repo.services.system.OpenESDHFoldersService.PARAMETERS_ROOT;
 
@@ -67,10 +68,10 @@ public class OpenESDHFoldersServiceImplIT {
         assertPath(openESDHFoldersService.getCasesRootNodeRef(), OPENESDH_ROOT_CONTEXT, CASES_ROOT);
     }
 
-//    @Test
-//    public void testGetCasesTypeStorageRootNodeRef() {
-//        assertPath(openESDHFoldersService.getCasesTypeStorageRootNodeRef(), OPENESDH_ROOT_CONTEXT, CASES_ROOT, CASES_TYPES_ROOT);
-//    }
+    @Test
+    public void testGetFilesRootNodeRef() {
+        assertPath(openESDHFoldersService.getFilesRootNodeRef(), OPENESDH_ROOT_CONTEXT, FILES_ROOT);
+    }
 
     @Test
     public void testGetClassificationsRootNodeRef() {
