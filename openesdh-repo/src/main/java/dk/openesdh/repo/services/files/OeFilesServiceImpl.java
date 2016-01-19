@@ -97,8 +97,15 @@ public class OeFilesServiceImpl implements OeFilesService {
 
         return AuthenticationUtil.runAs(() -> {
             NodeRef folder = getOrCreateAuthorityFolder(authorityName);
+            checkIfFileExists(folder, fileName);
             return writeFile(fileName, folder, mimetype, fileInputStream);
         }, AuthenticationUtil.getAdminUserName());
+    }
+
+    private void checkIfFileExists(NodeRef folder, String fileName) {
+        if (nodeService.getChildByName(folder, ContentModel.ASSOC_CONTAINS, fileName) != null) {
+            throw new RuntimeException("File \"" + fileName + "\" already exists");
+        }
     }
 
     private String getAuthorityName(NodeRef owner) throws InvalidNodeRefException {
@@ -172,6 +179,7 @@ public class OeFilesServiceImpl implements OeFilesService {
             }
             //move
             NodeRef toFolder = getOrCreateAuthorityFolder(authorityName);
+            checkIfFileExists(toFolder, oldAssociation.getQName().getLocalName());
             nodeService.moveNode(file, toFolder, ContentModel.ASSOC_CONTAINS, oldAssociation.getQName());
             return null;
         }, AuthenticationUtil.getAdminUserName());
