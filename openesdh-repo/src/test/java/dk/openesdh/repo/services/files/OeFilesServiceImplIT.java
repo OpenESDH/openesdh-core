@@ -34,13 +34,15 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.services.RunInTransactionAsAdmin;
 
+import static org.alfresco.repo.security.authentication.AuthenticationUtil.setFullyAuthenticatedUser;
+
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
 @ContextConfiguration({"classpath:alfresco/application-context.xml", "classpath:alfresco/extension/openesdh-test-context.xml"})
-public class FilesServiceImplIT implements RunInTransactionAsAdmin {
+public class OeFilesServiceImplIT implements RunInTransactionAsAdmin {
 
     @Autowired
-    private FilesServiceImpl filesService;
+    private OeFilesServiceImpl filesService;
     @Autowired
     @Qualifier("TestCaseHelper")
     private CaseHelper caseHelper;

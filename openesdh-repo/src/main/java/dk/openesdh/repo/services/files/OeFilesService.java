@@ -6,7 +6,7 @@ import java.util.List;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.json.simple.JSONObject;
 
-public interface FilesService {
+public interface OeFilesService {
 
     public NodeRef addFile(NodeRef owner, String fileName, String mimetype, InputStream fileInputStream);
 

@@ -28,17 +28,17 @@ import org.springframework.extensions.webscripts.servlet.FormData;
 import org.springframework.stereotype.Component;
 
 import dk.openesdh.repo.services.authorities.GroupsService;
-import dk.openesdh.repo.services.files.FilesService;
 import dk.openesdh.repo.utils.JSONArrayCollector;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 import static dk.openesdh.repo.webscripts.utils.WebScriptUtils.JSON;
+import dk.openesdh.repo.services.files.OeFilesService;
 
 @Component
 @WebScript(description = "Manage files", families = {"File Tools"})
-public class FilesWebScript {
+public class OeFilesWebScript {
 
     @Autowired
-    private FilesService filesService;
+    private OeFilesService filesService;
     @Autowired
     @Qualifier("GroupsService")
     private GroupsService groupsService;

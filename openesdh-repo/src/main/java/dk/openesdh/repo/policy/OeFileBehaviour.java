@@ -20,8 +20,8 @@ import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 
-@Service("fileBehaviour")
-public class FileBehaviour implements OnCreateNodePolicy, OnCreateChildAssociationPolicy {
+@Service("oeFileBehaviour")
+public class OeFileBehaviour implements OnCreateNodePolicy, OnCreateChildAssociationPolicy {
 
     @Autowired
     @Qualifier("NodeService")

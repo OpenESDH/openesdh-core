@@ -23,7 +23,6 @@ import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
-import org.apache.log4j.Logger;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -33,9 +32,7 @@ import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 
 @Component
-public class FilesServiceImpl implements FilesService {
-
-    private static final Logger LOG = Logger.getLogger(FilesServiceImpl.class);
+public class OeFilesServiceImpl implements OeFilesService {
 
     @Autowired
     private OpenESDHFoldersService foldersService;
