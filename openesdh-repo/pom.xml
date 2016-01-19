@@ -88,13 +88,13 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
+        <!--<dependency>
             <groupId>share-extras</groupId>
             <artifactId>javascript-console</artifactId>
             <version>0.5.1</version>
             <classifier>community</classifier>
             <type>amp</type>
-        </dependency>
+        </dependency>-->
 
         <dependency>
             <groupId>magenta-aps</groupId>
@@ -521,7 +521,7 @@
         <profile>
             <id>add-javamelody</id>
             <activation>
-                <activeByDefault>true</activeByDefault>
+                <activeByDefault>false</activeByDefault>
             </activation>
             <repositories>
                 <repository>
