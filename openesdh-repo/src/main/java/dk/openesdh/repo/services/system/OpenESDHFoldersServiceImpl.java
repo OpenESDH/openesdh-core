@@ -44,6 +44,11 @@ public class OpenESDHFoldersServiceImpl implements OpenESDHFoldersService {
     }
 
     @Override
+    public NodeRef getFilesRootNodeRef() {
+        return getFolder(getOpenESDHRootFolder(), FILES_ROOT);
+    }
+
+    @Override
     public NodeRef getDocumentTypesRootNodeRef() {
         return getFolder(getClassificationsRootNodeRef(), DOCUMENT_TYPES);
     }
