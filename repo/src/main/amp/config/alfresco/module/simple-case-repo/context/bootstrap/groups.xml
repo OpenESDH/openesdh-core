@@ -15,6 +15,7 @@
                     <view:properties>
                         <sys:node-uuid>GROUP_CaseSimpleCreator</sys:node-uuid>
                         <cm:name>GROUP_CaseSimpleCreator</cm:name>
+                        <cm:authorityDisplayName>Simple Case Creator</cm:authorityDisplayName>
                         <cm:authorityName>GROUP_CaseSimpleCreator</cm:authorityName>
                         <oe:openeType>SIMPLE</oe:openeType>
                     </view:properties>
@@ -27,6 +28,7 @@
                     <view:properties>
                         <sys:node-uuid>GROUP_CaseSimpleWriter</sys:node-uuid>
                         <cm:name>GROUP_CaseSimpleWriter</cm:name>
+                        <cm:authorityDisplayName>Simple Case Writer</cm:authorityDisplayName>
                         <cm:authorityName>GROUP_CaseSimpleWriter</cm:authorityName>
                         <oe:openeType>SIMPLE</oe:openeType>
                     </view:properties>
@@ -39,6 +41,7 @@
                     <view:properties>
                         <sys:node-uuid>GROUP_CaseSimpleReader</sys:node-uuid>
                         <cm:name>GROUP_CaseSimpleReader</cm:name>
+                        <cm:authorityDisplayName>Simple Case Reader</cm:authorityDisplayName>
                         <cm:authorityName>GROUP_CaseSimpleReader</cm:authorityName>
                         <oe:openeType>SIMPLE</oe:openeType>
                     </view:properties>
