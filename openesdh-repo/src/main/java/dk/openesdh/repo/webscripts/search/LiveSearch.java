@@ -30,7 +30,7 @@ import java.util.Map;
 
 /**
  * IMPORTANT
- * Please note that this isn't the function/method responsible for returning the results on the search page.
+ * Please note that this isn't the function/class responsible for returning the results on the search page.
  * For that refer to openesdh-repo/src/main/amp/config/alfresco/extension/templates/webscripts/org/alfresco/slingshot/search/search.lib.js#L139
  * or on github https://github.com/OpenESDH/openesdh-core/blob/develop/openesdh-repo/src/main/amp/config/alfresco/extension/templates/webscripts/org/alfresco/slingshot/search/search.lib.js#L139
  */
