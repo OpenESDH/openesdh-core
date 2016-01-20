@@ -49,6 +49,8 @@ public class MultiTenantAdminModulesAspect implements BeanFactoryAware {
     
     private static final String OPENE_MODULE_SERVICE = "OpeneMultiTenantModuleService";
 
+    private static final String OPENE_MULTI_TENANT = "opene-multi-tenant";
+
     private ListableBeanFactory beanFactory;
 
     private List<String> moduleSpacesImporterBeanIds = Collections.emptyList();
@@ -79,6 +81,10 @@ public class MultiTenantAdminModulesAspect implements BeanFactoryAware {
     @Qualifier("moduleService")
     private ModuleService moduleService;
 
+    /**
+     * Initializes the aspect for MultiTAdminService.
+     * The aspect is triggered as a new tenant is created by the system.
+     */
     @Override
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
         if (!beanFactory.containsBean(TENANT_ADMIN_SERVICE) || !beanFactory.containsBean(OPENE_MODULE_SERVICE)) {
@@ -100,6 +106,9 @@ public class MultiTenantAdminModulesAspect implements BeanFactoryAware {
         moduleServiceProxy.addAdvisor(afterStartModulesAdvisor);
     }
     
+    /**
+     * Performs necessary imports for a newly created tenant environment.
+     */
     public void afterStartModules(Object returnValue, Method method, Object[] args, Object target) {
         moduleSpacesImporterBeanIds.stream().forEach(this::runSpacesImporter);
         LOGGER.debug("Running extra mt importer");
@@ -116,12 +125,16 @@ public class MultiTenantAdminModulesAspect implements BeanFactoryAware {
                 .collect(Collectors.toList());
     }
     
-    private boolean isOpenesdhRepoDependant(ModuleDetails module){
+    public static boolean isOpenesdhRepoDependant(ModuleDetails module) {
         return module.getDependencies()
                 .stream()
                 .filter(d -> OpenESDHModel.OPENESDH_REPO_MODULE_ID.equals(d.getDependencyId()))
                 .findAny()
                 .isPresent();
+    }
+
+    public static boolean isOpeneMultitenantModule(ModuleDetails module){
+        return module.getAliases().contains(module.getId() + "-" + OPENE_MULTI_TENANT);
     }
 
     private List<String> getImporterBeanIds(Class<?> beanClass) {
@@ -138,6 +151,10 @@ public class MultiTenantAdminModulesAspect implements BeanFactoryAware {
                     .isPresent();
     }
 
+    /**
+     * Initializes an extra importer for some data which is imported using patches (e.g. sites).
+     * This is due to patches cannot be re-applied for a tenant environment.  
+     */
     private ImporterBootstrap getExtraMtImporter() {
         ImporterBootstrap importer = new ImporterBootstrap();
         importer.setTransactionService(transactionService);

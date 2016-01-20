@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<view:view xmlns:view="http://www.alfresco.org/view/repository/1.0"
+    xmlns:app="http://www.alfresco.org/model/application/1.0"
+    xmlns:sys="http://www.alfresco.org/model/system/1.0"
+    xmlns:cm="http://www.alfresco.org/model/content/1.0"> 
+    <cm:content view:childName="cm:tenant-modules-map.json">
+        <view:aspects>
+            <cm:titled></cm:titled>
+            <cm:author></cm:author>
+            <app:inlineeditable></app:inlineeditable>
+            <sys:referenceable></sys:referenceable>
+        </view:aspects>
+        <view:properties>
+            <app:editInline>true</app:editInline>
+            <cm:content>contentUrl=classpath:alfresco/extension/templates/tenant/tenant-modules-map.json|mimetype=text/json|encoding=UTF-8</cm:content>
+            <cm:author>admin</cm:author>
+            <cm:name>tenant-modules-map.json</cm:name>
+            <cm:title>tenant-modules-map.json</cm:title>
+            <sys:node-uuid>ca670d5c-6ba2-414d-bce4-18248fd32f0d</sys:node-uuid>
+        </view:properties>
+        <view:associations></view:associations>
+    </cm:content>
+</view:view>

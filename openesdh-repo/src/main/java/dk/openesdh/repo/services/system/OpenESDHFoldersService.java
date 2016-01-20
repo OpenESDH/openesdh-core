@@ -16,6 +16,7 @@ public interface OpenESDHFoldersService {
     public static String PARAMETERS_ROOT = "parameters";
     public static String SITES_PATH_ROOT = "/Company Home/Sites";
     public static String OPENE_SITE_CASES_PATH = "/Company Home/Sites/opene/cases";
+    public static String TENANTS_MODULES_MAP_XPATH = "/app:company_home/oe:OpenESDH/oe:tenants/cm:tenant-modules-map.json";
 
     public NodeRef getOpenESDHRootFolder();
 

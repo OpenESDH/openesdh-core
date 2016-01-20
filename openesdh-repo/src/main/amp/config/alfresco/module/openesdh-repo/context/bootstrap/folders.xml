@@ -202,6 +202,21 @@
                     <cm:description>This folder stores all openESDH configuration parameters</cm:description>
                 </view:properties>
             </cm:folder>
+            <cm:folder view:childName="oe:tenants">
+                <cm:name>tenants</cm:name>
+                <view:acl view:inherit="false">
+                    <view:ace view:access="ALLOWED">
+                        <view:authority>GROUP_ALFRESCO_ADMINISTRATORS</view:authority>
+                        <view:permission>Contributor</view:permission>
+                    </view:ace>
+                </view:acl>
+                <view:properties>
+                    <sys:store-protocol>workspace</sys:store-protocol>
+                    <sys:store-identifier>SpacesStore</sys:store-identifier>
+                    <sys:node-uuid>a9a7461b-56ca-4f28-85fb-58bb5fb6f166</sys:node-uuid>
+                    <cm:description>This folder stores all OpenESDH configuration for multi-tenancy</cm:description>
+                </view:properties>
+            </cm:folder>
         </cm:contains>
     </cm:folder>
 
