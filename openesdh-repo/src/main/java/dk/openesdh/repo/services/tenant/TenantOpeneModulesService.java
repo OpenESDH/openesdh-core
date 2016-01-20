@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.alfresco.service.cmr.repository.ContentIOException;
+import org.alfresco.service.namespace.QName;
 import org.json.JSONException;
 
 import com.fasterxml.jackson.core.JsonParseException;
@@ -38,4 +39,15 @@ public interface TenantOpeneModulesService {
      * Removes enabled modules configuration for the specified tenant.
      */
     void deleteTenantModules(String tenant) throws JsonParseException, JsonMappingException, IOException;
+
+    /**
+     * Checks whether the module for the specified case type is enabled for the
+     * current tenant.
+     */
+    void checkCaseTypeModuleEnabled(QName caseType);
+
+    /**
+     * Checks whether the specified module is enabled for the current tenant.
+     */
+    void checkCurrentTenantModuleEnabled(String module);
 }
