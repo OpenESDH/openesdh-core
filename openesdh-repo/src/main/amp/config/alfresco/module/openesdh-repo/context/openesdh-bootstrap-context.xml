@@ -4,7 +4,7 @@
 <beans>
     <!--The initial openESDH folder context-->
     <!-- load folders every time -->
-    <bean id="${project.artifactId}_bootstrap" parent="spacesStoreImporter">
+    <bean id="${project.artifactId}_mt_bootstrap" parent="spacesStoreImporter">
         <property name="log">
             <value>false</value>
         </property>
@@ -34,7 +34,6 @@
     <bean id="patch.foldersLoadPatch.opene" class="org.alfresco.repo.admin.patch.impl.GenericBootstrapPatch" parent="basePatch" >
         <property name="id"><value>patch.foldersLoadPatch.opene</value></property>
         <property name="description"><value>Creates necessary folders for OpenESDH</value></property>
-        <property name="ignored"><value>true</value></property>
         <property name="fixesFromSchema"><value>0</value></property>
         <property name="fixesToSchema"><value>${version.schema}</value></property>
         <property name="targetSchema"><value>10000</value></property>
@@ -51,7 +50,39 @@
         </property>
     </bean>
     
-    <bean id="patch.siteLoadPatch.opene" class="org.alfresco.repo.admin.patch.impl.SiteLoadPatch" parent="basePatch">
+    <bean id="patch.tenantsModulesMap.opene" class="org.alfresco.repo.admin.patch.impl.GenericBootstrapPatch" parent="basePatch" >
+        <property name="id"><value>patch.tenantsModulesMap.opene</value></property>
+        <property name="description"><value>Uploads OpenESDH multi-tenancy configuration</value></property>
+        <property name="fixesFromSchema"><value>0</value></property>
+        <property name="fixesToSchema"><value>${version.schema}</value></property>
+        <property name="targetSchema"><value>10000</value></property>
+        <property name="importerBootstrap">
+            <ref bean="spacesBootstrap" />
+        </property>
+        <property name="dependsOn" >
+            <list>
+                <ref bean="patch.foldersLoadPatch.opene" />
+            </list>
+        </property>
+        <property name="bootstrapView">
+            <props>
+                <prop key="path">/app:company_home/oe:OpenESDH/oe:tenants</prop>
+                <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/tenant-modules-map.xml</prop>
+                <prop key="uuidBinding">UPDATE_EXISTING</prop>
+            </props>
+        </property>
+    </bean>
+    
+    <bean id="${project.artifactId}_mt_sitesProps" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+	    <property name="properties">
+	        <props>
+                <prop key="path">app:company_home/st:sites</prop>
+                <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/sites.xml</prop>
+            </props>
+	    </property>
+	</bean>
+    
+    <bean id="${project.artifactId}_mt_patch.siteLoadPatch.opene" class="org.alfresco.repo.admin.patch.impl.SiteLoadPatch" parent="basePatch">
         <property name="id"><value>patch.siteLoadPatch.opene</value></property>
         <property name="description"><value>Creates site</value></property>
         <property name="fixesFromSchema"><value>0</value></property>
@@ -73,18 +104,14 @@
         </property>
         <property name="bootstrapViews">
             <map>
-                <entry key="contents">
-                    <props>
-                        <prop key="path">app:company_home/st:sites</prop>
-                        <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/sites.xml</prop>
-                    </props>
-                </entry>
+              <entry key="contents" value-ref="${project.artifactId}_mt_sitesProps">
+              </entry>
             </map>
         </property>
     </bean>
 
     <!-- initial document types -->
-    <bean id="${project.artifactId}_docTypesBootstrap" parent="spacesStoreImporter">
+    <bean id="${project.artifactId}_mt_docTypesBootstrap" parent="spacesStoreImporter">
         <property name="log">
             <value>true</value>
         </property>
@@ -104,7 +131,7 @@
         </property>
     </bean>
     <!-- initial document categories -->
-    <bean id="${project.artifactId}_docCategBootstrap" parent="spacesStoreImporter">
+    <bean id="${project.artifactId}_mt_docCategBootstrap" parent="spacesStoreImporter">
         <property name="log">
             <value>true</value>
         </property>
@@ -125,7 +152,7 @@
         </property>
     </bean>
     <!--Contacts store-->
-    <bean id="${project.artifactId}_contactBootstrap" parent="spacesStoreImporter">
+    <bean id="${project.artifactId}_mt_contactBootstrap" parent="spacesStoreImporter">
         <property name="log">
             <value>false</value>
         </property>
@@ -145,7 +172,7 @@
         </property>
     </bean>
 
-    <bean id="${project.artifactId}_activitiesEmailBootstrap" parent="spacesStoreImporter" >
+    <bean id="${project.artifactId}_mt_activitiesEmailBootstrap" parent="spacesStoreImporter" >
         <property name="log"> 
             <value>false</value> 
         </property>

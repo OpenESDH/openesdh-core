@@ -6,6 +6,7 @@
             <list>
                 <value>alfresco.messages.caseHistory</value>
                 <value>alfresco.messages.user-csv-upload</value>
+                <value>alfresco.messages.tenant-messages</value>
             </list>
         </property>
     </bean>
