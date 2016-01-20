@@ -39,6 +39,9 @@
                 </property>
             </properties>
         </type>
+        <type name="oe:authorityFilesFolder">
+            <parent>cm:folder</parent>
+        </type>
     </types>
 
     <aspects>

@@ -36,8 +36,8 @@ public interface OpenESDHModel {
      * Types
      */
     QName TYPE_OE_BASE = QName.createQName(OE_URI, TYPE_BASE_NAME);
-
     QName TYPE_OE_PARAMETER = QName.createQName(OE_URI, "parameter");
+    QName TYPE_OE_AUTHORITY_FILES_FOLDER = QName.createQName(OE_URI, "authorityFilesFolder");
 
     QName TYPE_CASE_BASE = QName.createQName(CASE_URI, "case");
     QName TYPE_CASE_COMPLAINT = QName.createQName(CASE_URI, "complaint");
