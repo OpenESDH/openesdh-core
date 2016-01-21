@@ -29,6 +29,8 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.documents.DocumentService;
 import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 
 @Component
@@ -48,6 +50,12 @@ public class OeFilesServiceImpl implements OeFilesService {
     @Autowired
     @Qualifier("PersonService")
     private PersonService personService;
+    @Autowired
+    @Qualifier("DocumentService")
+    private DocumentService documentService;
+    @Autowired
+    @Qualifier("CaseService")
+    private CaseService caseService;
 
     @Override
     public List<JSONObject> getFiles(String authorityName) {
@@ -181,6 +189,25 @@ public class OeFilesServiceImpl implements OeFilesService {
             NodeRef toFolder = getOrCreateAuthorityFolder(authorityName);
             checkIfFileExists(toFolder, oldAssociation.getQName().getLocalName());
             nodeService.moveNode(file, toFolder, ContentModel.ASSOC_CONTAINS, oldAssociation.getQName());
+            return null;
+        }, AuthenticationUtil.getAdminUserName());
+    }
+
+    @Override
+    public void addToCase(String caseId, NodeRef file, String title, NodeRef docType, NodeRef docCategory, String description) {
+        //checks permissions
+        nodeService.getParentAssocs(file).get(0);
+        NodeRef caseNodeRef = caseService.getCaseById(caseId);
+
+        AuthenticationUtil.runAs(() -> {
+            documentService.moveAsCaseDocument(
+                    caseNodeRef,
+                    file,
+                    title,
+                    title,
+                    docType,
+                    docCategory,
+                    description);
             return null;
         }, AuthenticationUtil.getAdminUserName());
     }

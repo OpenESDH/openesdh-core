@@ -482,13 +482,13 @@ public class DocumentServiceImpl implements DocumentService {
         return documentAssociationRef;
     }
 
-    public NodeRef createCaseDocument(String caseId, String title, String fileName, String docType,
-            String docCatagory, Consumer<ContentWriter> contentWriter) {
+    public NodeRef createCaseDocument(String caseId, String title, String fileName, NodeRef docType,
+            NodeRef docCatagory, Consumer<ContentWriter> contentWriter) {
         return createCaseDocument(caseService.getCaseById(caseId), title, fileName, docType, docCatagory, contentWriter);
     }
 
-    public NodeRef createCaseDocument(NodeRef caseNodeRef, String title, String fileName, String docType,
-            String docCatagory, Consumer<ContentWriter> contentWriter) {
+    public NodeRef createCaseDocument(NodeRef caseNodeRef, String title, String fileName, NodeRef docType,
+            NodeRef docCatagory, Consumer<ContentWriter> contentWriter) {
         NodeRef caseDocumentsFolder = caseService.getDocumentsFolder(caseNodeRef);
 
         //we need new transaction for DocumentBehavior to kick in
@@ -500,8 +500,32 @@ public class DocumentServiceImpl implements DocumentService {
         return nodeService.getPrimaryParent(file).getParentRef();
     }
 
-    public NodeRef createDocumentFile(NodeRef documentFolder, String title, String fileName, String docType, String docCatagory,
-            Consumer<ContentWriter> contentWriter) {
+    public NodeRef moveAsCaseDocument(NodeRef caseNodeRef, NodeRef fileNodeRef, String title, String fileName,
+            NodeRef docType, NodeRef docCatagory, String description) {
+        NodeRef caseDocumentsFolder = caseService.getDocumentsFolder(caseNodeRef);
+
+        String name = getUniqueName(caseDocumentsFolder, sanitizeName(StringUtils.defaultIfEmpty(fileName, title)), true);
+        title = StringUtils.defaultIfEmpty(title, fileName);
+        Map<QName, Serializable> props = nodeService.getProperties(fileNodeRef);
+        props.put(ContentModel.PROP_NAME, name);
+        props.put(ContentModel.PROP_TITLE, title);
+        props.put(OpenESDHModel.PROP_DOC_TYPE, docType.toString());
+        props.put(OpenESDHModel.PROP_DOC_CATEGORY, docCatagory.toString());
+        if (StringUtils.isNotEmpty(description)) {
+            props.put(ContentModel.PROP_DESCRIPTION, description);
+        }
+        nodeService.setProperties(fileNodeRef, props);
+
+        ChildAssociationRef movedNode = nodeService.moveNode(
+                fileNodeRef,
+                caseDocumentsFolder,
+                ContentModel.ASSOC_CONTAINS,
+                QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, name));
+        return movedNode.getChildRef();
+    }
+
+    public NodeRef createDocumentFile(NodeRef documentFolder, String title, String fileName,
+            NodeRef docType, NodeRef docCatagory, Consumer<ContentWriter> contentWriter) {
         title = StringUtils.defaultIfEmpty(title, fileName);
         String name = getUniqueName(documentFolder, sanitizeName(StringUtils.defaultIfEmpty(fileName, title)), true);
         Map<QName, Serializable> props;
