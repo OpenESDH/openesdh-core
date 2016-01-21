@@ -243,10 +243,12 @@ public interface DocumentService extends HasStatus {
     /**
      * Retrieves attachments of the provided case document version
      * 
-     * @param nodeRef
+     * @param mainDocVersionNodeRef
+     * @param startIndex
+     * @param pageSize
      * @return list of the case document attachments
      */
-    ResultSet<CaseDocumentAttachment> getDocumentVersionAttachments(NodeRef mainDocVersionNodeRef, int startIndex,
+    public ResultSet<CaseDocumentAttachment> getDocumentVersionAttachments(NodeRef mainDocVersionNodeRef, int startIndex,
             int pageSize);
 
     /**
