@@ -15,4 +15,6 @@ public interface OeFilesService {
     public void delete(NodeRef nodeRef);
 
     public void move(NodeRef file, NodeRef newOwner, String comment);
+
+    public void addToCase(String caseId, NodeRef file, String title, NodeRef docType, NodeRef docCategory, String description);
 }
