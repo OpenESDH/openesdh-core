@@ -18,7 +18,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 public abstract class AbstractCaseWorkflowWebScript {
     @Autowired
     @Qualifier("WorkflowService")
-    private WorkflowService workflowService;
+    protected WorkflowService workflowService;
     @Autowired
     private NamespaceService namespaceService;
     @Autowired
