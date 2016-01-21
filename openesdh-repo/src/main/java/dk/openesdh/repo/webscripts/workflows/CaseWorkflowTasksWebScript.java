@@ -3,7 +3,7 @@ package dk.openesdh.repo.webscripts.workflows;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.alfresco.service.cmr.workflow.WorkflowInstanceQuery;
+import org.alfresco.service.cmr.workflow.WorkflowTaskQuery;
 import org.alfresco.service.namespace.QName;
 import org.springframework.stereotype.Component;
 
@@ -22,14 +22,11 @@ public class CaseWorkflowTasksWebScript extends AbstractCaseWorkflowWebScript {
 
     @Uri(value = "/api/openesdh/case/{caseId}/tasks", method = HttpMethod.GET, defaultFormat = "json")
     public Resolution getCaseWorkflowTasks(@UriVariable(WebScriptUtils.CASE_ID) final String caseId) {
-        Map<QName, Object> props = new HashMap<QName, Object>();
-        props.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
-        WorkflowInstanceQuery query = new WorkflowInstanceQuery();
-        query.setActive(true);
-        query.setCustomProps(props);
-        return WebScriptUtils.jsonResolution(
-                   getWorkflowTasks(
-                        workflowService.getWorkflows(query)
-        ));
+        WorkflowTaskQuery tasksQuery = new WorkflowTaskQuery();
+        tasksQuery.setActive(null);
+        Map<QName, Object> processCustomProps = new HashMap<QName, Object>();
+        processCustomProps.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
+        tasksQuery.setProcessCustomProps(processCustomProps);
+        return WebScriptUtils.jsonResolution(getWorkflowTasks(tasksQuery));
     }
 }
