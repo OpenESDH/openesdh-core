@@ -76,7 +76,9 @@ public class OeFilesServiceImpl implements OeFilesService {
         JSONObject json = new JSONObject();
         json.put("nodeRef", fileNode.toString());
         json.put("mimetype", ((ContentDataWithId) props.get(ContentModel.PROP_CONTENT)).getMimetype());
-        json.put("name", (String) props.get(ContentModel.PROP_NAME));
+        //there is no need to display filename
+        //json.put("name", (String) props.get(ContentModel.PROP_NAME));
+        json.put("title", (String) props.get(ContentModel.PROP_TITLE));
 
         if (authorityName.startsWith("GROUP_")) {
             json.put("group", authorityService.getAuthorityDisplayName(authorityName.substring(6)));
@@ -105,15 +107,8 @@ public class OeFilesServiceImpl implements OeFilesService {
 
         return AuthenticationUtil.runAs(() -> {
             NodeRef folder = getOrCreateAuthorityFolder(authorityName);
-            checkIfFileExists(folder, fileName);
             return writeFile(fileName, folder, mimetype, fileInputStream);
         }, AuthenticationUtil.getAdminUserName());
-    }
-
-    private void checkIfFileExists(NodeRef folder, String fileName) {
-        if (nodeService.getChildByName(folder, ContentModel.ASSOC_CONTAINS, fileName) != null) {
-            throw new RuntimeException("File \"" + fileName + "\" already exists");
-        }
     }
 
     private String getAuthorityName(NodeRef owner) throws InvalidNodeRefException {
@@ -125,13 +120,16 @@ public class OeFilesServiceImpl implements OeFilesService {
     }
 
     private NodeRef writeFile(String fileName, NodeRef folder, String mimetype, InputStream fileInputStream) {
+        String title = fileName;
+        String uniqueName = documentService.getUniqueName(folder, fileName, false);
+
         Map<QName, Serializable> props = new HashMap<>();
-        props.put(ContentModel.PROP_NAME, fileName);
-        props.put(ContentModel.PROP_TITLE, fileName);
+        props.put(ContentModel.PROP_NAME, uniqueName);
+        props.put(ContentModel.PROP_TITLE, title);
         NodeRef fileNode = nodeService.createNode(
                 folder,
                 ContentModel.ASSOC_CONTAINS,
-                QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, fileName),
+                QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, uniqueName),
                 ContentModel.TYPE_CONTENT,
                 props).getChildRef();
         ContentWriter writer = contentService.getWriter(fileNode, ContentModel.PROP_CONTENT, true);
@@ -187,8 +185,13 @@ public class OeFilesServiceImpl implements OeFilesService {
             }
             //move
             NodeRef toFolder = getOrCreateAuthorityFolder(authorityName);
-            checkIfFileExists(toFolder, oldAssociation.getQName().getLocalName());
-            nodeService.moveNode(file, toFolder, ContentModel.ASSOC_CONTAINS, oldAssociation.getQName());
+            String fileName = (String) nodeService.getProperty(oldAssociation.getChildRef(), ContentModel.PROP_NAME);
+            String uniqueName = documentService.getUniqueName(toFolder, fileName, false);
+            nodeService.moveNode(
+                    file,
+                    toFolder,
+                    ContentModel.ASSOC_CONTAINS,
+                    QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, uniqueName));
             return null;
         }, AuthenticationUtil.getAdminUserName());
     }

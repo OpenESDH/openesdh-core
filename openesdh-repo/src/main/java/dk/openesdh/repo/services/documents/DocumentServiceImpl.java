@@ -503,25 +503,43 @@ public class DocumentServiceImpl implements DocumentService {
     public NodeRef moveAsCaseDocument(NodeRef caseNodeRef, NodeRef fileNodeRef, String title, String fileName,
             NodeRef docType, NodeRef docCatagory, String description) {
         NodeRef caseDocumentsFolder = caseService.getDocumentsFolder(caseNodeRef);
-
         String name = getUniqueName(caseDocumentsFolder, sanitizeName(StringUtils.defaultIfEmpty(fileName, title)), true);
-        title = StringUtils.defaultIfEmpty(title, fileName);
-        Map<QName, Serializable> props = nodeService.getProperties(fileNodeRef);
-        props.put(ContentModel.PROP_NAME, name);
-        props.put(ContentModel.PROP_TITLE, title);
-        props.put(OpenESDHModel.PROP_DOC_TYPE, docType.toString());
-        props.put(OpenESDHModel.PROP_DOC_CATEGORY, docCatagory.toString());
-        if (StringUtils.isNotEmpty(description)) {
-            props.put(ContentModel.PROP_DESCRIPTION, description);
-        }
-        nodeService.setProperties(fileNodeRef, props);
-
+        executeSilently(fileNodeRef, () -> {
+            Map<QName, Serializable> props = nodeService.getProperties(fileNodeRef);
+            props.put(OpenESDHModel.PROP_DOC_TYPE, docType.toString());
+            props.put(OpenESDHModel.PROP_DOC_CATEGORY, docCatagory.toString());
+            if (StringUtils.isNotEmpty(description)) {
+                props.put(ContentModel.PROP_DESCRIPTION, description);
+            }
+            nodeService.setProperties(fileNodeRef, props);
+        });
         ChildAssociationRef movedNode = nodeService.moveNode(
                 fileNodeRef,
                 caseDocumentsFolder,
                 ContentModel.ASSOC_CONTAINS,
                 QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, name));
+
+        executeSilently(fileNodeRef,
+                //update file name if it was changed due to uniqueness
+                () -> nodeService.setProperty(fileNodeRef, ContentModel.PROP_NAME, name));
         return movedNode.getChildRef();
+    }
+
+    private interface Executable {
+
+        void execute();
+    }
+
+    /**
+     * disables behaviours on node for execution
+     *
+     * @param node
+     * @param executable
+     */
+    private void executeSilently(NodeRef node, Executable e) {
+        behaviourFilter.disableBehaviour(node);
+        e.execute();
+        behaviourFilter.enableBehaviour(node);
     }
 
     public NodeRef createDocumentFile(NodeRef documentFolder, String title, String fileName,

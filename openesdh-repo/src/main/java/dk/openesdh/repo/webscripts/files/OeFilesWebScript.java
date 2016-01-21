@@ -1,15 +1,10 @@
 package dk.openesdh.repo.webscripts.files;
 
-import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
-import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
+import static dk.openesdh.repo.webscripts.utils.WebScriptUtils.JSON;
 
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Date;
+import java.util.Comparator;
 import java.util.List;
 
 import org.alfresco.model.ContentModel;
@@ -27,11 +22,17 @@ import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.servlet.FormData;
 import org.springframework.stereotype.Component;
 
+import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
+import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
+
 import dk.openesdh.repo.services.authorities.GroupsService;
 import dk.openesdh.repo.services.files.OeFilesService;
 import dk.openesdh.repo.utils.JSONArrayCollector;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
-import static dk.openesdh.repo.webscripts.utils.WebScriptUtils.JSON;
 
 @Component
 @WebScript(description = "Manage files", families = {"File Tools"})
@@ -48,6 +49,7 @@ public class OeFilesWebScript {
         String authorityName = AuthenticationUtil.getFullyAuthenticatedUser();
         JSONArray files = filesService.getFiles(authorityName)
                 .stream()
+                .sorted(getDateDescComparator())
                 .collect(JSONArrayCollector.simple());
         return WebScriptUtils.jsonResolution(files);
     }
@@ -58,13 +60,23 @@ public class OeFilesWebScript {
                 .stream()
                 .map(filesService::getFiles)
                 .flatMap(List::stream)
-                .sorted((JSONObject o1, JSONObject o2) -> {
-                    return ObjectUtils.compare(
-                            (Date) ObjectUtils.firstNonNull(o2.get(ContentModel.PROP_MODIFIED), o2.get(ContentModel.PROP_CREATED)),
-                            (Date) ObjectUtils.firstNonNull(o1.get(ContentModel.PROP_MODIFIED), o1.get(ContentModel.PROP_CREATED)));
-                })
+                .sorted(getDateDescComparator())
                 .collect(JSONArrayCollector.simple());
         return WebScriptUtils.jsonResolution(files);
+    }
+
+    private Comparator<JSONObject> getDateDescComparator() {
+        return (JSONObject o1, JSONObject o2) -> {
+            return ObjectUtils.compare(
+                    getModifiedOrCreated(o2),
+                    getModifiedOrCreated(o1));
+        };
+    }
+
+    private Long getModifiedOrCreated(JSONObject o) {
+        return (Long) ObjectUtils.firstNonNull(
+                o.get(ContentModel.PROP_MODIFIED.getLocalName()),
+                o.get(ContentModel.PROP_CREATED.getLocalName()));
     }
 
     /**
