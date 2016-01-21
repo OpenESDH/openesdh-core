@@ -1,8 +1,10 @@
 package dk.openesdh.repo.services.cases;
 
+import org.apache.commons.lang3.StringUtils;
+
 import com.google.common.base.Joiner;
 
-import org.apache.commons.lang3.StringUtils;
+import dk.openesdh.repo.utils.Utils;
 
 public enum CasePermission {
     CREATOR("Creator"),
@@ -35,7 +37,7 @@ public enum CasePermission {
     }
 
     private String extractCaseType(String caseType) {
-        return StringUtils.capitalize(StringUtils.replace(StringUtils.lowerCase(caseType), ":case", ""));
+        return StringUtils.capitalize(Utils.extractCaseType(caseType));
     }
 
     public String getRegExp(boolean fullMatch) {
