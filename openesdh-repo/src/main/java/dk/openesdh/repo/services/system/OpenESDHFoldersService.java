@@ -7,6 +7,7 @@ public interface OpenESDHFoldersService {
     public static String OPENESDH_ROOT_CONTEXT = "OpenESDH";
     public static String CASES_ROOT = "cases";
     public static String CASES_ROOT_PATH = "/app:company_home/oe:OpenESDH/oe:cases/";
+    public static String FILES_ROOT_PATH = "/app:company_home/oe:OpenESDH/oe:files/";
     public static String CASES_TYPES_ROOT = "types";
     public static String CLASSIFICATIONS = "classifications";
     public static String DOCUMENT_TYPES = "document_types";

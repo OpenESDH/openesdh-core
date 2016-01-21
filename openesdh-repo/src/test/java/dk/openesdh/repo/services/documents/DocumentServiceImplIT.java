@@ -1,5 +1,8 @@
 package dk.openesdh.repo.services.documents;
 
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
@@ -29,9 +32,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.CollectionUtils;
-
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
@@ -408,8 +408,8 @@ public class DocumentServiceImplIT {
     private NodeRef creeateCaseTestDocument(NodeRef caseNodeRef) {
         return documentService.createCaseDocument(caseNodeRef,
                 TEST_DOCUMENT_NAME, TEST_DOCUMENT_FILE_NAME,
-                documentTypeService.getDocumentTypeByName(OpenESDHModel.DOCUMENT_TYPE_LETTER).get().getNodeRef().toString(),
-                documentCategoryService.getDocumentCategoryByName(OpenESDHModel.DOCUMENT_CATEGORY_OTHER).get().getNodeRef().toString(),
+                documentTypeService.getDocumentTypeByName(OpenESDHModel.DOCUMENT_TYPE_LETTER).get().getNodeRef(),
+                documentCategoryService.getDocumentCategoryByName(OpenESDHModel.DOCUMENT_CATEGORY_OTHER).get().getNodeRef(),
                 writer -> {
                     writer.setMimetype(MimetypeMap.MIMETYPE_TEXT_PLAIN);
                     writer.putContent("Some content");
