@@ -22,6 +22,9 @@ import org.springframework.extensions.surf.util.I18NUtil;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.audit.AuditEntryHandler;
 import static dk.openesdh.repo.services.audit.AuditEntryHandler.REC_TYPE.*;
+import static dk.openesdh.repo.services.audit.AuditUtils.getLastPathElement;
+import static dk.openesdh.repo.services.audit.AuditUtils.getTitle;
+import static dk.openesdh.repo.services.system.OpenESDHFoldersService.FILES_ROOT_PATH;
 
 public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
 
@@ -29,6 +32,7 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
     private static final String TRANSACTION_ACTION = "/esdh/transaction/action";
     private static final String TRANSACTION_SUB_ACTIONS = "/esdh/transaction/sub-actions";
     private static final String TRANSACTION_ASPECT_ADD = "/esdh/transaction/aspects/add";
+    private static final String TRANSACTION_DOC_FROM_FILES = "/esdh/transaction/move/from/path";
 
     private static final int MAX_NOTE_TEXT_LENGTH = 40;
 
@@ -50,6 +54,10 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
             case "CHECK IN":
                 return getEntryTransactionCheckIn(user, time, values);
             case "CREATE VERSION":
+                if (isMovedFromOeFile(values)) {
+                    //skip version if moved from oe:files (duplicates records)
+                    return Optional.empty();
+                }
                 return getEntryTransactionUpdateVersion(user, time, values);
             case "updateNodeProperties":
                 return getEntryTransactionUpdateProperties(user, time, values);
@@ -155,19 +163,6 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
         return Optional.of(auditEntry);
     }
 
-    private String getTitle(Map<String, Serializable> values) {
-        String title;
-        if (values.containsKey("/esdh/transaction/properties/title")) {
-            title = (String) values.get("/esdh/transaction/properties/title");
-        } else {
-            title = getLastPathElement(values)[1];
-            if (title.startsWith("content_")) {
-                title = title.replaceFirst("content_", "");
-            }
-        }
-        return title;
-    }
-
     private Optional<JSONObject> getEntryTransactionUpdateVersion(String user, long time, Map<String, Serializable> values) {
         String oldVersion = (String) getFromPropertyMap(
                 values, "/esdh/transaction/properties/from", ContentModel.PROP_VERSION_LABEL);
@@ -267,9 +262,8 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
         return qName.getLocalName();
     }
 
-    private String[] getLastPathElement(Map<String, Serializable> values) {
-        String path = (String) values.get("/esdh/transaction/path");
-        String[] pArray = path.split("/");
-        return pArray[pArray.length - 1].split(":");
+    private static boolean isMovedFromOeFile(Map<String, Serializable> values) {
+        return values.containsKey(TRANSACTION_DOC_FROM_FILES)
+                && StringUtils.startsWith((String) values.get(TRANSACTION_DOC_FROM_FILES), FILES_ROOT_PATH);
     }
 }
