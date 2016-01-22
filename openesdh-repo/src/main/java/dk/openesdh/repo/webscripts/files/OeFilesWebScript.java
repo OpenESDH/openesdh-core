@@ -65,23 +65,18 @@ public class OeFilesWebScript {
         return WebScriptUtils.jsonResolution(files);
     }
 
-    private Comparator<JSONObject> getDateDescComparator() {
-        return (JSONObject o1, JSONObject o2) -> {
-            return ObjectUtils.compare(
-                    getModifiedOrCreated(o2),
-                    getModifiedOrCreated(o1));
-        };
-    }
-
-    private Long getModifiedOrCreated(JSONObject o) {
-        return (Long) ObjectUtils.firstNonNull(
-                o.get(ContentModel.PROP_MODIFIED.getLocalName()),
-                o.get(ContentModel.PROP_CREATED.getLocalName()));
+    @Uri(value = "/api/openesdh/file/{store_type}/{store_id}/{id}", method = HttpMethod.DELETE, defaultFormat = JSON)
+    public void delete(
+            @UriVariable final String store_type,
+            @UriVariable final String store_id,
+            @UriVariable final String id) {
+        filesService.delete(new NodeRef(store_type, store_id, id));
     }
 
     /**
      *
      * @param owner
+     * @param comment
      * @param req - must contain FormData with one or more 'file' items
      * @throws IOException
      * @throws ParseException
@@ -89,6 +84,7 @@ public class OeFilesWebScript {
     @Uri(value = "/api/openesdh/files", method = HttpMethod.POST, defaultFormat = JSON, multipartProcessing = true)
     public void uploadMultipleFiles(
             final @RequestParam NodeRef owner,
+            final @RequestParam(required = false) String comment,
             WebScriptRequest req
     ) throws IOException, ParseException {
         final FormData form = (FormData) req.parseContent();
@@ -100,17 +96,18 @@ public class OeFilesWebScript {
                 InputStream fileInputStream = field.getInputStream();
                 String filename = field.getFilename();
                 String mimetype = field.getMimetype();
-                filesService.addFile(owner, filename, mimetype, fileInputStream);
+                filesService.addFile(owner, filename, mimetype, fileInputStream, comment);
             }
         }
     }
 
-    @Uri(value = "/api/openesdh/file/{store_type}/{store_id}/{id}", method = HttpMethod.DELETE, defaultFormat = JSON)
-    public void delete(
+    @Uri(value = "/api/openesdh/file/{store_type}/{store_id}/{id}", method = HttpMethod.GET, defaultFormat = JSON)
+    public Resolution get(
             @UriVariable final String store_type,
             @UriVariable final String store_id,
             @UriVariable final String id) {
-        filesService.delete(new NodeRef(store_type, store_id, id));
+        JSONObject file = filesService.getFile(new NodeRef(store_type, store_id, id));
+        return WebScriptUtils.jsonResolution(file);
     }
 
     @Uri(value = "/api/openesdh/file/assign", method = HttpMethod.PUT, defaultFormat = JSON)
@@ -130,5 +127,19 @@ public class OeFilesWebScript {
             @RequestParam("doc_category") final NodeRef docCategory,
             @RequestParam(value = "description", required = false) final String description) {
         filesService.addToCase(caseId, file, title, docType, docCategory, description);
+    }
+
+    private Comparator<JSONObject> getDateDescComparator() {
+        return (JSONObject o1, JSONObject o2) -> {
+            return ObjectUtils.compare(
+                    getModifiedOrCreated(o2),
+                    getModifiedOrCreated(o1));
+        };
+    }
+
+    private Long getModifiedOrCreated(JSONObject o) {
+        return (Long) ObjectUtils.firstNonNull(
+                o.get(ContentModel.PROP_MODIFIED.getLocalName()),
+                o.get(ContentModel.PROP_CREATED.getLocalName()));
     }
 }

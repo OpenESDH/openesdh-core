@@ -8,7 +8,7 @@ import org.json.simple.JSONObject;
 
 public interface OeFilesService {
 
-    public NodeRef addFile(NodeRef owner, String fileName, String mimetype, InputStream fileInputStream);
+    public NodeRef addFile(NodeRef owner, String fileName, String mimetype, InputStream fileInputStream, String comment);
 
     public List<JSONObject> getFiles(String authorityName);
 
@@ -17,4 +17,6 @@ public interface OeFilesService {
     public void move(NodeRef file, NodeRef newOwner, String comment);
 
     public void addToCase(String caseId, NodeRef file, String title, NodeRef docType, NodeRef docCategory, String description);
+
+    public JSONObject getFile(NodeRef nodeRef);
 }
