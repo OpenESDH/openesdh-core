@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.alfresco.repo.importer.ImporterBootstrap;
 import org.alfresco.repo.security.authentication.AuthenticationContext;
 import org.alfresco.repo.tenant.MultiTAdminServiceImpl;
+import org.alfresco.repo.tenant.TenantUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.module.ModuleDetails;
 import org.alfresco.service.cmr.module.ModuleService;
@@ -31,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import dk.openesdh.repo.classification.sync.ClassificationSynchronizer;
 import dk.openesdh.repo.model.OpenESDHModel;
 
 /**
@@ -81,6 +83,10 @@ public class MultiTenantAdminModulesAspect implements BeanFactoryAware {
     @Qualifier("moduleService")
     private ModuleService moduleService;
 
+    @Autowired
+    @Qualifier("kleClassificationSynchronizer")
+    private ClassificationSynchronizer classificationSynchronizer;
+
     /**
      * Initializes the aspect for MultiTAdminService.
      * The aspect is triggered as a new tenant is created by the system.
@@ -114,6 +120,9 @@ public class MultiTenantAdminModulesAspect implements BeanFactoryAware {
         LOGGER.debug("Running extra mt importer");
         extraMtImporter.bootstrap();
         LOGGER.debug("Done");
+        // It will grab domain of the tenant currently being created, since the
+        // MultiTAdminServiceImpl is running as tenant system user.
+        classificationSynchronizer.synchronizeTenant(TenantUtil.getCurrentDomain());
     }
     
     private List<String> getOpeneModuleIdsWithMtSuffix(){

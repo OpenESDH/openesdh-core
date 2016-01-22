@@ -5,4 +5,6 @@ package dk.openesdh.repo.classification.sync;
  */
 public interface ClassificationSynchronizer {
     public void synchronize();
+
+    public void synchronizeTenant(String tenantDomain);
 }
