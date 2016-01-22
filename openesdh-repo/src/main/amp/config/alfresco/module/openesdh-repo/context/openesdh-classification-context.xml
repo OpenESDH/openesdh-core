@@ -52,6 +52,9 @@
         <property name="serviceRegistry">
            <ref bean="ServiceRegistry"/>
         </property>
+        <property name="tenantAdminService">
+           <ref bean="TenantAdminService"/>
+        </property>
         <property name="kleEmneplanURL">
             <value>${openesdh.classification.kle.emneplan.url}</value>
         </property>

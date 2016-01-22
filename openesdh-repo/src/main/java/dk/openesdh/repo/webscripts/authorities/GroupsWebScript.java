@@ -1,5 +1,13 @@
 package dk.openesdh.repo.webscripts.authorities;
 
+import com.github.dynamicextensionsalfresco.webscripts.annotations.FileField;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
+import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Predicate;
@@ -9,7 +17,8 @@ import java.util.stream.Stream;
 import org.alfresco.query.PagingRequest;
 import org.alfresco.query.PagingResults;
 import org.alfresco.repo.security.authority.AuthorityInfo;
-import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.repo.security.authority.script.ScriptAuthorityService;
+import org.alfresco.repo.security.authority.script.ScriptGroup;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
 import org.json.JSONArray;
@@ -22,14 +31,6 @@ import org.springframework.extensions.webscripts.WebScriptResponse;
 import org.springframework.extensions.webscripts.servlet.FormData.FormField;
 import org.springframework.stereotype.Component;
 
-import com.github.dynamicextensionsalfresco.webscripts.annotations.FileField;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
-import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
-
 import dk.openesdh.repo.services.authorities.GroupsService;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
@@ -37,24 +38,26 @@ import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 @WebScript(description = "Manage groups", families = {"Authorities"})
 public class GroupsWebScript {
 
-    private static final String CREATED_ON_OPEN_E = "OPENE";
     private static final int MAX_ITEMS = 10000;
     private static final String CSV_HEADER = "Group name,Display name,Member of groups,Simple case,Staff case\n";
     
     @Autowired
+    @Qualifier("authorityService")
     private AuthorityService authorityService;
-    @Autowired
-    private NodeService nodeService;
     @Autowired
     @Qualifier("GroupsService")
     private GroupsService groupsService;
+    @Autowired
+    @Qualifier("authorityServiceScript")
+    private ScriptAuthorityService scriptAuthorityService;
 
     @Uri(value = "/api/groups/{shortName}/create", method = HttpMethod.POST, defaultFormat = "json")
     public Resolution createGroup(
             @UriVariable final String shortName,
             @RequestParam(required = true) final String displayName
     ) throws JSONException {
-        String fullName = authorityService.createAuthority(AuthorityType.GROUP, shortName, displayName, authorityService.getDefaultZones());
+        ScriptGroup createdRootGroup = scriptAuthorityService.createRootGroup(shortName, displayName);
+        String fullName = createdRootGroup.getFullName();
         groupsService.addAspectTypeOPENE(fullName);
         return WebScriptUtils.jsonResolution(toGroupJSON(new AuthorityInfo(null, displayName, fullName)));
     }
@@ -150,7 +153,7 @@ public class GroupsWebScript {
             json.put("authorityType", AuthorityType.GROUP);
             json.put("shortName", info.getShortName());
             json.put("fullName", info.getAuthorityName());
-            json.put("displayName", info.getShortName());
+            json.put("displayName", info.getAuthorityDisplayName());
             json.put("url", "/api/groups/" + info.getShortName());
             //uncoment if needed (properties exists in original /alfresco/service/api/groups
             //json.put("zones", "");

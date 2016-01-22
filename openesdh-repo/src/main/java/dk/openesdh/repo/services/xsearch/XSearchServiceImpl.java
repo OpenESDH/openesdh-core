@@ -27,6 +27,11 @@ public class XSearchServiceImpl extends AbstractXSearchService {
 
     private static final String IN_VALUE_LIST = "IN";
 
+    protected enum FilterType {
+        AND,
+        OR
+    }
+
     @Autowired
     private CaseMembersService caseMembersService;
 
@@ -37,8 +42,18 @@ public class XSearchServiceImpl extends AbstractXSearchService {
         }
 
         String filtersJSON = params.get("filters");
+        FilterType filterType;
+        switch (params.getOrDefault("filterType", "AND")) {
+            case "OR":
+                filterType = FilterType.OR;
+                break;
+            case "AND":
+            default:
+                filterType = FilterType.AND;
+        }
+//        = "OR".equals(params.get("filterType");
         try {
-            String query = buildQuery(baseType, filtersJSON);
+            String query = buildQuery(baseType, filtersJSON, filterType);
             return executeQuery(query, startIndex, pageSize, sortField, ascending);
         } catch (JSONException e) {
             throw new AlfrescoRuntimeException("Unable to parse filters JSON");
@@ -46,6 +61,10 @@ public class XSearchServiceImpl extends AbstractXSearchService {
     }
 
     protected String buildQuery(String baseType, String filtersJSON) throws JSONException {
+        return buildQuery(baseType, filtersJSON, FilterType.AND);
+    }
+
+    protected String buildQuery(String baseType, String filtersJSON, FilterType filterType) throws JSONException {
         List<String> searchTerms = new ArrayList<>();
 
         if (filtersJSON == null) {
@@ -65,8 +84,8 @@ public class XSearchServiceImpl extends AbstractXSearchService {
                     .ifPresent(searchTerm -> searchTerms.add(searchTerm));
         }
 
-        searchTerms.add("TYPE:" + quote(baseType));
-        return StringUtils.join(searchTerms, " AND ");
+        return "TYPE:" + quote(baseType) + " AND ("
+                + StringUtils.join(searchTerms, " " + filterType.name() + " ") + ")";
     }
 
     protected Optional<JSONArray> parseJsonArray(String s) {

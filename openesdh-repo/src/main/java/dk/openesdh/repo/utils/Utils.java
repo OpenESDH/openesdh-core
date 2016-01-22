@@ -92,4 +92,8 @@ public class Utils {
         c.put("Title", dictionaryService.getType(caseType).getTitle(dictionaryService));
         return c;
     }
+    
+    public static String extractCaseType(String caseTypePrefixString){
+        return StringUtils.replace(StringUtils.lowerCase(caseTypePrefixString), ":case", "");
+    }
 }

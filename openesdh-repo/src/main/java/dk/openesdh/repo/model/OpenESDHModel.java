@@ -7,6 +7,8 @@ import org.alfresco.service.namespace.QName;
  */
 public interface OpenESDHModel {
 
+    String OPENESDH_REPO_MODULE_ID = "openesdh-repo";
+
     String CASE_URI = "http://openesdh.dk/model/case/base/1.0";
     String CASE_PREFIX = "base";
     String DOC_URI = "http://openesdh.dk/model/document/1.0";
@@ -34,8 +36,8 @@ public interface OpenESDHModel {
      * Types
      */
     QName TYPE_OE_BASE = QName.createQName(OE_URI, TYPE_BASE_NAME);
-
     QName TYPE_OE_PARAMETER = QName.createQName(OE_URI, "parameter");
+    QName TYPE_OE_AUTHORITY_FILES_FOLDER = QName.createQName(OE_URI, "authorityFilesFolder");
 
     QName TYPE_CASE_BASE = QName.createQName(CASE_URI, "case");
     QName TYPE_CASE_COMPLAINT = QName.createQName(CASE_URI, "complaint");

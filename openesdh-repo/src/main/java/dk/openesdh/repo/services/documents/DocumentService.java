@@ -75,8 +75,8 @@ public interface DocumentService extends HasStatus {
      * @param contentWriter writer -> {writer.setMimetype(MimetypeMap.MIMETYPE_TEXT_PLAIN); writer.putContent(content);}
      * @return Created document folder
      */
-    public NodeRef createCaseDocument(String caseId, String title, String fileName, String docType,
-            String docCatagory, Consumer<ContentWriter> contentWriter);
+    public NodeRef createCaseDocument(String caseId, String title, String fileName,
+            NodeRef docType, NodeRef docCatagory, Consumer<ContentWriter> contentWriter);
     /**
      *
      * @param caseNodeRef
@@ -87,8 +87,8 @@ public interface DocumentService extends HasStatus {
      * @param contentWriter writer -> {writer.setMimetype(MimetypeMap.MIMETYPE_TEXT_PLAIN); writer.putContent(content);}
      * @return Created document folder
      */
-    public NodeRef createCaseDocument(NodeRef caseNodeRef, String title, String fileName, String docType,
-            String docCatagory, Consumer<ContentWriter> contentWriter);
+    public NodeRef createCaseDocument(NodeRef caseNodeRef, String title, String fileName,
+            NodeRef docType, NodeRef docCatagory, Consumer<ContentWriter> contentWriter);
 
     /**
      *
@@ -100,8 +100,8 @@ public interface DocumentService extends HasStatus {
      * @param contentWriter writer -> {writer.setMimetype(MimetypeMap.MIMETYPE_TEXT_PLAIN); writer.putContent(content);}
      * @return Created document folder
      */
-    public NodeRef createDocumentFile(NodeRef documentFolder, String title, String fileName, String docType, String docCatagory,
-            Consumer<ContentWriter> contentWriter);
+    public NodeRef createDocumentFile(NodeRef documentFolder, String title, String fileName,
+            NodeRef docType, NodeRef docCatagory, Consumer<ContentWriter> contentWriter);
 
     /**
      * This method gets the <code>case:simple</code> NodeRef for the case which contains the given NodeRef.
@@ -243,9 +243,26 @@ public interface DocumentService extends HasStatus {
     /**
      * Retrieves attachments of the provided case document version
      * 
-     * @param nodeRef
+     * @param mainDocVersionNodeRef
+     * @param startIndex
+     * @param pageSize
      * @return list of the case document attachments
      */
-    ResultSet<CaseDocumentAttachment> getDocumentVersionAttachments(NodeRef mainDocVersionNodeRef, int startIndex,
+    public ResultSet<CaseDocumentAttachment> getDocumentVersionAttachments(NodeRef mainDocVersionNodeRef, int startIndex,
             int pageSize);
+
+    /**
+     * moves file to case as case document
+     *
+     * @param caseNodeRef
+     * @param title
+     * @param fileName
+     * @param docType
+     * @param docCatagory
+     * @param fileNodeRef
+     * @param description
+     * @return
+     */
+    public NodeRef moveAsCaseDocument(NodeRef caseNodeRef, NodeRef fileNodeRef, String title, String fileName,
+            NodeRef docType, NodeRef docCatagory, String description);
 }

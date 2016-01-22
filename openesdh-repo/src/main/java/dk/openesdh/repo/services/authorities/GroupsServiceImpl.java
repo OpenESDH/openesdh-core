@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.dictionary.InvalidAspectException;
 import org.alfresco.service.cmr.repository.InvalidNodeRefException;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -115,5 +116,14 @@ public class GroupsServiceImpl implements GroupsService, RunInTransactionAsAdmin
     @Override
     public TransactionService getTransactionService() {
         return transactionService;
+    }
+
+    public Set<String> getCurrentUserGroups() {
+        String name = AuthenticationUtil.getFullyAuthenticatedUser();
+        Set<String> groups = authorityService.getContainingAuthorities(AuthorityType.GROUP, name, false)
+                .stream()
+                .filter(this::hasAspectTypeOPENE)
+                .collect(Collectors.toSet());
+        return groups;
     }
 }
