@@ -16,7 +16,7 @@ public class TransactionRunner {
     @Qualifier("retryingTransactionHelper")
     private RetryingTransactionHelper retryingTransactionHelper;
 
-    public <R> R runInTransation(RetryingTransactionHelper.RetryingTransactionCallback<R> callBack) {
+    public <R> R runInTransaction(RetryingTransactionHelper.RetryingTransactionCallback<R> callBack) {
         return retryingTransactionHelper.doInTransaction(callBack);
     }
 

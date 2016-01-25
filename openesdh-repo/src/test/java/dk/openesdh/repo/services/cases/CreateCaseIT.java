@@ -1,7 +1,6 @@
 package dk.openesdh.repo.services.cases;
 
 import static org.alfresco.repo.security.authentication.AuthenticationUtil.getAdminUserName;
-import static org.alfresco.repo.security.authentication.AuthenticationUtil.runAs;
 import static org.alfresco.repo.security.authentication.AuthenticationUtil.setFullyAuthenticatedUser;
 import static org.hamcrest.core.Is.isA;
 import static org.junit.Assert.assertNotNull;
@@ -16,10 +15,6 @@ import java.util.UUID;
 
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
-import org.alfresco.repo.model.Repository;
-import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
-import org.alfresco.repo.transaction.RetryingTransactionHelper;
-import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransactionCallback;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthorityService;
@@ -43,6 +38,7 @@ import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.helper.TransactionRunner;
 import dk.openesdh.repo.model.OpenESDHModel;
 
 /**
@@ -56,11 +52,6 @@ import dk.openesdh.repo.model.OpenESDHModel;
 })
 public class CreateCaseIT {
 
-    //<editor-fold desc="services">
-    @Autowired
-    @Qualifier("repositoryHelper")
-    private Repository repository;
-
     @Autowired
     @Qualifier("NodeService")
     private NodeService nodeService;
@@ -71,15 +62,13 @@ public class CreateCaseIT {
 
     @Autowired
     @Qualifier("personService")
-    protected PersonService personService;
+    private PersonService personService;
 
     @Autowired
-    @Qualifier("retryingTransactionHelper")
-    protected RetryingTransactionHelper retryingTransactionHelper;
+    private TransactionRunner transactionRunner;
 
     @Autowired
     private AuthorityService authorityService;
-    //</editor-fold>
 
     @Autowired
     @Qualifier("TestCaseHelper")
@@ -96,11 +85,10 @@ public class CreateCaseIT {
     @Rule
     public ExpectedException expectedException = ExpectedException.none();
 
-    //<editor-fold desc="Tests">
     @Test
     public void getCaseFolderShouldCreateTheYearMonthDayFolderHierarchy() throws Exception {
         setFullyAuthenticatedUser(getAdminUserName());
-        NodeRef casesRootNode = retryingTransactionHelper.doInTransaction(() -> {
+        NodeRef casesRootNode = transactionRunner.runInTransaction(() -> {
             NodeRef root = caseService.getCasesRootNodeRef();
             assertNotNull(root);
             NodeRef c = caseService.getCaseFolderNodeRef(root);
@@ -119,12 +107,11 @@ public class CreateCaseIT {
 
     @Test
     public void shouldFailCausedByMissingPermissions() throws Exception {
-        setFullyAuthenticatedUser(getAdminUserName());
-
-        retryingTransactionHelper.doInTransaction(() -> {
-            authorityService.removeAuthority(PermissionService.GROUP_PREFIX + CaseHelper.CASE_SIMPLE_CREATOR_ROLE, getAdminUserName());
+        setFullyAuthenticatedUser(CaseHelper.MIKE_JACKSON);
+        transactionRunner.runInTransaction(() -> {
+            authorityService.removeAuthority(PermissionService.GROUP_PREFIX + CaseHelper.CASE_SIMPLE_CREATOR_ROLE, CaseHelper.MIKE_JACKSON);
             final String name = UUID.randomUUID().toString();
-            NodeRef owner = personService.getPerson(getAdminUserName());
+            NodeRef owner = personService.getPerson(CaseHelper.MIKE_JACKSON);
 
             expectedException.expect(AlfrescoRuntimeException.class);
             expectedException.expectCause(isA(AccessDeniedException.class));
@@ -137,8 +124,7 @@ public class CreateCaseIT {
     @Test
     public void aCreatedCaseNodeShallHaveAnIdPropertyAndADocumentsFolder() throws Exception {
         setFullyAuthenticatedUser(getAdminUserName());
-
-        NodeRef caseNode = retryingTransactionHelper.doInTransaction(() -> {
+        NodeRef caseNode = transactionRunner.runInTransaction(() -> {
             giveUserCreateAccess(getAdminUserName());
 
             final String name = UUID.randomUUID().toString();
@@ -160,16 +146,14 @@ public class CreateCaseIT {
 
     @Test
     public void testCreateCaseAsOrdinaryUser() throws Exception {
-        setFullyAuthenticatedUser(getAdminUserName());
         String userName = CaseHelper.MIKE_JACKSON;
         enableTestUser(userName);
-
         giveUserCreateAccess(userName);
         giveUserReadAccess(userName);
 
         setFullyAuthenticatedUser(userName);
 
-        NodeRef caseNode = retryingTransactionHelper.doInTransaction(() -> {
+        NodeRef caseNode = transactionRunner.runInTransaction(() -> {
             final String name = UUID.randomUUID().toString();
             NodeRef personNode = personService.getPerson(userName);
 
@@ -198,11 +182,9 @@ public class CreateCaseIT {
 
         nodeService.setProperty(caseNode, OpenESDHModel.PROP_OE_STATUS, "active");
     }
-    //</editor-fold>
 
-    //<editor-fold desc="private methods">
     private void enableTestUser(String userName) {
-        retryingTransactionHelper.doInTransaction(() -> {
+        transactionRunner.runInTransactionAsAdmin(() -> {
             Map<QName,Serializable> properties = new HashMap<>();
             properties.put(ContentModel.PROP_ENABLED, true);
             personService.setPersonProperties(userName, properties, true);
@@ -211,7 +193,7 @@ public class CreateCaseIT {
     }
 
     private void giveUserReadAccess(final String userName) {
-        runInTransactionAsAdmin(() -> {
+        transactionRunner.runInTransactionAsAdmin(() -> {
             if (!authorityService.authorityExists(PermissionService.GROUP_PREFIX + CaseHelper.CASE_SIMPLE_READER_ROLE)) {
                 authorityService.createAuthority(AuthorityType.GROUP, CaseHelper.CASE_SIMPLE_READER_ROLE);
             }
@@ -223,7 +205,7 @@ public class CreateCaseIT {
     }
 
     private void giveUserWriteAccess(final String userName) {
-        runInTransactionAsAdmin(() -> {
+        transactionRunner.runInTransactionAsAdmin(() -> {
             if (!authorityService.authorityExists(PermissionService.GROUP_PREFIX + CaseHelper.CASE_SIMPLE_WRITER_ROLE)) {
                 authorityService.createAuthority(AuthorityType.GROUP, CaseHelper.CASE_SIMPLE_WRITER_ROLE);
             }
@@ -235,7 +217,7 @@ public class CreateCaseIT {
     }
 
     private void giveUserCreateAccess(final String userName) {
-        runInTransactionAsAdmin(() -> {
+        transactionRunner.runInTransactionAsAdmin(() -> {
             if (!authorityService.authorityExists(PermissionService.GROUP_PREFIX + CaseHelper.CASE_SIMPLE_CREATOR_ROLE)) {
                 authorityService.createAuthority(AuthorityType.GROUP, CaseHelper.CASE_SIMPLE_CREATOR_ROLE);
             }
@@ -245,14 +227,4 @@ public class CreateCaseIT {
             return null;
         });
     }
-
-    private <R> R runInTransactionAsAdmin(RetryingTransactionCallback<R> callBack) {
-        return runAsAdmin(() -> retryingTransactionHelper.doInTransaction(callBack));
-    }
-
-    private <R> R runAsAdmin(RunAsWork<R> callback) {
-        return runAs(callback, getAdminUserName());
-    }
-    //</editor-fold>
-
 }

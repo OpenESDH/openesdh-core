@@ -16,8 +16,6 @@ import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -36,8 +34,6 @@ import dk.openesdh.repo.services.members.CaseMembersService;
 public class CaseOwnersBehaviour implements NodeServicePolicies.OnCreateAssociationPolicy,
         NodeServicePolicies.OnDeleteAssociationPolicy, RunInTransactionAsAdmin {
 
-    private static Log LOGGER = LogFactory.getLog(CaseOwnersBehaviour.class);
-
     @Autowired
     @Qualifier("CaseMembersService")
     private CaseMembersService caseMembersService;
@@ -53,11 +49,9 @@ public class CaseOwnersBehaviour implements NodeServicePolicies.OnCreateAssociat
     @Autowired
     @Qualifier("policyBehaviourFilter")
     private BehaviourFilter behaviourFilter;
-
     @Autowired
     @Qualifier("TransactionService")
     private TransactionService transactionService;
-
     @Autowired
     private CasePermissionService casePermissionService;
 

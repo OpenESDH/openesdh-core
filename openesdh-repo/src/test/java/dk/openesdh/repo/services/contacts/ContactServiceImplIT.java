@@ -1,14 +1,5 @@
 package dk.openesdh.repo.services.contacts;
 
-import com.ibm.icu.text.MessageFormat;
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
-import dk.openesdh.exceptions.contacts.NoSuchContactException;
-import dk.openesdh.repo.helper.CaseHelper;
-import dk.openesdh.repo.model.ContactInfo;
-import dk.openesdh.repo.model.ContactType;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.xsearch.ContactSearchService;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -17,14 +8,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
-import dk.openesdh.exceptions.contacts.NoSuchContactException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.namespace.QName;
-import org.alfresco.service.transaction.TransactionService;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -39,11 +26,12 @@ import com.ibm.icu.text.MessageFormat;
 import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 
+import dk.openesdh.exceptions.contacts.NoSuchContactException;
 import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.helper.TransactionRunner;
 import dk.openesdh.repo.model.ContactInfo;
 import dk.openesdh.repo.model.ContactType;
 import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.xsearch.ContactSearchService;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -53,22 +41,11 @@ public class ContactServiceImplIT {
     @Autowired
     @Qualifier("NodeService")
     private NodeService nodeService;
-
     @Autowired
-    @Qualifier("TransactionService")
-    private TransactionService transactionService;
-
+    @Qualifier("ContactService")
+    private ContactServiceImpl contactService;
     @Autowired
-    @Qualifier("SearchService")
-    private SearchService searchService;
-
-    @Autowired
-    @Qualifier("ContactSearchService")
-    private ContactSearchService contactSearchService;
-
-    @Autowired
-    @Qualifier("ContactDAO")
-    private ContactDAOImpl contactDao;
+    private TransactionRunner transactionRunner;
 
     private static final String TEST_PERSON_CONTACT_EMAIL = "person@openesdh.org";
     private static final String TEST_PERSON_CONTACT_FIRST_NAME = "Name";
@@ -88,11 +65,9 @@ public class ContactServiceImplIT {
     private static final String TEST_CONTACT_IM = "test-openesdh";
     private static final String TEST_CONTACT_NOTES = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque dictum nisl vitae turpis dictum, tempus commodo mauris tempor.";
 
-    @Autowired
-    @Qualifier("ContactService")
-    private ContactServiceImpl contactService;
     private NodeRef testContactNodeRef;
     private NodeRef testPerson;
+
     @Before
     public void setUp() {
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ADMIN_USER_NAME);
@@ -108,7 +83,7 @@ public class ContactServiceImplIT {
 
     private void createContactAssertNotNullCheckEmail(String email, ContactType contactType) {
         HashMap<QName, Serializable> typeProps = createPersonContactProps();
-        testContactNodeRef = transactionHelper().doInTransaction(
+        testContactNodeRef = transactionRunner.runInTransaction(
                 () -> contactService.createContact(email, contactType.name(), typeProps));
         Assert.assertNotNull("A node ref of the created contact should not be null", testContactNodeRef);
 
@@ -123,7 +98,7 @@ public class ContactServiceImplIT {
         HashMap<QName, Serializable> typeProps = createPersonContactProps();
         typeProps.putAll(createCommonContactProps());
 
-        testContactNodeRef = transactionHelper().doInTransaction(
+        testContactNodeRef = transactionRunner.runInTransaction(
                 () -> contactService.createContact(TEST_PERSON_CONTACT_EMAIL, ContactType.PERSON.name(), typeProps));
         Assert.assertNotNull("A node ref of the created contact should not be null", testContactNodeRef);
 
@@ -138,7 +113,7 @@ public class ContactServiceImplIT {
         HashMap<QName, Serializable> typeProps = createOrgContactProps();
         typeProps.putAll(createCommonContactProps());
 
-        testContactNodeRef = transactionHelper().doInTransaction(
+        testContactNodeRef = transactionRunner.runInTransaction(
                 () -> contactService.createContact(TEST_ORG_CONTACT_EMAIL, ContactType.ORGANIZATION.name(), typeProps));
         Assert.assertNotNull("A node ref of the created contact should not be null", testContactNodeRef);
 
@@ -151,7 +126,7 @@ public class ContactServiceImplIT {
     @Test
     public void shouldCreatePersonContactThenGetContactInfo() {
         HashMap<QName, Serializable> typeProps = createPersonContactProps();
-        testContactNodeRef = transactionHelper().doInTransaction(
+        testContactNodeRef = transactionRunner.runInTransaction(
                 () -> contactService.createContact(TEST_PERSON_CONTACT_EMAIL, ContactType.PERSON.name(), typeProps));
         Assert.assertNotNull("A node ref of the created contact should not be null", testContactNodeRef);
 
@@ -172,7 +147,7 @@ public class ContactServiceImplIT {
     @Test
     public void shouldCreateOrgContactThenGetContactInfo() {
         HashMap<QName, Serializable> typeProps = createOrgContactProps();
-        testContactNodeRef = transactionHelper().doInTransaction(
+        testContactNodeRef = transactionRunner.runInTransaction(
                 () -> contactService.createContact(TEST_ORG_CONTACT_EMAIL, ContactType.ORGANIZATION.name(),
                         typeProps));
         Assert.assertNotNull("A node ref of the created contact should not be null", testContactNodeRef);
@@ -192,7 +167,7 @@ public class ContactServiceImplIT {
     @Test
     public void shouldCreatePersonContactAndGetContactType() {
         HashMap<QName, Serializable> typeProps = createPersonContactProps();
-        testContactNodeRef = transactionHelper().doInTransaction(
+        testContactNodeRef = transactionRunner.runInTransaction(
                 () -> contactService.createContact(TEST_PERSON_CONTACT_EMAIL, ContactType.PERSON.name(), typeProps));
         Assert.assertNotNull("A node ref of the created contact should not be null", testContactNodeRef);
 
@@ -203,7 +178,7 @@ public class ContactServiceImplIT {
     @Test
     public void shouldCreateOrgContactAndGetContactType() {
         HashMap<QName, Serializable> typeProps = createOrgContactProps();
-        testContactNodeRef = transactionHelper().doInTransaction(
+        testContactNodeRef = transactionRunner.runInTransaction(
                 () -> contactService.createContact(TEST_ORG_CONTACT_EMAIL, ContactType.ORGANIZATION.name(), typeProps));
         Assert.assertNotNull("A node ref of the created contact should not be null", testContactNodeRef);
 
@@ -221,14 +196,14 @@ public class ContactServiceImplIT {
     @Test
     public void shouldCreateContactAndGetByFilter() throws InterruptedException {
         createContactAssertNotNullCheckEmail(TEST_PERSON_CONTACT_EMAIL, ContactType.PERSON);
-        List<ContactInfo> resultList = null ;
+        List<ContactInfo> resultList = null;
 
         //we have to wait until the search will return the contact
         int sleepCount = 0;
         int maxSleepCount = 120;
         do {
             try {
-                resultList =contactService.getContactByFilter(TEST_PERSON_CONTACT_EMAIL,
+                resultList = contactService.getContactByFilter(TEST_PERSON_CONTACT_EMAIL,
                         ContactType.PERSON.name());
             } catch (NoSuchContactException e) {
                 sleepCount++;
@@ -240,9 +215,6 @@ public class ContactServiceImplIT {
             }
         } while (resultList.isEmpty());
 
-        
-       
-        
         Assert.assertFalse("The contact list got by filter shouldn't be empty", resultList.isEmpty());
 
         ContactInfo contactInfo = resultList.get(0);
@@ -254,12 +226,12 @@ public class ContactServiceImplIT {
     public void shouldAddPersonToOrganizationAndGetIt() {
 
         try {
-            transactionHelper().doInTransaction( ()-> {
-                        testContactNodeRef = contactService.createContact(TEST_ORG_CONTACT_EMAIL, ContactType.ORGANIZATION.name(), createOrgContactProps());
-                        testPerson = contactService.createContact(TEST_PERSON_CONTACT_EMAIL, ContactType.PERSON.name(), createPersonContactProps());
-                        contactService.addPersonToOrganization(testContactNodeRef, testPerson);
+            transactionRunner.runInTransaction(() -> {
+                testContactNodeRef = contactService.createContact(TEST_ORG_CONTACT_EMAIL, ContactType.ORGANIZATION.name(), createOrgContactProps());
+                testPerson = contactService.createContact(TEST_PERSON_CONTACT_EMAIL, ContactType.PERSON.name(), createPersonContactProps());
+                contactService.addPersonToOrganization(testContactNodeRef, testPerson);
                 return null;
-                    });
+            });
             Iterator<NodeRef> personNodeRefs = contactService.getOrganizationPersons(testContactNodeRef).iterator();
             Assert.assertTrue("Organization has any associatons", personNodeRefs.hasNext());
             NodeRef associatedPersonNodeRef = personNodeRefs.next();
@@ -268,7 +240,7 @@ public class ContactServiceImplIT {
         } finally {
             if (testPerson != null) {
                 nodeService.deleteNode(testPerson);
-                testPerson=null;
+                testPerson = null;
             }
         }
 
@@ -283,7 +255,7 @@ public class ContactServiceImplIT {
     }
 
     private HashMap<QName, Serializable> createPersonContactProps() {
-        HashMap<QName, Serializable> typeProps = new HashMap<QName, Serializable>();
+        HashMap<QName, Serializable> typeProps = new HashMap<>();
         typeProps.put(OpenESDHModel.PROP_CONTACT_EMAIL, TEST_PERSON_CONTACT_EMAIL);
         typeProps.put(OpenESDHModel.PROP_CONTACT_FIRST_NAME, TEST_PERSON_CONTACT_FIRST_NAME);
         typeProps.put(OpenESDHModel.PROP_CONTACT_LAST_NAME, TEST_PERSON_CONTACT_LAST_NAME);
@@ -293,7 +265,7 @@ public class ContactServiceImplIT {
     }
 
     private HashMap<QName, Serializable> createOrgContactProps() {
-        HashMap<QName, Serializable> typeProps = new HashMap<QName, Serializable>();
+        HashMap<QName, Serializable> typeProps = new HashMap<>();
         typeProps.put(OpenESDHModel.PROP_CONTACT_ORGANIZATION_NAME, TEST_ORG_CONTACT_NAME);
         typeProps.put(OpenESDHModel.PROP_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL);
         typeProps.put(OpenESDHModel.PROP_CONTACT_CVR_NUMBER, TEST_ORG_CONTACT_CVR_NUMBER);
@@ -302,7 +274,7 @@ public class ContactServiceImplIT {
     }
 
     private HashMap<QName, Serializable> createCommonContactProps() {
-        HashMap<QName, Serializable> typeProps = new HashMap<QName, Serializable>();
+        HashMap<QName, Serializable> typeProps = new HashMap<>();
         typeProps.put(OpenESDHModel.PROP_CONTACT_PHONE, TEST_CONTACT_PHONE);
         typeProps.put(OpenESDHModel.PROP_CONTACT_MOBILE, TEST_CONTACT_MOBILE);
         typeProps.put(OpenESDHModel.PROP_CONTACT_WEBSITE, TEST_CONTACT_WEBSITE);
@@ -310,9 +282,5 @@ public class ContactServiceImplIT {
         typeProps.put(OpenESDHModel.PROP_CONTACT_IM, TEST_CONTACT_IM);
         typeProps.put(OpenESDHModel.PROP_CONTACT_NOTES, TEST_CONTACT_NOTES);
         return typeProps;
-    }
-
-    private RetryingTransactionHelper transactionHelper() {
-        return transactionService.getRetryingTransactionHelper();
     }
 }

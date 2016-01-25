@@ -11,7 +11,6 @@ import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.nodelocator.CompanyHomeNodeLocator;
 import org.alfresco.repo.nodelocator.NodeLocatorService;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
@@ -43,24 +42,20 @@ public class OpenESDHModelIT {
 
     @Autowired
     @Qualifier("NodeService")
-    protected NodeService nodeService;
+    private NodeService nodeService;
 
     @Autowired
     @Qualifier("nodeLocatorService")
-    protected NodeLocatorService nodeLocatorService;
+    private NodeLocatorService nodeLocatorService;
 
 
     @Autowired
     @Qualifier("repositoryHelper")
-    protected Repository repositoryHelper;
-
-    @Autowired
-    @Qualifier("retryingTransactionHelper")
-    protected RetryingTransactionHelper retryingTransactionHelper;
+    private Repository repositoryHelper;
 
     @Autowired
     @Qualifier("TestCaseHelper")
-    protected CaseHelper caseHelper;
+    private CaseHelper caseHelper;
 
     @Before
     public void setUp() throws Exception {
