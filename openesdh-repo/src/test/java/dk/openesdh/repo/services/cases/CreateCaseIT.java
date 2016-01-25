@@ -1,7 +1,11 @@
 package dk.openesdh.repo.services.cases;
 
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
+import static org.alfresco.repo.security.authentication.AuthenticationUtil.getAdminUserName;
+import static org.alfresco.repo.security.authentication.AuthenticationUtil.runAs;
+import static org.alfresco.repo.security.authentication.AuthenticationUtil.setFullyAuthenticatedUser;
+import static org.hamcrest.core.Is.isA;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -14,9 +18,6 @@ import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
-import static org.alfresco.repo.security.authentication.AuthenticationUtil.getAdminUserName;
-import static org.alfresco.repo.security.authentication.AuthenticationUtil.runAs;
-import static org.alfresco.repo.security.authentication.AuthenticationUtil.setFullyAuthenticatedUser;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransactionCallback;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -26,10 +27,7 @@ import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
-import static org.hamcrest.core.Is.isA;
 import org.junit.After;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -40,6 +38,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.OpenESDHModel;
@@ -128,7 +129,7 @@ public class CreateCaseIT {
             expectedException.expect(AlfrescoRuntimeException.class);
             expectedException.expectCause(isA(AccessDeniedException.class));
 
-            caseHelper.createSimpleCase(name, getAdminUserName(), owner);
+            caseHelper.createSimpleCase(name, owner);
             return null;
         });
     }
@@ -144,7 +145,7 @@ public class CreateCaseIT {
 
             NodeRef owner = personService.getPerson(getAdminUserName());
 
-            return caseHelper.createSimpleCase(name, getAdminUserName(), owner);
+            return caseHelper.createSimpleCase(name, owner);
         });
 
         Map<QName, Serializable> childProps = nodeService.getProperties(caseNode);
@@ -172,7 +173,7 @@ public class CreateCaseIT {
             final String name = UUID.randomUUID().toString();
             NodeRef personNode = personService.getPerson(userName);
 
-            return caseHelper.createSimpleCase(name, getAdminUserName(), personNode);
+            return caseHelper.createSimpleCase(name, personNode);
         });
 
         String id = (String) nodeService.getProperty(caseNode, OpenESDHModel.PROP_OE_ID);
@@ -191,7 +192,7 @@ public class CreateCaseIT {
         giveUserCreateAccess(getAdminUserName());
 
         NodeRef personNode = personService.getPerson(getAdminUserName());
-        NodeRef caseNode = caseHelper.createSimpleCase("my test case", getAdminUserName(), personNode);
+        NodeRef caseNode = caseHelper.createSimpleCase("my test case", personNode);
 
         setFullyAuthenticatedUser(testUser);
 

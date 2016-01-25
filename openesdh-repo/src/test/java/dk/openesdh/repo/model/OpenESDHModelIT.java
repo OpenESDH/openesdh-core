@@ -1,9 +1,11 @@
 package dk.openesdh.repo.model;
 
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
-import dk.openesdh.SimpleCaseModel;
-import dk.openesdh.repo.helper.CaseHelper;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.nodelocator.CompanyHomeNodeLocator;
@@ -14,7 +16,6 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +23,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
 
-import static org.junit.Assert.assertEquals;
+import dk.openesdh.SimpleCaseModel;
+import dk.openesdh.repo.helper.CaseHelper;
 
 /**
  * Created by ole on 18/08/14.
@@ -74,11 +73,11 @@ public class OpenESDHModelIT {
         NodeRef companyHome = nodeLocatorService.getNode(CompanyHomeNodeLocator.NAME, null, null);
 
         String name = "My repo case (" + System.currentTimeMillis() + ")";
-        Map<QName, Serializable> properties = new HashMap<QName, Serializable>();
+        Map<QName, Serializable> properties = new HashMap<>();
         properties.put(ContentModel.PROP_NAME, name);
         List<NodeRef> owners = new LinkedList<>();
         owners.add(repositoryHelper.getPerson());
-        NodeRef caseNode = caseHelper.createCase(OpenESDHModel.ADMIN_USER_NAME,
+        NodeRef caseNode = caseHelper.createCase(
                 companyHome,
                 name, SimpleCaseModel.TYPE_CASE_SIMPLE, properties, owners,
                 true);

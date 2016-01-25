@@ -22,11 +22,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 
+import fr.opensagres.xdocreport.core.XDocReportException;
+import freemarker.template.TemplateModelException;
+
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.CasePrintInfo;
-import fr.opensagres.xdocreport.core.XDocReportException;
-import freemarker.template.TemplateModelException;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -57,7 +58,7 @@ public class PrintCaseServiceImplIT {
     public void setUp() throws Exception {
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
         owner = caseHelper.createDummyUser();
-        testCase1 = caseHelper.createSimpleCase(TEST_CASE_NAME1, AuthenticationUtil.getAdminUserName(), owner);
+        testCase1 = caseHelper.createSimpleCase(TEST_CASE_NAME1, owner);
     }
 
     @After

@@ -1,29 +1,31 @@
-package dk.openesdh.repo.test;
+package dk.openesdh.repo.helper;
 
 import static org.alfresco.repo.security.authentication.AuthenticationUtil.getAdminUserName;
 import static org.alfresco.repo.security.authentication.AuthenticationUtil.runAs;
 
-import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
-import org.alfresco.repo.transaction.RetryingTransactionHelper.RetryingTransactionCallback;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
-public class TransactionalIT {
+@Service
+public class TransactionRunner {
 
     @Autowired
     @Qualifier("retryingTransactionHelper")
-    protected RetryingTransactionHelper retryingTransactionHelper;
+    private RetryingTransactionHelper retryingTransactionHelper;
 
-    protected <R> R runInTransation(RetryingTransactionCallback<R> callBack) {
+    public <R> R runInTransation(RetryingTransactionHelper.RetryingTransactionCallback<R> callBack) {
         return retryingTransactionHelper.doInTransaction(callBack);
     }
 
-    protected <R> R runInTransactionAsAdmin(RetryingTransactionCallback<R> callBack) {
+    public <R> R runInTransactionAsAdmin(RetryingTransactionHelper.RetryingTransactionCallback<R> callBack) {
         return runAsAdmin(() -> retryingTransactionHelper.doInTransaction(callBack));
     }
 
-    protected <R> R runAsAdmin(RunAsWork<R> callback) {
+    public <R> R runAsAdmin(AuthenticationUtil.RunAsWork<R> callback) {
         return runAs(callback, getAdminUserName());
     }
+
 }

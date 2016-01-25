@@ -1,7 +1,6 @@
 package dk.openesdh.repo.services.audit;
 
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
+import static org.junit.Assert.assertTrue;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -20,7 +19,6 @@ import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.junit.After;
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,6 +26,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.ContactType;
@@ -102,7 +103,7 @@ public class AuditSearchServiceImplIT implements RunInTransactionAsAdmin {
 
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
         owner = caseHelper.createDummyUser(DUMMY_USER);
-        caseA = caseHelper.createSimpleCase(CASE_A_TITLE, CaseHelper.ADMIN_USER_NAME, owner);
+        caseA = caseHelper.createSimpleCase(CASE_A_TITLE, owner);
 
         runInTransaction(() -> {
             caseAId = caseService.getCaseId(caseA);

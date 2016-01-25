@@ -1,11 +1,7 @@
 package dk.openesdh.repo.policy;
 
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
-import dk.openesdh.repo.helper.CaseHelper;
-import dk.openesdh.repo.model.CaseStatus;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.cases.CaseService;
+import static org.junit.Assert.assertEquals;
+
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
@@ -23,7 +19,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.junit.Assert.assertEquals;
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
+
+import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.model.CaseStatus;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CaseService;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -63,9 +65,7 @@ public class StatusTransitionBehaviourIT {
     public void setUp() throws Exception {
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
         owner = caseHelper.createDummyUser();
-        caseNodeRef = caseHelper.createSimpleCase(TEST_CASE_NAME1,
-                CaseHelper.ADMIN_USER_NAME,
-                owner);
+        caseNodeRef = caseHelper.createSimpleCase(TEST_CASE_NAME1, owner);
     }
 
     @After
