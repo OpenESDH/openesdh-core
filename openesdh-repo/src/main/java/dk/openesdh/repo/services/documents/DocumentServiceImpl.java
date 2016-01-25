@@ -22,6 +22,7 @@ import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.rendition.executer.ReformatRenderingEngine;
 import org.alfresco.repo.search.impl.lucene.LuceneQueryParserException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.repo.security.permissions.AccessDeniedException;
 import org.alfresco.repo.version.VersionModel;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.lock.LockService;
@@ -60,7 +61,6 @@ import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.springframework.security.access.AccessDeniedException;
 
 import dk.openesdh.repo.model.CaseDocument;
 import dk.openesdh.repo.model.CaseDocumentAttachment;
@@ -222,7 +222,7 @@ public class DocumentServiceImpl implements DocumentService {
         return true;
     }
 
-    public void checkCanChangeStatus(NodeRef nodeRef, String fromStatus, String toStatus) throws AccessDeniedException {
+    public void checkCanChangeStatus(NodeRef nodeRef, String fromStatus, String toStatus) {
         String user = AuthenticationUtil.getRunAsUser();
         if (!isDocNode(nodeRef)) {
             throw new AlfrescoRuntimeException("Node is not a document node:"
@@ -235,7 +235,7 @@ public class DocumentServiceImpl implements DocumentService {
         }
     }
 
-    private void changeStatusImpl(NodeRef nodeRef, String fromStatus, String newStatus) {
+    private void changeStatusImpl(NodeRef nodeRef, String newStatus) {
         switch (newStatus) {
             case DocumentStatus.FINAL:
                 AuthenticationUtil.runAsSystem(() -> {
@@ -356,7 +356,7 @@ public class DocumentServiceImpl implements DocumentService {
                 // Disable status behaviour to allow the system to set the
                 // status directly.
                 behaviourFilter.disableBehaviour(nodeRef);
-                changeStatusImpl(nodeRef, fromStatus, newStatus);
+                changeStatusImpl(nodeRef, newStatus);
             } finally {
                 behaviourFilter.enableBehaviour(nodeRef);
             }

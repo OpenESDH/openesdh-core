@@ -1,7 +1,5 @@
 package dk.openesdh.repo.services.cases;
 
-import static org.hamcrest.core.Is.isA;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -14,6 +12,7 @@ import java.util.stream.Collectors;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.repo.security.permissions.AccessDeniedException;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -26,9 +25,7 @@ import org.alfresco.service.namespace.QName;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -77,9 +74,6 @@ public class PartyServiceImplIT {
     @Autowired
     @Qualifier("CaseDocumentTestHelper")
     private CaseDocumentTestHelper caseTestHelper;
-
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     private static final String TEST_CASE_NAME = "Test_case";
     private static final String SENDER_ROLE = "Afsender";
@@ -178,7 +172,7 @@ public class PartyServiceImplIT {
                 Arrays.asList(TEST_PERSON_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL));
         Assert.assertNotNull("The nodeRef of the created party group cannot be null", partyGroupNodeRef);
 
-        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(partyGroupNodeRef, new HashSet<QName>(
+        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(partyGroupNodeRef, new HashSet<>(
                 Arrays.asList(OpenESDHModel.TYPE_CONTACT_PERSON, OpenESDHModel.TYPE_CONTACT_ORGANIZATION)));
 
         Assert.assertFalse("Created party shouldn't be empty", childAssocs.isEmpty());
@@ -203,7 +197,7 @@ public class PartyServiceImplIT {
 
         Assert.assertTrue("Should return true if successfully added contacts to the party", result);
 
-        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(partyGroupNodeRef, new HashSet<QName>(
+        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(partyGroupNodeRef, new HashSet<>(
                 Arrays.asList(OpenESDHModel.TYPE_CONTACT_PERSON, OpenESDHModel.TYPE_CONTACT_ORGANIZATION)));
 
         Assert.assertFalse("Created party shouldn't be empty", childAssocs.isEmpty());
@@ -218,7 +212,7 @@ public class PartyServiceImplIT {
                 resultContacts.contains(testOrgContact));
     }
 
-    @Test
+    @Test(expected = AccessDeniedException.class)
     public void shuldFailAddingPersonContactBecauseOfPermissions() throws Exception {
         String caseId = caseService.getCaseId(caseNodeRef);
         createPartyAssertNotNUll(caseId, SENDER_ROLE);
@@ -226,7 +220,6 @@ public class PartyServiceImplIT {
         //login as other user
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.MIKE_JACKSON);
 
-        expectedException.expect(isA(org.springframework.security.access.AccessDeniedException.class));
         //should fail
         partyService.addContactsToParty(caseId, partyGroupNodeRef, SENDER_ROLE,
                 Arrays.asList(TEST_PERSON_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL));
@@ -241,7 +234,7 @@ public class PartyServiceImplIT {
                 TEST_PERSON_CONTACT_EMAIL);
         Assert.assertTrue("Should return true if successfully added a contact to the party", result);
 
-        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(partyGroupNodeRef, new HashSet<QName>(
+        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(partyGroupNodeRef, new HashSet<>(
                 Arrays.asList(OpenESDHModel.TYPE_CONTACT_PERSON)));
 
         Assert.assertFalse("Created party shouldn't be empty", childAssocs.isEmpty());
@@ -311,7 +304,7 @@ public class PartyServiceImplIT {
         boolean result = partyService.removePartyRole(caseId, TEST_PERSON_CONTACT_EMAIL, RECEIVER_ROLE);
         Assert.assertTrue("The removePartyRole method should return true if successfully removed party", result);
 
-        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(partyGroupNodeRef, new HashSet<QName>(
+        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(partyGroupNodeRef, new HashSet<>(
                 Arrays.asList(OpenESDHModel.TYPE_CONTACT_PERSON)));
 
         Assert.assertTrue("The party shouldn't contain removed person contact", childAssocs.isEmpty());
