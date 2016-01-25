@@ -119,8 +119,6 @@ public class DocumentServiceImplIT {
     private NodeRef testDocument3;
     private NodeRef testDocumentRecFolder3;
     private NodeRef testDocumentAttachment3;
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {

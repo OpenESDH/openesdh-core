@@ -1,5 +1,7 @@
 package dk.openesdh.repo.services.cases;
 
+import static org.hamcrest.core.Is.isA;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,11 +26,12 @@ import org.alfresco.service.namespace.QName;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -48,7 +51,6 @@ import dk.openesdh.repo.services.contacts.ContactServiceImpl;
 @ContextConfiguration("classpath:alfresco/application-context.xml")
 public class PartyServiceImplIT {
 
-    //<editor-fold desc="injected required services">
     @Autowired
     @Qualifier("NodeService")
     private NodeService nodeService;
@@ -75,6 +77,9 @@ public class PartyServiceImplIT {
     @Autowired
     @Qualifier("CaseDocumentTestHelper")
     private CaseDocumentTestHelper caseTestHelper;
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     private static final String TEST_CASE_NAME = "Test_case";
     private static final String SENDER_ROLE = "Afsender";
@@ -213,14 +218,15 @@ public class PartyServiceImplIT {
                 resultContacts.contains(testOrgContact));
     }
 
-    @Test(expected = AccessDeniedException.class)
-    public void shuldFailAddingPersonContactBecouseOfPermissions() throws Exception {
+    @Test
+    public void shuldFailAddingPersonContactBecauseOfPermissions() throws Exception {
         String caseId = caseService.getCaseId(caseNodeRef);
         createPartyAssertNotNUll(caseId, SENDER_ROLE);
 
         //login as other user
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.MIKE_JACKSON);
 
+        expectedException.expect(isA(org.springframework.security.access.AccessDeniedException.class));
         //should fail
         partyService.addContactsToParty(caseId, partyGroupNodeRef, SENDER_ROLE,
                 Arrays.asList(TEST_PERSON_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL));
