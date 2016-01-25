@@ -15,16 +15,15 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.namespace.QName;
-import org.alfresco.service.transaction.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import dk.openesdh.repo.services.RunInTransactionAsAdmin;
+import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.services.cases.CaseService;
 
 @Service("CaseMembersService")
-public class CaseMembersServiceImpl implements CaseMembersService, RunInTransactionAsAdmin {
+public class CaseMembersServiceImpl implements CaseMembersService {
 
     @Autowired
     @Qualifier("NodeService")
@@ -36,8 +35,7 @@ public class CaseMembersServiceImpl implements CaseMembersService, RunInTransact
     @Qualifier("AuthorityService")
     private AuthorityService authorityService;
     @Autowired
-    @Qualifier("TransactionService")
-    private TransactionService transactionService;
+    private TransactionRunner transactionRunner;
     @Autowired
     private CaseService caseService;
 
@@ -71,7 +69,7 @@ public class CaseMembersServiceImpl implements CaseMembersService, RunInTransact
     @Override
     public void removeAuthoritiesFromRole(final List<String> authorityNames, final String role, final NodeRef caseNodeRef) {
         caseService.checkCanUpdateCaseRoles(caseNodeRef);
-        runInTransactionAsAdmin(() -> {
+        transactionRunner.runInTransactionAsAdmin(() -> {
             String caseId = caseService.getCaseId(caseNodeRef);
             String groupName = caseService.getCaseRoleGroupName(caseId, role);
             if (!authorityService.authorityExists(groupName)) {
@@ -112,7 +110,7 @@ public class CaseMembersServiceImpl implements CaseMembersService, RunInTransact
             final NodeRef caseNodeRef) {
         caseService.checkCanUpdateCaseRoles(caseNodeRef);
 
-        runInTransactionAsAdmin(() -> {
+        transactionRunner.runInTransactionAsAdmin(() -> {
             String caseId = caseService.getCaseId(caseNodeRef);
             final String groupName = caseService.getCaseRoleGroupName(caseId, role);
             if (!authorityService.authorityExists(groupName)) {
@@ -133,7 +131,7 @@ public class CaseMembersServiceImpl implements CaseMembersService, RunInTransact
     public void changeAuthorityRole(final String authorityName, final String fromRole, final String toRole,
             final NodeRef caseNodeRef) {
         caseService.checkCanUpdateCaseRoles(caseNodeRef);
-        runInTransactionAsAdmin(() -> {
+        transactionRunner.runInTransactionAsAdmin(() -> {
             removeAuthorityFromRole(authorityName, fromRole, caseNodeRef);
             addAuthorityToRole(authorityName, toRole, caseNodeRef);
             return null;
@@ -186,11 +184,6 @@ public class CaseMembersServiceImpl implements CaseMembersService, RunInTransact
     private boolean isAuthorityOfType(NodeRef authorityRef, QName type) {
         QName authorityType = nodeService.getType(authorityRef);
         return dictionaryService.isSubClass(authorityType, type);
-    }
-
-    @Override
-    public TransactionService getTransactionService() {
-        return transactionService;
     }
 
     @Override

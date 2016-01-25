@@ -15,13 +15,12 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
-import org.alfresco.service.transaction.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.RunInTransactionAsAdmin;
+import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.services.cases.CaseOwnersService;
 import dk.openesdh.repo.services.cases.CasePermission;
 import dk.openesdh.repo.services.cases.CasePermissionService;
@@ -32,7 +31,7 @@ import dk.openesdh.repo.services.members.CaseMembersService;
  */
 @Service("caseOwnersBehaviour")
 public class CaseOwnersBehaviour implements NodeServicePolicies.OnCreateAssociationPolicy,
-        NodeServicePolicies.OnDeleteAssociationPolicy, RunInTransactionAsAdmin {
+        NodeServicePolicies.OnDeleteAssociationPolicy {
 
     @Autowired
     @Qualifier("CaseMembersService")
@@ -50,8 +49,7 @@ public class CaseOwnersBehaviour implements NodeServicePolicies.OnCreateAssociat
     @Qualifier("policyBehaviourFilter")
     private BehaviourFilter behaviourFilter;
     @Autowired
-    @Qualifier("TransactionService")
-    private TransactionService transactionService;
+    private TransactionRunner transactionRunner;
     @Autowired
     private CasePermissionService casePermissionService;
 
@@ -80,7 +78,7 @@ public class CaseOwnersBehaviour implements NodeServicePolicies.OnCreateAssociat
     @Override
     public void onCreateAssociation(final AssociationRef nodeAssocRef) {
         if (nodeAssocRef.getSourceRef() != null) {
-            runAsAdmin(() -> {
+            transactionRunner.runAsAdmin(() -> {
                 caseMembersService.addAuthorityToRole(nodeAssocRef.getTargetRef(),
                         getOwnerPermissionName(nodeAssocRef.getSourceRef()),
                         nodeAssocRef.getSourceRef());
@@ -102,11 +100,6 @@ public class CaseOwnersBehaviour implements NodeServicePolicies.OnCreateAssociat
 
     private String getOwnerPermissionName(NodeRef nodeRef) {
         return casePermissionService.getPermissionName(nodeRef, CasePermission.OWNER);
-    }
-
-    @Override
-    public TransactionService getTransactionService() {
-        return transactionService;
     }
 
     private void syncOwnersProperty(NodeRef caseNodeRef) {

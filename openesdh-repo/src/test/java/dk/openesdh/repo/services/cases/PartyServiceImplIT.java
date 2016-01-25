@@ -37,7 +37,7 @@ import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
-import dk.openesdh.repo.helper.TransactionRunner;
+import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.model.ContactInfo;
 import dk.openesdh.repo.model.ContactType;
 import dk.openesdh.repo.model.OpenESDHModel;

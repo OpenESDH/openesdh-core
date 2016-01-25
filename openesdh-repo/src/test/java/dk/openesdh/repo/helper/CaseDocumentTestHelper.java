@@ -1,5 +1,7 @@
 package dk.openesdh.repo.helper;
 
+import dk.openesdh.repo.services.TransactionRunner;
+
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;

@@ -19,18 +19,17 @@ import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.namespace.QName;
-import org.alfresco.service.transaction.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.RunInTransactionAsAdmin;
+import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.services.authorities.GroupsCsvParser.Group;
 import dk.openesdh.repo.services.cases.CaseService;
 
 @Service("GroupsService")
-public class GroupsServiceImpl implements GroupsService, RunInTransactionAsAdmin {
+public class GroupsServiceImpl implements GroupsService {
 
     private static final String CREATED_ON_OPEN_E = "OPENE";
 
@@ -47,8 +46,7 @@ public class GroupsServiceImpl implements GroupsService, RunInTransactionAsAdmin
     private NodeService nodeService;
 
     @Autowired
-    @Qualifier("TransactionService")
-    private TransactionService transactionService;
+    private TransactionRunner transactionRunner;
 
     @Override
     public boolean typeEqualsOpenEType(String type, String authorityName) throws InvalidNodeRefException {
@@ -84,7 +82,7 @@ public class GroupsServiceImpl implements GroupsService, RunInTransactionAsAdmin
             return;
         }
 
-        runInTransaction(() -> {
+        transactionRunner.runInTransaction(() -> {
             groups.stream().forEach(this::createGroupIfAbsent);
             groups.stream().forEach(this::manageMemberShips);
             return null;
@@ -111,11 +109,6 @@ public class GroupsServiceImpl implements GroupsService, RunInTransactionAsAdmin
             .forEach(parent -> {
                 authorityService.addAuthority(parent, groupName);
             });
-    }
-
-    @Override
-    public TransactionService getTransactionService() {
-        return transactionService;
     }
 
     public Set<String> getCurrentUserGroups() {
