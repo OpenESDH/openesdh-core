@@ -11,9 +11,12 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.alfresco.model.ContentModel;
+import org.alfresco.query.PagingRequest;
 import org.alfresco.repo.domain.node.ContentDataWithId;
+import org.alfresco.repo.forum.CommentService;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
+import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.InvalidNodeRefException;
@@ -23,6 +26,7 @@ import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -32,6 +36,7 @@ import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.DocumentService;
 import dk.openesdh.repo.services.system.OpenESDHFoldersService;
+import dk.openesdh.repo.utils.JSONArrayCollector;
 
 @Component
 public class OeFilesServiceImpl implements OeFilesService {
@@ -56,6 +61,16 @@ public class OeFilesServiceImpl implements OeFilesService {
     @Autowired
     @Qualifier("CaseService")
     private CaseService caseService;
+    @Autowired
+    @Qualifier("CommentService")
+    private CommentService commentService;
+
+    @Override
+    public JSONObject getFile(NodeRef nodeRef) {
+        NodeRef folder = nodeService.getPrimaryParent(nodeRef).getParentRef();
+        String authorityName = (String) nodeService.getProperty(folder, ContentModel.PROP_NAME);
+        return fileNodeToJSONObject(nodeRef, authorityName);
+    }
 
     @Override
     public List<JSONObject> getFiles(String authorityName) {
@@ -98,17 +113,38 @@ public class OeFilesServiceImpl implements OeFilesService {
             }
             json.put("modified", ((Date) props.get(ContentModel.PROP_MODIFIED)).getTime());
         }
+        json.put("comments", getComments(fileNode));
+        return json;
+    }
+
+    private JSONArray getComments(NodeRef fileNode) {
+        return commentService.listComments(fileNode, new PagingRequest(100)).getPage()
+                .stream()
+                .map(this::commentNodeToJSONObject)
+                .collect(JSONArrayCollector.simple());
+    }
+
+    private JSONObject commentNodeToJSONObject(NodeRef commentNode) {
+        Map<QName, Serializable> props = nodeService.getProperties(commentNode);
+        JSONObject json = new JSONObject();
+        json.put("creator", props.get(ContentModel.PROP_CREATOR));
+        json.put("created", ((Date) props.get(ContentModel.PROP_CREATED)).getTime());
+        ContentReader reader = AuthenticationUtil.runAsSystem(() -> {
+            return contentService.getRawReader(((ContentDataWithId) props.get(ContentModel.PROP_CONTENT)).getContentUrl());
+        });
+        json.put("comment", reader.getContentString());
         return json;
     }
 
     @Override
-    public NodeRef addFile(NodeRef owner, String fileName, String mimetype, InputStream fileInputStream) {
+    public NodeRef addFile(NodeRef owner, String fileName, String mimetype, InputStream fileInputStream, String comment) {
         String authorityName = getAuthorityName(owner);
-
-        return AuthenticationUtil.runAs(() -> {
+        return AuthenticationUtil.runAsSystem(() -> {
             NodeRef folder = getOrCreateAuthorityFolder(authorityName);
-            return writeFile(fileName, folder, mimetype, fileInputStream);
-        }, AuthenticationUtil.getAdminUserName());
+            NodeRef file = writeFile(fileName, folder, mimetype, fileInputStream);
+            commentService.createComment(file, fileName, comment, false);
+            return file;
+        });
     }
 
     private String getAuthorityName(NodeRef owner) throws InvalidNodeRefException {
@@ -177,7 +213,7 @@ public class OeFilesServiceImpl implements OeFilesService {
         //checks permissions and selects association
         ChildAssociationRef oldAssociation = nodeService.getParentAssocs(file).get(0);
 
-        AuthenticationUtil.runAs(() -> {
+        AuthenticationUtil.runAsSystem(() -> {
             String oldOwner = (String) nodeService.getProperty(oldAssociation.getParentRef(), ContentModel.PROP_NAME);
             if (authorityName.equals(oldOwner)) {
                 //nothing to do
@@ -185,15 +221,16 @@ public class OeFilesServiceImpl implements OeFilesService {
             }
             //move
             NodeRef toFolder = getOrCreateAuthorityFolder(authorityName);
-            String fileName = (String) nodeService.getProperty(oldAssociation.getChildRef(), ContentModel.PROP_NAME);
-            String uniqueName = documentService.getUniqueName(toFolder, fileName, false);
+            String title = (String) nodeService.getProperty(oldAssociation.getChildRef(), ContentModel.PROP_TITLE);
+            String uniqueName = documentService.getUniqueName(toFolder, title, false);
             nodeService.moveNode(
                     file,
                     toFolder,
                     ContentModel.ASSOC_CONTAINS,
                     QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, uniqueName));
+            commentService.createComment(file, title, comment, false);
             return null;
-        }, AuthenticationUtil.getAdminUserName());
+        });
     }
 
     @Override
@@ -202,7 +239,7 @@ public class OeFilesServiceImpl implements OeFilesService {
         nodeService.getParentAssocs(file).get(0);
         NodeRef caseNodeRef = caseService.getCaseById(caseId);
 
-        AuthenticationUtil.runAs(() -> {
+        AuthenticationUtil.runAsSystem(() -> {
             documentService.moveAsCaseDocument(
                     caseNodeRef,
                     file,
@@ -212,7 +249,7 @@ public class OeFilesServiceImpl implements OeFilesService {
                     docCategory,
                     description);
             return null;
-        }, AuthenticationUtil.getAdminUserName());
+        });
     }
 
 }
