@@ -1,5 +1,26 @@
 package dk.openesdh.repo.helper;
 
+import dk.openesdh.repo.services.TransactionRunner;
+
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.alfresco.model.ContentModel;
+import org.alfresco.repo.model.Repository;
+import org.alfresco.service.cmr.repository.ChildAssociationRef;
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.namespace.NamespaceService;
+import org.alfresco.service.namespace.QName;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
+
 import dk.openesdh.SimpleCaseModel;
 import dk.openesdh.repo.model.DocumentCategory;
 import dk.openesdh.repo.model.DocumentType;
@@ -8,66 +29,33 @@ import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.DocumentCategoryService;
 import dk.openesdh.repo.services.documents.DocumentService;
 import dk.openesdh.repo.services.documents.DocumentTypeService;
-import dk.openesdh.repo.test.TransactionalIT;
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import org.alfresco.model.ContentModel;
-import org.alfresco.repo.model.Repository;
-import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.service.cmr.repository.ChildAssociationRef;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.namespace.NamespaceService;
-import org.alfresco.service.namespace.QName;
 
-public class CaseDocumentTestHelper extends TransactionalIT {
+@Service("CaseDocumentTestHelper")
+public class CaseDocumentTestHelper {
 
-    protected NodeService nodeService;
-
-    protected Repository repositoryHelper;
-
-    protected CaseHelper caseHelper;
-
-    protected CaseService caseService;
-
-    protected DocumentService documentService;
-
-    protected DocumentTypeService documentTypeService;
-
-    protected DocumentCategoryService documentCategoryService;
-
-    public void setCaseService(CaseService caseService) {
-        this.caseService = caseService;
-    }
-
-    public void setNodeService(NodeService nodeService) {
-        this.nodeService = nodeService;
-    }
-
-    public void setRepositoryHelper(Repository repositoryHelper) {
-        this.repositoryHelper = repositoryHelper;
-    }
-
-    public void setCaseHelper(CaseHelper caseHelper) {
-        this.caseHelper = caseHelper;
-    }
-
-    public void setDocumentService(DocumentService documentService) {
-        this.documentService = documentService;
-    }
-
-    public void setDocumentTypeService(DocumentTypeService documentTypeService) {
-        this.documentTypeService = documentTypeService;
-    }
-
-    public void setDocumentCategoryService(DocumentCategoryService documentCategoryService) {
-        this.documentCategoryService = documentCategoryService;
-    }
+    @Autowired
+    private TransactionRunner transactionRunner;
+    @Autowired
+    @Qualifier("NodeService")
+    private NodeService nodeService;
+    @Autowired
+    @Qualifier("repositoryHelper")
+    private Repository repositoryHelper;
+    @Autowired
+    @Qualifier("TestCaseHelper")
+    private CaseHelper caseHelper;
+    @Autowired
+    @Qualifier("CaseService")
+    private CaseService caseService;
+    @Autowired
+    @Qualifier("DocumentService")
+    private DocumentService documentService;
+    @Autowired
+    @Qualifier("DocumentTypeService")
+    private DocumentTypeService documentTypeService;
+    @Autowired
+    @Qualifier("DocumentCategoryService")
+    private DocumentCategoryService documentCategoryService;
 
     // Create temporary node for use during testing
     public NodeRef createFolder(final String folderName) {
@@ -80,7 +68,7 @@ public class CaseDocumentTestHelper extends TransactionalIT {
         final Map<QName, Serializable> properties = new HashMap<>();
         properties.put(ContentModel.PROP_NAME, folderName);
 
-        folder = runAsAdmin(() -> {
+        folder = transactionRunner.runAsAdmin(() -> {
             return nodeService.createNode(repositoryHelper.getCompanyHome(), ContentModel.ASSOC_CONTAINS,
                     QName.createQName(OpenESDHModel.CASE_URI, folderName), ContentModel.TYPE_FOLDER, properties)
                     .getChildRef();
@@ -103,7 +91,7 @@ public class CaseDocumentTestHelper extends TransactionalIT {
         return createCase(caseName, parentNodeRef, userName, false);
     }
 
-    protected NodeRef createCase(final String caseName, NodeRef parentNodeRef, String userName,
+    private NodeRef createCase(final String caseName, NodeRef parentNodeRef, String userName,
             boolean disableBehaviour) {
         NodeRef caseFolder = nodeService.getChildByName(repositoryHelper.getCompanyHome(),
                 ContentModel.ASSOC_CONTAINS, caseName);
@@ -116,15 +104,15 @@ public class CaseDocumentTestHelper extends TransactionalIT {
 
         final Map<QName, Serializable> properties = new HashMap<>();
         properties.put(ContentModel.PROP_NAME, getNodePropertyString(parentNodeRef, ContentModel.PROP_NAME));
-        caseFolder = caseHelper.createCase(AuthenticationUtil.getAdminUserName(), parentNodeRef,
-                caseName, SimpleCaseModel.TYPE_CASE_SIMPLE, properties, owners, disableBehaviour);
+        caseFolder = caseHelper.createCase(parentNodeRef, caseName, SimpleCaseModel.TYPE_CASE_SIMPLE,
+                properties, owners, disableBehaviour);
 
         return caseFolder;
     }
 
     public void removeNodesAndDeleteUsersInTransaction(final List<NodeRef> nodes, final List<NodeRef> cases,
             final List<String> userNames) {
-        runInTransactionAsAdmin(() -> {
+        transactionRunner.runInTransactionAsAdmin(() -> {
             cases.stream()
                     .forEach((aCase) -> removeCase(aCase));
             nodes.stream()
@@ -171,7 +159,7 @@ public class CaseDocumentTestHelper extends TransactionalIT {
         properties.put(OpenESDHModel.PROP_DOC_TYPE, getFirstDocumentType().getNodeRef().toString());
         properties.put(OpenESDHModel.PROP_DOC_CATEGORY, getFirstDocumentCategory().getNodeRef().toString());
 
-        return runInTransactionAsAdmin(() -> {
+        return transactionRunner.runInTransactionAsAdmin(() -> {
             NodeRef caseDocumentsFolder = caseService.getDocumentsFolder(caseNodeRef);
             return nodeService.createNode(caseDocumentsFolder, ContentModel.ASSOC_CONTAINS,
                     QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, documentName),
@@ -182,7 +170,7 @@ public class CaseDocumentTestHelper extends TransactionalIT {
     public NodeRef createCaseDocumentAttachment(String documentName, final NodeRef caseDocumentNodeRef) {
         final Map<QName, Serializable> properties = new HashMap<>();
         properties.put(ContentModel.PROP_NAME, documentName);
-        return runInTransactionAsAdmin(() -> {
+        return transactionRunner.runInTransactionAsAdmin(() -> {
             return nodeService.createNode(caseDocumentNodeRef, ContentModel.ASSOC_CONTAINS,
                     QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, documentName),
                     ContentModel.TYPE_CONTENT, properties).getChildRef();
@@ -197,7 +185,7 @@ public class CaseDocumentTestHelper extends TransactionalIT {
         }
         final Map<QName, Serializable> properties = new HashMap<>();
         properties.put(ContentModel.PROP_NAME, documentName);
-        return runInTransactionAsAdmin(() -> {
+        return transactionRunner.runInTransactionAsAdmin(() -> {
             return nodeService.createNode(targetFolderNodeRef, ContentModel.ASSOC_CONTAINS,
                     QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, documentName),
                     ContentModel.TYPE_CONTENT, properties).getChildRef();

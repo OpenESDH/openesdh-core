@@ -1,5 +1,7 @@
 package dk.openesdh.repo.services.xsearch;
 
+import static org.junit.Assert.fail;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -10,10 +12,8 @@ import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
-import org.alfresco.service.transaction.TransactionService;
 import org.junit.After;
 import org.junit.Assert;
-import static org.junit.Assert.fail;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,6 +26,7 @@ import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.model.ContactType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.contacts.ContactService;
@@ -40,16 +41,15 @@ public class ContactSearchServiceImplIT {
 
     @Autowired
     @Qualifier("ContactService")
-    protected ContactService contactService;
+    private ContactService contactService;
     @Autowired
     @Qualifier("NodeService")
     private NodeService nodeService;
     @Autowired
-    @Qualifier("TransactionService")
-    private TransactionService transactionService;
+    private TransactionRunner transactionRunner;
     @Autowired
     @Qualifier("ContactSearchService")
-    protected ContactSearchService contactSearchService;
+    private ContactSearchService contactSearchService;
 
     @Before
     public void setUp() throws Exception {
@@ -66,7 +66,7 @@ public class ContactSearchServiceImplIT {
         typeProps.put(OpenESDHModel.PROP_CONTACT_ORGANIZATION_NAME, SEARCH_TERM + index);
         typeProps.put(OpenESDHModel.PROP_CONTACT_EMAIL, email);
         typeProps.put(OpenESDHModel.PROP_CONTACT_CVR_NUMBER, "1000000" + index);
-        return transactionService.getRetryingTransactionHelper().doInTransaction(
+        return transactionRunner.runInTransaction(
                 () -> contactService.createContact(email, ContactType.ORGANIZATION.name(), typeProps));
     }
 
@@ -82,7 +82,7 @@ public class ContactSearchServiceImplIT {
         Map<String, String> params = new HashMap<>();
         params.put("baseType", "contact:organization");
         params.put("term", SEARCH_TERM);
-        XResultSet nodes = null;
+        XResultSet nodes;
 
         //we have to wait until the search will return the contacts
         int sleepCount = 0;

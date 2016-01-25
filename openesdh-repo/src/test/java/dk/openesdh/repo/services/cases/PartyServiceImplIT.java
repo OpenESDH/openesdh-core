@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.permissions.AccessDeniedException;
-import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -23,8 +22,6 @@ import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.namespace.DynamicNamespacePrefixResolver;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
-import org.alfresco.service.transaction.TransactionService;
-import org.apache.log4j.Logger;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -40,6 +37,7 @@ import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.model.ContactInfo;
 import dk.openesdh.repo.model.ContactType;
 import dk.openesdh.repo.model.OpenESDHModel;
@@ -50,7 +48,6 @@ import dk.openesdh.repo.services.contacts.ContactServiceImpl;
 @ContextConfiguration("classpath:alfresco/application-context.xml")
 public class PartyServiceImplIT {
 
-    //<editor-fold desc="injected required services">
     @Autowired
     @Qualifier("NodeService")
     private NodeService nodeService;
@@ -61,27 +58,23 @@ public class PartyServiceImplIT {
 
     @Autowired
     @Qualifier("ContactService")
-    private ContactServiceImpl contactService = null;
+    private ContactServiceImpl contactService;
 
     @Autowired
     @Qualifier("CaseService")
-    private CaseServiceImpl caseService = null;
+    private CaseServiceImpl caseService;
 
     @Autowired
     @Qualifier("DictionaryService")
     private DictionaryService dictionaryService;
 
     @Autowired
-    @Qualifier("transactionService")
-    protected TransactionService transactionService;
+    private TransactionRunner transactionRunner;
 
     @Autowired
     @Qualifier("CaseDocumentTestHelper")
     private CaseDocumentTestHelper caseTestHelper;
-    //</editor-fold>
 
-    //<editor-fold desc="Global variables">
-    private static Logger logger = Logger.getLogger(PartyServiceImplIT.class);
     private static final String TEST_CASE_NAME = "Test_case";
     private static final String SENDER_ROLE = "Afsender";
     private static final String RECEIVER_ROLE = "Modtager";
@@ -93,15 +86,12 @@ public class PartyServiceImplIT {
     private NodeRef partyGroupNodeRef;
     private NodeRef testPersonContact;
     private NodeRef testOrgContact;
-    private DynamicNamespacePrefixResolver namespacePrefixResolver = new DynamicNamespacePrefixResolver(null);
-//    private static final ApplicationContext APPLICATION_CONTEXT = ApplicationContextHelper.getApplicationContext(new String[]{"classpath:alfresco/application-context.xml"});
-    //</editor-fold>
+    private final DynamicNamespacePrefixResolver namespacePrefixResolver = new DynamicNamespacePrefixResolver(null);
 
     @Before
     public void setUp() throws Exception {
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ADMIN_USER_NAME);
 
-        //<editor-fold desc="Services that are needed">
         partyService = new PartyServiceImpl();
         partyService.setNodeService(nodeService);
         partyService.setCaseService(caseService);
@@ -109,34 +99,35 @@ public class PartyServiceImplIT {
         partyService.setAuthorityService(authorityService);
         partyService.setDictionaryService(dictionaryService);
         partyService.setNamespacePrefixResolver(namespacePrefixResolver);
-        //</editor-fold>
 
         namespacePrefixResolver.registerNamespace(NamespaceService.APP_MODEL_PREFIX, NamespaceService.APP_MODEL_1_0_URI);
         namespacePrefixResolver.registerNamespace(OpenESDHModel.CONTACT_PREFIX, OpenESDHModel.CONTACT_URI);
         namespacePrefixResolver.registerNamespace(NamespaceService.CONTENT_MODEL_PREFIX, NamespaceService.CONTENT_MODEL_1_0_URI);
 
         caseNodeRef = caseTestHelper.createCaseBehaviourOn(TEST_CASE_NAME, caseService.getCasesRootNodeRef(), CaseHelper.ADMIN_USER_NAME);
-
-        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Void>() {
-            @Override
-            public Void execute() throws Throwable {
-                        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ADMIN_USER_NAME);
-                HashMap<QName, Serializable> personProps = new HashMap<QName, Serializable>();
-                personProps.put(OpenESDHModel.PROP_CONTACT_EMAIL, TEST_PERSON_CONTACT_EMAIL);
-                testPersonContact = contactService.createContact(TEST_PERSON_CONTACT_EMAIL, ContactType.PERSON.name(), personProps);
-
-                HashMap<QName, Serializable> orgProps = new HashMap<QName, Serializable>();
-                orgProps.put(OpenESDHModel.PROP_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL);
-                testOrgContact = contactService.createContact(TEST_ORG_CONTACT_EMAIL, ContactType.ORGANIZATION.name(), orgProps);
-                return null;
-            }
+        transactionRunner.runInTransactionAsAdmin(() -> {
+            testPersonContact = contactService.createContact(
+                    TEST_PERSON_CONTACT_EMAIL,
+                    ContactType.PERSON.name(),
+                    createContactProperties(TEST_PERSON_CONTACT_EMAIL));
+            testOrgContact = contactService.createContact(
+                    TEST_ORG_CONTACT_EMAIL,
+                    ContactType.ORGANIZATION.name(),
+                    createContactProperties(TEST_ORG_CONTACT_EMAIL));
+            return null;
         });
+    }
+
+    private HashMap<QName, Serializable> createContactProperties(String email) {
+        HashMap<QName, Serializable> props = new HashMap<>();
+        props.put(OpenESDHModel.PROP_CONTACT_EMAIL, email);
+        return props;
     }
 
     @After
     public void tearDown() throws Exception {
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ADMIN_USER_NAME);
-        ArrayList<NodeRef> nodes = new ArrayList<NodeRef>();
+        ArrayList<NodeRef> nodes = new ArrayList<>();
         if (partyGroupNodeRef != null) {
             nodes.add(partyGroupNodeRef);
         }
@@ -149,11 +140,11 @@ public class PartyServiceImplIT {
             nodes.add(testOrgContact);
         }
 
-        List<NodeRef> cases = new ArrayList<NodeRef>();
+        List<NodeRef> cases = new ArrayList<>();
         if (caseNodeRef != null) {
             cases.add(caseNodeRef);
         }
-        caseTestHelper.removeNodesAndDeleteUsersInTransaction(nodes, cases, new ArrayList<String>());
+        caseTestHelper.removeNodesAndDeleteUsersInTransaction(nodes, cases, new ArrayList<>());
     }
 
     @Test
@@ -181,7 +172,7 @@ public class PartyServiceImplIT {
                 Arrays.asList(TEST_PERSON_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL));
         Assert.assertNotNull("The nodeRef of the created party group cannot be null", partyGroupNodeRef);
 
-        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(partyGroupNodeRef, new HashSet<QName>(
+        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(partyGroupNodeRef, new HashSet<>(
                 Arrays.asList(OpenESDHModel.TYPE_CONTACT_PERSON, OpenESDHModel.TYPE_CONTACT_ORGANIZATION)));
 
         Assert.assertFalse("Created party shouldn't be empty", childAssocs.isEmpty());
@@ -206,7 +197,7 @@ public class PartyServiceImplIT {
 
         Assert.assertTrue("Should return true if successfully added contacts to the party", result);
 
-        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(partyGroupNodeRef, new HashSet<QName>(
+        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(partyGroupNodeRef, new HashSet<>(
                 Arrays.asList(OpenESDHModel.TYPE_CONTACT_PERSON, OpenESDHModel.TYPE_CONTACT_ORGANIZATION)));
 
         Assert.assertFalse("Created party shouldn't be empty", childAssocs.isEmpty());
@@ -222,7 +213,7 @@ public class PartyServiceImplIT {
     }
 
     @Test(expected = AccessDeniedException.class)
-    public void shuldFailAddingPersonContactBecouseOfPermissions() throws Exception {
+    public void shuldFailAddingPersonContactBecauseOfPermissions() throws Exception {
         String caseId = caseService.getCaseId(caseNodeRef);
         createPartyAssertNotNUll(caseId, SENDER_ROLE);
 
@@ -243,7 +234,7 @@ public class PartyServiceImplIT {
                 TEST_PERSON_CONTACT_EMAIL);
         Assert.assertTrue("Should return true if successfully added a contact to the party", result);
 
-        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(partyGroupNodeRef, new HashSet<QName>(
+        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(partyGroupNodeRef, new HashSet<>(
                 Arrays.asList(OpenESDHModel.TYPE_CONTACT_PERSON)));
 
         Assert.assertFalse("Created party shouldn't be empty", childAssocs.isEmpty());
@@ -313,7 +304,7 @@ public class PartyServiceImplIT {
         boolean result = partyService.removePartyRole(caseId, TEST_PERSON_CONTACT_EMAIL, RECEIVER_ROLE);
         Assert.assertTrue("The removePartyRole method should return true if successfully removed party", result);
 
-        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(partyGroupNodeRef, new HashSet<QName>(
+        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(partyGroupNodeRef, new HashSet<>(
                 Arrays.asList(OpenESDHModel.TYPE_CONTACT_PERSON)));
 
         Assert.assertTrue("The party shouldn't contain removed person contact", childAssocs.isEmpty());

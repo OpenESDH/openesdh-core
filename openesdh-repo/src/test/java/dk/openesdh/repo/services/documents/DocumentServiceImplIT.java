@@ -1,8 +1,5 @@
 package dk.openesdh.repo.services.documents;
 
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
-
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.List;
@@ -19,7 +16,6 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.namespace.QName;
-import org.alfresco.service.transaction.TransactionService;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -32,6 +28,9 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.util.CollectionUtils;
+
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
@@ -63,7 +62,7 @@ public class DocumentServiceImplIT {
 
     @Autowired
     @Qualifier("CaseDocumentTestHelper")
-    protected CaseDocumentTestHelper docTestHelper;
+    private CaseDocumentTestHelper docTestHelper;
 
     @Autowired
     @Qualifier("DocumentService")
@@ -72,10 +71,6 @@ public class DocumentServiceImplIT {
     @Autowired
     @Qualifier("OELockService")
     private OELockService oeLockService;
-
-    @Autowired
-    @Qualifier("TransactionService")
-    private TransactionService transactionService;
 
     @Autowired
     @Qualifier("CheckOutCheckInService")
@@ -106,16 +101,12 @@ public class DocumentServiceImplIT {
     private static final String TEST_DOCUMENT_NAME2 = "TestDocument2";
     private static final String TEST_DOCUMENT_FILE_NAME2 = TEST_DOCUMENT_NAME2 + ".txt";
     private static final String TEST_DOCUMENT_FILE_NAME3 = TEST_DOCUMENT_NAME2 + ".txt";
-    private static final String TEST_DOCUMENT_NAME4 = "TestDocument4";
-    private static final String TEST_DOCUMENT_FILE_NAME4 = TEST_DOCUMENT_NAME4 + ".json";
 
     private static final String TEST_DOCUMENT_ATTACHMENT_NAME = "TestDocumentAttachment";
     private static final String TEST_DOCUMENT_ATTACHMENT_FILE_NAME = TEST_DOCUMENT_ATTACHMENT_NAME + ".txt";
 
     private static final String TEST_DOCUMENT_ATTACHMENT_NAME2 = "TestDocumentAttachment2";
     private static final String TEST_DOCUMENT_ATTACHMENT_FILE_NAME2 = TEST_DOCUMENT_ATTACHMENT_NAME2 + ".txt";
-
-    private static final String TEST_DOCUMENT_ATTACHMENT_NAME3 = "TestDocumentAttachment3";
 
     private NodeRef testFolder;
     private NodeRef testCase1;
@@ -127,11 +118,7 @@ public class DocumentServiceImplIT {
     private NodeRef testDocumentRecFolder2;
     private NodeRef testDocument3;
     private NodeRef testDocumentRecFolder3;
-    private NodeRef testDocument4;
-    private NodeRef testDocumentRecFolder4;
     private NodeRef testDocumentAttachment3;
-    @Rule
-    public ExpectedException expectedException = ExpectedException.none();
 
     @Before
     public void setUp() throws Exception {

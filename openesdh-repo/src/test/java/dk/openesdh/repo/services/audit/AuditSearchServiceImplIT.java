@@ -1,7 +1,6 @@
 package dk.openesdh.repo.services.audit;
 
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
+import static org.junit.Assert.assertTrue;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -15,12 +14,10 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.namespace.QName;
-import org.alfresco.service.transaction.TransactionService;
 import org.apache.commons.lang.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.junit.After;
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,10 +26,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
+
 import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.model.ContactType;
 import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.RunInTransactionAsAdmin;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.cases.PartyService;
 import dk.openesdh.repo.services.contacts.ContactServiceImpl;
@@ -44,7 +44,7 @@ import dk.openesdh.repo.services.members.CaseMembersService;
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:alfresco/application-context.xml")
-public class AuditSearchServiceImplIT implements RunInTransactionAsAdmin {
+public class AuditSearchServiceImplIT {
 
     @Autowired
     @Qualifier("NodeService")
@@ -55,8 +55,7 @@ public class AuditSearchServiceImplIT implements RunInTransactionAsAdmin {
     private CaseHelper caseHelper;
 
     @Autowired
-    @Qualifier("TransactionService")
-    private TransactionService transactionService;
+    private TransactionRunner transactionRunner;
 
     @Autowired
     @Qualifier("CaseService")
@@ -102,14 +101,14 @@ public class AuditSearchServiceImplIT implements RunInTransactionAsAdmin {
 
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
         owner = caseHelper.createDummyUser(DUMMY_USER);
-        caseA = caseHelper.createSimpleCase(CASE_A_TITLE, CaseHelper.ADMIN_USER_NAME, owner);
+        caseA = caseHelper.createSimpleCase(CASE_A_TITLE, owner);
 
-        runInTransaction(() -> {
+        transactionRunner.runInTransaction(() -> {
             caseAId = caseService.getCaseId(caseA);
             contact = createTestContact();
             return null;
         });
-        runInTransaction(() -> {
+        transactionRunner.runInTransaction(() -> {
             //add party
             partyService.addContactToParty(caseAId, null, SENDER_ROLE, contact.toString());
             //remove party
@@ -160,8 +159,7 @@ public class AuditSearchServiceImplIT implements RunInTransactionAsAdmin {
 
     @After
     public void tearDown() throws Exception {
-        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ADMIN_USER_NAME);
-        runInTransaction(() -> {
+        transactionRunner.runInTransactionAsAdmin(() -> {
             if (caseA != null) {
                 nodeService.deleteNode(caseA);
             }
@@ -171,10 +169,5 @@ public class AuditSearchServiceImplIT implements RunInTransactionAsAdmin {
             caseHelper.deleteDummyUser(DUMMY_USER);
             return true;
         });
-    }
-
-    @Override
-    public TransactionService getTransactionService() {
-        return transactionService;
     }
 }

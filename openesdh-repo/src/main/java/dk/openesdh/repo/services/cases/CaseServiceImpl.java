@@ -26,6 +26,7 @@ import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.search.impl.lucene.LuceneQueryParserException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
+import org.alfresco.repo.security.permissions.AccessDeniedException;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.dictionary.AspectDefinition;
 import org.alfresco.service.cmr.dictionary.ClassDefinition;
@@ -56,7 +57,6 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.extensions.surf.util.I18NUtil;
-import org.springframework.security.access.AccessDeniedException;
 
 import dk.openesdh.repo.model.CaseInfo;
 import dk.openesdh.repo.model.CaseInfoImpl;
@@ -889,7 +889,7 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public void checkCanUpdateCaseRoles(NodeRef caseNodeRef) throws AccessDeniedException {
+    public void checkCanUpdateCaseRoles(NodeRef caseNodeRef) {
         String user = AuthenticationUtil.getRunAsUser();
         if (!canUpdateCaseRoles(user, caseNodeRef)) {
             throw new AccessDeniedException(user + " is not allowed to "

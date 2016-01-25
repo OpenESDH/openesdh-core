@@ -18,7 +18,6 @@ import org.alfresco.service.cmr.security.MutableAuthenticationService;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
-import org.alfresco.service.transaction.TransactionService;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,11 +25,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.stereotype.Service;
 
-import dk.openesdh.repo.services.RunInTransactionAsAdmin;
+import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.services.authorities.UsersCsvParser.User;
 
 @Service("UsersService")
-public class UsersServiceImpl implements UsersService, RunInTransactionAsAdmin {
+public class UsersServiceImpl implements UsersService {
 
     private static final String ERROR_GENERAL = "person.err.userCSV.general";
     private static final String MSG_CREATED = "person.msg.userCSV.created";
@@ -49,12 +48,11 @@ public class UsersServiceImpl implements UsersService, RunInTransactionAsAdmin {
     private AuthorityService authorityService;
 
     @Autowired
-    @Qualifier("TransactionService")
-    private TransactionService transactionService;
-
-    @Autowired
     @Qualifier("tenantService")
     private TenantService tenantService;
+
+    @Autowired
+    private TransactionRunner transactionRunner;
 
     @Override
     public JSONObject uploadUsersCsv(InputStream usersCsv) throws Exception {
@@ -80,7 +78,7 @@ public class UsersServiceImpl implements UsersService, RunInTransactionAsAdmin {
 
         List<Map<String, String>> uploadResults = new ArrayList<>();
 
-        int addedUsers = runInTransaction(() -> {
+        int addedUsers = transactionRunner.runInTransaction(() -> {
             int iAddedUsers = 0;
             for (User user : users) {
                 String status = addUser(user.getProperties());
@@ -99,7 +97,6 @@ public class UsersServiceImpl implements UsersService, RunInTransactionAsAdmin {
         return json;
     }
 
-    @SuppressWarnings({ "unchecked", "rawtypes" })
     private String addUser(Map<QName, String> userProps) {
         String userName = userProps.get(ContentModel.PROP_USERNAME);
         userName = PersonServiceImpl.updateUsernameForTenancy(userName, tenantService);
@@ -118,7 +115,7 @@ public class UsersServiceImpl implements UsersService, RunInTransactionAsAdmin {
     }
 
     private Map<String, String> getUploadStatus(Map<QName, String> props, String status) {
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         result.put("username", props.get(ContentModel.PROP_USERNAME));
         result.put("uploadStatus", I18NUtil.getMessage(status, props.get(ContentModel.PROP_EMAIL)));
         return result;
@@ -133,10 +130,4 @@ public class UsersServiceImpl implements UsersService, RunInTransactionAsAdmin {
             .filter(group -> !currentGroups.contains(group))
             .forEach(group -> authorityService.addAuthority(group,  userName));
     }
-
-    @Override
-    public TransactionService getTransactionService() {
-        return transactionService;
-    }
-
 }
