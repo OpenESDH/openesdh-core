@@ -31,8 +31,6 @@ import dk.openesdh.repo.services.cases.CaseService;
 @Service("GroupsService")
 public class GroupsServiceImpl implements GroupsService {
 
-    private static final String CREATED_ON_OPEN_E = "OPENE";
-
     @Autowired
     @Qualifier("CaseService")
     private CaseService caseService;
