@@ -1,12 +1,5 @@
 package dk.openesdh.repo.webscripts.authorities;
 
-import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
-import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
-import com.google.common.base.Joiner;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -32,7 +25,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.stereotype.Component;
 
+import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
+import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
+import com.google.common.base.Joiner;
+
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.authorities.GroupsService;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 @Component
@@ -40,7 +41,7 @@ import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 public class AuthoritiesWebScript {
 
     private static final int MAX_ITEMS = 10000;
-    protected static final PagingRequest PAGING_REQUEST = new PagingRequest(MAX_ITEMS);
+    private static final PagingRequest PAGING_REQUEST = new PagingRequest(MAX_ITEMS);
     private static final List SORT_PROPS = Arrays.asList(
             new Pair(ContentModel.PROP_FIRSTNAME, true),
             new Pair(ContentModel.PROP_LASTNAME, true)
@@ -50,13 +51,13 @@ public class AuthoritiesWebScript {
             ContentModel.PROP_LASTNAME);
 
     @Autowired
-    protected AuthorityService authorityService;
+    private AuthorityService authorityService;
     @Autowired
-    protected NodeService nodeService;
+    private NodeService nodeService;
     @Autowired
-    protected AuthenticationService authenticationService;
+    private AuthenticationService authenticationService;
     @Autowired
-    protected PersonService personService;
+    private PersonService personService;
 
     @Uri(value = "/api/openesdh/authorities", method = HttpMethod.GET, defaultFormat = "json")
     public Resolution getAuthorities(@RequestParam(required = false) final String filter) throws JSONException {
@@ -64,16 +65,10 @@ public class AuthoritiesWebScript {
         List<JSONObject> jsonAuthorities = getGroups(filter);
         //users
         jsonAuthorities.addAll(getPeople(filter));
-        return WebScriptUtils.jsonResolution(formatJson(jsonAuthorities));
+        return WebScriptUtils.jsonResolution(new JSONArray(jsonAuthorities));
     }
 
-    protected JSONObject formatJson(List<JSONObject> items) throws JSONException {
-        return new JSONObject().put("data",
-                new JSONObject().put("items",
-                        new JSONArray(items)));
-    }
-
-    protected List<JSONObject> getGroups(String filter) {
+    private List<JSONObject> getGroups(String filter) {
         PagingResults<AuthorityInfo> authorities = authorityService.getAuthoritiesInfo(AuthorityType.GROUP,
                 null,//zone
                 filter,
@@ -87,7 +82,7 @@ public class AuthoritiesWebScript {
                 .collect(Collectors.toList());
     }
 
-    protected List<JSONObject> getPeople(String filter) {
+    private List<JSONObject> getPeople(String filter) {
         PagingResults<PersonService.PersonInfo> people = personService.getPeople(
                 filter, FILTER_PROPS, SORT_PROPS, PAGING_REQUEST);
         return people.getPage()
@@ -97,10 +92,15 @@ public class AuthoritiesWebScript {
     }
 
     private boolean filterOpeneGroups(JSONObject json) {
-        return json.has(OpenESDHModel.PROP_OE_OPENE_TYPE.getLocalName());
+        try {
+            return json.has(OpenESDHModel.PROP_OE_OPENE_TYPE.getLocalName())
+                    && json.getString(OpenESDHModel.PROP_OE_OPENE_TYPE.getLocalName()).equals(GroupsService.CREATED_ON_OPEN_E);
+        } catch (JSONException ex) {
+            return false;
+        }
     }
 
-    protected JSONObject createAuthorityListItemJSON(AuthorityInfo info) {
+    private JSONObject createAuthorityListItemJSON(AuthorityInfo info) {
         return createListJSON(
                 AuthorityType.GROUP,
                 info.getAuthorityName(),
