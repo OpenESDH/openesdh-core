@@ -26,7 +26,6 @@ import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 
 public class WebScriptUtils {
 
-
     //Get nodeRef from request uri
     private static final String NODE_ID = "node_id";
     private static final String STORE_ID = "store_id";
@@ -66,6 +65,7 @@ public class WebScriptUtils {
     /**
      * Returns a noderef from the request uri the template args must be of the form {store_type}/{store_id}/{id} with
      * the variables names as such
+     *
      * @param req
      * @return
      */
@@ -131,8 +131,8 @@ public class WebScriptUtils {
                 Arrays.asList(req.getHeaderNames())
                         .stream()
                         .forEach(headerName -> httpHeaders.put(headerName,
-                                        Arrays.asList(req.getHeaderValues(headerName))
-                                ));
+                                Arrays.asList(req.getHeaderValues(headerName))
+                        ));
                 return httpHeaders;
             }
 
@@ -155,6 +155,10 @@ public class WebScriptUtils {
         json.put("message", message);
         json.writeJSONString(res.getWriter());
         res.getWriter().flush();
+    }
+
+    public static Resolution respondSuccess(String message) {
+        return jsonResolution(new JSONObject().put("message", message));
     }
 
     /**

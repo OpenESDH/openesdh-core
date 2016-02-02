@@ -173,17 +173,17 @@ public class DocumentServiceImpl implements DocumentService {
         }
     }
 
-    private boolean canLeaveStatus(String status, String user, NodeRef nodeRef) {
+    private boolean canLeaveStatus(DocumentStatus status, String user, NodeRef nodeRef) {
         return !DocumentStatus.FINAL.equals(status) //not locked
                 || authorityService.isAdminAuthority(user); //or admin
     }
 
-    private boolean canEnterStatus(String status, String user, NodeRef nodeRef) {
+    private boolean canEnterStatus(DocumentStatus status, String user, NodeRef nodeRef) {
         // For now anyone can enter any document status
         return true;
     }
 
-    public void checkCanChangeStatus(NodeRef nodeRef, String fromStatus, String toStatus) {
+    public void checkCanChangeStatus(NodeRef nodeRef, DocumentStatus fromStatus, DocumentStatus toStatus) {
         String user = AuthenticationUtil.getRunAsUser();
         if (!isDocNode(nodeRef)) {
             throw new AlfrescoRuntimeException("Node is not a document node:"
@@ -196,9 +196,9 @@ public class DocumentServiceImpl implements DocumentService {
         }
     }
 
-    private void changeStatusImpl(NodeRef nodeRef, String newStatus) {
+    private void changeStatusImpl(NodeRef nodeRef, DocumentStatus newStatus) {
         switch (newStatus) {
-            case DocumentStatus.FINAL:
+            case FINAL:
                 AuthenticationUtil.runAsSystem(() -> {
                     nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, newStatus);
                     // Transform main doc and attachments to finalized formats
@@ -209,7 +209,7 @@ public class DocumentServiceImpl implements DocumentService {
                     return null;
                 });
                 break;
-            case DocumentStatus.DRAFT:
+            case DRAFT:
                 oeLockService.unlock(nodeRef, true);
                 nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, newStatus);
                 break;
@@ -273,23 +273,25 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public String getNodeStatus(NodeRef nodeRef) {
-        return (String) nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS);
+    public DocumentStatus getNodeStatus(NodeRef nodeRef) {
+        String status = (String) nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS);
+        if (StringUtils.isEmpty(status)) {
+            return null;
+        }
+        return DocumentStatus.valueOf(status.toUpperCase());
     }
 
     @Override
-    public List<String> getValidNextStatuses(NodeRef nodeRef) {
+    public List<DocumentStatus> getValidNextStatuses(NodeRef nodeRef) {
         String user = AuthenticationUtil.getFullyAuthenticatedUser();
-        String fromStatus = getNodeStatus(nodeRef);
-        List<String> statuses;
-        statuses = Arrays.asList(DocumentStatus.getStatuses()).stream().filter(
-                s -> canChangeNodeStatus(fromStatus, s, user, nodeRef))
+        DocumentStatus fromStatus = getNodeStatus(nodeRef);
+        return Arrays.stream(DocumentStatus.values())
+                .filter(s -> canChangeNodeStatus(fromStatus, s, user, nodeRef))
                 .collect(Collectors.toList());
-        return statuses;
     }
 
     @Override
-    public boolean canChangeNodeStatus(String fromStatus, String toStatus, String user, NodeRef nodeRef) {
+    public boolean canChangeNodeStatus(DocumentStatus fromStatus, DocumentStatus toStatus, String user, NodeRef nodeRef) {
         NodeRef parentCase = caseService.getParentCase(nodeRef);
         if (parentCase != null) {
             // Don't allow user to change status of documents which are in a
@@ -304,9 +306,9 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public void changeNodeStatus(NodeRef nodeRef, String newStatus) throws
+    public void changeNodeStatus(NodeRef nodeRef, DocumentStatus newStatus) throws
             Exception {
-        String fromStatus = getNodeStatus(nodeRef);
+        DocumentStatus fromStatus = getNodeStatus(nodeRef);
         if (newStatus.equals(fromStatus)) {
             return;
         }
