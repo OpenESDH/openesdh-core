@@ -481,7 +481,7 @@ public class CaseServiceImpl implements CaseService {
                 .collect(Collectors.toList());
     }
 
-    public void checkCanChangeStatus(NodeRef nodeRef, String fromStatus, String toStatus) throws AccessDeniedException {
+    public void checkCanChangeStatus(NodeRef nodeRef, CaseStatus fromStatus, CaseStatus toStatus) throws AccessDeniedException {
         String user = AuthenticationUtil.getRunAsUser();
         if (!isCaseNode(nodeRef)) {
             throw new AlfrescoRuntimeException("Node is not a case node: "
@@ -494,30 +494,30 @@ public class CaseServiceImpl implements CaseService {
         }
     }
 
-    private boolean canLeaveStatus(String status, String user, NodeRef nodeRef) {
+    private boolean canLeaveStatus(CaseStatus status, String user, NodeRef nodeRef) {
         switch (status) {
-            case CaseStatus.ACTIVE:
+            case ACTIVE:
                 return true;
-            case CaseStatus.PASSIVE:
+            case PASSIVE:
                 return true;
-            case CaseStatus.CLOSED:
+            case CLOSED:
                 return canReopenCase(user, nodeRef);
-            case CaseStatus.ARCHIVED:
+            case ARCHIVED:
                 return false;
             default:
                 return true;
         }
     }
 
-    private boolean canEnterStatus(String status, String user, NodeRef nodeRef) {
+    private boolean canEnterStatus(CaseStatus status, String user, NodeRef nodeRef) {
         switch (status) {
-            case CaseStatus.ACTIVE:
+            case ACTIVE:
                 return true;
-            case CaseStatus.PASSIVE:
+            case PASSIVE:
                 return true;
-            case CaseStatus.CLOSED:
+            case CLOSED:
                 return canCloseCase(user, nodeRef);
-            case CaseStatus.ARCHIVED:
+            case ARCHIVED:
                 // The system does this.
                 return false;
             default:
@@ -525,76 +525,78 @@ public class CaseServiceImpl implements CaseService {
         }
     }
 
-    private void changeStatusImpl(NodeRef nodeRef, String fromStatus, String newStatus) throws Exception {
+    private void changeStatusImpl(NodeRef nodeRef, CaseStatus fromStatus, CaseStatus newStatus) throws Exception {
         switch (fromStatus) {
-            case CaseStatus.ACTIVE:
+            case ACTIVE:
                 switch (newStatus) {
-                    case CaseStatus.PASSIVE:
+                    case PASSIVE:
                         passivate(nodeRef);
                         nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.PASSIVE);
                         break;
-                    case CaseStatus.CLOSED:
+                    case CLOSED:
                         closeCase(nodeRef);
                         break;
                 }
                 break;
-            case CaseStatus.PASSIVE:
+            case PASSIVE:
                 switch (newStatus) {
-                    case CaseStatus.ACTIVE:
+                    case ACTIVE:
                         unPassivate(nodeRef);
                         nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.ACTIVE);
                         break;
-                    case CaseStatus.CLOSED:
+                    case CLOSED:
                         unPassivate(nodeRef);
                         closeCase(nodeRef);
                         break;
                 }
                 break;
-            case CaseStatus.CLOSED:
+            case CLOSED:
                 switch (newStatus) {
-                    case CaseStatus.ACTIVE:
+                    case ACTIVE:
                         reopenCase(nodeRef);
                         nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.ACTIVE);
                         break;
-                    case CaseStatus.PASSIVE:
+                    case PASSIVE:
                         reopenCase(nodeRef);
                         passivate(nodeRef);
                         nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.PASSIVE);
                         break;
                 }
                 break;
-            case CaseStatus.ARCHIVED:
+            case ARCHIVED:
                 // TODO: Check if the user is the system doing the operation.
                 break;
         }
     }
 
     @Override
-    public String getNodeStatus(NodeRef nodeRef) {
-        return (String) nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS);
+    public CaseStatus getNodeStatus(NodeRef nodeRef) {
+        String status = (String) nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS);
+        if (StringUtils.isEmpty(status)) {
+            return null;
+        }
+        return CaseStatus.valueOf(status.toUpperCase());
     }
 
     @Override
-    public List<String> getValidNextStatuses(NodeRef nodeRef) {
+    public List<CaseStatus> getValidNextStatuses(NodeRef nodeRef) {
         String user = AuthenticationUtil.getRunAsUser();
-        String fromStatus = getNodeStatus(nodeRef);
-        List<String> statuses;
-        statuses = Arrays.asList(CaseStatus.getStatuses()).stream().filter(
-                s -> canChangeNodeStatus(fromStatus, s, user, nodeRef))
+        CaseStatus fromStatus = getNodeStatus(nodeRef);
+        return Arrays.stream(CaseStatus.values())
+                .filter(s -> canChangeNodeStatus(fromStatus, s, user, nodeRef))
                 .collect(Collectors.toList());
-        return statuses;
     }
 
     @Override
-    public boolean canChangeNodeStatus(String fromStatus, String toStatus, String user, NodeRef nodeRef) {
+    public boolean canChangeNodeStatus(CaseStatus fromStatus, CaseStatus toStatus, String user, NodeRef nodeRef) {
         return isCaseNode(nodeRef)
                 && CaseStatus.isValidTransition(fromStatus, toStatus)
                 && canLeaveStatus(fromStatus, user, nodeRef) && canEnterStatus(toStatus, user, nodeRef);
     }
 
     @Override
-    public void changeNodeStatus(NodeRef nodeRef, String newStatus) throws Exception {
-        String fromStatus = getNodeStatus(nodeRef);
+    public void changeNodeStatus(NodeRef nodeRef, CaseStatus newStatus) throws Exception {
+        CaseStatus fromStatus = getNodeStatus(nodeRef);
         if (newStatus.equals(fromStatus)) {
             return;
         }
