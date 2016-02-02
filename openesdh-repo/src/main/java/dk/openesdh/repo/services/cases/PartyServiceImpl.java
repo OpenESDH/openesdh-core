@@ -7,7 +7,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.alfresco.error.AlfrescoRuntimeException;
@@ -24,6 +23,7 @@ import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.namespace.NamespacePrefixResolver;
 import org.alfresco.service.namespace.QName;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -195,14 +195,14 @@ public class PartyServiceImpl implements PartyService {
             }
             return frozenContacts;
         }
-        return getCaseParties(caseNodeRef, ChildAssociationRef::getChildRef);
+        return getCaseParties(caseNodeRef);
     }
 
     private QName getFrozenParamQName(String role) {
         return QName.createQName(OpenESDHModel.CASE_URI, OpenESDHModel.FROZEN_CASE_PARTIES_PROP_PREFIX + role);
     }
 
-    private <T> Map<String, List<T>> getCaseParties(NodeRef caseNodeRef, Function<ChildAssociationRef, T> transformer) {
+    private Map<String, List<NodeRef>> getCaseParties(NodeRef caseNodeRef) {
         List<String> roles = getAvailablePartyRoles();
         return roles.stream().collect(Collectors.toMap(
                 role -> role,
@@ -214,7 +214,7 @@ public class PartyServiceImpl implements PartyService {
                     List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(caseRole.getNodeRef().get());
                     return childAssocs
                     .stream()
-                    .map(transformer::apply)
+                    .map(ChildAssociationRef::getChildRef)
                     .collect(Collectors.toList());
                 }
         ));
@@ -231,29 +231,31 @@ public class PartyServiceImpl implements PartyService {
 
     @Override
     public List<ContactInfo> getPartiesInCase(String caseId) {
-        NodeRef caseNodeRef = caseService.getCaseById(caseId);
-        return getCaseParties(caseNodeRef,
-                assoc -> new ContactInfo(assoc.getChildRef(),
-                        contactService.getContactType(assoc.getChildRef()),
-                        nodeService.getProperties(assoc.getChildRef())))
+        return getContactsByRole(caseId)
                 .entrySet()
                 .stream()
                 .flatMap(t -> t.getValue().stream())
+                .map(nodeRef -> new ContactInfo(nodeRef,
+                        contactService.getContactType(nodeRef),
+                        nodeService.getProperties(nodeRef)))
                 .collect(Collectors.toList());
     }
 
     @Override
     public void lockCasePartiesToVersions(NodeRef caseNodeRef) {
         Map<QName, Serializable> props = new HashMap<>();
-        getCaseParties(caseNodeRef, (ChildAssociationRef assoc) -> {
-            lockContact(caseNodeRef, assoc.getChildRef());
-            Version currentVersion = versionService.getCurrentVersion(assoc.getChildRef());
-            return currentVersion.getFrozenStateNodeRef();
-        }).entrySet()
+        getCaseParties(caseNodeRef)
+                .entrySet()
                 .stream()
-                .filter(e -> e.getValue() != null && !e.getValue().isEmpty())
-                .forEach(e -> {
-                    props.put(getFrozenParamQName(e.getKey()), new ArrayList(e.getValue()));
+                .filter(roleEntry -> CollectionUtils.isNotEmpty(roleEntry.getValue()))
+                .forEach(roleEntry -> {
+                    ArrayList<NodeRef> frozenNodes = new ArrayList();
+                    roleEntry.getValue()
+                            .forEach(contactNodeRef -> {
+                                lockContact(caseNodeRef, contactNodeRef);
+                                frozenNodes.add(getFrozenStateNodeRef(contactNodeRef));
+                            });
+                    props.put(getFrozenParamQName(roleEntry.getKey()), frozenNodes);
                 });
         behaviourFilterService.executeWithoutBehavior(caseNodeRef,
                 () -> nodeService.addAspect(caseNodeRef, OpenESDHModel.ASPECT_CASE_FREEZABLE_PARTIES, props));
@@ -309,5 +311,10 @@ public class PartyServiceImpl implements PartyService {
             return caseRole;
         }
         return caseRole;
+    }
+
+    private NodeRef getFrozenStateNodeRef(NodeRef nodeRef) {
+        Version currentVersion = versionService.getCurrentVersion(nodeRef);
+        return currentVersion.getFrozenStateNodeRef();
     }
 }

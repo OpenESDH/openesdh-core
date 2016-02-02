@@ -308,6 +308,8 @@ public class PartyServiceImplIT {
             assertEquals("contact has same email", TEST_PERSON_CONTACT_EMAIL, verEmail);
             String verCity = (String) nodeService.getProperty(versionNodeRef, OpenESDHModel.PROP_CONTACT_CITY_NAME);
             assertEquals("contact has original city", originalCity, verCity);
+            ContactInfo contactInfo = partyService.getPartiesInCase(caseId).get(0);
+            assertEquals("contactInfo has original city", originalCity, contactInfo.getCityName());
         } finally {
             //unlock case, that it could be deleted
             caseService.changeNodeStatus(caseNodeRef, CaseStatus.ACTIVE);
