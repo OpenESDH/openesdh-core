@@ -1,12 +1,12 @@
 package dk.openesdh.repo.services.cases;
 
-import dk.openesdh.repo.model.ContactInfo;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.util.Pair;
-
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
+
+import org.alfresco.service.cmr.repository.NodeRef;
+
+import dk.openesdh.repo.model.ContactInfo;
 
 /**
  * @author Lanre Abiwon.
@@ -16,7 +16,8 @@ public interface PartyService {
     /**
      * Prefix used for authorities of type party.
      */
-    String PARTY_PREFIX = "PARTY_";
+    static final String PARTY_PREFIX = "PARTY_";
+    static final String GROUP_PREFIX = "GROUP_";
 
     /**
      *
@@ -38,6 +39,7 @@ public interface PartyService {
     /**
      * Add a contact to the specified case partyRole.
      * Note if the Role doesn't exist one is created and the contact is added.
+     *
      * @param caseId the case id
      * @param partyRef the nodeRef for the party (an alternative to retrieving by party name)
      * @param partyRole the party (group) to add the contact
@@ -49,6 +51,7 @@ public interface PartyService {
     /**
      * Add the list of contacts to the specified case partyRole.
      * Note if the Role doesn't exist one is created and the contact is added.
+     *
      * @param caseId the case id
      * @param partyRef the nodeRef for the party (an alternative to retrieving by party name)
      * @param partyRole the party (group) to add the contact
@@ -59,6 +62,7 @@ public interface PartyService {
 
     /**
      * Removes a party from a role. (i.e. remove contact from the case group)
+     *
      * @param caseId
      * @param partyId maps to the email of the contact
      * @param role current role (group)
@@ -67,35 +71,34 @@ public interface PartyService {
     boolean removePartyRole(String caseId, String partyId, String role);
 
     /**
-     *
-     * @param caseId - the case id
-     * @param roleName -  the role to check for
-     * @return pair<Boolean, NodeRef>
-     */
-    Pair<Boolean, NodeRef> roleExists(String caseId, String roleName);
-
-    /**
-     * Get a specific party role (i.e. group) for a case.
-     * @param caseNodeRef The case nodeRef
-     * @param caseId The case Id
-     * @param partyRole the required role
-     * @return a NodeRef or null depending on whether it exists
-     */
-    NodeRef getCaseParty(NodeRef caseNodeRef, String caseId, String partyRole);
-
-    /**
      * Gets a complete list of contacts mapped to the roles they have (i.e. members of the group(s) in alfresco speak)
+     *
      * @param caseId the id of the case in question.
      * @return Map<String, Set<String>>
      */
-    Map<String, Set<String>> getContactsByRole(String caseId);
+    Map<String, List<NodeRef>> getContactsByRole(String caseId);
 
     /**
      * Returns a simple list of parties involved in the requested case
-     * @param caseId  the case ID
+     *
+     * @param caseId the case ID
      * @return List of type PartyInfo
      */
     List<ContactInfo> getPartiesInCase(String caseId);
+
+    /**
+     * Not a real lock. Adding nodeRef's of current contact versions to case as parameter
+     *
+     * @param caseNodeRef
+     */
+    void lockCasePartiesToVersions(NodeRef caseNodeRef);
+
+    /**
+     * Not a real unlock. Removing case parameter of contact versions
+     *
+     * @param caseNodeRef
+     */
+    void unlockCaseParties(NodeRef caseNodeRef);
 
     enum PartyType {
         PERSON,
@@ -109,6 +112,7 @@ public interface PartyService {
      * @since 1.1
      */
     class PartyInfo {
+
         private final String email;
         private final String cprNumber;
         private final String firstName;
@@ -125,8 +129,9 @@ public interface PartyService {
             this.lastName = lastName;
             this.cprNumber = cprNumber;
             this.organizationName = null;
-            this.partyType= PartyType.PERSON;
+            this.partyType = PartyType.PERSON;
         }
+
         //Methods of this signature are assumed to be used for setting an organization
         public PartyInfo(NodeRef nodeRef, String email, String organizationName, String cprNumber) {
             this.nodeRef = nodeRef;
@@ -138,24 +143,19 @@ public interface PartyService {
             this.partyType = PartyType.ORGANIZATION;
         }
 
-
-        public NodeRef getNodeRef()
-        {
+        public NodeRef getNodeRef() {
             return nodeRef;
         }
 
-        public String getUserName()
-        {
+        public String getUserName() {
             return email;
         }
 
-        public String getFirstName()
-        {
+        public String getFirstName() {
             return firstName;
         }
 
-        public String getLastName()
-        {
+        public String getLastName() {
             return lastName;
         }
 
@@ -176,5 +176,34 @@ public interface PartyService {
         }
     }
 
+    class CaseRole {
+
+        private Optional<NodeRef> nodeRef = Optional.empty();
+        private String name;
+
+        public boolean isPresent() {
+            return nodeRef.isPresent();
+        }
+
+        public Optional<NodeRef> getNodeRef() {
+            return nodeRef;
+        }
+
+        public void setNodeRef(Optional<NodeRef> nodeRef) {
+            this.nodeRef = nodeRef;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getFullName() {
+            return GROUP_PREFIX + name;
+        }
+
+        public void setName(String dbid, String roleName) {
+            this.name = PARTY_PREFIX + dbid + "_" + roleName;
+        }
+    }
 
 }

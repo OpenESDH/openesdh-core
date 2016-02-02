@@ -1,10 +1,10 @@
 package dk.openesdh.repo.webscripts.contacts;
 
 import java.io.Serializable;
-import java.util.HashMap;
+import java.util.Date;
 import java.util.Map;
-import java.util.Objects;
 
+import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
@@ -16,6 +16,7 @@ import com.google.gdata.util.common.base.Joiner;
 
 import dk.openesdh.repo.model.ContactType;
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.webscripts.ParamUtils;
 
 public class ContactUtils {
 
@@ -29,9 +30,17 @@ public class ContactUtils {
         result.put("storeType", contactNode.getStoreRef().getProtocol());
         result.put("storeId", contactNode.getStoreRef().getIdentifier());
         result.put("id", contactNode.getId());
+        result.put("version", props.get(ContentModel.PROP_VERSION_LABEL));
         props.entrySet().stream()
-                .filter((Map.Entry<QName, Serializable> t)
-                        -> t.getValue() != null && !isKeyOfSystemModelNamepace(t.getKey()))
+                .filter(t -> t.getValue() != null)
+                .filter(t -> !isKeyOfSystemModelNamepace(t.getKey()))
+                .filter(t -> !t.getKey().equals(OpenESDHModel.PROP_CONTACT_LOCKED_IN_CASES))
+                .map(entry -> {
+                    if (entry.getValue() instanceof Date) {
+                        entry.setValue(((Date) entry.getValue()).getTime());
+                    }
+                    return entry;
+                })
                 .forEach((entry)
                         -> result.put(entry.getKey().getLocalName(), entry.getValue()));
         result.put("address", getAddress(props));
@@ -60,14 +69,7 @@ public class ContactUtils {
         return nodeRef;
     }
 
-    static String getOrNull(JSONObject json, String key) {
-        if (json.containsKey(key)) {
-            return Objects.toString(json.get(key));
-        }
-        return null;
-    }
-
-    static void addContactProperties(ContactType contactType, JSONObject fromParsedRequest, HashMap<QName, Serializable> toTypeProps) {
+    static void addContactProperties(ContactType contactType, JSONObject fromParsedRequest, Map<QName, Serializable> toTypeProps) {
         switch (contactType) {
             case PERSON:
                 copyProperty(fromParsedRequest, toTypeProps, OpenESDHModel.PROP_CONTACT_FIRST_NAME);
@@ -96,7 +98,7 @@ public class ContactUtils {
         addAddressProperties(fromParsedRequest, toTypeProps);
     }
 
-    static void addAddressProperties(JSONObject fromObj, HashMap<QName, Serializable> toTypeProps) {
+    static void addAddressProperties(JSONObject fromObj, Map<QName, Serializable> toTypeProps) {
         copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_ADDRESS);
         copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_ADDRESS_LINE1);
         copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_ADDRESS_LINE2);
@@ -118,7 +120,7 @@ public class ContactUtils {
         copyProperty(fromObj, toTypeProps, OpenESDHModel.PROP_CONTACT_MAIL_SUBLOCATION_ID);
     }
 
-    static void copyProperty(JSONObject fromObj, HashMap<QName, Serializable> toTypeProps, QName property) {
-        toTypeProps.put(property, getOrNull(fromObj, property.getLocalName()));
+    static void copyProperty(JSONObject fromObj, Map<QName, Serializable> toTypeProps, QName property) {
+        toTypeProps.put(property, ParamUtils.getOrNull(fromObj, property.getLocalName()));
     }
 }

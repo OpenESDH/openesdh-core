@@ -1,16 +1,8 @@
 package dk.openesdh.repo.webscripts.authorities;
 
-import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.Lifecycle;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
-import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -30,6 +22,14 @@ import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.stereotype.Component;
 
+import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.Lifecycle;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
+import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
+
+import dk.openesdh.repo.webscripts.ParamUtils;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 /**
@@ -74,8 +74,8 @@ public class MembersAddWebScript {
             throw new WebScriptException("The group (" + shortName + ") does not/ no longer exists");
         }
 
-        String users = getOrNull(parsedRequest, "users");
-        String groups = getOrNull(parsedRequest, "groups");
+        String users = ParamUtils.getOrNull(parsedRequest, "users");
+        String groups = ParamUtils.getOrNull(parsedRequest, "groups");
         StringBuilder failed = new StringBuilder();
         String groupFullName = "GROUP_" + shortName;
 
@@ -156,12 +156,5 @@ public class MembersAddWebScript {
         }
 
         return result;
-    }
-
-    public String getOrNull(JSONObject json, String key) {
-        if (json.containsKey(key)) {
-            return Objects.toString(json.get(key));
-        }
-        return null;
     }
 }
