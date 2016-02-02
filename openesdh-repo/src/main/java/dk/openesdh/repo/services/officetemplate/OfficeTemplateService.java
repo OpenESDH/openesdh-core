@@ -1,13 +1,11 @@
 package dk.openesdh.repo.services.officetemplate;
 
-import org.alfresco.service.cmr.repository.ContentReader;
-import org.alfresco.service.cmr.repository.NodeRef;
-
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+
+import org.alfresco.service.cmr.repository.ContentReader;
+import org.alfresco.service.cmr.repository.NodeRef;
 
 /**
  * Created by syastrov on 9/23/15.

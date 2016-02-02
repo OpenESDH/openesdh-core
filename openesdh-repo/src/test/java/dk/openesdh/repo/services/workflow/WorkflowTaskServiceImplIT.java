@@ -30,8 +30,8 @@ import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
-import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.model.WorkflowInfo;
+import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.services.cases.CaseService;
 
 @RunWith(RemoteTestRunner.class)
@@ -101,15 +101,16 @@ public class WorkflowTaskServiceImplIT {
             }
 
             if (caseNodeRef != null) {
-                docTestHelper.removeNodesAndDeleteUsersInTransaction(Collections.EMPTY_LIST,
-                        Arrays.asList(caseNodeRef), Collections.EMPTY_LIST);
+                docTestHelper.removeNodesAndDeleteUsersInTransaction(Collections.emptyList(),
+                        Arrays.asList(caseNodeRef), Collections.emptyList());
             }
-            docTestHelper.removeNodesAndDeleteUsersInTransaction(Collections.EMPTY_LIST, Collections.EMPTY_LIST,
+            docTestHelper.removeNodesAndDeleteUsersInTransaction(Collections.emptyList(), Collections.emptyList(),
                     Arrays.asList(CaseHelper.DEFAULT_USERNAME));
             return null;
         });
     }
 
+    @SuppressWarnings("unchecked")
     @Test
     public void shouldStartWorkflowWithAttachmentThenRetrieveTaskWithPackageContents() {
         AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();

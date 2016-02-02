@@ -13,7 +13,6 @@ import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthenticationService;
-import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.workflow.WorkflowService;
 import org.alfresco.service.cmr.workflow.WorkflowTask;
@@ -42,8 +41,6 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
     private DictionaryService dictionaryService;
     @Autowired
     private AuthenticationService authenticationService;
-    @Autowired
-    private AuthorityService authorityService;
     @Autowired
     private DocumentService documentService;
     @Autowired

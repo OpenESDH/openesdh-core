@@ -17,8 +17,6 @@ import javax.servlet.http.HttpSession;
 import org.alfresco.repo.SessionUser;
 import org.alfresco.repo.webdav.WebDAV;
 import org.alfresco.repo.webdav.auth.AuthenticationDriver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * This filter was created to prevent browsers rendering the basic auth dialog in response to a 401 message. 
@@ -28,8 +26,6 @@ import org.slf4j.LoggerFactory;
  */
 //TODO find out if it is possible to have a maven profile that can inject the filters into the deployed web.xml file.
 public class ResponseServletFilter implements Filter {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResponseServletFilter.class);
 
     private static final String WWW_AUTHENTICATE = "WWW-Authenticate";
     private static final String AUTHORIZATION = "Authorization";
