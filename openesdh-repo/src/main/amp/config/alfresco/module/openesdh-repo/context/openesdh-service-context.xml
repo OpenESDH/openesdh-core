@@ -72,6 +72,10 @@
         <property name="casePermissionService">
             <ref bean="casePermissionService"/>
         </property>
+        
+        <property name="partyService">
+            <ref bean="PartyService"/>
+        </property>
     </bean>
     
     <bean id="DocumentTypeService" class="dk.openesdh.repo.services.documents.DocumentTypeServiceImpl">
@@ -134,72 +138,6 @@
         <property name="namespaceService" ref="namespaceService"/>
     </bean>
 
-    <bean id="DocumentService" class="dk.openesdh.repo.services.documents.DocumentServiceImpl" init-method="init">
-        <property name="caseService">
-            <ref bean="CaseService"/>
-        </property>
-        <property name="contentService">
-            <ref bean="ContentService"/>
-        </property>
-        <property name="renditionService">
-            <ref bean="RenditionService"/>
-        </property>
-        <property name="copyService">
-            <ref bean="CopyService"/>
-        </property>
-        <property name="nodeService">
-            <ref bean="NodeService"/>
-        </property>
-        <property name="dictionaryService">
-            <ref bean="DictionaryService"/>
-        </property>
-        <property name="personService">
-            <ref bean="PersonService"/>
-        </property>
-        <property name="searchService">
-            <ref bean="SearchService"/>
-        </property>
-        <property name="namespaceService">
-            <ref bean="namespaceService"/>
-        </property>
-        <property name="versionService">
-            <ref bean="VersionService"/>
-        </property>
-        <property name="oeLockService">
-            <ref bean="OELockService"/>
-        </property>
-        <property name="mimetypeService">
-            <ref bean="mimetypeService"/>
-        </property>
-        <property name="documentTypeService">
-            <ref bean="DocumentTypeService"/>
-        </property>
-        <property name="documentCategoryService">
-            <ref bean="DocumentCategoryService"/>
-        </property>
-        <property name="transactionService">
-            <ref bean="TransactionService"/>
-        </property>
-        <property name="acceptableFinalizedFileFormats">
-            <value>${openesdh.document.acceptableFinalizedFileFormats}</value>
-        </property>
-        <property name="finalizedFileFormat">
-            <value>${openesdh.document.finalizedFileFormat}</value>
-        </property>
-        <property name="behaviourFilter">
-            <ref bean="policyBehaviourFilter"/>
-        </property>
-        <property name="permissionService">
-            <ref bean="PermissionService"/>
-        </property>
-        <property name="lockService">
-            <ref bean="LockService"/>
-        </property>
-        <property name="authorityService">
-            <ref bean="AuthorityService"/>
-        </property>
-    </bean>
-
     <bean id="DocTemplateService" class="dk.openesdh.repo.services.documents.DocumentTemplateServiceImpl">
         <property name="nodeService" ref="NodeService"/>
         <property name="searchService" ref="SearchService"/>
@@ -255,20 +193,6 @@
         </property>
     </bean>
 
-    <bean id="ContactDAO" class="dk.openesdh.repo.services.contacts.ContactDAOImpl">
-        <property name="nodeService" ref="nodeService"/>
-        <property name="namespacePrefixResolver" ref="namespaceService"/>
-        <property name="repositoryHelper" ref="repositoryHelper"/>
-    </bean>
-
-    <bean id="ContactService" class="dk.openesdh.repo.services.contacts.ContactServiceImpl">
-        <property name="nodeService" ref="nodeService"/>
-        <property name="contactDAO" ref="ContactDAO"/>
-        <property name="searchService" ref="searchService"/>
-        <property name="contactSearchService" ref="ContactSearchService"/>
-        <property name="transactionService" ref="TransactionService"/>
-    </bean>
-
     <bean id="NoteService"
           class="dk.openesdh.repo.services.notes.NoteServiceImpl">
         <property name="nodeService" ref="NodeService"/>
@@ -276,15 +200,6 @@
         <property name="contactService" ref="ContactService"/>
     </bean>
 
-    <bean id="PartyService" class="dk.openesdh.repo.services.cases.PartyServiceImpl">
-        <property name="authorityService" ref="authorityService"/>
-        <property name="caseService" ref="CaseService"/>
-        <property name="contactService" ref="ContactService"/>
-        <property name="nodeService" ref="NodeService"/>
-        <property name="dictionaryService" ref="DictionaryService"/>
-        <property name="namespacePrefixResolver" ref="namespaceService"/>
-    </bean>
-    
     <bean id="OfficeTemplateService"
           class="dk.openesdh.repo.services.officetemplate.OfficeTemplateServiceImpl"
           init-method="init">

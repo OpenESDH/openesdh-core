@@ -94,4 +94,21 @@
             </mandatory-aspects>
         </type>
     </types>
+    
+    <aspects>
+        <aspect name="base:freezableParties">
+            <properties>
+                <property name="base:frozenPartiesModtager">
+                    <type>d:noderef</type>
+                    <mandatory>false</mandatory>
+                    <multiple>true</multiple>
+                </property>
+                <property name="base:frozenPartiesAfsender">
+                    <type>d:noderef</type>
+                    <mandatory>false</mandatory>
+                    <multiple>true</multiple>
+                </property>
+            </properties>
+        </aspect>
+    </aspects>
 </model>

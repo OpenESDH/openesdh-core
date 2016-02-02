@@ -10,15 +10,17 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Properties;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+
+import javax.annotation.PostConstruct;
 
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.repo.lock.mem.LockState;
-import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.rendition.executer.ReformatRenderingEngine;
 import org.alfresco.repo.search.impl.lucene.LuceneQueryParserException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -52,7 +54,6 @@ import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.namespace.RegexQNamePattern;
-import org.alfresco.service.transaction.TransactionService;
 import org.alfresco.util.SearchLanguageConversion;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -61,6 +62,9 @@ import org.apache.commons.logging.LogFactory;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.model.CaseDocument;
 import dk.openesdh.repo.model.CaseDocumentAttachment;
@@ -69,6 +73,8 @@ import dk.openesdh.repo.model.DocumentStatus;
 import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.model.ResultSet;
+import dk.openesdh.repo.services.BehaviourFilterService;
+import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.lock.OELockService;
 import dk.openesdh.repo.services.system.OpenESDHFoldersService;
@@ -77,29 +83,69 @@ import dk.openesdh.repo.webscripts.documents.Documents;
 /**
  * Created by torben on 11/09/14.
  */
+@Service("DocumentService")
 public class DocumentServiceImpl implements DocumentService {
 
     private static final QName FINAL_PDF_RENDITION_DEFINITION_NAME = QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "finalPdfRenditionDefinition");
     private static final Log logger = LogFactory.getLog(DocumentServiceImpl.class);
+    @Autowired
+    @Qualifier("NodeService")
     private NodeService nodeService;
+    @Autowired
+    @Qualifier("DictionaryService")
     private DictionaryService dictionaryService;
+    @Autowired
+    @Qualifier("PersonService")
     private PersonService personService;
+    @Autowired
+    @Qualifier("SearchService")
     private SearchService searchService;
+    @Autowired
+    @Qualifier("CaseService")
     private CaseService caseService;
+    @Autowired
+    @Qualifier("namespaceService")
     private NamespaceService namespaceService;
+    @Autowired
+    @Qualifier("CopyService")
     private CopyService copyService;
+    @Autowired
+    @Qualifier("OELockService")
     private OELockService oeLockService;
+    @Autowired
+    @Qualifier("VersionService")
     private VersionService versionService;
+    @Autowired
+    @Qualifier("ContentService")
     private ContentService contentService;
+    @Autowired
+    @Qualifier("mimetypeService")
     private MimetypeService mimetypeService;
+    @Autowired
+    @Qualifier("RenditionService")
     private RenditionService renditionService;
-    private TransactionService transactionService;
+    @Autowired
+    private TransactionRunner transactionRunner;
+    @Autowired
+    @Qualifier("DocumentTypeService")
     private DocumentTypeService documentTypeService;
+    @Autowired
+    @Qualifier("DocumentCategoryService")
     private DocumentCategoryService documentCategoryService;
-    private BehaviourFilter behaviourFilter;
+    @Autowired
+    private BehaviourFilterService behaviourFilterService;
+    @Autowired
+    @Qualifier("PermissionService")
     private PermissionService permissionService;
+    @Autowired
+    @Qualifier("LockService")
     private LockService lockService;
+    @Autowired
+    @Qualifier("AuthorityService")
     private AuthorityService authorityService;
+    @Autowired
+    @Qualifier("global-properties")
+    private Properties globalProperties;
 
     private String finalizedFileFormat;
     private String acceptableFinalizedFileFormats;
@@ -117,92 +163,10 @@ public class DocumentServiceImpl implements DocumentService {
         return StringUtils.isNotEmpty(fileNameExt);
     }
 
-    //<editor-fold desc="Injected service setters">
-    public void setCaseService(CaseService caseService) {
-        this.caseService = caseService;
-    }
-
-    public void setRenditionService(RenditionService renditionService) {
-        this.renditionService = renditionService;
-    }
-
-    public void setMimetypeService(MimetypeService mimetypeService) {
-        this.mimetypeService = mimetypeService;
-    }
-
-    public void setFinalizedFileFormat(String finalizedFileFormat) {
-        this.finalizedFileFormat = finalizedFileFormat;
-    }
-
-    public void setAcceptableFinalizedFileFormats(String acceptableFinalizedFileFormats) {
-        this.acceptableFinalizedFileFormats = acceptableFinalizedFileFormats;
-    }
-
-    public void setContentService(ContentService contentService) {
-        this.contentService = contentService;
-    }
-
-    public void setOeLockService(OELockService oeLockService) {
-        this.oeLockService = oeLockService;
-    }
-
-    public void setNamespaceService(NamespaceService namespaceService) {
-        this.namespaceService = namespaceService;
-    }
-
-    public void setDictionaryService(DictionaryService dictionaryService) {
-        this.dictionaryService = dictionaryService;
-    }
-
-    public void setNodeService(NodeService nodeService) {
-        this.nodeService = nodeService;
-    }
-
-    public void setPersonService(PersonService personService) {
-        this.personService = personService;
-    }
-
-    public void setSearchService(SearchService searchService) {
-        this.searchService = searchService;
-    }
-
-    public void setCopyService(CopyService copyService) {
-        this.copyService = copyService;
-    }
-
-    public void setDocumentTypeService(DocumentTypeService documentTypeService) {
-        this.documentTypeService = documentTypeService;
-    }
-
-    public void setDocumentCategoryService(DocumentCategoryService documentCategoryService) {
-        this.documentCategoryService = documentCategoryService;
-    }
-
-    public void setVersionService(VersionService versionService) {
-        this.versionService = versionService;
-    }
-
-    public void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
-    }
-
-    public void setBehaviourFilter(BehaviourFilter behaviourFilter) {
-        this.behaviourFilter = behaviourFilter;
-    }
-
-    public void setPermissionService(PermissionService permissionService) {
-        this.permissionService = permissionService;
-    }
-
-    public void setLockService(LockService lockService) {
-        this.lockService = lockService;
-    }
-
-    public void setAuthorityService(AuthorityService authorityService) {
-        this.authorityService = authorityService;
-    }
-
+    @PostConstruct
     public void init() {
+        finalizedFileFormat = (String) globalProperties.get("openesdh.document.finalizedFileFormat");
+        acceptableFinalizedFileFormats = (String) globalProperties.get("openesdh.document.acceptableFinalizedFileFormats");
         acceptableFinalizedFileMimeTypes = new HashSet<>(20);
         for (String extension : acceptableFinalizedFileFormats.split(",")) {
             String mimetype = mimetypeService.getMimetype(extension);
@@ -350,16 +314,12 @@ public class DocumentServiceImpl implements DocumentService {
             return;
         }
         checkCanChangeStatus(nodeRef, fromStatus, newStatus);
-
-        transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
-            try {
-                // Disable status behaviour to allow the system to set the
-                // status directly.
-                behaviourFilter.disableBehaviour(nodeRef);
+        transactionRunner.runInTransaction(() -> {
+            // Disable status behaviour to allow the system to set the
+            // status directly.
+            behaviourFilterService.executeWithoutBehavior(nodeRef, () -> {
                 changeStatusImpl(nodeRef, newStatus);
-            } finally {
-                behaviourFilter.enableBehaviour(nodeRef);
-            }
+            });
             return null;
         });
     }
@@ -493,7 +453,7 @@ public class DocumentServiceImpl implements DocumentService {
 
         //we need new transaction for DocumentBehavior to kick in
         boolean requiresNew = true;
-        NodeRef file = transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
+        NodeRef file = transactionRunner.runInTransaction(() -> {
             return createDocumentFile(caseDocumentsFolder, title, fileName, docType, docCatagory, contentWriter);
         }, false, requiresNew);
 
@@ -504,7 +464,7 @@ public class DocumentServiceImpl implements DocumentService {
             NodeRef docType, NodeRef docCatagory, String description) {
         NodeRef caseDocumentsFolder = caseService.getDocumentsFolder(caseNodeRef);
         String name = getUniqueName(caseDocumentsFolder, sanitizeName(StringUtils.defaultIfEmpty(fileName, title)), true);
-        executeSilently(fileNodeRef, () -> {
+        behaviourFilterService.executeWithoutBehavior(fileNodeRef, () -> {
             Map<QName, Serializable> props = nodeService.getProperties(fileNodeRef);
             props.put(OpenESDHModel.PROP_DOC_TYPE, docType.toString());
             props.put(OpenESDHModel.PROP_DOC_CATEGORY, docCatagory.toString());
@@ -519,27 +479,10 @@ public class DocumentServiceImpl implements DocumentService {
                 ContentModel.ASSOC_CONTAINS,
                 QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, name));
 
-        executeSilently(fileNodeRef,
+        behaviourFilterService.executeWithoutBehavior(fileNodeRef,
                 //update file name if it was changed due to uniqueness
                 () -> nodeService.setProperty(fileNodeRef, ContentModel.PROP_NAME, name));
         return movedNode.getChildRef();
-    }
-
-    private interface Executable {
-
-        void execute();
-    }
-
-    /**
-     * disables behaviours on node for execution
-     *
-     * @param node
-     * @param executable
-     */
-    private void executeSilently(NodeRef node, Executable e) {
-        behaviourFilter.disableBehaviour(node);
-        e.execute();
-        behaviourFilter.enableBehaviour(node);
     }
 
     public NodeRef createDocumentFile(NodeRef documentFolder, String title, String fileName,
@@ -651,7 +594,7 @@ public class DocumentServiceImpl implements DocumentService {
         }
         List<CaseDocumentAttachment> attachments = getAttachmentsWithVersions(attachmentsAssocs.subList(
                 startIndex, resultEnd));
-        ResultSet<CaseDocumentAttachment> result = new ResultSet<CaseDocumentAttachment>();
+        ResultSet<CaseDocumentAttachment> result = new ResultSet<>();
         result.setResultList(attachments);
         result.setTotalItems(attachmentsAssocs.size());
         return result;

@@ -20,8 +20,12 @@ public class TransactionRunner {
     private RetryingTransactionHelper retryingTransactionHelper;
 
     public <R> R runInTransaction(RetryingTransactionHelper.RetryingTransactionCallback<R> callBack) {
+        return runInTransaction(callBack, false, false);
+    }
+
+    public <R> R runInTransaction(RetryingTransactionHelper.RetryingTransactionCallback<R> callBack, boolean readOnly, boolean requiresNew) {
         try {
-            return retryingTransactionHelper.doInTransaction(callBack);
+            return retryingTransactionHelper.doInTransaction(callBack, readOnly, requiresNew);
         } catch (Throwable t) {
             UserTransaction userTrx = RetryingTransactionHelper.getActiveUserTransaction();
             try {

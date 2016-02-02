@@ -150,9 +150,15 @@
                         <constraint ref="contact:char2000"/>
                     </constraints>
                 </property>
+                <property name="contact:lockedInCases">
+                    <type>d:noderef</type>
+                    <mandatory>false</mandatory>
+                    <multiple>true</multiple>
+                </property>
             </properties>
             <mandatory-aspects>
                 <aspect>contact:address</aspect>
+                <aspect>cm:versionable</aspect>
             </mandatory-aspects>
         </type>
 
