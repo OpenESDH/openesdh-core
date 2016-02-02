@@ -13,7 +13,6 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.json.JSONException;
@@ -44,7 +43,7 @@ public class CasePartiesWebScript {
     @Transaction(TransactionType.REQUIRED)
     @Uri(value = "/api/openesdh/case/{caseId}/parties", method = HttpMethod.GET, defaultFormat = "json")
     public Resolution get(@UriVariable final String caseId) throws JSONException {
-        Map<String, Set<String>> contactsByRole = partyService.getContactsByRole(caseId);
+        Map<String, List<NodeRef>> contactsByRole = partyService.getContactsByRole(caseId);
         JSONArray json = buildJSON(contactsByRole);
         return WebScriptUtils.jsonResolution(json);
     }
@@ -102,13 +101,13 @@ public class CasePartiesWebScript {
         }
     }
 
-    private JSONArray buildJSON(Map<String, Set<String>> contactsByRole) throws JSONException {
+    private JSONArray buildJSON(Map<String, List<NodeRef>> contactsByRole) throws JSONException {
         JSONArray result = new JSONArray();
-        for (Map.Entry<String, Set<String>> entry : contactsByRole.entrySet()) {
-            Set<String> contacts = entry.getValue();
-            for (String contact : contacts) {
+        for (Map.Entry<String, List<NodeRef>> entry : contactsByRole.entrySet()) {
+            List<NodeRef> contacts = entry.getValue();
+            for (NodeRef contactRef : contacts) {
                 JSONObject contactObj = new JSONObject();
-                NodeRef contactRef = contactService.getContactById(contact);
+//                NodeRef contactRef = contactService.getContactById(contact);
                 ContactInfo contactInfo = contactService.getContactInfo(contactRef);
 
                 contactObj.put("contactType", contactInfo.getType());
