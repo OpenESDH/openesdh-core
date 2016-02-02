@@ -25,7 +25,6 @@ import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.namespace.NamespacePrefixResolver;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -42,8 +41,6 @@ import dk.openesdh.repo.services.contacts.ContactService;
  */
 @Service("PartyService")
 public class PartyServiceImpl implements PartyService {
-
-    private static final Logger LOG = Logger.getLogger(PartyServiceImpl.class);
 
     @Autowired
     @Qualifier("NodeService")
@@ -282,7 +279,6 @@ public class PartyServiceImpl implements PartyService {
     }
 
     private void lockContact(NodeRef caseNodeRef, NodeRef contactNodeRef) {
-        LOG.info("locking contact: " + contactNodeRef);
         behaviourFilterService.executeWithoutBehavior(contactNodeRef, () -> {
             ArrayList<NodeRef> cases = getLockedInCases(contactNodeRef);
             cases.add(caseNodeRef);
@@ -293,7 +289,6 @@ public class PartyServiceImpl implements PartyService {
     private void unlockContact(NodeRef caseNodeRef, NodeRef contactVersionNodeRef) {
         Version currentVersion = versionService.getVersionHistory(contactVersionNodeRef).getHeadVersion();
         NodeRef contactNodeRef = currentVersion.getVersionedNodeRef();
-        LOG.info("unlocking contact: " + contactNodeRef);
         behaviourFilterService.executeWithoutBehavior(contactNodeRef, () -> {
             ArrayList<NodeRef> cases = getLockedInCases(contactNodeRef);
             cases.remove(caseNodeRef);
