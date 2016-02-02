@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
 import org.alfresco.service.cmr.dictionary.Constraint;
@@ -21,17 +22,29 @@ import org.alfresco.service.namespace.QName;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 /**
  * @author Torben Lauritzen.
  */
+@Service("NodeInfoService")
 public class NodeInfoServiceImpl implements NodeInfoService {
 
+    @Autowired
+    @Qualifier("NodeService")
     private NodeService nodeService;
+    @Autowired
+    @Qualifier("DictionaryService")
     private DictionaryService dictionaryService;
+    @Autowired
+    @Qualifier("PersonService")
     private PersonService personService;
+    @Autowired
+    @Qualifier("namespaceService")
     private NamespaceService namespaceService;
 
     @Override

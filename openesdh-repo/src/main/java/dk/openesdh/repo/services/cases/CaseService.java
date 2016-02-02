@@ -2,7 +2,6 @@ package dk.openesdh.repo.services.cases;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -169,8 +168,6 @@ public interface CaseService extends HasStatus<CaseStatus> {
      * @return
      */
     public List<CaseInfo> findCases(String filter, int size);
-
-    Map<String, Object> getSearchDefinition(QName caseType);
 
     public JSONArray buildConstraintsJSON(ConstraintDefinition constraint) throws JSONException;
 

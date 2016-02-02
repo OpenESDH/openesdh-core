@@ -16,42 +16,32 @@ import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.OwnableService;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.namespace.QName;
-import org.alfresco.service.transaction.TransactionService;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 
+@Service("OELockService")
 public class OELockServiceImpl implements OELockService {
+
     private static final Logger LOGGER = Logger.getLogger(OELockServiceImpl.class);
 
-    protected NodeService nodeService;
-    protected OwnableService ownableService;
-    protected PermissionService permissionService;
-    protected LockService lockService;
-    protected TransactionService transactionService;
-
-    public void setLockService(LockService lockService) {
-        this.lockService = lockService;
-    }
-
-    public void setPermissionService(PermissionService permissionService) {
-        this.permissionService = permissionService;
-    }
-
-    public void setOwnableService(OwnableService ownableService) {
-        this.ownableService = ownableService;
-    }
-
-    public void setNodeService(NodeService nodeService) {
-        this.nodeService = nodeService;
-    }
-
-    public void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
-    }
+    @Autowired
+    @Qualifier("NodeService")
+    private NodeService nodeService;
+    @Autowired
+    @Qualifier("OwnableService")
+    private OwnableService ownableService;
+    @Autowired
+    @Qualifier("PermissionService")
+    private PermissionService permissionService;
+    @Autowired
+    @Qualifier("LockService")
+    private LockService lockService;
 
     @Override
-    @SuppressWarnings("deprecation")
     public void lock(final NodeRef nodeRef, final boolean lockChildren) {
         if (nodeService.hasAspect(nodeRef, OpenESDHModel.ASPECT_OE_LOCKED)) {
             // Don't touch, already locked

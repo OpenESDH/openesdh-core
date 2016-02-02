@@ -4,10 +4,18 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
+@Service("CasePermissionService")
 public class CasePermissionServiceImpl implements CasePermissionService {
 
+    @Autowired
+    @Qualifier("NodeService")
     private NodeService nodeService;
+    @Autowired
+    @Qualifier("NamespaceService")
     private NamespaceService namespaceService;
 
     @Override
@@ -23,13 +31,5 @@ public class CasePermissionServiceImpl implements CasePermissionService {
     @Override
     public String getPermissionName(NodeRef caseNodeRef, CasePermission casePermission) {
         return getPermissionName(nodeService.getType(caseNodeRef), casePermission);
-    }
-
-    public void setNodeService(NodeService nodeService) {
-        this.nodeService = nodeService;
-    }
-
-    public void setNamespaceService(NamespaceService namespaceService) {
-        this.namespaceService = namespaceService;
     }
 }

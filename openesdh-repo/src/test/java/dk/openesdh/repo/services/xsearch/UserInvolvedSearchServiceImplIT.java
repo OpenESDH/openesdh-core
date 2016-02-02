@@ -73,10 +73,10 @@ public class UserInvolvedSearchServiceImplIT {
 
     @Test
     public void testGetCaseGroupsNodedbid() {
-        Set<String> caseGroupsNodeids = userInvolvedSearchService.getCaseGroupsNodedbid(CaseHelper.DEFAULT_USERNAME);
+        Set<String> caseGroupsNodeIds = userInvolvedSearchService.getCaseGroupsNodedbid(CaseHelper.DEFAULT_USERNAME);
         Long caseAnodedbid = (Long) nodeService.getProperty(caseA, ContentModel.PROP_NODE_DBID);
         // is the user member of a group as expected
-        assertTrue(caseGroupsNodeids.contains(caseAnodedbid.toString()));
+        assertTrue(caseGroupsNodeIds.contains(caseAnodedbid.toString()));
     }
 
     @Test
