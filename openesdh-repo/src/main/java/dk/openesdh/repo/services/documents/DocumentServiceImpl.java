@@ -10,7 +10,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Properties;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
@@ -64,6 +63,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.model.CaseDocument;
@@ -143,12 +143,11 @@ public class DocumentServiceImpl implements DocumentService {
     @Autowired
     @Qualifier("AuthorityService")
     private AuthorityService authorityService;
-    @Autowired
-    @Qualifier("global-properties")
-    private Properties globalProperties;
-
+    @Value("${openesdh.document.finalizedFileFormat}")
     private String finalizedFileFormat;
+    @Value("${openesdh.document.acceptableFinalizedFileFormats}")
     private String acceptableFinalizedFileFormats;
+
     private Set<String> acceptableFinalizedFileMimeTypes;
     private RenditionDefinition pdfRenditionDefinition;
 
@@ -165,8 +164,6 @@ public class DocumentServiceImpl implements DocumentService {
 
     @PostConstruct
     public void init() {
-        finalizedFileFormat = (String) globalProperties.get("openesdh.document.finalizedFileFormat");
-        acceptableFinalizedFileFormats = (String) globalProperties.get("openesdh.document.acceptableFinalizedFileFormats");
         acceptableFinalizedFileMimeTypes = new HashSet<>(20);
         for (String extension : acceptableFinalizedFileFormats.split(",")) {
             String mimetype = mimetypeService.getMimetype(extension);
