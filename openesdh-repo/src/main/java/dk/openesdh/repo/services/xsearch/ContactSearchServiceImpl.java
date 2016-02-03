@@ -25,8 +25,6 @@ public class ContactSearchServiceImpl extends AbstractXSearchService implements 
     @Autowired
     @Qualifier("DictionaryService")
     private DictionaryService dictionaryService;
-    //FIXME: remove instance variable
-    private boolean personSearch;
 
     @Override
     public XResultSet getNodes(Map<String, String> params, int startIndex, int pageSize, String sortField, boolean ascending) {
@@ -50,8 +48,6 @@ public class ContactSearchServiceImpl extends AbstractXSearchService implements 
 
         // Trim / remove double-quotes
         term = term.trim().replace("\"", "");
-
-        personSearch = false;
 
         String query;
         if (dictionaryService.isSubClass(baseTypeQName, OpenESDHModel.TYPE_CONTACT_PERSON)) {
@@ -78,12 +74,16 @@ public class ContactSearchServiceImpl extends AbstractXSearchService implements 
     protected void setSearchParameters(SearchParameters sp) {
         sp.setLanguage(SearchService.LANGUAGE_FTS_ALFRESCO);
         sp.setNamespace(OpenESDHModel.CONTACT_URI);
-        if (this.personSearch) {
+        if (isSearchForPerson(sp)) {
             sp.addQueryTemplate("_PERSON", "|%firstName OR |%middleName OR "
                     + "|%lastName");
             sp.setDefaultFieldName("_PERSON");
             sp.setDefaultOperator(SearchParameters.Operator.AND);
         }
+    }
+
+    private boolean isSearchForPerson(SearchParameters sp) {
+        return sp.getQuery().contains("TYPE:\"" + OpenESDHModel.TYPE_CONTACT_PERSON + "\"");
     }
 
     private String buildPersonQuery(String term) {
@@ -97,8 +97,6 @@ public class ContactSearchServiceImpl extends AbstractXSearchService implements 
         };
 
         String[] tokens = term.split("(?<!\\\\) ");
-
-        this.personSearch = true;
 
         if (tokens.length == 1) {
             if (term.endsWith("*")) {
