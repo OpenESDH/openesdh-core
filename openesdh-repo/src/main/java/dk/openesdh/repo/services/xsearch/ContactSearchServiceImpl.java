@@ -1,24 +1,31 @@
 package dk.openesdh.repo.services.xsearch;
 
-import dk.openesdh.repo.model.OpenESDHModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.search.SearchParameters;
 import org.alfresco.service.cmr.search.SearchService;
-import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang.StringUtils;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
+import dk.openesdh.repo.model.OpenESDHModel;
+
+@Service("ContactSearchService")
 public class ContactSearchServiceImpl extends AbstractXSearchService implements ContactSearchService {
 
     private static final Logger LOG = Logger.getLogger(ContactSearchService.class.toString());
 
-    protected DictionaryService dictionaryService;
-    protected NamespaceService namespaceService;
+    @Autowired
+    @Qualifier("DictionaryService")
+    private DictionaryService dictionaryService;
+    //FIXME: remove instance variable
     private boolean personSearch;
 
     @Override
@@ -79,7 +86,7 @@ public class ContactSearchServiceImpl extends AbstractXSearchService implements 
         }
     }
 
-    protected String buildPersonQuery(String term) {
+    private String buildPersonQuery(String term) {
         List<String> searchTerms = new ArrayList<>();
         QName[] fields = new QName[]{
             OpenESDHModel.PROP_CONTACT_FIRST_NAME,
@@ -134,7 +141,7 @@ public class ContactSearchServiceImpl extends AbstractXSearchService implements 
         return field.toString() + ":" + quote(value);
     }
 
-    protected String buildOrganizationQuery(String term) {
+    private String buildOrganizationQuery(String term) {
         List<String> searchTerms = new ArrayList<>();
         QName[] fields = new QName[]{
             OpenESDHModel.PROP_CONTACT_ORGANIZATION_NAME,
@@ -149,13 +156,4 @@ public class ContactSearchServiceImpl extends AbstractXSearchService implements 
         }
         return StringUtils.join(searchTerms, " OR ");
     }
-
-    public void setDictionaryService(DictionaryService dictionaryService) {
-        this.dictionaryService = dictionaryService;
-    }
-
-    public void setNamespaceService(NamespaceService namespaceService) {
-        this.namespaceService = namespaceService;
-    }
-
 }

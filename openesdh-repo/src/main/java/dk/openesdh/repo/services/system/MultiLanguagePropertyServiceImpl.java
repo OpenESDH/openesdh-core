@@ -1,16 +1,24 @@
 package dk.openesdh.repo.services.system;
 
+import static org.springframework.extensions.surf.util.I18NUtil.parseLocale;
+
 import java.io.Serializable;
+
 import org.alfresco.repo.node.MLPropertyInterceptor;
 import org.alfresco.service.cmr.repository.MLText;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
 import org.mozilla.javascript.NativeObject;
-import static org.springframework.extensions.surf.util.I18NUtil.parseLocale;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
+@Service("MultiLanguagePropertyService")
 public class MultiLanguagePropertyServiceImpl implements MultiLanguagePropertyService {
 
+    @Autowired
+    @Qualifier("NodeService")
     private NodeService nodeService;
 
     public MultiLanguageValue getMLValues(NodeRef nodeRef, QName propertyQName) {
@@ -47,10 +55,5 @@ public class MultiLanguagePropertyServiceImpl implements MultiLanguagePropertySe
         } else {
             nodeService.removeProperty(nodeRef, propertyQName);
         }
-
-    }
-
-    public void setNodeService(NodeService nodeService) {
-        this.nodeService = nodeService;
     }
 }
