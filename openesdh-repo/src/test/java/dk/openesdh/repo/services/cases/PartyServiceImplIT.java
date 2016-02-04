@@ -81,6 +81,7 @@ public class PartyServiceImplIT {
     private NodeRef partyGroupNodeRef;
     private NodeRef testPersonContact;
     private NodeRef testOrgContact;
+    private List<NodeRef> casesToClean = new ArrayList<>();
 
     @Before
     public void setUp() throws Exception {
@@ -121,11 +122,10 @@ public class PartyServiceImplIT {
             nodes.add(testOrgContact);
         }
 
-        List<NodeRef> cases = new ArrayList<>();
         if (caseNodeRef != null) {
-            cases.add(caseNodeRef);
+            casesToClean.add(caseNodeRef);
         }
-        caseTestHelper.removeNodesAndDeleteUsersInTransaction(nodes, cases, new ArrayList<>());
+        caseTestHelper.removeNodesAndDeleteUsersInTransaction(nodes, casesToClean, new ArrayList<>());
     }
 
     @Test
@@ -249,19 +249,23 @@ public class PartyServiceImplIT {
 
     @Test
     public void shouldCreatePartyWithContactsAndGetContactsByCaseId() throws Exception {
-        String caseId = caseService.getCaseId(caseNodeRef);
+        shouldCreatePartyWithContactsAndGetContactsByCaseId(CaseHelper.ADMIN_USER_NAME, caseNodeRef);
+    }
+
+    private void shouldCreatePartyWithContactsAndGetContactsByCaseId(String userName, NodeRef nodeRef) {
+        String caseId = caseService.getCaseId(nodeRef);
         partyGroupNodeRef = partyService.createParty(caseId, RECEIVER_ROLE,
                 Arrays.asList(TEST_PERSON_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL));
-        Assert.assertNotNull("The nodeRef of the created party group cannot be null", partyGroupNodeRef);
+        Assert.assertNotNull(userName + ": The nodeRef of the created party group cannot be null", partyGroupNodeRef);
 
         List<ContactInfo> addedContacts = partyService.getPartiesInCase(caseId);
-        Assert.assertNotNull("The retrieved parties contacts list should not be null", addedContacts);
+        Assert.assertNotNull(userName + ": The retrieved parties contacts list should not be null", addedContacts);
 
         List<String> resultContactsEmails = addedContacts.stream().map(contact -> contact.getEmail())
                 .collect(Collectors.toList());
-        Assert.assertTrue("The retrieved parties contacts should contain person contact email",
+        Assert.assertTrue(userName + ": The retrieved parties contacts should contain person contact email",
                 resultContactsEmails.contains(TEST_PERSON_CONTACT_EMAIL));
-        Assert.assertTrue("The retrieved parties contacts should contain organization contact email",
+        Assert.assertTrue(userName + ": The retrieved parties contacts should contain organization contact email",
                 resultContactsEmails.contains(TEST_ORG_CONTACT_EMAIL));
     }
 
@@ -320,7 +324,17 @@ public class PartyServiceImplIT {
         assertEquals("contact has same email", TEST_PERSON_CONTACT_EMAIL, email);
         String city = (String) nodeService.getProperty(nodeRef, OpenESDHModel.PROP_CONTACT_CITY_NAME);
         assertEquals("contact has changed city", changedCity, city);
+    }
 
+    @Test
+    public void caseOwnerCanAddParties() {
+        NodeRef userCaseNodeRef = caseTestHelper.createCaseBehaviourOn(
+                TEST_CASE_NAME + CaseHelper.ALICE_BEECHER,
+                caseService.getCasesRootNodeRef(),
+                CaseHelper.ALICE_BEECHER);
+        casesToClean.add(userCaseNodeRef);
+        AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ALICE_BEECHER);
+        shouldCreatePartyWithContactsAndGetContactsByCaseId(CaseHelper.ALICE_BEECHER, userCaseNodeRef);
     }
 
 }

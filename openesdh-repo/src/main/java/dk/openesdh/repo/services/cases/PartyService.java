@@ -31,7 +31,8 @@ public interface PartyService {
      *
      * @param caseId - the id of the case.
      * @param role - the role (semantic for now) of the party on the case.
-     * @param contacts - The map of additional contacts that are to be added to the newly created party(group).
+     * @param contacts - The list of additional contacts(emails) that are to be added to the newly created party(group).
+     * Skips existing contacts.
      * @return the NodeRef of the newly created party(group).
      */
     NodeRef createParty(String caseId, String role, List<String> contacts);

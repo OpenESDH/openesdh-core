@@ -2,11 +2,14 @@ package dk.openesdh.repo.model;
 
 import java.io.Serializable;
 import java.util.Map;
-import java.util.StringJoiner;
+
 import org.alfresco.repo.security.permissions.PermissionCheckValue;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang3.BooleanUtils;
+import org.json.simple.JSONObject;
+
+import dk.openesdh.repo.webscripts.contacts.ContactUtils;
 
 /**
  * @author by Lanre Abiwon.
@@ -15,8 +18,8 @@ public class ContactInfo implements PermissionCheckValue {
 
     private final NodeRef nodeRef;
     private final String email;
-    private final String type;
-    private Map<QName, Serializable> allProps;
+    private final ContactType type;
+    private final Map<QName, Serializable> allProps;
 
     public static final String PROP_NAME_CONTACT_TYPE = "contactType";
     public static final String PROP_NAME_CONTACT_ID = "contactId";
@@ -37,7 +40,7 @@ public class ContactInfo implements PermissionCheckValue {
         allProps = props;
         this.nodeRef = nodeRef;
         this.email = (String) allProps.get(OpenESDHModel.PROP_CONTACT_EMAIL);
-        this.type = type.toString();
+        this.type = type;
     }
 
     @Override
@@ -50,28 +53,11 @@ public class ContactInfo implements PermissionCheckValue {
     }
 
     public String getType() {
-        return this.type;
+        return this.type.toString();
     }
 
     public String getName() {
-        if (!this.type.equalsIgnoreCase("PERSON")) {
-            return (String) this.allProps.get(OpenESDHModel.PROP_CONTACT_ORGANIZATION_NAME);
-        }
-
-        StringJoiner sj = new StringJoiner(" ");
-        //First and last names are mandatory in a Person
-        Serializable firstName = this.allProps.get(OpenESDHModel.PROP_CONTACT_FIRST_NAME);
-        sj.add(firstName.toString());
-
-        Serializable middleName = this.allProps.get(OpenESDHModel.PROP_CONTACT_MIDDLE_NAME);
-        if (middleName != null) {
-            sj.add(middleName.toString());
-        }
-
-        Serializable lastName = this.allProps.get(OpenESDHModel.PROP_CONTACT_LAST_NAME);
-        sj.add(lastName.toString());
-
-        return sj.toString();
+        return ContactUtils.getDisplayName(allProps, true);
     }
 
     public String getStreetName() {
@@ -100,7 +86,9 @@ public class ContactInfo implements PermissionCheckValue {
 
     //Some other common properties that we might want to access on a regular basis when working with contacts
     public String getIDNumebr() {
-        return this.type.equalsIgnoreCase("PERSON") ? getStringProp(OpenESDHModel.PROP_CONTACT_CPR_NUMBER) : getStringProp(OpenESDHModel.PROP_CONTACT_CVR_NUMBER);
+        return getStringProp(type == ContactType.PERSON
+                ? OpenESDHModel.PROP_CONTACT_CPR_NUMBER
+                : OpenESDHModel.PROP_CONTACT_CVR_NUMBER);
     }
 
     public boolean isInternal() {
@@ -119,5 +107,14 @@ public class ContactInfo implements PermissionCheckValue {
             return value.toString();
         }
         return null;
+    }
+
+    public JSONObject toJSONObject() {
+        JSONObject json = new JSONObject();
+        json.put("contactType", type.toString());
+        json.put("contactId", email);
+        json.put("displayName", getName());
+        json.put("nodeRef", nodeRef.toString());
+        return json;
     }
 }

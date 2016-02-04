@@ -33,7 +33,6 @@ import dk.openesdh.exceptions.contacts.InvalidContactTypeException;
 import dk.openesdh.repo.model.ContactInfo;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.BehaviourFilterService;
-import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.services.contacts.ContactService;
 
 /**
@@ -65,8 +64,6 @@ public class PartyServiceImpl implements PartyService {
     private VersionService versionService;
     @Autowired
     private BehaviourFilterService behaviourFilterService;
-    @Autowired
-    private TransactionRunner transactionRunner;
 
     @Override
     public NodeRef createParty(String caseId, String role) {
@@ -85,18 +82,24 @@ public class PartyServiceImpl implements PartyService {
             if (caseRole.isPresent()) {
                 createdGroup = caseRole.getFullName();
             } else {
-                createdGroup = transactionRunner.runAsAdmin(() -> {
+                createdGroup = AuthenticationUtil.runAsSystem(() -> {
                     return authorityService.createAuthority(AuthorityType.GROUP, caseRole.getName(), role, authorityService.getDefaultZones());
                 });
             }
 
             NodeRef createdGroupRef = authorityService.getAuthorityNodeRef(createdGroup);
-
             if (contacts != null && StringUtils.isNotEmpty(contacts.get(0))) {
-                NodeRef contactNodeRef;
                 for (String contact : contacts) {
-                    contactNodeRef = contactService.getContactById(contact);
-                    nodeService.addChild(createdGroupRef, contactNodeRef, ContentModel.ASSOC_MEMBER, QName.createQName("cm", contact, namespacePrefixResolver));
+                    AuthenticationUtil.runAsSystem(() -> {
+                        QName childName = QName.createQName("cm", contact, namespacePrefixResolver);
+                        if (nodeService.getChildAssocs(createdGroupRef, ContentModel.ASSOC_MEMBER, childName) != null) {
+                            return null;
+                        }
+                        return nodeService.addChild(createdGroupRef,
+                                contactService.getContactById(contact),
+                                ContentModel.ASSOC_MEMBER,
+                                childName);
+                    });
                 }
             }
             return createdGroupRef;
@@ -235,9 +238,7 @@ public class PartyServiceImpl implements PartyService {
                 .entrySet()
                 .stream()
                 .flatMap(t -> t.getValue().stream())
-                .map(nodeRef -> new ContactInfo(nodeRef,
-                        contactService.getContactType(nodeRef),
-                        nodeService.getProperties(nodeRef)))
+                .map(contactService::getContactInfo)
                 .collect(Collectors.toList());
     }
 

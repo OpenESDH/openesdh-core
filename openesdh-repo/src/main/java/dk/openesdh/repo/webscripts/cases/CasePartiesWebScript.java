@@ -1,14 +1,5 @@
 package dk.openesdh.repo.webscripts.cases;
 
-import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.Transaction;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.TransactionType;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
-import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
@@ -25,6 +16,15 @@ import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.stereotype.Component;
+
+import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.Transaction;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.TransactionType;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
+import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 
 import dk.openesdh.repo.model.ContactInfo;
 import dk.openesdh.repo.services.cases.PartyService;
@@ -106,14 +106,8 @@ public class CasePartiesWebScript {
         for (Map.Entry<String, List<NodeRef>> entry : contactsByRole.entrySet()) {
             List<NodeRef> contacts = entry.getValue();
             for (NodeRef contactRef : contacts) {
-                JSONObject contactObj = new JSONObject();
-//                NodeRef contactRef = contactService.getContactById(contact);
                 ContactInfo contactInfo = contactService.getContactInfo(contactRef);
-
-                contactObj.put("contactType", contactInfo.getType());
-                contactObj.put("contactId", contactInfo.getEmail()); //TODO perhaps look into allowing the id to change in the future??
-                contactObj.put("displayName", contactInfo.getName());
-                contactObj.put("nodeRef", contactInfo.getNodeRef().toString());
+                JSONObject contactObj = contactInfo.toJSONObject();
                 contactObj.put("role", entry.getKey());
                 result.add(contactObj);
             }
