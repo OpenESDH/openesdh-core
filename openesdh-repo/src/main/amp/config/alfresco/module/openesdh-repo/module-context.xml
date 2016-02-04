@@ -10,7 +10,6 @@
     <!-- This is filtered by Maven at build time, so that module name is single sourced. -->
 	
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-model-context.xml" />
-    <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-service-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-repository-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-resourcebundles-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-bootstrap-context.xml" />

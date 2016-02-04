@@ -3,31 +3,30 @@ package dk.openesdh.repo.model;
 /**
  * Created by syastrov on 9/2/15.
  */
-//TODO: change to enum
-public class CaseStatus {
+public enum CaseStatus {
 
-    public static final String ACTIVE = "active";
-    public static final String PASSIVE = "passive";
-    public static final String CLOSED = "closed";
-    public static final String ARCHIVED = "archived";
+    ACTIVE,
+    PASSIVE,
+    CLOSED,
+    ARCHIVED;
 
-    public static String[] getStatuses() {
-        return new String[]{ACTIVE, PASSIVE, CLOSED, ARCHIVED};
+    @Override
+    public String toString() {
+        return name().toLowerCase();
     }
 
-    public static boolean isValidTransition(String before,
-            String after) {
-        if (before == null || before.equals(after)) {
+    public static boolean isValidTransition(CaseStatus before, CaseStatus after) {
+        if (before == null || before == after) {
             return true;
         }
         switch (before) {
             case ACTIVE:
-                return after.equals(PASSIVE) || after.equals(CLOSED);
+                return after == PASSIVE || after == CLOSED;
             case PASSIVE:
-                return after.equals(ACTIVE) || after.equals(CLOSED);
+                return after == ACTIVE || after == CLOSED;
             case CLOSED:
                 // Cases must be closed before being archived
-                return after.equals(ACTIVE) || after.equals(PASSIVE) || after.equals(ARCHIVED);
+                return after == ACTIVE || after == PASSIVE || after == ARCHIVED;
             default:
                 // Archived cases cannot transition to any other status
                 return false;

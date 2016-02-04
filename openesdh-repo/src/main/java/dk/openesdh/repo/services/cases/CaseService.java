@@ -2,7 +2,6 @@ package dk.openesdh.repo.services.cases;
 
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
@@ -15,12 +14,14 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import dk.openesdh.repo.model.CaseInfo;
+import dk.openesdh.repo.model.CaseStatus;
 import dk.openesdh.repo.services.HasStatus;
 
 /**
  * Created by torben on 19/08/14.
  */
-public interface CaseService extends HasStatus {
+public interface CaseService extends HasStatus<CaseStatus> {
+
     String DATE_FORMAT = "yyyyMMdd";
 
     String CASE_ROLE_GROUP_NAME_PREFIX = "GROUP_case_";
@@ -71,6 +72,7 @@ public interface CaseService extends HasStatus {
     /**
      * Get the list of case types that exist on the system.
      * Returns a collection of the case types registered on the system
+     *
      * @return
      */
     Collection<QName> getRegisteredCaseTypes();
@@ -114,7 +116,6 @@ public interface CaseService extends HasStatus {
      * @return NodeRef to folder
      */
     NodeRef getCaseFolderNodeRef(NodeRef casesFolderNodeRef);
-
 
     /**
      * Return whether a case is locked or not.
@@ -168,14 +169,13 @@ public interface CaseService extends HasStatus {
      */
     public List<CaseInfo> findCases(String filter, int size);
 
-    Map<String, Object> getSearchDefinition(QName caseType);
-
     public JSONArray buildConstraintsJSON(ConstraintDefinition constraint) throws JSONException;
 
     public void checkCaseCreatorPermissions(QName caseTypeQName);
 
     /**
      * Get current user permissions for the case
+     *
      * @param caseId
      * @return
      */

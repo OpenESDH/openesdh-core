@@ -1,20 +1,23 @@
 package dk.openesdh.repo.services;
 
-import org.alfresco.service.cmr.repository.NodeRef;
-
 import java.util.List;
+
+import org.alfresco.service.cmr.repository.NodeRef;
 
 /**
  * Created by syastrov on 9/9/15.
+ *
+ * @param <STATUS> HasStatus.StatusChoise
  */
-public interface HasStatus {
+public interface HasStatus<STATUS extends Enum<STATUS>> {
+
     /**
      * Get the node's status.
      *
      * @param nodeRef
      * @return String
      */
-    String getNodeStatus(NodeRef nodeRef);
+    STATUS getNodeStatus(NodeRef nodeRef);
 
     /**
      * Return a list of valid next statuses for the node.
@@ -26,7 +29,7 @@ public interface HasStatus {
      * @param nodeRef
      * @return
      */
-    List<String> getValidNextStatuses(NodeRef nodeRef);
+    List<STATUS> getValidNextStatuses(NodeRef nodeRef);
 
     /**
      * Return whether the user can change the node status from a given
@@ -38,7 +41,7 @@ public interface HasStatus {
      * @param nodeRef
      * @return
      */
-    boolean canChangeNodeStatus(String fromStatus, String toStatus, String user, NodeRef nodeRef);
+    boolean canChangeNodeStatus(STATUS fromStatus, STATUS toStatus, String user, NodeRef nodeRef);
 
     /**
      * Change the node to a new status.
@@ -50,5 +53,5 @@ public interface HasStatus {
      * @param newStatus
      * @throws Exception
      */
-    void changeNodeStatus(NodeRef nodeRef, String newStatus) throws Exception;
+    void changeNodeStatus(NodeRef nodeRef, STATUS newStatus) throws Exception;
 }

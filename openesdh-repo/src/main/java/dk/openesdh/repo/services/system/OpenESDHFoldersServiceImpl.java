@@ -9,10 +9,18 @@ import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.InvalidNodeRefException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
+@Service("OpenESDHFoldersService")
 public class OpenESDHFoldersServiceImpl implements OpenESDHFoldersService {
 
+    @Autowired
+    @Qualifier("repositoryHelper")
     private Repository repositoryHelper;
+    @Autowired
+    @Qualifier("NodeService")
     private NodeService nodeService;
 
     @Override
@@ -29,6 +37,7 @@ public class OpenESDHFoldersServiceImpl implements OpenESDHFoldersService {
     public NodeRef getCasesTypeStorageRootNodeRef() {
         return getFolder(getCasesRootNodeRef(), CASES_TYPES_ROOT);
     }
+
     @Override
     public NodeRef getSubsystemRootNodeRef() {
         return getFolder(getOpenESDHRootFolder(), SUBSYSTEM_ROOT);
@@ -38,6 +47,7 @@ public class OpenESDHFoldersServiceImpl implements OpenESDHFoldersService {
     public NodeRef getClassificationsRootNodeRef() {
         return getFolder(getOpenESDHRootFolder(), CLASSIFICATIONS);
     }
+
     @Override
     public NodeRef getTemplatesRootNodeRef() {
         return getFolder(getSubsystemRootNodeRef(), DOCUMENT_TEMPLATES);
@@ -82,13 +92,4 @@ public class OpenESDHFoldersServiceImpl implements OpenESDHFoldersService {
         //Throw an exception. This should have been created on first boot along with the context root folder
         throw new AlfrescoRuntimeException("The \"" + folderName + "\" folder doesn't exist.");
     }
-
-    public void setRepositoryHelper(Repository repositoryHelper) {
-        this.repositoryHelper = repositoryHelper;
-    }
-
-    public void setNodeService(NodeService nodeService) {
-        this.nodeService = nodeService;
-    }
-
 }
