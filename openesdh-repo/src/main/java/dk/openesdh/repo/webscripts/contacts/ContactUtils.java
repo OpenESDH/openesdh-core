@@ -53,6 +53,24 @@ public class ContactUtils {
                 props.get(OpenESDHModel.PROP_CONTACT_ADDRESS_LINE2));
     }
 
+    public static String getDisplayName(Map<QName, Serializable> props) {
+        return getDisplayName(props, false);
+    }
+
+    public static String getDisplayName(Map<QName, Serializable> props, boolean useMidleName) {
+        switch (ContactType.getContactType((String) props.get(OpenESDHModel.PROP_CONTACT_TYPE))) {
+            case PERSON:
+                return Joiner.on(" ").skipNulls().join(
+                        props.get(OpenESDHModel.PROP_CONTACT_FIRST_NAME),
+                        useMidleName ? props.get(OpenESDHModel.PROP_CONTACT_MIDDLE_NAME) : null,
+                        props.get(OpenESDHModel.PROP_CONTACT_LAST_NAME));
+            case ORGANIZATION:
+                return (String) props.get(OpenESDHModel.PROP_CONTACT_ORGANIZATION_NAME);
+            default:
+                return null;
+        }
+    }
+
     private static boolean isKeyOfSystemModelNamepace(QName key) {
         return key.getNamespaceURI().equalsIgnoreCase(NamespaceService.SYSTEM_MODEL_1_0_URI);
     }

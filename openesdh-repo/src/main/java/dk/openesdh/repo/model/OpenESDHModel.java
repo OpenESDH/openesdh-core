@@ -26,6 +26,7 @@ public interface OpenESDHModel {
     String NOTE_URI = "http://openesdh.dk/model/note/1.0";
 
     String FROZEN_CASE_PARTIES_PROP_PREFIX = "frozenParties";
+    String CASE_PARTY_ROLE_SENDER = "Afsender";
 
     /**
      * Models
