@@ -30,9 +30,9 @@ import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.helper.CaseHelper;
-import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.model.ContactType;
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.cases.PartyService;
 import dk.openesdh.repo.services.contacts.ContactServiceImpl;
@@ -109,10 +109,11 @@ public class AuditSearchServiceImplIT {
             return null;
         });
         transactionRunner.runInTransaction(() -> {
+
             //add party
-            partyService.addContactToParty(caseAId, null, SENDER_ROLE, contact.toString());
+            partyService.addCaseParty(caseAId, SENDER_ROLE, TEST_PERSON_CONTACT_EMAIL);
             //remove party
-            partyService.removePartyRole(caseAId, contact.toString(), SENDER_ROLE);
+            partyService.removeCaseParty(caseAId, TEST_PERSON_CONTACT_EMAIL, SENDER_ROLE);
 
             NodeRef mjacksonNodeRef = authorityService.getAuthorityNodeRef(CaseHelper.MIKE_JACKSON);
             // add member

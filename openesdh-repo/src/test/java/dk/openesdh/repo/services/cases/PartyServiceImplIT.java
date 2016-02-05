@@ -4,9 +4,7 @@ import static org.junit.Assert.assertEquals;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -30,6 +28,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.google.common.collect.Sets;
 import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 
@@ -68,7 +67,7 @@ public class PartyServiceImplIT {
 
     @Autowired
     @Qualifier("PartyService")
-    private PartyService partyService;
+    private PartyServiceImpl partyService;
 
     private static final String TEST_CASE_NAME = "Test_case";
     private static final String SENDER_ROLE = "Afsender";
@@ -78,10 +77,10 @@ public class PartyServiceImplIT {
     private static final String TEST_ORG_CONTACT_EMAIL = "org_" + EMAIL;
 
     private NodeRef caseNodeRef;
-    private NodeRef partyGroupNodeRef;
+//    private NodeRef partyGroupNodeRef;
     private NodeRef testPersonContact;
     private NodeRef testOrgContact;
-    private List<NodeRef> casesToClean = new ArrayList<>();
+    private final List<NodeRef> casesToClean = new ArrayList<>();
 
     @Before
     public void setUp() throws Exception {
@@ -110,10 +109,14 @@ public class PartyServiceImplIT {
     public void tearDown() throws Exception {
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ADMIN_USER_NAME);
         ArrayList<NodeRef> nodes = new ArrayList<>();
-        if (partyGroupNodeRef != null) {
-            nodes.add(partyGroupNodeRef);
+        PartyService.CaseRole sender = getCasePartyGroupNodeRef(caseNodeRef, SENDER_ROLE);
+        if (sender.isPresent()) {
+            nodes.add(sender.getNodeRef());
         }
-
+        PartyService.CaseRole receiver = getCasePartyGroupNodeRef(caseNodeRef, RECEIVER_ROLE);
+        if (receiver.isPresent()) {
+            nodes.add(receiver.getNodeRef());
+        }
         if (testPersonContact != null) {
             nodes.add(testPersonContact);
         }
@@ -130,56 +133,57 @@ public class PartyServiceImplIT {
 
     @Test
     public void shouldCreateSenderPartyGroup() throws Exception {
-
         String caseId = caseService.getCaseId(caseNodeRef);
-        createPartyAssertNotNUll(caseId, SENDER_ROLE);
+        partyService.addCaseParty(caseId, SENDER_ROLE);
 
         String dbid = this.nodeService.getProperty(caseNodeRef, ContentModel.PROP_NODE_DBID).toString();
         String expectedPartyGroupName = AuthorityType.GROUP.getPrefixString() + PartyService.PARTY_PREFIX
                 + dbid + "_" + SENDER_ROLE;
 
-        String resultPartyGroupName = (String) nodeService.getProperty(partyGroupNodeRef,
+        String resultPartyGroupName = (String) nodeService.getProperty(
+                getCasePartyGroupNodeRef(caseNodeRef, SENDER_ROLE).getNodeRef(),
                 ContentModel.PROP_AUTHORITY_NAME);
 
         Assert.assertEquals("Created party group name differs from expected", expectedPartyGroupName,
                 resultPartyGroupName);
     }
 
+    private PartyService.CaseRole getCasePartyGroupNodeRef(NodeRef caseNodeRef, String casePartyGroupName) {
+        return partyService.getCaseRole(caseNodeRef, casePartyGroupName);
+    }
+
     @Test
-    public void shouldCreateReceiverPartyWithPersonAndOrgContacts() throws Exception {
-
+    public void shouldCreatePartyAddPersonAndOrgContacts() throws Exception {
         String caseId = caseService.getCaseId(caseNodeRef);
-        partyGroupNodeRef = partyService.createParty(caseId, RECEIVER_ROLE,
-                Arrays.asList(TEST_PERSON_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL));
-        Assert.assertNotNull("The nodeRef of the created party group cannot be null", partyGroupNodeRef);
 
-        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(partyGroupNodeRef, new HashSet<>(
-                Arrays.asList(OpenESDHModel.TYPE_CONTACT_PERSON, OpenESDHModel.TYPE_CONTACT_ORGANIZATION)));
+        partyService.addCaseParty(caseId, SENDER_ROLE, TEST_PERSON_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL);
+
+        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(
+                getCasePartyGroupNodeRef(caseNodeRef, SENDER_ROLE).getNodeRef(),
+                Sets.newHashSet(OpenESDHModel.TYPE_CONTACT_PERSON, OpenESDHModel.TYPE_CONTACT_ORGANIZATION));
 
         Assert.assertFalse("Created party shouldn't be empty", childAssocs.isEmpty());
 
         List<NodeRef> resultContacts = childAssocs.stream().map(assoc -> assoc.getChildRef())
                 .collect(Collectors.toList());
 
-        Assert.assertTrue("Created party should contain test person contact",
+        Assert.assertTrue("Created party should contain added test person contact",
                 resultContacts.contains(testPersonContact));
 
-        Assert.assertTrue("Created party should contain test organization contact",
+        Assert.assertTrue("Created party should contain added test organization contact",
                 resultContacts.contains(testOrgContact));
     }
 
     @Test
-    public void shouldCreatePartyAddPersonAndOrgContacts() throws Exception {
+    public void shouldUpdatePartyAddPersonAndOrgContacts() throws Exception {
         String caseId = caseService.getCaseId(caseNodeRef);
-        createPartyAssertNotNUll(caseId, SENDER_ROLE);
 
-        boolean result = partyService.addContactsToParty(caseId, partyGroupNodeRef, SENDER_ROLE,
-                Arrays.asList(TEST_PERSON_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL));
+        partyService.addCaseParty(caseId, SENDER_ROLE, TEST_PERSON_CONTACT_EMAIL);
+        partyService.addCaseParty(caseId, SENDER_ROLE, TEST_ORG_CONTACT_EMAIL);
 
-        Assert.assertTrue("Should return true if successfully added contacts to the party", result);
-
-        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(partyGroupNodeRef, new HashSet<>(
-                Arrays.asList(OpenESDHModel.TYPE_CONTACT_PERSON, OpenESDHModel.TYPE_CONTACT_ORGANIZATION)));
+        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(
+                getCasePartyGroupNodeRef(caseNodeRef, SENDER_ROLE).getNodeRef(),
+                Sets.newHashSet(OpenESDHModel.TYPE_CONTACT_PERSON, OpenESDHModel.TYPE_CONTACT_ORGANIZATION));
 
         Assert.assertFalse("Created party shouldn't be empty", childAssocs.isEmpty());
 
@@ -196,27 +200,23 @@ public class PartyServiceImplIT {
     @Test(expected = AccessDeniedException.class)
     public void shuldFailAddingPersonContactBecauseOfPermissions() throws Exception {
         String caseId = caseService.getCaseId(caseNodeRef);
-        createPartyAssertNotNUll(caseId, SENDER_ROLE);
 
         //login as other user
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.MIKE_JACKSON);
 
         //should fail
-        partyService.addContactsToParty(caseId, partyGroupNodeRef, SENDER_ROLE,
-                Arrays.asList(TEST_PERSON_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL));
+        partyService.addCaseParty(caseId, SENDER_ROLE, TEST_PERSON_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL);
     }
 
     @Test
     public void shouldCreatePartyAddPersonContact() throws Exception {
         String caseId = caseService.getCaseId(caseNodeRef);
-        createPartyAssertNotNUll(caseId, SENDER_ROLE);
 
-        boolean result = partyService.addContactToParty(caseId, partyGroupNodeRef, SENDER_ROLE,
-                TEST_PERSON_CONTACT_EMAIL);
-        Assert.assertTrue("Should return true if successfully added a contact to the party", result);
+        partyService.addCaseParty(caseId, SENDER_ROLE, TEST_PERSON_CONTACT_EMAIL);
 
-        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(partyGroupNodeRef, new HashSet<>(
-                Arrays.asList(OpenESDHModel.TYPE_CONTACT_PERSON)));
+        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(
+                getCasePartyGroupNodeRef(caseNodeRef, SENDER_ROLE).getNodeRef(),
+                Sets.newHashSet(OpenESDHModel.TYPE_CONTACT_PERSON));
 
         Assert.assertFalse("Created party shouldn't be empty", childAssocs.isEmpty());
 
@@ -230,11 +230,9 @@ public class PartyServiceImplIT {
     @Test
     public void shouldCreatePartyWithContactsAndGetContactsByRole() throws Exception {
         String caseId = caseService.getCaseId(caseNodeRef);
-        partyGroupNodeRef = partyService.createParty(caseId, RECEIVER_ROLE,
-                Arrays.asList(TEST_PERSON_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL));
-        Assert.assertNotNull("The nodeRef of the created party group cannot be null", partyGroupNodeRef);
+        partyService.addCaseParty(caseId, RECEIVER_ROLE, TEST_PERSON_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL);
 
-        Map<String, List<NodeRef>> contactsByRoleMap = partyService.getContactsByRole(caseId);
+        Map<String, List<NodeRef>> contactsByRoleMap = partyService.getCaseParties(caseId);
         Assert.assertNotNull("The retrieved contacts by role map cannot be null", contactsByRoleMap);
 
         Assert.assertTrue("The retrieved contacts by role map should contain RECEIVER_ROLE contacts",
@@ -254,49 +252,39 @@ public class PartyServiceImplIT {
 
     private void shouldCreatePartyWithContactsAndGetContactsByCaseId(String userName, NodeRef nodeRef) {
         String caseId = caseService.getCaseId(nodeRef);
-        partyGroupNodeRef = partyService.createParty(caseId, RECEIVER_ROLE,
-                Arrays.asList(TEST_PERSON_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL));
-        Assert.assertNotNull(userName + ": The nodeRef of the created party group cannot be null", partyGroupNodeRef);
+        partyService.addCaseParty(caseId, RECEIVER_ROLE, TEST_PERSON_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL);
 
-        List<ContactInfo> addedContacts = partyService.getPartiesInCase(caseId);
-        Assert.assertNotNull(userName + ": The retrieved parties contacts list should not be null", addedContacts);
-
-        List<String> resultContactsEmails = addedContacts.stream().map(contact -> contact.getEmail())
+        List<String> addedContactEmails = partyService.getCaseParties(caseId)
+                .entrySet()
+                .stream()
+                .flatMap(entry -> entry.getValue().stream())
+                .map(contactService::getContactInfo)
+                .map(ContactInfo::getEmail)
                 .collect(Collectors.toList());
+        Assert.assertNotNull(userName + ": The retrieved parties contacts list should not be null", addedContactEmails);
+
         Assert.assertTrue(userName + ": The retrieved parties contacts should contain person contact email",
-                resultContactsEmails.contains(TEST_PERSON_CONTACT_EMAIL));
+                addedContactEmails.contains(TEST_PERSON_CONTACT_EMAIL));
         Assert.assertTrue(userName + ": The retrieved parties contacts should contain organization contact email",
-                resultContactsEmails.contains(TEST_ORG_CONTACT_EMAIL));
+                addedContactEmails.contains(TEST_ORG_CONTACT_EMAIL));
     }
 
     @Test
     public void shouldCreatePartyThenRemoveParty() throws Exception {
         String caseId = caseService.getCaseId(caseNodeRef);
-        partyGroupNodeRef = partyService.createParty(caseId, RECEIVER_ROLE,
-                Arrays.asList(TEST_PERSON_CONTACT_EMAIL));
-        Assert.assertNotNull("The nodeRef of the created party group cannot be null", partyGroupNodeRef);
-
-        boolean result = partyService.removePartyRole(caseId, TEST_PERSON_CONTACT_EMAIL, RECEIVER_ROLE);
-        Assert.assertTrue("The removePartyRole method should return true if successfully removed party", result);
-
-        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(partyGroupNodeRef, new HashSet<>(
-                Arrays.asList(OpenESDHModel.TYPE_CONTACT_PERSON)));
-
+        partyService.addCaseParty(caseId, RECEIVER_ROLE, TEST_PERSON_CONTACT_EMAIL);
+        partyService.removeCaseParty(caseId, TEST_PERSON_CONTACT_EMAIL, RECEIVER_ROLE);
+        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(
+                getCasePartyGroupNodeRef(caseNodeRef, RECEIVER_ROLE).getNodeRef(),
+                Sets.newHashSet(OpenESDHModel.TYPE_CONTACT_PERSON));
         Assert.assertTrue("The party shouldn't contain removed person contact", childAssocs.isEmpty());
-
-    }
-
-    private void createPartyAssertNotNUll(String caseId, String role) {
-        partyGroupNodeRef = partyService.createParty(caseId, role);
-        Assert.assertNotNull("The nodeRef of the created party group cannot be null", partyGroupNodeRef);
     }
 
     @Test
     public void closedCaseShouldHaveUnchangedContacs() throws Exception {
         String caseId = caseService.getCaseId(caseNodeRef);
         //add party
-        createPartyAssertNotNUll(caseId, SENDER_ROLE);
-        partyService.addContactsToParty(caseId, partyGroupNodeRef, SENDER_ROLE, Arrays.asList(TEST_PERSON_CONTACT_EMAIL));
+        partyService.addCaseParty(caseId, RECEIVER_ROLE, TEST_PERSON_CONTACT_EMAIL);
         //set property
         String originalCity = "London";
         String changedCity = "Leeds";
@@ -307,19 +295,17 @@ public class PartyServiceImplIT {
             //change contact property
             nodeService.setProperty(testPersonContact, OpenESDHModel.PROP_CONTACT_CITY_NAME, changedCity);
             //check
-            NodeRef versionNodeRef = partyService.getContactsByRole(caseId).get(SENDER_ROLE).get(0);
+            NodeRef versionNodeRef = partyService.getCaseParties(caseId).get(RECEIVER_ROLE).get(0);
             String verEmail = (String) nodeService.getProperty(versionNodeRef, OpenESDHModel.PROP_CONTACT_EMAIL);
             assertEquals("contact has same email", TEST_PERSON_CONTACT_EMAIL, verEmail);
             String verCity = (String) nodeService.getProperty(versionNodeRef, OpenESDHModel.PROP_CONTACT_CITY_NAME);
             assertEquals("contact has original city", originalCity, verCity);
-            ContactInfo contactInfo = partyService.getPartiesInCase(caseId).get(0);
-            assertEquals("contactInfo has original city", originalCity, contactInfo.getCityName());
         } finally {
             //unlock case, that it could be deleted
             caseService.changeNodeStatus(caseNodeRef, CaseStatus.ACTIVE);
         }
         //reopened case should have new contacs
-        NodeRef nodeRef = partyService.getContactsByRole(caseId).get(SENDER_ROLE).get(0);
+        NodeRef nodeRef = partyService.getCaseParties(caseId).get(RECEIVER_ROLE).get(0);
         String email = (String) nodeService.getProperty(nodeRef, OpenESDHModel.PROP_CONTACT_EMAIL);
         assertEquals("contact has same email", TEST_PERSON_CONTACT_EMAIL, email);
         String city = (String) nodeService.getProperty(nodeRef, OpenESDHModel.PROP_CONTACT_CITY_NAME);

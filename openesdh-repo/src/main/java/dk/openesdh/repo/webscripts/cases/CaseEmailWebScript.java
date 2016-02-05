@@ -1,21 +1,17 @@
 package dk.openesdh.repo.webscripts.cases;
 
-import java.io.IOException;
 import java.util.*;
 import java.util.stream.Collectors;
 
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.extensions.webscripts.*;
 import org.springframework.stereotype.Component;
 
-import com.github.dynamicextensionsalfresco.webscripts.annotations.Authentication;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.AuthenticationType;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.Attribute;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
@@ -37,35 +33,46 @@ public class CaseEmailWebScript {
     @Qualifier("PartyService")
     private PartyService partyService;
 
-    @Authentication(AuthenticationType.USER)
     @Uri(value = "/{caseId}/email", method = HttpMethod.POST)
-    public void execute(WebScriptRequest webScriptRequest, @UriVariable(WebScriptUtils.CASE_ID) final String caseId) throws IOException {
-        Set<NodeRef> toSet;
-        List<String> contacts;
-        String subject;
-        String text;
-        List<NodeRef> attachments;
-        try {
-            JSONParser parser = new JSONParser();
-            JSONObject json = (JSONObject) parser.parse(webScriptRequest.getContent().getContent());
-            JSONArray to = (JSONArray) json.get("to");
-            subject = (String) json.get("subject");
-            text = (String) json.get("message");
-
-            toSet = (Set<NodeRef>) to.stream().map(this::extractNodeRef).collect(Collectors.toSet());
-            contacts = (List<String>) to.stream().map(this::extractContactEmail).collect(Collectors.toList());
-
-            JSONArray docs = (JSONArray) json.get("documents");
-            attachments = (List<NodeRef>) docs.stream().map(this::extractNodeRef).collect(Collectors.toList());
-        } catch (ParseException pe) {
-            throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Invalid JSON: " + pe.getMessage());
-        }
-        if (toSet.isEmpty()) {
+    public void execute(
+            @UriVariable(WebScriptUtils.CASE_ID) final String caseId,
+            @Attribute Params params) {
+        if (params.to.isEmpty()) {
             throw new WebScriptException(Status.STATUS_BAD_REQUEST, "No recipients");
         }
+        partyService.addCaseParty(caseId, OpenESDHModel.CASE_PARTY_ROLE_SENDER, params.contacts);
+        documentEmailService.send(caseId, params.to, params.subject, params.text, params.attachments);
+    }
 
-        partyService.createParty(caseId, OpenESDHModel.CASE_PARTY_ROLE_SENDER, contacts);
-        documentEmailService.send(caseId, toSet, subject, text, attachments);
+    @Attribute
+    public Params readJson(WebScriptRequest req) {
+        JSONObject json = WebScriptUtils.readJson(req);
+        JSONArray to = (JSONArray) json.get("to");
+        JSONArray docs = (JSONArray) json.get("documents");
+        return new Params(
+                (Set<NodeRef>) to.stream().map(this::extractNodeRef).collect(Collectors.toSet()),
+                (List<String>) to.stream().map(this::extractContactEmail).collect(Collectors.toList()),
+                (String) json.get("subject"),
+                (List<NodeRef>) docs.stream().map(this::extractNodeRef).collect(Collectors.toList()),
+                (String) json.get("message")
+        );
+    }
+
+    public class Params {
+
+        final Set<NodeRef> to;
+        final List<String> contacts;
+        final String subject;
+        final List<NodeRef> attachments;
+        final String text;
+
+        public Params(Set<NodeRef> to, List<String> contacts, String subject, List<NodeRef> attachments, String text) {
+            this.to = to;
+            this.contacts = contacts;
+            this.subject = subject;
+            this.attachments = attachments;
+            this.text = text;
+        }
     }
 
     private NodeRef extractNodeRef(Object o) {
