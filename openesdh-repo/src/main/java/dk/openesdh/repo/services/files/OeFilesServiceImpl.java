@@ -36,6 +36,7 @@ import fr.opensagres.xdocreport.core.utils.StringUtils;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.documents.CaseDocumentCopyService;
 import dk.openesdh.repo.services.documents.DocumentService;
 import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 import dk.openesdh.repo.utils.JSONArrayCollector;
@@ -66,6 +67,9 @@ public class OeFilesServiceImpl implements OeFilesService {
     @Autowired
     @Qualifier("CommentService")
     private CommentService commentService;
+    @Autowired
+    @Qualifier("CaseDocumentCopyService")
+    private CaseDocumentCopyService caseDocumentCopyService;
 
     @Override
     public JSONObject getFile(NodeRef nodeRef) {
@@ -250,7 +254,7 @@ public class OeFilesServiceImpl implements OeFilesService {
         NodeRef caseNodeRef = caseService.getCaseById(caseId);
 
         AuthenticationUtil.runAsSystem(() -> {
-            documentService.moveAsCaseDocument(
+            caseDocumentCopyService.moveAsCaseDocument(
                     caseNodeRef,
                     file,
                     title,

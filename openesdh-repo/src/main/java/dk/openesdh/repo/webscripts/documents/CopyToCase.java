@@ -2,28 +2,28 @@ package dk.openesdh.repo.webscripts.documents;
 
 import java.io.IOException;
 
-import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
-import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.services.documents.CaseDocumentCopyService;
+import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 public class CopyToCase extends AbstractWebScript {
 
 	private static Log logger = LogFactory.getLog(CopyToCase.class);
 
-	private DocumentService documentService;
-
-	public void setDocumentService(DocumentService documentService) {
-		this.documentService = documentService;
-	}
+    @Autowired
+    @Qualifier("CaseDocumentCopyService")
+    private CaseDocumentCopyService copyService;
 
 	@Override
 	public void execute(WebScriptRequest req, WebScriptResponse res)
@@ -38,7 +38,7 @@ public class CopyToCase extends AbstractWebScript {
 				+ caseId);
 
 		try {
-			documentService.copyDocumentToCase(new NodeRef(docRef), caseId);
+            copyService.copyDocumentToCase(new NodeRef(docRef), caseId);
 		} catch (Exception e) {
 			logError(e);
 			throw new WebScriptException(Status.STATUS_CONFLICT, "Unable to copy document to case. " + e.getMessage());

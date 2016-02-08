@@ -127,37 +127,6 @@ public interface DocumentService extends HasStatus<DocumentStatus> {
     List<NodeRef> getAttachments(NodeRef docRecordNodeRef);
 
     /**
-     * Moves provided document to the target case
-     *
-     * @param documentToMove
-     * NodeRef of the record folder of the document to move
-     * @param targetCaseId
-     * Id of the case to move the document into
-     */
-    public void moveDocumentToCase(final NodeRef documentToMove, final String targetCaseId) throws Exception;
-
-    /**
-     * Copies provided document to the target case
-     *
-     * @param documentToMove NodeRef of the record folder of the document to move
-     * @param targetCaseId
-     * Id of the case to copy the document into
-     * @throws java.lang.Exception
-     */
-    public void copyDocumentToCase(final NodeRef documentToMove, final String targetCaseId) throws Exception;
-
-    /**
-     * Copies provided case document to the target folder
-     *
-     * @param caseDocument
-     * the document record folder node ref to copy
-     * @param targetFolder
-     * the folder to copy the document to
-     * @throws Exception
-     */
-    public void copyDocumentToFolder(NodeRef caseDocument, NodeRef targetFolder) throws Exception;
-
-    /**
      * Retrieves case documents with attachments
      *
      * @param caseId
@@ -259,17 +228,12 @@ public interface DocumentService extends HasStatus<DocumentStatus> {
             int pageSize);
 
     /**
-     * moves file to case as case document
-     *
-     * @param caseNodeRef
-     * @param title
-     * @param fileName
-     * @param docType
-     * @param docCatagory
-     * @param fileNodeRef
-     * @param description
+     * Retrieves attachments associations for the provided main document
+     * nodeRef.
+     * 
+     * @param mainDocNodeRef
      * @return
      */
-    public NodeRef moveAsCaseDocument(NodeRef caseNodeRef, NodeRef fileNodeRef, String title, String fileName,
-            NodeRef docType, NodeRef docCatagory, String description);
+    public List<ChildAssociationRef> getAttachmentsAssoc(NodeRef mainDocNodeRef);
+
 }

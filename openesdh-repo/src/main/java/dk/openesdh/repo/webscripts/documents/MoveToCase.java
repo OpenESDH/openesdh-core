@@ -2,29 +2,29 @@ package dk.openesdh.repo.webscripts.documents;
 
 import java.io.IOException;
 
-import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.json.simple.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
-import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.services.documents.CaseDocumentCopyService;
+import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 public class MoveToCase  extends AbstractWebScript {
 
 	private static Log logger = LogFactory.getLog(MoveToCase.class);
 
-    private DocumentService documentService;
+    @Autowired
+    @Qualifier("CaseDocumentCopyService")
+    private CaseDocumentCopyService copyService;
 
-    public void setDocumentService(DocumentService documentService) {
-        this.documentService = documentService;
-    }
-    
 	@Override
 	public void execute(WebScriptRequest req, WebScriptResponse res)
 			throws IOException {
@@ -35,7 +35,7 @@ public class MoveToCase  extends AbstractWebScript {
 		String docRef = (String) json.get("nodeRef");
 
 		try {
-			documentService.moveDocumentToCase(new NodeRef(docRef), caseId);
+            copyService.moveDocumentToCase(new NodeRef(docRef), caseId);
 		} catch (Exception e) {
 			logError(e);
 			throw new WebScriptException(Status.STATUS_CONFLICT,

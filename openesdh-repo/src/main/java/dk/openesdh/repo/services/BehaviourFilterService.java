@@ -32,4 +32,13 @@ public class BehaviourFilterService {
             behaviourFilter.enableBehaviour(nodeRef);
         }
     }
+
+    public void executeWithoutBehavior(Executable action) {
+        try {
+            behaviourFilter.disableBehaviour();
+            action.execute();
+        } finally {
+            behaviourFilter.enableBehaviour();
+        }
+    }
 }
