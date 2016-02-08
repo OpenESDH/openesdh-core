@@ -264,7 +264,7 @@ public class DocumentBehaviour {
         }
 
         DocumentCategory documentCategory = documentCategoryService
-                .getDocumentCategory((NodeRef) optDocCategory.get());
+                .getDocumentCategory(new NodeRef(optDocCategory.get().toString()));
         // type
         String doc_type = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_TYPE)
                 .toString();
