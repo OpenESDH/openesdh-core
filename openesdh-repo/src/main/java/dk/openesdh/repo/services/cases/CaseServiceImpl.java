@@ -47,6 +47,8 @@ import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
 import org.alfresco.util.SearchLanguageConversion;
+import org.apache.commons.lang3.EnumUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.log4j.Logger;
 import org.json.JSONArray;
@@ -503,7 +505,9 @@ public class CaseServiceImpl implements CaseService {
         if (StringUtils.isEmpty(status)) {
             return null;
         }
-        return CaseStatus.valueOf(status.toUpperCase());
+        return ObjectUtils.firstNonNull(
+                EnumUtils.getEnum(CaseStatus.class, status.toUpperCase()),
+                CaseStatus.ACTIVE);
     }
 
     @Override

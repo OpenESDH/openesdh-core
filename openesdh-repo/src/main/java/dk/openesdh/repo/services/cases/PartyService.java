@@ -6,8 +6,6 @@ import java.util.Optional;
 
 import org.alfresco.service.cmr.repository.NodeRef;
 
-import dk.openesdh.repo.model.ContactInfo;
-
 /**
  * @author Lanre Abiwon.
  */
@@ -20,55 +18,31 @@ public interface PartyService {
     static final String GROUP_PREFIX = "GROUP_";
 
     /**
+     * add case party
      *
-     * @param caseId - the id of the case.
-     * @param role - the role (semantic for now) of the party on the case.
-     * @return the NodeRef of the newly created contact.
+     * @param caseId
+     * @param role
+     * @param contactId contact email
      */
-    NodeRef createParty(String caseId, String role);
+    public void addCaseParty(String caseId, String role, String... contactId);
 
     /**
+     * main entry point to add case party
      *
-     * @param caseId - the id of the case.
-     * @param role - the role (semantic for now) of the party on the case.
-     * @param contacts - The map of additional contacts that are to be added to the newly created party(group).
-     * @return the NodeRef of the newly created party(group).
+     * @param caseId
+     * @param role
+     * @param contactIds
      */
-    NodeRef createParty(String caseId, String role, List<String> contacts);
-
-    /**
-     * Add a contact to the specified case partyRole.
-     * Note if the Role doesn't exist one is created and the contact is added.
-     *
-     * @param caseId the case id
-     * @param partyRef the nodeRef for the party (an alternative to retrieving by party name)
-     * @param partyRole the party (group) to add the contact
-     * @param contact The contacts to add to the party.
-     * @return
-     */
-    boolean addContactToParty(String caseId, NodeRef partyRef, String partyRole, String contact);
-
-    /**
-     * Add the list of contacts to the specified case partyRole.
-     * Note if the Role doesn't exist one is created and the contact is added.
-     *
-     * @param caseId the case id
-     * @param partyRef the nodeRef for the party (an alternative to retrieving by party name)
-     * @param partyRole the party (group) to add the contact
-     * @param contacts The list of contacts to add to the party.
-     * @return
-     */
-    boolean addContactsToParty(String caseId, NodeRef partyRef, String partyRole, List<String> contacts);
+    public void addCaseParty(String caseId, String role, List<String> contactIds);
 
     /**
      * Removes a party from a role. (i.e. remove contact from the case group)
      *
      * @param caseId
-     * @param partyId maps to the email of the contact
-     * @param role current role (group)
-     * @return true if successful
+     * @param contactId maps to the email of the contact
+     * @param role casePartyRole to remove from
      */
-    boolean removePartyRole(String caseId, String partyId, String role);
+    public void removeCaseParty(String caseId, String contactId, String role);
 
     /**
      * Gets a complete list of contacts mapped to the roles they have (i.e. members of the group(s) in alfresco speak)
@@ -76,29 +50,21 @@ public interface PartyService {
      * @param caseId the id of the case in question.
      * @return Map<String, Set<String>>
      */
-    Map<String, List<NodeRef>> getContactsByRole(String caseId);
-
-    /**
-     * Returns a simple list of parties involved in the requested case
-     *
-     * @param caseId the case ID
-     * @return List of type PartyInfo
-     */
-    List<ContactInfo> getPartiesInCase(String caseId);
+    public Map<String, List<NodeRef>> getCaseParties(String caseId);
 
     /**
      * Not a real lock. Adding nodeRef's of current contact versions to case as parameter
      *
      * @param caseNodeRef
      */
-    void lockCasePartiesToVersions(NodeRef caseNodeRef);
+    public void lockCasePartiesToVersions(NodeRef caseNodeRef);
 
     /**
      * Not a real unlock. Removing case parameter of contact versions
      *
      * @param caseNodeRef
      */
-    void unlockCaseParties(NodeRef caseNodeRef);
+    public void unlockCaseParties(NodeRef caseNodeRef);
 
     enum PartyType {
         PERSON,
@@ -185,8 +151,8 @@ public interface PartyService {
             return nodeRef.isPresent();
         }
 
-        public Optional<NodeRef> getNodeRef() {
-            return nodeRef;
+        public NodeRef getNodeRef() {
+            return nodeRef.orElse(null);
         }
 
         public void setNodeRef(Optional<NodeRef> nodeRef) {
