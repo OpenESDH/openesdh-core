@@ -32,6 +32,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
+import fr.opensagres.xdocreport.core.utils.StringUtils;
+
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.DocumentService;
@@ -127,7 +129,11 @@ public class OeFilesServiceImpl implements OeFilesService {
     private JSONObject commentNodeToJSONObject(NodeRef commentNode) {
         Map<QName, Serializable> props = nodeService.getProperties(commentNode);
         JSONObject json = new JSONObject();
-        json.put("creator", props.get(ContentModel.PROP_CREATOR));
+        NodeRef creatorNodeRef = personService.getPersonOrNull((String) props.get(ContentModel.PROP_CREATOR));
+        if (creatorNodeRef != null) {
+            PersonService.PersonInfo person = personService.getPerson(creatorNodeRef);
+            json.put("creator", (person.getFirstName() + " " + person.getLastName().trim()));
+        }
         json.put("created", ((Date) props.get(ContentModel.PROP_CREATED)).getTime());
         ContentReader reader = AuthenticationUtil.runAsSystem(() -> {
             return contentService.getRawReader(((ContentDataWithId) props.get(ContentModel.PROP_CONTENT)).getContentUrl());
@@ -142,7 +148,9 @@ public class OeFilesServiceImpl implements OeFilesService {
         return AuthenticationUtil.runAsSystem(() -> {
             NodeRef folder = getOrCreateAuthorityFolder(authorityName);
             NodeRef file = writeFile(fileName, folder, mimetype, fileInputStream);
-            commentService.createComment(file, fileName, comment, false);
+            if (StringUtils.isNotEmpty(comment)) {
+                commentService.createComment(file, fileName, comment, false);
+            }
             return file;
         });
     }
@@ -228,7 +236,9 @@ public class OeFilesServiceImpl implements OeFilesService {
                     toFolder,
                     ContentModel.ASSOC_CONTAINS,
                     QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, uniqueName));
-            commentService.createComment(file, title, comment, false);
+            if (StringUtils.isNotEmpty(comment)) {
+                commentService.createComment(file, title, comment, false);
+            }
             return null;
         });
     }
