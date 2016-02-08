@@ -254,14 +254,17 @@ public class DocumentBehaviour {
         }
 
         // category
-        String doc_category = (String) nodeService.getProperty(childAssocRef.getChildRef(),
-                OpenESDHModel.PROP_DOC_CATEGORY);
-        if (doc_category == null) {
-            return; // no need to set category and type if the document is being
-                    // copied.
+
+        Optional<Serializable> optDocCategory = Optional
+                .ofNullable(nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_CATEGORY));
+
+        if (!optDocCategory.isPresent()) {
+            return;// no need to set category and type if the document is being
+                   // copied.
         }
 
-        DocumentCategory documentCategory = documentCategoryService.getDocumentCategory(new NodeRef(doc_category));
+        DocumentCategory documentCategory = documentCategoryService
+                .getDocumentCategory((NodeRef) optDocCategory.get());
         // type
         String doc_type = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_TYPE)
                 .toString();
