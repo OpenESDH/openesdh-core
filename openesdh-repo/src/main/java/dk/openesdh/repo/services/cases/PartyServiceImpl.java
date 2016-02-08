@@ -90,9 +90,11 @@ public class PartyServiceImpl implements PartyService {
             throw new InvalidContactTypeException("The caseId and/or the role is missing");
         }
         NodeRef caseNodeRef = caseService.getCaseById(caseId);
-        caseService.checkCanUpdateCaseRoles(caseNodeRef);
-        NodeRef casePartyRoleRef = getOrCreateCasePartyRole(caseNodeRef, role);
-        addContactsToCaseRole(casePartyRoleRef, contactIds);
+        if (!caseService.isLocked(caseNodeRef)) {
+            caseService.checkCanUpdateCaseRoles(caseNodeRef);
+            NodeRef casePartyRoleRef = getOrCreateCasePartyRole(caseNodeRef, role);
+            addContactsToCaseRole(casePartyRoleRef, contactIds);
+        }
     }
 
     private NodeRef getOrCreateCasePartyRole(NodeRef caseNodeRef, String role) {
