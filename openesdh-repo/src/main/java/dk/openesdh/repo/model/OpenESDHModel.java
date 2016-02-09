@@ -192,6 +192,12 @@ public interface OpenESDHModel {
     QName PROP_ASSIGNED_CASE_TYPES = QName.createQName(DOC_URI, "assignedCaseTypes");
 
     /**
+     * Version label policy
+     */
+
+    String RETAIN_VERSION_LABEL = "retainVersionLabel";
+
+    /**
      * Association Names
      */
     QName PROP_CONTACT_LOGIN_ASSOC = QName.createQName(CONTACT_URI, "contactLogin");

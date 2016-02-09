@@ -14,17 +14,18 @@ import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.documents.DocumentService;
 
 /**
  * @author Lanre.
  */
 public class DocumentCaseContainers extends DeclarativeWebScript {
-
-    private static final Log logger = LogFactory.getLog(DocumentCaseContainers.class);
+    private static Log logger = LogFactory.getLog(DocumentCaseContainers.class);
     private CaseService caseService;
+    private DocumentService documentService;
 
     @Override
-    protected Map<String, Object> executeImpl(WebScriptRequest req, Status status, Cache cache) {
+    protected Map<String, Object> executeImpl(WebScriptRequest req, Status status, Cache cache){
         Map<String, String> templateArgs = req.getServiceMatch().getTemplateVars();
 
         String storeType = templateArgs.get("store_type");
@@ -35,18 +36,18 @@ public class DocumentCaseContainers extends DeclarativeWebScript {
         NodeRef caseNodeRef;
 
         Map<String, Object> model = new HashMap<String, Object>();
-        try {
-            if (StringUtils.isNotEmpty(caseId)) {
+        try{
+            if(StringUtils.isNotEmpty(caseId))
                 caseNodeRef = caseService.getCaseById(caseId);
-            } else {
+            else
                 caseNodeRef = caseService.getParentCase(documentNode);
-            }
-            NodeRef caseDocumentNodeRef = caseService.getDocumentsFolder(caseNodeRef);
+            NodeRef caseDocumentNodeRef  = caseService.getDocumentsFolder(caseNodeRef);
 
             model.put("caseNodeRef", caseNodeRef.toString());
             model.put("caseDocumentNodeRef", caseDocumentNodeRef.toString());
-        } catch (InvalidNodeRefException inre) {
-            logger.error("Unable to get case document containers due to the following error: " + inre.getMessage());
+        }
+        catch (InvalidNodeRefException inre) {
+            logger.error("Unable to get case document containers due to the following error: "+ inre.getMessage());
         }
 
         return model;
@@ -54,5 +55,9 @@ public class DocumentCaseContainers extends DeclarativeWebScript {
 
     public void setCaseService(CaseService caseService) {
         this.caseService = caseService;
+    }
+
+    public void setDocumentService(DocumentService documentService) {
+        this.documentService = documentService;
     }
 }

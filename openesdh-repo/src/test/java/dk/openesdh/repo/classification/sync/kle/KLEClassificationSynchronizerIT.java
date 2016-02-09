@@ -1,6 +1,8 @@
 package dk.openesdh.repo.classification.sync.kle;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;

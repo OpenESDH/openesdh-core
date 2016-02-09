@@ -131,14 +131,6 @@
         <property name="documentService" ref="DocumentService" />
     </bean>
     
-    <bean id="webscript.dk.openesdh.documents.moveToCase.post" class="dk.openesdh.repo.webscripts.documents.MoveToCase" parent="webscript">
-        <property name="documentService" ref="DocumentService" />
-    </bean>
-    
-    <bean id="webscript.dk.openesdh.documents.copyToCase.post" class="dk.openesdh.repo.webscripts.documents.CopyToCase" parent="webscript">
-        <property name="documentService" ref="DocumentService" />
-    </bean>
-
     <bean id="webscript.dk.openesdh.case.caseNoderefById.get" class="dk.openesdh.repo.webscripts.cases.CaseNodeRefById" parent="webscript">
         <property name="caseService" ref="CaseService" />
         <property name="nodeService" ref="NodeService" />
