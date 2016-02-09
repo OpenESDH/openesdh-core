@@ -89,7 +89,7 @@ public class CaseDocumentVersionServiceImpl extends Version2ServiceImpl {
     protected String invokeCalculateVersionLabel(QName classRef, Version preceedingVersion, int versionNumber,
             Map<String, Serializable> versionProperties) {
         String retainVersionLabel = (String) versionProperties.get(OpenESDHModel.RETAIN_VERSION_LABEL);
-        if (!StringUtils.isEmpty(retainVersionLabel)) {
+        if (StringUtils.isNotEmpty(retainVersionLabel)) {
             return retainVersionLabel;
         }
         return super.invokeCalculateVersionLabel(classRef, preceedingVersion, versionNumber, versionProperties);
