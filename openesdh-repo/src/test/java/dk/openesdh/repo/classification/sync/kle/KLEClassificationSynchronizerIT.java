@@ -1,7 +1,7 @@
 package dk.openesdh.repo.classification.sync.kle;
 
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
+import static org.junit.Assert.*;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -18,15 +18,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import java.io.FileInputStream;
-import java.io.InputStream;
-
-import static org.junit.Assert.*;
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
 
 /**
  * Created by syastrov on 6/1/15.
  */
-
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:alfresco/application-context.xml")
@@ -83,8 +80,7 @@ public class KLEClassificationSynchronizerIT {
 
         // Hovedgruppe
         NodeRef rootCategory = classificationSynchronizer.getOrCreateRootCategory(KLEClassificationSynchronizer.EmneplanLoader.ROOT_CATEGORY_NAME);
-        ChildAssociationRef hovedGruppe = categoryService.getCategory
-                (rootCategory, ContentModel.ASPECT_GEN_CLASSIFIABLE, "00");
+        ChildAssociationRef hovedGruppe = categoryService.getCategory(rootCategory, ContentModel.ASPECT_GEN_CLASSIFIABLE, "00");
         assertNotNull("Hovedgruppe is created", hovedGruppe);
         assertEquals("Hovedgruppe title is set correctly", "Kommunens styrelse" + suffix, nodeService.getProperty(hovedGruppe
                 .getChildRef(), ContentModel.PROP_TITLE));

@@ -95,8 +95,8 @@ public class OeFilesServiceImplIT {
 
                 filesService.getAuthorityFolder(USER_OWNER1).ifPresent(nodeService::deleteNode);
                 filesService.getAuthorityFolder(USER_OWNER2).ifPresent(nodeService::deleteNode);
-                return null;
             }
+            return null;
         });
     }
 

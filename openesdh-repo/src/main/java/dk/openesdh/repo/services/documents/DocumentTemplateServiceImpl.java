@@ -120,7 +120,6 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
         // Create and return the site information
         tmplInfo = new DocumentTemplateInfoImpl(templateNodeRef, assignedCaseTypes, title, properties);
 
-        tmplInfo.setTemplateType(properties.get(OpenESDHModel.PROP_TEMPLATE_TYPE).toString());
         tmplInfo.setCreatedDate(DefaultTypeConverter.INSTANCE.convert(Date.class, properties.get(ContentModel.PROP_CREATED)));
         tmplInfo.setLastModifiedDate(DefaultTypeConverter.INSTANCE.convert(Date.class, properties.get(ContentModel.PROP_MODIFIED)));
         if (StringUtils.isNotBlank(properties.get(ContentModel.PROP_DESCRIPTION).toString())) {

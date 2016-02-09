@@ -152,13 +152,11 @@ public class ContactWebscript {
             String emailId = req.getParameter("email");
             if (nodeRef == null && StringUtils.isNotEmpty(emailId)) {
                 nodeRef = contactService.getContactById(emailId);
-
                 if (nodeRef == null) {
                     throw new WebScriptException("Unable to retrieve the contact by email.");
                 }
             }
-            return WebScriptUtils.jsonResolution(
-                    buildJSON(nodeRef));
+            return WebScriptUtils.jsonResolution(buildJSON(nodeRef));
         } catch (WebScriptException | InvalidNodeRefException npe) {
             throw new WebScriptException("Unable to get the person by nodeRef because: " + npe.getMessage());
         }

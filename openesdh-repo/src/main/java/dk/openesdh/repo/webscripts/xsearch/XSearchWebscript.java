@@ -15,7 +15,8 @@ import dk.openesdh.repo.webscripts.PageableWebScript;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 public class XSearchWebscript extends AbstractWebScript {
-    protected static Logger logger = Logger.getLogger(XSearchWebscript.class);
+
+    private static final Logger logger = Logger.getLogger(XSearchWebscript.class);
 
     protected XSearchService xSearchService;
 
@@ -74,5 +75,3 @@ public class XSearchWebscript extends AbstractWebScript {
         this.xSearchService = xSearchService;
     }
 }
-
-

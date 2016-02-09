@@ -637,7 +637,7 @@ public class DocumentServiceImpl implements DocumentService {
 
             if (filterIsPresent) {
                 query.append(" AND ");
-                String escNameFilter = SearchLanguageConversion.escapeLuceneQuery(filter.replace('"', ' '));
+                String escNameFilter = SearchLanguageConversion.escapeLuceneQuery(StringUtils.replace(filter, "\"", " "));
                 String[] tokenizedFilter = SearchLanguageConversion.tokenizeString(escNameFilter);
 
                 //cm:name

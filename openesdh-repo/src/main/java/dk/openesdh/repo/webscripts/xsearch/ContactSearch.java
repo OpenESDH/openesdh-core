@@ -5,11 +5,9 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import org.alfresco.repo.model.Repository;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.apache.log4j.Logger;
 import org.json.JSONException;
@@ -31,12 +29,10 @@ public class ContactSearch extends AbstractWebScript {
 
     static Logger log = Logger.getLogger(ContactSearch.class);
 
-    protected NodeService nodeService;
-    protected NamespaceService namespaceService;
-    protected Repository repository;
-    protected ContactSearchService contactSearchService;
+    private NodeService nodeService;
+    private ContactSearchService contactSearchService;
 
-    public static int DEFAULT_PAGE_SIZE = 25;
+    public static final int DEFAULT_PAGE_SIZE = 25;
 
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res)
@@ -78,7 +74,7 @@ public class ContactSearch extends AbstractWebScript {
         }
     }
 
-    protected JSONObject nodeToJSON(NodeRef nodeRef) throws JSONException {
+    private JSONObject nodeToJSON(NodeRef nodeRef) throws JSONException {
         Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
         properties.put(OpenESDHModel.PROP_CONTACT_DEPARTMENT, getParentsDepartment(nodeRef));
         return ContactUtils.createContactJson(nodeRef, properties);
@@ -93,14 +89,6 @@ public class ContactSearch extends AbstractWebScript {
 
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
-    }
-
-    public void setNamespaceService(NamespaceService namespaceService) {
-        this.namespaceService = namespaceService;
-    }
-
-    public void setRepository(Repository repository) {
-        this.repository = repository;
     }
 
     public void setContactSearchService(ContactSearchService contactSearchService) {

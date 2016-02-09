@@ -21,7 +21,7 @@ public class CaseDocumentAttachment {
     private boolean locked;
     private String lockOwner;
     private String lockOwnerInfo;
-    private List<CaseDocumentAttachment> versions = new ArrayList<CaseDocumentAttachment>();
+    private List<CaseDocumentAttachment> versions = new ArrayList<>();
 
     public String getName() {
         return name;

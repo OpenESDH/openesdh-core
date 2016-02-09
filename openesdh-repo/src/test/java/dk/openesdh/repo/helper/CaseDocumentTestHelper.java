@@ -1,13 +1,12 @@
 package dk.openesdh.repo.helper;
 
-import dk.openesdh.repo.services.TransactionRunner;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 import org.alfresco.model.ContentModel;
@@ -25,6 +24,7 @@ import dk.openesdh.SimpleCaseModel;
 import dk.openesdh.repo.model.DocumentCategory;
 import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.DocumentCategoryService;
 import dk.openesdh.repo.services.documents.DocumentService;
@@ -114,12 +114,13 @@ public class CaseDocumentTestHelper {
             final List<String> userNames) {
         transactionRunner.runInTransactionAsAdmin(() -> {
             cases.stream()
-                    .forEach((aCase) -> removeCase(aCase));
+                    .forEach(this::removeCase);
             nodes.stream()
-                    .filter(node -> node != null && nodeService.exists(node))
-                    .forEach(node -> nodeService.deleteNode(node));
+                    .filter(Objects::nonNull)
+                    .filter(nodeService::exists)
+                    .forEach(nodeService::deleteNode);
             userNames.stream()
-                    .forEach((userName) -> caseHelper.deleteDummyUser(userName));
+                    .forEach(caseHelper::deleteDummyUser);
             return true;
         });
     }
@@ -127,9 +128,9 @@ public class CaseDocumentTestHelper {
     private void removeCase(NodeRef aCase) {
         NodeRef caseDocumentsFolder = caseService.getDocumentsFolder(aCase);
         List<ChildAssociationRef> caseDocumentsList = documentService.getDocumentsForCase(aCase);
-        for (ChildAssociationRef caseDocumentAssoc : caseDocumentsList) {
+        caseDocumentsList.forEach((caseDocumentAssoc) -> {
             removeDocument(caseDocumentAssoc.getChildRef());
-        }
+        });
         nodeService.deleteNode(caseDocumentsFolder);
         nodeService.deleteNode(aCase);
     }

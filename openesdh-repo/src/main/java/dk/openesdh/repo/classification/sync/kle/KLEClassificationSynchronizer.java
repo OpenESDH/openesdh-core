@@ -48,6 +48,7 @@ import dk.klexml.emneplan.GruppeKomponent;
 import dk.klexml.emneplan.HovedgruppeKomponent;
 import dk.klexml.facetter.HandlingsfacetKategoriKomponent;
 import dk.klexml.facetter.HandlingsfacetKomponent;
+
 import dk.openesdh.repo.classification.sync.ClassificationSynchronizer;
 import dk.openesdh.repo.utils.ClassPathURLHandler;
 
@@ -55,6 +56,7 @@ import dk.openesdh.repo.utils.ClassPathURLHandler;
  * Created by syastrov on 6/1/15.
  */
 public class KLEClassificationSynchronizer extends AbstractLifecycleBean implements ClassificationSynchronizer {
+
     private static final Log logger = LogFactory.getLog(KLEClassificationSynchronizer.class);
 
     private TransactionService transactionService;
@@ -121,8 +123,8 @@ public class KLEClassificationSynchronizer extends AbstractLifecycleBean impleme
             throw new AlfrescoRuntimeException("Error parsing KLE emneplan XML file", e);
         }
     }
-    
-    private List<String> getAllTenants(){
+
+    private List<String> getAllTenants() {
         return tenantAdminService.getAllTenants()
                 .stream()
                 .map(Tenant::getTenantDomain)
@@ -147,12 +149,10 @@ public class KLEClassificationSynchronizer extends AbstractLifecycleBean impleme
         ChildAssociationRef category = categoryService.getCategory(rootCategoryNodeRef, ContentModel.ASPECT_GEN_CLASSIFIABLE, rootCategoryName);
         if (category != null) {
             return category.getChildRef();
+        } else if (create) {
+            return categoryService.createCategory(rootCategoryNodeRef, rootCategoryName);
         } else {
-            if (create) {
-                return categoryService.createCategory(rootCategoryNodeRef, rootCategoryName);
-            } else {
-                return null;
-            }
+            return null;
         }
     }
 
@@ -172,7 +172,7 @@ public class KLEClassificationSynchronizer extends AbstractLifecycleBean impleme
     }
 
     NodeRef createOrUpdateCategory(NodeRef parent, String number,
-                                   String title) {
+            String title) {
         String name = number;
 
         ChildAssociationRef childAssoc = categoryService.getCategory(parent, ContentModel.ASPECT_GEN_CLASSIFIABLE, name);
@@ -196,8 +196,9 @@ public class KLEClassificationSynchronizer extends AbstractLifecycleBean impleme
     }
 
     public class EmneplanLoader {
+
         private final Log logger = LogFactory.getLog(EmneplanLoader.class);
-        private List<String> tenants;
+        private final List<String> tenants;
         private Unmarshaller unmarshaller;
 
         public final static String ROOT_CATEGORY_NAME = "kle_emneplan";
@@ -269,7 +270,7 @@ public class KLEClassificationSynchronizer extends AbstractLifecycleBean impleme
 
         private final Log logger = LogFactory.getLog(FacetterLoader.class);
 
-        private List<String> tenants;
+        private final List<String> tenants;
         private Unmarshaller unmarshaller;
 
         public final static String ROOT_CATEGORY_NAME = "kle_facetter";
@@ -330,7 +331,6 @@ public class KLEClassificationSynchronizer extends AbstractLifecycleBean impleme
 
     }
 
-
     public void init() {
         PropertyCheck.mandatory(this, "transactionService", transactionService);
         PropertyCheck.mandatory(this, "categoryService", categoryService);
@@ -346,16 +346,16 @@ public class KLEClassificationSynchronizer extends AbstractLifecycleBean impleme
         }
         AuthenticationUtil.runAsSystem(
                 new AuthenticationUtil.RunAsWork<Object>() {
-                    @Override
-                    public Object doWork() throws Exception {
-                        // Sync on application startup, if there has never been a sync before
-                        if (!rootCategoryExists(EmneplanLoader.ROOT_CATEGORY_NAME) || !rootCategoryExists(FacetterLoader.ROOT_CATEGORY_NAME)) {
-                            logger.info("KLE categories are missing. Performing sync.");
-                            synchronize();
-                        }
-                        return null;
-                    }
+            @Override
+            public Object doWork() throws Exception {
+                // Sync on application startup, if there has never been a sync before
+                if (!rootCategoryExists(EmneplanLoader.ROOT_CATEGORY_NAME) || !rootCategoryExists(FacetterLoader.ROOT_CATEGORY_NAME)) {
+                    logger.info("KLE categories are missing. Performing sync.");
+                    synchronize();
                 }
+                return null;
+            }
+        }
         );
     }
 

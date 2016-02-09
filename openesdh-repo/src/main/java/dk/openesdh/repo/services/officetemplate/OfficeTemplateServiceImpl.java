@@ -156,8 +156,7 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
         model.putAll(values);
 
         File file = File.createTempFile("office-template-renderer-", null);
-        try {
-            FileOutputStream outputStream = new FileOutputStream(file);
+        try (FileOutputStream outputStream = new FileOutputStream(file)) {
             renderODFTemplate(inputStream, outputStream, model);
 
             ContentReader reader = new FileContentReader(file);
