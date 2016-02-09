@@ -14,7 +14,7 @@ import dk.openesdh.repo.model.ResultSet;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 public interface PageableWebScript<T> {
-    
+
     int DEFAULT_PAGE_SIZE = 25;
 
     /**
@@ -28,10 +28,10 @@ public interface PageableWebScript<T> {
         final String RANGE_START = "items=";
         if (range != null && range.contains(RANGE_START)) {
             String rest = range.substring(RANGE_START.length());
-            int dash = rest.indexOf("-");
+            int dash = rest.indexOf('-');
             int startIndex = Integer.parseInt(rest.substring(0, dash));
             int endIndex = Integer.parseInt(rest.substring(dash + 1));
-            return new int[] { startIndex, endIndex };
+            return new int[]{startIndex, endIndex};
         } else {
             return null;
         }

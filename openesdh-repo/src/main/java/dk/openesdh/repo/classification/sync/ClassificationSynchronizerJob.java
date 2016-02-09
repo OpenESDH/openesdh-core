@@ -9,6 +9,7 @@ import org.quartz.JobExecutionException;
  * Created by syastrov on 6/1/15.
  */
 public class ClassificationSynchronizerJob extends AbstractScheduledLockedJob {
+
     @Override
     public void executeJob(JobExecutionContext executionContext) throws
             JobExecutionException {
@@ -16,14 +17,12 @@ public class ClassificationSynchronizerJob extends AbstractScheduledLockedJob {
         if (!syncEnabled) {
             return;
         }
-        final ClassificationSynchronizer classificationSynchronizer =
-                (ClassificationSynchronizer) executionContext
-                        .getJobDetail().getJobDataMap().get("classificationSynchronizer");
-        AuthenticationUtil.runAs(new AuthenticationUtil.RunAsWork<Object>() {
-            public Object doWork() throws Exception {
-                classificationSynchronizer.synchronize();
-                return null;
-            }
-        }, AuthenticationUtil.getSystemUserName());
+        final ClassificationSynchronizer classificationSynchronizer
+                = (ClassificationSynchronizer) executionContext
+                .getJobDetail().getJobDataMap().get("classificationSynchronizer");
+        AuthenticationUtil.runAsSystem(() -> {
+            classificationSynchronizer.synchronize();
+            return null;
+        });
     }
 }

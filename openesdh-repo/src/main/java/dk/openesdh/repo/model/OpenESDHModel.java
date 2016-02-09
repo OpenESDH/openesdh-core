@@ -194,7 +194,6 @@ public interface OpenESDHModel {
     /**
      * Version label policy
      */
-
     String RETAIN_VERSION_LABEL = "retainVersionLabel";
 
     /**
@@ -237,7 +236,7 @@ public interface OpenESDHModel {
      * Various constants
      */
     // currently 7 days in miliseconds - one day is 86400000
-    String MYCASES_DAYS_IN_THE_PAST = "604800000";
+    long MYCASES_DAYS_IN_THE_PAST = 604800000L;
 
     int AUDIT_LOG_MAX = 1000;
     String ADMIN_USER_NAME = "admin";

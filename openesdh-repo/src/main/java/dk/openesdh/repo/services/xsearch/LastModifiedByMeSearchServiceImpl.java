@@ -68,7 +68,7 @@ public class LastModifiedByMeSearchServiceImpl extends AbstractXSearchService im
         // get the different casetypes from the dictionary
         Collection<QName> caseTypes = dictionaryService.getSubTypes(OpenESDHModel.TYPE_CASE_BASE, true);
 
-        Long fromTime = new DateTime().toDate().getTime() - new Long(OpenESDHModel.MYCASES_DAYS_IN_THE_PAST);
+        Long fromTime = new DateTime().toDate().getTime() - OpenESDHModel.MYCASES_DAYS_IN_THE_PAST;
 
         for (QName caseType : caseTypes) {
 

@@ -344,19 +344,14 @@ public class KLEClassificationSynchronizer extends AbstractLifecycleBean impleme
         if (!syncEnabled || !syncOnStartupIfMissing) {
             return;
         }
-        AuthenticationUtil.runAsSystem(
-                new AuthenticationUtil.RunAsWork<Object>() {
-            @Override
-            public Object doWork() throws Exception {
-                // Sync on application startup, if there has never been a sync before
-                if (!rootCategoryExists(EmneplanLoader.ROOT_CATEGORY_NAME) || !rootCategoryExists(FacetterLoader.ROOT_CATEGORY_NAME)) {
-                    logger.info("KLE categories are missing. Performing sync.");
-                    synchronize();
-                }
-                return null;
+        AuthenticationUtil.runAsSystem(() -> {
+            // Sync on application startup, if there has never been a sync before
+            if (!rootCategoryExists(EmneplanLoader.ROOT_CATEGORY_NAME) || !rootCategoryExists(FacetterLoader.ROOT_CATEGORY_NAME)) {
+                logger.info("KLE categories are missing. Performing sync.");
+                synchronize();
             }
-        }
-        );
+            return null;
+        });
     }
 
     @Override

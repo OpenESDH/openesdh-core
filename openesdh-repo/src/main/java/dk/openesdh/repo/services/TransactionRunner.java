@@ -3,7 +3,6 @@ package dk.openesdh.repo.services;
 import static org.alfresco.repo.security.authentication.AuthenticationUtil.getAdminUserName;
 import static org.alfresco.repo.security.authentication.AuthenticationUtil.runAs;
 
-import javax.transaction.SystemException;
 import javax.transaction.UserTransaction;
 
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
@@ -36,18 +35,15 @@ public class TransactionRunner {
         try {
             return retryingTransactionHelper.doInTransaction(callBack, readOnly, newTransaction);
         } catch (Throwable t) {
-            UserTransaction userTrx = RetryingTransactionHelper.getActiveUserTransaction();
             try {
+                UserTransaction userTrx = RetryingTransactionHelper.getActiveUserTransaction();
                 if (userTrx != null && userTrx.getStatus() != javax.transaction.Status.STATUS_MARKED_ROLLBACK) {
-                    try {
-                        userTrx.setRollbackOnly();
-                    } catch (Throwable t2) {
-                    }
+                    userTrx.setRollbackOnly();
                 }
-            } catch (SystemException e) {
-                e.printStackTrace();
+            } finally {
+                //ignore all 'catch' errors and rethrow original
+                throw t;
             }
-            throw t;
         }
     }
 

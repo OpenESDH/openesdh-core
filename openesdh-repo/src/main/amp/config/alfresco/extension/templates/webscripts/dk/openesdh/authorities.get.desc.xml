@@ -1,8 +1,0 @@
-<webscript>
-    <shortname>Get/Search Authorities</shortname>
-    <description>Retrieve authorities</description>
-    <url>/api/openesdh/authorities</url>
-    <format default="json"></format>
-    <authentication>user</authentication>
-    <transaction>required</transaction>
-</webscript>

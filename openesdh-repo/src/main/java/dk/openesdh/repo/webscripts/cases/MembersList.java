@@ -32,7 +32,7 @@ import dk.openesdh.repo.utils.Utils;
 @Deprecated
 public class MembersList extends DeclarativeWebScript {
 
-    private static Log logger = LogFactory.getLog(MembersList.class);
+    private static final Log logger = LogFactory.getLog(MembersList.class);
     private CaseService caseService;
     private CaseMembersService caseMembersService;
     private AuthorityService authorityService;
@@ -41,13 +41,13 @@ public class MembersList extends DeclarativeWebScript {
     private DictionaryService dictionaryService;
 
     @Override
-    protected Map<String, Object> executeImpl(WebScriptRequest req, Status status, Cache cache){
+    protected Map<String, Object> executeImpl(WebScriptRequest req, Status status, Cache cache) {
 //        NodeRef caseNodeRef = new NodeRef(req.getParameter("nodeRef"));
         Map<String, String> templateArgs = req.getServiceMatch().getTemplateVars();
 
-        Map<String, Object> model = new HashMap<String, Object>();
+        Map<String, Object> model = new HashMap<>();
 
-        try{
+        try {
             String storeType = templateArgs.get("store_type");
             String storeId = templateArgs.get("store_id");
             String id = templateArgs.get("id");
@@ -55,20 +55,19 @@ public class MembersList extends DeclarativeWebScript {
             String caseNodeRefStr;
             //reconstruct the nodeRef
             NodeRef caseNode;
-            if(StringUtils.isNotEmpty(storeType)&&StringUtils.isNotEmpty(storeId)&&StringUtils.isNotEmpty(id)) {
+            if (StringUtils.isNotEmpty(storeType) && StringUtils.isNotEmpty(storeId) && StringUtils.isNotEmpty(id)) {
                 caseNodeRefStr = storeType + "://" + storeId + "/" + id;
                 caseNode = new NodeRef(caseNodeRefStr);
-            }
-            else
+            } else {
                 caseNode = this.caseService.getCaseById(caseId);
+            }
 
             Map<String, Set<String>> membersByRole = caseMembersService.getMembersByRole(caseNode, true, true);
             JSONArray json = buildJSON(membersByRole);
 
             // construct model for response template to render
             model.put("memberslist", json);
-        }
-        catch (JSONException je){
+        } catch (JSONException je) {
             logger.error(je.getMessage());
         }
 
@@ -88,7 +87,7 @@ public class MembersList extends DeclarativeWebScript {
 
                 NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef(authority);
                 String displayName;
-                if(!isGroup) {
+                if (!isGroup) {
                     memberObj.put("isGroup", false);
                     PersonService.PersonInfo personInfo = personService.getPerson(authorityNodeRef);
                     displayName = personInfo.getFirstName() + " " + personInfo.getLastName();
@@ -102,8 +101,7 @@ public class MembersList extends DeclarativeWebScript {
                     } catch (IndexOutOfBoundsException iobe) {
                         logger.warn("\n\n ===>(MemberList.java 92) This is a Warning. " + displayName + " has no avatar <===\n\n");
                     }
-                }
-                else{
+                } else {
                     displayName = authorityService.getAuthorityDisplayName(authority);
                     memberObj.put("avatar", "components/images/group-16.png");
                     memberObj.put("isGroup", true);
@@ -131,8 +129,7 @@ public class MembersList extends DeclarativeWebScript {
                 memberObj.put("authorityType", isGroup ? "group" : "user");
                 memberObj.put("authority", authority);
 
-                NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef
-                        (authority);
+                NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef(authority);
 
                 String displayName;
                 if (isGroup) {
@@ -178,5 +175,4 @@ public class MembersList extends DeclarativeWebScript {
     }
 
     //endregion
-
 }

@@ -11,7 +11,6 @@ import org.alfresco.service.cmr.model.FileInfo;
 import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
@@ -28,19 +27,17 @@ import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
 import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 
+import fr.opensagres.xdocreport.document.json.JSONObject;
+
 import dk.openesdh.repo.services.officetemplate.OfficeTemplateService;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
-import fr.opensagres.xdocreport.document.json.JSONObject;
 
 /**
  * @author lanre.
  */
-
 @Component
 @WebScript(families = {"OpenESDH Office Template"}, description = "The CRUD webscripts for  document templates")
-public class DocTemplate  {
-    private static Logger logger = Logger.getLogger(DocTemplate.class);
-    private static final long serialVersionUID = 1L;
+public class DocTemplate {
 
     @Autowired
     private ServiceRegistry serviceRegistry;
@@ -81,6 +78,7 @@ public class DocTemplate  {
 
     /**
      * Process the file data to create the nodeRef with the file contents in the template storage directory.
+     *
      * @param field
      * @return
      */

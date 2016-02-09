@@ -89,7 +89,7 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
             ResultSet results = null;
             try {
                 results = this.searchService.query(sp);
-                result = new ArrayList<DocumentTemplateInfo>(results.length());
+                result = new ArrayList<>(results.length());
                 for (NodeRef tmpl : results.getNodeRefs()) {
                     result.add(getTemplateInfo(tmpl));
                 }

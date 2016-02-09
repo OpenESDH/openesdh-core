@@ -202,9 +202,8 @@ public class DocumentServiceImpl implements DocumentService {
                 AuthenticationUtil.runAsSystem(() -> {
                     nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, newStatus);
                     // Transform main doc and attachments to finalized formats
-                    // TODO: Re-enable this after demo: see OPENE-278
-//                transformToFinalizedFileFormat(getMainDocument(nodeRef));
-//                getAttachments(nodeRef).forEach(this::transformToFinalizedFileFormat);
+                    transformToFinalizedFileFormat(getMainDocument(nodeRef));
+                    getAttachments(nodeRef).forEach(this::transformToFinalizedFileFormat);
                     oeLockService.lock(nodeRef, true);
                     return null;
                 });
@@ -221,22 +220,19 @@ public class DocumentServiceImpl implements DocumentService {
             return;
         }
 
-        AuthenticationUtil.runAsSystem(() -> {
-            // For now, we only support transform to PDF.
-            // Create the final rendition definition if it doesn't already exist.
-            // For now, we only support PDF
-            if (pdfRenditionDefinition == null) {
-                pdfRenditionDefinition = renditionService.loadRenditionDefinition(FINAL_PDF_RENDITION_DEFINITION_NAME);
-            }
-            if (pdfRenditionDefinition == null) {
-                pdfRenditionDefinition = renditionService.createRenditionDefinition(FINAL_PDF_RENDITION_DEFINITION_NAME, ReformatRenderingEngine.NAME);
-                pdfRenditionDefinition.setParameterValue(
-                        ReformatRenderingEngine.PARAM_MIME_TYPE,
-                        MimetypeMap.MIMETYPE_PDF);
-                renditionService.saveRenditionDefinition(pdfRenditionDefinition);
-            }
-            return null;
-        });
+        // For now, we only support transform to PDF.
+        // Create the final rendition definition if it doesn't already exist.
+        // For now, we only support PDF
+        if (pdfRenditionDefinition == null) {
+            pdfRenditionDefinition = renditionService.loadRenditionDefinition(FINAL_PDF_RENDITION_DEFINITION_NAME);
+        }
+        if (pdfRenditionDefinition == null) {
+            pdfRenditionDefinition = renditionService.createRenditionDefinition(FINAL_PDF_RENDITION_DEFINITION_NAME, ReformatRenderingEngine.NAME);
+            pdfRenditionDefinition.setParameterValue(
+                    ReformatRenderingEngine.PARAM_MIME_TYPE,
+                    MimetypeMap.MIMETYPE_PDF);
+            renditionService.saveRenditionDefinition(pdfRenditionDefinition);
+        }
 
         // Get the source and target mimetypes
         String fileName = (String) nodeService.getProperty(nodeRef, ContentModel.PROP_NAME);
