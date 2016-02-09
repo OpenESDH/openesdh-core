@@ -27,7 +27,7 @@ import dk.openesdh.repo.webscripts.documents.Documents;
  */
 public interface DocumentService extends HasStatus<DocumentStatus> {
 
-    public static final String DOCUMENT_STORED_IN_CASE_MESSAGE = "The document has already been stored in the case ";
+    public static final String DOCUMENT_STORED_IN_CASE_MESSAGE = "The document or it's copy has already been stored in the case ";
 
     /**
      * Gets the main document node in case document (i.e. The content with the doc:main aspect inside the folder)

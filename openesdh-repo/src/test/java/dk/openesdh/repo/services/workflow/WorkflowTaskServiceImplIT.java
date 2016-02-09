@@ -110,7 +110,6 @@ public class WorkflowTaskServiceImplIT {
         });
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void shouldStartWorkflowWithAttachmentThenRetrieveTaskWithPackageContents() {
         AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();

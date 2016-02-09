@@ -176,8 +176,8 @@ public class CaseDocumentCopyServiceImplIT {
             Assert.fail(
                     "The copy document should fail here and throw an exception, since a doc with the same name exists.");
         } catch (Exception e) {
-            Assert.assertTrue("Unexpected exception throw while copying document to the same case.",
-                    e.getCause().getMessage().startsWith("Duplicate child name not allowed"));
+            Assert.assertEquals("Unexpected exception throw while copying document to the same case.",
+                    DocumentService.DOCUMENT_STORED_IN_CASE_MESSAGE + testCase2Id, e.getMessage());
             Assert.assertTrue("The exception is thrown which is OK", true);
         }
     }

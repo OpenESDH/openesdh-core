@@ -2,7 +2,7 @@ package dk.openesdh.repo.services.activities;
 
 import java.io.Serializable;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
 
 import javax.annotation.PostConstruct;
 
@@ -79,6 +79,6 @@ public class CaseDocumentActivityBehaviour implements OnCreateChildAssociationPo
     }
 
     private boolean docDoesntBelongToCase(NodeRef versionableNode) {
-        return !Optional.ofNullable(documentService.getCaseNodeRef(versionableNode)).isPresent();
+        return Objects.isNull(documentService.getCaseNodeRef(versionableNode));
     }
 }

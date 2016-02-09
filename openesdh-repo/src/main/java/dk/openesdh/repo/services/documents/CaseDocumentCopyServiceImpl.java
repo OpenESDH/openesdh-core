@@ -3,8 +3,10 @@ package dk.openesdh.repo.services.documents;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import org.alfresco.model.ContentModel;
+import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.CopyService;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -184,7 +186,24 @@ public class CaseDocumentCopyServiceImpl implements CaseDocumentCopyService {
     private boolean isCaseContainsDocument(NodeRef targetCaseDocumentsFolder, NodeRef documentRecFolderToCopy) {
         return nodeService.getChildAssocs(targetCaseDocumentsFolder)
                 .stream()
-                .filter(assoc -> assoc.getChildRef().equals(documentRecFolderToCopy))
+                .map(ChildAssociationRef::getChildRef)
+                .filter(child -> child.equals(documentRecFolderToCopy)
+                        || isDocumentCopy(child, documentRecFolderToCopy))
+                .findAny().isPresent();
+    }
+
+    private boolean isDocumentCopy(NodeRef docRef1, NodeRef docRef2) {
+        Optional<NodeRef> original = nodeService.getTargetAssocs(docRef1, ContentModel.ASSOC_ORIGINAL)
+                .stream()
+                .map(AssociationRef::getTargetRef)
+                .filter(target -> target.equals(docRef2))
+                .findAny();
+        if (original.isPresent()) {
+            return true;
+        }
+
+        return nodeService.getTargetAssocs(docRef2, ContentModel.ASSOC_ORIGINAL).stream()
+                .map(AssociationRef::getTargetRef).filter(target -> target.equals(docRef1))
                 .findAny()
                 .isPresent();
     }
