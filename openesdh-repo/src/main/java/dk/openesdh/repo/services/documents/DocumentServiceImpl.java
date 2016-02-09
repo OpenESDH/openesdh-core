@@ -451,37 +451,11 @@ public class DocumentServiceImpl implements DocumentService {
         NodeRef caseDocumentsFolder = caseService.getDocumentsFolder(caseNodeRef);
 
         //we need new transaction for DocumentBehavior to kick in
-        boolean requiresNew = true;
-        NodeRef file = transactionRunner.runInTransaction(() -> {
+        NodeRef file = transactionRunner.runInNewTransaction(() -> {
             return createDocumentFile(caseDocumentsFolder, title, fileName, docType, docCatagory, contentWriter);
-        }, false, requiresNew);
+        });
 
         return nodeService.getPrimaryParent(file).getParentRef();
-    }
-
-    public NodeRef moveAsCaseDocument(NodeRef caseNodeRef, NodeRef fileNodeRef, String title, String fileName,
-            NodeRef docType, NodeRef docCatagory, String description) {
-        NodeRef caseDocumentsFolder = caseService.getDocumentsFolder(caseNodeRef);
-        String name = getUniqueName(caseDocumentsFolder, sanitizeName(StringUtils.defaultIfEmpty(fileName, title)), true);
-        behaviourFilterService.executeWithoutBehavior(fileNodeRef, () -> {
-            Map<QName, Serializable> props = nodeService.getProperties(fileNodeRef);
-            props.put(OpenESDHModel.PROP_DOC_TYPE, docType.toString());
-            props.put(OpenESDHModel.PROP_DOC_CATEGORY, docCatagory.toString());
-            if (StringUtils.isNotEmpty(description)) {
-                props.put(ContentModel.PROP_DESCRIPTION, description);
-            }
-            nodeService.setProperties(fileNodeRef, props);
-        });
-        ChildAssociationRef movedNode = nodeService.moveNode(
-                fileNodeRef,
-                caseDocumentsFolder,
-                ContentModel.ASSOC_CONTAINS,
-                QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, name));
-
-        behaviourFilterService.executeWithoutBehavior(fileNodeRef,
-                //update file name if it was changed due to uniqueness
-                () -> nodeService.setProperty(fileNodeRef, ContentModel.PROP_NAME, name));
-        return movedNode.getChildRef();
     }
 
     public NodeRef createDocumentFile(NodeRef documentFolder, String title, String fileName,
@@ -538,48 +512,6 @@ public class DocumentServiceImpl implements DocumentService {
                 .stream()
                 .map(childRef -> childRef.getChildRef())
                 .collect(Collectors.toList());
-    }
-
-    @Override
-    public void moveDocumentToCase(NodeRef documentRecFolderToMove, String targetCaseId) throws Exception {
-
-        NodeRef targetCase = getTargetCase(targetCaseId);
-        NodeRef targetCaseDocumentsFolder = caseService.getDocumentsFolder(targetCase);
-
-        if (isCaseContainsDocument(targetCaseDocumentsFolder, documentRecFolderToMove)) {
-            throw new Exception(DocumentService.DOCUMENT_STORED_IN_CASE_MESSAGE + targetCaseId);
-        }
-
-        String documentFolderName = (String) nodeService.getProperty(documentRecFolderToMove,
-                ContentModel.PROP_NAME);
-
-        nodeService.moveNode(documentRecFolderToMove, targetCaseDocumentsFolder, ContentModel.ASSOC_CONTAINS,
-                QName.createQName(OpenESDHModel.DOC_URI, documentFolderName));
-
-        // Refer to CaseServiceImpl.setupAssignCaseIdRule and
-        // AssignCaseIdActionExecuter
-        // for automatic update of the caseId property rule.
-    }
-
-    @Override
-    public void copyDocumentToCase(NodeRef documentRecFolderToCopy, String targetCaseId) throws Exception {
-
-        NodeRef targetCase = getTargetCase(targetCaseId);
-        NodeRef targetCaseDocumentsFolder = caseService.getDocumentsFolder(targetCase);
-
-        if (isCaseContainsDocument(targetCaseDocumentsFolder, documentRecFolderToCopy)) {
-            throw new Exception(DocumentService.DOCUMENT_STORED_IN_CASE_MESSAGE + targetCaseId);
-        }
-
-        copyDocumentToFolder(documentRecFolderToCopy, targetCaseDocumentsFolder);
-    }
-
-    @Override
-    public void copyDocumentToFolder(NodeRef documentRecFolderToCopy, NodeRef targetFolder) throws Exception {
-        String documentFolderName = (String) nodeService.getProperty(documentRecFolderToCopy,
-                ContentModel.PROP_NAME);
-        copyService.copy(documentRecFolderToCopy, targetFolder, ContentModel.ASSOC_CONTAINS,
-                QName.createQName(OpenESDHModel.DOC_URI, documentFolderName), true);
     }
 
     @Override
@@ -722,19 +654,6 @@ public class DocumentServiceImpl implements DocumentService {
         caseDocument.setAttachments(getAttachments(attachmentsAssocs));
 
         return caseDocument;
-    }
-
-    private NodeRef getTargetCase(String targetCaseId) throws Exception {
-        try {
-            return caseService.getCaseById(targetCaseId);
-        } catch (Exception e) {
-            throw new Exception("Error trying to get target case for the case id: " + targetCaseId, e);
-        }
-    }
-
-    private boolean isCaseContainsDocument(NodeRef targetCaseDocumentsFolder, NodeRef documentRecFolderToCopy) {
-        return nodeService.getChildAssocs(targetCaseDocumentsFolder).stream()
-                .filter(assoc -> assoc.getChildRef().equals(documentRecFolderToCopy)).findAny().isPresent();
     }
 
     private List<CaseDocumentAttachment> getAttachments(List<ChildAssociationRef> attachmentsAssocs) {
@@ -881,7 +800,7 @@ public class DocumentServiceImpl implements DocumentService {
         return nodeService.getPaths(docOrAttachmentNodeRef, false)
                 .stream()
                 .map(path -> path.toDisplayPath(nodeService, permissionService))
-                .filter(path -> path.startsWith(OpenESDHFoldersService.OPENE_SITE_CASES_PATH))
+                .filter(path -> path.startsWith(OpenESDHFoldersService.SITES_PATH_ROOT))
                 .map(path -> path.replace(OpenESDHFoldersService.SITES_PATH_ROOT, ""))
                 .findAny()
                 .orElse("");
@@ -938,5 +857,11 @@ public class DocumentServiceImpl implements DocumentService {
     private String getExtensionOrEmpty(String name) {
         String extension = FilenameUtils.getExtension(name);
         return StringUtils.isEmpty(extension) ? "" : "." + extension;
+    }
+
+    @Override
+    public List<ChildAssociationRef> getAttachmentsAssoc(NodeRef mainDocNodeRef) {
+        return this.nodeService.getChildAssocs(mainDocNodeRef, OpenESDHModel.ASSOC_DOC_ATTACHMENTS,
+                RegexQNamePattern.MATCH_ALL);
     }
 }

@@ -26,7 +26,9 @@ public interface CaseService extends HasStatus<CaseStatus> {
 
     String CASE_ROLE_GROUP_NAME_PREFIX = "GROUP_case_";
 
-    Pattern CASE_ID_PATTERN = Pattern.compile("\\d+-(\\d+)");
+    String CASE_ID_PATTERN_STRING = "\\d+-(\\d+)";
+
+    Pattern CASE_ID_PATTERN = Pattern.compile(CASE_ID_PATTERN_STRING);
 
     Pattern CASE_ROLE_GROUP_NAME_PATTERN = Pattern.compile("GROUP_case_([\\d\\-]+)_(.+)");
 

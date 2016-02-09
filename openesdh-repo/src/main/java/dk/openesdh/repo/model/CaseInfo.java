@@ -1,13 +1,12 @@
 package dk.openesdh.repo.model;
 
-import org.alfresco.repo.security.permissions.PermissionCheckValue;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.namespace.QName;
-
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Map;
-import java.util.StringJoiner;
+
+import org.alfresco.repo.security.permissions.PermissionCheckValue;
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.namespace.QName;
 
 /**
  * @author Lanre Abiwon.

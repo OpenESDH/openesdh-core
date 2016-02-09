@@ -12,7 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service("TransactionRunner")
 public class TransactionRunner {
 
     @Autowired
@@ -23,9 +23,18 @@ public class TransactionRunner {
         return runInTransaction(callBack, false, false);
     }
 
-    public <R> R runInTransaction(RetryingTransactionHelper.RetryingTransactionCallback<R> callBack, boolean readOnly, boolean requiresNew) {
+    public <R> R runInNewTransaction(RetryingTransactionHelper.RetryingTransactionCallback<R> callBack) {
+        return runInTransaction(callBack, false, true);
+    }
+
+    public <R> R runInNewTransactionAsAdmin(RetryingTransactionHelper.RetryingTransactionCallback<R> callBack) {
+        return runAsAdmin(() -> runInTransaction(callBack, false, true));
+    }
+
+    private <R> R runInTransaction(RetryingTransactionHelper.RetryingTransactionCallback<R> callBack,
+            boolean readOnly, boolean newTransaction) {
         try {
-            return retryingTransactionHelper.doInTransaction(callBack, readOnly, requiresNew);
+            return retryingTransactionHelper.doInTransaction(callBack, readOnly, newTransaction);
         } catch (Throwable t) {
             UserTransaction userTrx = RetryingTransactionHelper.getActiveUserTransaction();
             try {

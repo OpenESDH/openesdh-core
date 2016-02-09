@@ -2,6 +2,7 @@ package dk.openesdh.repo.services.activities;
 
 import java.io.Serializable;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.annotation.PostConstruct;
 
@@ -21,6 +22,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.documents.DocumentService;
 
 @Service("caseDocumentActivityBehaviour")
 public class CaseDocumentActivityBehaviour implements OnCreateChildAssociationPolicy,
@@ -35,6 +37,9 @@ public class CaseDocumentActivityBehaviour implements OnCreateChildAssociationPo
     @Autowired
     @Qualifier("CaseActivityService")
     private CaseActivityService activityService;
+    @Autowired
+    @Qualifier("DocumentService")
+    private DocumentService documentService;
 
     @PostConstruct
     public void init() {
@@ -48,20 +53,24 @@ public class CaseDocumentActivityBehaviour implements OnCreateChildAssociationPo
 
     @Override
     public void onCreateChildAssociation(ChildAssociationRef childAssocRef, boolean isNewNode) {
-        if (!nodeService.exists(childAssocRef.getChildRef())) {
+        NodeRef docNodeRef = childAssocRef.getChildRef();
+        if (!nodeService.exists(docNodeRef) || docDoesntBelongToCase(docNodeRef)) {
             return;
         }
 
         if (nodeService.countChildAssocs(childAssocRef.getParentRef(), true) == 1) {
-            activityService.postOnCaseDocumentUpload(childAssocRef.getChildRef());
+            activityService.postOnCaseDocumentUpload(docNodeRef);
         } else {
-            activityService.postOnCaseDocumentAttachmentUpload(childAssocRef.getChildRef());
+            activityService.postOnCaseDocumentAttachmentUpload(docNodeRef);
         }
     }
 
     @Override
     public void onCreateVersion(QName classRef, NodeRef versionableNode,
             Map<String, Serializable> versionProperties, PolicyScope nodeDetails) {
+        if (docDoesntBelongToCase(versionableNode)) {
+            return;
+        }
         if (nodeService.hasAspect(versionableNode, OpenESDHModel.ASPECT_DOC_IS_MAIN_FILE)) {
             activityService.postOnCaseDocumentNewVersionUpload(versionableNode);
         } else {
@@ -69,4 +78,7 @@ public class CaseDocumentActivityBehaviour implements OnCreateChildAssociationPo
         }
     }
 
+    private boolean docDoesntBelongToCase(NodeRef versionableNode) {
+        return Objects.isNull(documentService.getCaseNodeRef(versionableNode));
+    }
 }
