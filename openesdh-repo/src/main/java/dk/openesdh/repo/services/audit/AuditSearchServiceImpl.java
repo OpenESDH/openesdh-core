@@ -1,5 +1,15 @@
 package dk.openesdh.repo.services.audit;
 
+import static dk.openesdh.repo.services.audit.entryhandlers.CaseEmailSentAuditEntryHandler.CASE_EMAIL_RECIPIENTS;
+import static dk.openesdh.repo.services.audit.entryhandlers.MemberAddAuditEntryHandler.MEMBER_ADD_PATH;
+import static dk.openesdh.repo.services.audit.entryhandlers.MemberRemoveAuditEntryHandler.MEMBER_REMOVE_PATH;
+import static dk.openesdh.repo.services.audit.entryhandlers.PartyAddAuditEntryHandler.PARTY_ADD_NAME;
+import static dk.openesdh.repo.services.audit.entryhandlers.PartyRemoveAuditEntryHandler.PARTY_REMOVE_NAME;
+import static dk.openesdh.repo.services.audit.entryhandlers.TransactionPathAuditEntryHandler.TRANSACTION_PATH;
+import static dk.openesdh.repo.services.audit.entryhandlers.WorkflowCancelAuditEntryHandler.WORKFLOW_CANCEL_CASE;
+import static dk.openesdh.repo.services.audit.entryhandlers.WorkflowStartAuditEntryHandler.WORKFLOW_START_CASE;
+import static dk.openesdh.repo.services.audit.entryhandlers.WorkflowTaskEndAuditEntryHandler.WORKFLOW_END_TASK_CASE;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -36,23 +46,14 @@ import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.audit.entryhandlers.CaseEmailSentAuditEntryHandler;
-import static dk.openesdh.repo.services.audit.entryhandlers.CaseEmailSentAuditEntryHandler.CASE_EMAIL_RECIPIENTS;
 import dk.openesdh.repo.services.audit.entryhandlers.MemberAddAuditEntryHandler;
-import static dk.openesdh.repo.services.audit.entryhandlers.MemberAddAuditEntryHandler.MEMBER_ADD_PATH;
 import dk.openesdh.repo.services.audit.entryhandlers.MemberRemoveAuditEntryHandler;
-import static dk.openesdh.repo.services.audit.entryhandlers.MemberRemoveAuditEntryHandler.MEMBER_REMOVE_PATH;
 import dk.openesdh.repo.services.audit.entryhandlers.PartyAddAuditEntryHandler;
-import static dk.openesdh.repo.services.audit.entryhandlers.PartyAddAuditEntryHandler.PARTY_ADD_NAME;
 import dk.openesdh.repo.services.audit.entryhandlers.PartyRemoveAuditEntryHandler;
-import static dk.openesdh.repo.services.audit.entryhandlers.PartyRemoveAuditEntryHandler.PARTY_REMOVE_NAME;
 import dk.openesdh.repo.services.audit.entryhandlers.TransactionPathAuditEntryHandler;
-import static dk.openesdh.repo.services.audit.entryhandlers.TransactionPathAuditEntryHandler.TRANSACTION_PATH;
 import dk.openesdh.repo.services.audit.entryhandlers.WorkflowCancelAuditEntryHandler;
-import static dk.openesdh.repo.services.audit.entryhandlers.WorkflowCancelAuditEntryHandler.WORKFLOW_CANCEL_CASE;
 import dk.openesdh.repo.services.audit.entryhandlers.WorkflowStartAuditEntryHandler;
-import static dk.openesdh.repo.services.audit.entryhandlers.WorkflowStartAuditEntryHandler.WORKFLOW_START_CASE;
 import dk.openesdh.repo.services.audit.entryhandlers.WorkflowTaskEndAuditEntryHandler;
-import static dk.openesdh.repo.services.audit.entryhandlers.WorkflowTaskEndAuditEntryHandler.WORKFLOW_END_TASK_CASE;
 import dk.openesdh.repo.services.cases.CasePermission;
 
 @Service
@@ -162,15 +163,15 @@ public class AuditSearchServiceImpl implements AuditSearchService {
         return result;
     }
 
-    private Comparator timePropertyDescComparator() {
-        return new Comparator() {
+    private Comparator<JSONObject> timePropertyDescComparator() {
+        return new Comparator<JSONObject>() {
             @Override
-            public int compare(Object o1, Object o2) {
+            public int compare(JSONObject o1, JSONObject o2) {
                 return ObjectUtils.compare(getTime(o2), getTime(o1));
             }
 
-            private long getTime(Object o) {
-                return o == null ? null : (long) ((JSONObject) o).get(AuditEntryHandler.TIME);
+            private long getTime(JSONObject o) {
+                return o == null ? null : (long) o.get(AuditEntryHandler.TIME);
             }
         };
     }

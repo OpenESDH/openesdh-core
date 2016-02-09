@@ -42,10 +42,10 @@ import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
-import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.model.CaseStatus;
 import dk.openesdh.repo.model.DocumentStatus;
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.services.documents.DocumentService;
 import dk.openesdh.repo.services.lock.OELockService;
 import dk.openesdh.repo.services.members.CaseMembersService;
@@ -344,6 +344,7 @@ public class CaseServiceImplIT {
                     ContentModel.PROP_TITLE, "new title");
             fail("A property could be updated on a closed case");
         } catch (Exception e) {
+            //it is a good error
         }
 
         try {
@@ -351,6 +352,7 @@ public class CaseServiceImplIT {
             NodeRef doc = docTestHelper.createCaseDocument(UUID.randomUUID().toString(), nonAdminCreatedCaseNr);
             fail("A document could be added to a closed case");
         } catch (Exception e) {
+            //it is a good error
         }
 
         // Test that the owner cannot change permissions on the case
@@ -359,6 +361,7 @@ public class CaseServiceImplIT {
                     CaseHelper.CASE_SIMPLE_OWNER_ROLE, nonAdminCreatedCaseNr);
             fail("An authority could be removed from a role on a closed case");
         } catch (Exception e) {
+            //it is a good error
         }
 
         // Test that the owner cannot add an authority to a role on the case
@@ -367,6 +370,7 @@ public class CaseServiceImplIT {
                     CaseHelper.CASE_SIMPLE_READER_ROLE, nonAdminCreatedCaseNr);
             fail("An authority could be added to a role on a closed case");
         } catch (Exception e) {
+            //it is a good error
         }
 
         // Test that a user can still read from the closed case
@@ -384,6 +388,7 @@ public class CaseServiceImplIT {
             caseService.changeNodeStatus(nonAdminCreatedCaseNr, CaseStatus.ACTIVE);
             fail("Should not be able to set closed case to active as a regular user");
         } catch (Exception e) {
+            //it is a good error
         }
 
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());

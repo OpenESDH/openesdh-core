@@ -1,18 +1,19 @@
 package dk.openesdh.repo.model;
 
-import org.alfresco.model.ContentModel;
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.namespace.QName;
-
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.alfresco.model.ContentModel;
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.namespace.QName;
+
 /**
  * @author lanre.
  */
 public class DocumentTemplateInfoImpl implements DocumentTemplateInfo {
+
     /**
      * Case node reference
      */
@@ -22,8 +23,6 @@ public class DocumentTemplateInfoImpl implements DocumentTemplateInfo {
      * The case types that the template is assigned to
      */
     private String[] assignedCaseTypes;
-
-    private String templateType;
 
     /**
      * Document Template title
@@ -50,7 +49,7 @@ public class DocumentTemplateInfoImpl implements DocumentTemplateInfo {
     /**
      * Set of custom properties that have been defined for case
      */
-    private Map<QName, Serializable> allProperties = new HashMap<QName, Serializable>(1);
+    private Map<QName, Serializable> allProperties = new HashMap<>(1);
 
     public DocumentTemplateInfoImpl(NodeRef nodeRef, String[] assignedTypes, String title, Map<QName, Serializable> allProperties) {
         this.nodeRef = nodeRef;
@@ -60,7 +59,6 @@ public class DocumentTemplateInfoImpl implements DocumentTemplateInfo {
         this.name = allProperties.get(ContentModel.PROP_NAME).toString();
     }
 
-    //<editor-fold desc="Getters, setters and other generated function">
     @Override
     public NodeRef getNodeRef() {
         return nodeRef;
@@ -110,15 +108,10 @@ public class DocumentTemplateInfoImpl implements DocumentTemplateInfo {
         this.lastModifiedDate = lastModifiedDate;
     }
 
-    @Override
-    public void setTemplateType(String templateType) {
-        this.templateType = templateType;
-    }
-
     /**
      * Get the template type (i.e. the document MIME type)
      *
-     * @return String  case id
+     * @return String case id
      */
     @Override
     public String getTemplateType() {
@@ -167,8 +160,12 @@ public class DocumentTemplateInfoImpl implements DocumentTemplateInfo {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         DocumentTemplateInfoImpl docTmplInfo = (DocumentTemplateInfoImpl) o;
 
@@ -185,6 +182,4 @@ public class DocumentTemplateInfoImpl implements DocumentTemplateInfo {
     public String toString() {
         return this.title;
     }
-    //</editor-fold>
-
 }

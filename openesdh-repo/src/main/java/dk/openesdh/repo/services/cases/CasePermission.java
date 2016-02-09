@@ -16,9 +16,7 @@ public enum CasePermission {
     /**
      * REGEXP: \A(Case).+(Reader|Writer|Owners)\Z
      */
-    public static String REGEXP_ANY = "\\A(" + PREFIX + ").+("
-            + Joiner.on("|").join(values()) + ")\\Z";
-
+    public static final String REGEXP_ANY = "\\A(" + PREFIX + ").+(" + Joiner.on("|").join(values()) + ")\\Z";
 
     private final String name;
     private final String regexp;

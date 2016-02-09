@@ -1,7 +1,6 @@
 package dk.openesdh.repo.policy;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
 
 import javax.annotation.PostConstruct;
@@ -33,7 +32,8 @@ import dk.openesdh.repo.model.OpenESDHModel;
  */
 @Service("DocumentTemplateBehaviour")
 public class DocumentTemplateBehaviour implements NodeServicePolicies.OnAddAspectPolicy {
-    private static Logger logger = Logger.getLogger(DocumentTemplateBehaviour.class);
+
+    private static final Logger logger = Logger.getLogger(DocumentTemplateBehaviour.class);
 
     @Autowired
     @Qualifier("NodeService")
@@ -73,18 +73,17 @@ public class DocumentTemplateBehaviour implements NodeServicePolicies.OnAddAspec
         QName thumbnailRenditionName = QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "cardViewThumbnail");
 
         // Trigger the renditionService to create Thumbnail image.
-        List<RenditionDefinition> definitions = renditionService.loadRenditionDefinitions();
         RenditionDefinition docTemplateThumbnailRendition = renditionService.loadRenditionDefinition(thumbnailRenditionName);
         renditionService.render(nodeRef, docTemplateThumbnailRendition, new RenderCallback() {
             public void handleFailedRendition(Throwable t) {
                 // In the event of a failed (re-)rendition, delete the rendition node
 //                if (logger.isDebugEnabled()) {
-                    logger.warn("Unable to render thumbnail (cardViewThumbnail) for template.", t);
+                logger.warn("Unable to render thumbnail (cardViewThumbnail) for template.", t);
 //                }
             }
 
             public void handleSuccessfulRendition(ChildAssociationRef primaryParentOfNewRendition) {
-                String name = nodeService.getProperty(nodeRef, ContentModel.PROP_TITLE).toString();
+                nodeService.getProperty(nodeRef, ContentModel.PROP_TITLE).toString();
                 logger.info("==> Successfully rendered cardViewThumbnail for: ");
             }
         });

@@ -29,7 +29,7 @@ import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 @Service("DocumentTypeService")
 public class DocumentTypeServiceImpl implements DocumentTypeService {
 
-    public static List<String> SYSTEM_TYPES = Arrays.asList("invoice", "letter");
+    public static final List<String> SYSTEM_TYPES = Arrays.asList("invoice", "letter");
     @Autowired
     @Qualifier("OpenESDHFoldersService")
     private OpenESDHFoldersService openESDHFoldersService;

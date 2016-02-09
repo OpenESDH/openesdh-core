@@ -1,7 +1,8 @@
 package dk.openesdh.repo.webscripts.documents;
 
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.documents.DocumentService;
+import java.io.IOException;
+import java.util.Map;
+
 import org.alfresco.service.cmr.repository.InvalidNodeRefException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.commons.logging.Log;
@@ -12,14 +13,15 @@ import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
-import java.io.IOException;
-import java.util.Map;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.documents.DocumentService;
 
 /**
  * @Author Lanre
  */
 public class IsCaseDocument extends AbstractWebScript {
-    private static Log logger = LogFactory.getLog(DocumentCaseContainers.class);
+
+    private static final Log logger = LogFactory.getLog(DocumentCaseContainers.class);
     private CaseService caseService;
     private DocumentService documentService;
 
@@ -29,33 +31,28 @@ public class IsCaseDocument extends AbstractWebScript {
         String storeType = templateArgs.get("store_type");
         String storeId = templateArgs.get("store_id");
         String id = templateArgs.get("id");
-        String docNodeRefStr = storeType +"://"+storeId+"/"+id;
-        NodeRef documentNode = new NodeRef (docNodeRefStr);
+        String docNodeRefStr = storeType + "://" + storeId + "/" + id;
+        NodeRef documentNode = new NodeRef(docNodeRefStr);
 
         JSONObject json = new JSONObject();
-        try{
+        try {
 
             NodeRef caseNodeRef = documentService.getCaseNodeRef(documentNode);
-            String caseId =  caseService.getCaseId(caseNodeRef);
+            String caseId = caseService.getCaseId(caseNodeRef);
 
-            if (caseNodeRef != null ){
+            if (caseNodeRef != null) {
                 json.put("isCaseDoc", true);
                 json.put("caseId", caseId);
                 json.write(res.getWriter());
-            }
-            else {
+            } else {
                 json.put("isCaseDoc", false);
                 json.write(res.getWriter());
             }
+        } catch (InvalidNodeRefException inre) {
+            logger.error("The invalid nodeRef exception: " + inre.getMessage());
+        } catch (JSONException jse) {
+            logger.error("Unable to build teh json model because of the following exception: " + jse.getMessage());
         }
-        catch (InvalidNodeRefException inre) {
-            logger.error("The invalid nodeRef exception: "+ inre.getMessage());
-        }
-        catch (JSONException jse){
-            logger.error("Unable to build teh json model because of the following exception: "+ jse.getMessage());
-        }
-
-
 
     }
 

@@ -23,17 +23,17 @@ import com.tradeshift.test.remote.RemoteTestRunner;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "classpath:alfresco/application-context.xml",
-        "classpath:alfresco/extension/openesdh-test-context.xml" })
+@ContextConfiguration({"classpath:alfresco/application-context.xml",
+    "classpath:alfresco/extension/openesdh-test-context.xml"})
 public class GroupsServiceImplIT {
-    
-    private static String CSV_HEADER = "Group name,Display name,Member of groups,Simple case,Staff case\n";
-    private static String[] groups = { "IT_test", "HR_test", "HR_CREATE_test", "HR_CHIEF_test" };
+
+    private static final String CSV_HEADER = "Group name,Display name,Member of groups,Simple case,Staff case\n";
+    private static final String[] GROUPS = {"IT_test", "HR_test", "HR_CREATE_test", "HR_CHIEF_test"};
 
     @Autowired
     @Qualifier("GroupsService")
     private GroupsService groupsService;
-    
+
     @Autowired
     @Qualifier("AuthorityService")
     private AuthorityService authorityService;
@@ -45,7 +45,7 @@ public class GroupsServiceImplIT {
 
     @After
     public void tearDown() {
-        for (String group : groups) {
+        for (String group : GROUPS) {
             String authority = PermissionService.GROUP_PREFIX + group;
             if (authorityService.authorityExists(authority)) {
                 authorityService.deleteAuthority(authority);
@@ -54,21 +54,21 @@ public class GroupsServiceImplIT {
     }
 
     @Test
-    public void shouldCreateGroupsFromCSV() throws IOException{
+    public void shouldCreateGroupsFromCSV() throws IOException {
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
         String csv = new StringBuilder(CSV_HEADER)
-            .append("IT_test,IT group,,Read\n")
-            .append("HR_test,HR group,,,Read\n")
-            .append("HR_CREATE_test,HR creators,HR_test,,CREATE;WRITE\n")
-            .append("HR_CHIEF_test,HR chief,HR_test;HR_CREATE_test").toString();
-        
+                .append("IT_test,IT group,,Read\n")
+                .append("HR_test,HR group,,,Read\n")
+                .append("HR_CREATE_test,HR creators,HR_test,,CREATE;WRITE\n")
+                .append("HR_CHIEF_test,HR chief,HR_test;HR_CREATE_test").toString();
+
         groupsService.uploadGroupsCSV(IOUtils.toInputStream(csv));
-        
-        for (String group : groups) {
+
+        for (String group : GROUPS) {
             Assert.assertTrue("The group should be created: " + group,
                     authorityService.authorityExists(PermissionService.GROUP_PREFIX + group));
         }
-        
+
         Set<String> hrContainedGroups = authorityService.getContainedAuthorities(AuthorityType.GROUP,
                 PermissionService.GROUP_PREFIX + "HR_test", true);
         Assert.assertTrue("HR creators group should belong to HR_test",

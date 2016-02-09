@@ -6,6 +6,7 @@ import java.util.List;
  * Created by syastrov on 9/23/15.
  */
 public class OfficeTemplate {
+
     private String nodeRef;
     private String name;
     private String title;

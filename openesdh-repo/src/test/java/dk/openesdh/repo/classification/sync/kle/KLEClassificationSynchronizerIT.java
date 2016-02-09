@@ -26,7 +26,6 @@ import com.tradeshift.test.remote.RemoteTestRunner;
 /**
  * Created by syastrov on 6/1/15.
  */
-
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:alfresco/application-context.xml")
@@ -83,8 +82,7 @@ public class KLEClassificationSynchronizerIT {
 
         // Hovedgruppe
         NodeRef rootCategory = classificationSynchronizer.getOrCreateRootCategory(KLEClassificationSynchronizer.EmneplanLoader.ROOT_CATEGORY_NAME);
-        ChildAssociationRef hovedGruppe = categoryService.getCategory
-                (rootCategory, ContentModel.ASPECT_GEN_CLASSIFIABLE, "00");
+        ChildAssociationRef hovedGruppe = categoryService.getCategory(rootCategory, ContentModel.ASPECT_GEN_CLASSIFIABLE, "00");
         assertNotNull("Hovedgruppe is created", hovedGruppe);
         assertEquals("Hovedgruppe title is set correctly", "Kommunens styrelse" + suffix, nodeService.getProperty(hovedGruppe
                 .getChildRef(), ContentModel.PROP_TITLE));

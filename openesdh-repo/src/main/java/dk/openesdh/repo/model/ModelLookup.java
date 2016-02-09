@@ -1,5 +1,10 @@
 package dk.openesdh.repo.model;
 
+import java.io.IOException;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.service.cmr.dictionary.AssociationDefinition;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
@@ -13,11 +18,6 @@ import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
-
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 /**
  * Created by flemming on 8/19/14.
@@ -37,12 +37,12 @@ public class ModelLookup extends AbstractWebScript {
     }
 
     public void execute(WebScriptRequest req, WebScriptResponse res)
-            throws IOException  {
+            throws IOException {
         String typeParameter = req.getParameter("type");
 
         if (typeParameter == null) {
-            throw new AlfrescoRuntimeException("Must specify a type " +
-                    "parameter");
+            throw new AlfrescoRuntimeException("Must specify a type "
+                    + "parameter");
         }
 
         TypeDefinition modelType = getTypeDefinition(typeParameter);
@@ -65,7 +65,6 @@ public class ModelLookup extends AbstractWebScript {
             throw new WebScriptException("Unable to serialize JSON");
         }
 
-
         String jsonString = mainObject.toString();
         res.getWriter().write(jsonString);
     }
@@ -76,7 +75,7 @@ public class ModelLookup extends AbstractWebScript {
     }
 
     Map<String, JSONObject> getAssociations(TypeDefinition modelType) {
-        Map<String, JSONObject> associations = new HashMap<String, JSONObject>();
+        Map<String, JSONObject> associations = new HashMap<>();
         Iterator<Map.Entry<QName, AssociationDefinition>> it = modelType.getAssociations().entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<QName, AssociationDefinition> pairs = it.next();
@@ -97,7 +96,7 @@ public class ModelLookup extends AbstractWebScript {
     }
 
     Map<String, JSONObject> getProperties(TypeDefinition modelType) {
-        Map<String, JSONObject> properties = new HashMap<String, JSONObject>();
+        Map<String, JSONObject> properties = new HashMap<>();
         Iterator<Map.Entry<QName, PropertyDefinition>> it = modelType.getProperties().entrySet().iterator();
         while (it.hasNext()) {
             Map.Entry<QName, PropertyDefinition> pairs = it.next();

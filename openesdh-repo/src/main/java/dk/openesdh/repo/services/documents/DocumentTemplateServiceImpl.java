@@ -89,7 +89,7 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
             ResultSet results = null;
             try {
                 results = this.searchService.query(sp);
-                result = new ArrayList<DocumentTemplateInfo>(results.length());
+                result = new ArrayList<>(results.length());
                 for (NodeRef tmpl : results.getNodeRefs()) {
                     result.add(getTemplateInfo(tmpl));
                 }
@@ -120,7 +120,6 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
         // Create and return the site information
         tmplInfo = new DocumentTemplateInfoImpl(templateNodeRef, assignedCaseTypes, title, properties);
 
-        tmplInfo.setTemplateType(properties.get(OpenESDHModel.PROP_TEMPLATE_TYPE).toString());
         tmplInfo.setCreatedDate(DefaultTypeConverter.INSTANCE.convert(Date.class, properties.get(ContentModel.PROP_CREATED)));
         tmplInfo.setLastModifiedDate(DefaultTypeConverter.INSTANCE.convert(Date.class, properties.get(ContentModel.PROP_MODIFIED)));
         if (StringUtils.isNotBlank(properties.get(ContentModel.PROP_DESCRIPTION).toString())) {

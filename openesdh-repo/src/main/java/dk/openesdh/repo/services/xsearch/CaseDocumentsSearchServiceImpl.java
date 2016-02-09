@@ -3,6 +3,7 @@ package dk.openesdh.repo.services.xsearch;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.query.PagingRequest;
@@ -54,19 +55,16 @@ public class CaseDocumentsSearchServiceImpl extends AbstractXSearchService {
                 queryExecutionId);
         pageRequest.setRequestTotalCountMax(requestTotalCountMax);
 
-        if (sortField != null && !sortField.isEmpty())
-        {
-            sortProps.add(new Pair<QName, Boolean>(QName.createQName(sortField, namespaceService), ascending));
+        if (sortField != null && !sortField.isEmpty()) {
+            sortProps.add(new Pair<>(QName.createQName(sortField, namespaceService), ascending));
         }
 
         PagingResults<FileInfo> results = fileFolderService.list(documentsNodeRef, false, true, null,
                 sortProps, pageRequest);
 
-        ArrayList<NodeRef> resultList = new ArrayList<NodeRef>();
-        for (FileInfo fileInfo : results.getPage()) {
-            resultList.add(fileInfo.getNodeRef());
-        }
-
+        List<NodeRef> resultList = results.getPage().stream()
+                .map(FileInfo::getNodeRef)
+                .collect(Collectors.toList());
         Pair<Integer, Integer> totalResultCount = results.getTotalResultCount();
         if (totalResultCount == null) {
             return new XResultSet(resultList);

@@ -20,7 +20,7 @@ import dk.openesdh.repo.model.OpenESDHModel;
 @Service("ContactSearchService")
 public class ContactSearchServiceImpl extends AbstractXSearchService implements ContactSearchService {
 
-    private static final Logger LOG = Logger.getLogger(ContactSearchService.class.toString());
+    private static final Logger LOG = Logger.getLogger(ContactSearchService.class);
 
     @Autowired
     @Qualifier("DictionaryService")
@@ -100,7 +100,7 @@ public class ContactSearchServiceImpl extends AbstractXSearchService implements 
 
         if (tokens.length == 1) {
             if (term.endsWith("*")) {
-                term = term.substring(0, term.lastIndexOf("*"));
+                term = term.substring(0, term.lastIndexOf('*'));
             }
 
             term += "*";
@@ -113,7 +113,7 @@ public class ContactSearchServiceImpl extends AbstractXSearchService implements 
             boolean firstToken = true;
             for (String token : tokens) {
                 if (token.endsWith("*")) {
-                    token = token.substring(0, token.lastIndexOf("*"));
+                    token = token.substring(0, token.lastIndexOf('*'));
                 }
                 multiPartNames.append("\"");
                 multiPartNames.append(token);

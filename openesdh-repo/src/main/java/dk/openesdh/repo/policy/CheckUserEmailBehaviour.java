@@ -18,8 +18,6 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -32,7 +30,6 @@ import org.springframework.stereotype.Service;
  */
 @Service("userEmailCheckBehaviour")
 public class CheckUserEmailBehaviour implements NodeServicePolicies.OnCreateNodePolicy, NodeServicePolicies.OnUpdateNodePolicy {
-    private static Log logger = LogFactory.getLog(CheckUserEmailBehaviour.class);
 
     //<editor-fold desc="Dependencies">
     @Autowired
@@ -67,14 +64,16 @@ public class CheckUserEmailBehaviour implements NodeServicePolicies.OnCreateNode
     public void onCreateNode(ChildAssociationRef childAssocRef) {
         NodeRef personRef = childAssocRef.getChildRef();
         String email = this.nodeService.getProperty(personRef, ContentModel.PROP_EMAIL).toString();
-        if(checkIfEmailExists(email))
+        if (checkIfEmailExists(email)) {
             throw new AlfrescoRuntimeException("Error creating person: Email must be unique and already exists: " + email);
+        }
     }
 
     public void onUpdateNode(NodeRef personRef) {
         String email = this.nodeService.getProperty(personRef, ContentModel.PROP_EMAIL).toString();
-        if(checkIfEmailExists(email))
+        if (checkIfEmailExists(email)) {
             throw new AlfrescoRuntimeException("Error updating email: already exists.");
+        }
     }
 
     private boolean checkIfEmailExists(String email) {
