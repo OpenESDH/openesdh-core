@@ -1,8 +1,3 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
 package dk.openesdh.repo.services.documents;
 
 import static org.junit.Assert.assertEquals;
@@ -27,9 +22,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 
-import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.model.DocumentCategory;
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.services.system.MultiLanguageValue;
 
 @RunWith(RemoteTestRunner.class)
