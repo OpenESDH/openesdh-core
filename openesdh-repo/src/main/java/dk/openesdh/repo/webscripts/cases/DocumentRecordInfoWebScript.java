@@ -1,5 +1,19 @@
 package dk.openesdh.repo.webscripts.cases;
 
+import static dk.openesdh.repo.model.CaseDocumentJson.CATEGORY_DISPLAY_NAME;
+import static dk.openesdh.repo.model.CaseDocumentJson.CATEGORY_ID;
+import static dk.openesdh.repo.model.CaseDocumentJson.CATEGORY_NAME;
+import static dk.openesdh.repo.model.CaseDocumentJson.DESCRIPTION;
+import static dk.openesdh.repo.model.CaseDocumentJson.EDIT_LOCK_STATE;
+import static dk.openesdh.repo.model.CaseDocumentJson.EDIT_ONLINE_PATH;
+import static dk.openesdh.repo.model.CaseDocumentJson.IS_LOCKED;
+import static dk.openesdh.repo.model.CaseDocumentJson.MAIN_DOC_NODE_REF;
+import static dk.openesdh.repo.model.CaseDocumentJson.OWNER;
+import static dk.openesdh.repo.model.CaseDocumentJson.STATUS_CHOICES;
+import static dk.openesdh.repo.model.CaseDocumentJson.TYPE_DISPLAY_NAME;
+import static dk.openesdh.repo.model.CaseDocumentJson.TYPE_ID;
+import static dk.openesdh.repo.model.CaseDocumentJson.TYPE_NAME;
+
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.Date;
@@ -28,7 +42,6 @@ import dk.openesdh.repo.services.NodeInfoService;
 import dk.openesdh.repo.services.documents.DocumentService;
 import dk.openesdh.repo.services.lock.OELockService;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
-
 /**
  * @author Lanre Abiwon
  */
@@ -65,20 +78,21 @@ public class DocumentRecordInfoWebScript {
 
         JSONObject result = new JSONObject();
         try {
-            result.put("typeId", documentType.getNodeRef().toString());
-            result.put("typeName", documentType.getName());
-            result.put("typeDisplayName", documentType.getDisplayName());
+            result.put(TYPE_ID, documentType.getNodeRef().toString());
+            result.put(TYPE_NAME, documentType.getName());
+            result.put(TYPE_DISPLAY_NAME, documentType.getDisplayName());
 
-            result.put("categoryId", documentCategory.getNodeRef().toString());
-            result.put("categoryName", documentCategory.getName());
-            result.put("categoryDisplayName", documentCategory.getDisplayName());
-            result.put("owner", docOwner.getFirstName() + " " + docOwner.getLastName());
-            result.put("mainDocNodeRef", mainDocNodeRef.toString());
-            result.put("description", StringUtils.defaultIfEmpty((String) mainDocNodeInfo.properties.get(ContentModel.PROP_DESCRIPTION), ""));
-            result.put("statusChoices", documentService.getValidNextStatuses(documentNodeRef));
-            result.put("isLocked", oeLockService.isLocked(mainDocNodeRef));
-            result.put("editLockState", documentService.getDocumentEditLockState(mainDocNodeRef));
-            result.put("editOnlinePath", editOnlinePath);
+            result.put(CATEGORY_ID, documentCategory.getNodeRef().toString());
+            result.put(CATEGORY_NAME, documentCategory.getName());
+            result.put(CATEGORY_DISPLAY_NAME, documentCategory.getDisplayName());
+            result.put(OWNER, docOwner.getFirstName() + " " + docOwner.getLastName());
+            result.put(MAIN_DOC_NODE_REF, mainDocNodeRef.toString());
+            result.put(DESCRIPTION, StringUtils
+                    .defaultIfEmpty((String) mainDocNodeInfo.properties.get(ContentModel.PROP_DESCRIPTION), ""));
+            result.put(STATUS_CHOICES, documentService.getValidNextStatuses(documentNodeRef));
+            result.put(IS_LOCKED, oeLockService.isLocked(mainDocNodeRef));
+            result.put(EDIT_LOCK_STATE, documentService.getDocumentEditLockState(mainDocNodeRef));
+            result.put(EDIT_ONLINE_PATH, editOnlinePath);
 
             addAllProperties(result, documentNodeInfo.properties);
 
