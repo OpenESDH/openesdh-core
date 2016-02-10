@@ -29,7 +29,7 @@ import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 @Service("DocumentCategoryService")
 public class DocumentCategoryServiceImpl implements DocumentCategoryService {
 
-    public static List<String> SYSTEM_TYPES = Arrays.asList("annex");
+    public static final List<String> SYSTEM_TYPES = Arrays.asList("annex");
     @Autowired
     @Qualifier("OpenESDHFoldersService")
     private OpenESDHFoldersService openESDHFoldersService;

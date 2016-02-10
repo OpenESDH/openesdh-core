@@ -2,12 +2,12 @@ package dk.openesdh.repo.services.contacts;
 
 //import dk.openesdh.exceptions.contacts.InvalidContactTypeException;
 import java.io.Serializable;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.alfresco.error.AlfrescoRuntimeException;
@@ -120,7 +120,7 @@ public class ContactServiceImpl implements ContactService {
                     throw new NoSuchContactException();
                 }
                 contact = results.getNodeRef(0);
-            } catch (Throwable err) {
+            } catch (GenericContactException | NoSuchContactException err) {
                 if (logger.isDebugEnabled()) {
                     logger.debug("\t\t***** Error *****\n There was a problem finding the contact: " + query.toString(), err);
                 }
@@ -141,12 +141,12 @@ public class ContactServiceImpl implements ContactService {
         Map<String, String> params = new HashMap<>();
         params.put("baseType", contactType.toString());
         params.put("term", id);
-        List<ContactInfo> contacts = new ArrayList<>();
         try {
             XResultSet results = contactSearchService.getNodes(params, 0, -1, "cm:name", true);
-            for (NodeRef contactNode : results.getNodeRefs()) {
-                contacts.add(getContactInfo(contactNode));
-            }
+            return results.getNodeRefs()
+                    .stream()
+                    .map(this::getContactInfo)
+                    .collect(Collectors.toList());
         } catch (Throwable err) {
             if (logger.isDebugEnabled()) {
                 logger.debug("\t\t***** Error *****\n There was a problem "
@@ -154,7 +154,6 @@ public class ContactServiceImpl implements ContactService {
             }
             throw err;
         }
-        return contacts;
     }
 
     @Override

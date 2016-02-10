@@ -34,11 +34,12 @@ public interface CaseActivityService {
     static final String ACTIVITY_TYPE_CASE_DOCUMENT_ATTACHMENT_UPLOAD = "dk.openesdh.case.document.attachment-upload";
 
     static final String ACTIVITY_TYPE_CASE_DOCUMENT_ATTACHMENT_NEW_VERSION_UPLOAD = "dk.openesdh.case.document.attachment.new.version-upload";
+
     /**
      * Creates activity feed on case update
-     * 
+     *
      * @param caseNodeRef
-     *            nodeRef of the updated case
+     * nodeRef of the updated case
      */
     void postOnCaseUpdate(NodeRef caseNodeRef);
 

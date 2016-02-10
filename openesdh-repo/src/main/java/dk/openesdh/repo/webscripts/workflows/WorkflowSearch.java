@@ -1,11 +1,13 @@
 package dk.openesdh.repo.webscripts.workflows;
 
-import org.alfresco.model.ContentModel;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
 import org.alfresco.repo.workflow.WorkflowModel;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.workflow.*;
 import org.alfresco.service.namespace.QName;
@@ -17,30 +19,23 @@ import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 public class WorkflowSearch extends AbstractWebScript {
+
     private ServiceRegistry registry;
     private WorkflowService workflowService;
     private NodeService nodeService;
-    private AuthorityService authorityService;
     private PersonService personService;
 
     public void setServiceRegistry(ServiceRegistry registry) {
         this.registry = registry;
         this.workflowService = registry.getWorkflowService();
         this.nodeService = registry.getNodeService();
-        this.authorityService = this.registry.getAuthorityService();
         this.personService = this.registry.getPersonService();
 
     }
 
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
-        String caseId = req.getParameter("caseId");
+//        String caseId = req.getParameter("caseId");
         String status = req.getParameter("status");
         if (status == null) {
             status = "";
@@ -48,41 +43,34 @@ public class WorkflowSearch extends AbstractWebScript {
 
         WorkflowTaskQuery tasksQuery = new WorkflowTaskQuery();
 
-        Map<QName, Object> processCustomProps = new HashMap<QName, Object>();
-
+//        Map<QName, Object> processCustomProps = new HashMap<>();
 //        processCustomProps.put(QName.createQName(
 //                "http://www.magenta-aps.dk/model/oeworkflow/1.0", "caseId"), caseId);
-
 //        tasksQuery.setProcessCustomProps(processCustomProps);
-
         tasksQuery.setWorkflowDefinitionName("activiti$openE-CaseTaskUser");
 
         List<WorkflowTask> tasks = new ArrayList<>();
 
-		/* If the status is empty, perform two queries so we get both open and closed tasks */
+        /* If the status is empty, perform two queries so we get both open and closed tasks */
         if (status.isEmpty()) {
 
             tasksQuery.setTaskState(WorkflowTaskState.IN_PROGRESS);
-    //        List<WorkflowInstance> openTasks = workflowService.getWorkflows();
+            //        List<WorkflowInstance> openTasks = workflowService.getWorkflows();
             List<WorkflowTask> openTasks = workflowService.queryTasks(tasksQuery, true);
 
             tasksQuery.setTaskState(WorkflowTaskState.COMPLETED);
             tasksQuery.setActive(false);
-            List<WorkflowInstance> closedTasks = workflowService.getWorkflows();
+//            List<WorkflowInstance> closedTasks = workflowService.getWorkflows();
 
             tasks.addAll(openTasks);
 //            tasks.addAll(closedTasks);
 
-        } else {
-
-            if (status.equals("open")) {
-                tasksQuery.setTaskState(WorkflowTaskState.IN_PROGRESS);
-            } else if (status.equals("closed")) {
-                tasksQuery.setActive(false);
-                tasksQuery.setTaskState(WorkflowTaskState.COMPLETED);
-            }
-//            tasks = workflowService.queryTasks(tasksQuery);
-        }
+        } else if (status.equals("open")) {
+            tasksQuery.setTaskState(WorkflowTaskState.IN_PROGRESS);
+        } else if (status.equals("closed")) {
+            tasksQuery.setActive(false);
+            tasksQuery.setTaskState(WorkflowTaskState.COMPLETED);
+        } //            tasks = workflowService.queryTasks(tasksQuery);
 
         try {
             // build a json object
@@ -98,38 +86,29 @@ public class WorkflowSearch extends AbstractWebScript {
 
             QName tmpGroupQName = QName.createQName("http://www.magenta-aps.dk/model/esdhworkflow/1.0", "tmpGroup");
 
-
             for (WorkflowTask t : tasks) {
                 if (t.getName().equals("esdhwf:completedPhaseTask") == true && t.getProperties().get(STATUS).equals("Completed")) {
                     continue;
                 }
 
-
                 NodeRef pooledActorsNodeRef;
-                String groupName = "";
-                String groupDisplayName = "";
+//                String groupName;
+//                String groupDisplayName;
                 String taskStatus = (String) t.getProperties().get(STATUS);
 
-                try {
-                        ArrayList<NodeRef> pool = (ArrayList<NodeRef>) t.getProperties().get(pooledActors);
-                        if (pool.size() > 0) {
-                            pooledActorsNodeRef = pool.get(0);
-                            groupName = (String) this.nodeService.getProperty(pooledActorsNodeRef, ContentModel.PROP_AUTHORITY_NAME);
-                            groupDisplayName = (String) this.nodeService.getProperty(pooledActorsNodeRef, ContentModel.PROP_AUTHORITY_DISPLAY_NAME);
-                        }
-
-                        if (t.getName().equals("esdhwf:completedPhaseTask") == true) {
-                            taskStatus = "In Progress";
-                            pooledActorsNodeRef = (NodeRef) t.getProperties().get(tmpGroupQName);
-                            groupName = (String) this.nodeService.getProperty(pooledActorsNodeRef, ContentModel.PROP_AUTHORITY_NAME);
-                            groupDisplayName = (String) this.nodeService.getProperty(pooledActorsNodeRef, ContentModel.PROP_AUTHORITY_DISPLAY_NAME);
-                        }
-
-                } catch (Exception e) {
-                    System.out.println("Got exception!");
-                    e.printStackTrace();
+                ArrayList<NodeRef> pool = (ArrayList<NodeRef>) t.getProperties().get(pooledActors);
+                if (pool.size() > 0) {
+                    pooledActorsNodeRef = pool.get(0);
+//                        groupName = (String) this.nodeService.getProperty(pooledActorsNodeRef, ContentModel.PROP_AUTHORITY_NAME);
+//                        groupDisplayName = (String) this.nodeService.getProperty(pooledActorsNodeRef, ContentModel.PROP_AUTHORITY_DISPLAY_NAME);
                 }
 
+                if (t.getName().equals("esdhwf:completedPhaseTask") == true) {
+                    taskStatus = "In Progress";
+                    pooledActorsNodeRef = (NodeRef) t.getProperties().get(tmpGroupQName);
+//                        groupName = (String) this.nodeService.getProperty(pooledActorsNodeRef, ContentModel.PROP_AUTHORITY_NAME);
+//                        groupDisplayName = (String) this.nodeService.getProperty(pooledActorsNodeRef, ContentModel.PROP_AUTHORITY_DISPLAY_NAME);
+                }
 
                 NodeRef nr = t.getPath().getInstance().getInitiator();
                 NodeRef assigneeNR = (NodeRef) t.getProperties().get(WorkflowModel.ASSOC_ASSIGNEE);
@@ -140,10 +119,10 @@ public class WorkflowSearch extends AbstractWebScript {
 //                task.put("name", t.getName());
                 task.put("id", t.getId());
                 task.put("type", t.getTitle());
-                task.put("name", assignee.getFirstName() +" "+ assignee.getLastName()+" ("+assignee.getUserName()+")");
+                task.put("name", assignee.getFirstName() + " " + assignee.getLastName() + " (" + assignee.getUserName() + ")");
                 task.put("owner", t.getProperties().get(OWNER));
                 task.put("description", t.getProperties().get(DESCRIPTION));
-                task.put("initiator",  initiator.getFirstName() +" "+ initiator.getLastName()+" ("+initiator.getUserName()+")");
+                task.put("initiator", initiator.getFirstName() + " " + initiator.getLastName() + " (" + initiator.getUserName() + ")");
                 task.put("status", taskStatus);
                 obj.put(task);
             }

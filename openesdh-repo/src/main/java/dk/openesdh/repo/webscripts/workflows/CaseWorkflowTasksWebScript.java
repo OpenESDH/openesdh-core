@@ -42,7 +42,7 @@ public class CaseWorkflowTasksWebScript extends AbstractCaseWorkflowWebScript {
     public Resolution getCaseWorkflowTasks(@UriVariable(WebScriptUtils.CASE_ID) final String caseId) {
         WorkflowTaskQuery tasksQuery = new WorkflowTaskQuery();
         tasksQuery.setActive(null);
-        Map<QName, Object> processCustomProps = new HashMap<QName, Object>();
+        Map<QName, Object> processCustomProps = new HashMap<>();
         processCustomProps.put(OpenESDHModel.PROP_OE_CASE_ID, caseId);
         tasksQuery.setProcessCustomProps(processCustomProps);
         return WebScriptUtils.jsonResolution(getWorkflowTasks(tasksQuery));

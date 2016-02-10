@@ -121,13 +121,13 @@ public class PartyServiceImpl implements PartyService {
         if (CollectionUtils.isNotEmpty(contacts)) {
             AuthenticationUtil.runAsSystem(() -> {
                 List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(casePartyRoleRef);
-                for (String email : contacts) {
-                    if (hasNoChildWithName(childAssocs, email)) {
+                for (String contactId : contacts) {
+                    if (hasNoChildWithName(childAssocs, contactId)) {
                         nodeService.addChild(
                                 casePartyRoleRef,
-                                getContactNodeRefId(email),
+                                getContactNodeRefId(contactId),
                                 ContentModel.ASSOC_MEMBER,
-                                QName.createQName(CONTENT_URI, email));
+                                QName.createQName(CONTENT_URI, contactId));
                     }
                 }
                 return null;
@@ -150,6 +150,9 @@ public class PartyServiceImpl implements PartyService {
     }
 
     private NodeRef getContactNodeRefId(String contactId) {
+        if (NodeRef.isNodeRef(contactId)) {
+            return new NodeRef(contactId);
+        }
         return contactService.getContactById(contactId);
     }
 
@@ -166,12 +169,11 @@ public class PartyServiceImpl implements PartyService {
             return;
         }
 
-        try {
+        AuthenticationUtil.runAsSystem(() -> {
             NodeRef partyRef = getContactNodeRefId(contactId);
             nodeService.removeChild(caseRole.getNodeRef(), partyRef);
-        } catch (Exception ge) {
-            throw new AlfrescoRuntimeException("Unable to remove contact from group for the following reason: " + ge.getMessage());
-        }
+            return null;
+        });
     }
 
     /**

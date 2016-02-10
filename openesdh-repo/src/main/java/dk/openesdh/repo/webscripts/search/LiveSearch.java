@@ -1,15 +1,9 @@
 package dk.openesdh.repo.webscripts.search;
 
-import com.github.dynamicextensionsalfresco.webscripts.annotations.*;
-import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
-import dk.openesdh.repo.model.CaseInfo;
-import dk.openesdh.repo.model.DocumentTemplateInfo;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.services.documents.DocumentTemplateService;
-import dk.openesdh.repo.utils.Utils;
-import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Map;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -24,9 +18,17 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.stereotype.Component;
 
-import java.io.Serializable;
-import java.util.List;
-import java.util.Map;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.*;
+import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
+
+import dk.openesdh.repo.model.CaseInfo;
+import dk.openesdh.repo.model.DocumentTemplateInfo;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.services.documents.DocumentTemplateService;
+import dk.openesdh.repo.utils.Utils;
+import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 /**
  * IMPORTANT
@@ -58,25 +60,25 @@ public class LiveSearch {
     }
 
     @Uri(value = "/api/openesdh/live-search/{context}?t={term}", method = HttpMethod.GET, defaultFormat = "json")
-    public Resolution execute(WebScriptRequest req, @UriVariable final String context, @RequestParam(required = false) final String filter ) throws JSONException {
+    public Resolution execute(WebScriptRequest req, @UriVariable final String context, @RequestParam(required = false) final String filter) throws JSONException {
         Map<String, String> params = Utils.parseParameters(req.getURL());
         int maxResults = 3;
         try {
             maxResults = Integer.parseInt(params.get("maxResults"));
-        }
-        catch (NumberFormatException nfe){
-            if(logger.isDebugEnabled())
-                logger.warn("\n\n-----> Max results parameter was unreadable from the webscript request parameter:\n\t\t\t"+ nfe.getLocalizedMessage());
+        } catch (NumberFormatException nfe) {
+            if (logger.isDebugEnabled()) {
+                logger.warn("\n\n-----> Max results parameter was unreadable from the webscript request parameter:\n\t\t\t" + nfe.getLocalizedMessage());
+            }
         }
         JSONObject response = new JSONObject();
 
-        switch (context){
+        switch (context) {
             case "cases": {
 
                 try {
-                    List<CaseInfo> foundCases = this.caseService.findCases(params.get("t"), maxResults );
+                    List<CaseInfo> foundCases = this.caseService.findCases(params.get("t"), maxResults);
                     JSONArray jsonArray = buildCasesJSON(foundCases);
-                    response.put("cases",jsonArray);
+                    response.put("cases", jsonArray);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -86,7 +88,7 @@ public class LiveSearch {
             case "caseDocs": {
 
                 try {
-                    List<NodeRef> foundDocuments = this.documentService.findCaseDocuments(params.get("t"), maxResults);;
+                    List<NodeRef> foundDocuments = this.documentService.findCaseDocuments(params.get("t"), maxResults);
                     JSONArray jsonArray = buildDocsJSON(foundDocuments);
                     response.put("documents", jsonArray);
                 } catch (JSONException e) {
@@ -97,7 +99,7 @@ public class LiveSearch {
 
             case "templates": {
                 try {
-                    List<DocumentTemplateInfo> foundTemplates = this.documentTemplateService.findTemplates(params.get("t"), maxResults);;
+                    List<DocumentTemplateInfo> foundTemplates = this.documentTemplateService.findTemplates(params.get("t"), maxResults);
                     JSONArray jsonArray = buildDocTemplateJSON(foundTemplates);
                     response.put("templates", jsonArray);
                 } catch (JSONException e) {
@@ -112,14 +114,14 @@ public class LiveSearch {
 
     JSONArray buildDocTemplateJSON(List<DocumentTemplateInfo> templates) throws JSONException {
         JSONArray result = new JSONArray();
-        for(DocumentTemplateInfo template : templates){
+        for (DocumentTemplateInfo template : templates) {
             JSONObject templateObj = new JSONObject();
 
-            templateObj.put("title", template.getTitle() );
-            templateObj.put("name", template.getName() );
-            templateObj.put("nodeRef", template.getNodeRef() );
-            templateObj.put("version", template.getCustomProperty(ContentModel.PROP_VERSION_LABEL) );
-            templateObj.put("templateType", template.getTemplateType() );
+            templateObj.put("title", template.getTitle());
+            templateObj.put("name", template.getName());
+            templateObj.put("nodeRef", template.getNodeRef());
+            templateObj.put("version", template.getCustomProperty(ContentModel.PROP_VERSION_LABEL));
+            templateObj.put("templateType", template.getTemplateType());
             result.put(templateObj);
         }
         return result;
@@ -127,7 +129,7 @@ public class LiveSearch {
 
     JSONArray buildDocsJSON(List<NodeRef> documents) throws JSONException {
         JSONArray result = new JSONArray();
-        for(NodeRef document : documents){
+        for (NodeRef document : documents) {
             JSONObject documentObj = new JSONObject();
             JSONObject caseObj = new JSONObject();
             Map<QName, Serializable> docProps = nodeService.getProperties(document);
@@ -159,15 +161,15 @@ public class LiveSearch {
 
     JSONArray buildCasesJSON(List<CaseInfo> cases) throws JSONException {
         JSONArray result = new JSONArray();
-        for(CaseInfo caseItem : cases){
+        for (CaseInfo caseItem : cases) {
             JSONObject caseObj = new JSONObject();
             caseObj.put("caseNodeRef", caseItem.getNodeRef());
             caseObj.put("caseId", caseItem.getCaseId());
-            caseObj.put("caseTitle",caseItem.getTitle());
-            caseObj.put("caseEndDate",caseItem.getEndDate());
-            caseObj.put("caseStartDate",caseItem.getStartDate());
-            caseObj.put("caseCreatedDate",caseItem.getCreatedDate());
-            caseObj.put("caseDescription",caseItem.getDescription());
+            caseObj.put("caseTitle", caseItem.getTitle());
+            caseObj.put("caseEndDate", caseItem.getEndDate());
+            caseObj.put("caseStartDate", caseItem.getStartDate());
+            caseObj.put("caseCreatedDate", caseItem.getCreatedDate());
+            caseObj.put("caseDescription", caseItem.getDescription());
             result.put(caseObj);
         }
         return result;

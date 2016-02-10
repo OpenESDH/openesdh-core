@@ -21,7 +21,7 @@ import dk.openesdh.repo.services.workflow.CaseWorkflowService;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 @Component
-@WebScript(description = "Starts workflow relevant to the passed data", families = { "Case Workflow Tools" })
+@WebScript(description = "Starts workflow relevant to the passed data", families = {"Case Workflow Tools"})
 public class StartWorkflowWebScript {
 
     @Autowired
@@ -36,7 +36,7 @@ public class StartWorkflowWebScript {
     @Uri(value = "/api/openesdh/workflow/start", method = HttpMethod.POST, defaultFormat = "json")
     public Resolution startWorkflow(@Attribute WorkflowInfo workflowInfo) {
         WorkflowPath wfPath = workflowService.startWorkflow(workflowInfo);
-        Map<String, String> result = new HashMap<String, String>();
+        Map<String, String> result = new HashMap<>();
         result.put("workflowPathId", wfPath.getId());
         return WebScriptUtils.jsonResolution(result);
     }

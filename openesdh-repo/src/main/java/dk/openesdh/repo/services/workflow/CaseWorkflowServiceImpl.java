@@ -317,11 +317,11 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
             return props;
         }
 
-        for (String name : properties.keySet()) {
-            QName key = QName.createQName(name.replaceFirst("_", ":"), namespaceService);
-            Serializable value = parsePropertyValue(key, properties.get(name));
+        properties.entrySet().forEach(entry -> {
+            QName key = QName.createQName(entry.getKey().replaceFirst("_", ":"), namespaceService);
+            Serializable value = parsePropertyValue(key, entry.getValue());
             props.put(key, value);
-        }
+        });
         return props;
     }
 

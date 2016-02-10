@@ -73,8 +73,6 @@
           class="dk.openesdh.repo.webscripts.xsearch.ContactSearch"
           parent="webscript">
         <property name="nodeService" ref="nodeService"/>
-        <property name="repository" ref="repositoryHelper"/>
-        <property name="namespaceService" ref="namespaceService"/>
         <property name="contactSearchService" ref="ContactSearchService"/>
     </bean>
     
@@ -118,15 +116,8 @@
         </property>
     </bean>
 
-    <bean id="webscript.dk.openesdh.authorities.get"
-          class="dk.openesdh.repo.webscripts.Authorities"
-          parent="webscript">
-        <property name="authorityService" ref="AuthorityService"/>
-    </bean>
-
     <bean id="webscript.dk.openesdh.documents.containerNodes.get" class="dk.openesdh.repo.webscripts.documents.DocumentCaseContainers" parent="webscript">
         <property name="caseService" ref="CaseService" />
-        <property name="documentService" ref="DocumentService" />
     </bean>
 
     <bean id="webscript.dk.openesdh.documents.isCaseDoc.get" class="dk.openesdh.repo.webscripts.documents.IsCaseDocument" parent="webscript">

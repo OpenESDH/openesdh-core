@@ -1,6 +1,7 @@
 package dk.openesdh.repo.services.cases;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -21,7 +22,9 @@ import org.alfresco.service.namespace.QName;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -68,6 +71,9 @@ public class PartyServiceImplIT {
     @Autowired
     @Qualifier("PartyService")
     private PartyServiceImpl partyService;
+
+    @Rule
+    public ExpectedException expectedException = ExpectedException.none();
 
     private static final String TEST_CASE_NAME = "Test_case";
     private static final String SENDER_ROLE = "Afsender";
@@ -270,7 +276,7 @@ public class PartyServiceImplIT {
     }
 
     @Test
-    public void shouldCreatePartyThenRemoveParty() throws Exception {
+    public void shouldCreatePartyThenRemoveParty_byEmail() throws Exception {
         String caseId = caseService.getCaseId(caseNodeRef);
         partyService.addCaseParty(caseId, RECEIVER_ROLE, TEST_PERSON_CONTACT_EMAIL);
         partyService.removeCaseParty(caseId, TEST_PERSON_CONTACT_EMAIL, RECEIVER_ROLE);
@@ -278,6 +284,17 @@ public class PartyServiceImplIT {
                 getCasePartyGroupNodeRef(caseNodeRef, RECEIVER_ROLE).getNodeRef(),
                 Sets.newHashSet(OpenESDHModel.TYPE_CONTACT_PERSON));
         Assert.assertTrue("The party shouldn't contain removed person contact", childAssocs.isEmpty());
+    }
+
+    @Test
+    public void shouldCreatePartyThenRemoveParty_byNodeRef() throws Exception {
+        String caseId = caseService.getCaseId(caseNodeRef);
+        partyService.addCaseParty(caseId, RECEIVER_ROLE, testOrgContact.toString());
+        partyService.removeCaseParty(caseId, testOrgContact.toString(), RECEIVER_ROLE);
+        List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(
+                getCasePartyGroupNodeRef(caseNodeRef, RECEIVER_ROLE).getNodeRef(),
+                Sets.newHashSet(OpenESDHModel.TYPE_CONTACT_PERSON));
+        Assert.assertTrue("The party shouldn't contain removed organization contact", childAssocs.isEmpty());
     }
 
     @Test
@@ -313,7 +330,7 @@ public class PartyServiceImplIT {
     }
 
     @Test
-    public void caseOwnerCanAddParties() {
+    public void caseOwnerCanAddAndRemoveParties() {
         NodeRef userCaseNodeRef = caseTestHelper.createCaseBehaviourOn(
                 TEST_CASE_NAME + CaseHelper.ALICE_BEECHER,
                 caseService.getCasesRootNodeRef(),
@@ -321,6 +338,26 @@ public class PartyServiceImplIT {
         casesToClean.add(userCaseNodeRef);
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ALICE_BEECHER);
         shouldCreatePartyWithContactsAndGetContactsByCaseId(CaseHelper.ALICE_BEECHER, userCaseNodeRef);
+
+        String userCaseId = caseService.getCaseId(userCaseNodeRef);
+        partyService.removeCaseParty(userCaseId, testPersonContact.toString(), RECEIVER_ROLE);
+        partyService.removeCaseParty(userCaseId, testOrgContact.toString(), RECEIVER_ROLE);
     }
 
+    @Test(expected = AccessDeniedException.class)
+    public void shouldNotRemovePartyFromClosedCase() throws Exception {
+        String caseId = caseService.getCaseId(caseNodeRef);
+        partyService.addCaseParty(caseId, RECEIVER_ROLE, TEST_PERSON_CONTACT_EMAIL);
+        try {
+            //lock case
+            caseService.changeNodeStatus(caseNodeRef, CaseStatus.CLOSED);
+            //try to remove party
+            partyService.removeCaseParty(caseId, TEST_PERSON_CONTACT_EMAIL, RECEIVER_ROLE);
+            //
+            fail("Party removal must fail");
+        } finally {
+            //unlock case, that it could be deleted
+            caseService.changeNodeStatus(caseNodeRef, CaseStatus.ACTIVE);
+        }
+    }
 }

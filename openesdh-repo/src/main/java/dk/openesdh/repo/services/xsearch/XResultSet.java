@@ -24,7 +24,7 @@ public class XResultSet {
         return numberFound;
     }
 
-    public int getLength() {
+    final public int getLength() {
         return nodeRefs.size();
     }
 
@@ -56,6 +56,7 @@ public class XResultSet {
 
     /**
      * Add the result set specified to this result set.
+     *
      * @param r
      */
     public void addAll(XResultSet r) {

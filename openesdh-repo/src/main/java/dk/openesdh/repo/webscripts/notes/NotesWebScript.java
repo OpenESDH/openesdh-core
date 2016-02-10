@@ -1,11 +1,7 @@
 package dk.openesdh.repo.webscripts.notes;
 
-import dk.openesdh.repo.model.Note;
-import dk.openesdh.repo.services.notes.NoteService;
-import dk.openesdh.repo.webscripts.AbstractRESTWebscript;
-import dk.openesdh.repo.webscripts.PageableWebScript;
-import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 import java.io.IOException;
+
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.apache.log4j.Logger;
@@ -13,9 +9,15 @@ import org.json.JSONException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
+import dk.openesdh.repo.model.Note;
+import dk.openesdh.repo.services.notes.NoteService;
+import dk.openesdh.repo.webscripts.AbstractRESTWebscript;
+import dk.openesdh.repo.webscripts.PageableWebScript;
+import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
+
 public class NotesWebScript extends AbstractRESTWebscript {
 
-    protected static Logger logger = Logger.getLogger(NotesWebScript.class);
+    protected static final Logger logger = Logger.getLogger(NotesWebScript.class);
 
     private NoteService noteService;
 
