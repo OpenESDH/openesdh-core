@@ -20,12 +20,6 @@
                     <prop key="uuidBinding">UPDATE_EXISTING</prop>
                     <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/folders.xml</prop>
                 </props>
-                <props>
-                    <prop key="path">app:company_home/oe:OpenESDH/oe:subsystems/oe:officeTemplates</prop>
-                    <prop key="uuidBinding">UPDATE_EXISTING</prop>
-                    <prop key="childAssocType">rule:ruleFolder</prop>
-                    <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/templateRuleFolder.xml</prop>
-                </props>
             </list>
         </property>
     </bean>

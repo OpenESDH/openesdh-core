@@ -1,5 +1,6 @@
-package dk.openesdh.repo.services.officetemplate;
+package dk.openesdh.doctemplates.services.officetemplate;
 
+import java.io.InputStream;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -18,12 +19,22 @@ public interface OfficeTemplateService {
     String OPENESDH_DOC_TEMPLATES_DEFAULT_PATH = "OpenESDH/subsystems/officeTemplates";
 
     /**
-     * Returns the a nodeRef representing the templates directory root.
+     * save template
      *
-     * @return
-     * @throws org.alfresco.error.AlfrescoRuntimeException
+     * @param title
+     * @param description
+     * @param fileName
+     * @param contentInputStream
+     * @param mimetype
      */
-    NodeRef getTemplateDirectory();
+    void saveTemplate(String title, String description, String fileName, InputStream contentInputStream, String mimetype);
+
+    /**
+     * delete template
+     *
+     * @param nodeRef
+     */
+    void deleteTemplate(NodeRef nodeRef);
 
     /**
      * Get the available templates for the current user.
@@ -37,9 +48,8 @@ public interface OfficeTemplateService {
      *
      * @param templateNodeRef
      * @return
-     * @throws java.lang.Exception
      */
-    OfficeTemplate getTemplate(NodeRef templateNodeRef) throws Exception;
+    OfficeTemplate getTemplate(NodeRef templateNodeRef);
 
     /**
      * Render the template, given the map of fields/values.

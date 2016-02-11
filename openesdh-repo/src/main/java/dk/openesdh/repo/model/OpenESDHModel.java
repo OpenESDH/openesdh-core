@@ -79,8 +79,6 @@ public interface OpenESDHModel {
 
     QName ASPECT_DOC_IS_MAIN_FILE = QName.createQName(DOC_URI, "isMainFile");
 
-    QName ASPECT_DOC_TEMPLATE = QName.createQName(DOC_URI, "template");
-
     /**
      * Associations
      */
@@ -186,10 +184,6 @@ public interface OpenESDHModel {
     QName PROP_NOTE_HEADLINE = QName.createQName(NOTE_URI, "headline");
     QName PROP_NOTE_CONTENT = QName.createQName(NOTE_URI, "content");
     QName PROP_ATTACHMENT_COUNT = QName.createQName(DOC_URI, "attachmentCount");
-
-    //For document templates
-    QName PROP_TEMPLATE_TYPE = QName.createQName(DOC_URI, "templateType");
-    QName PROP_ASSIGNED_CASE_TYPES = QName.createQName(DOC_URI, "assignedCaseTypes");
 
     /**
      * Version label policy

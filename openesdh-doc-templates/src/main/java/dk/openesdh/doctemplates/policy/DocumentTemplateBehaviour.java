@@ -1,4 +1,4 @@
-package dk.openesdh.repo.policy;
+package dk.openesdh.doctemplates.policy;
 
 import java.io.Serializable;
 import java.util.Map;
@@ -20,12 +20,13 @@ import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.PropertyCheck;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.doctemplates.model.OpenESDHDocTemplateModel;
 
 /**
  * @author Lanre.
@@ -33,7 +34,7 @@ import dk.openesdh.repo.model.OpenESDHModel;
 @Service("DocumentTemplateBehaviour")
 public class DocumentTemplateBehaviour implements NodeServicePolicies.OnAddAspectPolicy {
 
-    private static final Logger logger = Logger.getLogger(DocumentTemplateBehaviour.class);
+    private final Logger logger = LoggerFactory.getLogger(DocumentTemplateBehaviour.class);
 
     @Autowired
     @Qualifier("NodeService")
@@ -52,7 +53,7 @@ public class DocumentTemplateBehaviour implements NodeServicePolicies.OnAddAspec
         // Bind behaviours to node policies
         this.policyComponent.bindClassBehaviour(
                 NodeServicePolicies.OnAddAspectPolicy.QNAME,
-                OpenESDHModel.ASPECT_DOC_TEMPLATE,
+                OpenESDHDocTemplateModel.ASPECT_DOC_TEMPLATE,
                 new JavaBehaviour(this, "onAddAspect", Behaviour.NotificationFrequency.TRANSACTION_COMMIT)
         );
     }
@@ -65,7 +66,7 @@ public class DocumentTemplateBehaviour implements NodeServicePolicies.OnAddAspec
             //in the same try/catch logic
             ContentData contentData = (ContentData) docProps.get(ContentModel.PROP_CONTENT);
             String MimeType = contentData.getMimetype();
-            nodeService.setProperty(nodeRef, OpenESDHModel.PROP_TEMPLATE_TYPE, MimeType);
+            nodeService.setProperty(nodeRef, OpenESDHDocTemplateModel.PROP_TEMPLATE_TYPE, MimeType);
         } catch (Exception ge) {
             logger.error("Unable to add mimetype to object. Reason: \n" + ge.getMessage());
         }
@@ -84,7 +85,7 @@ public class DocumentTemplateBehaviour implements NodeServicePolicies.OnAddAspec
 
             public void handleSuccessfulRendition(ChildAssociationRef primaryParentOfNewRendition) {
                 nodeService.getProperty(nodeRef, ContentModel.PROP_TITLE).toString();
-                logger.info("==> Successfully rendered cardViewThumbnail for: ");
+                logger.debug("==> Successfully rendered cardViewThumbnail for: ");
             }
         });
 

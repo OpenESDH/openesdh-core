@@ -3,7 +3,6 @@ package dk.openesdh.repo.webscripts.xsearch;
 import java.util.Map;
 
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.apache.log4j.Logger;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 
 /**
@@ -11,8 +10,6 @@ import org.springframework.extensions.webscripts.WebScriptRequest;
  * xSearchService.
  */
 public class UserInvolvedSearch extends XSearchWebscript {
-
-    protected static final Logger log = Logger.getLogger(UserInvolvedSearch.class);
 
     @Override
     protected Map<String, String> getParams(WebScriptRequest req) {

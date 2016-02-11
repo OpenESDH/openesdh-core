@@ -1,9 +1,10 @@
-package dk.openesdh.repo.services.documents;
-
-import dk.openesdh.repo.model.DocumentTemplateInfo;
-import org.alfresco.service.cmr.repository.NodeRef;
+package dk.openesdh.doctemplates.services.documenttemplate;
 
 import java.util.List;
+
+import org.alfresco.service.cmr.repository.NodeRef;
+
+import dk.openesdh.doctemplates.model.DocumentTemplateInfo;
 
 /**
  * Created by Arnas on 21/09/15.
@@ -11,8 +12,8 @@ import java.util.List;
 public interface DocumentTemplateService {
 
     /**
-     * get available document types
-     *
+     * @param filter
+     * @param size
      * @return
      */
     public List<DocumentTemplateInfo> findTemplates(String filter, int size);

@@ -1,4 +1,4 @@
-package dk.openesdh.repo.model;
+package dk.openesdh.doctemplates.model;
 
 import java.io.Serializable;
 import java.util.Date;

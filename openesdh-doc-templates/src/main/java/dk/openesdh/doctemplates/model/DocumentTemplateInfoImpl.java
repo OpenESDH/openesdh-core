@@ -1,4 +1,4 @@
-package dk.openesdh.repo.model;
+package dk.openesdh.doctemplates.model;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -115,7 +115,7 @@ public class DocumentTemplateInfoImpl implements DocumentTemplateInfo {
      */
     @Override
     public String getTemplateType() {
-        return this.getCustomProperty(OpenESDHModel.PROP_TEMPLATE_TYPE).toString();
+        return this.getCustomProperty(OpenESDHDocTemplateModel.PROP_TEMPLATE_TYPE).toString();
     }
 
     @Override
