@@ -1,9 +1,8 @@
 package dk.openesdh.repo.services.documents;
 
-import dk.openesdh.repo.model.DocumentTemplateInfo;
-import dk.openesdh.repo.model.DocumentTemplateInfoImpl;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.system.OpenESDHFoldersService;
+import java.io.Serializable;
+import java.util.*;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.search.impl.lucene.LuceneQueryParserException;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -18,30 +17,29 @@ import org.alfresco.util.SearchLanguageConversion;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
-import java.io.Serializable;
-import java.util.*;
+import dk.openesdh.repo.model.DocumentTemplateInfo;
+import dk.openesdh.repo.model.DocumentTemplateInfoImpl;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 
+@Service("DocumentTemplateService")
 public class DocumentTemplateServiceImpl implements DocumentTemplateService {
+
     private static final Log logger = LogFactory.getLog(DocumentServiceImpl.class);
 
-    //<editor-fold desc="Injected services">
-    OpenESDHFoldersService openESDHFoldersService;
-    SearchService searchService;
-    NodeService nodeService;
-
-    public void setOpenESDHFoldersService(OpenESDHFoldersService openESDHFoldersService) {
-        this.openESDHFoldersService = openESDHFoldersService;
-    }
-
-    public void setSearchService(SearchService searchService) {
-        this.searchService = searchService;
-    }
-
-    public void setNodeService(NodeService nodeService) {
-        this.nodeService = nodeService;
-    }
-    //</editor-fold>
+    @Autowired
+    @Qualifier("OpenESDHFoldersService")
+    private OpenESDHFoldersService openESDHFoldersService;
+    @Autowired
+    @Qualifier("SearchService")
+    private SearchService searchService;
+    @Autowired
+    @Qualifier("NodeService")
+    private NodeService nodeService;
 
     /**
      * Find document templates
@@ -74,7 +72,7 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
             }
 
             SearchParameters sp = new SearchParameters();
-            sp.addQueryTemplate("_DOCTEMPLATES", "|%doc:templateType |%title "+"|%description |doc:assignedCaseTypes");
+            sp.addQueryTemplate("_DOCTEMPLATES", "|%doc:templateType |%title " + "|%description |doc:assignedCaseTypes");
             sp.setDefaultFieldName("_DOCTEMPLATES");
             sp.addStore(templatesRoot.getStoreRef());
             sp.setLanguage(SearchService.LANGUAGE_FTS_ALFRESCO);
@@ -91,7 +89,7 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
             ResultSet results = null;
             try {
                 results = this.searchService.query(sp);
-                result = new ArrayList<DocumentTemplateInfo>(results.length());
+                result = new ArrayList<>(results.length());
                 for (NodeRef tmpl : results.getNodeRefs()) {
                     result.add(getTemplateInfo(tmpl));
                 }
@@ -100,7 +98,9 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
                 logger.error("LuceneQueryParserException with findCases()", lqpe);
                 result = Collections.emptyList();
             } finally {
-                if (results != null) results.close();
+                if (results != null) {
+                    results.close();
+                }
             }
         }
 
@@ -120,11 +120,11 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
         // Create and return the site information
         tmplInfo = new DocumentTemplateInfoImpl(templateNodeRef, assignedCaseTypes, title, properties);
 
-        tmplInfo.setTemplateType(properties.get(OpenESDHModel.PROP_TEMPLATE_TYPE).toString());
         tmplInfo.setCreatedDate(DefaultTypeConverter.INSTANCE.convert(Date.class, properties.get(ContentModel.PROP_CREATED)));
         tmplInfo.setLastModifiedDate(DefaultTypeConverter.INSTANCE.convert(Date.class, properties.get(ContentModel.PROP_MODIFIED)));
-        if (StringUtils.isNotBlank(properties.get(ContentModel.PROP_DESCRIPTION).toString()))
+        if (StringUtils.isNotBlank(properties.get(ContentModel.PROP_DESCRIPTION).toString())) {
             tmplInfo.setDescription(properties.get(ContentModel.PROP_DESCRIPTION).toString());
+        }
 
         return tmplInfo;
     }

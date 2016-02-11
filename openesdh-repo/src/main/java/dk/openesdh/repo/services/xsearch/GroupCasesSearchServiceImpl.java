@@ -22,7 +22,7 @@ public class GroupCasesSearchServiceImpl extends XSearchServiceImpl {
     @Override
     protected JSONObject nodeToJSON(NodeRef nodeRef) throws JSONException {
         JSONObject json = super.nodeToJSON(nodeRef);
-        Map<String, String> params = new HashMap<String, String>();
+        Map<String, String> params = new HashMap<>();
         params.put(XSearchService.NODE_REF, nodeRef.toString());
         XResultSet results = documentsSearchService.getNodesJSON(params, 0, PageableWebScript.DEFAULT_PAGE_SIZE,
                 null, true);

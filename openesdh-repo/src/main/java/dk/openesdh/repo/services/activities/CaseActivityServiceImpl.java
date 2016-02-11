@@ -21,10 +21,8 @@ import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.security.PersonService.PersonInfo;
-import org.alfresco.service.transaction.TransactionService;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
@@ -32,14 +30,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import dk.openesdh.repo.services.RunInTransactionAsAdmin;
+import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.services.cases.CaseOwnersService;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.DocumentService;
 import dk.openesdh.repo.services.members.CaseMembersService;
 
 @Service("CaseActivityService")
-public class CaseActivityServiceImpl implements CaseActivityService, RunInTransactionAsAdmin {
+public class CaseActivityServiceImpl implements CaseActivityService {
 
     private static final String PREFERENCE_FAVOURITE_CASE = "dk_openesdh_cases_favourites";
     private static final String PREFERENCE_LAST_READ_FEED_ID = "dk_openesdh_last_read_feed_id";
@@ -50,9 +48,6 @@ public class CaseActivityServiceImpl implements CaseActivityService, RunInTransa
     @Autowired
     @Qualifier("PersonService")
     private PersonService personService;
-    @Autowired
-    @Qualifier("AuthorityService")
-    private AuthorityService authorityService;
     @Autowired
     @Qualifier("CaseService")
     private CaseService caseService;
@@ -74,6 +69,8 @@ public class CaseActivityServiceImpl implements CaseActivityService, RunInTransa
     @Autowired
     @Qualifier("ContentService")
     private ContentService contentService;
+    @Autowired
+    private TransactionRunner transactionRunner;
 
     @Override
     public void postOnCaseUpdate(NodeRef caseNodeRef) {
@@ -81,7 +78,6 @@ public class CaseActivityServiceImpl implements CaseActivityService, RunInTransa
                 () -> createNewActivity(caseNodeRef));
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void postOnCaseMemberRemove(String caseId, NodeRef authority, String role) {
         postActivity(caseId, CaseActivityService.ACTIVITY_TYPE_CASE_MEMBER_REMOVE, (caseNodeRef) -> {
@@ -92,7 +88,6 @@ public class CaseActivityServiceImpl implements CaseActivityService, RunInTransa
         });
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void postOnCaseMemberAdd(String caseId, NodeRef authority, String role) {
         postActivity(caseId, CaseActivityService.ACTIVITY_TYPE_CASE_MEMBER_ADD, (caseNodeRef) -> {
@@ -103,7 +98,6 @@ public class CaseActivityServiceImpl implements CaseActivityService, RunInTransa
         });
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void postOnCaseWorkflowStart(String caseId, String description) {
         postActivity(caseId, CaseActivityService.ACTIVITY_TYPE_CASE_WORKFLOW_START, (caseNodeRef) -> {
@@ -113,7 +107,6 @@ public class CaseActivityServiceImpl implements CaseActivityService, RunInTransa
         });
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void postOnCaseWorkflowCancel(String caseId, String description) {
         postActivity(caseId, CaseActivityService.ACTIVITY_TYPE_CASE_WORKFLOW_CANCEL, (caseNodeRef) -> {
@@ -123,7 +116,6 @@ public class CaseActivityServiceImpl implements CaseActivityService, RunInTransa
         });
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public void postOnEndCaseWorkflowTask(String caseId, String description, Optional<String> taskOutcome) {
         String activityType = CaseActivityService.ACTIVITY_TYPE_CASE_WORKFLOW_TASK_
@@ -185,7 +177,6 @@ public class CaseActivityServiceImpl implements CaseActivityService, RunInTransa
                 true, minFeedId).size();
     }
 
-    @SuppressWarnings("unchecked")
     private void postCaseDocumentActivity(NodeRef documentNodeRef, String activityType) {
         NodeRef caseNodeRef = documentService.getCaseNodeRef(documentNodeRef);
         postActivity(caseNodeRef, activityType, () -> {
@@ -196,7 +187,6 @@ public class CaseActivityServiceImpl implements CaseActivityService, RunInTransa
         });
     }
 
-    @SuppressWarnings("unchecked")
     private void postCaseDocumentAttachmentActivity(NodeRef attachmentNodeRef, String activityType) {
         NodeRef caseNodeRef = documentService.getCaseNodeRef(attachmentNodeRef);
         postActivity(caseNodeRef, activityType, () -> {
@@ -213,7 +203,6 @@ public class CaseActivityServiceImpl implements CaseActivityService, RunInTransa
         return createNewActivity(caseService.getCaseId(caseNodeRef), caseNodeRef);
     }
 
-    @SuppressWarnings("unchecked")
     private JSONObject createNewActivity(String caseId, NodeRef caseNodeRef) {
         PersonInfo currentUserInfo = personService.getPerson(personService.getPerson(AuthenticationUtil
                 .getFullyAuthenticatedUser()));
@@ -238,7 +227,7 @@ public class CaseActivityServiceImpl implements CaseActivityService, RunInTransa
         NodeRef caseNodeRef = caseService.getCaseById(caseId);
         postActivity(caseId, caseNodeRef, activityType, () -> activityJsonFunction.apply(caseNodeRef));
     }
-    
+
     private void postActivity(NodeRef caseNodeRef, String activityType, Supplier<JSONObject> activityJsonSupplier) {
         String caseId = caseService.getCaseId(caseNodeRef);
         postActivity(caseId, caseNodeRef, activityType, activityJsonSupplier);
@@ -252,7 +241,7 @@ public class CaseActivityServiceImpl implements CaseActivityService, RunInTransa
         String activity = activityJsonSupplier.get().toJSONString();
         usersToNotify.forEach(userId -> notifyUser(activityType, userId, activity));
     }
-    
+
     private Set<String> getUsersToNotify(String caseId, NodeRef caseNodeRef) {
         String currentUser = AuthenticationUtil.getFullyAuthenticatedUser();
         Set<String> result = caseOwnersService.getCaseOwnersUserIds(caseNodeRef);
@@ -261,9 +250,9 @@ public class CaseActivityServiceImpl implements CaseActivityService, RunInTransa
                 .filter(userId -> !userId.equals(currentUser))
                 .collect(Collectors.toSet());
     }
-    
+
     private Set<String> getMembersWithFavouriteCase(String caseId, NodeRef caseNodeRef) {
-        return runAsAdmin(() -> {
+        return transactionRunner.runAsAdmin(() -> {
             return caseMembersService.getMembers(caseNodeRef, false, false)
                     .stream()
                     .filter(member -> caseMembersService.isAuthorityPerson(member))
@@ -271,27 +260,21 @@ public class CaseActivityServiceImpl implements CaseActivityService, RunInTransa
                     .collect(Collectors.toSet());
         });
     }
-    
-    private boolean memberHasFavouriteCase(String userName, String caseId){
+
+    private boolean memberHasFavouriteCase(String userName, String caseId) {
         return Optional.ofNullable(getFavouriteCasesPreference(userName))
-                    .map(caseIds -> caseIds.toString())
-                    .filter(caseIds -> caseIds.contains(caseId))
-                    .isPresent();
+                .map(caseIds -> caseIds)
+                .filter(caseIds -> caseIds.contains(caseId))
+                .isPresent();
     }
 
     private void notifyUser(String activityType, String userId, String jsonData) {
         activityService.postActivity(activityType, null, null, jsonData, userId);
     }
 
-    @Override
-    public TransactionService getTransactionService() {
-        return null;
-    }
-
     /**
-     * This is a copy from the PreferenceService to circumvent permissions
-     * issue.
-     * 
+     * This is a copy from the PreferenceService to circumvent permissions issue.
+     *
      * @param userName
      * @return
      */

@@ -1,10 +1,5 @@
 package dk.openesdh.repo.services.documents;
 
-import dk.openesdh.repo.model.DocumentCategory;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.system.MultiLanguagePropertyService;
-import dk.openesdh.repo.services.system.MultiLanguageValue;
-import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,6 +7,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
@@ -19,13 +15,29 @@ import org.alfresco.service.cmr.repository.InvalidNodeRefException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.extensions.surf.util.I18NUtil;
+import org.springframework.stereotype.Service;
 
+import dk.openesdh.repo.model.DocumentCategory;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.system.MultiLanguagePropertyService;
+import dk.openesdh.repo.services.system.MultiLanguageValue;
+import dk.openesdh.repo.services.system.OpenESDHFoldersService;
+
+@Service("DocumentCategoryService")
 public class DocumentCategoryServiceImpl implements DocumentCategoryService {
 
-    public static List<String> SYSTEM_TYPES = Arrays.asList("annex");
+    public static final List<String> SYSTEM_TYPES = Arrays.asList("annex");
+    @Autowired
+    @Qualifier("OpenESDHFoldersService")
     private OpenESDHFoldersService openESDHFoldersService;
+    @Autowired
+    @Qualifier("NodeService")
     private NodeService nodeService;
+    @Autowired
+    @Qualifier("MultiLanguagePropertyService")
     private MultiLanguagePropertyService multiLanguagePropertyService;
 
     @Override
@@ -140,17 +152,5 @@ public class DocumentCategoryServiceImpl implements DocumentCategoryService {
 
     private NodeRef getDocumentCategoriesRoot() {
         return openESDHFoldersService.getDocumentCategoriesRootNodeRef();
-    }
-
-    public void setOpenESDHFoldersService(OpenESDHFoldersService openESDHFoldersService) {
-        this.openESDHFoldersService = openESDHFoldersService;
-    }
-
-    public void setNodeService(NodeService nodeService) {
-        this.nodeService = nodeService;
-    }
-
-    public void setMultiLanguagePropertyService(MultiLanguagePropertyService multiLanguagePropertyService) {
-        this.multiLanguagePropertyService = multiLanguagePropertyService;
     }
 }

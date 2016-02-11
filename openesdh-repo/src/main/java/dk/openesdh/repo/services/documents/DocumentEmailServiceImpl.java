@@ -4,6 +4,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.InternetAddress;
+
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.ContentReader;
@@ -11,6 +14,7 @@ import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
@@ -19,9 +23,6 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.mail.javamail.MimeMessagePreparator;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
-
-import javax.mail.MessagingException;
-import javax.mail.internet.InternetAddress;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
@@ -39,6 +40,8 @@ public class DocumentEmailServiceImpl implements DocumentEmailService {
     private ContentService contentService;
     @Autowired
     private JavaMailSender mailService;
+    @Value("${mail.from.default}")
+    private String defaultFromEmail;
 
     @Override
     public void send(String caseId, Collection<NodeRef> recipients, String subject, String text, Collection<NodeRef> attachments) {
@@ -57,9 +60,9 @@ public class DocumentEmailServiceImpl implements DocumentEmailService {
             });
             message.setSubject(subject);
             message.setText(text);
-            message.setFrom(new InternetAddress("noreply@openesdh.dk"));
+            message.setFrom(new InternetAddress(defaultFromEmail));
 
-            attachments.stream().map(this::getDocumentNodeRef).forEach(attachment -> {
+            attachments.stream().map(documentService::getMainDocument).forEach(attachment -> {
                 String name = (String) nodeService.getProperty(attachment, ContentModel.PROP_NAME);
                 ContentReader reader = contentService.getReader(attachment, ContentModel.PROP_CONTENT);
                 ByteArrayOutputStream os = new ByteArrayOutputStream();
@@ -77,9 +80,4 @@ public class DocumentEmailServiceImpl implements DocumentEmailService {
     private String getEmailAddress(NodeRef nodeRef) {
         return (String) nodeService.getProperty(nodeRef, OpenESDHModel.PROP_CONTACT_EMAIL);
     }
-
-    private NodeRef getDocumentNodeRef(NodeRef nodeRef) {
-        return documentService.getMainDocument(nodeRef);
-    }
-
 }

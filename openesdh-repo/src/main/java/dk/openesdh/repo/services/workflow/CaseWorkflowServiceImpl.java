@@ -49,22 +49,29 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
     @Qualifier("WorkflowService")
     private WorkflowService workflowService;
     @Autowired
+    @Qualifier("NodeService")
     private NodeService nodeService;
     @Autowired
+    @Qualifier("namespaceService")
     private NamespaceService namespaceService;
     @Autowired
+    @Qualifier("DictionaryService")
     private DictionaryService dictionaryService;
     @Autowired
+    @Qualifier("PersonService")
     private PersonService personService;
     @Autowired
+    @Qualifier("AuthorityService")
     private AuthorityService authorityService;
     @Autowired
+    @Qualifier("CaseService")
     private CaseService caseService;
     @Autowired
+    @Qualifier("CaseMembersService")
     private CaseMembersService caseMembersService;
     @Autowired
+    @Qualifier("CasePermissionService")
     private CasePermissionService casePermissionService;
-
     @Autowired
     @Qualifier("retryingTransactionHelper")
     private RetryingTransactionHelper retryingTransactionHelper;
@@ -115,7 +122,7 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
                 .get()
                 .apply(pathProps);
     }
-    
+
     private List<Map<String, Object>> getWorkflowAssignee(Map<QName, Serializable> props) {
         NodeRef assigneeNodeRef = (NodeRef) props.get(WorkflowModel.ASSOC_ASSIGNEE);
         return Arrays.asList(getPersonModel(assigneeNodeRef));
@@ -128,7 +135,7 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
                 .map(this::getPersonModel)
                 .collect(Collectors.toList());
     }
-    
+
     private List<Map<String, Object>> getWorkflowGroupAssignee(Map<QName, Serializable> props) {
         NodeRef groupAssigneeNodeRef = (NodeRef) props.get(WorkflowModel.ASSOC_GROUP_ASSIGNEE);
         return getPeopleFromGroup(groupAssigneeNodeRef).stream()
@@ -136,7 +143,7 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
                 .map(this::getPersonModel)
                 .collect(Collectors.toList());
     }
-    
+
     @SuppressWarnings("unchecked")
     private List<Map<String, Object>> getWorkflowGroupAssignees(Map<QName, Serializable> props) {
         List<NodeRef> groupNodeRefs = (List<NodeRef>) props.get(WorkflowModel.ASSOC_GROUP_ASSIGNEES);
@@ -146,8 +153,8 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
                 .map(this::getPersonModel)
                 .collect(Collectors.toList());
     }
-    
-    private Map<String, Object> getPersonModel(NodeRef assigneeNodeRef){
+
+    private Map<String, Object> getPersonModel(NodeRef assigneeNodeRef) {
         PersonInfo assignee = personService.getPerson(assigneeNodeRef);
         Map<String, Object> assigneeMap = new HashMap<>();
         assigneeMap.put(WorkflowModelBuilder.PERSON_FIRST_NAME, assignee.getFirstName());
@@ -184,12 +191,12 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
     public void grantCaseAccessToWorkflowAssignees(Map<QName, Serializable> workflowParams) {
         retryingTransactionHelper.doInTransaction(() -> {
             caseAccessGranters.entrySet()
-                .stream()
-                .filter(granter -> workflowParams.containsKey(granter.getKey()))
-                .findAny()
-                .map(Map.Entry::getValue)
-                .get()
-                .accept(workflowParams);
+                    .stream()
+                    .filter(granter -> workflowParams.containsKey(granter.getKey()))
+                    .findAny()
+                    .map(Map.Entry::getValue)
+                    .get()
+                    .accept(workflowParams);
             return null;
         });
     }
@@ -197,26 +204,26 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
     private void grantCaseAccessToAssignee(Map<QName, Serializable> workflowParams) {
         NodeRef assigneeNodRef = (NodeRef) workflowParams.get(WorkflowModel.ASSOC_ASSIGNEE);
         PersonInfo assignee = personService.getPerson(assigneeNodRef);
-        
+
         NodeRef caseNodeRef = getCaseNodeRef(workflowParams);
 
         if (!getCaseMembers(caseNodeRef).contains(assignee.getUserName())) {
             caseMembersService.addAuthorityToRole(assigneeNodRef, getCaseReaderRole(caseNodeRef), caseNodeRef);
         }
     }
-    
+
     @SuppressWarnings("unchecked")
     private void grantCaseAccessToAssignees(Map<QName, Serializable> workflowParams) {
         NodeRef caseNodeRef = getCaseNodeRef(workflowParams);
         List<String> caseMembers = getCaseMembers(caseNodeRef);
-        
+
         List<NodeRef> assigneeNodeRefs = (List<NodeRef>) workflowParams.get(WorkflowModel.ASSOC_ASSIGNEES);
-        
+
         List<NodeRef> nonMembersAssignees = assigneeNodeRefs
                 .stream()
                 .filter(nodeRef -> !caseMembers.contains(personService.getPerson(nodeRef).getUserName()))
                 .collect(Collectors.toList());
-        
+
         if (!nonMembersAssignees.isEmpty()) {
             caseMembersService.addAuthoritiesToRole(nonMembersAssignees, getCaseReaderRole(caseNodeRef),
                     caseNodeRef);
@@ -280,7 +287,7 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
                 .flatMap(members -> members.stream())
                 .collect(Collectors.toList());
     }
-    
+
     private String getCaseReaderRole(NodeRef caseNodeRef) {
         return casePermissionService.getPermissionName(caseNodeRef, CasePermission.READER);
     }
@@ -291,7 +298,7 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
         }
         params.put(prop, new NodeRef(value));
     }
-    
+
     private void setNodeRefListProp(Map<QName, Serializable> params, QName prop, List<String> values) {
         if (CollectionUtils.isEmpty(values)) {
             return;
@@ -310,11 +317,11 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
             return props;
         }
 
-        for (String name : properties.keySet()) {
-            QName key = QName.createQName(name.replaceFirst("_", ":"), namespaceService);
-            Serializable value = parsePropertyValue(key, properties.get(name));
+        properties.entrySet().forEach(entry -> {
+            QName key = QName.createQName(entry.getKey().replaceFirst("_", ":"), namespaceService);
+            Serializable value = parsePropertyValue(key, entry.getValue());
             props.put(key, value);
-        }
+        });
         return props;
     }
 
@@ -327,7 +334,7 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
         if (result != null) {
             return result;
         }
-        
+
         result = parseArrayOrCollection(name, value);
         if (result != null) {
             return result;
@@ -338,23 +345,23 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
 
     private Serializable parsePropertyValueByDictionaryService(QName name, Object value) {
         PropertyDefinition prop = dictionaryService.getProperty(name);
-        if(prop == null){
+        if (prop == null) {
             return null;
         }
-        
+
         if (!prop.isMultiValued() || (!value.getClass().isArray() && !(value instanceof Collection<?>))) {
             return (Serializable) DefaultTypeConverter.INSTANCE.convert(prop.getDataType(), value);
         }
-        
+
         Collection<?> values = toCollection(value);
 
         return (Serializable) values.stream()
                 .map(val -> (Serializable) DefaultTypeConverter.INSTANCE.convert(prop.getDataType(), val))
                 .collect(Collectors.toList());
     }
-    
+
     private Serializable parseArrayOrCollection(QName name, Object value) {
-        if(!value.getClass().isArray() && !(value instanceof Collection<?>)){
+        if (!value.getClass().isArray() && !(value instanceof Collection<?>)) {
             return null;
         }
 
@@ -379,9 +386,9 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
                     NodeRef itemNodeRef = new NodeRef(item);
                     String itemName = nodeService.getProperty(itemNodeRef, ContentModel.PROP_NAME).toString();
                     nodeService.addChild(workflowPackage, new NodeRef(item),
-                        ContentModel.ASSOC_CONTAINS,
-                        QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI,
-                                QName.createValidLocalName(itemName)));
+                            ContentModel.ASSOC_CONTAINS,
+                            QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI,
+                                    QName.createValidLocalName(itemName)));
                 });
     }
 

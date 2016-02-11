@@ -20,7 +20,6 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PermissionService;
-import org.alfresco.service.transaction.TransactionService;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.junit.After;
@@ -38,14 +37,14 @@ import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.helper.CaseHelper;
-import dk.openesdh.repo.services.RunInTransactionAsAdmin;
+import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
 @ContextConfiguration({"classpath:alfresco/application-context.xml", "classpath:alfresco/extension/openesdh-test-context.xml"})
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class OeFilesServiceImplIT implements RunInTransactionAsAdmin {
+public class OeFilesServiceImplIT {
 
     @Autowired
     private OeFilesServiceImpl filesService;
@@ -53,8 +52,7 @@ public class OeFilesServiceImplIT implements RunInTransactionAsAdmin {
     @Qualifier("TestCaseHelper")
     private CaseHelper caseHelper;
     @Autowired
-    @Qualifier("TransactionService")
-    private TransactionService transactionService;
+    private TransactionRunner transactionRunner;
     @Autowired
     @Qualifier("authorityServiceScript")
     private ScriptAuthorityService scriptAuthorityService;
@@ -88,7 +86,7 @@ public class OeFilesServiceImplIT implements RunInTransactionAsAdmin {
 
     @After
     public void tearDown() {
-        runInTransactionAsAdmin(() -> {
+        transactionRunner.runInTransactionAsAdmin(() -> {
             try {
                 filesService.delete(file1);
             } finally {
@@ -167,7 +165,7 @@ public class OeFilesServiceImplIT implements RunInTransactionAsAdmin {
         final String GROUP1 = PermissionService.GROUP_PREFIX + GROUP1_WITH_OWNER1;
         try {
             setAdminUserAsFullyAuthenticatedUser();
-            runInTransactionAsAdmin(() -> {
+            transactionRunner.runInTransactionAsAdmin(() -> {
                 ScriptGroup group = scriptAuthorityService.createRootGroup(GROUP1_WITH_OWNER1, GROUP1_WITH_OWNER1);
                 authorityService.addAuthority(group.getFullName(), USER_OWNER1);
                 return group.getFullName();
@@ -181,7 +179,7 @@ public class OeFilesServiceImplIT implements RunInTransactionAsAdmin {
             assertEquals(USER_OWNER1 + " has one file from group", 1, files.size());
         } finally {
             //cleanup
-            runInTransactionAsAdmin(() -> {
+            transactionRunner.runInTransactionAsAdmin(() -> {
                 authorityService.deleteAuthority(GROUP1);
                 filesService.getAuthorityFolder(GROUP1).ifPresent(nodeService::deleteNode);
                 return null;
@@ -215,11 +213,4 @@ public class OeFilesServiceImplIT implements RunInTransactionAsAdmin {
         //check access to file DENIED
         nodeService.getProperty(file1, ContentModel.PROP_NAME);
     }
-
-
-    @Override
-    public TransactionService getTransactionService() {
-        return transactionService;
-    }
-
 }

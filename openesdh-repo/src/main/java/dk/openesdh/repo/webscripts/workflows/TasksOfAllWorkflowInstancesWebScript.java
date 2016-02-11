@@ -22,7 +22,7 @@ public class TasksOfAllWorkflowInstancesWebScript extends AbstractCaseWorkflowWe
     @Authentication(AuthenticationType.ADMIN)
     @Uri(value = "/api/openesdh/workflow/tasks", method = HttpMethod.GET, defaultFormat = "json")
     public Resolution getAllTasksOfAllWorkflowInstances() {
-        Map<String, Object> model = new HashMap<String, Object>();
+        Map<String, Object> model = new HashMap<>();
         model.put(WorkflowModelBuilder.TASK_WORKFLOW_INSTANCE_TASKS, getWorkflowTasks());
         return WebScriptUtils.jsonResolution(model);
     }

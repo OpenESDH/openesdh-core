@@ -22,9 +22,11 @@ public interface OpenESDHModel {
     String CONTACT_PREFIX = "contact";
     String CONTACT_URI = "http://openesdh.dk/model/contact/1.0";
 
-
     String NOTE_PREFIX = "note";
     String NOTE_URI = "http://openesdh.dk/model/note/1.0";
+
+    String FROZEN_CASE_PARTIES_PROP_PREFIX = "frozenParties";
+    String CASE_PARTY_ROLE_SENDER = "Afsender";
 
     /**
      * Models
@@ -66,6 +68,8 @@ public interface OpenESDHModel {
     QName ASPECT_OE_CASE_ID = QName.createQName(OE_URI, "caseId");
 
     QName ASPECT_CASE_COUNTER = QName.createQName(CASE_URI, "counter");
+    QName ASPECT_CASE_FREEZABLE_PARTIES = QName.createQName(CASE_URI, "freezableParties");
+
     QName ASPECT_DOCUMENT_CONTAINER = QName.createQName(DOC_URI, "documentContainer");
 
     QName ASPECT_CONTACT_ADDRESS = QName.createQName(CONTACT_URI, "address");
@@ -118,16 +122,13 @@ public interface OpenESDHModel {
     QName PROP_OE_JOURNALFACET_INDEXED = QName.createQName(OE_URI, "journalFacetIndexed");
     QName PROP_OE_CASE_ID = QName.createQName(OE_URI, "caseId");
     QName PROP_OE_OWNERS = QName.createQName(OE_URI, "owners");
-    QName PROP_CASE_STARTDATE = QName.createQName(CASE_URI, "startDate");
-
-    QName PROP_CASE_ENDDATE = QName.createQName(CASE_URI, "endDate");
     QName PROP_OE_STATUS = QName.createQName(OE_URI, "status");
-    QName PROP_CASE_SUBJECT = QName.createQName(CASE_URI, "subject");//TODO This is a value used for testing
-
     QName PROP_OE_PARAMETER_BOOL_VALUE = QName.createQName(OE_URI, "boolValue");
 
+    QName PROP_CASE_STARTDATE = QName.createQName(CASE_URI, "startDate");
+    QName PROP_CASE_ENDDATE = QName.createQName(CASE_URI, "endDate");
+    QName PROP_CASE_SUBJECT = QName.createQName(CASE_URI, "subject");//TODO This is a value used for testing
     QName PROP_CASE_UNIQUE_NUMBER = QName.createQName(CASE_URI, "uniqueNumber");
-
 
     QName PROP_DOC_ARRIVAL_DATE = QName.createQName(DOC_URI, "arrivalDate");
     QName PROP_DOC_VARIANT = QName.createQName(DOC_URI, "variant");
@@ -149,37 +150,38 @@ public interface OpenESDHModel {
     QName PROP_CONTACT_IM = QName.createQName(CONTACT_URI, "IM");
     QName PROP_CONTACT_NOTES = QName.createQName(CONTACT_URI, "notes");
 
-    QName PROP_CONTACT_FIRST_NAME = QName.createQName (CONTACT_URI, "firstName");
-    QName PROP_CONTACT_LAST_NAME = QName.createQName (CONTACT_URI, "lastName");
-    QName PROP_CONTACT_MIDDLE_NAME = QName.createQName (CONTACT_URI, "middleName");
-    QName PROP_CONTACT_CPR_NUMBER = QName.createQName (CONTACT_URI, "cprNumber");
+    QName PROP_CONTACT_FIRST_NAME = QName.createQName(CONTACT_URI, "firstName");
+    QName PROP_CONTACT_LAST_NAME = QName.createQName(CONTACT_URI, "lastName");
+    QName PROP_CONTACT_MIDDLE_NAME = QName.createQName(CONTACT_URI, "middleName");
+    QName PROP_CONTACT_CPR_NUMBER = QName.createQName(CONTACT_URI, "cprNumber");
 
-    QName PROP_CONTACT_ORGANIZATION_NAME = QName.createQName (CONTACT_URI, "organizationName");
+    QName PROP_CONTACT_ORGANIZATION_NAME = QName.createQName(CONTACT_URI, "organizationName");
     QName PROP_CONTACT_DEPARTMENT = QName.createQName(CONTACT_URI, "department");
-    QName PROP_CONTACT_CVR_NUMBER = QName.createQName (CONTACT_URI, "cvrNumber");
+    QName PROP_CONTACT_CVR_NUMBER = QName.createQName(CONTACT_URI, "cvrNumber");
 
-    QName PROP_CONTACT_ADDRESS = QName.createQName (CONTACT_URI, "address");
-    QName PROP_CONTACT_ADDRESS_LINE1 = QName.createQName (CONTACT_URI, "addressLine1");
-    QName PROP_CONTACT_ADDRESS_LINE2 = QName.createQName (CONTACT_URI, "addressLine2");
-    QName PROP_CONTACT_ADDRESS_LINE3 = QName.createQName (CONTACT_URI, "addressLine3");
-    QName PROP_CONTACT_ADDRESS_LINE4 = QName.createQName (CONTACT_URI, "addressLine4");
-    QName PROP_CONTACT_ADDRESS_LINE5 = QName.createQName (CONTACT_URI, "addressLine5");
-    QName PROP_CONTACT_ADDRESS_LINE6 = QName.createQName (CONTACT_URI, "addressLine6");
-    QName PROP_CONTACT_FLOOR_IDENTIFIER = QName.createQName (CONTACT_URI, "floorIdentifier");
-    QName PROP_CONTACT_SUITE_IDENTIFIER = QName.createQName (CONTACT_URI, "suiteIdentifier");
-    QName PROP_CONTACT_POST_BOX = QName.createQName (CONTACT_URI, "postBox");
-    QName PROP_CONTACT_POST_CODE = QName.createQName (CONTACT_URI, "postCode");
-    QName PROP_CONTACT_POST_DISTRICT = QName.createQName (CONTACT_URI, "postDistrict");
-    QName PROP_CONTACT_COUNTRY_CODE = QName.createQName (CONTACT_URI, "countryCode");
-    QName PROP_CONTACT_CITY_NAME = QName.createQName (CONTACT_URI, "cityName");
-    QName PROP_CONTACT_STREET_NAME = QName.createQName (CONTACT_URI, "streetName");
-    QName PROP_CONTACT_STREET_CODE = QName.createQName (CONTACT_URI, "streetCode");
-    QName PROP_CONTACT_HOUSE_NUMBER = QName.createQName (CONTACT_URI, "houseNumber");
-    QName PROP_CONTACT_MUNICIPALITY_CODE = QName.createQName (CONTACT_URI, "municipalityCode");
-    QName PROP_CONTACT_MAIL_SUBLOCATION_ID = QName.createQName (CONTACT_URI, "mailDeliverySublocationIdentifier");
+    QName PROP_CONTACT_ADDRESS = QName.createQName(CONTACT_URI, "address");
+    QName PROP_CONTACT_ADDRESS_LINE1 = QName.createQName(CONTACT_URI, "addressLine1");
+    QName PROP_CONTACT_ADDRESS_LINE2 = QName.createQName(CONTACT_URI, "addressLine2");
+    QName PROP_CONTACT_ADDRESS_LINE3 = QName.createQName(CONTACT_URI, "addressLine3");
+    QName PROP_CONTACT_ADDRESS_LINE4 = QName.createQName(CONTACT_URI, "addressLine4");
+    QName PROP_CONTACT_ADDRESS_LINE5 = QName.createQName(CONTACT_URI, "addressLine5");
+    QName PROP_CONTACT_ADDRESS_LINE6 = QName.createQName(CONTACT_URI, "addressLine6");
+    QName PROP_CONTACT_FLOOR_IDENTIFIER = QName.createQName(CONTACT_URI, "floorIdentifier");
+    QName PROP_CONTACT_SUITE_IDENTIFIER = QName.createQName(CONTACT_URI, "suiteIdentifier");
+    QName PROP_CONTACT_POST_BOX = QName.createQName(CONTACT_URI, "postBox");
+    QName PROP_CONTACT_POST_CODE = QName.createQName(CONTACT_URI, "postCode");
+    QName PROP_CONTACT_POST_DISTRICT = QName.createQName(CONTACT_URI, "postDistrict");
+    QName PROP_CONTACT_COUNTRY_CODE = QName.createQName(CONTACT_URI, "countryCode");
+    QName PROP_CONTACT_CITY_NAME = QName.createQName(CONTACT_URI, "cityName");
+    QName PROP_CONTACT_STREET_NAME = QName.createQName(CONTACT_URI, "streetName");
+    QName PROP_CONTACT_STREET_CODE = QName.createQName(CONTACT_URI, "streetCode");
+    QName PROP_CONTACT_HOUSE_NUMBER = QName.createQName(CONTACT_URI, "houseNumber");
+    QName PROP_CONTACT_MUNICIPALITY_CODE = QName.createQName(CONTACT_URI, "municipalityCode");
+    QName PROP_CONTACT_MAIL_SUBLOCATION_ID = QName.createQName(CONTACT_URI, "mailDeliverySublocationIdentifier");
 
-    QName PROP_CONTACT_REGISTERED = QName.createQName (CONTACT_URI, "registered");
-    QName PROP_CONTACT_INTERNAL = QName.createQName (CONTACT_URI, "internal");
+    QName PROP_CONTACT_REGISTERED = QName.createQName(CONTACT_URI, "registered");
+    QName PROP_CONTACT_INTERNAL = QName.createQName(CONTACT_URI, "internal");
+    QName PROP_CONTACT_LOCKED_IN_CASES = QName.createQName(CONTACT_URI, "lockedInCases");
 
     QName PROP_NOTE_HEADLINE = QName.createQName(NOTE_URI, "headline");
     QName PROP_NOTE_CONTENT = QName.createQName(NOTE_URI, "content");
@@ -189,13 +191,15 @@ public interface OpenESDHModel {
     QName PROP_TEMPLATE_TYPE = QName.createQName(DOC_URI, "templateType");
     QName PROP_ASSIGNED_CASE_TYPES = QName.createQName(DOC_URI, "assignedCaseTypes");
 
-
+    /**
+     * Version label policy
+     */
+    String RETAIN_VERSION_LABEL = "retainVersionLabel";
 
     /**
      * Association Names
      */
-
-    QName PROP_CONTACT_LOGIN_ASSOC = QName.createQName (CONTACT_URI, "contactLogin");
+    QName PROP_CONTACT_LOGIN_ASSOC = QName.createQName(CONTACT_URI, "contactLogin");
 
     /**
      * Constraints
@@ -232,7 +236,7 @@ public interface OpenESDHModel {
      * Various constants
      */
     // currently 7 days in miliseconds - one day is 86400000
-    String MYCASES_DAYS_IN_THE_PAST = "604800000";
+    long MYCASES_DAYS_IN_THE_PAST = 604800000L;
 
     int AUDIT_LOG_MAX = 1000;
     String ADMIN_USER_NAME = "admin";

@@ -1,13 +1,16 @@
 package dk.openesdh.repo.webscripts;
 
 import java.util.Map;
+import java.util.Objects;
 
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.json.simple.JSONObject;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 
 public class ParamUtils {
+
     private static final String NODE_ID = "id";
     private static final String STORE_ID = "store_id";
     private static final String STORE_TYPE = "store_type";
@@ -57,4 +60,10 @@ public class ParamUtils {
         return nodeRef;
     }
 
+    public static String getOrNull(JSONObject json, String key) {
+        if (json.containsKey(key)) {
+            return StringUtils.defaultIfEmpty(Objects.toString(json.get(key)), null);
+        }
+        return null;
+    }
 }

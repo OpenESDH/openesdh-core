@@ -27,7 +27,7 @@ public class CaseWorkflowReviewOutcomeExtractor extends AbstractAnnotatedDataExt
     public static Optional<Serializable> getTaskOutcome(WorkflowTask task) {
         Map<QName, Serializable> taskProps = task.getProperties();
         return Optional.ofNullable(taskProps.get(WorkflowModel.PROP_OUTCOME_PROPERTY_NAME))
-                    .map(outcomePropName -> taskProps.get(outcomePropName));
+                .map(outcomePropName -> taskProps.get((QName) outcomePropName));
     }
 
 }

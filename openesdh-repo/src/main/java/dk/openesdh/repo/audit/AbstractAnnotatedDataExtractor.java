@@ -1,6 +1,7 @@
 package dk.openesdh.repo.audit;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 import org.alfresco.repo.audit.extractor.AbstractDataExtractor;
 import org.alfresco.repo.audit.extractor.DataExtractor;
@@ -20,5 +21,10 @@ public abstract class AbstractAnnotatedDataExtractor extends AbstractDataExtract
     @Override
     public boolean isSupported(Serializable data) {
         return true;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(this);
     }
 }

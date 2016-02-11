@@ -1,14 +1,12 @@
 package dk.openesdh.repo.services.officetemplate;
 
-import org.alfresco.service.cmr.repository.NodeRef;
-
 import java.util.List;
-import java.util.Map;
 
 /**
  * Created by syastrov on 9/23/15.
  */
 public class OfficeTemplate {
+
     private String nodeRef;
     private String name;
     private String title;

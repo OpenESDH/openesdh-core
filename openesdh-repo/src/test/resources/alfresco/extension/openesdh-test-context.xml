@@ -1,67 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
-<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
-<beans>
-    <bean id="TestCaseHelper" class="dk.openesdh.repo.helper.CaseHelper">
-        <property name="nodeService">
-            <ref bean="NodeService"/>
-        </property>
-
-        <property name="searchService">
-            <ref bean="SearchService"/>
-        </property>
-
-        <property name="authorityService">
-            <ref bean="AuthorityService"/>
-        </property>
-
-        <property name="permissionService">
-            <ref bean="PermissionService"/>
-        </property>
-
-        <property name="repositoryHelper">
-            <ref bean="repositoryHelper"/>
-        </property>
-
-        <property name="nodeLocatorService">
-            <ref bean="nodeLocatorService"/>
-        </property>
-
-        <property name="retryingTransactionHelper">
-            <ref bean="retryingTransactionHelper"/>
-        </property>
-
-        <property name="personService">
-            <ref bean="personService"/>
-        </property>
-
-        <property name="authenticationService">
-            <ref bean="authenticationService"/>
-        </property>
-
-    </bean>
-	
-    <bean id="CaseDocumentTestHelper" class="dk.openesdh.repo.helper.CaseDocumentTestHelper">
-        <property name="nodeService">
-            <ref bean="NodeService"/>
-        </property>
-        <property name="repositoryHelper">
-            <ref bean="repositoryHelper"/>
-        </property>
-        <property name="caseHelper">
-            <ref bean="TestCaseHelper"/>
-        </property>
-        <property name="caseService">
-            <ref bean="CaseService"/>
-        </property>
-        <property name="documentService">
-            <ref bean="DocumentService"/>
-        </property>
-        <property name="documentTypeService">
-            <ref bean="DocumentTypeService"/>
-        </property>
-        <property name="documentCategoryService">
-            <ref bean="DocumentCategoryService"/>
-        </property>
-    </bean>
-
+<beans  xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+    
+    <context:annotation-config/>
+    <context:component-scan base-package="dk.openesdh.repo.helper" />
 </beans>

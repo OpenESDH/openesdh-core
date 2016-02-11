@@ -1,11 +1,14 @@
 package dk.openesdh.repo.services.system;
 
 import java.util.Iterator;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.mozilla.javascript.NativeObject;
 
 public class MultiLanguageValue extends NativeObject {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * JSON format must match<br>
@@ -27,7 +30,7 @@ public class MultiLanguageValue extends NativeObject {
     }
 
     /**
-     * @return JSON: { en: englishName, da: danishName } - any number of translations "language: value"
+     * @return JSON: { 'en': englishName, 'da': danishName } - any number of translations "'language': value"
      * @throws org.json.JSONException
      */
     public JSONObject toJSONArray() throws JSONException {

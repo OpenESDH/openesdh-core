@@ -25,9 +25,9 @@ public class GroupsCsvParser {
     private static final String WRITE = "write";
     private static final String CREATE = "create";
 
-    private List<String> validCaseTypes = new ArrayList<String>();
+    private final List<String> validCaseTypes;
 
-    private List<Map<String, String>> caseTypePermissionsMap = new ArrayList<>();
+    private final List<Map<String, String>> caseTypePermissionsMap = new ArrayList<>();
 
     public GroupsCsvParser(List<String> validCaseTypes) {
         this.validCaseTypes = validCaseTypes;
@@ -44,10 +44,9 @@ public class GroupsCsvParser {
         try {
             parseHeaderLine(data[0]);
             data = (String[][]) ArrayUtils.remove(data, 0);
-            List<Group> groups = new ArrayList<Group>();
-            for (int lineIndex = 0; lineIndex < data.length; lineIndex++) {
+            List<Group> groups = new ArrayList<>();
+            for (String[] line : data) {
                 lineInFile++;
-                String[] line = data[lineIndex];
                 if (!isEmptyLine(line)) {
                     groups.add(parseGroup(line));
                 }
@@ -78,7 +77,7 @@ public class GroupsCsvParser {
             throw new Exception("Error parsing csv file header. Invalid case type provided: " + caseType);
         }
         String groupPrefix = "Case" + StringUtils.capitalize(caseType);
-        Map<String, String> permissionGroups = new HashMap<String, String>();
+        Map<String, String> permissionGroups = new HashMap<>();
         permissionGroups.put(CREATE, groupPrefix + "Creator");
         permissionGroups.put(READ, groupPrefix + "Reader");
         permissionGroups.put(WRITE, groupPrefix + "Writer");
@@ -123,11 +122,11 @@ public class GroupsCsvParser {
         if (StringUtils.isEmpty(permissions)) {
             return Collections.emptyList();
         }
-        
-        List<String> permissionGroups = new ArrayList<String>();
-        for(String permission : permissions.split(";")){
+
+        List<String> permissionGroups = new ArrayList<>();
+        for (String permission : permissions.split(";")) {
             String permissionGroup = caseTypePermissions.get(permission.toLowerCase().trim());
-            if(StringUtils.isEmpty(permissionGroup)){
+            if (StringUtils.isEmpty(permissionGroup)) {
                 throw new Exception("Invalid permission: " + permission);
             }
             permissionGroups.add(permissionGroup);
@@ -135,10 +134,11 @@ public class GroupsCsvParser {
         return permissionGroups;
     }
 
-    static class Group {
-        private String shortName;
-        private String displayName;
-        private List<String> memberOfGroups = new ArrayList<String>();
+    public static class Group {
+
+        private final String shortName;
+        private final String displayName;
+        private final List<String> memberOfGroups = new ArrayList<>();
 
         public Group(String shortName, String displayName) {
             super();

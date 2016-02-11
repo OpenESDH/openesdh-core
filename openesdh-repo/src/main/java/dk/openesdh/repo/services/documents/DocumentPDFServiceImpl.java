@@ -3,6 +3,7 @@ package dk.openesdh.repo.services.documents;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.Optional;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.model.RenditionModel;
 import org.alfresco.repo.content.MimetypeMap;
@@ -19,7 +20,7 @@ import org.alfresco.service.namespace.QName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-@Service
+@Service("DocumentPDFService")
 public class DocumentPDFServiceImpl implements DocumentPDFService {
 
     private static final QName PDF_RENDITION = QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "pdfRenditionDefinition");

@@ -1,17 +1,11 @@
 package dk.openesdh.repo.policy;
 
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
-import dk.openesdh.repo.helper.CaseHelper;
-import dk.openesdh.repo.model.CaseStatus;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.cases.CaseService;
+import static org.junit.Assert.assertEquals;
+
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.transaction.TransactionService;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -23,35 +17,37 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import static org.junit.Assert.assertEquals;
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
+
+import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.model.CaseStatus;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.TransactionRunner;
+import dk.openesdh.repo.services.cases.CaseService;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
 @ContextConfiguration({"classpath:alfresco/application-context.xml",
-        "classpath:alfresco/extension/openesdh-test-context.xml"})
+    "classpath:alfresco/extension/openesdh-test-context.xml"})
 public class StatusTransitionBehaviourIT {
 
     private static final String TEST_CASE_NAME1 = "TestCase1";
 
     @Autowired
     @Qualifier("NodeService")
-    protected NodeService nodeService;
-
-    @Autowired
-    @Qualifier("retryingTransactionHelper")
-    protected RetryingTransactionHelper retryingTransactionHelper;
+    private NodeService nodeService;
 
     @Autowired
     @Qualifier("CaseService")
-    protected CaseService caseService;
+    private CaseService caseService;
 
     @Autowired
-    @Qualifier("TransactionService")
-    protected TransactionService transactionService;
+    private TransactionRunner transactionRunner;
 
     @Autowired
     @Qualifier("TestCaseHelper")
-    protected CaseHelper caseHelper;
+    private CaseHelper caseHelper;
 
     private NodeRef owner;
     private NodeRef caseNodeRef;
@@ -63,26 +59,19 @@ public class StatusTransitionBehaviourIT {
     public void setUp() throws Exception {
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
         owner = caseHelper.createDummyUser();
-        caseNodeRef = caseHelper.createSimpleCase(TEST_CASE_NAME1,
-                CaseHelper.ADMIN_USER_NAME,
-                owner);
+        caseNodeRef = caseHelper.createSimpleCase(TEST_CASE_NAME1, owner);
     }
 
     @After
     public void tearDown() throws Exception {
-        AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
-
-        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Boolean>() {
-
-            public Boolean execute() throws Throwable {
-                if (owner != null) {
-                    caseHelper.deleteDummyUser();
-                }
-                if (caseNodeRef != null) {
-                    nodeService.deleteNode(caseNodeRef);
-                }
-                return true;
+        transactionRunner.runInTransactionAsAdmin(() -> {
+            if (owner != null) {
+                caseHelper.deleteDummyUser();
             }
+            if (caseNodeRef != null) {
+                nodeService.deleteNode(caseNodeRef);
+            }
+            return true;
         });
     }
 

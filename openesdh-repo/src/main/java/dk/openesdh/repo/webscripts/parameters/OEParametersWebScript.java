@@ -1,5 +1,17 @@
 package dk.openesdh.repo.webscripts.parameters;
 
+import java.util.stream.Collectors;
+
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.extensions.webscripts.Status;
+import org.springframework.extensions.webscripts.WebScriptException;
+import org.springframework.extensions.webscripts.WebScriptRequest;
+import org.springframework.stereotype.Component;
+
 import com.github.dynamicextensionsalfresco.webscripts.annotations.Authentication;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.AuthenticationType;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
@@ -7,20 +19,6 @@ import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
 import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
-
-import java.io.IOException;
-import java.util.stream.Collectors;
-
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.json.simple.parser.JSONParser;
-import org.json.simple.parser.ParseException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.extensions.webscripts.Status;
-import org.springframework.extensions.webscripts.WebScriptException;
-import org.springframework.extensions.webscripts.WebScriptRequest;
-import org.springframework.stereotype.Component;
 
 import dk.openesdh.repo.model.OEParameter;
 import dk.openesdh.repo.services.parameters.OEParametersService;
@@ -58,7 +56,7 @@ public class OEParametersWebScript {
         JSONArray parsedRequest;
         try {
             parsedRequest = (JSONArray) new JSONParser().parse(req.getContent().getContent());
-        } catch (IOException | ParseException io) {
+        } catch (Exception io) {
             throw new WebScriptException(Status.STATUS_BAD_REQUEST, "Invalid JSON: " + io.getMessage());
         }
         parsedRequest.forEach(this::parseAndSaveParameter);

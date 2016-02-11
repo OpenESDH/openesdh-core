@@ -10,7 +10,6 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Properties;
 import java.util.stream.Collectors;
 
 import org.alfresco.error.AlfrescoRuntimeException;
@@ -37,56 +36,38 @@ import org.odftoolkit.odfdom.doc.OdfDocument;
 import org.odftoolkit.odfdom.dom.element.text.TextUserFieldDeclElement;
 import org.odftoolkit.simple.TextDocument;
 import org.odftoolkit.simple.common.field.VariableField;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 import org.w3c.dom.NodeList;
 
 /**
  * Created by syastrov on 9/23/15.
  */
+@Service("OfficeTemplateService")
 public class OfficeTemplateServiceImpl implements OfficeTemplateService {
-    private static Logger LOGGER = Logger.getLogger(OfficeTemplateServiceImpl.class);
 
-    private NodeService nodeService;
-    private FileFolderService fileFolderService;
-    private Repository repositoryHelper;
-    private ContentService contentService;
-    private MimetypeService mimetypeService;
-    private Properties properties;
-
-
+    private static final Logger LOGGER = Logger.getLogger(OfficeTemplateServiceImpl.class);
     private static final String DEFAULT_TARGET_MIME_TYPE = MimetypeMap.MIMETYPE_PDF;
-    private List<String> templateMimeTypes;
 
-    public void setNodeService(NodeService nodeService) {
-        this.nodeService = nodeService;
-    }
-
-    public void setFileFolderService(FileFolderService fileFolderService) {
-        this.fileFolderService = fileFolderService;
-    }
-
-    public void setRepositoryHelper(Repository repositoryHelper) {
-        this.repositoryHelper = repositoryHelper;
-    }
-
-    public void setContentService(ContentService contentService) {
-        this.contentService = contentService;
-    }
-
-    public void setMimetypeService(MimetypeService mimetypeService) {
-        this.mimetypeService = mimetypeService;
-    }
-
-    public void setProperties(Properties properties) {
-        this.properties = properties;
-    }
-
-    public void init() {
-        // TODO: Behaviour for extracting fields from templates when they
-        // are added
-    }
+    @Autowired
+    @Qualifier("NodeService")
+    private NodeService nodeService;
+    @Autowired
+    @Qualifier("FileFolderService")
+    private FileFolderService fileFolderService;
+    @Autowired
+    @Qualifier("repositoryHelper")
+    private Repository repositoryHelper;
+    @Autowired
+    @Qualifier("ContentService")
+    private ContentService contentService;
+    @Autowired
+    @Qualifier("mimetypeService")
+    private MimetypeService mimetypeService;
 
     @Override
-    public NodeRef getTemplateDirectory(){
+    public NodeRef getTemplateDirectory() {
         NodeRef rootNode = repositoryHelper.getCompanyHome();
         FileInfo folderInfo;
         try {
@@ -97,9 +78,9 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
             //The problem that there was something wrong with the bootstrapping so we throw an error here attached with
             //an error locator id number to help the admin locate the issue in the logs.
             String errorLocator = RandomStringUtils.randomAlphanumeric(10);
-            LOGGER.error("\n=====> OpenESDH Error ("+errorLocator+") <=====\n\t\t");
+            LOGGER.error("\n=====> OpenESDH Error (" + errorLocator + ") <=====\n\t\t");
             LOGGER.error("Attempting to locate document template root resulted in the following error:\n" + e.getMessage() + "\n\n");
-            throw new AlfrescoRuntimeException("Unable to locate the folder where templates are stored.\nPlease contact your administrator and pass on the code: "+errorLocator);
+            throw new AlfrescoRuntimeException("Unable to locate the folder where templates are stored.\nPlease contact your administrator and pass on the code: " + errorLocator);
         }
     }
 
@@ -175,8 +156,7 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
         model.putAll(values);
 
         File file = File.createTempFile("office-template-renderer-", null);
-        try {
-            FileOutputStream outputStream = new FileOutputStream(file);
+        try (FileOutputStream outputStream = new FileOutputStream(file)) {
             renderODFTemplate(inputStream, outputStream, model);
 
             ContentReader reader = new FileContentReader(file);
@@ -205,8 +185,8 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
                 if (variableField != null) {
                     variableField.updateField(value.toString(), null);
                 } else {
-                    LOGGER.warn("Supposed to fill in field " + fieldName +
-                            " but it does not exist in the template");
+                    LOGGER.warn("Supposed to fill in field " + fieldName
+                            + " but it does not exist in the template");
                 }
             }
         });
@@ -223,8 +203,8 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
                 sourceReader.getMimetype(), sourceReader.getSize(), targetMimetype, options);
 
         if (transformer == null) {
-            LOGGER.error("Transformer to " + targetMimetype + " unavailable for " +
-                    sourceReader.getMimetype());
+            LOGGER.error("Transformer to " + targetMimetype + " unavailable for "
+                    + sourceReader.getMimetype());
             return null;
         }
 
@@ -237,9 +217,5 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
         }
 
         return writer.getReader();
-    }
-
-    public void setTemplateMimeTypes(List<String> templateMimeTypes) {
-        this.templateMimeTypes = templateMimeTypes;
     }
 }

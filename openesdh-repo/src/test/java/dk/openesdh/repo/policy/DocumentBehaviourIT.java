@@ -1,17 +1,5 @@
 package dk.openesdh.repo.policy;
 
-import com.google.common.base.Strings;
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
-import dk.openesdh.repo.helper.CaseDocumentTestHelper;
-import dk.openesdh.repo.helper.CaseHelper;
-import dk.openesdh.repo.model.DocumentCategory;
-import dk.openesdh.repo.model.DocumentType;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.documents.DocumentCategoryService;
-import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.services.documents.DocumentTypeService;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -19,9 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -40,10 +28,25 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.google.common.base.Strings;
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
+
+import dk.openesdh.repo.helper.CaseDocumentTestHelper;
+import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.services.TransactionRunner;
+import dk.openesdh.repo.model.DocumentCategory;
+import dk.openesdh.repo.model.DocumentType;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.documents.DocumentCategoryService;
+import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.services.documents.DocumentTypeService;
+
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
-@ContextConfiguration({ "classpath:alfresco/application-context.xml",
-        "classpath:alfresco/extension/openesdh-test-context.xml" })
+@ContextConfiguration({"classpath:alfresco/application-context.xml",
+    "classpath:alfresco/extension/openesdh-test-context.xml"})
 public class DocumentBehaviourIT {
 
     private static final String TEST_ADD_DOCUMENT_NAME = "TestAddDocument";
@@ -59,8 +62,7 @@ public class DocumentBehaviourIT {
     private NodeService nodeService;
 
     @Autowired
-    @Qualifier("retryingTransactionHelper")
-    private RetryingTransactionHelper retryingTransactionHelper;
+    private TransactionRunner transactionRunner;
 
     @Autowired
     @Qualifier("CaseService")
@@ -164,15 +166,14 @@ public class DocumentBehaviourIT {
         ContentData content = ContentData.createContentProperty(TEST_ADD_DOCUMENT_CONTENT);
         content = ContentData.setMimetype(content, MimeTypes.PLAIN_TEXT);
         properties.put(ContentModel.TYPE_CONTENT, content);
-
-        testAddDocument = AuthenticationUtil.runAsSystem(() -> retryingTransactionHelper
-                .doInTransaction(() -> nodeService.createNode(testCase1DocumentsFolder,
+        testAddDocument = transactionRunner.runInTransactionAsAdmin(
+                () -> nodeService.createNode(testCase1DocumentsFolder,
                         ContentModel.ASSOC_CONTAINS,
                         QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, TEST_ADD_DOCUMENT_NAME),
-                        ContentModel.TYPE_CONTENT, properties).getChildRef()));
+                        ContentModel.TYPE_CONTENT, properties).getChildRef());
     }
 
-    public boolean hasKey(Set<String> keySet, String interest){
+    public boolean hasKey(Set<String> keySet, String interest) {
         return keySet.contains(interest);
     }
 }

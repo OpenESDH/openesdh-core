@@ -1,12 +1,6 @@
 package dk.openesdh.repo.webscripts.authorities;
 
-import com.github.dynamicextensionsalfresco.webscripts.annotations.FileField;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
-import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
+import static dk.openesdh.repo.services.authorities.GroupsService.CREATED_ON_OPEN_E;
 
 import java.io.IOException;
 import java.util.List;
@@ -21,6 +15,7 @@ import org.alfresco.repo.security.authority.script.ScriptAuthorityService;
 import org.alfresco.repo.security.authority.script.ScriptGroup;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -30,6 +25,14 @@ import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 import org.springframework.extensions.webscripts.servlet.FormData.FormField;
 import org.springframework.stereotype.Component;
+
+import com.github.dynamicextensionsalfresco.webscripts.annotations.FileField;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
+import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 
 import dk.openesdh.repo.services.authorities.GroupsService;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
@@ -91,7 +94,7 @@ public class GroupsWebScript {
                 break;
             }
             case "OE": {
-                stream = getFilteredAndPagedGroups(info -> groupsService.hasAspectTypeOPENE(info.getAuthorityName()),
+                stream = getFilteredAndPagedGroups(info -> groupsService.typeEqualsOpenEType(CREATED_ON_OPEN_E, info.getAuthorityName()),
                         zone, filter, sortBy, sortAsc, type, pagingJson, skipCount, maxItems);
                 break;
             }
@@ -153,7 +156,7 @@ public class GroupsWebScript {
             json.put("authorityType", AuthorityType.GROUP);
             json.put("shortName", info.getShortName());
             json.put("fullName", info.getAuthorityName());
-            json.put("displayName", info.getAuthorityDisplayName());
+            json.put("displayName", StringUtils.defaultIfEmpty(info.getAuthorityDisplayName(), info.getShortName()));
             json.put("url", "/api/groups/" + info.getShortName());
             //uncoment if needed (properties exists in original /alfresco/service/api/groups
             //json.put("zones", "");

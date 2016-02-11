@@ -1,16 +1,16 @@
 package dk.openesdh.repo.webscripts.cases;
 
-import dk.openesdh.repo.model.OpenESDHModel;
+import java.io.IOException;
+import java.util.List;
+
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
-import org.json.JSONArray;
-import org.json.JSONException;
 import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
-import java.io.IOException;
-import java.util.List;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.utils.JSONArrayCollector;
 
 public class PermittedStates extends AbstractWebScript {
 
@@ -22,23 +22,15 @@ public class PermittedStates extends AbstractWebScript {
 
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
-        List<String> roleConstraints = (List<String>) this.dictionaryService.getConstraint(OpenESDHModel.CONSTRAINT_CASE_BASE_STATUS).getConstraint().getParameters().get(ListOfValuesConstraint.ALLOWED_VALUES_PARAM);
-
-        try {
-            JSONArray json = buildJSON(roleConstraints);
-            json.write(res.getWriter());
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-    }
-
-    JSONArray buildJSON(List<String> roles) throws
-            JSONException {
-        JSONArray result = new JSONArray();
-        for (String role : roles) {
-            result.put(role);
-        }
-        return result;
+        List<String> roleConstraints = (List<String>) this.dictionaryService
+                .getConstraint(OpenESDHModel.CONSTRAINT_CASE_BASE_STATUS)
+                .getConstraint()
+                .getParameters()
+                .get(ListOfValuesConstraint.ALLOWED_VALUES_PARAM);
+        roleConstraints
+                .stream()
+                .collect(JSONArrayCollector.simple())
+                .writeJSONString(res.getWriter());
     }
 
 }

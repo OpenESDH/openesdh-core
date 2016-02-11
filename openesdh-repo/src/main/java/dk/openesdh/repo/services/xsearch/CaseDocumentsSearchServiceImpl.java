@@ -1,8 +1,16 @@
 package dk.openesdh.repo.services.xsearch;
 
+import static dk.openesdh.repo.model.CaseDocumentJson.DOC_CATEGORY;
+import static dk.openesdh.repo.model.CaseDocumentJson.DOC_TYPE;
+import static dk.openesdh.repo.model.CaseDocumentJson.FILE_MIME_TYPE;
+import static dk.openesdh.repo.model.CaseDocumentJson.MAIN_DOC_NODE_REF;
+import static dk.openesdh.repo.model.CaseDocumentJson.MAIN_DOC_VERSION;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.stream.Collectors;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.query.PagingRequest;
@@ -23,7 +31,6 @@ import dk.openesdh.repo.model.DocumentCategory;
 import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.DocumentService;
-
 /**
  * Lists all the documents in a given case
  */
@@ -54,19 +61,16 @@ public class CaseDocumentsSearchServiceImpl extends AbstractXSearchService {
                 queryExecutionId);
         pageRequest.setRequestTotalCountMax(requestTotalCountMax);
 
-        if (sortField != null && !sortField.isEmpty())
-        {
-            sortProps.add(new Pair<QName, Boolean>(QName.createQName(sortField, namespaceService), ascending));
+        if (sortField != null && !sortField.isEmpty()) {
+            sortProps.add(new Pair<>(QName.createQName(sortField, namespaceService), ascending));
         }
 
         PagingResults<FileInfo> results = fileFolderService.list(documentsNodeRef, false, true, null,
                 sortProps, pageRequest);
 
-        ArrayList<NodeRef> resultList = new ArrayList<NodeRef>();
-        for (FileInfo fileInfo : results.getPage()) {
-            resultList.add(fileInfo.getNodeRef());
-        }
-
+        List<NodeRef> resultList = results.getPage().stream()
+                .map(FileInfo::getNodeRef)
+                .collect(Collectors.toList());
         Pair<Integer, Integer> totalResultCount = results.getTotalResultCount();
         if (totalResultCount == null) {
             return new XResultSet(resultList);
@@ -106,26 +110,28 @@ public class CaseDocumentsSearchServiceImpl extends AbstractXSearchService {
             return json;
         }
 
-        json.put("mainDocNodeRef", mainDocNodeRef.toString());
+        json.put(MAIN_DOC_NODE_REF, mainDocNodeRef.toString());
         // get document type
         DocumentType documentType = documentService.getDocumentType(nodeRef);
         if (documentType != null) {
-            json.put("doc:type", documentType.getDisplayName());
+            json.put(DOC_TYPE, documentType.getDisplayName());
         }
         // get document category
         DocumentCategory documentCategory = documentService.getDocumentCategory(nodeRef);
         if (documentCategory != null) {
-            json.put("doc:category", documentCategory.getDisplayName());
+            json.put(DOC_CATEGORY, documentCategory.getDisplayName());
         }
 
         // Get the main document version string
         String mainDocVersion = (String) nodeService.getProperty(mainDocNodeRef, ContentModel.PROP_VERSION_LABEL);
-        json.put("mainDocVersion", mainDocVersion);
+        json.put(MAIN_DOC_VERSION, mainDocVersion);
 
         // also return the filename extension
         String fileName = (String) nodeService.getProperty(mainDocNodeRef, ContentModel.PROP_NAME);
         ContentData docData = (ContentData) nodeService.getProperty(mainDocNodeRef, ContentModel.PROP_CONTENT);
-        json.put("fileMimeType", docData.getMimetype());
+        if (Objects.nonNull(docData)) {
+            json.put(FILE_MIME_TYPE, docData.getMimetype());
+        }
         return json;
     }
 }

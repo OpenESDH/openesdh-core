@@ -91,7 +91,7 @@ public class XSearchServiceImplIT {
         properties.put(ContentModel.PROP_TITLE, title);
         List<NodeRef> owners = new LinkedList<>();
         owners.add(repositoryHelper.getPerson());
-        caseNode = caseHelper.createCase(admin,
+        caseNode = caseHelper.createCase(
                 companyHome,
                 name, SimpleCaseModel.TYPE_CASE_SIMPLE, properties, owners);
         testCaseTitle = title;
