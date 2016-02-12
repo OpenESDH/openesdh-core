@@ -1,9 +1,6 @@
 package dk.openesdh.repo.services.contacts;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.Set;
-
+import dk.openesdh.repo.model.OpenESDHModel;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.model.Repository;
@@ -12,12 +9,16 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.NamespacePrefixResolver;
 import org.alfresco.service.namespace.QName;
-import org.alfresco.util.PropertyCheck;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
-import dk.openesdh.repo.model.OpenESDHModel;
+import java.io.Serializable;
+import java.util.Map;
+import java.util.Set;
 
 /**
  * Some of these methods will come  from the org.alfresco.repo.security.authority.AuthorityDAOImpl class
@@ -25,17 +26,23 @@ import dk.openesdh.repo.model.OpenESDHModel;
  *
  * @author Lanre Abiwon
  */
+@Service("ContactDAO")
 public class ContactDAOImpl {
 
     private static final Log logger = LogFactory.getLog(ContactDAOImpl.class);
+    private static final String CONTACTS_ROOT = "sys:contacts";
+
+    @Autowired
+    @Qualifier("NodeService")
     private NodeService nodeService;
+    @Autowired
+    @Qualifier("repositoryHelper")
     private Repository repositoryHelper;
+    @Autowired
+    @Qualifier("namespaceService")
     private NamespacePrefixResolver namespacePrefixResolver;
 
-
-    private static final String contactsRoot = "sys:contacts";
-
-    NodeRef createContact(String email, String contactType, HashMap<QName, Serializable> typeProps,  Set<String>  authorityZones) {
+    NodeRef createContact(String email, String contactType, Map<QName, Serializable> typeProps, Set<String> authorityZones) {
         typeProps.put(ContentModel.PROP_NAME, DigestUtils.md5Hex(email));
         QName cType = contactType.equalsIgnoreCase("organization")? OpenESDHModel.TYPE_CONTACT_ORGANIZATION : OpenESDHModel.TYPE_CONTACT_PERSON;
 
@@ -54,7 +61,7 @@ public class ContactDAOImpl {
      */
     public NodeRef getAuthorityContainerRef() {
         NodeRef contactsRootNode;
-        QName container = QName.createQName(contactsRoot, namespacePrefixResolver);
+        QName container = QName.createQName(CONTACTS_ROOT, namespacePrefixResolver);
 
         contactsRootNode = SystemNodeUtils.getOrCreateSystemChildContainer(container, nodeService, repositoryHelper).getFirst();
 
@@ -63,26 +70,5 @@ public class ContactDAOImpl {
         }
 
         return contactsRootNode;
-    }
-
-    //<editor-fold desc="Injected Bean setters">
-    public void setNodeService(NodeService nodeService) {
-        this.nodeService = nodeService;
-    }
-
-    public void setRepositoryHelper(Repository repositoryHelper) {
-        this.repositoryHelper = repositoryHelper;
-    }
-
-    public void setNamespacePrefixResolver(NamespacePrefixResolver namespacePrefixResolver){
-        this.namespacePrefixResolver = namespacePrefixResolver;
-    }
-
-    //</editor-fold>
-
-    public void afterPropertiesSet() throws Exception {
-        PropertyCheck.mandatory(this, "namespacePrefixResolver", namespacePrefixResolver);
-        PropertyCheck.mandatory(this, "nodeService", nodeService);
-        PropertyCheck.mandatory(this, "repositoryHelper", repositoryHelper);
     }
 }

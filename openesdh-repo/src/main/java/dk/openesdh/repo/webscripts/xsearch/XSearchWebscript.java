@@ -3,7 +3,8 @@ package dk.openesdh.repo.webscripts.xsearch;
 import java.io.IOException;
 import java.util.Map;
 
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
@@ -15,7 +16,8 @@ import dk.openesdh.repo.webscripts.PageableWebScript;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 public class XSearchWebscript extends AbstractWebScript {
-    protected static Logger logger = Logger.getLogger(XSearchWebscript.class);
+
+    private final Logger logger = LoggerFactory.getLogger(XSearchWebscript.class);
 
     protected XSearchService xSearchService;
 
@@ -40,7 +42,7 @@ public class XSearchWebscript extends AbstractWebScript {
         String rangeHeader = req.getHeader("x-range");
         int[] range = PageableWebScript.parseRangeHeader(rangeHeader);
         if (range != null) {
-            logger.debug("Range: " + range[0] + " - " + range[1]);
+            logger.debug("Range: {} - {}", range[0], range[1]);
             startIndex = range[0];
             pageSize = range[1] - range[0];
         }
@@ -74,5 +76,3 @@ public class XSearchWebscript extends AbstractWebScript {
         this.xSearchService = xSearchService;
     }
 }
-
-

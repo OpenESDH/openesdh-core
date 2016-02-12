@@ -9,16 +9,16 @@ import java.util.Map;
 public class WorkflowInfo {
 
     private String workflowType;
-    private List<String> items = new ArrayList<String>();
-    private List<String> assignees = new ArrayList<String>();
-    private List<String> groupAssignees = new ArrayList<String>();
+    private List<String> items = new ArrayList<>();
+    private List<String> assignees = new ArrayList<>();
+    private List<String> groupAssignees = new ArrayList<>();
     private String assignTo;
     private String assignToGroup;
     private Date dueDate;
     private String priority;
     private String message;
     private boolean sendEmailNotifications;
-    private Map<String, Object> properties = new HashMap<String, Object>();
+    private Map<String, Object> properties = new HashMap<>();
 
     public String getWorkflowType() {
         return workflowType;

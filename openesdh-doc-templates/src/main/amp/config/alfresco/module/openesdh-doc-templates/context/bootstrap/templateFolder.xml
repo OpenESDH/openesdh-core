@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<view:view xmlns:view="http://www.alfresco.org/view/repository/1.0"
+           xmlns:cm="http://www.alfresco.org/model/content/1.0"
+           xmlns:app="http://www.alfresco.org/model/application/1.0"
+           xmlns:emailserver="http://www.alfresco.org/model/emailserver/1.0"
+           xmlns:sys="http://www.alfresco.org/model/system/1.0">
+
+    <cm:folder view:childName="oe:officeTemplates">
+        <cm:name>officeTemplates</cm:name>
+        <view:aspects>
+            <cm:titled />
+            <cm:auditable />
+            <app:uifacets />
+            <sys:referenceable />
+        </view:aspects>
+        <view:acl view:inherit="false">
+            <view:ace view:access="ALLOWED">
+                <view:authority>GROUP_ALFRESCO_ADMINISTRATORS</view:authority>
+                <view:permission>Contributor</view:permission>
+            </view:ace>
+            <view:ace view:access="ALLOWED">
+                <view:authority>GROUP_EVERYONE</view:authority>
+                <view:permission>Consumer</view:permission>
+            </view:ace>
+        </view:acl>
+        <app:icon>space-icon-default</app:icon>
+        <view:properties>
+            <sys:store-protocol>workspace</sys:store-protocol>
+            <sys:store-identifier>SpacesStore</sys:store-identifier>
+            <sys:node-uuid>329bc79a-5693-4d79-9d0b-365ecc02277d</sys:node-uuid>
+            <cm:description>The OpenESDH document templates root</cm:description>
+        </view:properties>
+    </cm:folder>
+</view:view>

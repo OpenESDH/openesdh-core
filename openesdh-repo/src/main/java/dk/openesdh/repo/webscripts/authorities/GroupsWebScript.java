@@ -1,5 +1,7 @@
 package dk.openesdh.repo.webscripts.authorities;
 
+import static dk.openesdh.repo.services.authorities.GroupsService.CREATED_ON_OPEN_E;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.function.Predicate;
@@ -9,9 +11,11 @@ import java.util.stream.Stream;
 import org.alfresco.query.PagingRequest;
 import org.alfresco.query.PagingResults;
 import org.alfresco.repo.security.authority.AuthorityInfo;
-import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.repo.security.authority.script.ScriptAuthorityService;
+import org.alfresco.repo.security.authority.script.ScriptGroup;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -37,24 +41,26 @@ import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 @WebScript(description = "Manage groups", families = {"Authorities"})
 public class GroupsWebScript {
 
-    private static final String CREATED_ON_OPEN_E = "OPENE";
     private static final int MAX_ITEMS = 10000;
     private static final String CSV_HEADER = "Group name,Display name,Member of groups,Simple case,Staff case\n";
     
     @Autowired
+    @Qualifier("authorityService")
     private AuthorityService authorityService;
-    @Autowired
-    private NodeService nodeService;
     @Autowired
     @Qualifier("GroupsService")
     private GroupsService groupsService;
+    @Autowired
+    @Qualifier("authorityServiceScript")
+    private ScriptAuthorityService scriptAuthorityService;
 
     @Uri(value = "/api/groups/{shortName}/create", method = HttpMethod.POST, defaultFormat = "json")
     public Resolution createGroup(
             @UriVariable final String shortName,
             @RequestParam(required = true) final String displayName
     ) throws JSONException {
-        String fullName = authorityService.createAuthority(AuthorityType.GROUP, shortName, displayName, authorityService.getDefaultZones());
+        ScriptGroup createdRootGroup = scriptAuthorityService.createRootGroup(shortName, displayName);
+        String fullName = createdRootGroup.getFullName();
         groupsService.addAspectTypeOPENE(fullName);
         return WebScriptUtils.jsonResolution(toGroupJSON(new AuthorityInfo(null, displayName, fullName)));
     }
@@ -88,7 +94,7 @@ public class GroupsWebScript {
                 break;
             }
             case "OE": {
-                stream = getFilteredAndPagedGroups(info -> groupsService.hasAspectTypeOPENE(info.getAuthorityName()),
+                stream = getFilteredAndPagedGroups(info -> groupsService.typeEqualsOpenEType(CREATED_ON_OPEN_E, info.getAuthorityName()),
                         zone, filter, sortBy, sortAsc, type, pagingJson, skipCount, maxItems);
                 break;
             }
@@ -150,7 +156,7 @@ public class GroupsWebScript {
             json.put("authorityType", AuthorityType.GROUP);
             json.put("shortName", info.getShortName());
             json.put("fullName", info.getAuthorityName());
-            json.put("displayName", info.getShortName());
+            json.put("displayName", StringUtils.defaultIfEmpty(info.getAuthorityDisplayName(), info.getShortName()));
             json.put("url", "/api/groups/" + info.getShortName());
             //uncoment if needed (properties exists in original /alfresco/service/api/groups
             //json.put("zones", "");

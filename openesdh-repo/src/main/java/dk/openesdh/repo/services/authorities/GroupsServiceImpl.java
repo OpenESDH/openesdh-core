@@ -10,6 +10,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.dictionary.InvalidAspectException;
 import org.alfresco.service.cmr.repository.InvalidNodeRefException;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -18,20 +19,17 @@ import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.namespace.QName;
-import org.alfresco.service.transaction.TransactionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.RunInTransactionAsAdmin;
+import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.services.authorities.GroupsCsvParser.Group;
 import dk.openesdh.repo.services.cases.CaseService;
 
 @Service("GroupsService")
-public class GroupsServiceImpl implements GroupsService, RunInTransactionAsAdmin {
-
-    private static final String CREATED_ON_OPEN_E = "OPENE";
+public class GroupsServiceImpl implements GroupsService {
 
     @Autowired
     @Qualifier("CaseService")
@@ -46,8 +44,7 @@ public class GroupsServiceImpl implements GroupsService, RunInTransactionAsAdmin
     private NodeService nodeService;
 
     @Autowired
-    @Qualifier("TransactionService")
-    private TransactionService transactionService;
+    private TransactionRunner transactionRunner;
 
     @Override
     public boolean typeEqualsOpenEType(String type, String authorityName) throws InvalidNodeRefException {
@@ -83,7 +80,7 @@ public class GroupsServiceImpl implements GroupsService, RunInTransactionAsAdmin
             return;
         }
 
-        runInTransaction(() -> {
+        transactionRunner.runInTransaction(() -> {
             groups.stream().forEach(this::createGroupIfAbsent);
             groups.stream().forEach(this::manageMemberShips);
             return null;
@@ -112,8 +109,12 @@ public class GroupsServiceImpl implements GroupsService, RunInTransactionAsAdmin
             });
     }
 
-    @Override
-    public TransactionService getTransactionService() {
-        return transactionService;
+    public Set<String> getCurrentUserGroups() {
+        String name = AuthenticationUtil.getFullyAuthenticatedUser();
+        Set<String> groups = authorityService.getContainingAuthorities(AuthorityType.GROUP, name, false)
+                .stream()
+                .filter(this::hasAspectTypeOPENE)
+                .collect(Collectors.toSet());
+        return groups;
     }
 }

@@ -43,7 +43,7 @@ public class CaseActivityWebScript {
     @Uri(value = "/api/openesdh/activities/feed/new/count", method = HttpMethod.GET, defaultFormat = "json")
     public Resolution countCurrentUserNewActivities() {
         int count = caseActivityService.countCurrentUserNewActivities();
-        Map<String, Serializable> result = new HashMap<String, Serializable>();
+        Map<String, Serializable> result = new HashMap<>();
         result.put("count", Integer.toString(count));
         return WebScriptUtils.jsonResolution(result);
     }

@@ -1,7 +1,8 @@
 package dk.openesdh.repo.services.cases;
 
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -15,11 +16,7 @@ import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.DynamicNamespacePrefixResolver;
 import org.alfresco.service.namespace.NamespaceService;
-import org.alfresco.service.transaction.TransactionService;
 import org.junit.After;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,7 +25,11 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
+
 import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.lock.OELockService;
 import dk.openesdh.repo.services.members.CaseMembersService;
@@ -51,8 +52,7 @@ public class CaseMembersServiceImplIT {
     private PersonService personService;
 
     @Autowired
-    @Qualifier("TransactionService")
-    private TransactionService transactionService;
+    private TransactionRunner transactionRunner;
 
     @Autowired
     @Qualifier("TestCaseHelper")
@@ -77,11 +77,9 @@ public class CaseMembersServiceImplIT {
 
     @Before
     public void setUp() throws Exception {
-
         // TODO: All of this could have been done only once
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
-
-        transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
+        transactionRunner.runInTransaction(() -> {
             dummyUser = caseHelper.createDummyUser();
             NodeRef adminUserNodeRef = this.personService.getPerson(OpenESDHModel.ADMIN_USER_NAME);
             authorityService.addAuthority(CaseHelper.CASE_SIMPLE_CREATOR_GROUP, CaseHelper.DEFAULT_USERNAME);
@@ -91,22 +89,18 @@ public class CaseMembersServiceImplIT {
             namespacePrefixResolver.registerNamespace(OpenESDHModel.CASE_PREFIX, OpenESDHModel.CASE_URI);
 
             String caseName = "adminUser createdC case";
-            temporaryCaseNodeRef = caseHelper.createSimpleCase(caseName,
-                    AuthenticationUtil.getAdminUserName(), adminUserNodeRef);
+            temporaryCaseNodeRef = caseHelper.createSimpleCase(caseName, adminUserNodeRef);
 
             // Create a case with a non-admin user
             caseName = "nonAdminUserCreatedCase";
-            nonAdminCreatedCaseNr = caseHelper.createSimpleCase(caseName, CaseHelper.DEFAULT_USERNAME,
-                    dummyUser);
+            nonAdminCreatedCaseNr = caseHelper.createSimpleCase(caseName, dummyUser);
             return null;
         });
     }
 
     @After
     public void tearDown() throws Exception {
-        AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
-
-        transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
+        transactionRunner.runInTransactionAsAdmin(() -> {
             // Remove temporary node, and all its content,
             // also removes test cases
             if (nonAdminCreatedCaseNr != null) {
@@ -200,7 +194,7 @@ public class CaseMembersServiceImplIT {
 
     @Test
     public void testGetAllMembersByRole() throws Exception {
-        transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
+        transactionRunner.runInTransaction(() -> {
             caseMembersService.addAuthorityToRole(
                     AuthenticationUtil.getAdminUserName(), CaseHelper.CASE_SIMPLE_READER_ROLE, nonAdminCreatedCaseNr);
             caseMembersService.addAuthorityToRole(
@@ -218,7 +212,7 @@ public class CaseMembersServiceImplIT {
         assertTrue(membersByRole.get(CaseHelper.CASE_SIMPLE_WRITER_ROLE).contains(CaseHelper.MIKE_JACKSON));
         // remove 2 out of 3 from groups
 
-        transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
+        transactionRunner.runInTransaction(() -> {
             caseMembersService.removeAuthorityFromRole(
                     AuthenticationUtil.getAdminUserName(),
                     CaseHelper.CASE_SIMPLE_READER_ROLE,

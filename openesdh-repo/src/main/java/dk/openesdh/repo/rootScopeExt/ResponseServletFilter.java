@@ -17,19 +17,16 @@ import javax.servlet.http.HttpSession;
 import org.alfresco.repo.SessionUser;
 import org.alfresco.repo.webdav.WebDAV;
 import org.alfresco.repo.webdav.auth.AuthenticationDriver;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
- * This filter was created to prevent browsers rendering the basic auth dialog in response to a 401 message. 
+ * This filter was created to prevent browsers rendering the basic auth dialog in response to a 401 message.
  * For this to work please copy the filter and filter-mapping elements in src/main/amp/config/alfresco/filter-mapping.config.xml
  * to the web.xml in the deployed alfresco.
+ *
  * @author Lanre.
  */
 //TODO find out if it is possible to have a maven profile that can inject the filters into the deployed web.xml file.
 public class ResponseServletFilter implements Filter {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(ResponseServletFilter.class);
 
     private static final String WWW_AUTHENTICATE = "WWW-Authenticate";
     private static final String AUTHORIZATION = "Authorization";
@@ -57,7 +54,7 @@ public class ResponseServletFilter implements Filter {
                     return super.getHeader(name);
                 }
                 String userAgent = super.getHeader(name);
-                if (userAgent.indexOf("Chrome") != -1) {
+                if (userAgent.contains("Chrome")) {
                     return userAgent.replace("Safari", "Sfr");
                 }
                 return userAgent;
@@ -82,14 +79,17 @@ public class ResponseServletFilter implements Filter {
             @Override
             public void setStatus(int code) {
                 super.setStatus(code);
-                if(code == 401) changeAuthHeader();
+                if (code == 401) {
+                    changeAuthHeader();
+                }
             }
 
             @Override
             public void setStatus(int code, String sm) {
                 super.setStatus(code, sm);
-                if (code == 401)
+                if (code == 401) {
                     changeAuthHeader();
+                }
             }
 
             private void changeAuthHeader() {
@@ -145,7 +145,7 @@ public class ResponseServletFilter implements Filter {
     }
 
     /**
-     * Checks whether request contains NTLM auth blob which failed to pass check. 
+     * Checks whether request contains NTLM auth blob which failed to pass check.
      */
     private boolean noFailedNtlmAuth(HttpServletRequest request) {
         return !isNtlmAuth(request.getHeader(AUTHORIZATION));
@@ -153,7 +153,8 @@ public class ResponseServletFilter implements Filter {
 
     /**
      * Prevents from NTLM authorization if current user has already been authenticated and web session has been established.
-     * Thus redundant browser authentication pop-ups are suppressed. 
+     * Thus redundant browser authentication pop-ups are suppressed.
+     *
      * @param request
      */
     private void filterNTLMRequestAuthorization(HttpServletRequest request) {

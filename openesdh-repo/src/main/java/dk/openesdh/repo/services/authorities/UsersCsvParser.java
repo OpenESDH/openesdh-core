@@ -17,12 +17,12 @@ import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.util.StringUtils;
 
 public class UsersCsvParser {
-    
-    private static final QName[] COLUMNS = new QName[] {
-        ContentModel.PROP_USERNAME, ContentModel.PROP_FIRSTNAME, 
-        ContentModel.PROP_LASTNAME, ContentModel.PROP_EMAIL, 
+
+    private static final QName[] COLUMNS = new QName[]{
+        ContentModel.PROP_USERNAME, ContentModel.PROP_FIRSTNAME,
+        ContentModel.PROP_LASTNAME, ContentModel.PROP_EMAIL,
         null,
-        ContentModel.PROP_PASSWORD, ContentModel.PROP_ORGANIZATION, 
+        ContentModel.PROP_PASSWORD, ContentModel.PROP_ORGANIZATION,
         ContentModel.PROP_JOBTITLE, ContentModel.PROP_LOCATION,
         ContentModel.PROP_TELEPHONE, ContentModel.PROP_MOBILE,
         ContentModel.PROP_SKYPE, ContentModel.PROP_INSTANTMSG,
@@ -30,7 +30,7 @@ public class UsersCsvParser {
         ContentModel.PROP_COMPANYADDRESS1, ContentModel.PROP_COMPANYADDRESS2,
         ContentModel.PROP_COMPANYADDRESS3, ContentModel.PROP_COMPANYPOSTCODE,
         ContentModel.PROP_COMPANYTELEPHONE, ContentModel.PROP_COMPANYFAX,
-            ContentModel.PROP_COMPANYEMAIL, ContentModel.ASSOC_MEMBER
+        ContentModel.PROP_COMPANYEMAIL, ContentModel.ASSOC_MEMBER
     };
 
     private static final String ERROR_BLANK_COLUMN = "person.err.userCSV.blankColumn";
@@ -39,7 +39,7 @@ public class UsersCsvParser {
         InputStreamReader reader = new InputStreamReader(usersCsv, Charset.forName("UTF-8"));
         CSVParser csv = new CSVParser(reader, CSVStrategy.EXCEL_STRATEGY);
         String[][] data = csv.getAllValues();
-        List<User> users = new ArrayList<User>();
+        List<User> users = new ArrayList<>();
         for (int lineNumber = 0; lineNumber < data.length; lineNumber++) {
             String[] line = data[lineNumber];
             if (isEmptyLine(line) || isHeader(line)) {
@@ -59,7 +59,7 @@ public class UsersCsvParser {
     }
 
     private User parseUser(String[] line, int lineNumber) throws Exception {
-        Map<QName, String> userProps = new HashMap<QName, String>();
+        Map<QName, String> userProps = new HashMap<>();
         boolean required = true;
         for (int i = 0; i < COLUMNS.length; i++) {
             if (COLUMNS[i] == null) {
@@ -88,7 +88,7 @@ public class UsersCsvParser {
         if (userProps.containsKey(ContentModel.ASSOC_MEMBER)) {
             String groups = userProps.get(ContentModel.ASSOC_MEMBER);
             userProps.remove(ContentModel.ASSOC_MEMBER);
-            if(!StringUtils.isEmpty(groups)){
+            if (!StringUtils.isEmpty(groups)) {
                 user.getGroups().addAll(Arrays.asList(
                         StringUtils.delimitedListToStringArray(groups, ";")));
             }
@@ -98,8 +98,9 @@ public class UsersCsvParser {
     }
 
     public static class User {
-        private Map<QName, String> properties;
-        private List<String> groups = new ArrayList<String>();
+
+        private final Map<QName, String> properties;
+        private final List<String> groups = new ArrayList<>();
 
         public User(Map<QName, String> properties) {
             this.properties = properties;

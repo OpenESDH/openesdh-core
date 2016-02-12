@@ -13,7 +13,6 @@ import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.nodelocator.CompanyHomeNodeLocator;
 import org.alfresco.repo.nodelocator.NodeLocatorService;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.repo.transaction.RetryingTransactionHelper;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.search.SearchService;
@@ -36,49 +35,50 @@ import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.SimpleCaseModel;
 import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.services.cases.CaseService;
 
 @RunWith(RemoteTestRunner.class)
-@Remote(runnerClass=SpringJUnit4ClassRunner.class)
+@Remote(runnerClass = SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:alfresco/application-context.xml")
 public class XSearchServiceImplIT {
 
     @Autowired
     @Qualifier("NodeService")
-    protected NodeService nodeService;
+    private NodeService nodeService;
 
     @Autowired
     @Qualifier("SearchService")
-    protected SearchService searchService;
+    private SearchService searchService;
 
     @Autowired
     @Qualifier("repositoryHelper")
-    protected Repository repositoryHelper;
+    private Repository repositoryHelper;
 
     @Autowired
     @Qualifier("nodeLocatorService")
-    protected NodeLocatorService nodeLocatorService;
-
-    @Autowired
-    @Qualifier("retryingTransactionHelper")
-    protected RetryingTransactionHelper retryingTransactionHelper;
+    private NodeLocatorService nodeLocatorService;
 
     @Autowired
     @Qualifier("TestCaseHelper")
-    protected CaseHelper caseHelper;
+    private CaseHelper caseHelper;
+
+    @Autowired
+    @Qualifier("CaseService")
+    private CaseService caseService;
 
     private XSearchServiceImpl xSearchService = null;
 
-    private static final String ADMIN_USER_NAME = "admin";
-
-    private static final String baseType = "base:case";
+    private static final String BASE_TYPE = "base:case";
 
     private NodeRef caseNode;
     private String testCaseTitle;
+    private String caseId;
 
     @Before
     public void setUp() throws Exception {
         // TODO: All of this could have been done only once
-        AuthenticationUtil.setFullyAuthenticatedUser(ADMIN_USER_NAME);
+        String admin = AuthenticationUtil.getAdminUserName();
+        AuthenticationUtil.setFullyAuthenticatedUser(admin);
 
         xSearchService = new XSearchServiceImpl();
         xSearchService.setRepositoryHelper(repositoryHelper);
@@ -87,14 +87,15 @@ public class XSearchServiceImplIT {
         NodeRef companyHome = nodeLocatorService.getNode(CompanyHomeNodeLocator.NAME, null, null);
         String name = "My repo case (" + System.currentTimeMillis() + ")";
         String title = "My repo case (" + System.currentTimeMillis() + ")";
-        Map<QName, Serializable> properties = new HashMap<QName, Serializable>();
+        Map<QName, Serializable> properties = new HashMap<>();
         properties.put(ContentModel.PROP_TITLE, title);
         List<NodeRef> owners = new LinkedList<>();
         owners.add(repositoryHelper.getPerson());
-        caseNode = caseHelper.createCase(ADMIN_USER_NAME,
+        caseNode = caseHelper.createCase(
                 companyHome,
                 name, SimpleCaseModel.TYPE_CASE_SIMPLE, properties, owners);
         testCaseTitle = title;
+        caseId = caseService.getCaseId(caseNode);
     }
 
     @After
@@ -104,16 +105,16 @@ public class XSearchServiceImplIT {
 
 //    @Test
     public void testGetNodes() throws Exception {
-        Map<String, String> params = new HashMap<String, String>();
-        params.put("filters", createTestFilters().toString());
-        params.put("baseType", baseType);
+        Map<String, String> params = new HashMap<>();
+        params.put("filters", createTestFilters(testCaseTitle, caseId).toString());
+        params.put("baseType", BASE_TYPE);
         XResultSet results = xSearchService.getNodes(params);
         assertEquals(1, results.getLength());
         assertEquals(caseNode, results.getNodeRefs().get(0));
     }
 
-    protected JSONObject createFilterObject(String name, String operator,
-                                   String value) throws JSONException {
+    private JSONObject createFilterObject(String name, String operator,
+            String value) throws JSONException {
         JSONObject filter = new JSONObject();
         filter.put("name", name);
         filter.put("operator", operator);
@@ -123,18 +124,40 @@ public class XSearchServiceImplIT {
 
     @Test
     public void testBuildQuery() throws Exception {
-        JSONArray filters = createTestFilters();
-        String query = xSearchService.buildQuery(baseType, filters.toString());
-        assertEquals("@cm\\:title:" + AbstractXSearchService.quote(testCaseTitle) + " AND " + "TYPE:"
-                + AbstractXSearchService.quote(baseType), query);
-
-        // TODO: Test other types of filters
+        JSONArray filters = createTestFilters(testCaseTitle, null);
+        String query = xSearchService.buildQuery(BASE_TYPE, filters.toString());
+        assertEquals("TYPE:" + AbstractXSearchService.quote(BASE_TYPE) + " AND ("
+                + "@cm\\:title:" + AbstractXSearchService.quote(testCaseTitle) + ")", query);
     }
 
-    protected JSONArray createTestFilters() throws JSONException {
+    @Test
+    public void testBuildQueryWithAND() throws Exception {
+        buildQueryWith(XSearchServiceImpl.FilterType.AND);
+    }
+    
+    @Test
+    public void testBuildQueryWithOR() throws Exception {
+        buildQueryWith(XSearchServiceImpl.FilterType.OR);
+    }
+
+    private void buildQueryWith(XSearchServiceImpl.FilterType filterType) throws Exception {
+        JSONArray filters = createTestFilters(testCaseTitle, caseId);
+
+        String query = xSearchService.buildQuery(BASE_TYPE, filters.toString(), filterType);
+        assertEquals("TYPE:" + AbstractXSearchService.quote(BASE_TYPE) + " AND ("
+                + "@cm\\:title:" + AbstractXSearchService.quote(testCaseTitle) + " " + filterType.name() + " "
+                + "@oe\\:id:" + AbstractXSearchService.quote(caseId) + ")",
+                query);
+    }
+
+    private JSONArray createTestFilters(String fTitle, String fId) throws JSONException {
         JSONArray filters = new JSONArray();
-        JSONObject titleFilter = createFilterObject("cm:title", "=", testCaseTitle);
-        filters.put(titleFilter);
+        if (fTitle != null) {
+            filters.put(createFilterObject("cm:title", "=", fTitle));
+        }
+        if (fId != null) {
+            filters.put(createFilterObject("oe:id", "=", fId));
+        }
         return filters;
     }
 
@@ -151,8 +174,7 @@ public class XSearchServiceImplIT {
         filter.put("value", dateObj);
 
         // Test default range values
-        assertEquals("[\"MIN\" TO \"MAX\"]", xSearchService.processFilterValue
-                (filter));
+        assertEquals("[\"MIN\" TO \"MAX\"]", xSearchService.processFilterValue(filter));
 
         // Test date range
         filter = new JSONObject();
@@ -163,8 +185,7 @@ public class XSearchServiceImplIT {
         dateObj.put("dateRange", dateRange);
         filter.put("value", dateObj);
         assertEquals("[\"2006-07-20T00:00:00\" TO \"2007-07-20T00:00:00\"]",
-                xSearchService.processFilterValue
-                        (filter));
+                xSearchService.processFilterValue(filter));
 
         // Test JSONArray
         filter = new JSONObject();
@@ -172,8 +193,7 @@ public class XSearchServiceImplIT {
         arr.put("ABC");
         arr.put("123");
         filter.put("value", arr);
-        assertEquals("(\"ABC\",\"123\")", xSearchService.processFilterValue
-                (filter));
+        assertEquals("(\"ABC\",\"123\")", xSearchService.processFilterValue(filter));
     }
 
     @Test
@@ -190,8 +210,7 @@ public class XSearchServiceImplIT {
     @Test
     public void testStripTimeZoneFromDateTime() throws Exception {
         assertEquals("2006-07-20T00:00:00",
-                AbstractXSearchService.stripTimeZoneFromDateTime
-                        ("2006-07-20T00:00:00+02:00"));
+                AbstractXSearchService.stripTimeZoneFromDateTime("2006-07-20T00:00:00+02:00"));
     }
 
     @Test

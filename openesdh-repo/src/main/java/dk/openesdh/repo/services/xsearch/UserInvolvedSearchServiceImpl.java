@@ -1,38 +1,44 @@
 package dk.openesdh.repo.services.xsearch;
 
 import dk.openesdh.repo.model.OpenESDHModel;
-import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 /**
  * Created by flemmingheidepedersen on 12/09/14.
  */
+@Service("UserInvolvedSearchService")
 public class UserInvolvedSearchServiceImpl extends AbstractXSearchService implements UserInvolvedSearchService {
 
-    protected AuthorityService authorityService;
+    private static final Pattern REGEXP_GROUP_CASE = Pattern.compile("GROUP_case_(\\d+)-(\\d+)_(\\D+)");
 
-    public void setAuthorityService(AuthorityService authorityService) {
-        this.authorityService = authorityService;
-    }
+    @Autowired
+    @Qualifier("AuthorityService")
+    private AuthorityService authorityService;
 
     public XResultSet getNodes(Map<String, String> params, int startIndex, int pageSize, String sortField, boolean ascending) {
         String user = params.get("user");
 
         Set<String> caseGroupsNodedbid = getCaseGroupsNodedbid(user);
 
-        if (caseGroupsNodedbid.size() == 0) {
+        if (caseGroupsNodedbid.isEmpty()) {
             return new XResultSet();
         } else {
             int collected = 0;
             int limit = 200; // execute the query for every 200 groups
 
-
-            XResultSet combinedResult = new XResultSet(new LinkedList<NodeRef>(), 0);
+            XResultSet combinedResult = new XResultSet(new LinkedList<>(), 0);
             //NOte that it is the postfix that is now fixed and not the naming prefix as was before
             // i.e. case:base  is now base:case. other case types are in form of <prefix>:case and inherit from base:case
             String baseQuery = "TYPE:\"" + OpenESDHModel.CASE_PREFIX + ":case\"" + " AND NOT ASPECT:\"" + OpenESDHModel.ASPECT_OE_LOCKED + "\"";
@@ -60,26 +66,14 @@ public class UserInvolvedSearchServiceImpl extends AbstractXSearchService implem
         }
     }
 
-
-    protected Set<String> getCaseGroupsNodedbid(String user) {
-
+    Set<String> getCaseGroupsNodedbid(String user) {
         // put nodedbid in hashmap as the user can be a member of two groups that belong to the same case
-        HashSet<String> caseGroupsNodedbid = new HashSet<>();
-
         Set<String> allGroups = authorityService.getContainingAuthorities(AuthorityType.GROUP, user, true);
-        Iterator iterator = allGroups.iterator();
-
-        while (iterator.hasNext()) {
-            String groupName = (String) iterator.next();
-            Pattern pattern = Pattern.compile("GROUP_case_(\\d+)-(\\d+)_(\\D+)");
-            Matcher matcher = pattern.matcher(groupName);
-
-            if (matcher.matches()) {
-                caseGroupsNodedbid.add(matcher.group(2));
-            }
-        }
-        return caseGroupsNodedbid;
+        return allGroups.stream()
+                .map(REGEXP_GROUP_CASE::matcher)
+                .filter(Matcher::matches)
+                .map(matcher -> matcher.group(2))
+                .collect(Collectors.toSet());
     }
-
 
 }

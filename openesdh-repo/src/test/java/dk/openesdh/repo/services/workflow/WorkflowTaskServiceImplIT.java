@@ -8,18 +8,13 @@ import java.util.Map;
 
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.web.scripts.workflow.WorkflowModelBuilder;
-import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.security.AuthenticationService;
-import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.workflow.WorkflowDefinition;
 import org.alfresco.service.cmr.workflow.WorkflowPath;
 import org.alfresco.service.cmr.workflow.WorkflowService;
 import org.alfresco.service.cmr.workflow.WorkflowTask;
-import org.alfresco.service.namespace.NamespaceService;
-import org.alfresco.service.transaction.TransactionService;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -36,13 +31,13 @@ import com.tradeshift.test.remote.RemoteTestRunner;
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.WorkflowInfo;
-import dk.openesdh.repo.services.RunInTransactionAsAdmin;
+import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.services.cases.CaseService;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
 @ContextConfiguration("classpath:alfresco/application-context.xml")
-public class WorkflowTaskServiceImplIT implements RunInTransactionAsAdmin {
+public class WorkflowTaskServiceImplIT {
 
     @Autowired
     @Qualifier("NodeService")
@@ -57,24 +52,7 @@ public class WorkflowTaskServiceImplIT implements RunInTransactionAsAdmin {
     private PersonService personService;
 
     @Autowired
-    @Qualifier("AuthorityService")
-    private AuthorityService authorityService;
-
-    @Autowired
-    @Qualifier("NamespaceService")
-    private NamespaceService namespaceService;
-
-    @Autowired
-    @Qualifier("DictionaryService")
-    private DictionaryService dictionaryService;
-
-    @Autowired
-    @Qualifier("AuthenticationService")
-    private AuthenticationService authenticationService;
-
-    @Autowired
-    @Qualifier("TransactionService")
-    private TransactionService transactionService;
+    private TransactionRunner transactionRunner;
 
     @Autowired
     @Qualifier("CaseDocumentTestHelper")
@@ -102,7 +80,7 @@ public class WorkflowTaskServiceImplIT implements RunInTransactionAsAdmin {
 
     @Before
     public void setUp() throws Exception {
-        runInTransactionAsAdmin(() -> {
+        transactionRunner.runInTransactionAsAdmin(() -> {
             personNodeRef = personService.getPerson(AuthenticationUtil.getFullyAuthenticatedUser());
             testFolder = docTestHelper.createFolder(TEST_FOLDER_NAME);
             testDocument = docTestHelper.createDocument(TEST_DOCUMENT_NAME, testFolder);
@@ -112,10 +90,9 @@ public class WorkflowTaskServiceImplIT implements RunInTransactionAsAdmin {
         });
     }
 
-    @SuppressWarnings("unchecked")
     @After
     public void tearDown() {
-        runInTransactionAsAdmin(() -> {
+        transactionRunner.runInTransactionAsAdmin(() -> {
             if (testDocument != null) {
                 nodeService.deleteNode(testDocument);
             }
@@ -124,16 +101,15 @@ public class WorkflowTaskServiceImplIT implements RunInTransactionAsAdmin {
             }
 
             if (caseNodeRef != null) {
-                docTestHelper.removeNodesAndDeleteUsersInTransaction(Collections.EMPTY_LIST,
-                        Arrays.asList(caseNodeRef), Collections.EMPTY_LIST);
+                docTestHelper.removeNodesAndDeleteUsersInTransaction(Collections.emptyList(),
+                        Arrays.asList(caseNodeRef), Collections.emptyList());
             }
-            docTestHelper.removeNodesAndDeleteUsersInTransaction(Collections.EMPTY_LIST, Collections.EMPTY_LIST,
+            docTestHelper.removeNodesAndDeleteUsersInTransaction(Collections.emptyList(), Collections.emptyList(),
                     Arrays.asList(CaseHelper.DEFAULT_USERNAME));
             return null;
         });
     }
 
-    @SuppressWarnings("unchecked")
     @Test
     public void shouldStartWorkflowWithAttachmentThenRetrieveTaskWithPackageContents() {
         AuthenticationUtil.setAdminUserAsFullyAuthenticatedUser();
@@ -176,10 +152,4 @@ public class WorkflowTaskServiceImplIT implements RunInTransactionAsAdmin {
         tasks = workflowService.getTasksForWorkflowPath(wfPath.getId());
         workflowService.endTask(tasks.get(0).getId(), null);
     }
-
-    @Override
-    public TransactionService getTransactionService() {
-        return transactionService;
-    }
-
 }

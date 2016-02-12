@@ -1,25 +1,31 @@
 package dk.openesdh.repo.services.xsearch;
 
-import dk.openesdh.repo.model.OpenESDHModel;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.search.SearchParameters;
 import org.alfresco.service.cmr.search.SearchService;
-import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.stereotype.Service;
 
+import dk.openesdh.repo.model.OpenESDHModel;
+
+@Service("ContactSearchService")
 public class ContactSearchServiceImpl extends AbstractXSearchService implements ContactSearchService {
 
-    private static final Logger LOG = Logger.getLogger(ContactSearchService.class.toString());
+    private final Logger logger = LoggerFactory.getLogger(ContactSearchServiceImpl.class);
 
-    protected DictionaryService dictionaryService;
-    protected NamespaceService namespaceService;
-    private boolean personSearch;
+    @Autowired
+    @Qualifier("DictionaryService")
+    private DictionaryService dictionaryService;
 
     @Override
     public XResultSet getNodes(Map<String, String> params, int startIndex, int pageSize, String sortField, boolean ascending) {
@@ -44,8 +50,6 @@ public class ContactSearchServiceImpl extends AbstractXSearchService implements 
         // Trim / remove double-quotes
         term = term.trim().replace("\"", "");
 
-        personSearch = false;
-
         String query;
         if (dictionaryService.isSubClass(baseTypeQName, OpenESDHModel.TYPE_CONTACT_PERSON)) {
             // Person
@@ -61,9 +65,7 @@ public class ContactSearchServiceImpl extends AbstractXSearchService implements 
         }
 
         query = "TYPE:\"" + baseTypeQName + "\" AND (" + query + ")";
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(query);
-        }
+        logger.debug(query);
         return executeQuery(query, startIndex, pageSize, sortField, ascending);
     }
 
@@ -71,7 +73,7 @@ public class ContactSearchServiceImpl extends AbstractXSearchService implements 
     protected void setSearchParameters(SearchParameters sp) {
         sp.setLanguage(SearchService.LANGUAGE_FTS_ALFRESCO);
         sp.setNamespace(OpenESDHModel.CONTACT_URI);
-        if (this.personSearch) {
+        if (isSearchForPerson(sp)) {
             sp.addQueryTemplate("_PERSON", "|%firstName OR |%middleName OR "
                     + "|%lastName");
             sp.setDefaultFieldName("_PERSON");
@@ -79,7 +81,11 @@ public class ContactSearchServiceImpl extends AbstractXSearchService implements 
         }
     }
 
-    protected String buildPersonQuery(String term) {
+    private boolean isSearchForPerson(SearchParameters sp) {
+        return sp.getQuery().contains("TYPE:\"" + OpenESDHModel.TYPE_CONTACT_PERSON + "\"");
+    }
+
+    private String buildPersonQuery(String term) {
         List<String> searchTerms = new ArrayList<>();
         QName[] fields = new QName[]{
             OpenESDHModel.PROP_CONTACT_FIRST_NAME,
@@ -91,11 +97,9 @@ public class ContactSearchServiceImpl extends AbstractXSearchService implements 
 
         String[] tokens = term.split("(?<!\\\\) ");
 
-        this.personSearch = true;
-
         if (tokens.length == 1) {
             if (term.endsWith("*")) {
-                term = term.substring(0, term.lastIndexOf("*"));
+                term = term.substring(0, term.lastIndexOf('*'));
             }
 
             term += "*";
@@ -108,7 +112,7 @@ public class ContactSearchServiceImpl extends AbstractXSearchService implements 
             boolean firstToken = true;
             for (String token : tokens) {
                 if (token.endsWith("*")) {
-                    token = token.substring(0, token.lastIndexOf("*"));
+                    token = token.substring(0, token.lastIndexOf('*'));
                 }
                 multiPartNames.append("\"");
                 multiPartNames.append(token);
@@ -134,7 +138,7 @@ public class ContactSearchServiceImpl extends AbstractXSearchService implements 
         return field.toString() + ":" + quote(value);
     }
 
-    protected String buildOrganizationQuery(String term) {
+    private String buildOrganizationQuery(String term) {
         List<String> searchTerms = new ArrayList<>();
         QName[] fields = new QName[]{
             OpenESDHModel.PROP_CONTACT_ORGANIZATION_NAME,
@@ -149,13 +153,4 @@ public class ContactSearchServiceImpl extends AbstractXSearchService implements 
         }
         return StringUtils.join(searchTerms, " OR ");
     }
-
-    public void setDictionaryService(DictionaryService dictionaryService) {
-        this.dictionaryService = dictionaryService;
-    }
-
-    public void setNamespaceService(NamespaceService namespaceService) {
-        this.namespaceService = namespaceService;
-    }
-
 }

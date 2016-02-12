@@ -13,7 +13,6 @@ import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthenticationService;
-import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.workflow.WorkflowService;
 import org.alfresco.service.cmr.workflow.WorkflowTask;
@@ -28,7 +27,7 @@ import dk.openesdh.repo.services.documents.DocumentService;
 
 @Service
 public class WorkflowTaskServiceImpl implements WorkflowTaskService {
-    
+
     @Autowired
     @Qualifier("WorkflowService")
     private WorkflowService workflowService;
@@ -42,8 +41,6 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
     private DictionaryService dictionaryService;
     @Autowired
     private AuthenticationService authenticationService;
-    @Autowired
-    private AuthorityService authorityService;
     @Autowired
     private DocumentService documentService;
     @Autowired
@@ -72,16 +69,16 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
                 .map(nodeRef -> getPackageItem(nodeRef))
                 .collect(Collectors.toList());
         taskMap.put(WorkflowTaskService.TASK_PACKAGE_ITEMS, packageItems);
-        
+
         List<Map<String, Object>> assignees = caseWorkflowService.getWorkflowAssignees(pathId);
         Map<String, Object> workflowInstance = (Map<String, Object>) taskMap.get(WorkflowModelBuilder.TASK_WORKFLOW_INSTANCE);
         workflowInstance.put(WorkflowTaskService.WORKFLOW_ASSIGNEES, assignees);
-        
+
         return taskMap;
     }
-    
+
     private Map<String, Object> getPackageItem(NodeRef nodeRef) {
-        Map<String, Object> item = new HashMap<String, Object>();
+        Map<String, Object> item = new HashMap<>();
         item.put(WorkflowTaskService.NODE_REF, nodeRef.toString());
 
         Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);

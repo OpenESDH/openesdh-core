@@ -1,26 +1,26 @@
 <?xml version='1.0' encoding='UTF-8'?>
 
-<beans  xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-        xmlns:context="http://www.springframework.org/schema/context" xsi:schemaLocation="http://www.springframework.org/schema/beans
+<beans  xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:context="http://www.springframework.org/schema/context"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
     http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
     http://www.springframework.org/schema/context
     http://www.springframework.org/schema/context/spring-context-3.0.xsd">
     <!-- This is filtered by Maven at build time, so that module name is single sourced. -->
-
+	
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-model-context.xml" />
-    <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-service-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-webscript-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-node-locator-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-resourcebundles-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-bootstrap-context.xml" />
-    <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-docTemplate-thumbnail-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-classification-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-javascript-rootscope-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-public-service-context.xml" />
     
     <context:annotation-config/>
     <context:component-scan base-package="dk.openesdh.repo.services, dk.openesdh.repo.audit, dk.openesdh.repo.policy, dk.openesdh.repo.actions" />
-    
+
     <context:annotation-config/>
     <context:component-scan base-package="dk.openesdh.repo.webscripts" />
 </beans>

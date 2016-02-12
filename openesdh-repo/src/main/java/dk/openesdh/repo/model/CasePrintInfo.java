@@ -10,7 +10,7 @@ public class CasePrintInfo {
     private boolean caseDetails;
     private boolean caseHistoryLog;
     private boolean comments;
-    private List<NodeRef> documents = new ArrayList<NodeRef>();
+    private List<NodeRef> documents = new ArrayList<>();
 
     public boolean isCaseDetails() {
         return caseDetails;

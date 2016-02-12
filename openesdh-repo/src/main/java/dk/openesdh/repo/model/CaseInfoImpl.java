@@ -1,17 +1,18 @@
 package dk.openesdh.repo.model;
 
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.namespace.QName;
-
 import java.io.Serializable;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.namespace.QName;
+
 /**
  * @author lanre.
  */
 public class CaseInfoImpl implements CaseInfo {
+
     /**
      * Case node reference
      */
@@ -55,10 +56,9 @@ public class CaseInfoImpl implements CaseInfo {
     /**
      * Set of custom properties that have been defined for case
      */
-    private Map<QName, Serializable> allProperties = new HashMap<QName, Serializable>(1);
+    private Map<QName, Serializable> allProperties = new HashMap<>(1);
 
-//Set of contacts??
-
+    //Set of contacts??
     public CaseInfoImpl(NodeRef nodeRef, String caseId, String title, String description, Map<QName, Serializable> allProperties) {
         this.nodeRef = nodeRef;
         this.caseId = caseId;
@@ -67,7 +67,6 @@ public class CaseInfoImpl implements CaseInfo {
         this.allProperties = allProperties;
     }
 
-    //<editor-fold desc="Getters, setters and other generated function">
     @Override
     public NodeRef getNodeRef() {
         return nodeRef;
@@ -165,8 +164,12 @@ public class CaseInfoImpl implements CaseInfo {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
 
         CaseInfoImpl caseInfo = (CaseInfoImpl) o;
 
@@ -183,6 +186,5 @@ public class CaseInfoImpl implements CaseInfo {
     public String toString() {
         return this.title + " (" + caseId + ")";
     }
-    //</editor-fold>
 
 }

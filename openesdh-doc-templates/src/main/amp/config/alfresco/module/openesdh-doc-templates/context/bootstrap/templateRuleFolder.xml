@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<view:view 
+   xmlns=""                   
+   xmlns:view="http://www.alfresco.org/view/repository/1.0" xmlns:cm="http://www.alfresco.org/model/content/1.0"
+   xmlns:sys="http://www.alfresco.org/model/system/1.0" xmlns:rule="http://www.alfresco.org/model/rule/1.0"
+   xmlns:app="http://www.alfresco.org/model/application/1.0" xmlns:d="http://www.alfresco.org/model/dictionary/1.0"
+   xmlns:esdh="http://openesdh.dk/model/document/1.0" xmlns:act="http://www.alfresco.org/model/action/1.0"
+   xmlns:doctmpl="http://openesdh.dk/model/document/templates/1.0"
+   >
+   
+  <cm:systemfolder view:childName="rule:ruleFolder">
+    <view:acl></view:acl>
+    <view:properties>
+      <cm:name>9fb29994-7d94-4ef4-aafe-123f04c309e6</cm:name>
+      <sys:store-identifier>SpacesStore</sys:store-identifier>
+      <sys:locale>en_GB_</sys:locale>
+      <sys:node-uuid>9fb29994-7d94-4ef4-aafe-123f04c309e6</sys:node-uuid>
+      <sys:store-protocol>workspace</sys:store-protocol>
+    </view:properties>
+    <view:associations>
+      <cm:contains>
+        <rule:rule view:childName="rule:rules032e38e8-059a-4f62-a9c6-69c7214691a5">
+          <view:aspects>
+            <cm:auditable></cm:auditable>
+            <sys:referenceable></sys:referenceable>
+            <cm:titled></cm:titled>
+            <sys:localized></sys:localized>
+          </view:aspects>
+          <view:acl></view:acl>
+          <view:properties>
+            <cm:name>a483b431-b806-40e0-82ae-1e133a4a4af8</cm:name>
+            <sys:store-identifier>SpacesStore</sys:store-identifier>
+            <sys:locale>en_GB_</sys:locale>
+            <rule:ruleType>
+              <view:values>
+                <view:value>inbound</view:value>
+              </view:values>
+            </rule:ruleType>
+            <rule:disabled>false</rule:disabled>
+            <cm:title>
+              <view:mlvalue view:locale="da">Tildel skabelon aspekt til Indhold</view:mlvalue>
+              <view:mlvalue view:locale="en">Assign content template aspect</view:mlvalue>
+            </cm:title>
+            <sys:node-uuid>a483b431-b806-40e0-82ae-1e133a4a4af8</sys:node-uuid>
+            <rule:applyToChildren>true</rule:applyToChildren>
+            <rule:executeAsynchronously>false</rule:executeAsynchronously>
+            <sys:store-protocol>workspace</sys:store-protocol>
+            <cm:description>
+              <view:mlvalue view:locale="da">Tildel skabelon aspekt til nye dokumenter</view:mlvalue>
+              <view:mlvalue view:locale="en">Assign template aspect to document in folder</view:mlvalue>
+            </cm:description>
+          </view:properties>
+          <view:associations>
+            <rule:action>
+              <act:compositeaction view:childName="rule:action">
+                <view:aspects>
+                  <cm:auditable></cm:auditable>
+                  <sys:referenceable></sys:referenceable>
+                  <sys:localized></sys:localized>
+                </view:aspects>
+                <view:acl></view:acl>
+                <view:properties>
+                  <cm:name>d9ab9338-fc5a-4306-a9bd-842055ccad8c</cm:name>
+                  <sys:store-identifier>SpacesStore</sys:store-identifier>
+                  <act:executeAsynchronously>false</act:executeAsynchronously>
+                  <act:executionEndDate>
+                    <view:value view:isNull="true"></view:value>
+                  </act:executionEndDate>
+                  <sys:locale>en_GB_</sys:locale>
+                  <act:executionStartDate>
+                    <view:value view:isNull="true"></view:value>
+                  </act:executionStartDate>
+                  <act:actionDescription>
+                    <view:value view:isNull="true"></view:value>
+                  </act:actionDescription>
+                  <act:actionTitle>
+                    <view:value view:isNull="true"></view:value>
+                  </act:actionTitle>
+                  <sys:node-uuid>d9ab9338-fc5a-4306-a9bd-842055ccad8c</sys:node-uuid>
+                  <act:executionFailureMessage>
+                    <view:value view:isNull="true"></view:value>
+                  </act:executionFailureMessage>
+                  <act:definitionName>composite-action</act:definitionName>
+                  <act:executionActionStatus>New</act:executionActionStatus>
+                  <sys:store-protocol>workspace</sys:store-protocol>
+                </view:properties>
+                <view:associations>
+                  <act:actions>
+                    <act:action view:childName="act:actions">
+                      <view:aspects>
+                        <cm:auditable></cm:auditable>
+                        <sys:referenceable></sys:referenceable>
+                        <sys:localized></sys:localized>
+                      </view:aspects>
+                      <view:acl></view:acl>
+                      <view:properties>
+                        <cm:name>169648cb-c90a-4bbf-b122-84eae76f5b4a</cm:name>
+                        <sys:store-identifier>SpacesStore</sys:store-identifier>
+                        <act:executeAsynchronously>false</act:executeAsynchronously>
+                        <act:executionEndDate>
+                          <view:value view:isNull="true"></view:value>
+                        </act:executionEndDate>
+                        <sys:locale>en_GB_</sys:locale>
+                        <act:executionStartDate>
+                          <view:value view:isNull="true"></view:value>
+                        </act:executionStartDate>
+                        <act:actionDescription>
+                          <view:value view:isNull="true"></view:value>
+                        </act:actionDescription>
+                        <act:actionTitle>
+                          <view:value view:isNull="true"></view:value>
+                        </act:actionTitle>
+                        <sys:node-uuid>169648cb-c90a-4bbf-b122-84eae76f5b4a</sys:node-uuid>
+                        <act:executionFailureMessage>
+                          <view:value view:isNull="true"></view:value>
+                        </act:executionFailureMessage>
+                        <act:definitionName>add-features</act:definitionName>
+                        <act:executionActionStatus>New</act:executionActionStatus>
+                        <sys:store-protocol>workspace</sys:store-protocol>
+                      </view:properties>
+                      <view:associations>
+                        <act:parameters>
+                          <act:actionparameter view:childName="act:parameters">
+                            <view:aspects>
+                              <cm:auditable></cm:auditable>
+                              <sys:referenceable></sys:referenceable>
+                              <sys:localized></sys:localized>
+                            </view:aspects>
+                            <view:acl></view:acl>
+                            <view:properties>
+                              <cm:name>75160ba9-1883-4f09-b4dc-19131195c5a5</cm:name>
+                              <sys:store-identifier>SpacesStore</sys:store-identifier>
+                              <act:parameterName>aspect-name</act:parameterName>
+                              <sys:locale>en_GB_</sys:locale>
+                              <sys:node-uuid>75160ba9-1883-4f09-b4dc-19131195c5a5</sys:node-uuid>
+                              <sys:store-protocol>workspace</sys:store-protocol>
+                              <act:parameterValue>
+                                <view:value view:datatype="d:qname">{http://openesdh.dk/model/document/templates/1.0}template</view:value>
+                              </act:parameterValue>
+                            </view:properties>
+                          </act:actionparameter>
+                        </act:parameters>
+                      </view:associations>
+                    </act:action>
+                  </act:actions>
+                  <act:conditions>
+                    <act:actioncondition view:childName="act:conditions">
+                      <view:aspects>
+                        <cm:auditable></cm:auditable>
+                        <sys:referenceable></sys:referenceable>
+                        <sys:localized></sys:localized>
+                      </view:aspects>
+                      <view:acl></view:acl>
+                      <view:properties>
+                        <cm:name>89410c9d-5184-4b53-9686-3217cca67edf</cm:name>
+                        <sys:store-identifier>SpacesStore</sys:store-identifier>
+                        <sys:locale>en_GB_</sys:locale>
+                        <act:definitionName>is-subtype</act:definitionName>
+                        <act:invert>false</act:invert>
+                        <sys:node-uuid>89410c9d-5184-4b53-9686-3217cca67edf</sys:node-uuid>
+                        <sys:store-protocol>workspace</sys:store-protocol>
+                      </view:properties>
+                      <view:associations>
+                        <act:parameters>
+                          <act:actionparameter view:childName="act:parameters">
+                            <view:aspects>
+                              <cm:auditable></cm:auditable>
+                              <sys:referenceable></sys:referenceable>
+                              <sys:localized></sys:localized>
+                            </view:aspects>
+                            <view:acl></view:acl>
+                            <view:properties>
+                              <cm:name>aa1579ae-9df8-432c-92de-a76540aa45d9</cm:name>
+                              <sys:store-identifier>SpacesStore</sys:store-identifier>
+                              <act:parameterName>type</act:parameterName>
+                              <sys:locale>en_GB_</sys:locale>
+                              <sys:node-uuid>aa1579ae-9df8-432c-92de-a76540aa45d9</sys:node-uuid>
+                              <sys:store-protocol>workspace</sys:store-protocol>
+                              <act:parameterValue>
+                                <view:value view:datatype="d:qname">{http://www.alfresco.org/model/content/1.0}content</view:value>
+                              </act:parameterValue>
+                            </view:properties>
+                          </act:actionparameter>
+                        </act:parameters>
+                      </view:associations>
+                    </act:actioncondition>
+                  </act:conditions>
+                </view:associations>
+              </act:compositeaction>
+            </rule:action>
+          </view:associations>
+        </rule:rule>
+      </cm:contains>
+    </view:associations>
+  </cm:systemfolder>
+</view:view>

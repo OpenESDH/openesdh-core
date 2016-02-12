@@ -5,19 +5,15 @@
  */
 package dk.openesdh.repo.services.documents;
 
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
-import dk.openesdh.repo.model.DocumentType;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.system.MultiLanguageValue;
-import java.util.List;
-import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.transaction.TransactionService;
-import org.junit.After;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+
+import java.util.List;
+
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.service.cmr.repository.NodeService;
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -27,6 +23,14 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
+
+import dk.openesdh.repo.services.TransactionRunner;
+import dk.openesdh.repo.model.DocumentType;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.system.MultiLanguageValue;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -40,13 +44,12 @@ public class DocumentTypeServiceImplIT {
 
     @Autowired
     @Qualifier("DocumentTypeService")
-    protected DocumentTypeServiceImpl documentTypeService;
+    private DocumentTypeServiceImpl documentTypeService;
     @Autowired
     @Qualifier("NodeService")
-    protected NodeService nodeService;
+    private NodeService nodeService;
     @Autowired
-    @Qualifier("TransactionService")
-    private TransactionService transactionService;
+    private TransactionRunner transactionRunner;
 
     @Before
     public void setUp() {
@@ -70,7 +73,7 @@ public class DocumentTypeServiceImplIT {
 
     @Test
     public void documentTypeCrudExecutesSuccessfully() {
-        transactionService.getRetryingTransactionHelper().doInTransaction(() -> {
+        transactionRunner.runInTransaction(() -> {
             //create
             documentType1 = new DocumentType();
             documentType1.setName(TEST_TYPE_NAME_INVOICE);

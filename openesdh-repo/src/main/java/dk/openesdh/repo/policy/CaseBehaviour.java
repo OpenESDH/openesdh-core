@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.tenant.TenantOpeneModulesService;
 
 /**
  * Created by torben on 19/08/14.
@@ -41,6 +42,10 @@ public class CaseBehaviour implements OnCreateNodePolicy, BeforeCreateNodePolicy
     @Autowired
     @Qualifier("policyComponent")
     private PolicyComponent policyComponent;
+
+    @Autowired
+    @Qualifier("TenantOpeneModulesService")
+    private TenantOpeneModulesService tenantOpeneModulesService;
 
     // Behaviours
     private Behaviour onCreateNode;
@@ -76,6 +81,7 @@ public class CaseBehaviour implements OnCreateNodePolicy, BeforeCreateNodePolicy
 
     @Override
     public void beforeCreateNode(NodeRef parentRef, QName assocTypeQName, QName assocQName, QName caseTypeQName) {
+        tenantOpeneModulesService.checkCaseTypeModuleEnabled(caseTypeQName);
         caseService.checkCaseCreatorPermissions(caseTypeQName);
     }
 

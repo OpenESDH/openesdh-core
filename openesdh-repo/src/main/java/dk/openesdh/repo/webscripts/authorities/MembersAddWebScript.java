@@ -1,16 +1,8 @@
 package dk.openesdh.repo.webscripts.authorities;
 
-import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.Lifecycle;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
-import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
-
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -18,18 +10,27 @@ import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.PersonService;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.stereotype.Component;
 
+import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.Lifecycle;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
+import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
+
+import dk.openesdh.repo.webscripts.ParamUtils;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 /**
@@ -45,7 +46,7 @@ import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 @WebScript(description = "Add group or user to a group", families = {"Authorities"}, lifecycle = Lifecycle.INTERNAL)
 public class MembersAddWebScript {
 
-    private static final Logger logger = Logger.getLogger(MembersAddWebScript.class);
+    private final Logger logger = LoggerFactory.getLogger(MembersAddWebScript.class);
 
     @Autowired
     private AuthorityService authorityService;
@@ -74,8 +75,8 @@ public class MembersAddWebScript {
             throw new WebScriptException("The group (" + shortName + ") does not/ no longer exists");
         }
 
-        String users = getOrNull(parsedRequest, "users");
-        String groups = getOrNull(parsedRequest, "groups");
+        String users = ParamUtils.getOrNull(parsedRequest, "users");
+        String groups = ParamUtils.getOrNull(parsedRequest, "groups");
         StringBuilder failed = new StringBuilder();
         String groupFullName = "GROUP_" + shortName;
 
@@ -113,7 +114,7 @@ public class MembersAddWebScript {
                 authorityService.addAuthority(groupFullName, memberFullName);
             }
         } catch (Exception ge) {
-            logger.warn("**** could not add groups to group:\n\t\t\t" + ge.getMessage() + " ****");
+            logger.warn("**** could not add groups to group:\n\t\t\t {} ****", ge.getMessage());
         }
     }
 
@@ -129,7 +130,7 @@ public class MembersAddWebScript {
                 authorityService.addAuthority(groupFullName, user);
             }
         } catch (Exception ge) {
-            logger.warn("**** could not add users to group:\n\t\t\t" + ge.getMessage() + " ****");
+            logger.warn("**** could not add users to group:\n\t\t\t ****", ge.getMessage());
         }
     }
 
@@ -156,12 +157,5 @@ public class MembersAddWebScript {
         }
 
         return result;
-    }
-
-    public String getOrNull(JSONObject json, String key) {
-        if (json.containsKey(key)) {
-            return Objects.toString(json.get(key));
-        }
-        return null;
     }
 }

@@ -38,7 +38,7 @@ public class CaseWorkflowInitiatorExtractor extends AbstractAnnotatedDataExtract
     }
 
     private Optional<WorkflowInstance> getWorkflowByBpmPackage(NodeRef bpmPackage) {
-        Map<QName, Object> props = new HashMap<QName, Object>();
+        Map<QName, Object> props = new HashMap<>();
         props.put(WorkflowModel.ASSOC_PACKAGE, bpmPackage);
 
         WorkflowInstanceQuery query = new WorkflowInstanceQuery();

@@ -5,13 +5,6 @@ import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.system.MultiLanguagePropertyService;
 import dk.openesdh.repo.services.system.MultiLanguageValue;
 import dk.openesdh.repo.services.system.OpenESDHFoldersService;
-import java.io.Serializable;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Collectors;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
@@ -19,13 +12,27 @@ import org.alfresco.service.cmr.repository.InvalidNodeRefException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.extensions.surf.util.I18NUtil;
+import org.springframework.stereotype.Service;
 
+import java.io.Serializable;
+import java.util.*;
+import java.util.stream.Collectors;
+
+@Service("DocumentTypeService")
 public class DocumentTypeServiceImpl implements DocumentTypeService {
 
-    public static List<String> SYSTEM_TYPES = Arrays.asList("invoice", "letter");
+    public static final List<String> SYSTEM_TYPES = Arrays.asList("invoice", "letter");
+    @Autowired
+    @Qualifier("OpenESDHFoldersService")
     private OpenESDHFoldersService openESDHFoldersService;
+    @Autowired
+    @Qualifier("NodeService")
     private NodeService nodeService;
+    @Autowired
+    @Qualifier("MultiLanguagePropertyService")
     private MultiLanguagePropertyService multiLanguagePropertyService;
 
     @Override
@@ -138,17 +145,5 @@ public class DocumentTypeServiceImpl implements DocumentTypeService {
 
     private NodeRef getDocumentTypesRoot() {
         return openESDHFoldersService.getDocumentTypesRootNodeRef();
-    }
-
-    public void setNodeService(NodeService nodeService) {
-        this.nodeService = nodeService;
-    }
-
-    public void setOpenESDHFoldersService(OpenESDHFoldersService openESDHFoldersService) {
-        this.openESDHFoldersService = openESDHFoldersService;
-    }
-
-    public void setMultiLanguagePropertyService(MultiLanguagePropertyService multiLanguagePropertyService) {
-        this.multiLanguagePropertyService = multiLanguagePropertyService;
     }
 }

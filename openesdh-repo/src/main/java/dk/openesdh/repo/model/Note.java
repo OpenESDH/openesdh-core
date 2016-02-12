@@ -19,9 +19,9 @@ public class Note {
 
     private String author;
 
-    private List<NodeRef> concernedParties = new ArrayList<NodeRef>();
+    private List<NodeRef> concernedParties = new ArrayList<>();
 
-    private List<ContactInfo> concernedPartiesInfo = new ArrayList<ContactInfo>();
+    private List<ContactInfo> concernedPartiesInfo = new ArrayList<>();
 
     private PersonService.PersonInfo authorInfo;
 

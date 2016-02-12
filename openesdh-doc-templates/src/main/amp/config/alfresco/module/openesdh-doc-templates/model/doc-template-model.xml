@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model name="doctmpl:documentTemplatesModel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+
+    <description>openESDH Document Template Model</description>
+    <author>Arnas Petraitis, Seth Yastrov, Flemming Heide Pedersen, Ole Hejlskov, Torben Lauritzen</author>
+    <version>1.0</version>
+
+    <imports>
+        <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>
+        <!-- Import Alfresco Content Domain Model Definitions -->
+        <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>
+        <!-- Import Alfresco System Model Definitions -->
+        <import uri="http://www.alfresco.org/model/system/1.0" prefix="sys"/>
+    </imports>
+
+    <namespaces>
+        <namespace uri="http://openesdh.dk/model/document/templates/1.0" prefix="doctmpl" />
+    </namespaces>
+
+    <aspects>
+        <aspect name="doctmpl:template">
+            <properties>
+                <property name="doctmpl:templateType">
+                    <description>Textual representation of the template MIME type, i.e. ott/dotx/e.t.c</description>
+                    <type>d:text</type>
+                </property>
+                <property name="doctmpl:assignedCaseTypes">
+                    <description>The assigned case types that this template can be applied</description>
+                    <type>d:text</type>
+                    <mandatory>true</mandatory>
+                    <multiple>true</multiple>
+                    <default>all</default>
+                    <index enabled="true">
+                        <atomic>true</atomic>
+                        <stored>true</stored>
+                        <tokenised>true</tokenised>
+                    </index>
+                </property>
+            </properties>
+        </aspect>
+
+    </aspects>
+
+</model>

@@ -3,6 +3,7 @@ package dk.openesdh.repo.services.cases;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -22,11 +23,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 
+import fr.opensagres.xdocreport.core.XDocReportException;
+import freemarker.template.TemplateModelException;
+
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.CasePrintInfo;
-import fr.opensagres.xdocreport.core.XDocReportException;
-import freemarker.template.TemplateModelException;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -49,7 +51,6 @@ public class PrintCaseServiceImplIT {
 
     private static final String TEST_CASE_NAME1 = "TestCase1";
 
-    private NodeRef testFolder;
     private NodeRef testCase1;
     private NodeRef owner;
 
@@ -57,18 +58,17 @@ public class PrintCaseServiceImplIT {
     public void setUp() throws Exception {
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
         owner = caseHelper.createDummyUser();
-        testCase1 = caseHelper.createSimpleCase(TEST_CASE_NAME1, AuthenticationUtil.getAdminUserName(), owner);
+        testCase1 = caseHelper.createSimpleCase(TEST_CASE_NAME1, owner);
     }
 
     @After
     public void tearDown() throws Exception {
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
-        List<NodeRef> folders = Arrays.asList(new NodeRef[] { testFolder });
-        List<NodeRef> cases = Arrays.asList(new NodeRef[] { testCase1 });
-        List<String> users = Arrays.asList(new String[] { CaseHelper.DEFAULT_USERNAME });
+        List<NodeRef> cases = Arrays.asList(new NodeRef[]{testCase1});
+        List<String> users = Arrays.asList(new String[]{CaseHelper.DEFAULT_USERNAME});
         try {
-            docTestHelper.removeNodesAndDeleteUsersInTransaction(folders, cases, users);
-        } catch (Exception ignored) {
+            docTestHelper.removeNodesAndDeleteUsersInTransaction(Collections.EMPTY_LIST, cases, users);
+        } finally {
         }
     }
 

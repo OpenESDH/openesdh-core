@@ -3,10 +3,21 @@ package dk.openesdh.repo.services.cases;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
@@ -14,9 +25,10 @@ import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
 import org.alfresco.repo.policy.BehaviourFilter;
 import org.alfresco.repo.search.impl.lucene.LuceneQueryParserException;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.repo.security.authentication.AuthenticationUtil.RunAsWork;
+import org.alfresco.repo.security.permissions.AccessDeniedException;
 import org.alfresco.repo.transaction.RetryingTransactionHelper;
-import org.alfresco.service.cmr.dictionary.*;
+import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
+import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -25,20 +37,34 @@ import org.alfresco.service.cmr.search.LimitBy;
 import org.alfresco.service.cmr.search.ResultSet;
 import org.alfresco.service.cmr.search.SearchParameters;
 import org.alfresco.service.cmr.search.SearchService;
-import org.alfresco.service.cmr.security.*;
+import org.alfresco.service.cmr.security.AccessPermission;
+import org.alfresco.service.cmr.security.AccessStatus;
+import org.alfresco.service.cmr.security.AuthorityService;
+import org.alfresco.service.cmr.security.AuthorityType;
+import org.alfresco.service.cmr.security.OwnableService;
+import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.transaction.TransactionService;
 import org.alfresco.util.SearchLanguageConversion;
+import org.apache.commons.lang3.EnumUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.extensions.surf.util.I18NUtil;
-import org.springframework.security.access.AccessDeniedException;
+import org.springframework.stereotype.Service;
 
-import dk.openesdh.repo.model.*;
+import dk.openesdh.repo.model.CaseInfo;
+import dk.openesdh.repo.model.CaseInfoImpl;
+import dk.openesdh.repo.model.CaseStatus;
+import dk.openesdh.repo.model.DocumentStatus;
+import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.NodeInfoService;
 import dk.openesdh.repo.services.documents.DocumentService;
 import dk.openesdh.repo.services.lock.OELockService;
@@ -47,91 +73,64 @@ import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 /**
  * Created by torben on 19/08/14.
  */
+@Service("CaseService")
 public class CaseServiceImpl implements CaseService {
 
     private static final String MSG_NO_CASE_CREATOR_PERMISSION_DEFINED = "security.permission.err_no_case_creator_permission_defined";
     private static final String MSG_NO_CASE_CREATOR_GROUP_DEFINED = "security.permission.err_no_case_creator_group_defined";
     private static final String MSG_CASE_CREATOR_PERMISSION_VIOLATION = "security.permission.err_case_creator_permission_violation";
 
-    private static final Logger LOGGER = Logger.getLogger(CaseServiceImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(CaseServiceImpl.class);
+
+    @Autowired
+    @Qualifier("NodeService")
     private NodeService nodeService;
+    @Autowired
+    @Qualifier("NodeInfoService")
     private NodeInfoService nodeInfoService;
+    @Autowired
+    @Qualifier("SearchService")
     private SearchService searchService;
+    @Autowired
+    @Qualifier("AuthorityService")
     private AuthorityService authorityService;
+    @Autowired
+    @Qualifier("PermissionService")
     private PermissionService permissionService;
+    @Autowired
+    @Qualifier("TransactionService")
     private TransactionService transactionService;
+    @Autowired
+    @Qualifier("DictionaryService")
     private DictionaryService dictionaryService;
+    @Autowired
+    @Qualifier("OwnableService")
     private OwnableService ownableService;
+    @Autowired
+    @Qualifier("DocumentService")
     private DocumentService documentService;
+    @Autowired
+    @Qualifier("OELockService")
     private OELockService oeLockService;
+    @Autowired
+    @Qualifier("OpenESDHFoldersService")
     private OpenESDHFoldersService openESDHFoldersService;
+    @Autowired
+    @Qualifier("NamespaceService")
     private NamespaceService namespaceService;
+    @Autowired
+    @Qualifier("policyBehaviourFilter")
     private BehaviourFilter behaviourFilter;
+    @Autowired
+    @Qualifier("CasePermissionService")
     private CasePermissionService casePermissionService;
-
-    public void setNodeService(NodeService nodeService) {
-        this.nodeService = nodeService;
-    }
-
-    public void setDocumentService(DocumentService documentService) {
-        this.documentService = documentService;
-    }
-
-    public void setOeLockService(OELockService oeLockService) {
-        this.oeLockService = oeLockService;
-    }
-
-    public void setSearchService(SearchService searchService) {
-        this.searchService = searchService;
-    }
-
-    public void setAuthorityService(AuthorityService authorityService) {
-        this.authorityService = authorityService;
-    }
-
-    public void setPermissionService(PermissionService permissionService) {
-        this.permissionService = permissionService;
-    }
-
-    public void setTransactionService(TransactionService transactionService) {
-        this.transactionService = transactionService;
-    }
-
-    public void setOwnableService(OwnableService ownableService) {
-        this.ownableService = ownableService;
-    }
-
-    public void setDictionaryService(DictionaryService dictionaryService) {
-        this.dictionaryService = dictionaryService;
-    }
-
-    public void setOpenESDHFoldersService(OpenESDHFoldersService openESDHFoldersService) {
-        this.openESDHFoldersService = openESDHFoldersService;
-    }
-
-    public void setNodeInfoService(NodeInfoService nodeInfoService) {
-        this.nodeInfoService = nodeInfoService;
-    }
-
-    public void setNamespaceService(NamespaceService namespaceService) {
-        this.namespaceService = namespaceService;
-    }
-
-    public void setBehaviourFilter(BehaviourFilter behaviourFilter) {
-        this.behaviourFilter = behaviourFilter;
-    }
-
-    public void setCasePermissionService(CasePermissionService casePermissionService) {
-        this.casePermissionService = casePermissionService;
-    }
+    @Autowired
+    @Qualifier("PartyService")
+    private PartyService partyService;
 
     @Override
     public NodeRef getCasesRootNodeRef() {
         return openESDHFoldersService.getCasesRootNodeRef();
-    }
-
-    public void init() {
-
     }
 
     @Override
@@ -218,7 +217,7 @@ public class CaseServiceImpl implements CaseService {
     public void createCase(final ChildAssociationRef childAssocRef) {
         AuthenticationUtil.runAs(() -> {
             NodeRef caseNodeRef = childAssocRef.getChildRef();
-            LOGGER.info("caseNodeRef " + caseNodeRef);
+            logger.info("caseNodeRef {}", caseNodeRef);
 
             //Create folder structure
             NodeRef casesRootNodeRef = openESDHFoldersService.getCasesRootNodeRef();
@@ -330,9 +329,7 @@ public class CaseServiceImpl implements CaseService {
             sp.setLimitBy(LimitBy.FINAL_SIZE);
         }
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Search parameters are: " + sp);
-        }
+        logger.debug("Search parameters are: {}", sp);
 
         ResultSet results = null;
         try {
@@ -343,51 +340,13 @@ public class CaseServiceImpl implements CaseService {
                     .collect(Collectors.toList());
         } catch (LuceneQueryParserException lqpe) {
             //Log the error but suppress is from the user
-            LOGGER.error("LuceneQueryParserException with findCases()", lqpe);
+            logger.error("LuceneQueryParserException with findCases()", lqpe);
             return Collections.emptyList();
         } finally {
             if (results != null) {
                 results.close();
             }
         }
-    }
-
-    @Override
-    public Map<String, Object> getSearchDefinition(QName caseType) {
-
-        Map<String, Object> model = new HashMap<>();
-        Map<QName, ClassDefinition> classDefs = new HashMap<>();
-
-        List<PropertyDefinition> propertyDefs = new ArrayList<>();
-
-        for (QName classType : dictionaryService.getSubTypes(caseType, true)) {
-            ClassDefinition classDefinition = dictionaryService.getClass(classType);
-            classDefs.put(classType, classDefinition);
-
-            Map<QName, PropertyDefinition> classProperties = classDefinition.getProperties();
-
-            for (QName propertyName : classProperties.keySet()) {
-                PropertyDefinition p = classProperties.get(propertyName);
-                propertyDefs.addAll(classProperties.values());
-
-            }
-
-            for (AspectDefinition aspect : classDefinition.getDefaultAspects()) {
-                ClassDefinition aspectClassDefinition = dictionaryService.getClass(aspect.getName());
-                Map<QName, PropertyDefinition> aspectProperties = aspectClassDefinition.getProperties();
-                for (QName propertyName : aspectProperties.keySet()) {
-                    propertyDefs.addAll(aspectProperties.values());
-                }
-            }
-        }
-
-        JSONObject availableFilters = new JSONObject();
-        ArrayList classDefinitions1 = new ArrayList(classDefs.values());
-        model.put("classdefs", classDefinitions1);
-        model.put("propertydefs", propertyDefs);
-        model.put("availableFilters", availableFilters);
-        model.put("messages", this.dictionaryService);
-        return model;
     }
 
     public JSONArray buildConstraintsJSON(ConstraintDefinition constraint) throws JSONException {
@@ -422,9 +381,11 @@ public class CaseServiceImpl implements CaseService {
             return;
         }
 
-        Set<String> currentUserAuthorities = authorityService.getAuthorities();
+        Set<String> currentUserContainingGroups = authorityService.getContainingAuthoritiesInZone(
+                AuthorityType.GROUP,
+                AuthenticationUtil.getFullyAuthenticatedUser(), AuthorityService.ZONE_APP_DEFAULT, null, 0);
 
-        if (!currentUserAuthorities.contains(caseCreatorGroup)) {
+        if (!currentUserContainingGroups.contains(caseCreatorGroup)) {
             throw new AccessDeniedException(I18NUtil.getMessage(MSG_CASE_CREATOR_PERMISSION_VIOLATION,
                     caseTypeQName.getLocalName()));
         }
@@ -450,11 +411,7 @@ public class CaseServiceImpl implements CaseService {
                 .collect(Collectors.toList());
     }
 
-    private <R> R runAsAdmin(RunAsWork<R> r) {
-        return AuthenticationUtil.runAs(r, OpenESDHModel.ADMIN_USER_NAME);
-    }
-
-    public void checkCanChangeStatus(NodeRef nodeRef, String fromStatus, String toStatus) throws AccessDeniedException {
+    public void checkCanChangeStatus(NodeRef nodeRef, CaseStatus fromStatus, CaseStatus toStatus) throws AccessDeniedException {
         String user = AuthenticationUtil.getRunAsUser();
         if (!isCaseNode(nodeRef)) {
             throw new AlfrescoRuntimeException("Node is not a case node: "
@@ -467,30 +424,30 @@ public class CaseServiceImpl implements CaseService {
         }
     }
 
-    private boolean canLeaveStatus(String status, String user, NodeRef nodeRef) {
+    private boolean canLeaveStatus(CaseStatus status, String user, NodeRef nodeRef) {
         switch (status) {
-            case CaseStatus.ACTIVE:
+            case ACTIVE:
                 return true;
-            case CaseStatus.PASSIVE:
+            case PASSIVE:
                 return true;
-            case CaseStatus.CLOSED:
+            case CLOSED:
                 return canReopenCase(user, nodeRef);
-            case CaseStatus.ARCHIVED:
+            case ARCHIVED:
                 return false;
             default:
                 return true;
         }
     }
 
-    private boolean canEnterStatus(String status, String user, NodeRef nodeRef) {
+    private boolean canEnterStatus(CaseStatus status, String user, NodeRef nodeRef) {
         switch (status) {
-            case CaseStatus.ACTIVE:
+            case ACTIVE:
                 return true;
-            case CaseStatus.PASSIVE:
+            case PASSIVE:
                 return true;
-            case CaseStatus.CLOSED:
+            case CLOSED:
                 return canCloseCase(user, nodeRef);
-            case CaseStatus.ARCHIVED:
+            case ARCHIVED:
                 // The system does this.
                 return false;
             default:
@@ -498,76 +455,80 @@ public class CaseServiceImpl implements CaseService {
         }
     }
 
-    private void changeStatusImpl(NodeRef nodeRef, String fromStatus, String newStatus) throws Exception {
+    private void changeStatusImpl(NodeRef nodeRef, CaseStatus fromStatus, CaseStatus newStatus) throws Exception {
         switch (fromStatus) {
-            case CaseStatus.ACTIVE:
+            case ACTIVE:
                 switch (newStatus) {
-                    case CaseStatus.PASSIVE:
+                    case PASSIVE:
                         passivate(nodeRef);
                         nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.PASSIVE);
                         break;
-                    case CaseStatus.CLOSED:
+                    case CLOSED:
                         closeCase(nodeRef);
                         break;
                 }
                 break;
-            case CaseStatus.PASSIVE:
+            case PASSIVE:
                 switch (newStatus) {
-                    case CaseStatus.ACTIVE:
+                    case ACTIVE:
                         unPassivate(nodeRef);
                         nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.ACTIVE);
                         break;
-                    case CaseStatus.CLOSED:
+                    case CLOSED:
                         unPassivate(nodeRef);
                         closeCase(nodeRef);
                         break;
                 }
                 break;
-            case CaseStatus.CLOSED:
+            case CLOSED:
                 switch (newStatus) {
-                    case CaseStatus.ACTIVE:
+                    case ACTIVE:
                         reopenCase(nodeRef);
                         nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.ACTIVE);
                         break;
-                    case CaseStatus.PASSIVE:
+                    case PASSIVE:
                         reopenCase(nodeRef);
                         passivate(nodeRef);
                         nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.PASSIVE);
                         break;
                 }
                 break;
-            case CaseStatus.ARCHIVED:
+            case ARCHIVED:
                 // TODO: Check if the user is the system doing the operation.
                 break;
         }
     }
 
     @Override
-    public String getNodeStatus(NodeRef nodeRef) {
-        return (String) nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS);
+    public CaseStatus getNodeStatus(NodeRef nodeRef) {
+        String status = (String) nodeService.getProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS);
+        if (StringUtils.isEmpty(status)) {
+            return null;
+        }
+        return ObjectUtils.firstNonNull(
+                EnumUtils.getEnum(CaseStatus.class, status.toUpperCase()),
+                CaseStatus.ACTIVE);
     }
 
     @Override
-    public List<String> getValidNextStatuses(NodeRef nodeRef) {
+    public List<CaseStatus> getValidNextStatuses(NodeRef nodeRef) {
         String user = AuthenticationUtil.getRunAsUser();
-        String fromStatus = getNodeStatus(nodeRef);
-        List<String> statuses;
-        statuses = Arrays.asList(CaseStatus.getStatuses()).stream().filter(
-                s -> canChangeNodeStatus(fromStatus, s, user, nodeRef))
+        CaseStatus fromStatus = getNodeStatus(nodeRef);
+        return Arrays.stream(CaseStatus.values())
+                .filter(s -> canChangeNodeStatus(fromStatus, s, user, nodeRef))
                 .collect(Collectors.toList());
-        return statuses;
     }
 
     @Override
-    public boolean canChangeNodeStatus(String fromStatus, String toStatus, String user, NodeRef nodeRef) {
+    public boolean canChangeNodeStatus(CaseStatus fromStatus, CaseStatus toStatus, String user, NodeRef nodeRef) {
         return isCaseNode(nodeRef)
                 && CaseStatus.isValidTransition(fromStatus, toStatus)
                 && canLeaveStatus(fromStatus, user, nodeRef) && canEnterStatus(toStatus, user, nodeRef);
     }
 
     @Override
-    public void changeNodeStatus(NodeRef nodeRef, String newStatus) throws Exception {
-        String fromStatus = getNodeStatus(nodeRef);
+    public void changeNodeStatus(NodeRef nodeRef, CaseStatus newStatus) throws Exception {
+        CaseStatus fromStatus = getNodeStatus(nodeRef);
         if (newStatus.equals(fromStatus)) {
             return;
         }
@@ -603,46 +564,53 @@ public class CaseServiceImpl implements CaseService {
         if (!isCaseNode(nodeRef)) {
             throw new Exception("Cannot close a non-case node!");
         }
-        transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
-            private void lockImpl(NodeRef nodeRef) throws Exception {
-                for (ChildAssociationRef childAssociationRef : nodeService.getChildAssocs(nodeRef)) {
-                    NodeRef childNodeRef = childAssociationRef.getChildRef();
-                    if (!documentService.isDocNode(childNodeRef)) {
-                        // Lock recursively all children
-                        lockImpl(childNodeRef);
-                    } else {
-                        // Finalize documents (DocumentService will handle
-                        // locking).
-                        documentService.changeNodeStatus(childNodeRef, DocumentStatus.FINAL);
+        AuthenticationUtil.runAsSystem(() -> {
+            transactionService.getRetryingTransactionHelper().doInTransaction(new RetryingTransactionHelper.RetryingTransactionCallback<Object>() {
+                private void lockImpl(NodeRef nodeRef) throws Exception {
+                    for (ChildAssociationRef childAssociationRef : nodeService.getChildAssocs(nodeRef)) {
+                        NodeRef childNodeRef = childAssociationRef.getChildRef();
+                        if (!documentService.isDocNode(childNodeRef)) {
+                            // Lock recursively all children
+                            lockImpl(childNodeRef);
+                        } else {
+                            // Finalize documents (DocumentService will handle
+                            // locking).
+                            documentService.changeNodeStatus(childNodeRef, DocumentStatus.FINAL);
+                        }
                     }
+                    // Lock the node itself
+                    oeLockService.lock(nodeRef);
                 }
-                // Lock the node itself
-                oeLockService.lock(nodeRef);
-            }
 
-            @Override
-            public Object execute() throws Throwable {
-                nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.CLOSED);
-                // Lock the case and all children, recursively
-                lockImpl(nodeRef);
-                lockCaseGroups(nodeRef);
-                return null;
-            }
-
+                @Override
+                public Object execute() throws Throwable {
+                    nodeService.setProperty(nodeRef, OpenESDHModel.PROP_OE_STATUS, CaseStatus.CLOSED);
+                    partyService.lockCasePartiesToVersions(nodeRef);
+                    // Lock the case and all children, recursively
+                    lockImpl(nodeRef);
+                    lockCaseGroups(nodeRef);
+                    return null;
+                }
+            });
+            return null;
         });
     }
 
     private void lockCaseGroups(final NodeRef caseNodeRef) {
         AuthenticationUtil.runAsSystem(() -> {
-            Set<String> roles = getAllRoles(caseNodeRef);
-            for (String role : roles) {
-                NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef(
-                        getCaseRoleGroupName(getCaseId(caseNodeRef), role));
-                permissionService.setPermission(authorityNodeRef,
-                        PermissionService.ALL_AUTHORITIES, "LockPermissionsToDeny", false);
-            }
+            getCaseAuthoritiesStream(caseNodeRef)
+                    .forEach(authorityNodeRef -> permissionService.setPermission(authorityNodeRef,
+                            PermissionService.ALL_AUTHORITIES, "LockPermissionsToDeny", false));
             return null;
         });
+    }
+
+    private Stream<NodeRef> getCaseAuthoritiesStream(final NodeRef caseNodeRef) {
+        String caseId = getCaseId(caseNodeRef);
+        Set<String> roles = getAllRoles(caseNodeRef);
+        return roles.stream()
+                .map(role -> getCaseRoleGroupName(caseId, role))
+                .map(authorityService::getAuthorityNodeRef);
     }
 
     /**
@@ -688,22 +656,18 @@ public class CaseServiceImpl implements CaseService {
             public Object execute() throws Throwable {
                 unlockImpl(nodeRef);
                 unlockCaseGroups(nodeRef);
+                partyService.unlockCaseParties(nodeRef);
                 return null;
             }
 
         });
     }
-    //</editor-fold>
 
     private void unlockCaseGroups(final NodeRef caseNodeRef) {
         AuthenticationUtil.runAsSystem(() -> {
-            Set<String> roles = getAllRoles(caseNodeRef);
-            for (String role : roles) {
-                NodeRef authorityNodeRef = authorityService.getAuthorityNodeRef(
-                        getCaseRoleGroupName(getCaseId(caseNodeRef), role));
-                permissionService.deletePermission(authorityNodeRef,
-                        PermissionService.ALL_AUTHORITIES, "LockPermissionsToDeny");
-            }
+            getCaseAuthoritiesStream(caseNodeRef)
+                    .forEach(authorityNodeRef -> permissionService.deletePermission(authorityNodeRef,
+                            PermissionService.ALL_AUTHORITIES, "LockPermissionsToDeny"));
             return null;
         });
     }
@@ -790,7 +754,7 @@ public class CaseServiceImpl implements CaseService {
         StringBuilder caseId = new StringBuilder(dateFormat.format(date));
         caseId.append("-");
         caseId.append(uniqueNumber);
-        LOGGER.info("Case Id is " + caseId);
+        logger.debug("Case Id is {}", caseId);
 
         return caseId.toString();
     }
@@ -863,7 +827,7 @@ public class CaseServiceImpl implements CaseService {
     }
 
     @Override
-    public void checkCanUpdateCaseRoles(NodeRef caseNodeRef) throws AccessDeniedException {
+    public void checkCanUpdateCaseRoles(NodeRef caseNodeRef) {
         String user = AuthenticationUtil.getRunAsUser();
         if (!canUpdateCaseRoles(user, caseNodeRef)) {
             throw new AccessDeniedException(user + " is not allowed to "
