@@ -22,6 +22,7 @@
         <alfresco.client.war>alfresco</alfresco.client.war>
         <alfresco.client.contextPath>/alfresco</alfresco.client.contextPath>
         <dynamicextensionsalfresco.version>1.0-SNAPSHOT</dynamicextensionsalfresco.version>
+        <fr.opensagres.xdocreport.version>1.0.5</fr.opensagres.xdocreport.version>
         <!--<index.subsystem.name>solr4</index.subsystem.name>-->
 
         <!--This will build a jar with a “classes” classifier containing the classes, for use in other modules where
@@ -88,26 +89,6 @@
             <scope>test</scope>
         </dependency>
 
-        <!--<dependency>
-            <groupId>share-extras</groupId>
-            <artifactId>javascript-console</artifactId>
-            <version>0.5.1</version>
-            <classifier>community</classifier>
-            <type>amp</type>
-        </dependency>-->
-
-        <dependency>
-            <groupId>magenta-aps</groupId>
-            <artifactId>alfresco_da_dk</artifactId>
-            <version>5.0.0-SNAPSHOT</version>
-            <type>amp</type>
-        </dependency>
-
-        <dependency>
-            <groupId>org.apache.odftoolkit</groupId>
-            <artifactId>simple-odf</artifactId>
-            <version>0.7-incubating</version>
-        </dependency>
         <dependency>
             <groupId>com.github.dynamicextensionsalfresco</groupId>
             <artifactId>annotations</artifactId>
@@ -140,29 +121,40 @@
         </dependency>
         <dependency>
             <groupId>fr.opensagres.xdocreport</groupId>
-            <artifactId>
-                fr.opensagres.xdocreport.document.odt
-            </artifactId>
-            <version>1.0.5</version>
+            <artifactId>fr.opensagres.xdocreport.document.odt</artifactId>
+            <version>${fr.opensagres.xdocreport.version}</version>
         </dependency>
         <dependency>
             <groupId>fr.opensagres.xdocreport</groupId>
-            <artifactId>
-                fr.opensagres.xdocreport.template.freemarker
-            </artifactId>
-            <version>1.0.5</version>
+            <artifactId>fr.opensagres.xdocreport.template.freemarker</artifactId>
+            <version>${fr.opensagres.xdocreport.version}</version>
         </dependency>
         <dependency>
             <groupId>fr.opensagres.xdocreport</groupId>
-            <artifactId>
-                fr.opensagres.xdocreport.converter.odt.odfdom
-            </artifactId>
-            <version>1.0.5</version>
+            <artifactId>fr.opensagres.xdocreport.converter.odt.odfdom</artifactId>
+            <version>${fr.opensagres.xdocreport.version}</version>
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>2.18.1</version>
+                <configuration>
+                    <argLine>${app.testing.jvm.args}</argLine>
+                </configuration>
+                <executions>
+                    <execution>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>buildnumber-maven-plugin</artifactId>
@@ -222,17 +214,17 @@
                     <addTestCompileSourceRoot>true</addTestCompileSourceRoot>
                 </configuration>
             </plugin>
-		     <plugin>
-		       <groupId>org.apache.maven.plugins</groupId>
-		       <artifactId>maven-jar-plugin</artifactId>
-		       <executions>
-		         <execution>
-		           <goals>
-		             <goal>test-jar</goal>
-		           </goals>
-		         </execution>
-		       </executions>
-		     </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
         </plugins>
     </build>
 
@@ -479,7 +471,6 @@
                                         </webapp>
                                     </webapps>
                                 </configuration>
-                    
                             </execution>
                         </executions>
                     </plugin>
@@ -490,6 +481,12 @@
         <profile>
             <id>jenkins-integration-all-modules</id>
             <dependencies>
+                <dependency>
+                    <groupId>dk.openesdh</groupId>
+                    <artifactId>openesdh-doc-templates</artifactId>
+                    <version>1.0-SNAPSHOT</version>
+                    <type>amp</type>
+                </dependency>
                 <dependency>
                     <groupId>dk.openesdh.aoi</groupId>
                     <artifactId>aoi-repo</artifactId>
@@ -519,6 +516,30 @@
         </profile>
         <profile>
             <id>jenkins-selenium-bootstrap</id>
+            <distributionManagement>
+                <repository>
+                    <id>Alfresco-RELEASES</id>
+                    <url>http://nexus.magenta-aps.dk/nexus/content/repositories/Alfresco-RELEASES</url>
+                </repository>
+                <snapshotRepository>
+                    <id>Alfresco-SNAPSHOTS</id>
+                    <url>http://nexus.magenta-aps.dk/nexus/content/repositories/Alfresco-SNAPSHOTS</url>
+                </snapshotRepository>
+            </distributionManagement>
+            <repositories>
+                <repository>
+                    <id>magenta-public</id>
+                    <url>http://nexus.magenta-aps.dk/nexus/content/repositories/Alfresco-RELEASES</url>
+                </repository>
+                <repository>
+                    <id>magenta-public-snapshots</id>
+                    <url>http://nexus.magenta-aps.dk/nexus/content/repositories/Alfresco-SNAPSHOTS</url>
+                    <snapshots>
+                        <enabled>true</enabled>
+                        <updatePolicy>daily</updatePolicy>
+                    </snapshots>
+                </repository>
+            </repositories>
             <dependencies>
                 <dependency>
                     <groupId>dk.openesdh</groupId>
@@ -526,62 +547,6 @@
                     <version>1.0-SNAPSHOT</version>
                     <type>amp</type>
                 </dependency>
-            </dependencies>
-        </profile>
-        <!--Java melody see ==> https://github.com/javamelody/javamelody/wiki/UserGuide-->
-        <profile>
-            <id>add-javamelody</id>
-            <activation>
-                <activeByDefault>false</activeByDefault>
-            </activation>
-            <repositories>
-                <repository>
-                    <id>javamelody-core</id>
-                    <url>https://maven-repository.com/artifact/net.bull.javamelody/javamelody-core</url>
-                    <releases>
-                        <enabled>false</enabled>
-                        <updatePolicy>always</updatePolicy>
-                        <checksumPolicy>warn</checksumPolicy>
-                    </releases>
-                    <snapshots>
-                        <enabled>true</enabled>
-                    </snapshots>
-                </repository>
-            </repositories>
-            <dependencies>
-                <!-- javamelody-core -->
-                <dependency>
-                    <groupId>net.bull.javamelody</groupId>
-                    <artifactId>javamelody-core</artifactId>
-                    <version>1.57.0</version>
-                </dependency>
-                <!-- itext, option to add PDF export -->
-                <dependency>
-                    <groupId>com.lowagie</groupId>
-                    <artifactId>itext</artifactId>
-                    <version>2.1.7</version>
-                    <exclusions>
-                        <exclusion>
-                            <artifactId>bcmail-jdk14</artifactId>
-                            <groupId>bouncycastle</groupId>
-                        </exclusion>
-                        <exclusion>
-                            <artifactId>bcprov-jdk14</artifactId>
-                            <groupId>bouncycastle</groupId>
-                        </exclusion>
-                        <exclusion>
-                            <artifactId>bctsp-jdk14</artifactId>
-                            <groupId>bouncycastle</groupId>
-                        </exclusion>
-                    </exclusions>
-                </dependency>
-
-                <dependency>
-                    <groupId>com.thoughtworks.xstream</groupId>
-                    <artifactId>xstream</artifactId>
-                    <version>1.4.2</version>
-                </dependency>
-
             </dependencies>
         </profile>
     </profiles>

@@ -10,7 +10,8 @@ import org.alfresco.service.cmr.search.SearchParameters;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang.StringUtils;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,7 @@ import dk.openesdh.repo.model.OpenESDHModel;
 @Service("ContactSearchService")
 public class ContactSearchServiceImpl extends AbstractXSearchService implements ContactSearchService {
 
-    private static final Logger LOG = Logger.getLogger(ContactSearchService.class);
+    private final Logger logger = LoggerFactory.getLogger(ContactSearchServiceImpl.class);
 
     @Autowired
     @Qualifier("DictionaryService")
@@ -64,9 +65,7 @@ public class ContactSearchServiceImpl extends AbstractXSearchService implements 
         }
 
         query = "TYPE:\"" + baseTypeQName + "\" AND (" + query + ")";
-        if (LOG.isDebugEnabled()) {
-            LOG.debug(query);
-        }
+        logger.debug(query);
         return executeQuery(query, startIndex, pageSize, sortField, ascending);
     }
 

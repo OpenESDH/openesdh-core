@@ -9,7 +9,6 @@ import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
-import org.apache.log4j.Logger;
 import org.json.JSONException;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -27,13 +26,12 @@ import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 public class ContactSearch extends AbstractWebScript {
 
-    static Logger log = Logger.getLogger(ContactSearch.class);
-
     private NodeService nodeService;
     private ContactSearchService contactSearchService;
 
     public static final int DEFAULT_PAGE_SIZE = 25;
 
+    @SuppressWarnings("unchecked")
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res)
             throws IOException {

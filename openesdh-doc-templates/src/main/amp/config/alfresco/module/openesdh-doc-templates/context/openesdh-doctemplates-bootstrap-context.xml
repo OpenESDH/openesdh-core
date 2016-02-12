@@ -1,0 +1,31 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
+
+<beans>
+    <!--The initial openESDH folder context-->
+    <!-- load folders every time -->
+    <bean id="${project.artifactId}_mt_bootstrap" parent="spacesStoreImporter">
+        <property name="log">
+            <value>true</value>
+        </property>
+        <property name="useExistingStore">
+            <value>true</value>
+        </property>
+        <property name="transactionService" ref="transactionService"/>
+        <property name="bootstrapViews">
+            <list>
+                <props>
+                    <prop key="path">app:company_home/oe:OpenESDH/oe:subsystems</prop>
+                    <prop key="uuidBinding">UPDATE_EXISTING</prop>
+                    <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/templateFolder.xml</prop>
+                </props>
+                <props>
+                    <prop key="path">app:company_home/oe:OpenESDH/oe:subsystems/oe:officeTemplates</prop>
+                    <prop key="uuidBinding">UPDATE_EXISTING</prop>
+                    <prop key="childAssocType">rule:ruleFolder</prop>
+                    <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/templateRuleFolder.xml</prop>
+                </props>
+            </list>
+        </property>
+    </bean>
+</beans>

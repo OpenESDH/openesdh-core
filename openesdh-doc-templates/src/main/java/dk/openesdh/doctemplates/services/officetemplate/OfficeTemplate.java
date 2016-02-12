@@ -1,4 +1,4 @@
-package dk.openesdh.repo.services.officetemplate;
+package dk.openesdh.doctemplates.services.officetemplate;
 
 import java.util.List;
 
@@ -10,6 +10,7 @@ public class OfficeTemplate {
     private String nodeRef;
     private String name;
     private String title;
+    private String description;
     private List<OfficeTemplateField> fields;
 
     public String getNodeRef() {
@@ -34,6 +35,14 @@ public class OfficeTemplate {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public void setDescription(String description) {
+        this.description = description;
     }
 
     public List<OfficeTemplateField> getFields() {

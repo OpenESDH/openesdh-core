@@ -1,29 +1,31 @@
 package dk.openesdh.repo.webscripts.search;
 
-import dk.openesdh.repo.model.CaseInfo;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.utils.Utils;
+import java.io.Serializable;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.PropertyCheck;
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.extensions.webscripts.Cache;
 import org.springframework.extensions.webscripts.DeclarativeWebScript;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 
-import java.io.Serializable;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import dk.openesdh.repo.model.CaseInfo;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.utils.Utils;
 
 /**
  * Keeping this until not needed anymore
@@ -31,7 +33,8 @@ import java.util.Map;
 @Deprecated
 public class LiveSearchCaseDocuments extends DeclarativeWebScript {
 
-    //<editor-fold desc="injected services and initialised properties">
+    private final Logger logger = LoggerFactory.getLogger(LiveSearchCaseDocuments.class);
+
     private CaseService caseService;
     private DocumentService documentService;
     private NodeService nodeService;
@@ -39,14 +42,14 @@ public class LiveSearchCaseDocuments extends DeclarativeWebScript {
     public void setCaseService(CaseService caseService) {
         this.caseService = caseService;
     }
+
     public void setNodeService(NodeService nodeService) {
         this.nodeService = nodeService;
     }
+
     public void setDocumentService(DocumentService documentService) {
         this.documentService = documentService;
     }
-    //</editor-fold>
-    private static final Logger logger = Logger.getLogger(LiveSearchCaseDocuments.class);
 
     public void init() {
         PropertyCheck.mandatory(this, "DocumentService", documentService);
@@ -55,16 +58,16 @@ public class LiveSearchCaseDocuments extends DeclarativeWebScript {
     }
 
     @Override
-    protected Map<String, Object> executeImpl(WebScriptRequest req,  Status status, Cache cache) {
+    protected Map<String, Object> executeImpl(WebScriptRequest req, Status status, Cache cache) {
         Map<String, String> params = Utils.parseParameters(req.getURL());
         Map<String, Object> model = new HashMap<>();
         int maxResults = 3;
         try {
             maxResults = Integer.parseInt(params.get("maxResults"));
-        }
-        catch (NumberFormatException nfe){
-            if(logger.isDebugEnabled())
-                logger.warn("\n\n-----> Max results parameter was unreadable from the webscript request parameter:\n\t\t\t"+ nfe.getLocalizedMessage());
+        } catch (NumberFormatException nfe) {
+            if (logger.isDebugEnabled()) {
+                logger.warn("\n\n-----> Max results parameter was unreadable from the webscript request parameter:\n\t\t\t" + nfe.getLocalizedMessage());
+            }
         }
 
         try {
@@ -81,7 +84,7 @@ public class LiveSearchCaseDocuments extends DeclarativeWebScript {
 
     JSONArray buildJSON(List<NodeRef> documents) throws JSONException {
         JSONArray result = new JSONArray();
-        for(NodeRef document : documents){
+        for (NodeRef document : documents) {
             JSONObject documentObj = new JSONObject();
             JSONObject caseObj = new JSONObject();
             Map<QName, Serializable> docProps = nodeService.getProperties(document);

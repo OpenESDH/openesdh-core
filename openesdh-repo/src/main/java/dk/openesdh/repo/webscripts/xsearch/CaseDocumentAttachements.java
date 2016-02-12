@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
@@ -16,8 +15,6 @@ import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
  * Extends XSearchWebscript to change the data retriever to retrieve just the attachments.
  */
 public class CaseDocumentAttachements extends XSearchWebscript {
-
-    private static final Logger log = Logger.getLogger(CaseDocumentAttachements.class);
 
     private CaseDocumentsAttachmentsSearchService caseDocumentsSearchService;
 

@@ -1,4 +1,4 @@
-package dk.openesdh.repo.services.officetemplate;
+package dk.openesdh.doctemplates.services.officetemplate;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -7,12 +7,10 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.repo.content.filestore.FileContentReader;
@@ -21,7 +19,6 @@ import org.alfresco.repo.model.Repository;
 import org.alfresco.service.cmr.model.FileFolderService;
 import org.alfresco.service.cmr.model.FileInfo;
 import org.alfresco.service.cmr.model.FileNotFoundException;
-import org.alfresco.service.cmr.repository.ContentIOException;
 import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.ContentWriter;
@@ -30,12 +27,13 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.TransformationOptions;
 import org.alfresco.service.namespace.QName;
-import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.log4j.Logger;
+import org.apache.commons.lang3.StringUtils;
 import org.odftoolkit.odfdom.doc.OdfDocument;
 import org.odftoolkit.odfdom.dom.element.text.TextUserFieldDeclElement;
 import org.odftoolkit.simple.TextDocument;
 import org.odftoolkit.simple.common.field.VariableField;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -47,7 +45,7 @@ import org.w3c.dom.NodeList;
 @Service("OfficeTemplateService")
 public class OfficeTemplateServiceImpl implements OfficeTemplateService {
 
-    private static final Logger LOGGER = Logger.getLogger(OfficeTemplateServiceImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(OfficeTemplateService.class);
     private static final String DEFAULT_TARGET_MIME_TYPE = MimetypeMap.MIMETYPE_PDF;
 
     @Autowired
@@ -67,53 +65,67 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
     private MimetypeService mimetypeService;
 
     @Override
-    public NodeRef getTemplateDirectory() {
+    public void saveTemplate(String title, String description, String filename, InputStream contentInputStream, String mimetype) {
+        NodeRef templateStorageDir = getTemplateDirectory();
+        FileInfo fileInfo = fileFolderService.create(templateStorageDir, filename, ContentModel.TYPE_CONTENT);
+        ContentWriter writer = contentService.getWriter(fileInfo.getNodeRef(), ContentModel.PROP_CONTENT, true);
+        writer.setMimetype(mimetype);
+        writer.setEncoding("UTF-8");
+        writer.putContent(contentInputStream);
+
+        nodeService.setProperty(fileInfo.getNodeRef(), ContentModel.PROP_TITLE, title);
+        if (StringUtils.isNotBlank(description)) {
+            nodeService.setProperty(fileInfo.getNodeRef(), ContentModel.PROP_DESCRIPTION, description);
+        }
+    }
+
+    @Override
+    public void deleteTemplate(NodeRef nodeRef) {
+        nodeService.deleteNode(nodeRef);
+    }
+
+    /**
+     * Returns the a nodeRef representing the templates directory root.
+     *
+     * @return
+     */
+    private NodeRef getTemplateDirectory() {
         NodeRef rootNode = repositoryHelper.getCompanyHome();
-        FileInfo folderInfo;
         try {
-            folderInfo = fileFolderService.resolveNamePath(rootNode, Arrays.asList(OPENESDH_DOC_TEMPLATES_DEFAULT_PATH.split("/")));
+            FileInfo folderInfo = fileFolderService.resolveNamePath(rootNode, Arrays.asList(OPENESDH_DOC_TEMPLATES_DEFAULT_PATH.split("/")));
             return folderInfo.getNodeRef();
         } catch (FileNotFoundException e) {
-            //This should be bootstrapped by default, ideally we should create it if it doesn't exist but that would hide
-            //The problem that there was something wrong with the bootstrapping so we throw an error here attached with
-            //an error locator id number to help the admin locate the issue in the logs.
-            String errorLocator = RandomStringUtils.randomAlphanumeric(10);
-            LOGGER.error("\n=====> OpenESDH Error (" + errorLocator + ") <=====\n\t\t");
-            LOGGER.error("Attempting to locate document template root resulted in the following error:\n" + e.getMessage() + "\n\n");
-            throw new AlfrescoRuntimeException("Unable to locate the folder where templates are stored.\nPlease contact your administrator and pass on the code: " + errorLocator);
+            throw new RuntimeException("Unable to locate the folder where templates are stored.", e);
         }
     }
 
     @Override
     public List<OfficeTemplate> getTemplates() {
         NodeRef templateDirNode = getTemplateDirectory();
-
-        // TODO: Lookup templates recursively
-        return fileFolderService.listFiles(templateDirNode).stream().map(fileInfo -> {
-            try {
-                return getTemplate(fileInfo.getNodeRef(), false);
-            } catch (Exception e) {
-                e.printStackTrace();
-                return null;
-            }
-        }).collect(Collectors.toList());
+        return fileFolderService.listFiles(templateDirNode).stream()
+                .map(fileInfo -> getTemplate(fileInfo.getNodeRef(), false))
+                .collect(Collectors.toList());
     }
 
     @Override
-    public OfficeTemplate getTemplate(NodeRef templateNodeRef) throws Exception {
+    public OfficeTemplate getTemplate(NodeRef templateNodeRef) {
         return getTemplate(templateNodeRef, true);
     }
 
-    public OfficeTemplate getTemplate(NodeRef templateNodeRef, boolean withFields) throws Exception {
+    private OfficeTemplate getTemplate(NodeRef templateNodeRef, boolean withFields) {
         Map<QName, Serializable> properties = nodeService.getProperties(templateNodeRef);
         OfficeTemplate template = new OfficeTemplate();
         template.setName((String) properties.get(ContentModel.PROP_NAME));
         template.setTitle((String) properties.get(ContentModel.PROP_TITLE));
+        template.setDescription((String) properties.get(ContentModel.PROP_DESCRIPTION));
         template.setNodeRef(templateNodeRef.toString());
-
         if (withFields) {
-            List<OfficeTemplateField> templateFields = getTemplateFields(templateNodeRef);
-            template.setFields(templateFields);
+            try {
+                List<OfficeTemplateField> templateFields = getTemplateFields(templateNodeRef);
+                template.setFields(templateFields);
+            } catch (Exception ex) {
+                throw new RuntimeException("Cannot read template \"" + template.getName() + "\" fields", ex);
+            }
         }
         return template;
     }
@@ -141,7 +153,7 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
     }
 
     @Override
-    public ContentReader renderTemplate(NodeRef templateNodeRef, Map<String, Serializable> values) throws Exception {
+    public ContentReader renderTemplate(NodeRef templateNodeRef, Map<String, Serializable> model) throws Exception {
         ContentReader templateReader = contentService.getReader(templateNodeRef, ContentModel.PROP_CONTENT);
 
         //The option is needed for transformation to work on windows platform.
@@ -152,9 +164,6 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
 
         InputStream inputStream = templateReader.getContentInputStream();
 
-        Map<String, Serializable> model = new HashMap<>();
-        model.putAll(values);
-
         File file = File.createTempFile("office-template-renderer-", null);
         try (FileOutputStream outputStream = new FileOutputStream(file)) {
             renderODFTemplate(inputStream, outputStream, model);
@@ -163,11 +172,7 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
             reader.setMimetype(mimetypeService.guessMimetype(null, templateReader));
             ContentReader transformedReader = transformContent(reader, DEFAULT_TARGET_MIME_TYPE, options);
             reader.setMimetype(DEFAULT_TARGET_MIME_TYPE);
-            if (transformedReader != null) {
-                return transformedReader;
-            } else {
-                return null;
-            }
+            return transformedReader;
         } finally {
             boolean delete = file.delete();
             if (!delete) {
@@ -185,8 +190,7 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
                 if (variableField != null) {
                     variableField.updateField(value.toString(), null);
                 } else {
-                    LOGGER.warn("Supposed to fill in field " + fieldName
-                            + " but it does not exist in the template");
+                    logger.info("Supposed to fill in field \"{}\" but it does not exist in the template", fieldName);
                 }
             }
         });
@@ -203,19 +207,10 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
                 sourceReader.getMimetype(), sourceReader.getSize(), targetMimetype, options);
 
         if (transformer == null) {
-            LOGGER.error("Transformer to " + targetMimetype + " unavailable for "
+            throw new RuntimeException("Transformer to " + targetMimetype + " unavailable for "
                     + sourceReader.getMimetype());
-            return null;
         }
-
-        // Transform the document to PDF
-        try {
-            contentService.transform(sourceReader, writer, options);
-        } catch (ContentIOException e) {
-            LOGGER.error("Exception during transformation to " + targetMimetype, e);
-            return null;
-        }
-
+        contentService.transform(sourceReader, writer, options);
         return writer.getReader();
     }
 }

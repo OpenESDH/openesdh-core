@@ -1,4 +1,4 @@
-package dk.openesdh.repo.services.documents;
+package dk.openesdh.doctemplates.services.documenttemplate;
 
 import java.io.Serializable;
 import java.util.*;
@@ -21,15 +21,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import dk.openesdh.repo.model.DocumentTemplateInfo;
-import dk.openesdh.repo.model.DocumentTemplateInfoImpl;
-import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.doctemplates.model.DocumentTemplateInfo;
+import dk.openesdh.doctemplates.model.DocumentTemplateInfoImpl;
+import dk.openesdh.doctemplates.model.OpenESDHDocTemplateModel;
 import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 
 @Service("DocumentTemplateService")
 public class DocumentTemplateServiceImpl implements DocumentTemplateService {
 
-    private static final Log logger = LogFactory.getLog(DocumentServiceImpl.class);
+    private static final Log logger = LogFactory.getLog(DocumentTemplateService.class);
 
     @Autowired
     @Qualifier("OpenESDHFoldersService")
@@ -44,6 +44,8 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
     /**
      * Find document templates
      *
+     * @param filter
+     * @param size
      * @return
      */
     @Override
@@ -56,7 +58,7 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
         } else {
             // get the cases that match the specified names
             StringBuilder query = new StringBuilder(128);
-            query.append("+ASPECT:\"").append(OpenESDHModel.ASPECT_DOC_TEMPLATE).append('"');
+            query.append("+ASPECT:\"").append(OpenESDHDocTemplateModel.ASPECT_DOC_TEMPLATE).append('"');
 
             final boolean filterIsPresent = filter != null && filter.length() > 0;
 
@@ -113,7 +115,7 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
 
         // Get the properties
         Map<QName, Serializable> properties = this.nodeService.getProperties(templateNodeRef);
-        List<String> assignedTypes = (List<String>) properties.get(OpenESDHModel.PROP_ASSIGNED_CASE_TYPES);
+        List<String> assignedTypes = (List<String>) properties.get(OpenESDHDocTemplateModel.PROP_ASSIGNED_CASE_TYPES);
         String[] assignedCaseTypes = assignedTypes.toArray(new String[assignedTypes.size()]);
         String title = (String) properties.get(ContentModel.PROP_TITLE);
 

@@ -342,29 +342,6 @@
                 </property>
             </properties>
         </aspect>
-
-        <!-- document templates-->
-        <aspect name="doc:template">
-            <properties>
-                <property name="doc:templateType">
-                    <description>Textual representation of the template MIME type, i.e. ott/dotx/e.t.c</description>
-                    <type>d:text</type>
-                </property>
-                <property name="doc:assignedCaseTypes">
-                    <description>The assigned case types that this template can be applied</description>
-                    <type>d:text</type>
-                    <mandatory>true</mandatory>
-                    <multiple>true</multiple>
-                    <default>all</default>
-                    <index enabled="true">
-                        <atomic>true</atomic>
-                        <stored>true</stored>
-                        <tokenised>true</tokenised>
-                    </index>
-                </property>
-            </properties>
-        </aspect>
-
     </aspects>
 
 </model>

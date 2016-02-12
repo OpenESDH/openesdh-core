@@ -14,47 +14,25 @@
         <version>2.1.0</version>
     </parent>
 
-	<scm>
-		<connection>https://github.com/OpenESDH/openesdh-core</connection>
-	</scm>
+    <scm>
+        <connection>https://github.com/OpenESDH/openesdh-core</connection>
+    </scm>
 
-    <!-- 
-       | SDK properties have sensible defaults in the SDK parent, but you can override the properties below to use another version. 
-       | For more available properties see the alfresco-sdk-parent POM. 
-       -->
     <properties>
-        <!-- 
-            | Defines the groupId for the Alfresco Artifacts to work against. As of 4.2 the only allowed value is: org.alfresco
-            | NOTE: See http://docs.alfresco.com/4.2/concepts/dev-extensions-maven-sdk-tutorials-alfresco-enterprise.html for details
-        -->
         <alfresco.groupId>org.alfresco</alfresco.groupId>
-        <!-- Defines the Alfresco version to work against.
-             Community versions are typically identified by major.minor.character (4.2.a) while Enterprise versions are identified by major.minor.digit (4.2.0) 
-        -->
         <alfresco.version>5.0.d</alfresco.version>
-        <!-- This control the root logging level for all apps -->
         <app.log.root.level>WARN</app.log.root.level>
-        <!-- This controls the default data location for dir.root -->
         <alfresco.data.location>openesdh-repo/alf_data_dev</alfresco.data.location>
-        <!-- This controls which properties will be picked in multi-environment build -->
         <env>local</env>
         
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-
         <!-- IMPORTANT! Override this only if you know what you're doing; it could break amp-to-war overlay -->
         <alfresco.client.war.folder>${project.build.directory}/${project.build.finalName}-war</alfresco.client.war.folder>
-        <!--<maven.alfresco.attachClasses>true</maven.alfresco.attachClasses>-->
-        <!--<maven.alfresco.attachConfig>true</maven.alfresco.attachConfig>-->
     </properties>
 
     <!-- Here we realize the connection with the Alfresco selected platform (e.g.version and edition) -->
     <dependencyManagement>
         <dependencies>
-            <!-- This will import the dependencyManagement for all artifacts in the selected Alfresco plaftorm
-                 (see http://maven.apache.org/guides/introduction/introduction-to-dependency-mechanism.html#Importing_Dependencies)
-                 NOTE: You still need to define dependencies in your POM, but you can omit version as it's enforced by this dependencyManagement.
-                 NOTE: It defaults to the latest version this SDK pom has been tested with, but alfresco version can/should be overridden in your project's pom
-             -->
             <dependency>
                 <groupId>${alfresco.groupId}</groupId>
                 <artifactId>alfresco-platform-distribution</artifactId>
@@ -65,36 +43,8 @@
         </dependencies>
     </dependencyManagement>
 
-    <distributionManagement>
-        <repository>
-            <id>Alfresco-RELEASES</id>
-            <url>http://nexus.magenta-aps.dk/nexus/content/repositories/Alfresco-RELEASES</url>
-        </repository>
-        <snapshotRepository>
-            <id>Alfresco-SNAPSHOTS</id>
-            <url>http://nexus.magenta-aps.dk/nexus/content/repositories/Alfresco-SNAPSHOTS</url>
-        </snapshotRepository>
-    </distributionManagement>
-
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-failsafe-plugin</artifactId>
-                <version>2.18.1</version>
-                  <configuration>
-                      <argLine>${app.testing.jvm.args}</argLine>
-                  </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>integration-test</goal>
-                            <goal>verify</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-resources-plugin</artifactId>
@@ -116,32 +66,9 @@
         </plugins>
     </build>
 
-    <!-- This repository is only needed to retrieve Alfresco parent POM.
-        NOTE: This can be removed when/if Alfresco will be on Maven Central 
-        
-        NOTE: The repository to be used for Alfresco Enterprise artifacts is
-        https://artifacts.alfresco.com/nexus/content/groups/private/. Please check
-        with Alfresco Support to get credentials to add to your ~/.m2/settings.xml
-        if you are a Enterprise customer or Partner  
-        -->
-    <repositories>
-        <repository>
-            <id>magenta-public</id>
-            <url>http://nexus.magenta-aps.dk/nexus/content/repositories/Alfresco-RELEASES</url>
-        </repository>
-        <repository>
-            <id>magenta-public-snapshots</id>
-            <url>http://nexus.magenta-aps.dk/nexus/content/repositories/Alfresco-SNAPSHOTS</url>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>daily</updatePolicy>
-            </snapshots>
-        </repository>
-    </repositories>
-
     <modules>
         <module>openesdh-repo</module>
-        <module>openesdh-share</module>
+        <module>openesdh-doc-templates</module>
     </modules>
 
     <profiles>
