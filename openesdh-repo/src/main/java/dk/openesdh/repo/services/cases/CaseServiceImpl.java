@@ -50,10 +50,11 @@ import org.alfresco.util.SearchLanguageConversion;
 import org.apache.commons.lang3.EnumUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.extensions.surf.util.I18NUtil;
@@ -79,7 +80,8 @@ public class CaseServiceImpl implements CaseService {
     private static final String MSG_NO_CASE_CREATOR_GROUP_DEFINED = "security.permission.err_no_case_creator_group_defined";
     private static final String MSG_CASE_CREATOR_PERMISSION_VIOLATION = "security.permission.err_case_creator_permission_violation";
 
-    private static final Logger LOGGER = Logger.getLogger(CaseServiceImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(CaseServiceImpl.class);
+
     @Autowired
     @Qualifier("NodeService")
     private NodeService nodeService;
@@ -215,7 +217,7 @@ public class CaseServiceImpl implements CaseService {
     public void createCase(final ChildAssociationRef childAssocRef) {
         AuthenticationUtil.runAs(() -> {
             NodeRef caseNodeRef = childAssocRef.getChildRef();
-            LOGGER.info("caseNodeRef " + caseNodeRef);
+            logger.info("caseNodeRef {}", caseNodeRef);
 
             //Create folder structure
             NodeRef casesRootNodeRef = openESDHFoldersService.getCasesRootNodeRef();
@@ -327,9 +329,7 @@ public class CaseServiceImpl implements CaseService {
             sp.setLimitBy(LimitBy.FINAL_SIZE);
         }
 
-        if (LOGGER.isDebugEnabled()) {
-            LOGGER.debug("Search parameters are: " + sp);
-        }
+        logger.debug("Search parameters are: {}", sp);
 
         ResultSet results = null;
         try {
@@ -340,7 +340,7 @@ public class CaseServiceImpl implements CaseService {
                     .collect(Collectors.toList());
         } catch (LuceneQueryParserException lqpe) {
             //Log the error but suppress is from the user
-            LOGGER.error("LuceneQueryParserException with findCases()", lqpe);
+            logger.error("LuceneQueryParserException with findCases()", lqpe);
             return Collections.emptyList();
         } finally {
             if (results != null) {
@@ -754,7 +754,7 @@ public class CaseServiceImpl implements CaseService {
         StringBuilder caseId = new StringBuilder(dateFormat.format(date));
         caseId.append("-");
         caseId.append(uniqueNumber);
-        LOGGER.info("Case Id is " + caseId);
+        logger.debug("Case Id is {}", caseId);
 
         return caseId.toString();
     }

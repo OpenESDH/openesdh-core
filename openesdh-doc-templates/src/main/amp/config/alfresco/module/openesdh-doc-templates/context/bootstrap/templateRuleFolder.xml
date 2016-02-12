@@ -5,6 +5,7 @@
    xmlns:sys="http://www.alfresco.org/model/system/1.0" xmlns:rule="http://www.alfresco.org/model/rule/1.0"
    xmlns:app="http://www.alfresco.org/model/application/1.0" xmlns:d="http://www.alfresco.org/model/dictionary/1.0"
    xmlns:esdh="http://openesdh.dk/model/document/1.0" xmlns:act="http://www.alfresco.org/model/action/1.0"
+   xmlns:doctmpl="http://openesdh.dk/model/document/templates/1.0"
    >
    
   <cm:systemfolder view:childName="rule:ruleFolder">
@@ -134,7 +135,7 @@
                               <sys:node-uuid>75160ba9-1883-4f09-b4dc-19131195c5a5</sys:node-uuid>
                               <sys:store-protocol>workspace</sys:store-protocol>
                               <act:parameterValue>
-                                <view:value view:datatype="d:qname">{http://openesdh.dk/model/document/1.0}template</view:value>
+                                <view:value view:datatype="d:qname">{http://openesdh.dk/model/document/templates/1.0}template</view:value>
                               </act:parameterValue>
                             </view:properties>
                           </act:actionparameter>

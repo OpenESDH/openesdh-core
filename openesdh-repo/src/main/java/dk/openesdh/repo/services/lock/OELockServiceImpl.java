@@ -16,7 +16,8 @@ import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.OwnableService;
 import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.namespace.QName;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ import dk.openesdh.repo.model.OpenESDHModel;
 @Service("OELockService")
 public class OELockServiceImpl implements OELockService {
 
-    private static final Logger LOGGER = Logger.getLogger(OELockServiceImpl.class);
+    private final Logger logger = LoggerFactory.getLogger(OELockServiceImpl.class);
 
     @Autowired
     @Qualifier("NodeService")
@@ -45,7 +46,7 @@ public class OELockServiceImpl implements OELockService {
     public void lock(final NodeRef nodeRef, final boolean lockChildren) {
         if (nodeService.hasAspect(nodeRef, OpenESDHModel.ASPECT_OE_LOCKED)) {
             // Don't touch, already locked
-            LOGGER.warn("Node already has locked aspect when locking: " + nodeRef);
+            logger.warn("Node already has locked aspect when locking: {}", nodeRef);
             return;
         }
         AuthenticationUtil.runAsSystem(() -> {

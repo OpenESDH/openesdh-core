@@ -19,7 +19,8 @@ import org.alfresco.service.cmr.repository.StoreRef;
 import org.alfresco.service.cmr.view.ImporterService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.transaction.TransactionService;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.aop.AfterReturningAdvice;
 import org.springframework.aop.framework.Advised;
 import org.springframework.aop.support.NameMatchMethodPointcutAdvisor;
@@ -36,19 +37,19 @@ import dk.openesdh.repo.classification.sync.ClassificationSynchronizer;
 import dk.openesdh.repo.model.OpenESDHModel;
 
 /**
- * This aspect enables us to intercept modules initialization when a new tenant is created. 
+ * This aspect enables us to intercept modules initialization when a new tenant is created.
  * We need this to be able to initialize new tenant with OpenE artifacts (folders, groups, etc).
- * 
+ *
  * @author rudinjur
  *
  */
 @Service("MultiTenantAdminModulesAspect")
 public class MultiTenantAdminModulesAspect implements BeanFactoryAware {
-    
-    private static final Logger LOGGER = Logger.getLogger(MultiTenantAdminModulesAspect.class);
+
+    private final Logger logger = LoggerFactory.getLogger(MultiTenantAdminModulesAspect.class);
 
     private static final String TENANT_ADMIN_SERVICE = "tenantAdminService";
-    
+
     private static final String OPENE_MODULE_SERVICE = "OpeneMultiTenantModuleService";
 
     private static final String OPENE_MULTI_TENANT = "opene-multi-tenant";
@@ -100,7 +101,7 @@ public class MultiTenantAdminModulesAspect implements BeanFactoryAware {
         openeModuleIdsWithMtSuffix = getOpeneModuleIdsWithMtSuffix();
         moduleSpacesImporterBeanIds = getImporterBeanIds(ImporterBootstrap.class);
         extraMtImporter = getExtraMtImporter();
-        
+
         MultiTAdminServiceImpl tenantAdminService = (MultiTAdminServiceImpl) beanFactory
                 .getBean(TENANT_ADMIN_SERVICE);
         Advised moduleServiceProxy = (Advised) beanFactory.getBean(OPENE_MODULE_SERVICE);
@@ -111,21 +112,21 @@ public class MultiTenantAdminModulesAspect implements BeanFactoryAware {
         afterStartModulesAdvisor.addMethodName("startModules");
         moduleServiceProxy.addAdvisor(afterStartModulesAdvisor);
     }
-    
+
     /**
      * Performs necessary imports for a newly created tenant environment.
      */
     public void afterStartModules(Object returnValue, Method method, Object[] args, Object target) {
         moduleSpacesImporterBeanIds.stream().forEach(this::runSpacesImporter);
-        LOGGER.debug("Running extra mt importer");
+        logger.debug("Running extra mt importer");
         extraMtImporter.bootstrap();
-        LOGGER.debug("Done");
+        logger.debug("Done");
         // It will grab domain of the tenant currently being created, since the
         // MultiTAdminServiceImpl is running as tenant system user.
         classificationSynchronizer.synchronizeTenant(TenantUtil.getCurrentDomain());
     }
-    
-    private List<String> getOpeneModuleIdsWithMtSuffix(){
+
+    private List<String> getOpeneModuleIdsWithMtSuffix() {
         return moduleService.getAllModules()
                 .stream()
                 .filter(md -> OpenESDHModel.OPENESDH_REPO_MODULE_ID.equals(md.getId()) || isOpenesdhRepoDependant(md))
@@ -133,7 +134,7 @@ public class MultiTenantAdminModulesAspect implements BeanFactoryAware {
                 .map(id -> id + "_mt_")
                 .collect(Collectors.toList());
     }
-    
+
     public static boolean isOpenesdhRepoDependant(ModuleDetails module) {
         return module.getDependencies()
                 .stream()
@@ -142,7 +143,7 @@ public class MultiTenantAdminModulesAspect implements BeanFactoryAware {
                 .isPresent();
     }
 
-    public static boolean isOpeneMultitenantModule(ModuleDetails module){
+    public static boolean isOpeneMultitenantModule(ModuleDetails module) {
         return module.getAliases().contains(module.getId() + "-" + OPENE_MULTI_TENANT);
     }
 
@@ -152,17 +153,17 @@ public class MultiTenantAdminModulesAspect implements BeanFactoryAware {
                 .filter(this::isOpeneMultiTenantImporterBean)
                 .collect(Collectors.toList());
     }
-    
-    private boolean isOpeneMultiTenantImporterBean(String beanId){
+
+    private boolean isOpeneMultiTenantImporterBean(String beanId) {
         return openeModuleIdsWithMtSuffix.stream()
-                    .filter(moduleIdMt -> beanId.startsWith(moduleIdMt))
-                    .findAny()
-                    .isPresent();
+                .filter(moduleIdMt -> beanId.startsWith(moduleIdMt))
+                .findAny()
+                .isPresent();
     }
 
     /**
      * Initializes an extra importer for some data which is imported using patches (e.g. sites).
-     * This is due to patches cannot be re-applied for a tenant environment.  
+     * This is due to patches cannot be re-applied for a tenant environment.
      */
     private ImporterBootstrap getExtraMtImporter() {
         ImporterBootstrap importer = new ImporterBootstrap();
@@ -189,9 +190,9 @@ public class MultiTenantAdminModulesAspect implements BeanFactoryAware {
 
     private void runSpacesImporter(String beanId) {
         ImporterBootstrap importer = (ImporterBootstrap) beanFactory.getBean(beanId);
-        LOGGER.debug("Running importer: " + beanId);
+        logger.debug("Running importer: " + beanId);
         importer.bootstrap();
-        LOGGER.debug("Done");
+        logger.debug("Done");
     }
 
 }

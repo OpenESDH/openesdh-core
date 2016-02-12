@@ -135,6 +135,7 @@ public class AuditSearchServiceImplIT {
     }
 
     @Test
+    @SuppressWarnings("unchecked")
     public void testAuditLog() throws Exception {
         JSONArray result = auditSearchService.getAuditLogByCaseNodeRef(caseA, 1000);
         Set<String> visitedTypes = new HashSet<>();

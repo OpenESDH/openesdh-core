@@ -1,4 +1,4 @@
-package dk.openesdh.repo.services.officetemplate;
+package dk.openesdh.doctemplates.services.officetemplate;
 
 /**
  * Created by syastrov on 9/23/15.

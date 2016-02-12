@@ -10,10 +10,11 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.util.PropertyCheck;
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.stereotype.Component;
@@ -22,11 +23,9 @@ import com.github.dynamicextensionsalfresco.webscripts.annotations.*;
 import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 
 import dk.openesdh.repo.model.CaseInfo;
-import dk.openesdh.repo.model.DocumentTemplateInfo;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.services.documents.DocumentTemplateService;
 import dk.openesdh.repo.utils.Utils;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
@@ -40,21 +39,20 @@ import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 @WebScript(families = {"OpenESDH search"}, defaultFormat = "json", description = "Contextual Live Search Webscripts")
 public class LiveSearch {
 
-    //<editor-fold desc="injected services and initialised properties">
+    private final Logger logger = LoggerFactory.getLogger(LiveSearch.class);
+
     @Autowired
     private CaseService caseService;
     @Autowired
     private DocumentService documentService;
     @Autowired
     private NodeService nodeService;
-    @Autowired
-    private DocumentTemplateService documentTemplateService;
-    //</editor-fold>
-    private static final Logger logger = Logger.getLogger(LiveSearch.class);
+//    @Autowired
+//    private DocumentTemplateService documentTemplateService;
 
     public void init() {
         PropertyCheck.mandatory(this, "DocumentService", documentService);
-        PropertyCheck.mandatory(this, "DocTemplateService", documentTemplateService);
+//        PropertyCheck.mandatory(this, "DocTemplateService", documentTemplateService);
         PropertyCheck.mandatory(this, "CaseService", caseService);
         PropertyCheck.mandatory(this, "NodeService", nodeService);
     }
@@ -67,7 +65,7 @@ public class LiveSearch {
             maxResults = Integer.parseInt(params.get("maxResults"));
         } catch (NumberFormatException nfe) {
             if (logger.isDebugEnabled()) {
-                logger.warn("\n\n-----> Max results parameter was unreadable from the webscript request parameter:\n\t\t\t" + nfe.getLocalizedMessage());
+                logger.warn("\n\n-----> Max results parameter was unreadable from the webscript request parameter:\n\t\t\t{}", nfe.getLocalizedMessage());
             }
         }
         JSONObject response = new JSONObject();
@@ -97,7 +95,7 @@ public class LiveSearch {
             }
             break;
 
-            case "templates": {
+            /* case "templates": {
                 try {
                     List<DocumentTemplateInfo> foundTemplates = this.documentTemplateService.findTemplates(params.get("t"), maxResults);
                     JSONArray jsonArray = buildDocTemplateJSON(foundTemplates);
@@ -106,13 +104,13 @@ public class LiveSearch {
                     e.printStackTrace();
                 }
             }
-            break;
+            break;*/
         }
 
         return WebScriptUtils.jsonResolution(response);
     }
 
-    JSONArray buildDocTemplateJSON(List<DocumentTemplateInfo> templates) throws JSONException {
+    /*JSONArray buildDocTemplateJSON(List<DocumentTemplateInfo> templates) throws JSONException {
         JSONArray result = new JSONArray();
         for (DocumentTemplateInfo template : templates) {
             JSONObject templateObj = new JSONObject();
@@ -126,7 +124,7 @@ public class LiveSearch {
         }
         return result;
     }
-
+     */
     JSONArray buildDocsJSON(List<NodeRef> documents) throws JSONException {
         JSONArray result = new JSONArray();
         for (NodeRef document : documents) {

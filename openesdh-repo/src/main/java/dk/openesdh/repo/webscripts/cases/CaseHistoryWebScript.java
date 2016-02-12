@@ -1,5 +1,16 @@
 package dk.openesdh.repo.webscripts.cases;
 
+import java.io.IOException;
+
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.json.simple.JSONArray;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.extensions.webscripts.WebScriptResponse;
+import org.springframework.stereotype.Component;
+
 import com.github.dynamicextensionsalfresco.webscripts.annotations.Header;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
@@ -8,27 +19,16 @@ import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
 import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 
-import java.io.IOException;
-
-import org.alfresco.service.cmr.repository.NodeRef;
-import org.apache.log4j.Logger;
-import org.json.simple.JSONArray;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.extensions.webscripts.WebScriptResponse;
-import org.springframework.stereotype.Component;
-
 import dk.openesdh.repo.services.audit.AuditSearchService;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.webscripts.PageableWebScript;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
-import dk.openesdh.repo.webscripts.xsearch.XSearchWebscript;
 
 @Component
 @WebScript(description = "Retrieve history about a case", defaultFormat = "json", families = "Case Tools")
 public class CaseHistoryWebScript {
 
-    private static final Logger logger = Logger.getLogger(XSearchWebscript.class);
+    private final Logger logger = LoggerFactory.getLogger(CaseHistoryWebScript.class);
 
     @Autowired
     private AuditSearchService auditSearchService;
@@ -57,7 +57,7 @@ public class CaseHistoryWebScript {
 
         int[] range = PageableWebScript.parseRangeHeader(rangeHeader);
         if (range != null) {
-            logger.debug("Range: " + range[0] + " - " + range[1]);
+            logger.debug("Range: {} - {}", range[0], range[1]);
             startIndex = range[0];
             pageSize = range[1] - range[0];
         }

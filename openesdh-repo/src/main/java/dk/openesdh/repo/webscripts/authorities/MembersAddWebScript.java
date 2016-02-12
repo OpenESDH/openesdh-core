@@ -10,12 +10,13 @@ import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.PersonService;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.log4j.Logger;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.extensions.webscripts.Status;
 import org.springframework.extensions.webscripts.WebScriptException;
@@ -45,7 +46,7 @@ import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 @WebScript(description = "Add group or user to a group", families = {"Authorities"}, lifecycle = Lifecycle.INTERNAL)
 public class MembersAddWebScript {
 
-    private static final Logger logger = Logger.getLogger(MembersAddWebScript.class);
+    private final Logger logger = LoggerFactory.getLogger(MembersAddWebScript.class);
 
     @Autowired
     private AuthorityService authorityService;
@@ -113,7 +114,7 @@ public class MembersAddWebScript {
                 authorityService.addAuthority(groupFullName, memberFullName);
             }
         } catch (Exception ge) {
-            logger.warn("**** could not add groups to group:\n\t\t\t" + ge.getMessage() + " ****");
+            logger.warn("**** could not add groups to group:\n\t\t\t {} ****", ge.getMessage());
         }
     }
 
@@ -129,7 +130,7 @@ public class MembersAddWebScript {
                 authorityService.addAuthority(groupFullName, user);
             }
         } catch (Exception ge) {
-            logger.warn("**** could not add users to group:\n\t\t\t" + ge.getMessage() + " ****");
+            logger.warn("**** could not add users to group:\n\t\t\t ****", ge.getMessage());
         }
     }
 
