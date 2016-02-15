@@ -236,4 +236,12 @@ public interface DocumentService extends HasStatus<DocumentStatus> {
      */
     public List<ChildAssociationRef> getAttachmentsAssoc(NodeRef mainDocNodeRef);
 
+    /**
+     * Retrieves case document with attachments
+     * 
+     * @param docRecordNodeRef
+     * @return
+     */
+    CaseDocument getCaseDocument(NodeRef docRecordNodeRef);
+
 }

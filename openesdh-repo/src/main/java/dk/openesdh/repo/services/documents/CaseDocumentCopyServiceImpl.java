@@ -169,9 +169,10 @@ public class CaseDocumentCopyServiceImpl implements CaseDocumentCopyService {
         return attachmentCopy;
     }
 
-    private NodeRef copyDocument(NodeRef documentRef, NodeRef targetFolder, boolean copyChildren) {
-        String documentName = (String) nodeService.getProperty(documentRef, ContentModel.PROP_NAME);
-        return copyService.copyAndRename(documentRef, targetFolder, ContentModel.ASSOC_CONTAINS,
+    @Override
+    public NodeRef copyDocument(NodeRef documentContentRef, NodeRef targetFolder, boolean copyChildren) {
+        String documentName = (String) nodeService.getProperty(documentContentRef, ContentModel.PROP_NAME);
+        return copyService.copyAndRename(documentContentRef, targetFolder, ContentModel.ASSOC_CONTAINS,
                 QName.createQName(OpenESDHModel.DOC_URI, documentName), copyChildren);
     }
 

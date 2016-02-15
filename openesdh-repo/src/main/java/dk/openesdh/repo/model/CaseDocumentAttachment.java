@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.PersonService.PersonInfo;
 
 public class CaseDocumentAttachment {
@@ -135,4 +136,7 @@ public class CaseDocumentAttachment {
         this.lockOwnerInfo = lockOwnerInfo;
     }
 
+    public NodeRef nodeRefObject() {
+        return new NodeRef(nodeRef);
+    }
 }
