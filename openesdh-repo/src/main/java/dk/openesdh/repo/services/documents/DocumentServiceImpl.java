@@ -632,7 +632,8 @@ public class DocumentServiceImpl implements DocumentService {
         return result;
     }
 
-    private CaseDocument getCaseDocument(NodeRef docRecordNodeRef) {
+    @Override
+    public CaseDocument getCaseDocument(NodeRef docRecordNodeRef) {
         NodeRef mainDocNodeRef = getMainDocument(docRecordNodeRef);
         CaseDocument caseDocument = new CaseDocument();
         caseDocument.setNodeRef(docRecordNodeRef.toString());
