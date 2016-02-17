@@ -17,6 +17,7 @@ import javax.servlet.http.HttpSession;
 import org.alfresco.repo.SessionUser;
 import org.alfresco.repo.webdav.WebDAV;
 import org.alfresco.repo.webdav.auth.AuthenticationDriver;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * This filter was created to prevent browsers rendering the basic auth dialog in response to a 401 message.
@@ -54,6 +55,9 @@ public class ResponseServletFilter implements Filter {
                     return super.getHeader(name);
                 }
                 String userAgent = super.getHeader(name);
+                if (StringUtils.isEmpty(userAgent)) {
+                    return userAgent;
+                }
                 if (userAgent.contains("Chrome")) {
                     return userAgent.replace("Safari", "Sfr");
                 }
