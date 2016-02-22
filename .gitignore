@@ -11,3 +11,4 @@ alfresco.log
 *.log*
 nbactions.xml
 openesdh-repo/src/main/amp/config/alfresco/module/openesdh-repo/module.properties
+/openesdh-doc-templates/nbproject/

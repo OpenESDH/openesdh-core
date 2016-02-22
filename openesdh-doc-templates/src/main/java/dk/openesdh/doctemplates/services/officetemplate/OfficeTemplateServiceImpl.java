@@ -65,7 +65,7 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
     private MimetypeService mimetypeService;
 
     @Override
-    public void saveTemplate(String title, String description, String filename, InputStream contentInputStream, String mimetype) {
+    public NodeRef saveTemplate(String title, String description, String filename, InputStream contentInputStream, String mimetype) {
         NodeRef templateStorageDir = getTemplateDirectory();
         FileInfo fileInfo = fileFolderService.create(templateStorageDir, filename, ContentModel.TYPE_CONTENT);
         ContentWriter writer = contentService.getWriter(fileInfo.getNodeRef(), ContentModel.PROP_CONTENT, true);
@@ -77,6 +77,7 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
         if (StringUtils.isNotBlank(description)) {
             nodeService.setProperty(fileInfo.getNodeRef(), ContentModel.PROP_DESCRIPTION, description);
         }
+        return fileInfo.getNodeRef();
     }
 
     @Override

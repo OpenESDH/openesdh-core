@@ -7,7 +7,6 @@
     <version>1.0-SNAPSHOT</version>
     <name>openesdh-doc-templates Repository AMP project</name>
     <packaging>amp</packaging>
-    <description>Manages the lifecycle of the doc-templates Repository AMP (Alfresco Module Package)</description>
 
     <parent>
         <groupId>dk.openesdh</groupId>
@@ -16,6 +15,12 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
+    <properties>
+        <dynamicextensionsalfresco.version>1.0-SNAPSHOT</dynamicextensionsalfresco.version>
+        <openesdhrepo.version>1.0-SNAPSHOT</openesdhrepo.version>
+        <openesdh.simple.case.version>1.0.1-SNAPSHOT</openesdh.simple.case.version>
+    </properties>
+    
     <dependencies>
         <!-- Following dependencies are needed for compiling Java code in src/main/java;
         <scope>provided</scope> is inherited for each of the following;
@@ -25,29 +30,70 @@
             <artifactId>alfresco-repository</artifactId>
         </dependency>
         <dependency>
-            <groupId>dk.openesdh</groupId>
-            <artifactId>openesdh-repo</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>compile</scope>
+            <groupId>${alfresco.groupId}</groupId>
+            <artifactId>alfresco-remote-api</artifactId>
+        </dependency>
+        <!-- dynamicextensionsalfresco -->
+        <dependency>
+            <groupId>com.github.dynamicextensionsalfresco</groupId>
+            <artifactId>webscripts</artifactId>
+            <version>${dynamicextensionsalfresco.version}</version>
             <classifier>classes</classifier>
         </dependency>
+        <dependency>
+            <groupId>com.github.dynamicextensionsalfresco</groupId>
+            <artifactId>annotations</artifactId>
+            <version>${dynamicextensionsalfresco.version}</version>
+            <classifier>classes</classifier>
+        </dependency>
+        <!-- openesdh-repo -->
+        <dependency>
+            <groupId>dk.openesdh</groupId>
+            <artifactId>openesdh-repo</artifactId>
+            <version>${openesdhrepo.version}</version>
+            <classifier>classes</classifier>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>dk.openesdh</groupId>
+            <artifactId>openesdh-repo</artifactId>
+            <version>${openesdhrepo.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>dk.openesdh</groupId>
+            <artifactId>openesdh-repo</artifactId>
+            <version>${openesdhrepo.version}</version>
+            <type>amp</type>
+        </dependency>
+        <!-- simple-case-repo -->
+        <dependency>
+            <groupId>dk.openesdh.case</groupId>
+            <artifactId>simple-case-repo</artifactId>
+            <version>${openesdh.simple.case.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <!-- others -->
         <dependency>
             <groupId>org.apache.odftoolkit</groupId>
             <artifactId>simple-odf</artifactId>
             <version>0.7-incubating</version>
         </dependency>
     </dependencies>
-
-    <profiles>
-        <profile>
-            <id>amp-to-war</id>
-            <dependencies>
-                <dependency>
-                    <groupId>org.alfresco.maven</groupId>
-                    <artifactId>alfresco-rad</artifactId>
-                    <version>${maven.alfresco.version}</version>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
+    
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <configuration>
+                    <includes>
+                        <include>**/*IT.java</include>
+                    </includes>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>
