@@ -56,4 +56,13 @@ public interface CaseDocumentCopyService {
     NodeRef copyDocumentToFolderRetainVersionLabels(CaseDocument document, NodeRef targetFolder);
 
     NodeRef copyDocument(NodeRef documentContentRef, NodeRef targetFolder, boolean copyChildren);
+
+    /**
+     * Copies content from provided node into target document and retains
+     * version label from source node.
+     * 
+     * @param newVersionContentRef
+     * @param targetDocumentRef
+     */
+    void copyDocContentRetainVersionLabel(NodeRef newVersionContentRef, NodeRef targetDocumentRef);
 }
