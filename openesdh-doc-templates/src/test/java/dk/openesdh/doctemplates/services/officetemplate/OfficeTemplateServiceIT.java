@@ -45,11 +45,4 @@ public class OfficeTemplateServiceIT extends TemplateTester {
         List<OfficeTemplate> templates = officeTemplateService.getTemplates();
         assertEquals("Template is found", 1, templates.size());
     }
-
-    @Test
-    public void testGetTemplate() {
-        OfficeTemplate template = ((OfficeTemplateServiceImpl) officeTemplateService).getTemplate(savedTemplate, false);
-        assertNotNull("Template is retrieved", template);
-        assertEquals("Description is the same", getClass().getSimpleName(), template.getDescription());
-    }
 }

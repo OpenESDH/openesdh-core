@@ -113,7 +113,7 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
         return getTemplate(templateNodeRef, true);
     }
 
-    OfficeTemplate getTemplate(NodeRef templateNodeRef, boolean withFields) {
+    private OfficeTemplate getTemplate(NodeRef templateNodeRef, boolean withFields) {
         Map<QName, Serializable> properties = nodeService.getProperties(templateNodeRef);
         OfficeTemplate template = new OfficeTemplate();
         template.setName((String) properties.get(ContentModel.PROP_NAME));
