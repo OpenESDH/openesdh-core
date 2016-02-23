@@ -12,7 +12,10 @@
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-doctemplates-model-context.xml" />
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-doctemplates-bootstrap-context.xml" />  
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-doctemplates-thumbnail-context.xml" />  
-        
+    
     <context:annotation-config/>
-    <context:component-scan base-package="dk.openesdh.doctemplates.services, dk.openesdh.doctemplates.policy, dk.openesdh.doctemplates.webscripts" />
+    <context:component-scan base-package="dk.openesdh.project.rooms.tenant, 
+        dk.openesdh.doctemplates.services, 
+        dk.openesdh.doctemplates.policy, 
+        dk.openesdh.doctemplates.webscripts" />
 </beans>
