@@ -7,7 +7,7 @@ import java.util.Optional;
 import org.json.simple.JSONObject;
 import org.springframework.extensions.surf.util.I18NUtil;
 
-public abstract class AuditEntryHandler {
+public abstract class AuditEntryHandler implements IAuditEntryHandler {
 
     public enum REC_TYPE {
         CASE,
@@ -22,8 +22,6 @@ public abstract class AuditEntryHandler {
     public static final String USER = "user";
     public static final String TYPE = "type";
     public static final String ACTION = "action";
-
-    protected abstract Optional<JSONObject> handleEntry(String user, long time, Map<String, Serializable> values);
 
     public Optional<JSONObject> createAuditEntry(String user, long time, Map<String, Serializable> values) {
         return handleEntry(user, time, values);
