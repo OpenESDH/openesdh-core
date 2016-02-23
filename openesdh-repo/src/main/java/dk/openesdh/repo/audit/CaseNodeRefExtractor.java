@@ -1,9 +1,14 @@
 package dk.openesdh.repo.audit;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
+import java.util.function.Predicate;
 import java.util.regex.Matcher;
+
+import javax.annotation.PostConstruct;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -19,8 +24,10 @@ import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 import dk.openesdh.repo.services.workflow.CaseWorkflowService;
 import dk.openesdh.repo.services.workflow.WorkflowTaskService;
 
-@Service("audit.dk.openesdh.CaseIDExtractor")
+@Service(CaseNodeRefExtractor.BEAN_ID)
 public final class CaseNodeRefExtractor extends AbstractAnnotatedDataExtractor {
+
+    public static final String BEAN_ID = "audit.dk.openesdh.CaseIDExtractor";
 
     @Autowired
     private NodeService nodeService;
@@ -28,6 +35,17 @@ public final class CaseNodeRefExtractor extends AbstractAnnotatedDataExtractor {
     private CaseService caseService;
     @Autowired
     private WorkflowTaskService workflowTaskService;
+
+    private Map<Predicate<String>, Function<String, String>> nodeRefFromPathExtractors = new HashMap<>();
+
+    public void addNodeRefFromPathExtractor(Predicate<String> predicate, Function<String, String> extractor) {
+        nodeRefFromPathExtractors.put(predicate, extractor);
+    }
+
+    @PostConstruct
+    public void init() {
+        addNodeRefFromPathExtractor(this::pathStartsWithCasesRoot, this::getNodeRefFromCasePathExtractor);
+    }
 
     public Serializable extractData(Serializable value) throws Throwable {
         String result = null;
@@ -83,11 +101,19 @@ public final class CaseNodeRefExtractor extends AbstractAnnotatedDataExtractor {
     }
 
     protected String getNodeRefFromPath(String path) {
-        String prefix = OpenESDHFoldersService.CASES_ROOT_PATH;
-        if (!path.startsWith(prefix)) {
-            return null;
-        }
+        return nodeRefFromPathExtractors.entrySet().stream()
+                .filter(entry -> entry.getKey().test(path))
+                .findAny()
+                .map(entry -> entry.getValue())
+                .map(extractor -> extractor.apply(path))
+                .orElse(null);
+    }
 
+    private boolean pathStartsWithCasesRoot(String path) {
+        return path.startsWith(OpenESDHFoldersService.CASES_ROOT_PATH);
+    }
+
+    private String getNodeRefFromCasePathExtractor(String path) {
         String caseId = getCaseIdFromPath(path);
         if (StringUtils.isEmpty(caseId)) {
             return null;

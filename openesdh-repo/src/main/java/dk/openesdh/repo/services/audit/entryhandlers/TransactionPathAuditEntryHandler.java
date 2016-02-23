@@ -1,5 +1,14 @@
 package dk.openesdh.repo.services.audit.entryhandlers;
 
+import static dk.openesdh.repo.services.audit.AuditEntryHandler.REC_TYPE.ATTACHMENT;
+import static dk.openesdh.repo.services.audit.AuditEntryHandler.REC_TYPE.CASE;
+import static dk.openesdh.repo.services.audit.AuditEntryHandler.REC_TYPE.DOCUMENT;
+import static dk.openesdh.repo.services.audit.AuditEntryHandler.REC_TYPE.NOTE;
+import static dk.openesdh.repo.services.audit.AuditEntryHandler.REC_TYPE.SYSTEM;
+import static dk.openesdh.repo.services.audit.AuditUtils.getLastPathElement;
+import static dk.openesdh.repo.services.audit.AuditUtils.getTitle;
+import static dk.openesdh.repo.services.system.OpenESDHFoldersService.FILES_ROOT_PATH;
+
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,6 +18,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import org.alfresco.model.ContentModel;
@@ -21,45 +31,68 @@ import org.springframework.extensions.surf.util.I18NUtil;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.audit.AuditEntryHandler;
-import static dk.openesdh.repo.services.audit.AuditEntryHandler.REC_TYPE.*;
-import static dk.openesdh.repo.services.audit.AuditUtils.getLastPathElement;
-import static dk.openesdh.repo.services.audit.AuditUtils.getTitle;
-import static dk.openesdh.repo.services.system.OpenESDHFoldersService.FILES_ROOT_PATH;
+import dk.openesdh.repo.services.audit.IAuditEntryHandler;
 
 public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
 
-    public static final String TRANSACTION_PATH = "/esdh/transaction/user";
-    private static final String TRANSACTION_ACTION = "/esdh/transaction/action";
+    public static final String TRANSACTION_USER = "/esdh/transaction/user";
+    public static final String TRANSACTION_PATH = "/esdh/transaction/path";
+    public static final String TRANSACTION_TYPE = "/esdh/transaction/type";
+    public static final String TRANSACTION_ACTION = "/esdh/transaction/action";
     private static final String TRANSACTION_SUB_ACTIONS = "/esdh/transaction/sub-actions";
     private static final String TRANSACTION_ASPECT_ADD = "/esdh/transaction/aspects/add";
     private static final String TRANSACTION_DOC_FROM_FILES = "/esdh/transaction/move/from/path";
+
+    public static final String TRANSACTION_ACTION_CREATE = "CREATE";
+    public static final String TRANSACTION_ACTION_DELETE = "DELETE";
+    public static final String TRANSACTION_ACTION_CHECK_IN = "CHECK IN";
+    public static final String TRANSACTION_ACTION_CREATE_VERSION = "CREATE VERSION";
+    public static final String TRANSACTION_ACTION_UPDATE_NODE_PROPERTIES = "updateNodeProperties";
 
     private static final int MAX_NOTE_TEXT_LENGTH = 40;
 
     private final DictionaryService dictionaryService;
     private final List<QName> ignoredProperties;
+    private Map<Predicate<Map<String, Serializable>>, IAuditEntryHandler> trPathEntryHandlers = new HashMap<>();
 
-    public TransactionPathAuditEntryHandler(DictionaryService dictionaryService, List<QName> ignoredProperties) {
+    public TransactionPathAuditEntryHandler(DictionaryService dictionaryService, List<QName> ignoredProperties,
+            Map<Predicate<Map<String, Serializable>>, IAuditEntryHandler> trPathEntryHandlers) {
         this.dictionaryService = dictionaryService;
         this.ignoredProperties = ignoredProperties;
+        this.trPathEntryHandlers = trPathEntryHandlers;
+    }
+
+    public void addTransactionPathEntryHandler(Predicate<Map<String, Serializable>> predicate,
+            IAuditEntryHandler handler) {
+        this.trPathEntryHandlers.put(predicate, handler);
     }
 
     @Override
     public Optional<JSONObject> handleEntry(String user, long time, Map<String, Serializable> values) {
+        return trPathEntryHandlers.entrySet()
+                .stream()
+                .filter(entry -> entry.getKey().test(values))
+                .findAny()
+                .map(entry -> entry.getValue())
+                .orElse(this::defaultHandleEntry)
+                .handleEntry(user, time, values);
+    }
+
+    private Optional<JSONObject> defaultHandleEntry(String user, long time, Map<String, Serializable> values) {
         switch ((String) values.get(TRANSACTION_ACTION)) {
-            case "CREATE":
+            case TRANSACTION_ACTION_CREATE:
                 return getEntryTransactionCreate(user, time, values);
-            case "DELETE":
+            case TRANSACTION_ACTION_DELETE:
                 return getEntryTransactionDelete(user, time, values);
-            case "CHECK IN":
+            case TRANSACTION_ACTION_CHECK_IN:
                 return getEntryTransactionCheckIn(user, time, values);
-            case "CREATE VERSION":
+            case TRANSACTION_ACTION_CREATE_VERSION:
                 if (isMovedFromOeFile(values)) {
                     //skip version if moved from oe:files (duplicates records)
                     return Optional.empty();
                 }
                 return getEntryTransactionUpdateVersion(user, time, values);
-            case "updateNodeProperties":
+            case TRANSACTION_ACTION_UPDATE_NODE_PROPERTIES:
                 return getEntryTransactionUpdateProperties(user, time, values);
 
             default:
@@ -74,8 +107,8 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
     }
 
     private Optional<JSONObject> getEntryTransactionCreate(String user, long time, Map<String, Serializable> values) {
-        String type = (String) values.get("/esdh/transaction/type");
-        String path = (String) values.get("/esdh/transaction/path");
+        String type = (String) values.get(TRANSACTION_TYPE);
+        String path = (String) values.get(TRANSACTION_PATH);
         Set<QName> aspectsAdd = (Set<QName>) values.get(TRANSACTION_ASPECT_ADD);
 
         Map<QName, Serializable> properties = (Map<QName, Serializable>) values
@@ -128,7 +161,7 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
             auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.finished.editing", lastPathElement[1]));
             auditEntry.put(TYPE, getTypeMessage(SYSTEM));
         } else {
-            switch (values.get("/esdh/transaction/type").toString()) {
+            switch (values.get(TRANSACTION_TYPE).toString()) {
                 case "doc:digitalFile":
                     if (isContent(lastPathElement)) {
                         //delete action on content of document folder is not shown to prevent duplicate records
