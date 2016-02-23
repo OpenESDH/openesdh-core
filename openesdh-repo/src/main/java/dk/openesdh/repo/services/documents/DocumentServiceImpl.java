@@ -702,7 +702,7 @@ public class DocumentServiceImpl implements DocumentService {
 
         Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
         attachment.setName(properties.get(ContentModel.PROP_NAME).toString());
-        attachment.setVersionLabel(properties.get(ContentModel.PROP_VERSION_LABEL).toString());
+        attachment.setVersionLabel((String) properties.get(ContentModel.PROP_VERSION_LABEL));
         attachment.setCreated((Date) properties.get(ContentModel.PROP_CREATED));
         attachment.setModified((Date) properties.get(ContentModel.PROP_MODIFIED));
         attachment.setType(nodeService.getType(nodeRef).toPrefixString(namespaceService));

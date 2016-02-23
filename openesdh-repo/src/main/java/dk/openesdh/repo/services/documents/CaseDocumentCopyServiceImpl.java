@@ -3,11 +3,17 @@ package dk.openesdh.repo.services.documents;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
+import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
+import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
+import org.alfresco.service.cmr.repository.ContentReader;
+import org.alfresco.service.cmr.repository.ContentService;
+import org.alfresco.service.cmr.repository.ContentWriter;
 import org.alfresco.service.cmr.repository.CopyService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -47,6 +53,12 @@ public class CaseDocumentCopyServiceImpl implements CaseDocumentCopyService {
     @Autowired
     @Qualifier("CaseDocumentVersionService")
     private VersionService versionService;
+    @Autowired
+    @Qualifier("CheckOutCheckInService")
+    private CheckOutCheckInService checkOutCheckInService;
+    @Autowired
+    @Qualifier("ContentService")
+    private ContentService contentService;
     @Autowired
     @Qualifier("TransactionRunner")
     private TransactionRunner tr;
@@ -147,9 +159,36 @@ public class CaseDocumentCopyServiceImpl implements CaseDocumentCopyService {
         
         copyMap.entrySet()
             .stream()
-            .forEach(entry -> retainVersionLabel(entry.getKey(), entry.getValue()));
+            .forEach(entry -> retainVersionLabelDeleteCurrentVersion(entry.getKey(), entry.getValue()));
         
         return documentCopy;
+    }
+
+    @Override
+    public NodeRef copyDocument(NodeRef documentContentRef, NodeRef targetFolder, boolean copyChildren) {
+        String documentName = (String) nodeService.getProperty(documentContentRef, ContentModel.PROP_NAME);
+        return copyService.copyAndRename(documentContentRef, targetFolder, ContentModel.ASSOC_CONTAINS,
+                QName.createQName(OpenESDHModel.DOC_URI, documentName), copyChildren);
+    }
+
+    @Override
+    public void copyDocContentRetainVersionLabel(NodeRef newVersionContentRef, NodeRef targetDocumentRef) {
+        ContentReader newContent = contentService.getReader(newVersionContentRef, ContentModel.PROP_CONTENT);
+        if (Objects.isNull(newContent)) {
+            return;
+        }
+        Boolean autoVersion = (Boolean) this.nodeService.getProperty(targetDocumentRef,
+                ContentModel.PROP_AUTO_VERSION);
+        if (!Objects.isNull(autoVersion) && autoVersion == true) {
+            throw new AlfrescoRuntimeException(
+                    "Cannot retain version label since the target object has auto version enabled.");
+        }
+        NodeRef workingCopy = checkOutCheckInService.checkout(targetDocumentRef);
+        ContentWriter writer = contentService.getWriter(workingCopy, ContentModel.PROP_CONTENT, true);
+        writer.setMimetype(newContent.getMimetype());
+        writer.putContent(newContent);
+        checkOutCheckInService.checkin(workingCopy, null);
+        retainVersionLabel(newVersionContentRef, targetDocumentRef);
     }
 
     private NodeRef copyDocumentRecord(NodeRef documentRecRef, NodeRef targetFolder) {
@@ -167,13 +206,6 @@ public class CaseDocumentCopyServiceImpl implements CaseDocumentCopyService {
         nodeService.addChild(mainDocRef, attachmentCopy, OpenESDHModel.ASSOC_DOC_ATTACHMENTS,
                 QName.createQName(OpenESDHModel.DOC_URI, attachmentName));
         return attachmentCopy;
-    }
-
-    @Override
-    public NodeRef copyDocument(NodeRef documentContentRef, NodeRef targetFolder, boolean copyChildren) {
-        String documentName = (String) nodeService.getProperty(documentContentRef, ContentModel.PROP_NAME);
-        return copyService.copyAndRename(documentContentRef, targetFolder, ContentModel.ASSOC_CONTAINS,
-                QName.createQName(OpenESDHModel.DOC_URI, documentName), copyChildren);
     }
 
     private NodeRef getTargetCase(String targetCaseId) throws Exception {
@@ -209,15 +241,18 @@ public class CaseDocumentCopyServiceImpl implements CaseDocumentCopyService {
                 .isPresent();
     }
 
-    private void retainVersionLabel(NodeRef docOriginal, NodeRef docCopy) {
+    private void retainVersionLabelDeleteCurrentVersion(NodeRef docOriginal, NodeRef docCopy) {
         behaviourFilterService.executeWithoutBehavior(() -> {
             Version copyInitVersion = versionService.getCurrentVersion(docCopy);
             versionService.deleteVersion(docCopy, copyInitVersion);
-            Version originalVersion = versionService.getCurrentVersion(docOriginal);
-            Map<String, Serializable> versionProps = new HashMap<>();
-            versionProps.put(OpenESDHModel.RETAIN_VERSION_LABEL, originalVersion.getVersionLabel());
-            versionService.createVersion(docCopy, versionProps);
+            retainVersionLabel(docOriginal, docCopy);
         });
+    }
 
+    private void retainVersionLabel(NodeRef docOriginal, NodeRef docCopy) {
+        Version originalVersion = versionService.getCurrentVersion(docOriginal);
+        Map<String, Serializable> versionProps = new HashMap<>();
+        versionProps.put(OpenESDHModel.RETAIN_VERSION_LABEL, originalVersion.getVersionLabel());
+        versionService.createVersion(docCopy, versionProps);
     }
 }
