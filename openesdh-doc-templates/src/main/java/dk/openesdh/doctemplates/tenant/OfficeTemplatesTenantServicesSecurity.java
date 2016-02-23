@@ -6,10 +6,9 @@ import org.springframework.stereotype.Component;
 
 import dk.openesdh.repo.services.tenant.TenantModulesSecurityAutoProxyCreator;
 
+@SuppressWarnings("serial")
 @Component
 public class OfficeTemplatesTenantServicesSecurity extends TenantModulesSecurityAutoProxyCreator {
-
-    private static final long serialVersionUID = 1L;
 
     @PostConstruct
     public void init() {
