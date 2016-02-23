@@ -253,5 +253,6 @@ public class CaseDocumentCopyServiceImpl implements CaseDocumentCopyService {
         Version originalVersion = versionService.getCurrentVersion(docOriginal);
         Map<String, Serializable> versionProps = new HashMap<>();
         versionProps.put(OpenESDHModel.RETAIN_VERSION_LABEL, originalVersion.getVersionLabel());
+        versionService.createVersion(docCopy, versionProps);
     }
 }
