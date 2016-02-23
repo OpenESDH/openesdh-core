@@ -5,11 +5,12 @@ import static dk.openesdh.repo.services.audit.entryhandlers.MemberAddAuditEntryH
 import static dk.openesdh.repo.services.audit.entryhandlers.MemberRemoveAuditEntryHandler.MEMBER_REMOVE_PATH;
 import static dk.openesdh.repo.services.audit.entryhandlers.PartyAddAuditEntryHandler.PARTY_ADD_NAME;
 import static dk.openesdh.repo.services.audit.entryhandlers.PartyRemoveAuditEntryHandler.PARTY_REMOVE_NAME;
-import static dk.openesdh.repo.services.audit.entryhandlers.TransactionPathAuditEntryHandler.TRANSACTION_PATH;
+import static dk.openesdh.repo.services.audit.entryhandlers.TransactionPathAuditEntryHandler.TRANSACTION_USER;
 import static dk.openesdh.repo.services.audit.entryhandlers.WorkflowCancelAuditEntryHandler.WORKFLOW_CANCEL_CASE;
 import static dk.openesdh.repo.services.audit.entryhandlers.WorkflowStartAuditEntryHandler.WORKFLOW_START_CASE;
 import static dk.openesdh.repo.services.audit.entryhandlers.WorkflowTaskEndAuditEntryHandler.WORKFLOW_END_TASK_CASE;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -17,6 +18,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -77,6 +79,7 @@ public class AuditSearchServiceImpl implements AuditSearchService {
     private final List<String> applications = new ArrayList<>();
     private final Map<String, AuditEntryHandler> auditEntryHandlers = new HashMap<>();
     private final List<QName> ignoredProperties = new ArrayList<>();
+    private Map<Predicate<Map<String, Serializable>>, IAuditEntryHandler> transactionPathEntryHandlers = new HashMap<>();
 
     @PostConstruct
     public void init() {
@@ -94,7 +97,8 @@ public class AuditSearchServiceImpl implements AuditSearchService {
         auditEntryHandlers.put(PARTY_ADD_NAME, new PartyAddAuditEntryHandler());
         auditEntryHandlers.put(MEMBER_ADD_PATH, new MemberAddAuditEntryHandler());
         auditEntryHandlers.put(MEMBER_REMOVE_PATH, new MemberRemoveAuditEntryHandler());
-        auditEntryHandlers.put(TRANSACTION_PATH, new TransactionPathAuditEntryHandler(dictionaryService, ignoredProperties));
+        auditEntryHandlers.put(TRANSACTION_USER,
+                new TransactionPathAuditEntryHandler(dictionaryService, ignoredProperties, transactionPathEntryHandlers));
         auditEntryHandlers.put(WORKFLOW_START_CASE, new WorkflowStartAuditEntryHandler());
         auditEntryHandlers.put(WORKFLOW_END_TASK_CASE, new WorkflowTaskEndAuditEntryHandler());
         auditEntryHandlers.put(WORKFLOW_CANCEL_CASE, new WorkflowCancelAuditEntryHandler());
@@ -107,6 +111,7 @@ public class AuditSearchServiceImpl implements AuditSearchService {
         ignoredProperties.add(ContentModel.PROP_MODIFIED);
         ignoredProperties.add(ContentModel.PROP_MODIFIER);
         ignoredProperties.add(ContentModel.PROP_VERSION_LABEL);
+        ignoredProperties.add(ContentModel.PROP_AUTO_VERSION);
         ignoredProperties.add(ForumModel.PROP_COMMENT_COUNT);
         ignoredProperties.add(ImapModel.PROP_CHANGE_TOKEN);
         ignoredProperties.add(ImapModel.PROP_UIDVALIDITY);
@@ -122,6 +127,12 @@ public class AuditSearchServiceImpl implements AuditSearchService {
     @Override
     public void registerEntryHandler(String key, AuditEntryHandler handler) {
         auditEntryHandlers.put(key, handler);
+    }
+    
+    @Override
+    public void addTransactionPathEntryHandler(Predicate<Map<String, Serializable>> predicate,
+            IAuditEntryHandler handler) {
+        transactionPathEntryHandlers.put(predicate, handler);
     }
 
     @Override
