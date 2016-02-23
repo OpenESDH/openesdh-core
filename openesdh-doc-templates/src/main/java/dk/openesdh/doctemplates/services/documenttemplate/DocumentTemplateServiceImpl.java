@@ -74,7 +74,7 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
             }
 
             SearchParameters sp = new SearchParameters();
-            sp.addQueryTemplate("_DOCTEMPLATES", "|%doc:templateType |%title " + "|%description |doc:assignedCaseTypes");
+            sp.addQueryTemplate("_DOCTEMPLATES", "|%doctmpl:templateType |%title " + "|%description |%doctmpl:assignedCaseTypes");
             sp.setDefaultFieldName("_DOCTEMPLATES");
             sp.addStore(templatesRoot.getStoreRef());
             sp.setLanguage(SearchService.LANGUAGE_FTS_ALFRESCO);
@@ -105,7 +105,6 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
                 }
             }
         }
-
         return result;
     }
 
@@ -115,7 +114,10 @@ public class DocumentTemplateServiceImpl implements DocumentTemplateService {
 
         // Get the properties
         Map<QName, Serializable> properties = this.nodeService.getProperties(templateNodeRef);
+
+        @SuppressWarnings("unchecked")
         List<String> assignedTypes = (List<String>) properties.get(OpenESDHDocTemplateModel.PROP_ASSIGNED_CASE_TYPES);
+
         String[] assignedCaseTypes = assignedTypes.toArray(new String[assignedTypes.size()]);
         String title = (String) properties.get(ContentModel.PROP_TITLE);
 

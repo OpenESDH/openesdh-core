@@ -39,7 +39,9 @@ public class OfficeTemplateFillWebScript {
         JSONObject json = WebScriptUtils.readJson(req);
         JSONObject fieldData = (JSONObject) json.get("fieldData");
 
+        @SuppressWarnings("unchecked")
         ContentReader reader = officeTemplateService.renderTemplate(nodeRef, fieldData);
+
         res.setContentType(reader.getMimetype());
         reader.getContent(res.getOutputStream());
     }

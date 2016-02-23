@@ -285,6 +285,17 @@
             </dependencies>
         </profile>
         <profile>
+            <id>project-rooms</id>
+            <dependencies>
+                <dependency>
+                    <groupId>dk.openesdh</groupId>
+                    <artifactId>openesdh-project-rooms</artifactId>
+                    <version>1.0-SNAPSHOT</version>
+                    <type>amp</type>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
             <id>amp-with-solr</id>
             <activation>
                 <property>
