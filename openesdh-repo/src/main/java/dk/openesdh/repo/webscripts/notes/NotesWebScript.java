@@ -45,6 +45,7 @@ public class NotesWebScript extends AbstractRESTWebscript {
     @Override
     protected void put(NodeRef nodeRef, WebScriptRequest req, WebScriptResponse res) throws IOException, JSONException {
         Note note = (Note) WebScriptUtils.readJson(Note.class, req);
+        note.setNodeRef(nodeRef);
         noteService.updateNote(note);
         res.setContentEncoding("UTF-8");
         WebScriptUtils.writeJson(note, res);

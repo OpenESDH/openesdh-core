@@ -1,11 +1,15 @@
 package dk.openesdh.repo.services.notes;
 
-import dk.openesdh.repo.model.ContactInfo;
-import dk.openesdh.repo.model.Note;
-import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.model.ResultSet;
-import dk.openesdh.repo.services.contacts.ContactService;
+import java.io.Serializable;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+
 import org.alfresco.model.ContentModel;
+import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -17,12 +21,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import java.io.Serializable;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import dk.openesdh.repo.model.ContactInfo;
+import dk.openesdh.repo.model.Note;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.model.ResultSet;
+import dk.openesdh.repo.services.contacts.ContactService;
 
 /**
  * Created by syastrov on 2/6/15.
@@ -106,6 +109,24 @@ public class NoteServiceImpl implements NoteService {
     @Override
     public void updateNote(Note note) {
         nodeService.setProperties(note.getNodeRef(), getNoteProperties(note));
+
+        List<NodeRef> oldParties = nodeService.getTargetAssocs(note.getNodeRef(), OpenESDHModel.ASSOC_NOTE_CONCERNED_PARTIES)
+                .stream()
+                .map(AssociationRef::getTargetRef)
+                .collect(Collectors.toList());
+        
+        List<NodeRef> currentParties = note.getConcernedParties();
+        Predicate<NodeRef> isNotAmongCurrent = party -> !currentParties.contains(party);
+        oldParties.stream()
+            .filter(isNotAmongCurrent)
+            .forEach(party -> nodeService.removeAssociation(
+                                note.getNodeRef(), party, OpenESDHModel.ASSOC_NOTE_CONCERNED_PARTIES));
+        
+        Predicate<NodeRef> isNotAmongOld = party -> !oldParties.contains(party);
+        currentParties.stream()
+            .filter(isNotAmongOld)
+            .forEach(party -> nodeService.createAssociation(
+                                note.getNodeRef(), party, OpenESDHModel.ASSOC_NOTE_CONCERNED_PARTIES));
     }
 
     private Note getNote(NodeRef parentNodeRef, NodeRef noteNodeRef) {

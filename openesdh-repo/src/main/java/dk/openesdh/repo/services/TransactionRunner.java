@@ -1,6 +1,7 @@
 package dk.openesdh.repo.services;
 
 import static org.alfresco.repo.security.authentication.AuthenticationUtil.getAdminUserName;
+import static org.alfresco.repo.security.authentication.AuthenticationUtil.getSystemUserName;
 import static org.alfresco.repo.security.authentication.AuthenticationUtil.runAs;
 
 import javax.transaction.UserTransaction;
@@ -55,4 +56,7 @@ public class TransactionRunner {
         return runAs(callback, getAdminUserName());
     }
 
+    public <R> R runAsSystem(AuthenticationUtil.RunAsWork<R> callback) {
+        return runAs(callback, getSystemUserName());
+    }
 }

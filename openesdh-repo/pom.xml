@@ -29,6 +29,11 @@
         we may need to extend openESDH classes-->
         <maven.alfresco.attachClasses>true</maven.alfresco.attachClasses>
         <maven.alfresco.attachConfig>true</maven.alfresco.attachConfig>
+        <opene.product.name>OpenESDH</opene.product.name>
+        <opene.ui.protocol>http</opene.ui.protocol>
+        <opene.ui.host>localhost</opene.ui.host>
+        <opene.ui.port>8000</opene.ui.port>
+        <opene.ui.context></opene.ui.context>
     </properties>
 
     <!-- Following dependencies are needed for compiling Java code in src/main/java; 
@@ -275,6 +280,17 @@
                     <groupId>${alfresco.groupId}</groupId>
                     <artifactId>alfresco-spp</artifactId>
                     <version>${alfresco.version}</version>
+                    <type>amp</type>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
+            <id>project-rooms</id>
+            <dependencies>
+                <dependency>
+                    <groupId>dk.openesdh</groupId>
+                    <artifactId>openesdh-project-rooms</artifactId>
+                    <version>1.0-SNAPSHOT</version>
                     <type>amp</type>
                 </dependency>
             </dependencies>

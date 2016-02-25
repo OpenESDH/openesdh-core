@@ -114,12 +114,14 @@ public class CaseDocumentTestHelper {
             final List<String> userNames) {
         transactionRunner.runInTransactionAsAdmin(() -> {
             cases.stream()
+                    .filter(Objects::nonNull)
                     .forEach(this::removeCase);
             nodes.stream()
                     .filter(Objects::nonNull)
                     .filter(nodeService::exists)
                     .forEach(nodeService::deleteNode);
             userNames.stream()
+                    .filter(Objects::nonNull)
                     .forEach(caseHelper::deleteDummyUser);
             return true;
         });

@@ -10,11 +10,12 @@ import java.util.stream.Collectors;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.permissions.AccessDeniedException;
+import org.alfresco.repo.tenant.Tenant;
+import org.alfresco.repo.tenant.TenantAdminService;
 import org.alfresco.repo.tenant.TenantService;
 import org.alfresco.repo.tenant.TenantUtil;
 import org.alfresco.service.cmr.module.ModuleDetails;
 import org.alfresco.service.cmr.module.ModuleService;
-import org.alfresco.service.cmr.repository.ContentIOException;
 import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.ContentWriter;
@@ -23,15 +24,12 @@ import org.alfresco.service.cmr.repository.StoreRef;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
-import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonParseException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import dk.openesdh.repo.services.system.OpenESDHFoldersService;
@@ -55,33 +53,40 @@ public class TenantOpeneModulesServiceImpl implements TenantOpeneModulesService 
     @Qualifier("tenantService")
     private TenantService tenantService;
     @Autowired
+    @Qualifier("tenantAdminService")
+    private TenantAdminService tenantAdminService;
+    @Autowired
     @Qualifier("NamespaceService")
     private NamespaceService namespaceService;
 
     @Override
-    public Map<String, List<String>> getAllTenantsModules() throws JsonParseException, JsonMappingException,
-            IOException {
+    public Map<String, List<String>> getAllTenantsModules() {
+
         NodeRef mapNodeRef = getTenantModulesMapNodeRef();
-        return getTenantModulesMap(mapNodeRef);
+        Map<String, List<String>> tenantModulesMap = getTenantModulesMap(mapNodeRef);
+        Map<String, List<String>> allTenantsWithModules = tenantAdminService.getAllTenants().stream()
+                .map(Tenant::getTenantDomain)
+                .collect(Collectors.toMap(
+                        tenant -> tenant,
+                        tenant -> tenantModulesMap.getOrDefault(tenant, Collections.emptyList())));
+        return allTenantsWithModules;
     }
 
     @Override
-    public List<String> getTenantModules(String tenant) throws JsonParseException, JsonMappingException,
-            IOException {
+    public List<String> getTenantModules(String tenant) {
         return Optional.ofNullable(getAllTenantsModules().get(tenant)).orElse(Collections.emptyList());
     }
 
     @Override
-    public void saveTenantModules(String tenant, List<String> modules) throws JsonParseException,
-            JsonMappingException, IOException, ContentIOException, JSONException {
+    public void saveTenantModules(String tenant, List<String> modules) {
         NodeRef mapNodeRef = getTenantModulesMapNodeRef();
         Map<String, List<String>> map = getTenantModulesMap(mapNodeRef);
         map.put(tenant, modules);
         saveTenantModules(mapNodeRef, map);
     }
-    
+
     @Override
-    public List<String> getOpeneModules(){
+    public List<String> getOpeneModules() {
         return moduleService.getAllModules()
                 .stream()
                 .filter(module -> MultiTenantAdminModulesAspect.isOpeneMultitenantModule(module))
@@ -90,7 +95,7 @@ public class TenantOpeneModulesServiceImpl implements TenantOpeneModulesService 
     }
 
     @Override
-    public void deleteTenantModules(String tenant) throws JsonParseException, JsonMappingException, IOException {
+    public void deleteTenantModules(String tenant) {
         NodeRef mapNodeRef = getTenantModulesMapNodeRef();
         Map<String, List<String>> map = getTenantModulesMap(mapNodeRef);
         map.remove(tenant);
@@ -109,11 +114,14 @@ public class TenantOpeneModulesServiceImpl implements TenantOpeneModulesService 
     }
 
     @SuppressWarnings("unchecked")
-    private Map<String, List<String>> getTenantModulesMap(NodeRef mapNodeRef) throws JsonParseException,
-            JsonMappingException, IOException {
+    private Map<String, List<String>> getTenantModulesMap(NodeRef mapNodeRef) {
         ContentReader reader = contentService.getReader(mapNodeRef, ContentModel.PROP_CONTENT);
         String content = reader.getContentString();
-        return new ObjectMapper().readValue(content, Map.class);
+        try {
+            return new ObjectMapper().readValue(content, Map.class);
+        } catch (IOException ex) {
+            throw new RuntimeException(ex);
+        }
     }
 
     @Override
@@ -124,10 +132,10 @@ public class TenantOpeneModulesServiceImpl implements TenantOpeneModulesService 
     private void checkCaseTypeModuleEnabled(String tenant, QName caseTypeQName) {
         String caseType = Utils.extractCaseType(caseTypeQName.toPrefixString(namespaceService));
         getOpeneModules()
-            .stream()
-            .filter(module -> module.startsWith(caseType))
-            .findAny()
-            .ifPresent(module -> checkTenantHasModuleEnabled(tenant, module));
+                .stream()
+                .filter(module -> module.startsWith(caseType))
+                .findAny()
+                .ifPresent(module -> checkTenantHasModuleEnabled(tenant, module));
     }
 
     @Override

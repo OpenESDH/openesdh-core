@@ -14,7 +14,7 @@ public interface CaseDocumentCopyService {
      *            Id of the case to copy the document into
      * @throws java.lang.Exception
      */
-    void copyDocumentToCase(final NodeRef documentToMove, final String targetCaseId) throws Exception;
+    void copyDocumentToCase(final NodeRef documentRecToCopy, final String targetCaseId) throws Exception;
 
     NodeRef copyDocumentToFolder(NodeRef documentRecFolderToCopy, NodeRef targetFolder, boolean copyAttachments);
 
@@ -54,4 +54,15 @@ public interface CaseDocumentCopyService {
             NodeRef docType, NodeRef docCatagory, String description);
 
     NodeRef copyDocumentToFolderRetainVersionLabels(CaseDocument document, NodeRef targetFolder);
+
+    NodeRef copyDocument(NodeRef documentContentRef, NodeRef targetFolder, boolean copyChildren);
+
+    /**
+     * Copies content from provided node into target document and retains
+     * version label from source node.
+     * 
+     * @param newVersionContentRef
+     * @param targetDocumentRef
+     */
+    void copyDocContentRetainVersionLabel(NodeRef newVersionContentRef, NodeRef targetDocumentRef);
 }
