@@ -18,7 +18,7 @@ import dk.openesdh.repo.services.search.LiveSearchComponent;
 import dk.openesdh.repo.services.search.LiveSearchService;
 
 @Component
-public class DocumentTemplateModuleRegitrer {
+public class DocumentTemplateModuleRegistrer {
 
     @Autowired
     @Qualifier("LiveSearchService")
