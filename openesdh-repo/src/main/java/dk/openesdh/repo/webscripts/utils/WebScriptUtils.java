@@ -21,6 +21,10 @@ import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.module.SimpleModule;
+import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.github.dynamicextensionsalfresco.webscripts.AnnotationWebscriptResponse;
 import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 
@@ -104,6 +108,10 @@ public class WebScriptUtils {
 
     public static void writeJson(Object obj, WebScriptResponse res) throws IOException {
         MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+        Version version = new Version(1, 0, 0, "SNAPSHOT", "dk.openesdh", "node-ref-serializer");
+        SimpleModule module = new SimpleModule("NodeRefSerializer", version);
+        module = module.addSerializer(new NodeRefSerializer());
+        converter.getObjectMapper().registerModule(module);
         converter.write(obj, MediaType.APPLICATION_JSON, getHttpOutputMessage(res));
     }
 
@@ -203,5 +211,19 @@ public class WebScriptUtils {
     public static Resolution jsonResolution(org.json.simple.JSONStreamAware o) {
         return (req, res, params) -> write(res, ()
                 -> o.writeJSONString(res.getWriter()));
+    }
+
+    private static class NodeRefSerializer extends StdSerializer<NodeRef> {
+
+        public NodeRefSerializer() {
+            super(NodeRef.class);
+        }
+
+        @Override
+        public void serialize(NodeRef value, com.fasterxml.jackson.core.JsonGenerator jgen,
+                com.fasterxml.jackson.databind.SerializerProvider provider)
+                        throws IOException, JsonProcessingException {
+            jgen.writeString(value.toString());
+        }
     }
 }

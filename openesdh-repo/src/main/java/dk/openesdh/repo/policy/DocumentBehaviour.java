@@ -18,7 +18,6 @@ import org.alfresco.repo.node.NodeServicePolicies.OnCreateChildAssociationPolicy
 import org.alfresco.repo.policy.Behaviour;
 import org.alfresco.repo.policy.JavaBehaviour;
 import org.alfresco.repo.policy.PolicyComponent;
-import org.alfresco.repo.version.VersionModel;
 import org.alfresco.repo.version.VersionServicePolicies;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -65,7 +64,7 @@ public class DocumentBehaviour {
     @Qualifier("DocumentCategoryService")
     private DocumentCategoryService documentCategoryService;
     @Autowired
-    @Qualifier("VersionService")
+    @Qualifier("CaseDocumentVersionService")
     private VersionService versionService;
     @Autowired
     private BehaviourFilterService behaviourFilterService;
@@ -309,7 +308,7 @@ public class DocumentBehaviour {
             Version currentVersion = versionService.getCurrentVersion(nodeRef);
             versionService.deleteVersion(nodeRef, currentVersion);
             Map<String, Serializable> props = new HashMap<>();
-            props.put(VersionModel.PROP_VERSION_TYPE, currentVersion.getVersionType());
+            props.put(OpenESDHModel.RETAIN_VERSION_LABEL, currentVersion.getVersionLabel());
             versionService.createVersion(nodeRef, props);
         });
     }
