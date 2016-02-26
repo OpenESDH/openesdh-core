@@ -8,16 +8,12 @@ import java.util.stream.Collectors;
 import org.springframework.aop.TargetSource;
 import org.springframework.aop.framework.autoproxy.AbstractAutoProxyCreator;
 import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.util.Assert;
 import org.springframework.util.PatternMatchUtils;
 import org.springframework.util.StringUtils;
 
 @SuppressWarnings("serial")
 public class BeanPackageNameAutoProxyCreator extends AbstractAutoProxyCreator {
-
-    @Value(value = "${openesdh.tenant.security.off}")
-    private boolean tennantSecurityOff;
 
     private List<String> beanPackageNames;
 
@@ -32,7 +28,7 @@ public class BeanPackageNameAutoProxyCreator extends AbstractAutoProxyCreator {
     @Override
     protected Object[] getAdvicesAndAdvisorsForBean(Class<?> beanClass, String beanName,
             TargetSource customTargetSource) throws BeansException {
-        if (tennantSecurityOff || Objects.isNull(beanPackageNames) || beanPackageNames.isEmpty()
+        if (Objects.isNull(beanPackageNames) || beanPackageNames.isEmpty()
                 || Objects.isNull(beanClass.getPackage())) {
             return DO_NOT_PROXY;
         }

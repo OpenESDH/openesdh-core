@@ -247,7 +247,7 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
             }
         }
         if (transformedReader == null) {
-            throw new RuntimeException("Failled to render template");
+            throw new RuntimeException("Failed to render template");
         }
         OfficeTemplateMerged merged = new OfficeTemplateMerged();
 
