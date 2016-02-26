@@ -158,6 +158,18 @@ public class TenantOpeneModulesServiceImpl implements TenantOpeneModulesService 
         getCurrentTenant().ifPresent(tenant -> checkTenantHasModuleEnabled(tenant, module));
     }
 
+    @Override
+    public Optional<String> getCurrentTenantUIContext() {
+        return TenantUtil.runAsDefaultTenant(() -> {
+            return getCurrentTenant().map(this::getTenantUIContext);
+        });
+    }
+
+    private String getTenantUIContext(String tenantDomain) {
+        NodeRef mapNodeRef = getTenantModulesMapNodeRef();
+        return getTenantInfoMap(mapNodeRef).get(tenantDomain).getTenantUIContext();
+    }
+
     private Optional<String> getCurrentTenant() {
         String currentUser = AuthenticationUtil.getFullyAuthenticatedUser();
         if (!tenantService.isTenantUser(currentUser)) {

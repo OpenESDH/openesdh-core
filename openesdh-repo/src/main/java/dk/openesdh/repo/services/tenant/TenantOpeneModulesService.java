@@ -2,6 +2,7 @@ package dk.openesdh.repo.services.tenant;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 
 import org.alfresco.service.cmr.repository.ContentIOException;
 import org.alfresco.service.namespace.QName;
@@ -76,5 +77,12 @@ public interface TenantOpeneModulesService {
      * @return
      */
     Collection<TenantInfo> getTenantsInfo();
+
+    /**
+     * Retrieves UI context of the current user tenant
+     * 
+     * @return
+     */
+    Optional<String> getCurrentTenantUIContext();
 
 }
