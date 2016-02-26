@@ -36,7 +36,6 @@ import org.alfresco.service.cmr.repository.ContentIOException;
 import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.ContentWriter;
-import org.alfresco.service.cmr.repository.CopyService;
 import org.alfresco.service.cmr.repository.MimetypeService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -106,9 +105,6 @@ public class DocumentServiceImpl implements DocumentService {
     @Autowired
     @Qualifier("namespaceService")
     private NamespaceService namespaceService;
-    @Autowired
-    @Qualifier("CopyService")
-    private CopyService copyService;
     @Autowired
     @Qualifier("OELockService")
     private OELockService oeLockService;

@@ -2,22 +2,24 @@ package dk.openesdh.doctemplates.services.officetemplate;
 
 import java.util.List;
 
+import org.alfresco.service.cmr.repository.NodeRef;
+
 /**
  * Created by syastrov on 9/23/15.
  */
 public class OfficeTemplate {
 
-    private String nodeRef;
+    private NodeRef nodeRef;
     private String name;
     private String title;
     private String description;
     private List<OfficeTemplateField> fields;
 
-    public String getNodeRef() {
+    public NodeRef getNodeRef() {
         return nodeRef;
     }
 
-    public void setNodeRef(String nodeRef) {
+    public void setNodeRef(NodeRef nodeRef) {
         this.nodeRef = nodeRef;
     }
 

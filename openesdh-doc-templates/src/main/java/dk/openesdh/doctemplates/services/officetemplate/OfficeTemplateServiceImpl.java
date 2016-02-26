@@ -1,5 +1,7 @@
 package dk.openesdh.doctemplates.services.officetemplate;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -30,6 +32,7 @@ import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.TransformationOptions;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
+import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONObject;
 import org.odftoolkit.odfdom.doc.OdfDocument;
@@ -43,10 +46,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.NodeList;
 
+import com.google.common.base.Joiner;
+
 import dk.openesdh.repo.model.CaseInfo;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.cases.CaseTypeService;
+import dk.openesdh.repo.services.documents.DocumentService;
 import dk.openesdh.repo.webscripts.contacts.ContactUtils;
 
 /**
@@ -87,6 +93,9 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
     @Autowired
     @Qualifier("PersonService")
     private PersonService personService;
+    @Autowired
+    @Qualifier("DocumentService")
+    private DocumentService documentService;
 
     @Override
     public NodeRef saveTemplate(String title, String description, String filename, InputStream contentInputStream, String mimetype) {
@@ -134,25 +143,26 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
     public List<OfficeTemplate> getTemplates() {
         NodeRef templateDirNode = getTemplateDirectory();
         return fileFolderService.listFiles(templateDirNode).stream()
-                .map(fileInfo -> getTemplate(fileInfo.getNodeRef(), false))
+                .map(fileInfo -> getTemplate(fileInfo.getNodeRef(), false, true))
                 .collect(Collectors.toList());
     }
 
     @Override
     public OfficeTemplate getTemplate(NodeRef templateNodeRef) {
-        return getTemplate(templateNodeRef, true);
+        return getTemplate(templateNodeRef, true, true);
     }
 
-    private OfficeTemplate getTemplate(NodeRef templateNodeRef, boolean withFields) {
+    @Override
+    public OfficeTemplate getTemplate(NodeRef templateNodeRef, boolean withFields, boolean skipAutoFilledfields) {
         Map<QName, Serializable> properties = nodeService.getProperties(templateNodeRef);
         OfficeTemplate template = new OfficeTemplate();
         template.setName((String) properties.get(ContentModel.PROP_NAME));
         template.setTitle((String) properties.get(ContentModel.PROP_TITLE));
         template.setDescription((String) properties.get(ContentModel.PROP_DESCRIPTION));
-        template.setNodeRef(templateNodeRef.toString());
+        template.setNodeRef(templateNodeRef);
         if (withFields) {
             try {
-                List<OfficeTemplateField> templateFields = getTemplateFields(templateNodeRef, true);
+                List<OfficeTemplateField> templateFields = getTemplateFields(templateNodeRef, skipAutoFilledfields);
                 template.setFields(templateFields);
             } catch (Exception ex) {
                 throw new RuntimeException("Cannot read template \"" + template.getName() + "\" fields", ex);
@@ -192,46 +202,61 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
     }
 
     @Override
-    public ContentReader renderTemplate(NodeRef templateNodeRef, String caseId, NodeRef receiver, Map<String, Serializable> model) throws Exception {
-        if (!nodeService.exists(templateNodeRef)) {
-            throw new RuntimeException("Invalid template id");
-        }
+    public OfficeTemplateMerged renderTemplate(OfficeTemplate template, String caseId, NodeRef receiver,
+            Map<String, Serializable> model) throws Exception {
         model.putAll(getCaseInfo(caseId));
         model.putAll(getUserInfo());
         model.putAll(getReceiverInfo(receiver));
 
         //add empty values for all other fields
-        getTemplateFields(templateNodeRef, false).forEach(field -> {
+        template.getFields().forEach(field -> {
             if (!model.containsKey(field.getName())) {
                 model.put(field.getName(), "");
             }
         });
 
-        ContentReader templateReader = contentService.getReader(templateNodeRef, ContentModel.PROP_CONTENT);
+        ContentReader templateReader = contentService.getReader(template.getNodeRef(), ContentModel.PROP_CONTENT);
 
         //The option is needed for transformation to work on windows platform.
         //Seems like OpenOffice on windows requires file extension to be present.
         //The OOoContentTransformer uses sourceNodeRef to retrieve file name with extension.
         TransformationOptions options = new TransformationOptions();
-        options.setSourceNodeRef(templateNodeRef);
+        options.setSourceNodeRef(template.getNodeRef());
 
         InputStream inputStream = templateReader.getContentInputStream();
 
         File file = File.createTempFile("office-template-renderer-", null);
+        ContentReader transformedReader = null;
         try (FileOutputStream outputStream = new FileOutputStream(file)) {
             renderODFTemplate(inputStream, outputStream, model);
 
             ContentReader reader = new FileContentReader(file);
             reader.setMimetype(mimetypeService.guessMimetype(null, templateReader));
-            ContentReader transformedReader = transformContent(reader, DEFAULT_TARGET_MIME_TYPE, options);
+            transformedReader = transformContent(reader, DEFAULT_TARGET_MIME_TYPE, options);
             reader.setMimetype(DEFAULT_TARGET_MIME_TYPE);
-            return transformedReader;
         } finally {
             boolean delete = file.delete();
             if (!delete) {
                 file.deleteOnExit();
             }
         }
+        if (transformedReader == null) {
+            throw new RuntimeException("Failled to render template");
+        }
+        OfficeTemplateMerged merged = new OfficeTemplateMerged();
+
+        String mergedFileName = Joiner.on("_").skipNulls().join(
+                FilenameUtils.removeExtension(template.getName()),
+                StringUtils.replace((String) model.get("receiver.name"), " ", "_"));
+
+        merged.setFileName(mergedFileName + ".pdf");
+        merged.setMimetype(transformedReader.getMimetype());
+        ByteArrayOutputStream content = new ByteArrayOutputStream();
+        transformedReader.getContent(content);
+        merged.setContent(content.toByteArray());
+        merged.setDocumentType(null);
+        merged.setDocumentCategory(null);
+        return merged;
     }
 
     private void renderODFTemplate(InputStream inputStream, OutputStream outputStream,
@@ -309,4 +334,24 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
                 .filter(e -> e.getValue() != null)
                 .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
+
+    @Override
+    public void saveToCase(String caseId, List<OfficeTemplateMerged> merged) {
+        merged.forEach(document -> this.saveMergedToCase(caseId, document));
+    }
+
+    private void saveMergedToCase(String caseId, OfficeTemplateMerged document) {
+        NodeRef nodeRef = documentService.createCaseDocument(
+                caseId,
+                document.getFileName(),
+                document.getFileName(),
+                document.getDocumentType().getNodeRef(),
+                document.getDocumentCategory().getNodeRef(),
+                writer -> {
+                    writer.setMimetype(document.getMimetype());
+                    writer.putContent(new ByteArrayInputStream(document.getContent()));
+                });
+
+    }
+
 }
