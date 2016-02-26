@@ -643,6 +643,12 @@ public class DocumentServiceImpl implements DocumentService {
         caseDocument.setModified((Date) props.get(ContentModel.PROP_MODIFIED));
         caseDocument.setOwner(getDocumentOwner(docRecordNodeRef));
 
+        LockState state = AuthenticationUtil.runAsSystem(() -> {
+            return lockService.getLockState(mainDocNodeRef);
+        });
+
+        caseDocument.setLocked(state.isLockInfo());
+
         List<ChildAssociationRef> attachmentsAssocs = getAttachmentsChildAssociations(mainDocNodeRef);
         caseDocument.setAttachments(getAttachments(attachmentsAssocs));
 
