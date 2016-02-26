@@ -32,14 +32,19 @@ public class OfficeTemplateManagmentWebscript {
     public Resolution post(
             @RequestParam(value = "title", required = true) String title,
             @RequestParam(value = "description", required = false) String description,
+            @RequestParam(value = "doc_type", required = true) NodeRef docType,
+            @RequestParam(value = "doc_category", required = true) NodeRef docCategory,
             @FileField("filedata") FormField fileField) {
 
         officeTemplateService.saveTemplate(
                 title,
                 description,
+                docType,
+                docCategory,
                 fileField.getFilename(),
                 fileField.getInputStream(),
-                fileField.getMimetype());
+                fileField.getMimetype()
+        );
         return WebScriptUtils.respondSuccess("The the template was successfully uploaded.");
     }
 

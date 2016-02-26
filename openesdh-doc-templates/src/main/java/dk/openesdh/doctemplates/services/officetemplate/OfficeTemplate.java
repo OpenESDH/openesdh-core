@@ -12,6 +12,8 @@ public class OfficeTemplate {
     private NodeRef nodeRef;
     private String name;
     private String title;
+    private NodeRef docType;
+    private NodeRef docCategory;
     private String description;
     private List<OfficeTemplateField> fields;
 
@@ -37,6 +39,22 @@ public class OfficeTemplate {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public NodeRef getDocType() {
+        return docType;
+    }
+
+    public void setDocType(NodeRef docType) {
+        this.docType = docType;
+    }
+
+    public NodeRef getDocCategory() {
+        return docCategory;
+    }
+
+    public void setDocCategory(NodeRef docCategory) {
+        this.docCategory = docCategory;
     }
 
     public String getDescription() {

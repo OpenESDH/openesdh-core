@@ -98,13 +98,17 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
     private DocumentService documentService;
 
     @Override
-    public NodeRef saveTemplate(String title, String description, String filename, InputStream contentInputStream, String mimetype) {
+    public NodeRef saveTemplate(String title, String description, NodeRef docType, NodeRef docCategory,
+            String fileName, InputStream contentInputStream, String mimetype) {
         NodeRef templateStorageDir = getTemplateDirectory();
-        FileInfo fileInfo = fileFolderService.create(templateStorageDir, filename, ContentModel.TYPE_CONTENT);
+        FileInfo fileInfo = fileFolderService.create(templateStorageDir, fileName, ContentModel.TYPE_CONTENT);
         ContentWriter writer = contentService.getWriter(fileInfo.getNodeRef(), ContentModel.PROP_CONTENT, true);
-        writer.setMimetype(getRealMimetype(filename, mimetype));
+        writer.setMimetype(getRealMimetype(fileName, mimetype));
         writer.setEncoding("UTF-8");
         writer.putContent(contentInputStream);
+        nodeService.setProperty(fileInfo.getNodeRef(), ContentModel.PROP_TITLE, title);
+        nodeService.setProperty(fileInfo.getNodeRef(), OpenESDHModel.PROP_DOC_TYPE, docType);
+        nodeService.setProperty(fileInfo.getNodeRef(), OpenESDHModel.PROP_DOC_CATEGORY, docCategory);
         nodeService.setProperty(fileInfo.getNodeRef(), ContentModel.PROP_TITLE, title);
         if (StringUtils.isNotBlank(description)) {
             nodeService.setProperty(fileInfo.getNodeRef(), ContentModel.PROP_DESCRIPTION, description);
@@ -156,10 +160,12 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
     public OfficeTemplate getTemplate(NodeRef templateNodeRef, boolean withFields, boolean skipAutoFilledfields) {
         Map<QName, Serializable> properties = nodeService.getProperties(templateNodeRef);
         OfficeTemplate template = new OfficeTemplate();
+        template.setNodeRef(templateNodeRef);
         template.setName((String) properties.get(ContentModel.PROP_NAME));
         template.setTitle((String) properties.get(ContentModel.PROP_TITLE));
         template.setDescription((String) properties.get(ContentModel.PROP_DESCRIPTION));
-        template.setNodeRef(templateNodeRef);
+        template.setDocType((NodeRef) properties.get(OpenESDHModel.PROP_DOC_TYPE));
+        template.setDocCategory((NodeRef) properties.get(OpenESDHModel.PROP_DOC_CATEGORY));
         if (withFields) {
             try {
                 List<OfficeTemplateField> templateFields = getTemplateFields(templateNodeRef, skipAutoFilledfields);
@@ -254,8 +260,8 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
         ByteArrayOutputStream content = new ByteArrayOutputStream();
         transformedReader.getContent(content);
         merged.setContent(content.toByteArray());
-        merged.setDocumentType(null);
-        merged.setDocumentCategory(null);
+        merged.setDocumentType(template.getDocType());
+        merged.setDocumentCategory(template.getDocCategory());
         return merged;
     }
 
@@ -341,12 +347,12 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
     }
 
     private void saveMergedToCase(String caseId, OfficeTemplateMerged document) {
-        NodeRef nodeRef = documentService.createCaseDocument(
+        documentService.createCaseDocument(
                 caseId,
                 document.getFileName(),
                 document.getFileName(),
-                document.getDocumentType().getNodeRef(),
-                document.getDocumentCategory().getNodeRef(),
+                document.getDocumentType(),
+                document.getDocumentCategory(),
                 writer -> {
                     writer.setMimetype(document.getMimetype());
                     writer.putContent(new ByteArrayInputStream(document.getContent()));

@@ -1,15 +1,14 @@
 package dk.openesdh.doctemplates.services.officetemplate;
 
-import dk.openesdh.repo.model.DocumentCategory;
-import dk.openesdh.repo.model.DocumentType;
+import org.alfresco.service.cmr.repository.NodeRef;
 
 public class OfficeTemplateMerged {
 
     private String fileName;
     private String mimetype;
     private byte[] content;
-    private DocumentType documentType;
-    private DocumentCategory documentCategory;
+    private NodeRef documentType;
+    private NodeRef documentCategory;
 
     public String getFileName() {
         return fileName;
@@ -35,19 +34,19 @@ public class OfficeTemplateMerged {
         this.content = content;
     }
 
-    public DocumentType getDocumentType() {
+    public NodeRef getDocumentType() {
         return documentType;
     }
 
-    public void setDocumentType(DocumentType documentType) {
+    public void setDocumentType(NodeRef documentType) {
         this.documentType = documentType;
     }
 
-    public DocumentCategory getDocumentCategory() {
+    public NodeRef getDocumentCategory() {
         return documentCategory;
     }
 
-    public void setDocumentCategory(DocumentCategory documentCategory) {
+    public void setDocumentCategory(NodeRef documentCategory) {
         this.documentCategory = documentCategory;
     }
 

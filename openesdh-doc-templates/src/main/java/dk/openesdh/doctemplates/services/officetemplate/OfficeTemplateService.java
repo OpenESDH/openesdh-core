@@ -22,12 +22,15 @@ public interface OfficeTemplateService {
      *
      * @param title
      * @param description
+     * @param docType
+     * @param docCategory
      * @param fileName
      * @param contentInputStream
      * @param mimetype
      * @return
      */
-    NodeRef saveTemplate(String title, String description, String fileName, InputStream contentInputStream, String mimetype);
+    NodeRef saveTemplate(String title, String description, NodeRef docType, NodeRef docCategory,
+            String fileName, InputStream contentInputStream, String mimetype);
 
     /**
      * delete template
