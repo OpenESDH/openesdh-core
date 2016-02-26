@@ -53,12 +53,14 @@ public interface OfficeTemplateService {
     OfficeTemplate getTemplate(NodeRef templateNodeRef);
 
     /**
-     * Render the template, given the map of fields/values.
+     * Render the template, given the map of fields/values and saved case/user/recipient values
      *
      * @param templateNodeRef
+     * @param caseId
+     * @param receiver
      * @param model
      * @return
      * @throws java.lang.Exception
      */
-    ContentReader renderTemplate(NodeRef templateNodeRef, Map<String, Serializable> model) throws Exception;
+    ContentReader renderTemplate(NodeRef templateNodeRef, String caseId, NodeRef receiver, Map<String, Serializable> model) throws Exception;
 }

@@ -7,6 +7,7 @@ import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -16,6 +17,7 @@ import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.repo.content.filestore.FileContentReader;
 import org.alfresco.repo.content.transform.ContentTransformer;
 import org.alfresco.repo.model.Repository;
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.model.FileFolderService;
 import org.alfresco.service.cmr.model.FileInfo;
 import org.alfresco.service.cmr.model.FileNotFoundException;
@@ -26,8 +28,10 @@ import org.alfresco.service.cmr.repository.MimetypeService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.TransformationOptions;
+import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang3.StringUtils;
+import org.json.simple.JSONObject;
 import org.odftoolkit.odfdom.doc.OdfDocument;
 import org.odftoolkit.odfdom.dom.element.text.TextUserFieldDeclElement;
 import org.odftoolkit.simple.TextDocument;
@@ -39,6 +43,12 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.w3c.dom.NodeList;
 
+import dk.openesdh.repo.model.CaseInfo;
+import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.cases.CaseTypeService;
+import dk.openesdh.repo.webscripts.contacts.ContactUtils;
+
 /**
  * Created by syastrov on 9/23/15.
  */
@@ -47,6 +57,11 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
 
     private final Logger logger = LoggerFactory.getLogger(OfficeTemplateService.class);
     private static final String DEFAULT_TARGET_MIME_TYPE = MimetypeMap.MIMETYPE_PDF;
+    /**
+     * filter out fields filled automaticaly.
+     * Template field names starting with "case." "user." "receiver."
+     */
+    private static final String AUTO_FILLED_FIELD_REGEX = "^(case|user|receiver)\\..+";
 
     @Autowired
     @Qualifier("NodeService")
@@ -63,21 +78,36 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
     @Autowired
     @Qualifier("mimetypeService")
     private MimetypeService mimetypeService;
+    @Autowired
+    @Qualifier("CaseService")
+    private CaseService caseService;
+    @Autowired
+    @Qualifier("CaseTypeService")
+    private CaseTypeService caseTypeService;
+    @Autowired
+    @Qualifier("PersonService")
+    private PersonService personService;
 
     @Override
     public NodeRef saveTemplate(String title, String description, String filename, InputStream contentInputStream, String mimetype) {
         NodeRef templateStorageDir = getTemplateDirectory();
         FileInfo fileInfo = fileFolderService.create(templateStorageDir, filename, ContentModel.TYPE_CONTENT);
         ContentWriter writer = contentService.getWriter(fileInfo.getNodeRef(), ContentModel.PROP_CONTENT, true);
-        writer.setMimetype(mimetype);
+        writer.setMimetype(getRealMimetype(filename, mimetype));
         writer.setEncoding("UTF-8");
         writer.putContent(contentInputStream);
-
         nodeService.setProperty(fileInfo.getNodeRef(), ContentModel.PROP_TITLE, title);
         if (StringUtils.isNotBlank(description)) {
             nodeService.setProperty(fileInfo.getNodeRef(), ContentModel.PROP_DESCRIPTION, description);
         }
         return fileInfo.getNodeRef();
+    }
+
+    private String getRealMimetype(String filename, String mimetype) {
+        if (mimetype.equals(MimetypeMap.MIMETYPE_BINARY)) {
+            return mimetypeService.guessMimetype(filename);
+        }
+        return mimetype;
     }
 
     @Override
@@ -122,7 +152,7 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
         template.setNodeRef(templateNodeRef.toString());
         if (withFields) {
             try {
-                List<OfficeTemplateField> templateFields = getTemplateFields(templateNodeRef);
+                List<OfficeTemplateField> templateFields = getTemplateFields(templateNodeRef, true);
                 template.setFields(templateFields);
             } catch (Exception ex) {
                 throw new RuntimeException("Cannot read template \"" + template.getName() + "\" fields", ex);
@@ -131,7 +161,7 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
         return template;
     }
 
-    private List<OfficeTemplateField> getTemplateFields(NodeRef templateNodeRef) throws Exception {
+    private List<OfficeTemplateField> getTemplateFields(NodeRef templateNodeRef, boolean skipAutoFilled) throws Exception {
         List<OfficeTemplateField> templateFields = new ArrayList<>();
         ContentReader templateReader = contentService.getReader(templateNodeRef, ContentModel.PROP_CONTENT);
         InputStream inputStream = templateReader.getContentInputStream();
@@ -139,12 +169,16 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
         NodeList nodes = doc.getContentRoot().getElementsByTagName(TextUserFieldDeclElement.ELEMENT_NAME.getQName());
         for (int i = 0; i < nodes.getLength(); i++) {
             TextUserFieldDeclElement element = (TextUserFieldDeclElement) nodes.item(i);
+            String fieldName = element.getTextNameAttribute();
+            if (skipAutoFilled && isAutoFilledField(fieldName)) {
+                continue;
+            }
             OfficeTemplateField field = new OfficeTemplateField();
-            field.setName(element.getTextNameAttribute());
+            field.setName(fieldName);
             field.setType(element.getOfficeValueTypeAttribute());
             // TODO: Implement field mappings. For now, the name is also the
             // mapping.
-            field.setMappedFieldName(element.getTextNameAttribute());
+            field.setMappedFieldName(fieldName);
 
             // TODO: Support getting values of different value types
             field.setValue(element.getOfficeStringValueAttribute());
@@ -153,8 +187,26 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
         return templateFields;
     }
 
+    private boolean isAutoFilledField(String fieldName) {
+        return fieldName.matches(AUTO_FILLED_FIELD_REGEX);
+    }
+
     @Override
-    public ContentReader renderTemplate(NodeRef templateNodeRef, Map<String, Serializable> model) throws Exception {
+    public ContentReader renderTemplate(NodeRef templateNodeRef, String caseId, NodeRef receiver, Map<String, Serializable> model) throws Exception {
+        if (!nodeService.exists(templateNodeRef)) {
+            throw new RuntimeException("Invalid template id");
+        }
+        model.putAll(getCaseInfo(caseId));
+        model.putAll(getUserInfo());
+        model.putAll(getReceiverInfo(receiver));
+
+        //add empty values for all other fields
+        getTemplateFields(templateNodeRef, false).forEach(field -> {
+            if (!model.containsKey(field.getName())) {
+                model.put(field.getName(), "");
+            }
+        });
+
         ContentReader templateReader = contentService.getReader(templateNodeRef, ContentModel.PROP_CONTENT);
 
         //The option is needed for transformation to work on windows platform.
@@ -191,7 +243,7 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
                 if (variableField != null) {
                     variableField.updateField(value.toString(), null);
                 } else {
-                    logger.info("Supposed to fill in field \"{}\" but it does not exist in the template", fieldName);
+                    logger.debug("Supposed to fill in field \"{}\" but it does not exist in the template", fieldName);
                 }
             }
         });
@@ -213,5 +265,48 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
         }
         contentService.transform(sourceReader, writer, options);
         return writer.getReader();
+    }
+
+    private Map<String, Serializable> getCaseInfo(String caseId) {
+        Map<String, Serializable> props = new HashMap<>();
+        CaseInfo caseInfo = caseService.getCaseInfo(caseId);
+        props.put("case.id", caseId);
+        props.put("case.title", caseInfo.getTitle());
+        props.put("case.description", caseInfo.getDescription());
+        props.put("case.journalKey", caseInfo.getCustomProperty(OpenESDHModel.PROP_OE_JOURNALKEY));
+        props.put("case.journalFacet", caseInfo.getCustomProperty(OpenESDHModel.PROP_OE_JOURNALFACET));
+        props.put("case.type", caseTypeService.getCaseTypeTitle(caseInfo.getNodeRef()));
+        return cleanMap(props);
+    }
+
+    private Map<String, Serializable> getUserInfo() {
+        NodeRef personNodeRef = personService.getPerson(AuthenticationUtil.getFullyAuthenticatedUser());
+        Map<String, Serializable> props = new HashMap<>();
+        Map<QName, Serializable> nodeProps = cleanMap(nodeService.getProperties(personNodeRef));
+        nodeProps.forEach((key, value) -> props.put("user." + key.getLocalName(), value));
+        //extra props
+        props.put("user.name", (props.getOrDefault("user.firstName", "") + " " + props.getOrDefault("user.lastName", "")).trim());
+        return props;
+    }
+
+    @SuppressWarnings("unchecked")
+    private Map<String, Serializable> getReceiverInfo(NodeRef receiver) {
+        Map<QName, Serializable> contactProps = nodeService.getProperties(receiver);
+        JSONObject contactJson = ContactUtils.createContactJson(receiver, contactProps);
+        Map<String, Serializable> props = new HashMap<>();
+        contactJson.forEach((key, value) -> props.put("receiver." + key, (Serializable) value));
+        //extra props
+        if (nodeService.getType(receiver).equals(OpenESDHModel.TYPE_CONTACT_ORGANIZATION)) {
+            props.put("receiver.name", contactProps.get(OpenESDHModel.TYPE_CONTACT_ORGANIZATION));
+        } else {
+            props.put("receiver.name", (props.get("receiver.firstName") + " " + props.get("receiver.lastName")).trim());
+        }
+        return cleanMap(props);
+    }
+
+    private <K> Map<K, Serializable> cleanMap(Map<K, Serializable> map) {
+        return map.entrySet().stream()
+                .filter(e -> e.getValue() != null)
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue));
     }
 }

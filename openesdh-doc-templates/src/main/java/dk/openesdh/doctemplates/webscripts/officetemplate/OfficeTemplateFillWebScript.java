@@ -33,14 +33,14 @@ public class OfficeTemplateFillWebScript {
             WebScriptRequest req, WebScriptResponse res
     ) throws Exception {
         NodeRef nodeRef = new NodeRef(store_type, store_id, node_id);
-        //check if template exists:
-        officeTemplateService.getTemplate(nodeRef);
-
         JSONObject json = WebScriptUtils.readJson(req);
         JSONObject fieldData = (JSONObject) json.get("fieldData");
 
+        String caseId = (String) fieldData.get("case.id");
+        NodeRef receiver = new NodeRef((String) fieldData.get("receiver.nodeRefId"));
+
         @SuppressWarnings("unchecked")
-        ContentReader reader = officeTemplateService.renderTemplate(nodeRef, fieldData);
+        ContentReader reader = officeTemplateService.renderTemplate(nodeRef, caseId, receiver, fieldData);
 
         res.setContentType(reader.getMimetype());
         reader.getContent(res.getOutputStream());
