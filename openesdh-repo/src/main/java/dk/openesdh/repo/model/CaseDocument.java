@@ -19,6 +19,7 @@ public class CaseDocument {
     private String nodeRef;
     private String mainDocNodeRef;
     private PersonInfo owner;
+    private boolean locked;
 
     private List<CaseDocumentAttachment> attachments = new ArrayList<>();
 
@@ -112,6 +113,14 @@ public class CaseDocument {
 
     public NodeRef nodeRefObject() {
         return new NodeRef(this.nodeRef);
+    }
+
+    public boolean isLocked() {
+        return locked;
+    }
+
+    public void setLocked(boolean locked) {
+        this.locked = locked;
     }
 
 }
