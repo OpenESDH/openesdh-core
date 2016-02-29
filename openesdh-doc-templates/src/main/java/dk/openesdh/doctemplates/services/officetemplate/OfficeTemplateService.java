@@ -83,4 +83,14 @@ public interface OfficeTemplateService {
      * @param merged
      */
     void saveToCase(String caseId, List<OfficeTemplateMerged> merged);
+
+    /**
+     * sends filled templates to recipients by email
+     *
+     * @param caseId
+     * @param merged
+     * @param subject
+     * @param message
+     */
+    void sendToEmail(String caseId, List<OfficeTemplateMerged> merged, String subject, String message);
 }

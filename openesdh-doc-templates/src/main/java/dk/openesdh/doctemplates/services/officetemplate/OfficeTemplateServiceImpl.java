@@ -52,6 +52,7 @@ import dk.openesdh.repo.model.CaseInfo;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.cases.CaseTypeService;
+import dk.openesdh.repo.services.documents.DocumentEmailService;
 import dk.openesdh.repo.services.documents.DocumentService;
 import dk.openesdh.repo.webscripts.contacts.ContactUtils;
 
@@ -96,6 +97,9 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
     @Autowired
     @Qualifier("DocumentService")
     private DocumentService documentService;
+    @Autowired
+    @Qualifier("DocumentEmailService")
+    private DocumentEmailService documentEmailService;
 
     @Override
     public NodeRef saveTemplate(String title, String description, NodeRef docType, NodeRef docCategory,
@@ -262,6 +266,7 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
         merged.setContent(content.toByteArray());
         merged.setDocumentType(template.getDocType());
         merged.setDocumentCategory(template.getDocCategory());
+        merged.setReceiver(receiver);
         return merged;
     }
 
@@ -346,8 +351,8 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
         merged.forEach(document -> this.saveMergedToCase(caseId, document));
     }
 
-    private void saveMergedToCase(String caseId, OfficeTemplateMerged document) {
-        documentService.createCaseDocument(
+    private NodeRef saveMergedToCase(String caseId, OfficeTemplateMerged document) {
+        return documentService.createCaseDocument(
                 caseId,
                 document.getFileName(),
                 document.getFileName(),
@@ -357,7 +362,19 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
                     writer.setMimetype(document.getMimetype());
                     writer.putContent(new ByteArrayInputStream(document.getContent()));
                 });
-
     }
 
+    @Override
+    public void sendToEmail(String caseId, List<OfficeTemplateMerged> merged, String subject, String message) {
+        merged.forEach(document -> this.sendMergedToEmail(caseId, document, subject, message));
+    }
+
+    private void sendMergedToEmail(String caseId, OfficeTemplateMerged document, String subject, String message) {
+        NodeRef caseDocNodeRef = saveMergedToCase(caseId, document);
+        documentEmailService.send(caseId,
+                Arrays.asList(document.getReceiver()),
+                subject,
+                message,
+                Arrays.asList(caseDocNodeRef));
+    }
 }
