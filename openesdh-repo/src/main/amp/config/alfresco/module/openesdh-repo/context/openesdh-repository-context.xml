@@ -134,16 +134,9 @@
         <property name="caseService" ref="CaseService" />
     </bean>
 
-    <bean id="webscript.dk.openesdh.casedocument.post" class="dk.openesdh.repo.webscripts.cases.CaseDocument" parent="webscript">
-        <property name="caseService" ref="CaseService" />
-        <property name="documentService" ref="DocumentService" />
-        <property name="nodeService" ref="NodeService"/>
-        <property name="contentService" ref="ContentService" />
-    </bean>
-
     <bean id="openesdhNotesWebscript"
-              class="dk.openesdh.repo.webscripts.notes.NotesWebScript"
-              parent="webscript">
+          class="dk.openesdh.repo.webscripts.notes.NotesWebScript"
+          parent="webscript">
         <property name="noteService" ref="NoteService"/>
     </bean>
     <bean id="webscript.dk.openesdh.notes.notes.get" parent="openesdhNotesWebscript"></bean>
