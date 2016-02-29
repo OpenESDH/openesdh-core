@@ -29,6 +29,7 @@
         we may need to extend openESDH classes-->
         <maven.alfresco.attachClasses>true</maven.alfresco.attachClasses>
         <maven.alfresco.attachConfig>true</maven.alfresco.attachConfig>
+        <!-- These properties are used by notification/invitation emails for links to OpeneUI -->
         <opene.product.name>OpenESDH</opene.product.name>
         <opene.ui.protocol>http</opene.ui.protocol>
         <opene.ui.host>localhost</opene.ui.host>

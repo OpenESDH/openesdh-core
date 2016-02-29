@@ -100,6 +100,7 @@ public class MultiTenantAdminModulesAspect implements BeanFactoryAware {
         this.beanFactory = (ListableBeanFactory) beanFactory;
         openeModuleIdsWithMtSuffix = getOpeneModuleIdsWithMtSuffix();
         moduleSpacesImporterBeanIds = getImporterBeanIds(ImporterBootstrap.class);
+        moduleSpacesImporterBeanIds.sort(this::sortImporters);
         extraMtImporter = getExtraMtImporter();
 
         MultiTAdminServiceImpl tenantAdminService = (MultiTAdminServiceImpl) beanFactory
@@ -152,6 +153,20 @@ public class MultiTenantAdminModulesAspect implements BeanFactoryAware {
                 .stream()
                 .filter(this::isOpeneMultiTenantImporterBean)
                 .collect(Collectors.toList());
+    }
+
+    private int sortImporters(String id1, String id2) {
+        if (id1.startsWith(OpenESDHModel.OPENESDH_REPO_MODULE_ID)
+                && !id2.startsWith(OpenESDHModel.OPENESDH_REPO_MODULE_ID)) {
+            return -1;
+        }
+
+        if (id2.startsWith(OpenESDHModel.OPENESDH_REPO_MODULE_ID)
+                && !id1.startsWith(OpenESDHModel.OPENESDH_REPO_MODULE_ID)) {
+            return 1;
+        }
+
+        return 0;
     }
 
     private boolean isOpeneMultiTenantImporterBean(String beanId) {

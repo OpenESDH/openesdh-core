@@ -1,7 +1,6 @@
 package dk.openesdh.repo.webscripts.tenant;
 
 import java.io.IOException;
-import java.util.List;
 
 import org.alfresco.service.cmr.repository.ContentIOException;
 import org.json.JSONException;
@@ -20,6 +19,7 @@ import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
 import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 
+import dk.openesdh.repo.model.TenantInfo;
 import dk.openesdh.repo.services.tenant.TenantOpeneModulesService;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
@@ -32,9 +32,9 @@ public class TenantOpeneModulesWebScript {
     private TenantOpeneModulesService tenantModulesService;
 
     @Authentication(value = AuthenticationType.ADMIN)
-    @Uri(value = "/api/openesdh/tenant/all/modules", method = HttpMethod.GET, defaultFormat = WebScriptUtils.JSON)
-    public Resolution getAllTenantModules() throws JsonParseException, JsonMappingException, IOException {
-        return WebScriptUtils.jsonResolution(tenantModulesService.getAllTenantsModules());
+    @Uri(value = "/api/openesdh/tenants", method = HttpMethod.GET, defaultFormat = WebScriptUtils.JSON)
+    public Resolution getTenantsInfo() throws JsonParseException, JsonMappingException, IOException {
+        return WebScriptUtils.jsonResolution(tenantModulesService.getTenantsInfo());
     }
 
     @Authentication(value = AuthenticationType.ADMIN)
@@ -43,15 +43,13 @@ public class TenantOpeneModulesWebScript {
         return WebScriptUtils.jsonResolution(tenantModulesService.getOpeneModules());
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     @Authentication(value = AuthenticationType.ADMIN)
-    @Uri(value = "/api/openesdh/tenant/{tenant}/modules", method = HttpMethod.POST, defaultFormat = WebScriptUtils.JSON)
-    public void saveTenantModules(@UriVariable("tenant") String tenant, WebScriptRequest req)
+    @Uri(value = "/api/openesdh/tenant/update", method = HttpMethod.POST, defaultFormat = WebScriptUtils.JSON)
+    public void saveTenantModules(WebScriptRequest req)
             throws JsonParseException, JsonMappingException,
             IOException, ContentIOException, JSONException {
-
-        List<String> tenantModules = (List) WebScriptUtils.readJson(List.class, req);
-        tenantModulesService.saveTenantModules(tenant, tenantModules);
+        TenantInfo tenant = (TenantInfo) WebScriptUtils.readJson(TenantInfo.class, req);
+        tenantModulesService.saveTenantInfo(tenant);
     }
 
     @Authentication(value = AuthenticationType.ADMIN)
@@ -60,5 +58,12 @@ public class TenantOpeneModulesWebScript {
             JsonMappingException, IOException, ContentIOException, JSONException {
 
         tenantModulesService.deleteTenantModules(tenant);
+    }
+
+    @Authentication(value = AuthenticationType.ADMIN)
+    @Uri(value = "/api/openesdh/tenant", method = HttpMethod.POST, defaultFormat = WebScriptUtils.JSON)
+    public void createTenant(WebScriptRequest req) throws IOException {
+        TenantInfo tenant = (TenantInfo) WebScriptUtils.readJson(TenantInfo.class, req);
+        tenantModulesService.createTenant(tenant);
     }
 }
