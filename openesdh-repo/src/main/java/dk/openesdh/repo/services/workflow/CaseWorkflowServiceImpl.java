@@ -3,6 +3,7 @@ package dk.openesdh.repo.services.workflow;
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -155,6 +156,9 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
     }
 
     private Map<String, Object> getPersonModel(NodeRef assigneeNodeRef) {
+        if (!nodeService.exists(assigneeNodeRef)) {
+            return Collections.emptyMap();
+        }
         PersonInfo assignee = personService.getPerson(assigneeNodeRef);
         Map<String, Object> assigneeMap = new HashMap<>();
         assigneeMap.put(WorkflowModelBuilder.PERSON_FIRST_NAME, assignee.getFirstName());
