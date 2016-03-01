@@ -5,7 +5,6 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 
-import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.NodeRef;
 
 /**
@@ -23,12 +22,15 @@ public interface OfficeTemplateService {
      *
      * @param title
      * @param description
+     * @param docType
+     * @param docCategory
      * @param fileName
      * @param contentInputStream
      * @param mimetype
      * @return
      */
-    NodeRef saveTemplate(String title, String description, String fileName, InputStream contentInputStream, String mimetype);
+    NodeRef saveTemplate(String title, String description, NodeRef docType, NodeRef docCategory,
+            String fileName, InputStream contentInputStream, String mimetype);
 
     /**
      * delete template
@@ -53,12 +55,32 @@ public interface OfficeTemplateService {
     OfficeTemplate getTemplate(NodeRef templateNodeRef);
 
     /**
-     * Render the template, given the map of fields/values.
+     * Get the template including detailed information about its fields.
      *
      * @param templateNodeRef
+     * @param withFields - read fields of template
+     * @param skipAutoFilledfields - skip fields that will be filled automatically
+     * @return
+     */
+    OfficeTemplate getTemplate(NodeRef templateNodeRef, boolean withFields, boolean skipAutoFilledfields);
+
+    /**
+     * Render the template, given the map of fields/values and saved case/user/recipient values
+     *
+     * @param template
+     * @param caseId
+     * @param receiver
      * @param model
      * @return
      * @throws java.lang.Exception
      */
-    ContentReader renderTemplate(NodeRef templateNodeRef, Map<String, Serializable> model) throws Exception;
+    OfficeTemplateMerged renderTemplate(OfficeTemplate template, String caseId, NodeRef receiver, Map<String, Serializable> model) throws Exception;
+
+    /**
+     * saves filled templates to case
+     *
+     * @param caseId
+     * @param merged
+     */
+    void saveToCase(String caseId, List<OfficeTemplateMerged> merged);
 }
