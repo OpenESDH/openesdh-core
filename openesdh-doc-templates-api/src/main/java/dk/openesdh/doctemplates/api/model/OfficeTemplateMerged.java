@@ -1,4 +1,4 @@
-package dk.openesdh.doctemplates.services.officetemplate;
+package dk.openesdh.doctemplates.api.model;
 
 import org.alfresco.service.cmr.repository.NodeRef;
 

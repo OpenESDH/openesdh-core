@@ -1,4 +1,5 @@
-package dk.openesdh.doctemplates.services.officetemplate;
+package dk.openesdh.doctemplates.api.model;
+
 
 import java.util.List;
 

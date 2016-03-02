@@ -68,6 +68,7 @@
 
     <modules>
         <module>openesdh-repo</module>
+        <module>openesdh-doc-templates-api</module>
         <module>openesdh-doc-templates</module>
     </modules>
 

@@ -1,4 +1,4 @@
-package dk.openesdh.doctemplates.services.officetemplate;
+package dk.openesdh.doctemplates.api.model;
 
 /**
  * Created by syastrov on 9/23/15.

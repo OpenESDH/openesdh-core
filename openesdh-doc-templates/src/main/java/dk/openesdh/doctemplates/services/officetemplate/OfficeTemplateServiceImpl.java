@@ -1,5 +1,7 @@
 package dk.openesdh.doctemplates.services.officetemplate;
 
+import static dk.openesdh.doctemplates.api.services.OfficeTemplateService.OPENESDH_DOC_TEMPLATES_DEFAULT_PATH;
+
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -34,6 +36,7 @@ import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.odftoolkit.odfdom.doc.OdfDocument;
 import org.odftoolkit.odfdom.dom.element.text.TextUserFieldDeclElement;
@@ -48,6 +51,10 @@ import org.w3c.dom.NodeList;
 
 import com.google.common.base.Joiner;
 
+import dk.openesdh.doctemplates.api.model.OfficeTemplate;
+import dk.openesdh.doctemplates.api.model.OfficeTemplateField;
+import dk.openesdh.doctemplates.api.model.OfficeTemplateMerged;
+import dk.openesdh.doctemplates.api.services.OfficeTemplateService;
 import dk.openesdh.repo.model.CaseInfo;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
@@ -216,7 +223,9 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
             Map<String, Serializable> model) throws Exception {
         model.putAll(getCaseInfo(caseId));
         model.putAll(getUserInfo());
-        model.putAll(getReceiverInfo(receiver));
+        if (receiver != null) {
+            model.putAll(getReceiverInfo(receiver));
+        }
 
         //add empty values for all other fields
         template.getFields().forEach(field -> {
@@ -348,7 +357,7 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
 
     @Override
     public void saveToCase(String caseId, List<OfficeTemplateMerged> merged) {
-        merged.forEach(document -> this.saveMergedToCase(caseId, document));
+        merged.forEach(document -> saveMergedToCase(caseId, document));
     }
 
     private NodeRef saveMergedToCase(String caseId, OfficeTemplateMerged document) {
@@ -366,7 +375,7 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
 
     @Override
     public void sendToEmail(String caseId, List<OfficeTemplateMerged> merged, String subject, String message) {
-        merged.forEach(document -> this.sendMergedToEmail(caseId, document, subject, message));
+        merged.forEach(document -> sendMergedToEmail(caseId, document, subject, message));
     }
 
     private void sendMergedToEmail(String caseId, OfficeTemplateMerged document, String subject, String message) {
@@ -376,5 +385,26 @@ public class OfficeTemplateServiceImpl implements OfficeTemplateService {
                 subject,
                 message,
                 Arrays.asList(caseDocNodeRef));
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public List<OfficeTemplateMerged> getMergedTemplates(NodeRef templateNodeRef, String caseId, JSONObject json) throws Exception {
+        OfficeTemplate template = getTemplate(templateNodeRef, true, false);
+        JSONObject fieldData = (JSONObject) json.get("fieldData");
+        JSONArray receivers = (JSONArray) fieldData.get("receivers");
+        if (receivers.isEmpty()) {
+            return Arrays.asList(renderTemplate(template, caseId, null, fieldData));
+        }
+        List<OfficeTemplateMerged> merged = new ArrayList<>();
+        for (Object r : receivers) {
+            JSONObject receiver = (JSONObject) r;
+            merged.add(renderTemplate(
+                    template,
+                    caseId,
+                    new NodeRef((String) receiver.get("nodeRef")),
+                    fieldData));
+        }
+        return merged;
     }
 }

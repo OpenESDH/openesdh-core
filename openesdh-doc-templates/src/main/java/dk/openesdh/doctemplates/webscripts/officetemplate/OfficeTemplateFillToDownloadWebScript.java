@@ -7,6 +7,8 @@ import java.util.zip.ZipOutputStream;
 
 import org.alfresco.repo.content.MimetypeMap;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 import org.springframework.stereotype.Component;
@@ -16,12 +18,17 @@ import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
 
-import dk.openesdh.doctemplates.services.officetemplate.OfficeTemplateMerged;
+import dk.openesdh.doctemplates.api.model.OfficeTemplateMerged;
+import dk.openesdh.doctemplates.api.services.OfficeTemplateService;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 @Component
 @WebScript(description = "Fill the specified office template, and return a transformed document.", families = {"OpenESDH Office Template"})
-public class OfficeTemplateFillToDownloadWebScript extends OfficeTemplateFillWebScript {
+public class OfficeTemplateFillToDownloadWebScript {
+
+    @Autowired
+    @Qualifier("OfficeTemplateService")
+    private OfficeTemplateService officeTemplateService;
 
     @Uri(value = "/api/openesdh/template/{store_type}/{store_id}/{node_id}/case/{caseId}/fill", method = HttpMethod.POST, defaultFormat = "json")
     public void fill(
@@ -31,7 +38,7 @@ public class OfficeTemplateFillToDownloadWebScript extends OfficeTemplateFillWeb
             @UriVariable final String caseId,
             WebScriptRequest req, WebScriptResponse res
     ) throws Exception {
-        List<OfficeTemplateMerged> merged = getMergedTemplates(
+        List<OfficeTemplateMerged> merged = officeTemplateService.getMergedTemplates(
                 new NodeRef(store_type, store_id, node_id),
                 caseId,
                 WebScriptUtils.readJson(req));

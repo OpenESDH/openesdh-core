@@ -10,7 +10,7 @@ import org.junit.Before;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
-import dk.openesdh.doctemplates.services.officetemplate.OfficeTemplateService;
+import dk.openesdh.doctemplates.api.services.OfficeTemplateService;
 import dk.openesdh.repo.model.DocumentCategory;
 import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.services.documents.DocumentCategoryService;

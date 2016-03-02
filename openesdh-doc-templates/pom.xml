@@ -22,6 +22,12 @@
     </properties>
     
     <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>openesdh-doc-templates-api</artifactId>
+            <version>${project.version}</version>
+            <type>jar</type>
+        </dependency>
         <!-- Following dependencies are needed for compiling Java code in src/main/java;
         <scope>provided</scope> is inherited for each of the following;
         for more info, please refer to alfresco-platform-distribution POM -->
