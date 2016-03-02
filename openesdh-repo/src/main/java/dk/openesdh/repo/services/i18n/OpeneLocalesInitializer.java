@@ -1,10 +1,14 @@
-package dk.openesdh.repo.services;
+package dk.openesdh.repo.services.i18n;
 
 import java.util.Arrays;
 import java.util.Locale;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.extensions.surf.util.I18NUtil;
+import org.springframework.stereotype.Component;
 
 /**
  * Initializing OpenE extra locales before loading message bundles to prevent
@@ -13,11 +17,14 @@ import org.springframework.extensions.surf.util.I18NUtil;
  * @author rudinjur
  *
  */
-public class OpeneLocalsInitializer {
+@Component("OpeneLocalesInitializer")
+public class OpeneLocalesInitializer {
     
+    @Value("${opene.extra.locales}")
     private String openeExtraLocales;
-    
-    public void init(){
+
+    @PostConstruct
+    public void setOpeneExtraLocales() {
         if(StringUtils.isEmpty(openeExtraLocales)){
             return;
         }
@@ -25,10 +32,6 @@ public class OpeneLocalsInitializer {
             .stream()
             .map(String::trim)
             .map(Locale::new)
-            .map(I18NUtil::getAllMessages);
-    }
-
-    public void setOpeneExtraLocales(String openeExtraLocales) {
-        this.openeExtraLocales = openeExtraLocales;
+            .forEach(I18NUtil::getAllMessages);
     }
 }
