@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -56,8 +57,12 @@ public class CaseWorkflowTasksWebScript extends AbstractCaseWorkflowWebScript {
             throw new WebScriptException(HttpServletResponse.SC_NOT_FOUND,
                     "Unable to find workflow instance with id: " + workflowInstanceId);
         }
-        File file = TempFileProvider.createTempFile("workflow-diagram-", ".png");
         InputStream imageData = workflowService.getWorkflowImage(workflowInstanceId);
+        if (Objects.isNull(imageData)) {
+            return (req, res, par) -> {
+            };
+        }
+        File file = TempFileProvider.createTempFile("workflow-diagram-", ".png");
         OutputStream os = new FileOutputStream(file);
         FileCopyUtils.copy(imageData, os);
         return (req, res, par) -> {

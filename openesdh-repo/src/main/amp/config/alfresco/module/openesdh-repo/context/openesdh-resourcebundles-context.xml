@@ -1,7 +1,14 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <!DOCTYPE beans PUBLIC '-//SPRING//DTD BEAN//EN' 'http://www.springframework.org/dtd/spring-beans.dtd'>
 <beans>
-    <bean id="actionResourceBundles" class="org.alfresco.i18n.ResourceBundleBootstrapComponent">
+
+    <!-- Initializing OpenE extra locales before loading message bundles to prevent
+         overriding with standard Alfresco messages. -->
+    <bean id="openeExtraLocalesInitializer" class="dk.openesdh.repo.services.OpeneLocalsInitializer">
+        <property name="openeExtraLocales" value="${opene.extra.locales}"></property>
+    </bean>
+
+    <bean id="openeRepoResourceBundles" class="org.alfresco.i18n.ResourceBundleBootstrapComponent">
         <property name="resourceBundles">
             <list>
                 <value>alfresco.messages.caseHistory</value>
