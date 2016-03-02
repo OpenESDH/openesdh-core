@@ -4,7 +4,7 @@
 
     <!-- Initializing OpenE extra locales before loading message bundles to prevent
          overriding with standard Alfresco messages. -->
-    <bean id="openeExtraLocalesInitializer" class="dk.openesdh.repo.services.OpeneLocalsInitializer">
+    <bean id="openeExtraLocalesInitializer" class="dk.openesdh.repo.services.OpeneLocalsInitializer" init-method="init">
         <property name="openeExtraLocales" value="${opene.extra.locales}"></property>
     </bean>
 

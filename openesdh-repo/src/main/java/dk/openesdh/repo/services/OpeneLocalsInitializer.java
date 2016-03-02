@@ -14,16 +14,21 @@ import org.springframework.extensions.surf.util.I18NUtil;
  *
  */
 public class OpeneLocalsInitializer {
-
-    public void setOpeneExtraLocales(String sExtraLocales) {
-        if(StringUtils.isEmpty(sExtraLocales)){
+    
+    private String openeExtraLocales;
+    
+    public void init(){
+        if(StringUtils.isEmpty(openeExtraLocales)){
             return;
         }
-        Arrays.asList(sExtraLocales.split(","))
-                .stream()
-                .map(String::trim)
-                .map(Locale::new)
-                .map(I18NUtil::getAllMessages);
+        Arrays.asList(openeExtraLocales.split(","))
+            .stream()
+            .map(String::trim)
+            .map(Locale::new)
+            .map(I18NUtil::getAllMessages);
     }
 
+    public void setOpeneExtraLocales(String openeExtraLocales) {
+        this.openeExtraLocales = openeExtraLocales;
+    }
 }

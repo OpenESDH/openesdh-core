@@ -49,13 +49,8 @@ public class OpeneActionServiceAspect implements BeanFactoryAware {
         beforeInterceptors.entrySet()
             .stream()
             .filter(interceptor -> interceptor.getKey().test(action))
-            .map(entry->entry.getValue())
+            .map(entry -> entry.getValue())
             .findAny()
-            .orElse(this::noOp)
-            .accept(action);
-    }
-    
-    private void noOp(Action action){
-        
+            .ifPresent(interceptor -> interceptor.accept(action));
     }
 }
