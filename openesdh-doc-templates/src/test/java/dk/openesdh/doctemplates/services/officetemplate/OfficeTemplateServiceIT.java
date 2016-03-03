@@ -15,6 +15,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 
+import dk.openesdh.doctemplates.api.model.OfficeTemplate;
 import dk.openesdh.doctemplates.services.TemplateTester;
 
 @RunWith(RemoteTestRunner.class)

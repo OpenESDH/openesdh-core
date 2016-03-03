@@ -11,7 +11,7 @@ import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
 import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 
-import dk.openesdh.doctemplates.services.officetemplate.OfficeTemplateService;
+import dk.openesdh.doctemplates.api.services.OfficeTemplateService;
 import dk.openesdh.repo.webscripts.AbstractRESTWebscript;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
