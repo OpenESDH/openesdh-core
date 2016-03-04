@@ -25,8 +25,7 @@ public class MailFreeMarkerProcessorProxyFactory extends SubsystemProxyFactory{
     @PostConstruct
     public void init() {
         setSourceBeanName(BEAN_ID);
-        Class[] interfaces = { TemplateProcessor.class };
-        setInterfaces(interfaces);
+        setInterfaces(new Class[] { TemplateProcessor.class });
     }
 
     @Autowired
