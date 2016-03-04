@@ -3,9 +3,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>dk.openesdh</groupId>
-    <artifactId>openesdh-doc-templates</artifactId>
+    <artifactId>openesdh-office</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>OpenESDH Document Templates AMP</name>
+    <name>OpenESDH Office Integration AMP</name>
     <packaging>amp</packaging>
 
     <parent>
@@ -16,12 +16,6 @@
     </parent>
 
     <dependencies>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>openesdh-doc-templates-api</artifactId>
-            <version>${project.version}</version>
-            <type>jar</type>
-        </dependency>
         <!-- Following dependencies are needed for compiling Java code in src/main/java;
         <scope>provided</scope> is inherited for each of the following;
         for more info, please refer to alfresco-platform-distribution POM -->
@@ -75,15 +69,9 @@
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
-        <!-- others -->
-        <dependency>
-            <groupId>org.apache.odftoolkit</groupId>
-            <artifactId>simple-odf</artifactId>
-            <version>0.7-incubating</version>
-        </dependency>
     </dependencies>
-    
-    <build>
+	
+     <build>
         <plugins>
             <plugin>
                 <!-- remove any old test data-->

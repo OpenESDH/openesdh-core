@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model name="office:officeModel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+    <description>OpenESDH office model</description>
+    <author>Arnas Petratis</author>
+    <version>1.0</version>
+    
+    <imports>
+        <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>
+    </imports>
+
+    <namespaces>
+        <namespace uri="http://openesdh.dk/model/office/1.0" prefix="office" />
+    </namespaces>
+
+    <aspects>
+        <aspect name="office:outlookReceivable">
+            <properties>
+                <property name="office:fromOutlook">
+                    <type>d:boolean</type>
+                </property>
+            </properties>
+        </aspect>
+    </aspects>
+</model>
