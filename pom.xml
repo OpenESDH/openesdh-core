@@ -30,9 +30,8 @@
         
         <!-- OpenESDH module versions-->
         <dynamicextensionsalfresco.version>1.0-SNAPSHOT</dynamicextensionsalfresco.version>
-        <openesdh.simple.case.version>1.0.1-SNAPSHOT</openesdh.simple.case.version>
-        <openesdh.staff.case.version>1.0.1-SNAPSHOT</openesdh.staff.case.version>
-        <openesdh.repo.version>1.0-SNAPSHOT</openesdh.repo.version>
+        <openesdh.simple.case.version>1.0.2-SNAPSHOT</openesdh.simple.case.version>
+        <openesdh.staff.case.version>1.0.2-SNAPSHOT</openesdh.staff.case.version>
         <openesdh.office.version>1.0-SNAPSHOT</openesdh.office.version>
         <openesdh.doctemplates.version>1.0-SNAPSHOT</openesdh.doctemplates.version>
         <openesdh.project.rooms.version>1.0-SNAPSHOT</openesdh.project.rooms.version>
@@ -75,10 +74,8 @@
     </build>
 
     <modules>
+        <module>openesdh-simple-case</module>
         <module>openesdh-repo</module>
-        <module>openesdh-doc-templates-api</module>
-        <module>openesdh-doc-templates</module>
-        <module>openesdh-office</module>
     </modules>
 
     <profiles>

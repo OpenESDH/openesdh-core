@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>dk.openesdh</groupId>
     <artifactId>openesdh-simple-case</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.2-SNAPSHOT</version>
     <name>OpenESDH Simple Case Type AMP</name>
     <packaging>amp</packaging>
 
