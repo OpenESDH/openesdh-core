@@ -1,39 +1,65 @@
 package dk.openesdh.repo.services.activities;
 
 import java.util.Optional;
+import java.util.function.Function;
 
 import org.alfresco.query.PagingRequest;
 import org.alfresco.query.PagingResults;
 import org.alfresco.repo.domain.activities.ActivityFeedEntity;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.json.simple.JSONObject;
 
 public interface CaseActivityService {
 
-    static final String ACTIVITY_TYPE_CASE_UPDATE = "dk.openesdh.case-update";
+    String BEAN_ID = "CaseActivityService";
 
-    static final String ACTIVITY_TYPE_CASE_MEMBER_ADD = "dk.openesdh.case.member-add";
+    String ACTIVITY_TYPE_CASE_UPDATE = "dk.openesdh.case-update";
 
-    static final String ACTIVITY_TYPE_CASE_MEMBER_REMOVE = "dk.openesdh.case.member-remove";
+    String ACTIVITY_TYPE_CASE_MEMBER_ADD = "dk.openesdh.case.member-add";
 
-    static final String ACTIVITY_TYPE_CASE_WORKFLOW_START = "dk.openesdh.case.workflow-start";
+    String ACTIVITY_TYPE_CASE_MEMBER_REMOVE = "dk.openesdh.case.member-remove";
 
-    static final String ACTIVITY_TYPE_CASE_WORKFLOW_CANCEL = "dk.openesdh.case.workflow-cancel";
+    String ACTIVITY_TYPE_CASE_WORKFLOW_START = "dk.openesdh.case.workflow-start";
 
-    static final String ACTIVITY_TYPE_CASE_WORKFLOW_TASK_ = "dk.openesdh.case.workflow.task-";
+    String ACTIVITY_TYPE_CASE_WORKFLOW_CANCEL = "dk.openesdh.case.workflow-cancel";
 
-    static final String ACTIVITY_TYPE_CASE_WORKFLOW_TASK_END = "dk.openesdh.case.workflow.task-end";
+    String ACTIVITY_TYPE_CASE_WORKFLOW_TASK_ = "dk.openesdh.case.workflow.task-";
 
-    static final String ACTIVITY_TYPE_CASE_WORKFLOW_TASK_APPROVE = "dk.openesdh.case.workflow.task-approve";
+    String ACTIVITY_TYPE_CASE_WORKFLOW_TASK_END = "dk.openesdh.case.workflow.task-end";
 
-    static final String ACTIVITY_TYPE_CASE_WORKFLOW_TASK_REJECT = "dk.openesdh.case.workflow.task-reject";
+    String ACTIVITY_TYPE_CASE_WORKFLOW_TASK_APPROVE = "dk.openesdh.case.workflow.task-approve";
 
-    static final String ACTIVITY_TYPE_CASE_DOCUMENT_UPLOAD = "dk.openesdh.case.document-upload";
+    String ACTIVITY_TYPE_CASE_WORKFLOW_TASK_REJECT = "dk.openesdh.case.workflow.task-reject";
 
-    static final String ACTIVITY_TYPE_CASE_DOCUMENT_NEW_VERSION_UPLOAD = "dk.openesdh.case.document.new.version-upload";
+    String ACTIVITY_TYPE_CASE_DOCUMENT_UPLOAD = "dk.openesdh.case.document-upload";
 
-    static final String ACTIVITY_TYPE_CASE_DOCUMENT_ATTACHMENT_UPLOAD = "dk.openesdh.case.document.attachment-upload";
+    String ACTIVITY_TYPE_CASE_DOCUMENT_NEW_VERSION_UPLOAD = "dk.openesdh.case.document.new.version-upload";
 
-    static final String ACTIVITY_TYPE_CASE_DOCUMENT_ATTACHMENT_NEW_VERSION_UPLOAD = "dk.openesdh.case.document.attachment.new.version-upload";
+    String ACTIVITY_TYPE_CASE_DOCUMENT_ATTACHMENT_UPLOAD = "dk.openesdh.case.document.attachment-upload";
+
+    String ACTIVITY_TYPE_CASE_DOCUMENT_ATTACHMENT_NEW_VERSION_UPLOAD = "dk.openesdh.case.document.attachment.new.version-upload";
+
+    String ACTIVITY_TYPE = "activityType";
+
+    String MODIFIER = "modifier";
+
+    String MODIFIER_DISPLAY_NAME = "modifierDisplayName";
+
+    String CASE_TITLE = "caseTitle";
+
+    String CASE_ID = "caseId";
+
+    String MEMBER = "member";
+
+    String ROLE = "role";
+
+    String DOC_RECORD_NODE_REF = "docRecordNodeRef";
+
+    String DOC_TITLE = "docTitle";
+
+    String ATTACHMENT_TITLE = "attachmentTitle";
+
+    String WORKFLOW_DESCRIPTION = "workflowDescription";
 
     /**
      * Creates activity feed on case update
@@ -66,4 +92,9 @@ public interface CaseActivityService {
     int countCurrentUserNewActivities();
 
     void setCurrentUserLastReadActivityFeedId(String feedId);
+
+    void postActivity(String caseId, String activityType, Function<NodeRef, JSONObject> activityJsonFunction);
+
+    JSONObject createNewActivity(String caseId, NodeRef caseNodeRef);
+
 }
