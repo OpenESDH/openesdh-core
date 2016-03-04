@@ -27,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
@@ -125,10 +124,10 @@ public class ActivitiesFeedMailMessageResolver extends BaseTemplateProcessorExte
 
         public String resolve(Map<String, Object> activity) {
             Map<String, String> summary = (Map<String, String>) activity.get("activitySummary");
-            Object[] params = Arrays.asList(this.paramNames)
-                    .stream()
+            Object[] params = Arrays.stream(this.paramNames)
                     .map(summary::get)
                     .toArray();
+
             return I18NUtil.getMessage(activityType(activity), params);
         }
     }
