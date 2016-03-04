@@ -125,11 +125,11 @@ public class ActivitiesFeedMailMessageResolver extends BaseTemplateProcessorExte
 
         public String resolve(Map<String, Object> activity) {
             Map<String, String> summary = (Map<String, String>) activity.get("activitySummary");
-            List<String> params = Arrays.asList(this.paramNames)
+            Object[] params = Arrays.asList(this.paramNames)
                     .stream()
                     .map(summary::get)
-                    .collect(Collectors.toList());
-            return I18NUtil.getMessage(activityType(activity), params.toArray());
+                    .toArray();
+            return I18NUtil.getMessage(activityType(activity), params);
         }
     }
 }
