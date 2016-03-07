@@ -489,6 +489,12 @@
             <dependencies>
                 <dependency>
                     <groupId>dk.openesdh</groupId>
+                    <artifactId>openesdh-staff-case</artifactId>
+                    <version>${openesdh.staff.case.version}</version>
+                    <type>amp</type>
+                </dependency>
+                <dependency>
+                    <groupId>dk.openesdh</groupId>
                     <artifactId>openesdh-doc-templates</artifactId>
                     <version>${openesdh.doctemplates.version}</version>
                     <type>amp</type>
@@ -497,12 +503,6 @@
                     <groupId>dk.openesdh</groupId>
                     <artifactId>openesdh-office</artifactId>
                     <version>${openesdh.office.version}</version>
-                    <type>amp</type>
-                </dependency>
-                <dependency>
-                    <groupId>dk.openesdh.case</groupId>
-                    <artifactId>staff-repo</artifactId>
-                    <version>${openesdh.staff.case.version}</version>
                     <type>amp</type>
                 </dependency>
             </dependencies>
