@@ -27,7 +27,7 @@ import com.tradeshift.test.remote.RemoteTestRunner;
     "classpath:alfresco/extension/openesdh-test-context.xml"})
 public class GroupsServiceImplIT {
 
-    private static final String CSV_HEADER = "Group name,Display name,Member of groups,Simple case,Staff case\n";
+    private static final String CSV_HEADER = "Group name,Display name,Member of groups,Simple case\n";
     private static final String[] GROUPS = {"IT_test", "HR_test", "HR_CREATE_test", "HR_CHIEF_test"};
 
     @Autowired
@@ -58,8 +58,8 @@ public class GroupsServiceImplIT {
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
         String csv = new StringBuilder(CSV_HEADER)
                 .append("IT_test,IT group,,Read\n")
-                .append("HR_test,HR group,,,Read\n")
-                .append("HR_CREATE_test,HR creators,HR_test,,CREATE;WRITE\n")
+                .append("HR_test,HR group,,\n")
+                .append("HR_CREATE_test,HR creators,HR_test,CREATE;WRITE\n")
                 .append("HR_CHIEF_test,HR chief,HR_test;HR_CREATE_test").toString();
 
         groupsService.uploadGroupsCSV(IOUtils.toInputStream(csv));
@@ -81,7 +81,7 @@ public class GroupsServiceImplIT {
     @Test
     public void shouldThrowExceptionNoGroupExists() throws IOException {
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
-        String csv = new StringBuilder(CSV_HEADER).append("HR_CREATE_test,HR creators,HR_test,,CREATE;WRITE\n")
+        String csv = new StringBuilder(CSV_HEADER).append("HR_CREATE_test,HR creators,HR_test,CREATE;WRITE\n")
                 .toString();
 
         try {
