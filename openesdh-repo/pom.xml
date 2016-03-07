@@ -50,35 +50,28 @@
         </dependency>
         
         <dependency>
-            <groupId>dk.openesdh.case</groupId>
-            <artifactId>simple-case-repo</artifactId>
+            <groupId>dk.openesdh</groupId>
+            <artifactId>openesdh-simple-case</artifactId>
             <version>${openesdh.simple.case.version}</version>
             <type>amp</type>
         </dependency>
 
         <dependency>
-            <groupId>dk.openesdh.case</groupId>
-            <artifactId>simple-case-repo</artifactId>
+            <groupId>dk.openesdh</groupId>
+            <artifactId>openesdh-simple-case</artifactId>
             <version>${openesdh.simple.case.version}</version>
             <classifier>classes</classifier>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
-            <groupId>dk.openesdh.case</groupId>
-            <artifactId>simple-case-repo</artifactId>
+            <groupId>dk.openesdh</groupId>
+            <artifactId>openesdh-simple-case</artifactId>
             <version>${openesdh.simple.case.version}</version>
             <classifier>config</classifier>
             <scope>compile</scope>
         </dependency>
         
-        <dependency>
-            <groupId>dk.openesdh.case</groupId>
-            <artifactId>staff-repo</artifactId>
-            <version>${openesdh.staff.case.version}</version>
-            <type>amp</type>
-        </dependency>
-
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -90,7 +83,7 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-
+        
         <dependency>
             <groupId>com.github.dynamicextensionsalfresco</groupId>
             <artifactId>annotations</artifactId>
@@ -494,6 +487,7 @@
         <profile>
             <id>jenkins-integration-all-modules</id>
             <dependencies>
+                <!--
                 <dependency>
                     <groupId>dk.openesdh</groupId>
                     <artifactId>openesdh-doc-templates</artifactId>
@@ -512,7 +506,7 @@
                     <version>${openesdh.staff.case.version}</version>
                     <type>amp</type>
                 </dependency>
-                
+                -->
             </dependencies>
         </profile>
         <profile>

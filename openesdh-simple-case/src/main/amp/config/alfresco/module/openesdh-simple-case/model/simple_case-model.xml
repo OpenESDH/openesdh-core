@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model name="simple:caseModel" xmlns="http://www.alfresco.org/model/dictionary/1.0">
+    <description>OpenESDH simple case model</description>
+    <author>Lanre Abiwon</author>
+    <version>1.1</version>
+    <imports>
+        <import uri="http://openesdh.dk/model/openesdh/1.0" prefix="oe" />
+        <import uri="http://openesdh.dk/model/case/base/1.0" prefix="base" />
+    </imports>
+
+    <namespaces>
+        <namespace uri="http://openesdh.dk/model/case/simple/1.0" prefix="simple" />
+    </namespaces>
+
+    <types>
+
+        <type name="simple:case">
+            <parent>base:case</parent>
+        </type>
+
+    </types>
+</model>
