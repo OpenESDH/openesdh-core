@@ -83,7 +83,7 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-
+        
         <dependency>
             <groupId>com.github.dynamicextensionsalfresco</groupId>
             <artifactId>annotations</artifactId>

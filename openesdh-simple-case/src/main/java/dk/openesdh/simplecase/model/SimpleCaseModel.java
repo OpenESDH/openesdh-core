@@ -1,4 +1,4 @@
-package dk.openesdh;
+package dk.openesdh.simplecase.model;
 
 import org.alfresco.service.namespace.QName;
 
