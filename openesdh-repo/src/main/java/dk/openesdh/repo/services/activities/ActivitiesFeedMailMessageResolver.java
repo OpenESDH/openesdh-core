@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 import javax.annotation.PostConstruct;
 
@@ -54,6 +55,7 @@ public class ActivitiesFeedMailMessageResolver extends BaseTemplateProcessorExte
 
     private Map<String, MessageResolver> resolvers = new HashMap<>();
 
+
     @Autowired
     @Qualifier(MailFreeMarkerProcessorProxyFactory.BEAN_ID)
     @Override
@@ -78,15 +80,27 @@ public class ActivitiesFeedMailMessageResolver extends BaseTemplateProcessorExte
             Map<String, Object> activity = (Map<String, Object>) ((SimpleHash) arguments.get(0)).toMap();
             return getResolver(activity)
                     .map(resolver -> resolver.resolve(activity))
-                    .orElse("No resolver for activity type " + activityType(activity));
+                    .orElseGet(() -> ("No resolver for activity type " + activityType(activity)));
         } catch (Exception ex) {
             logger.error("Error resolving activity message: ", ex);
             throw ex;
         }
     }
+    
+    public void registerMesageResolver(String activityType, String... paramNames) {
+        resolvers.put(activityType, new MessageResolver(paramNames));
+    }
 
     public void registerMesageResolver(String activityType, MessageResolver resolver) {
         resolvers.put(activityType, resolver);
+    }
+
+    public static String getMessage(String key) {
+        return getMessage(key, new Object[0]);
+    }
+
+    public static String getMessage(String key, Object[] params) {
+        return Optional.ofNullable(I18NUtil.getMessage(key, params)).orElse("No message property found: " + key);
     }
 
     private Optional<MessageResolver> getResolver(Map<String, Object> activity) {
@@ -117,18 +131,36 @@ public class ActivitiesFeedMailMessageResolver extends BaseTemplateProcessorExte
     public static class MessageResolver {
 
         private String[] paramNames;
+        private Map<String, Function<String, String>> parameterResolvers = new HashMap<>();
+
+        public MessageResolver(Map<String, Function<String, String>> parameterResolvers, String... paramNames) {
+            this(paramNames);
+            this.parameterResolvers = parameterResolvers;
+        }
 
         public MessageResolver(String... paramNames) {
             this.paramNames = paramNames;
         }
 
         public String resolve(Map<String, Object> activity) {
-            Map<String, String> summary = (Map<String, String>) activity.get("activitySummary");
             Object[] params = Arrays.stream(this.paramNames)
-                    .map(summary::get)
+                    .map(param -> getParamResolver(param).apply(getValue(activity, param)))
                     .toArray();
 
-            return I18NUtil.getMessage(activityType(activity), params);
+            String activityType = activityType(activity);
+            return ActivitiesFeedMailMessageResolver.getMessage(activityType, params);
+        }
+
+        private String getValue(Map<String, Object> activity, String param) {
+            Map<String, String> summary = (Map<String, String>) activity.get("activitySummary");
+            return Optional.ofNullable(activity.get(param))
+                    .map(Object::toString)
+                    .orElseGet(() -> summary.get(param));
+        }
+
+        private Function<String, String> getParamResolver(String paramName) {
+            return Optional.ofNullable(parameterResolvers.get(paramName))
+                    .orElse(Function.identity());
         }
     }
 }
