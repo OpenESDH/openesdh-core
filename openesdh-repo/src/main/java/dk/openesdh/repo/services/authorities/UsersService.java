@@ -7,4 +7,6 @@ import org.json.JSONObject;
 public interface UsersService {
 
     JSONObject uploadUsersCsv(InputStream usersCsv) throws Exception;
+
+    void setEmailFeedDisabled(String userId, boolean emailFeedDisabled);
 }
