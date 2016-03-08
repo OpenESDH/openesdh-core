@@ -2,26 +2,24 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
+    <groupId>dk.openesdh</groupId>
     <artifactId>openesdh-repo</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>openesdh-repo Repository AMP project</name>
+    <name>OpenESDH Core AMP</name>
     <packaging>amp</packaging>
     <description>Manages the lifecycle of the openesdh-repo Repository AMP (Alfresco Module Package)</description>
 
     <parent>
         <groupId>dk.openesdh</groupId>
-        <artifactId>parent</artifactId>
+        <artifactId>openesdh</artifactId>
         <version>1.0-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
     <properties>
-        <simple.case.version>1.0.1-SNAPSHOT</simple.case.version>
-        <staff.case.version>1.0.1-SNAPSHOT</staff.case.version>
         <alfresco.data.location>alf_data_dev</alfresco.data.location>
         <alfresco.client.war>alfresco</alfresco.client.war>
         <alfresco.client.contextPath>/alfresco</alfresco.client.contextPath>
-        <dynamicextensionsalfresco.version>1.0-SNAPSHOT</dynamicextensionsalfresco.version>
         <fr.opensagres.xdocreport.version>1.0.5</fr.opensagres.xdocreport.version>
         <!--<index.subsystem.name>solr4</index.subsystem.name>-->
 
@@ -53,35 +51,28 @@
         </dependency>
 
         <dependency>
-            <groupId>dk.openesdh.case</groupId>
-            <artifactId>simple-case-repo</artifactId>
-            <version>${simple.case.version}</version>
+            <groupId>dk.openesdh</groupId>
+            <artifactId>openesdh-simple-case</artifactId>
+            <version>${openesdh.simple.case.version}</version>
             <type>amp</type>
         </dependency>
 
         <dependency>
-            <groupId>dk.openesdh.case</groupId>
-            <artifactId>simple-case-repo</artifactId>
-            <version>${simple.case.version}</version>
+            <groupId>dk.openesdh</groupId>
+            <artifactId>openesdh-simple-case</artifactId>
+            <version>${openesdh.simple.case.version}</version>
             <classifier>classes</classifier>
             <scope>compile</scope>
         </dependency>
 
         <dependency>
-            <groupId>dk.openesdh.case</groupId>
-            <artifactId>simple-case-repo</artifactId>
-            <version>${simple.case.version}</version>
+            <groupId>dk.openesdh</groupId>
+            <artifactId>openesdh-simple-case</artifactId>
+            <version>${openesdh.simple.case.version}</version>
             <classifier>config</classifier>
             <scope>compile</scope>
         </dependency>
         
-        <dependency>
-            <groupId>dk.openesdh.case</groupId>
-            <artifactId>staff-repo</artifactId>
-            <version>${staff.case.version}</version>
-            <type>amp</type>
-        </dependency>
-
         <dependency>
             <groupId>com.google.guava</groupId>
             <artifactId>guava</artifactId>
@@ -94,7 +85,7 @@
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-
+        
         <dependency>
             <groupId>com.github.dynamicextensionsalfresco</groupId>
             <artifactId>annotations</artifactId>
@@ -298,7 +289,7 @@
                 <dependency>
                     <groupId>dk.openesdh</groupId>
                     <artifactId>openesdh-project-rooms</artifactId>
-                    <version>1.0-SNAPSHOT</version>
+                    <version>${openesdh.project.rooms.version}</version>
                     <type>amp</type>
                 </dependency>
             </dependencies>
@@ -500,26 +491,20 @@
             <dependencies>
                 <dependency>
                     <groupId>dk.openesdh</groupId>
+                    <artifactId>openesdh-staff-case</artifactId>
+                    <version>${openesdh.staff.case.version}</version>
+                    <type>amp</type>
+                </dependency>
+                <dependency>
+                    <groupId>dk.openesdh</groupId>
                     <artifactId>openesdh-doc-templates</artifactId>
-                    <version>1.0-SNAPSHOT</version>
+                    <version>${openesdh.doctemplates.version}</version>
                     <type>amp</type>
                 </dependency>
                 <dependency>
-                    <groupId>dk.openesdh.aoi</groupId>
-                    <artifactId>aoi-repo</artifactId>
-                    <version>1.0-SNAPSHOT</version>
-                    <type>amp</type>
-                </dependency>
-                <dependency>
-                    <groupId>dk.openesdh.case</groupId>
-                    <artifactId>staff-repo</artifactId>
-                    <version>1.0.1-SNAPSHOT</version>
-                    <type>amp</type>
-                </dependency>
-                <dependency>
-                    <groupId>dk.openesdh.office</groupId>
-                    <artifactId>office-repo</artifactId>
-                    <version>1.0-SNAPSHOT</version>
+                    <groupId>dk.openesdh</groupId>
+                    <artifactId>openesdh-office</artifactId>
+                    <version>${openesdh.office.version}</version>
                     <type>amp</type>
                 </dependency>
             </dependencies>

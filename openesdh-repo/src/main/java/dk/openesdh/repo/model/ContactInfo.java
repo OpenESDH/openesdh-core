@@ -84,6 +84,14 @@ public class ContactInfo implements PermissionCheckValue {
         return getStringProp(OpenESDHModel.PROP_CONTACT_POST_BOX);
     }
 
+    public String getFirstName() {
+        return getStringProp(OpenESDHModel.PROP_CONTACT_FIRST_NAME);
+    }
+
+    public String getLastName() {
+        return getStringProp(OpenESDHModel.PROP_CONTACT_LAST_NAME);
+    }
+
     //Some other common properties that we might want to access on a regular basis when working with contacts
     public String getIDNumebr() {
         return getStringProp(type == ContactType.PERSON

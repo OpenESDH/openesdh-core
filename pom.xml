@@ -2,9 +2,9 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>dk.openesdh</groupId>
-    <artifactId>parent</artifactId>
+    <artifactId>openesdh</artifactId>
     <version>1.0-SNAPSHOT</version>
-    <name>Parent pom for OpenESDH</name>
+    <name>OpenESDH</name>
     <description>Parent</description>
     <packaging>pom</packaging>
 
@@ -24,10 +24,17 @@
         <app.log.root.level>WARN</app.log.root.level>
         <alfresco.data.location>openesdh-repo/alf_data_dev</alfresco.data.location>
         <env>local</env>
-        
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <!-- IMPORTANT! Override this only if you know what you're doing; it could break amp-to-war overlay -->
         <alfresco.client.war.folder>${project.build.directory}/${project.build.finalName}-war</alfresco.client.war.folder>
+        
+        <!-- OpenESDH module versions-->
+        <dynamicextensionsalfresco.version>1.0-SNAPSHOT</dynamicextensionsalfresco.version>
+        <openesdh.simple.case.version>1.0.2-SNAPSHOT</openesdh.simple.case.version>
+        <openesdh.staff.case.version>1.0.2-SNAPSHOT</openesdh.staff.case.version>
+        <openesdh.office.version>1.0-SNAPSHOT</openesdh.office.version>
+        <openesdh.doctemplates.version>1.0-SNAPSHOT</openesdh.doctemplates.version>
+        <openesdh.project.rooms.version>1.0-SNAPSHOT</openesdh.project.rooms.version>
     </properties>
 
     <!-- Here we realize the connection with the Alfresco selected platform (e.g.version and edition) -->
@@ -67,8 +74,8 @@
     </build>
 
     <modules>
+        <module>openesdh-simple-case</module>
         <module>openesdh-repo</module>
-        <module>openesdh-doc-templates</module>
     </modules>
 
     <profiles>

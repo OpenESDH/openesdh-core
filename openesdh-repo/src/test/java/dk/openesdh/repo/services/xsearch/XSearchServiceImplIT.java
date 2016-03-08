@@ -33,7 +33,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 
-import dk.openesdh.SimpleCaseModel;
+import dk.openesdh.simplecase.model.SimpleCaseModel;
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.services.cases.CaseService;
 

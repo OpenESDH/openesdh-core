@@ -36,7 +36,7 @@ import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.DocumentService;
 import dk.openesdh.repo.services.members.CaseMembersService;
 
-@Service("CaseActivityService")
+@Service(CaseActivityService.BEAN_ID)
 public class CaseActivityServiceImpl implements CaseActivityService {
 
     private static final String PREFERENCE_FAVOURITE_CASE = "dk_openesdh_cases_favourites";
@@ -74,80 +74,78 @@ public class CaseActivityServiceImpl implements CaseActivityService {
 
     @Override
     public void postOnCaseUpdate(NodeRef caseNodeRef) {
-        postActivity(caseNodeRef, CaseActivityService.ACTIVITY_TYPE_CASE_UPDATE,
+        postActivity(caseNodeRef, ACTIVITY_TYPE_CASE_UPDATE,
                 () -> createNewActivity(caseNodeRef));
     }
 
     @Override
     public void postOnCaseMemberRemove(String caseId, NodeRef authority, String role) {
-        postActivity(caseId, CaseActivityService.ACTIVITY_TYPE_CASE_MEMBER_REMOVE, (caseNodeRef) -> {
+        postActivity(caseId, ACTIVITY_TYPE_CASE_MEMBER_REMOVE, (caseNodeRef) -> {
             JSONObject json = createNewActivity(caseId, caseNodeRef);
-            json.put("role", role);
-            json.put("member", getAuthorityDisplayName(authority));
+            json.put(ROLE, role);
+            json.put(MEMBER, getAuthorityDisplayName(authority));
             return json;
         });
     }
 
     @Override
     public void postOnCaseMemberAdd(String caseId, NodeRef authority, String role) {
-        postActivity(caseId, CaseActivityService.ACTIVITY_TYPE_CASE_MEMBER_ADD, (caseNodeRef) -> {
+        postActivity(caseId, ACTIVITY_TYPE_CASE_MEMBER_ADD, (caseNodeRef) -> {
             JSONObject json = createNewActivity(caseId, caseNodeRef);
-            json.put("role", role);
-            json.put("member", getAuthorityDisplayName(authority));
+            json.put(ROLE, role);
+            json.put(MEMBER, getAuthorityDisplayName(authority));
             return json;
         });
     }
 
     @Override
     public void postOnCaseWorkflowStart(String caseId, String description) {
-        postActivity(caseId, CaseActivityService.ACTIVITY_TYPE_CASE_WORKFLOW_START, (caseNodeRef) -> {
+        postActivity(caseId, ACTIVITY_TYPE_CASE_WORKFLOW_START, (caseNodeRef) -> {
             JSONObject json = createNewActivity(caseId, caseNodeRef);
-            json.put("workflowDescription", description);
+            json.put(WORKFLOW_DESCRIPTION, description);
             return json;
         });
     }
 
     @Override
     public void postOnCaseWorkflowCancel(String caseId, String description) {
-        postActivity(caseId, CaseActivityService.ACTIVITY_TYPE_CASE_WORKFLOW_CANCEL, (caseNodeRef) -> {
+        postActivity(caseId, ACTIVITY_TYPE_CASE_WORKFLOW_CANCEL, (caseNodeRef) -> {
             JSONObject json = createNewActivity(caseId, caseNodeRef);
-            json.put("workflowDescription", description);
+            json.put(WORKFLOW_DESCRIPTION, description);
             return json;
         });
     }
 
     @Override
     public void postOnEndCaseWorkflowTask(String caseId, String description, Optional<String> taskOutcome) {
-        String activityType = CaseActivityService.ACTIVITY_TYPE_CASE_WORKFLOW_TASK_
+        String activityType = ACTIVITY_TYPE_CASE_WORKFLOW_TASK_
                 + taskOutcome.map(outcome -> outcome.toLowerCase()).orElse("end");
         postActivity(caseId, activityType, (caseNodeRef) -> {
             JSONObject json = createNewActivity(caseId, caseNodeRef);
-            json.put("workflowDescription", description);
+            json.put(WORKFLOW_DESCRIPTION, description);
             return json;
         });
     }
 
     @Override
     public void postOnCaseDocumentUpload(NodeRef documentNodeRef) {
-        postCaseDocumentActivity(documentNodeRef, CaseActivityService.ACTIVITY_TYPE_CASE_DOCUMENT_UPLOAD);
+        postCaseDocumentActivity(documentNodeRef, ACTIVITY_TYPE_CASE_DOCUMENT_UPLOAD);
     }
 
     @Override
     public void postOnCaseDocumentNewVersionUpload(NodeRef documentNodeRef) {
-        postCaseDocumentActivity(documentNodeRef,
-                CaseActivityService.ACTIVITY_TYPE_CASE_DOCUMENT_NEW_VERSION_UPLOAD);
+        postCaseDocumentActivity(documentNodeRef, ACTIVITY_TYPE_CASE_DOCUMENT_NEW_VERSION_UPLOAD);
     }
 
     @Override
     public void postOnCaseDocumentAttachmentUpload(NodeRef attachmentNodeRef) {
-        postCaseDocumentAttachmentActivity(attachmentNodeRef,
-                CaseActivityService.ACTIVITY_TYPE_CASE_DOCUMENT_ATTACHMENT_UPLOAD);
+        postCaseDocumentAttachmentActivity(attachmentNodeRef, ACTIVITY_TYPE_CASE_DOCUMENT_ATTACHMENT_UPLOAD);
     }
 
     @Override
     public void postOnCaseDocumentAttachmentNewVersionUpload(NodeRef attachmentNodeRef) {
         postCaseDocumentAttachmentActivity(attachmentNodeRef,
-                CaseActivityService.ACTIVITY_TYPE_CASE_DOCUMENT_ATTACHMENT_NEW_VERSION_UPLOAD);
+                ACTIVITY_TYPE_CASE_DOCUMENT_ATTACHMENT_NEW_VERSION_UPLOAD);
     }
 
     @Override
@@ -172,6 +170,25 @@ public class CaseActivityServiceImpl implements CaseActivityService {
         preferenceService.setPreferences(AuthenticationUtil.getFullyAuthenticatedUser(), preferences);
     }
 
+    @Override
+    public JSONObject createNewActivity(String caseId, NodeRef caseNodeRef) {
+        PersonInfo currentUserInfo = personService
+                .getPerson(personService.getPerson(AuthenticationUtil.getFullyAuthenticatedUser()));
+        String currentUserDisplayName = currentUserInfo.getFirstName() + " " + currentUserInfo.getLastName();
+        JSONObject json = new JSONObject();
+        json.put(CASE_ID, caseId);
+        json.put(CASE_TITLE, nodeService.getProperty(caseNodeRef, ContentModel.PROP_TITLE));
+        json.put(MODIFIER, AuthenticationUtil.getFullyAuthenticatedUser());
+        json.put(MODIFIER_DISPLAY_NAME, currentUserDisplayName);
+        return json;
+    }
+    
+    @Override
+    public void postActivity(String caseId, String activityType, Function<NodeRef, JSONObject> activityJsonFunction) {
+        NodeRef caseNodeRef = caseService.getCaseById(caseId);
+        postActivity(caseId, caseNodeRef, activityType, () -> activityJsonFunction.apply(caseNodeRef));
+    }
+
     private int countCurrentUserActivities(int minFeedId) {
         return activityService.getUserFeedEntries(AuthenticationUtil.getFullyAuthenticatedUser(), null, false,
                 true, minFeedId).size();
@@ -181,8 +198,8 @@ public class CaseActivityServiceImpl implements CaseActivityService {
         NodeRef caseNodeRef = documentService.getCaseNodeRef(documentNodeRef);
         postActivity(caseNodeRef, activityType, () -> {
             JSONObject json = createNewActivity(caseNodeRef);
-            json.put("docRecordNodeRef", documentService.getDocRecordNodeRef(documentNodeRef).toString());
-            json.put("docTitle", nodeService.getProperty(documentNodeRef, ContentModel.PROP_TITLE));
+            json.put(DOC_RECORD_NODE_REF, documentService.getDocRecordNodeRef(documentNodeRef).toString());
+            json.put(DOC_TITLE, nodeService.getProperty(documentNodeRef, ContentModel.PROP_TITLE));
             return json;
         });
     }
@@ -192,9 +209,9 @@ public class CaseActivityServiceImpl implements CaseActivityService {
         postActivity(caseNodeRef, activityType, () -> {
             NodeRef docRecord = documentService.getDocRecordNodeRef(attachmentNodeRef);
             JSONObject json = createNewActivity(caseNodeRef);
-            json.put("docRecordNodeRef", documentService.getDocRecordNodeRef(attachmentNodeRef).toString());
-            json.put("attachmentTitle", nodeService.getProperty(attachmentNodeRef, ContentModel.PROP_NAME));
-            json.put("docTitle", nodeService.getProperty(docRecord, ContentModel.PROP_TITLE));
+            json.put(DOC_RECORD_NODE_REF, documentService.getDocRecordNodeRef(attachmentNodeRef).toString());
+            json.put(ATTACHMENT_TITLE, nodeService.getProperty(attachmentNodeRef, ContentModel.PROP_NAME));
+            json.put(DOC_TITLE, nodeService.getProperty(docRecord, ContentModel.PROP_TITLE));
             return json;
         });
     }
@@ -203,29 +220,12 @@ public class CaseActivityServiceImpl implements CaseActivityService {
         return createNewActivity(caseService.getCaseId(caseNodeRef), caseNodeRef);
     }
 
-    private JSONObject createNewActivity(String caseId, NodeRef caseNodeRef) {
-        PersonInfo currentUserInfo = personService.getPerson(personService.getPerson(AuthenticationUtil
-                .getFullyAuthenticatedUser()));
-        String currentUserDisplayName = currentUserInfo.getFirstName() + " " + currentUserInfo.getLastName();
-        JSONObject json = new JSONObject();
-        json.put("caseId", caseId);
-        json.put("caseTitle", nodeService.getProperty(caseNodeRef, ContentModel.PROP_TITLE));
-        json.put("modifier", AuthenticationUtil.getFullyAuthenticatedUser());
-        json.put("modifierDisplayName", currentUserDisplayName);
-        return json;
-    }
-
     private String getAuthorityDisplayName(NodeRef authority) {
         if (caseMembersService.isAuthorityPerson(authority)) {
             PersonInfo person = personService.getPerson(authority);
             return person.getFirstName() + " " + person.getLastName();
         }
         return caseMembersService.getAuthorityName(authority);
-    }
-
-    private void postActivity(String caseId, String activityType, Function<NodeRef, JSONObject> activityJsonFunction) {
-        NodeRef caseNodeRef = caseService.getCaseById(caseId);
-        postActivity(caseId, caseNodeRef, activityType, () -> activityJsonFunction.apply(caseNodeRef));
     }
 
     private void postActivity(NodeRef caseNodeRef, String activityType, Supplier<JSONObject> activityJsonSupplier) {

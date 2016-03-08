@@ -6,6 +6,9 @@ import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
+
+import javax.annotation.PostConstruct;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.query.PagingRequest;
@@ -21,8 +24,11 @@ import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+
+import dk.openesdh.repo.services.actions.OpeneActionServiceAspect;
 
 /**
  * This is a fix for the bug in the alfresco org.alfresco.repo.activities.feed.EmailUserNotifier 
@@ -35,33 +41,26 @@ import org.springframework.util.StringUtils;
  *
  */
 @Service("ActivitiesFeedNotifierMailActionAspect")
-public class ActivitiesFeedNotifierMailActionAspect implements BeanFactoryAware {
+public class ActivitiesFeedNotifierMailActionAspect {
 
-    private static final String ACTION_SERVICE = "ActionService";
     private static final String MSG_EMAIL_SUBJECT = "activities.feed.notifier.email.subject";
 
     @Autowired
     private PersonService personService;
     @Autowired
     private PreferenceService preferenceService;
+    
+    @Autowired
+    @Qualifier("OpeneActionServiceAspect")
+    private OpeneActionServiceAspect openeActionServiceAspect;
 
-    @Override
-    public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-        if (!beanFactory.containsBean(ACTION_SERVICE)) {
-            return;
-        }
-        Advised proxy = (Advised) beanFactory.getBean(ACTION_SERVICE);
-        NameMatchMethodPointcutAdvisor beforeExecuteActionAdvisor = new NameMatchMethodPointcutAdvisor(
-                (MethodBeforeAdvice) this::beforeExecuteAction);
-        beforeExecuteActionAdvisor.addMethodName("executeAction");
-        proxy.addAdvisor(beforeExecuteActionAdvisor);
+    @PostConstruct
+    public void init(){
+        Predicate<Action> predicate = action -> MSG_EMAIL_SUBJECT.equals(action.getParameterValue(MailActionExecuter.PARAM_SUBJECT));
+        openeActionServiceAspect.addBeforeActionInterceptor(predicate, this::beforeExecuteAction);
     }
 
-    public void beforeExecuteAction(Method method, Object[] args, Object target) {
-        Action mail = (Action) args[0];
-        if (!MSG_EMAIL_SUBJECT.equals(mail.getParameterValue(MailActionExecuter.PARAM_SUBJECT))) {
-            return;
-        }
+    private void beforeExecuteAction(Action mail) {
         String recipientEmail = (String) mail.getParameterValue(MailActionExecuter.PARAM_TO);
         getUserPreferencesLocale(recipientEmail).ifPresent(
                 locale -> mail.setParameterValue(MailActionExecuter.PARAM_LOCALE, locale));

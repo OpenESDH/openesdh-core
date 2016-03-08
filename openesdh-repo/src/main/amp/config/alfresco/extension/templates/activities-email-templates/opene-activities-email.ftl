@@ -47,54 +47,15 @@
                                              ${message('recent.activities')}
                                           </div>
                                           <div style="font-size: 13px; margin-top: 10px;">
-                                             ${date?datetime?string("dd-MM-yyyy hh:mm")}
+                                             ${date?datetime?string("dd-MM-yyyy hh:mm")} 
                                           </div>
                                           <div style="font-size: 14px; margin: 18px 0px 24px 0px; padding-top: 18px; border-top: 1px solid #aaaaaa;">
                                              <#if activities?exists && activities?size &gt; 0>
                                                  <#list activities as activityObj>
                                                     <#assign activity=activityObj.activitySummary>
                                                     <#assign activityType=activityObj.activityType>
-                                                    <#switch activityObj.activityType>
-                                                       <#case "dk.openesdh.case-update">
-                                                          <#assign detail=message(activityType?html, activity.modifierDisplayName, activity.caseTitle, activity.caseId)!"">                                                          
-                                                          <#break>
-                                                       <#case "dk.openesdh.case.member-add">
-                                                          <#assign detail=message(activityType?html, activity.modifierDisplayName, activity.member, activity.role, activity.caseTitle, activity.caseId)!"">                                                          
-                                                          <#break>
-                                                       <#case "dk.openesdh.case.member-remove">
-                                                          <#assign detail=message(activityType?html, activity.modifierDisplayName, activity.member, activity.role, activity.caseTitle, activity.caseId)!"">                                                          
-                                                          <#break>
-                                                       <#case "dk.openesdh.case.workflow-start">
-                                                          <#assign detail=message(activityType?html, activity.modifierDisplayName, activity.workflowDescription, activity.caseTitle, activity.caseId)!"">                                                          
-                                                          <#break>
-                                                       <#case "dk.openesdh.case.workflow-cancel">
-                                                          <#assign detail=message(activityType?html, activity.modifierDisplayName, activity.workflowDescription, activity.caseTitle, activity.caseId)!"">                                                          
-                                                          <#break>
-                                                       <#case "dk.openesdh.case.workflow.task-end">
-                                                          <#assign detail=message(activityType?html, activity.modifierDisplayName, activity.workflowDescription, activity.caseTitle, activity.caseId)!"">                                                          
-                                                          <#break>
-                                                       <#case "dk.openesdh.case.workflow.task-approve">
-                                                          <#assign detail=message(activityType?html, activity.modifierDisplayName, activity.workflowDescription, activity.caseTitle, activity.caseId)!"">                                                          
-                                                          <#break>
-                                                       <#case "dk.openesdh.case.workflow.task-reject">
-                                                          <#assign detail=message(activityType?html, activity.modifierDisplayName, activity.workflowDescription, activity.caseTitle, activity.caseId)!"">                                                          
-                                                          <#break>
-                                                       <#case "dk.openesdh.case.document-upload">
-                                                          <#assign detail=message(activityType?html, activity.modifierDisplayName, activity.docTitle, activity.caseTitle, activity.caseId)!"">                                                          
-                                                          <#break>
-                                                       <#case "dk.openesdh.case.document.new.version-upload">
-                                                          <#assign detail=message(activityType?html, activity.modifierDisplayName, activity.docTitle, activity.caseTitle, activity.caseId)!"">                                                          
-                                                          <#break>
-                                                       <#case "dk.openesdh.case.document.attachment-upload">
-                                                          <#assign detail=message(activityType?html, activity.modifierDisplayName, activity.attachmentTitle, activity.docTitle, activity.caseTitle, activity.caseId)!"">                                                          
-                                                          <#break>
-                                                       <#case "dk.openesdh.case.document.attachment.new.version-upload">
-                                                          <#assign detail=message(activityType?html, activity.modifierDisplayName, activity.attachmentTitle, activity.docTitle, activity.caseTitle, activity.caseId)!"">                                                          
-                                                          <#break>
-                                                       <#default>
-                                                    </#switch>
                                                     <div class="activity">
-                                                       ${detail}
+                                                       ${activitymessage(activityObj)}
                                                     </div>
                                                  </#list>
                                              </#if>
