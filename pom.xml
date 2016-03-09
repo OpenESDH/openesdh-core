@@ -30,7 +30,7 @@
         
         <!-- OpenESDH module versions-->
         <dynamicextensionsalfresco.version>1.0-SNAPSHOT</dynamicextensionsalfresco.version>
-        <openesdh.simple.case.version>1.0.2-SNAPSHOT</openesdh.simple.case.version>
+        <openesdh.simple.case.version>1.0.1-SNAPSHOT</openesdh.simple.case.version>
         <openesdh.staff.case.version>1.0.2-SNAPSHOT</openesdh.staff.case.version>
         <openesdh.office.version>1.0-SNAPSHOT</openesdh.office.version>
         <openesdh.doctemplates.version>1.0-SNAPSHOT</openesdh.doctemplates.version>

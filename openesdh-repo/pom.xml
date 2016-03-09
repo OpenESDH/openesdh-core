@@ -2,7 +2,6 @@
 <project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://maven.apache.org/POM/4.0.0"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
     <modelVersion>4.0.0</modelVersion>
-    <groupId>dk.openesdh</groupId>
     <artifactId>openesdh-repo</artifactId>
     <version>1.0-SNAPSHOT</version>
     <name>OpenESDH Core AMP</name>
@@ -44,48 +43,55 @@
             <artifactId>alfresco-remote-api</artifactId>
             <version>${alfresco.version}</version>
         </dependency>
-
         <dependency>
             <groupId>${alfresco.groupId}</groupId>
             <artifactId>alfresco-repository</artifactId>
         </dependency>
 
+        <!--Simple case dependencies-->
         <dependency>
-            <groupId>dk.openesdh</groupId>
-            <artifactId>openesdh-simple-case</artifactId>
+            <groupId>dk.openesdh.case</groupId>
+            <artifactId>simple-case-repo</artifactId>
             <version>${openesdh.simple.case.version}</version>
             <type>amp</type>
         </dependency>
-
         <dependency>
-            <groupId>dk.openesdh</groupId>
-            <artifactId>openesdh-simple-case</artifactId>
+            <groupId>dk.openesdh.case</groupId>
+            <artifactId>simple-case-repo</artifactId>
             <version>${openesdh.simple.case.version}</version>
             <classifier>classes</classifier>
             <scope>compile</scope>
         </dependency>
-
         <dependency>
-            <groupId>dk.openesdh</groupId>
-            <artifactId>openesdh-simple-case</artifactId>
+            <groupId>dk.openesdh.case</groupId>
+            <artifactId>simple-case-repo</artifactId>
             <version>${openesdh.simple.case.version}</version>
             <classifier>config</classifier>
             <scope>compile</scope>
         </dependency>
-        
-        <dependency>
-            <groupId>com.google.guava</groupId>
-            <artifactId>guava</artifactId>
-            <version>15.0</version>
-        </dependency>
 
+        <!--document templates module-->
+        <dependency>
+            <groupId>dk.openesdh</groupId>
+            <artifactId>openesdh-doc-templates</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>amp</type>
+        </dependency>
+       <!-- <dependency>
+            <groupId>dk.openesdh</groupId>
+            <artifactId>openesdh-doc-templates</artifactId>
+            <version>1.0-SNAPSHOT</version>
+            <type>classes</type>
+            <scope>compile</scope>
+        </dependency>-->
         <!-- Test dependencies -->
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <scope>test</scope>
         </dependency>
-        
+
+        <!--Annotated webscripts dependencies-->
         <dependency>
             <groupId>com.github.dynamicextensionsalfresco</groupId>
             <artifactId>annotations</artifactId>
@@ -115,6 +121,12 @@
             <artifactId>webscripts</artifactId>
             <version>${dynamicextensionsalfresco.version}</version>
             <classifier>classes</classifier>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>15.0</version>
         </dependency>
         <dependency>
             <groupId>fr.opensagres.xdocreport</groupId>
