@@ -12,6 +12,8 @@ import java.util.Set;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.person.PersonServiceImpl;
 import org.alfresco.repo.tenant.TenantService;
+import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.MutableAuthenticationService;
@@ -34,6 +36,10 @@ public class UsersServiceImpl implements UsersService {
     private static final String ERROR_GENERAL = "person.err.userCSV.general";
     private static final String MSG_CREATED = "person.msg.userCSV.created";
     private static final String MSG_EXISTING = "person.msg.userCSV.existing";
+
+    @Autowired
+    @Qualifier("NodeService")
+    private NodeService nodeService;
 
     @Autowired
     @Qualifier("PersonService")
@@ -72,6 +78,12 @@ public class UsersServiceImpl implements UsersService {
         } catch (Exception e) {
             throw new Exception(I18NUtil.getMessage(ERROR_GENERAL), e);
         }
+    }
+
+    @Override
+    public void setEmailFeedDisabled(String userId, boolean emailFeedDisabled) {
+        NodeRef userRef = personService.getPerson(userId);
+        nodeService.setProperty(userRef, ContentModel.PROP_EMAIL_FEED_DISABLED, emailFeedDisabled);
     }
 
     private JSONObject addUsers(List<User> users) throws JSONException {
