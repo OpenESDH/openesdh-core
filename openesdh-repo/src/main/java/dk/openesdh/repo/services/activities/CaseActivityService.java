@@ -1,6 +1,7 @@
 package dk.openesdh.repo.services.activities;
 
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 import org.alfresco.query.PagingRequest;
@@ -96,5 +97,9 @@ public interface CaseActivityService {
     void postActivity(String caseId, String activityType, Function<NodeRef, JSONObject> activityJsonFunction);
 
     JSONObject createNewActivity(String caseId, NodeRef caseNodeRef);
+
+    void notifyUser(String activityType, String userId, String jsonData);
+
+    Set<String> getCaseMembersToNotify(String caseId, NodeRef caseNodeRef);
 
 }

@@ -105,18 +105,20 @@ public class CaseDocumentTestHelper {
 
     public void removeNodesAndDeleteUsersInTransaction(final List<NodeRef> nodes, final List<NodeRef> cases,
             final List<String> userNames) {
-        transactionRunner.runInTransactionAsAdmin(() -> {
-            cases.stream()
-                    .filter(Objects::nonNull)
-                    .forEach(this::removeCase);
-            nodes.stream()
-                    .filter(Objects::nonNull)
-                    .filter(nodeService::exists)
-                    .forEach(nodeService::deleteNode);
-            userNames.stream()
-                    .filter(Objects::nonNull)
-                    .forEach(caseHelper::deleteDummyUser);
-            return true;
+        transactionRunner.runInTransaction(() -> {
+            return transactionRunner.runAsSystem(()->{
+                cases.stream()
+                        .filter(Objects::nonNull)
+                        .forEach(this::removeCase);
+                nodes.stream()
+                        .filter(Objects::nonNull)
+                        .filter(nodeService::exists)
+                        .forEach(nodeService::deleteNode);
+                userNames.stream()
+                        .filter(Objects::nonNull)
+                        .forEach(caseHelper::deleteDummyUser);
+                return true;                
+            });
         });
     }
 

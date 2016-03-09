@@ -188,6 +188,21 @@ public class CaseActivityServiceImpl implements CaseActivityService {
         NodeRef caseNodeRef = caseService.getCaseById(caseId);
         postActivity(caseId, caseNodeRef, activityType, () -> activityJsonFunction.apply(caseNodeRef));
     }
+    
+    @Override
+    public Set<String> getCaseMembersToNotify(String caseId, NodeRef caseNodeRef) {
+        String currentUser = AuthenticationUtil.getFullyAuthenticatedUser();
+        Set<String> result = caseOwnersService.getCaseOwnersUserIds(caseNodeRef);
+        result.addAll(getMembersWithFavouriteCase(caseId, caseNodeRef));
+        return result.stream()
+                .filter(userId -> !userId.equals(currentUser))
+                .collect(Collectors.toSet());
+    }
+
+    @Override
+    public void notifyUser(String activityType, String userId, String jsonData) {
+        activityService.postActivity(activityType, null, null, jsonData, userId);
+    }
 
     private int countCurrentUserActivities(int minFeedId) {
         return activityService.getUserFeedEntries(AuthenticationUtil.getFullyAuthenticatedUser(), null, false,
@@ -234,21 +249,12 @@ public class CaseActivityServiceImpl implements CaseActivityService {
     }
 
     private void postActivity(String caseId, NodeRef caseNodeRef, String activityType, Supplier<JSONObject> activityJsonSupplier) {
-        Set<String> usersToNotify = getUsersToNotify(caseId, caseNodeRef);
+        Set<String> usersToNotify = getCaseMembersToNotify(caseId, caseNodeRef);
         if (usersToNotify.isEmpty()) {
             return;
         }
         String activity = activityJsonSupplier.get().toJSONString();
         usersToNotify.forEach(userId -> notifyUser(activityType, userId, activity));
-    }
-
-    private Set<String> getUsersToNotify(String caseId, NodeRef caseNodeRef) {
-        String currentUser = AuthenticationUtil.getFullyAuthenticatedUser();
-        Set<String> result = caseOwnersService.getCaseOwnersUserIds(caseNodeRef);
-        result.addAll(getMembersWithFavouriteCase(caseId, caseNodeRef));
-        return result.stream()
-                .filter(userId -> !userId.equals(currentUser))
-                .collect(Collectors.toSet());
     }
 
     private Set<String> getMembersWithFavouriteCase(String caseId, NodeRef caseNodeRef) {
@@ -266,10 +272,6 @@ public class CaseActivityServiceImpl implements CaseActivityService {
                 .map(caseIds -> caseIds)
                 .filter(caseIds -> caseIds.contains(caseId))
                 .isPresent();
-    }
-
-    private void notifyUser(String activityType, String userId, String jsonData) {
-        activityService.postActivity(activityType, null, null, jsonData, userId);
     }
 
     /**
