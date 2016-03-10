@@ -178,7 +178,7 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
         Map<QName, Serializable> params = new HashMap<>();
 
         setNodeRefProp(params, WorkflowModel.ASSOC_ASSIGNEE, workflow.getAssignTo());
-        setNodeRefProp(params, WorkflowModel.ASSOC_GROUP_ASSIGNEE, workflow.getAssignToGroup());
+        setGroupNodeRefProp(params, WorkflowModel.ASSOC_GROUP_ASSIGNEE, workflow.getAssignToGroup());
         setNodeRefListProp(params, WorkflowModel.ASSOC_ASSIGNEES, workflow.getAssignees());
         setNodeRefListProp(params, WorkflowModel.ASSOC_GROUP_ASSIGNEES, workflow.getGroupAssignees());
         params.put(WorkflowModel.PROP_WORKFLOW_DUE_DATE, workflow.getDueDate());
@@ -236,7 +236,8 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
 
     private void grantCaseAccessToGroupAssignee(Map<QName, Serializable> workflowParams) {
         NodeRef groupAssigneeNodeRef = (NodeRef) workflowParams.get(WorkflowModel.ASSOC_GROUP_ASSIGNEE);
-        grantCaseAccessToPeople(getPeopleFromGroup(groupAssigneeNodeRef), workflowParams);
+        grantCaseAccessToPeople(getPeopleFromGroup(groupAssigneeNodeRef),
+                workflowParams);
     }
 
     @SuppressWarnings("unchecked")
@@ -294,6 +295,17 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
 
     private String getCaseReaderRole(NodeRef caseNodeRef) {
         return casePermissionService.getPermissionName(caseNodeRef, CasePermission.READER);
+    }
+
+    private void setGroupNodeRefProp(Map<QName, Serializable> params, QName prop, String groupId) {
+        if (StringUtils.isEmpty(groupId)) {
+            return;
+        }
+        if (NodeRef.isNodeRef(groupId)) {
+            params.put(prop, new NodeRef(groupId));
+        } else {
+            params.put(prop, authorityService.getAuthorityNodeRef(groupId));
+        }
     }
 
     private void setNodeRefProp(Map<QName, Serializable> params, QName prop, String value) {
