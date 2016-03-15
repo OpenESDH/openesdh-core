@@ -282,6 +282,18 @@
             </dependencies>
         </profile>
         <profile>
+            <id>google-docs</id>
+            <!--google docs integrations--> 
+            <dependencies>
+                <dependency>
+                    <groupId>org.alfresco.integrations</groupId>
+                    <artifactId>alfresco-googledocs-repo</artifactId>
+                    <version>3.0.2</version>
+                    <type>amp</type>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
             <id>project-rooms</id>
             <dependencies>
                 <dependency>
