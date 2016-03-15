@@ -10,4 +10,8 @@ public interface CasePermissionService {
     public String getPermissionName(QName caseType, CasePermission casePermission);
 
     public String getPermissionName(NodeRef caseNodeRef, CasePermission casePermission);
+
+    void checkCaseCreatorPermissions(QName caseTypeQName);
+
+    boolean hasCaseCreatorPermission(QName caseTypeQName);
 }
