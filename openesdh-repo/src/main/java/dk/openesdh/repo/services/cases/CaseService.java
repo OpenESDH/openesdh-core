@@ -173,8 +173,6 @@ public interface CaseService extends HasStatus<CaseStatus> {
 
     public JSONArray buildConstraintsJSON(ConstraintDefinition constraint) throws JSONException;
 
-    public void checkCaseCreatorPermissions(QName caseTypeQName);
-
     /**
      * Get current user permissions for the case
      *
