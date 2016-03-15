@@ -8,12 +8,15 @@ import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.namespace.QName;
 import org.json.JSONArray;
 import org.json.JSONException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.extensions.webscripts.AbstractWebScript;
 import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.extensions.webscripts.WebScriptResponse;
 
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CasePermissionService;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.utils.Utils;
 
@@ -22,6 +25,9 @@ public class CaseTypesForCaseCreator extends AbstractWebScript {
     // Dependencies
     private DictionaryService dictionaryService;
     private CaseService caseService;
+    @Autowired
+    @Qualifier("CasePermissionService")
+    private CasePermissionService casePermissionService;
 
     public void setDictionaryService(DictionaryService dictionaryService) {
         this.dictionaryService = dictionaryService;
@@ -62,7 +68,7 @@ public class CaseTypesForCaseCreator extends AbstractWebScript {
         }
 
         try {
-            caseService.checkCaseCreatorPermissions(caseType);
+            casePermissionService.checkCaseCreatorPermissions(caseType);
         } catch (AccessDeniedException ex) {
             return false;
         }

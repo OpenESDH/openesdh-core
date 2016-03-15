@@ -57,7 +57,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.model.CaseInfo;
@@ -75,10 +74,6 @@ import dk.openesdh.repo.services.system.OpenESDHFoldersService;
  */
 @Service("CaseService")
 public class CaseServiceImpl implements CaseService {
-
-    private static final String MSG_NO_CASE_CREATOR_PERMISSION_DEFINED = "security.permission.err_no_case_creator_permission_defined";
-    private static final String MSG_NO_CASE_CREATOR_GROUP_DEFINED = "security.permission.err_no_case_creator_group_defined";
-    private static final String MSG_CASE_CREATOR_PERMISSION_VIOLATION = "security.permission.err_case_creator_permission_violation";
 
     private final Logger logger = LoggerFactory.getLogger(CaseServiceImpl.class);
 
@@ -361,34 +356,6 @@ public class CaseServiceImpl implements CaseService {
             result.put(lvPair);
         }
         return result;
-    }
-
-    @Override
-    public void checkCaseCreatorPermissions(QName caseTypeQName) {
-        String caseCreatorPermissionName = casePermissionService.getPermissionName(caseTypeQName, CasePermission.CREATOR);
-        if (StringUtils.isEmpty(caseCreatorPermissionName)) {
-            throw new AccessDeniedException(I18NUtil.getMessage(MSG_NO_CASE_CREATOR_PERMISSION_DEFINED,
-                    caseTypeQName.getLocalName()));
-        }
-
-        String caseCreatorGroup = PermissionService.GROUP_PREFIX + caseCreatorPermissionName;
-        if (!caseCreatorGroupExists(caseCreatorGroup)) {
-            throw new AccessDeniedException(I18NUtil.getMessage(MSG_NO_CASE_CREATOR_GROUP_DEFINED,
-                    caseTypeQName.getLocalName()));
-        }
-
-        if (AuthenticationUtil.isRunAsUserTheSystemUser()) {
-            return;
-        }
-
-        Set<String> currentUserContainingGroups = authorityService.getContainingAuthoritiesInZone(
-                AuthorityType.GROUP,
-                AuthenticationUtil.getFullyAuthenticatedUser(), AuthorityService.ZONE_APP_DEFAULT, null, 0);
-
-        if (!currentUserContainingGroups.contains(caseCreatorGroup)) {
-            throw new AccessDeniedException(I18NUtil.getMessage(MSG_CASE_CREATOR_PERMISSION_VIOLATION,
-                    caseTypeQName.getLocalName()));
-        }
     }
 
     @Override
@@ -797,10 +764,6 @@ public class CaseServiceImpl implements CaseService {
 
     private String getCaseRoleGroupAuthorityName(String caseId, String role) {
         return "case_" + caseId + "_" + role;
-    }
-
-    private boolean caseCreatorGroupExists(String caseCreatorGroup) {
-        return authorityService.authorityExists(caseCreatorGroup);
     }
 
     /**
