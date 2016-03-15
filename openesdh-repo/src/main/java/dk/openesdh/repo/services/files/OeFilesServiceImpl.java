@@ -122,6 +122,7 @@ public class OeFilesServiceImpl implements OeFilesService {
             json.put("modified", ((Date) props.get(ContentModel.PROP_MODIFIED)).getTime());
         }
         json.put("comments", getComments(fileNode));
+        json.put("version", props.get(ContentModel.PROP_VERSION_LABEL));
 
         JSONObject googleDocProps = getGoogleDocProps(props);
         if (!googleDocProps.isEmpty()) {
