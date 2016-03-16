@@ -108,7 +108,8 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
                 .map(Serializable::toString);
     }
 
-    private Optional<Serializable> getCaseIdByTaskId(String taskId) {
+    @Override
+    public Optional<Serializable> getCaseIdByTaskId(String taskId) {
         return getCaseIdFromWorkflowPath(workflowService.getTaskById(taskId).getPath().getId());
     }
 
