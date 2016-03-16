@@ -3,7 +3,6 @@ package dk.openesdh.repo.services.audit.entryhandlers;
 import static dk.openesdh.repo.services.audit.AuditEntryHandler.REC_TYPE.ATTACHMENT;
 import static dk.openesdh.repo.services.audit.AuditEntryHandler.REC_TYPE.CASE;
 import static dk.openesdh.repo.services.audit.AuditEntryHandler.REC_TYPE.DOCUMENT;
-import static dk.openesdh.repo.services.audit.AuditEntryHandler.REC_TYPE.NOTE;
 import static dk.openesdh.repo.services.audit.AuditEntryHandler.REC_TYPE.SYSTEM;
 import static dk.openesdh.repo.services.audit.AuditUtils.getLastPathElement;
 import static dk.openesdh.repo.services.audit.AuditUtils.getTitle;
@@ -49,7 +48,8 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
     public static final String TRANSACTION_ACTION_CREATE_VERSION = "CREATE VERSION";
     public static final String TRANSACTION_ACTION_UPDATE_NODE_PROPERTIES = "updateNodeProperties";
 
-    private static final int MAX_NOTE_TEXT_LENGTH = 40;
+    public static final String TRANSACTION_PROPERTIES_ADD = "/esdh/transaction/properties/add";
+    public static final String TRANSACTION_PROPERTIES_TO = "/esdh/transaction/properties/to";
 
     private final DictionaryService dictionaryService;
     private final List<QName> ignoredProperties;
@@ -60,11 +60,6 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
         this.dictionaryService = dictionaryService;
         this.ignoredProperties = ignoredProperties;
         this.trPathEntryHandlers = trPathEntryHandlers;
-    }
-
-    public void addTransactionPathEntryHandler(Predicate<Map<String, Serializable>> predicate,
-            IAuditEntryHandler handler) {
-        this.trPathEntryHandlers.put(predicate, handler);
     }
 
     @Override
@@ -111,8 +106,7 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
         String path = (String) values.get(TRANSACTION_PATH);
         Set<QName> aspectsAdd = (Set<QName>) values.get(TRANSACTION_ASPECT_ADD);
 
-        Map<QName, Serializable> properties = (Map<QName, Serializable>) values
-                .get("/esdh/transaction/properties/add");
+        Map<QName, Serializable> properties = (Map<QName, Serializable>) values.get(TRANSACTION_PROPERTIES_ADD);
         JSONObject auditEntry = createNewAuditEntry(user, time);
         if (path.contains(OpenESDHModel.DOCUMENTS_FOLDER_NAME)) {
             // TODO: These checks should check for subtypes using
@@ -142,10 +136,6 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
             } else {
                 return Optional.empty();
             }
-        } else if (type.startsWith("note:")) {
-            String trimmedNote = StringUtils.abbreviate((String) properties.get(OpenESDHModel.PROP_NOTE_CONTENT), MAX_NOTE_TEXT_LENGTH);
-            auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.note.added", trimmedNote));
-            auditEntry.put(TYPE, getTypeMessage(NOTE));
         } else {
             auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.case.created", getLastPathElement(values)[1]));
             auditEntry.put(TYPE, getTypeMessage(CASE));
