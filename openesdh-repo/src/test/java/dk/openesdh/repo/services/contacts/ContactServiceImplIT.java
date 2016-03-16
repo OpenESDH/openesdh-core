@@ -28,10 +28,10 @@ import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.exceptions.contacts.NoSuchContactException;
 import dk.openesdh.repo.helper.CaseHelper;
-import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.model.ContactInfo;
 import dk.openesdh.repo.model.ContactType;
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.TransactionRunner;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -66,6 +66,7 @@ public class ContactServiceImplIT {
     private static final String TEST_CONTACT_NOTES = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque dictum nisl vitae turpis dictum, tempus commodo mauris tempor.";
 
     private NodeRef testContactNodeRef;
+    private NodeRef testContactNodeRef2;
     private NodeRef testPerson;
 
     @Before
@@ -78,6 +79,12 @@ public class ContactServiceImplIT {
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ADMIN_USER_NAME);
         if (testContactNodeRef != null) {
             nodeService.deleteNode(testContactNodeRef);
+            testContactNodeRef = null;
+        }
+
+        if (testContactNodeRef2 != null) {
+            nodeService.deleteNode(testContactNodeRef2);
+            testContactNodeRef2 = null;
         }
     }
 
