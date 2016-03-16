@@ -82,16 +82,17 @@ public class OeFilesServiceImpl implements OeFilesService {
     public List<JSONObject> getFiles(String authorityName) {
         Optional<NodeRef> authorityFolder = getAuthorityFolder(authorityName);
         if (authorityFolder.isPresent()) {
-            List fileList = nodeService.getChildAssocs(authorityFolder.get())
+            List<JSONObject> fileList = nodeService.getChildAssocs(authorityFolder.get())
                     .stream()
                     .map(ChildAssociationRef::getChildRef)
                     .map(fileNode -> fileNodeToJSONObject(fileNode, authorityName))
                     .collect(Collectors.toList());
             return fileList;
         }
-        return Collections.EMPTY_LIST;
+        return Collections.emptyList();
     }
 
+    @SuppressWarnings("unchecked")
     private JSONObject fileNodeToJSONObject(NodeRef fileNode, String authorityName) {
         Map<QName, Serializable> props = nodeService.getProperties(fileNode);
         JSONObject json = new JSONObject();
@@ -111,6 +112,7 @@ public class OeFilesServiceImpl implements OeFilesService {
             json.put("creator", (person.getFirstName() + " " + person.getLastName().trim()));
         }
         json.put("created", ((Date) props.get(ContentModel.PROP_CREATED)).getTime());
+
         if (!props.get(ContentModel.PROP_MODIFIED).equals(props.get(ContentModel.PROP_CREATED))) {
             NodeRef modifierNodeRef = personService.getPersonOrNull((String) props.get(ContentModel.PROP_MODIFIER));
             if (modifierNodeRef != null) {
@@ -120,6 +122,22 @@ public class OeFilesServiceImpl implements OeFilesService {
             json.put("modified", ((Date) props.get(ContentModel.PROP_MODIFIED)).getTime());
         }
         json.put("comments", getComments(fileNode));
+
+        JSONObject googleDocProps = getGoogleDocProps(props);
+        if (!googleDocProps.isEmpty()) {
+            json.put("googledocs", googleDocProps);
+        }
+        return json;
+    }
+
+    @SuppressWarnings("unchecked")
+    private JSONObject getGoogleDocProps(Map<QName, Serializable> props) {
+        JSONObject json = new JSONObject();
+        props.entrySet().stream()
+                .filter(e -> e.getKey().getNamespaceURI().equals("http://www.alfresco.org/model/googledocs/2.0"))
+                .forEach(e -> {
+                    json.put(e.getKey().getLocalName(), e.getValue());
+                });
         return json;
     }
 
@@ -130,6 +148,7 @@ public class OeFilesServiceImpl implements OeFilesService {
                 .collect(JSONArrayCollector.simple());
     }
 
+    @SuppressWarnings("unchecked")
     private JSONObject commentNodeToJSONObject(NodeRef commentNode) {
         Map<QName, Serializable> props = nodeService.getProperties(commentNode);
         JSONObject json = new JSONObject();
