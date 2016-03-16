@@ -48,6 +48,7 @@ import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.audit.entryhandlers.CaseEmailSentAuditEntryHandler;
+import dk.openesdh.repo.services.audit.entryhandlers.CaseNoteAuditEntryHandler;
 import dk.openesdh.repo.services.audit.entryhandlers.MemberAddAuditEntryHandler;
 import dk.openesdh.repo.services.audit.entryhandlers.MemberRemoveAuditEntryHandler;
 import dk.openesdh.repo.services.audit.entryhandlers.PartyAddAuditEntryHandler;
@@ -103,6 +104,8 @@ public class AuditSearchServiceImpl implements AuditSearchService {
         auditEntryHandlers.put(WORKFLOW_END_TASK_CASE, new WorkflowTaskEndAuditEntryHandler());
         auditEntryHandlers.put(WORKFLOW_CANCEL_CASE, new WorkflowCancelAuditEntryHandler());
         auditEntryHandlers.put(CASE_EMAIL_RECIPIENTS, new CaseEmailSentAuditEntryHandler());
+
+        addTransactionPathEntryHandler(CaseNoteAuditEntryHandler::canHandle, new CaseNoteAuditEntryHandler());
     }
 
     private void initIgnoredProperties() {
