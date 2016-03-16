@@ -1,6 +1,7 @@
 package dk.openesdh.repo.services.contacts;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
@@ -44,7 +45,9 @@ public class ContactDAOImpl {
     private NamespacePrefixResolver namespacePrefixResolver;
 
     NodeRef createContact(String email, String contactType, Map<QName, Serializable> typeProps, Set<String> authorityZones) {
-        typeProps.put(ContentModel.PROP_NAME, DigestUtils.md5Hex(email));
+        // Prepending time stamp to prevent PROP_NAME duplicates when contact email is changed and the old value is used for a new contact.
+        // Duplicate PROP_NAME's cause "Duplicate child name" exceptions when adding contacts to cases, since the PROP_NAME is used to create association name.
+        typeProps.put(ContentModel.PROP_NAME, DigestUtils.md5Hex(new Date().getTime() + email));
         QName cType = contactType.equalsIgnoreCase("organization")? OpenESDHModel.TYPE_CONTACT_ORGANIZATION : OpenESDHModel.TYPE_CONTACT_PERSON;
 
         NodeRef childRef;
