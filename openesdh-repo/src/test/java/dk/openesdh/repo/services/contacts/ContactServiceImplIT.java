@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
+import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -28,10 +29,10 @@ import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.exceptions.contacts.NoSuchContactException;
 import dk.openesdh.repo.helper.CaseHelper;
-import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.model.ContactInfo;
 import dk.openesdh.repo.model.ContactType;
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.TransactionRunner;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -66,6 +67,7 @@ public class ContactServiceImplIT {
     private static final String TEST_CONTACT_NOTES = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Quisque dictum nisl vitae turpis dictum, tempus commodo mauris tempor.";
 
     private NodeRef testContactNodeRef;
+    private NodeRef testContactNodeRef2;
     private NodeRef testPerson;
 
     @Before
@@ -78,6 +80,12 @@ public class ContactServiceImplIT {
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.ADMIN_USER_NAME);
         if (testContactNodeRef != null) {
             nodeService.deleteNode(testContactNodeRef);
+            testContactNodeRef = null;
+        }
+
+        if (testContactNodeRef2 != null) {
+            nodeService.deleteNode(testContactNodeRef2);
+            testContactNodeRef2 = null;
         }
     }
 
@@ -244,6 +252,24 @@ public class ContactServiceImplIT {
             }
         }
 
+    }
+
+    @Test
+    public void shouldPreventNamePropertyDuplicatesForContacts() {
+        transactionRunner.runInTransaction(() -> {
+            testContactNodeRef = contactService.createContact(TEST_ORG_CONTACT_EMAIL, ContactType.ORGANIZATION.name(), createOrgContactProps());
+            nodeService.setProperty(testContactNodeRef, OpenESDHModel.PROP_CONTACT_EMAIL, TEST_PERSON_CONTACT_EMAIL);
+            return null;
+        });
+        
+        transactionRunner.runInNewTransaction(()->{
+            testContactNodeRef2 = contactService.createContact(TEST_ORG_CONTACT_EMAIL, ContactType.PERSON.name(), createOrgContactProps());
+            return null;
+        });
+
+        String contactName1 = (String) nodeService.getProperty(testContactNodeRef, ContentModel.PROP_NAME);
+        String contactName2 = (String) nodeService.getProperty(testContactNodeRef2, ContentModel.PROP_NAME);
+        Assert.assertNotEquals("PROP_NAME values should be unique to prevent duplicates of associations child names", contactName1, contactName2);
     }
 
     private String wrongPropValueMessage(QName... prop) {
