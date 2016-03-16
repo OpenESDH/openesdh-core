@@ -269,7 +269,7 @@ public class ContactServiceImplIT {
 
         String contactName1 = (String) nodeService.getProperty(testContactNodeRef, ContentModel.PROP_NAME);
         String contactName2 = (String) nodeService.getProperty(testContactNodeRef2, ContentModel.PROP_NAME);
-        Assert.assertNotEquals("PROP_NAME values should be unique to prevent duplicates of associations child names", contactName1, contactName2);
+        Assert.assertFalse("PROP_NAME values should be unique to prevent duplicates of associations child names", contactName1.equals(contactName2));
     }
 
     private String wrongPropValueMessage(QName... prop) {
