@@ -17,15 +17,18 @@ public interface NodeInfoService {
     String NODE_TYPE_PROPERTY = "type";
 
     class NodeInfo {
+
         public Map<QName, Serializable> properties;
         public Set<QName> aspects;
         public QName nodeClassName;
     }
 
-    public NodeInfo getNodeInfo(NodeRef nodeRef);
+    NodeInfo getNodeInfo(NodeRef nodeRef);
 
     JSONObject buildJSON(NodeInfo nodeInfo);
 
     JSONObject getSelectedProperties(NodeInfo nodeInfo, Collection<QName> objectProps);
+
+    org.json.simple.JSONObject getNodeParametersJSON(NodeRef nodeRef);
 
 }
