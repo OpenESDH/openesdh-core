@@ -6,9 +6,12 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Set;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
+import org.alfresco.repo.domain.node.ContentDataWithId;
 import org.alfresco.service.cmr.dictionary.Constraint;
 import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
 import org.alfresco.service.cmr.dictionary.DataTypeDefinition;
@@ -16,7 +19,9 @@ import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.dictionary.PropertyDefinition;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.security.NoSuchPersonException;
 import org.alfresco.service.cmr.security.PersonService;
+import org.alfresco.service.namespace.NamespaceException;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.json.JSONArray;
@@ -28,11 +33,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.Sets;
+
 /**
  * @author Torben Lauritzen.
  */
 @Service("NodeInfoService")
 public class NodeInfoServiceImpl implements NodeInfoService {
+
+    private static final Set<QName> personProperties = Sets.newHashSet(
+            ContentModel.PROP_CREATOR,
+            ContentModel.PROP_MODIFIER);
 
     @Autowired
     @Qualifier("NodeService")
@@ -102,7 +114,7 @@ public class NodeInfoServiceImpl implements NodeInfoService {
         if (Date.class.equals(value.getClass())) {
             valueObj.put("type", "Date");
             valueObj.put("value", ((Date) value).getTime());
-        } else if (propertyQName.getPrefixString().equals("modifier") || propertyQName.getPrefixString().equals("creator")) {
+        } else if (personProperties.contains(propertyQName)) {
             valueObj = getPersonValue((String) value);
         } else if (propertyDefinition == null) {
             valueObj.put("value", value.toString());
@@ -145,18 +157,23 @@ public class NodeInfoServiceImpl implements NodeInfoService {
         ArrayList<String> fullNames = new ArrayList<>();
         List<String> nodeRefs = new ArrayList<>();
         for (String userName : userNames) {
-            NodeRef personNodeRef = personService.getPerson(userName);
-            nodeRefs.add(personNodeRef.toString());
-            String firstName = (String) nodeService.getProperty(personNodeRef, ContentModel.PROP_FIRSTNAME);
-            String lastName = (String) nodeService.getProperty(personNodeRef, ContentModel.PROP_LASTNAME);
-            String fullName = StringUtils.isEmpty(lastName) ? firstName : firstName + " " + lastName;
-            fullNames.add(fullName);
+            PersonService.PersonInfo person = getPersonInfo(userName);
+            nodeRefs.add(person.getNodeRef().toString());
+            fullNames.add(getPersonFullName(person));
         }
         String commaDelimitedFullNames = StringUtils.collectionToDelimitedString(fullNames, ", ");
         valueObj.put("fullname", commaDelimitedFullNames);
         valueObj.put("nodeRef", new JSONArray(nodeRefs));
 
         return valueObj;
+    }
+
+    private PersonService.PersonInfo getPersonInfo(String userName) throws NoSuchPersonException {
+        return personService.getPerson(personService.getPerson(userName));
+    }
+
+    private String getPersonFullName(PersonService.PersonInfo person) {
+        return Joiner.on(" ").skipNulls().join(person.getFirstName(), person.getLastName()).trim();
     }
 
     private PropertyDefinition getPropertyDefinition(NodeInfo nodeInfo, QName propertyQName) {
@@ -183,6 +200,45 @@ public class NodeInfoServiceImpl implements NodeInfoService {
             }
         }
         return value;
+    }
+
+    @SuppressWarnings("unchecked")
+    public org.json.simple.JSONObject getNodeParametersJSON(NodeRef nodeRef) {
+        org.json.simple.JSONObject json = new org.json.simple.JSONObject();
+        Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
+        properties.forEach((qname, value) -> {
+            String ns = getNs(qname);
+            if (!json.containsKey(ns)) {
+                json.put(ns, new org.json.simple.JSONObject());
+            }
+            org.json.simple.JSONObject j = (org.json.simple.JSONObject) json.get(ns);
+            j.put(qname.getLocalName(), formatValue(qname, value));
+        });
+        return json;
+    }
+
+    private String getNs(QName qname) throws NamespaceException {
+        return namespaceService.getPrefixes(qname.getNamespaceURI())
+                .stream()
+                .findFirst()
+                .orElse(NamespaceService.CONTENT_MODEL_PREFIX);
+    }
+
+    @SuppressWarnings("unchecked")
+    private Object formatValue(QName qname, Serializable value) {
+        if (value instanceof Date) {
+            return ((Date) value).getTime();
+        } else if (personProperties.contains(qname)) {
+            return getPersonFullName(getPersonInfo((String) value));
+        } else if (qname.equals(ContentModel.PROP_CONTENT)) {
+            ContentDataWithId val = (ContentDataWithId) value;
+            org.json.simple.JSONObject content = new org.json.simple.JSONObject();
+            content.put("id", val.getId());
+            content.put("mimetype", val.getMimetype());
+            content.put("contentUrl", val.getContentUrl());
+            return content;
+        }
+        return Objects.toString(value, "");
     }
 
     public void setNamespaceService(NamespaceService namespaceService) {

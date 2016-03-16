@@ -35,6 +35,7 @@ import org.springframework.stereotype.Component;
 import fr.opensagres.xdocreport.core.utils.StringUtils;
 
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.NodeInfoService;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.CaseDocumentCopyService;
 import dk.openesdh.repo.services.documents.DocumentService;
@@ -70,6 +71,9 @@ public class OeFilesServiceImpl implements OeFilesService {
     @Autowired
     @Qualifier("CaseDocumentCopyService")
     private CaseDocumentCopyService caseDocumentCopyService;
+    @Autowired
+    @Qualifier("NodeInfoService")
+    private NodeInfoService nodeInfoService;
 
     @Override
     public JSONObject getFile(NodeRef nodeRef) {
@@ -94,51 +98,12 @@ public class OeFilesServiceImpl implements OeFilesService {
 
     @SuppressWarnings("unchecked")
     private JSONObject fileNodeToJSONObject(NodeRef fileNode, String authorityName) {
-        Map<QName, Serializable> props = nodeService.getProperties(fileNode);
-        JSONObject json = new JSONObject();
+        JSONObject json = nodeInfoService.getNodeParametersJSON(fileNode);
         json.put("nodeRef", fileNode.toString());
-        json.put("mimetype", ((ContentDataWithId) props.get(ContentModel.PROP_CONTENT)).getMimetype());
-        //there is no need to display filename
-        //json.put("name", (String) props.get(ContentModel.PROP_NAME));
-        json.put("title", (String) props.get(ContentModel.PROP_TITLE));
-
         if (authorityName.startsWith("GROUP_")) {
             json.put("group", authorityService.getAuthorityDisplayName(authorityName.substring(6)));
         }
-
-        NodeRef creatorNodeRef = personService.getPersonOrNull((String) props.get(ContentModel.PROP_CREATOR));
-        if (creatorNodeRef != null) {
-            PersonService.PersonInfo person = personService.getPerson(creatorNodeRef);
-            json.put("creator", (person.getFirstName() + " " + person.getLastName().trim()));
-        }
-        json.put("created", ((Date) props.get(ContentModel.PROP_CREATED)).getTime());
-
-        if (!props.get(ContentModel.PROP_MODIFIED).equals(props.get(ContentModel.PROP_CREATED))) {
-            NodeRef modifierNodeRef = personService.getPersonOrNull((String) props.get(ContentModel.PROP_MODIFIER));
-            if (modifierNodeRef != null) {
-                PersonService.PersonInfo person = personService.getPerson(modifierNodeRef);
-                json.put("modifier", (person.getFirstName() + " " + person.getLastName().trim()));
-            }
-            json.put("modified", ((Date) props.get(ContentModel.PROP_MODIFIED)).getTime());
-        }
         json.put("comments", getComments(fileNode));
-        json.put("version", props.get(ContentModel.PROP_VERSION_LABEL));
-
-        JSONObject googleDocProps = getGoogleDocProps(props);
-        if (!googleDocProps.isEmpty()) {
-            json.put("googledocs", googleDocProps);
-        }
-        return json;
-    }
-
-    @SuppressWarnings("unchecked")
-    private JSONObject getGoogleDocProps(Map<QName, Serializable> props) {
-        JSONObject json = new JSONObject();
-        props.entrySet().stream()
-                .filter(e -> e.getKey().getNamespaceURI().equals("http://www.alfresco.org/model/googledocs/2.0"))
-                .forEach(e -> {
-                    json.put(e.getKey().getLocalName(), e.getValue());
-                });
         return json;
     }
 
