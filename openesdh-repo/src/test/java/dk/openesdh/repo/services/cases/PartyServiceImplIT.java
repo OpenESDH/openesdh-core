@@ -80,11 +80,13 @@ public class PartyServiceImplIT {
     private static final String RECEIVER_ROLE = "Modtager";
     private static final String EMAIL = UUID.randomUUID() + "@openesdh.org";
     private static final String TEST_PERSON_CONTACT_EMAIL = "person_" + EMAIL;
+    private static final String TEST_PERSON2_CONTACT_EMAIL = "person2_" + EMAIL;
     private static final String TEST_ORG_CONTACT_EMAIL = "org_" + EMAIL;
 
     private NodeRef caseNodeRef;
 //    private NodeRef partyGroupNodeRef;
     private NodeRef testPersonContact;
+    private NodeRef testPersonContact2;
     private NodeRef testOrgContact;
     private final List<NodeRef> casesToClean = new ArrayList<>();
 
@@ -125,6 +127,10 @@ public class PartyServiceImplIT {
         }
         if (testPersonContact != null) {
             nodes.add(testPersonContact);
+        }
+
+        if (testPersonContact2 != null) {
+            nodes.add(testPersonContact2);
         }
 
         if (testOrgContact != null) {
@@ -360,4 +366,21 @@ public class PartyServiceImplIT {
             caseService.changeNodeStatus(caseNodeRef, CaseStatus.ACTIVE);
         }
     }
+
+    @Test
+    public void shouldPreventNamePropertyDuplicatesForContacts() {
+        transactionRunner.runInTransactionAsAdmin(() -> {
+            nodeService.setProperty(testPersonContact, OpenESDHModel.PROP_CONTACT_EMAIL,
+                    TEST_PERSON2_CONTACT_EMAIL);
+            testPersonContact2 = contactService.createContact(TEST_PERSON_CONTACT_EMAIL, ContactType.PERSON.name(),
+                    createContactProperties(TEST_PERSON_CONTACT_EMAIL));
+
+            return null;
+        });
+        String caseId = caseService.getCaseId(caseNodeRef);
+        partyService.addCaseParty(caseId, RECEIVER_ROLE, TEST_PERSON2_CONTACT_EMAIL);
+        partyService.addCaseParty(caseId, RECEIVER_ROLE, TEST_PERSON_CONTACT_EMAIL);
+        Assert.assertTrue("Successfully accomplished test", true);
+    }
 }
+

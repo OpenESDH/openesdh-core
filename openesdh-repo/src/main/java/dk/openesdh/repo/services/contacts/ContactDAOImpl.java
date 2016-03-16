@@ -1,7 +1,6 @@
 package dk.openesdh.repo.services.contacts;
 
 import java.io.Serializable;
-import java.util.Date;
 import java.util.Map;
 import java.util.Set;
 
@@ -13,7 +12,6 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.namespace.NamespacePrefixResolver;
 import org.alfresco.service.namespace.QName;
-import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,9 +43,8 @@ public class ContactDAOImpl {
     private NamespacePrefixResolver namespacePrefixResolver;
 
     NodeRef createContact(String email, String contactType, Map<QName, Serializable> typeProps, Set<String> authorityZones) {
-        // Prepending time stamp to prevent PROP_NAME duplicates when contact email is changed and the old value is used for a new contact.
+        // Removed PROP_NAME to prevent duplicates when contact email is changed and the old value is used for a new contact.
         // Duplicate PROP_NAME's cause "Duplicate child name" exceptions when adding contacts to cases, since the PROP_NAME is used to create association name.
-        typeProps.put(ContentModel.PROP_NAME, DigestUtils.md5Hex(new Date().getTime() + email));
         QName cType = contactType.equalsIgnoreCase("organization")? OpenESDHModel.TYPE_CONTACT_ORGANIZATION : OpenESDHModel.TYPE_CONTACT_PERSON;
 
         NodeRef childRef;
