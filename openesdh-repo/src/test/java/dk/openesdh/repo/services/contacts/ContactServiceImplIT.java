@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
-import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -252,24 +251,6 @@ public class ContactServiceImplIT {
             }
         }
 
-    }
-
-    @Test
-    public void shouldPreventNamePropertyDuplicatesForContacts() {
-        transactionRunner.runInTransaction(() -> {
-            testContactNodeRef = contactService.createContact(TEST_ORG_CONTACT_EMAIL, ContactType.ORGANIZATION.name(), createOrgContactProps());
-            nodeService.setProperty(testContactNodeRef, OpenESDHModel.PROP_CONTACT_EMAIL, TEST_PERSON_CONTACT_EMAIL);
-            return null;
-        });
-        
-        transactionRunner.runInNewTransaction(()->{
-            testContactNodeRef2 = contactService.createContact(TEST_ORG_CONTACT_EMAIL, ContactType.PERSON.name(), createOrgContactProps());
-            return null;
-        });
-
-        String contactName1 = (String) nodeService.getProperty(testContactNodeRef, ContentModel.PROP_NAME);
-        String contactName2 = (String) nodeService.getProperty(testContactNodeRef2, ContentModel.PROP_NAME);
-        Assert.assertFalse("PROP_NAME values should be unique to prevent duplicates of associations child names", contactName1.equals(contactName2));
     }
 
     private String wrongPropValueMessage(QName... prop) {
