@@ -15,6 +15,9 @@ import org.alfresco.service.namespace.NamespaceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 
+import dk.openesdh.repo.services.workflow.CaseWorkflowModelBuilder;
+import dk.openesdh.repo.services.workflow.WorkflowTaskService;
+
 public abstract class AbstractCaseWorkflowWebScript {
     @Autowired
     @Qualifier("WorkflowService")
@@ -29,6 +32,8 @@ public abstract class AbstractCaseWorkflowWebScript {
     private PersonService personService;
     @Autowired
     private DictionaryService dictionaryService;
+    @Autowired
+    private WorkflowTaskService workflowTaskService;
     
     protected List<Map<String, Object>> getWorkflowTasks() {
         WorkflowTaskQuery tasksQuery = new WorkflowTaskQuery();
@@ -37,8 +42,8 @@ public abstract class AbstractCaseWorkflowWebScript {
     }
     
     protected List<Map<String, Object>> getWorkflowTasks(WorkflowTaskQuery query) {
-        WorkflowModelBuilder modelBuilder = new WorkflowModelBuilder(namespaceService, nodeService,
-                authenticationService, personService, workflowService, dictionaryService);
+        WorkflowModelBuilder modelBuilder = new CaseWorkflowModelBuilder(namespaceService, nodeService,
+                authenticationService, personService, workflowService, dictionaryService, workflowTaskService);
         return workflowService.queryTasks(query, false)
                 .stream()
                 .map(task -> modelBuilder.buildSimple(task, null))

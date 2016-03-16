@@ -1,5 +1,6 @@
 package dk.openesdh.repo.services.workflow;
 
+import java.io.Serializable;
 import java.util.Map;
 import java.util.Optional;
 
@@ -34,5 +35,13 @@ public interface WorkflowTaskService {
      * @return case id
      */
     Optional<String> getWorkflowCaseId(String workflowOrTaskId);
+
+    /**
+     * Retrieves caseId for the provided workflow task
+     * 
+     * @param taskId
+     * @return
+     */
+    Optional<Serializable> getCaseIdByTaskId(String taskId);
 
 }
