@@ -225,7 +225,7 @@ public class NodeInfoServiceImpl implements NodeInfoService {
     }
 
     @SuppressWarnings("unchecked")
-    private Object formatValue(QName qname, Serializable value) {
+    public Object formatValue(QName qname, Serializable value) {
         if (value instanceof Date) {
             return ((Date) value).getTime();
         } else if (personProperties.contains(qname)) {
