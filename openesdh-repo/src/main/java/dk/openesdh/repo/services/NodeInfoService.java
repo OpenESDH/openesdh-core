@@ -31,4 +31,6 @@ public interface NodeInfoService {
 
     org.json.simple.JSONObject getNodeParametersJSON(NodeRef nodeRef);
 
+    Object formatValue(QName qname, Serializable value);
+
 }
