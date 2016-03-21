@@ -49,7 +49,8 @@ public class DocumentAttachmentEditOnlineCheckWebscript {
         NodeRef mainDocNodeRef = getMainDocNodeRef(currentVersion.getVersionedNodeRef());
         JSONObject result = new JSONObject();
         result.put(IS_LOCKED, isLocked(mainDocNodeRef) || isLocked(currentVersion.getVersionedNodeRef()));
-        result.put(EDIT_ONLINE_PATH, documentService.getDocumentEditOnlinePath(currentVersion.getVersionedNodeRef()));
+        //lets take online path from main doc
+        result.put(EDIT_ONLINE_PATH, documentService.getDocumentEditOnlinePath(mainDocNodeRef));
         result.put("currentVersionDocumentName", currentVersion.getVersionProperty("name"));
         return WebScriptUtils.jsonResolution(result);
     }
