@@ -728,7 +728,7 @@ public class DocumentServiceImpl implements DocumentService {
         attachment.setType(nodeService.getType(nodeRef).toPrefixString(namespaceService));
         String extension = FilenameUtils.getExtension(attachment.getName());
         attachment.setFileType(extension);
-        attachment.setMimetype(((ContentDataWithId) properties.get(ContentModel.PROP_CONTENT)).getMimetype());
+        attachment.setMimetype(getMimetype(properties.get(ContentModel.PROP_CONTENT)));
 
         LockState state = AuthenticationUtil.runAsSystem(() -> {
             return lockService.getLockState(nodeRef);
@@ -752,6 +752,10 @@ public class DocumentServiceImpl implements DocumentService {
             attachment.setModifier(personService.getPerson(modifierNodeRef));
         }
         return attachment;
+    }
+
+    private static String getMimetype(Serializable content) {
+        return content == null ? null : ((ContentDataWithId) content).getMimetype();
     }
 
     private CaseDocumentAttachment createAttachmentVersion(Version version) {
