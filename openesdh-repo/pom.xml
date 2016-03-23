@@ -488,7 +488,7 @@
                     <version>${alfresco.version}</version>
                     <type>amp</type>
                 </dependency>
-                <dependency>
+<!--                <dependency>
                     <groupId>dk.openesdh</groupId>
                     <artifactId>openesdh-project-rooms</artifactId>
                     <version>${openesdh.project.rooms.version}</version>
@@ -500,7 +500,7 @@
                     <version>3.0.2</version>
                     <type>amp</type>
                 </dependency>
-<!--                <dependency>
+                <dependency>
                     <groupId>dk.openesdh</groupId>
                     <artifactId>openesdh-google-docs</artifactId>
                     <version>${openesdh.google.docs.version}</version>
