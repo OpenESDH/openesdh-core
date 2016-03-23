@@ -270,6 +270,18 @@
             </build>
         </profile>
         <profile>
+            <id>spp</id>
+            <!-- sharepoint protocol for document editing -->
+            <dependencies>
+                <dependency>
+                    <groupId>${alfresco.groupId}</groupId>
+                    <artifactId>alfresco-spp</artifactId>
+                    <version>${alfresco.version}</version>
+                    <type>amp</type>
+                </dependency>
+            </dependencies>
+        </profile>
+        <profile>
             <id>amp-with-solr</id>
             <activation>
                 <property>
@@ -482,13 +494,7 @@
                     <version>${openesdh.office.version}</version>
                     <type>amp</type>
                 </dependency>
-<!--                <dependency>
-                    <groupId>${alfresco.groupId}</groupId>
-                    <artifactId>alfresco-spp</artifactId>
-                    <version>${alfresco.version}</version>
-                    <type>amp</type>
-                </dependency>-->
-<!--                <dependency>
+                <dependency>
                     <groupId>dk.openesdh</groupId>
                     <artifactId>openesdh-project-rooms</artifactId>
                     <version>${openesdh.project.rooms.version}</version>
@@ -505,7 +511,7 @@
                     <artifactId>openesdh-google-docs</artifactId>
                     <version>${openesdh.google.docs.version}</version>
                     <type>amp</type>
-                </dependency>-->
+                </dependency>
             </dependencies>
         </profile>
         <profile>
