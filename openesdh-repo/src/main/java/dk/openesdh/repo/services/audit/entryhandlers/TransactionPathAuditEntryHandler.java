@@ -10,11 +10,14 @@ import static dk.openesdh.repo.services.system.OpenESDHFoldersService.FILES_ROOT
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
@@ -27,9 +30,13 @@ import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONObject;
 import org.springframework.extensions.surf.util.I18NUtil;
+import org.springframework.util.CollectionUtils;
+
+import com.google.common.base.Strings;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.audit.AuditEntryHandler;
+import dk.openesdh.repo.services.audit.AuditSearchService;
 import dk.openesdh.repo.services.audit.IAuditEntryHandler;
 
 public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
@@ -49,16 +56,19 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
     public static final String TRANSACTION_ACTION_UPDATE_NODE_PROPERTIES = "updateNodeProperties";
 
     public static final String TRANSACTION_PROPERTIES_ADD = "/esdh/transaction/properties/add";
+    public static final String TRANSACTION_PROPERTIES_FROM = "/esdh/transaction/properties/from";
     public static final String TRANSACTION_PROPERTIES_TO = "/esdh/transaction/properties/to";
 
     private final DictionaryService dictionaryService;
-    private final List<QName> ignoredProperties;
+    private final Set<QName> ignoredProperties;
+    private final Set<QName> ignoredAspects;
     private Map<Predicate<Map<String, Serializable>>, IAuditEntryHandler> trPathEntryHandlers = new HashMap<>();
 
-    public TransactionPathAuditEntryHandler(DictionaryService dictionaryService, List<QName> ignoredProperties,
-            Map<Predicate<Map<String, Serializable>>, IAuditEntryHandler> trPathEntryHandlers) {
+    public TransactionPathAuditEntryHandler(DictionaryService dictionaryService, Set<QName> ignoredProperties,
+            Set<QName> ignoredAspects, Map<Predicate<Map<String, Serializable>>, IAuditEntryHandler> trPathEntryHandlers) {
         this.dictionaryService = dictionaryService;
         this.ignoredProperties = ignoredProperties;
+        this.ignoredAspects = ignoredAspects;
         this.trPathEntryHandlers = trPathEntryHandlers;
     }
 
@@ -88,17 +98,36 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
                 }
                 return getEntryTransactionUpdateVersion(user, time, values);
             case TRANSACTION_ACTION_UPDATE_NODE_PROPERTIES:
+                if (isIgnoredAspectAddTransaction(values)) {
+                    return Optional.empty();
+                }
                 return getEntryTransactionUpdateProperties(user, time, values);
 
             default:
                 if (values.containsKey(TRANSACTION_SUB_ACTIONS)) {
                     String subActions = (String) values.get(TRANSACTION_SUB_ACTIONS);
-                    if (subActions.contains("updateNodeProperties")) {
+                    if (subActions.contains(TRANSACTION_ACTION_UPDATE_NODE_PROPERTIES)) {
+                        if (isIgnoredAspectAddTransaction(values)) {
+                            return Optional.empty();
+                        }
                         return getEntryTransactionUpdateProperties(user, time, values);
                     }
                 }
         }
         return Optional.empty();
+    }
+
+    private boolean isIgnoredAspectAddTransaction(Map<String, Serializable> values) {
+        if (values.containsKey(TRANSACTION_ASPECT_ADD)) {
+            Set<QName> aspectsAdd = (Set<QName>) values.get(TRANSACTION_ASPECT_ADD);
+            //is locked in alfresco but not in OpenE - then ignore.
+            if (aspectsAdd.contains(ContentModel.ASPECT_LOCKABLE) && !aspectsAdd.contains(OpenESDHModel.ASPECT_OE_LOCKED)) {
+                return true;
+            }
+            //if contains any other ignored aspects
+            return CollectionUtils.containsAny(aspectsAdd, ignoredAspects);
+        }
+        return false;
     }
 
     private Optional<JSONObject> getEntryTransactionCreate(String user, long time, Map<String, Serializable> values) {
@@ -114,7 +143,7 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
             if (type.equals("cm:content")) {
                 boolean isMainFile = aspectsAdd != null && aspectsAdd.contains(OpenESDHModel.ASPECT_DOC_IS_MAIN_FILE);
                 if (!isMainFile) {
-                    Optional<String> title = localizedProperty(properties, ContentModel.PROP_TITLE);
+                    Optional<String> title = getLocalizedProperty(properties, ContentModel.PROP_TITLE);
                     if (!title.isPresent()) {
                         return Optional.empty();
                     }
@@ -127,7 +156,7 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
                     // and one for the main file
                 }
             } else if (type.contains("doc:")) {
-                Optional<String> title = localizedProperty(properties, ContentModel.PROP_TITLE);
+                Optional<String> title = getLocalizedProperty(properties, ContentModel.PROP_TITLE);
                 if (!title.isPresent()) {
                     return Optional.empty();
                 }
@@ -180,7 +209,7 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
     private Optional<JSONObject> getEntryTransactionCheckIn(String user, long time, Map<String, Serializable> values) {
         JSONObject auditEntry = createNewAuditEntry(user, time);
         String title = getTitle(values);
-        String newVersion = (String) getFromPropertyMap(values, "/esdh/transaction/properties/to", ContentModel.PROP_VERSION_LABEL);
+        String newVersion = (String) getFromPropertyMap(values, TRANSACTION_PROPERTIES_TO, ContentModel.PROP_VERSION_LABEL);
         auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.checkedin", title, newVersion));
         auditEntry.put(TYPE, getTypeMessage(SYSTEM));
         return Optional.of(auditEntry);
@@ -188,9 +217,9 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
 
     private Optional<JSONObject> getEntryTransactionUpdateVersion(String user, long time, Map<String, Serializable> values) {
         String oldVersion = (String) getFromPropertyMap(
-                values, "/esdh/transaction/properties/from", ContentModel.PROP_VERSION_LABEL);
+                values, TRANSACTION_PROPERTIES_FROM, ContentModel.PROP_VERSION_LABEL);
         String newVersion = (String) getFromPropertyMap(
-                values, "/esdh/transaction/properties/to", ContentModel.PROP_VERSION_LABEL);
+                values, TRANSACTION_PROPERTIES_TO, ContentModel.PROP_VERSION_LABEL);
         JSONObject auditEntry = createNewAuditEntry(user, time);
         auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.office.edit",
                 getTitle(values),
@@ -215,37 +244,54 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
             return Optional.empty();
         }
 
-        Map<QName, Serializable> fromMap = (Map<QName, Serializable>) values.get("/esdh/transaction/properties/from");
-        Map<QName, Serializable> toMap = (Map<QName, Serializable>) values.get("/esdh/transaction/properties/to");
-        if (fromMap == null || toMap == null) {
+        Map<QName, Serializable> fromMap = (Map<QName, Serializable>) values.get(TRANSACTION_PROPERTIES_FROM);
+        Map<QName, Serializable> toMap = (Map<QName, Serializable>) values.get(TRANSACTION_PROPERTIES_TO);
+        Map<QName, Serializable> addMap = (Map<QName, Serializable>) values.get(TRANSACTION_PROPERTIES_ADD);
+        if (fromMap == null || (addMap == null && toMap == null)) {
             return Optional.empty();
         }
         fromMap = filterUndesirableProps(fromMap);
         toMap = filterUndesirableProps(toMap);
+        if (addMap != null) {
+            addMap = filterUndesirableProps(addMap);
+            toMap.putAll(addMap);
+        }
+
         List<String> changes = new ArrayList<>();
-        final Map<QName, Serializable> finalToMap = toMap;
-        fromMap.forEach((qName, value) -> {
-            String nodeTitle = getTitle(values);
-            if (StringUtils.isEmpty(nodeTitle)
-                    //do not add case title in case history
-                    || StringUtils.endsWith((String) values.get("/esdh/transaction/type"), ":case")) {
-                nodeTitle = "";
+        final Map<QName, Serializable> finalFromMap = fromMap;
+        toMap.forEach((qName, value) -> {
+            Optional<String> from = getLocalizedProperty(finalFromMap, qName);
+            Optional<String> to = getLocalizedPropertyValue(value);
+            if (!to.isPresent()) {
+                changes.add(I18NUtil.getMessage("auditlog.label.property.remove",
+                        getPropertyTitle(qName)));
+            } else if (from.isPresent()) {
+                changes.add(I18NUtil.getMessage("auditlog.label.property.update",
+                        getPropertyTitle(qName),
+                        from.get(),
+                        to.orElse("")));
             } else {
-                nodeTitle = " (" + nodeTitle + ")";
+                changes.add(I18NUtil.getMessage("auditlog.label.property.create",
+                        getPropertyTitle(qName),
+                        to.orElse("")));
             }
-            changes.add(I18NUtil.getMessage("auditlog.label.property.update",
-                    getPropertyTitle(qName),
-                    value.toString(),
-                    finalToMap.get(qName).toString()) + nodeTitle);
         });
         if (changes.isEmpty()) {
             return Optional.empty();
         }
 
+        Collections.sort(changes);
+
+        String nodeTitle = "";
+        //do not add case title in case history
+        if (!StringUtils.endsWith((String) values.get("/esdh/transaction/type"), ":case")) {
+            nodeTitle = getTitle(values);
+            nodeTitle = StringUtils.isNotEmpty(nodeTitle) ? " (" + nodeTitle + ")" : "";
+        }
+
         JSONObject auditEntry = createNewAuditEntry(user, time);
         auditEntry.put(TYPE, getTypeMessage(type));
-        auditEntry.put(ACTION,
-                I18NUtil.getMessage("auditlog.label.properties.updated", StringUtils.join(changes, ";\n")));
+        auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.properties.updated", nodeTitle, StringUtils.join(changes, ";\n")));
         return Optional.of(auditEntry);
     }
 
@@ -262,14 +308,24 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
                 : null;
     }
 
-    private Optional<String> localizedProperty(Map<QName, Serializable> properties, QName propQName) {
-        HashMap<Locale, String> property = (HashMap) properties.get(propQName);
+    private Optional<String> getLocalizedProperty(Map<QName, Serializable> properties, QName propQName) {
+        return getLocalizedPropertyValue(properties.get(propQName));
+    }
+
+    private Optional<String> getLocalizedPropertyValue(Serializable property) {
         if (property == null) {
             return Optional.empty();
         }
-        String value = property.get(I18NUtil.getContentLocale());
+        if ((property instanceof Date)) {
+            return Optional.of(AuditSearchService.AUDIT_DATE_FORMAT.format(property));
+        }
+        if (!(property instanceof Map)) {
+            return Optional.ofNullable(Strings.emptyToNull(Objects.toString(property, null)));
+        }
+
+        String value = ((Map<Locale, String>) property).get(I18NUtil.getContentLocale());
         if (value == null) {
-            value = property.get(Locale.ENGLISH);
+            value = ((Map<Locale, String>) property).get(Locale.ENGLISH);
         }
         return Optional.ofNullable(value);
     }

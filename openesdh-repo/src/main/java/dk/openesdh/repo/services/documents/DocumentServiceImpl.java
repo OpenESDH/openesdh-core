@@ -91,7 +91,6 @@ public class DocumentServiceImpl implements DocumentService {
     private static final Log logger = LogFactory.getLog(DocumentServiceImpl.class);
 
     private static final QName FINAL_PDF_RENDITION_DEFINITION_NAME = QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "finalPdfRenditionDefinition");
-    private static final String GOOGLEDOCS_MODEL_2_0_URI = "http://www.alfresco.org/model/googledocs/2.0";
 
     @Autowired
     @Qualifier("NodeService")
@@ -150,8 +149,9 @@ public class DocumentServiceImpl implements DocumentService {
     @Value("${openesdh.document.acceptableFinalizedFileFormats}")
     private String acceptableFinalizedFileFormats;
 
-    private Set<String> acceptableFinalizedFileMimeTypes;
+    private final Set<String> acceptableFinalizedFileMimeTypes = new HashSet<>(20);
     private RenditionDefinition pdfRenditionDefinition;
+    private final Set<String> otherPropNamespaceUris = new HashSet<>();
 
     /**
      * Returns true if the file name has an extension
@@ -166,13 +166,16 @@ public class DocumentServiceImpl implements DocumentService {
 
     @PostConstruct
     public void init() {
-        acceptableFinalizedFileMimeTypes = new HashSet<>(20);
         for (String extension : acceptableFinalizedFileFormats.split(",")) {
             String mimetype = mimetypeService.getMimetype(extension);
             if (!mimetype.equals(MimetypeMap.MIMETYPE_BINARY)) {
                 acceptableFinalizedFileMimeTypes.add(mimetype);
             }
         }
+    }
+
+    public void addOtherPropNamespaceUris(String... nsUri) {
+        Collections.addAll(otherPropNamespaceUris, nsUri);
     }
 
     private boolean canLeaveStatus(DocumentStatus status, String user, NodeRef nodeRef) {
@@ -683,7 +686,7 @@ public class DocumentServiceImpl implements DocumentService {
             setAttachmentVersions(nodeRef, attachment);
         }
 
-        attachment.getOtherProps().putAll(getGoogleDocProperties(nodeRef));
+        attachment.getOtherProps().putAll(getOtherDocProperties(nodeRef));
         return attachment;
     }
 
@@ -707,12 +710,18 @@ public class DocumentServiceImpl implements DocumentService {
         attachment.getVersions().addAll(versions);
     }
 
-    private Map<String, Serializable> getGoogleDocProperties(NodeRef nodeRef) {
+    private Map<String, Serializable> getOtherDocProperties(NodeRef nodeRef) {
         Map<String, Serializable> props = new HashMap<>();
         nodeService.getProperties(nodeRef).entrySet()
                 .stream()
-                .filter(e -> e.getKey().getNamespaceURI().equals(GOOGLEDOCS_MODEL_2_0_URI))
-                .forEach(e -> props.put("gd2_" + e.getKey().getLocalName(), Objects.toString(e.getValue())));
+                .filter(e -> otherPropNamespaceUris.contains(e.getKey().getNamespaceURI()))
+                .forEach(e -> {
+                    namespaceService.getPrefixes(e.getKey().getNamespaceURI()).stream()
+                            .findAny()
+                            .ifPresent(ns -> {
+                                props.put(ns + "_" + e.getKey().getLocalName(), Objects.toString(e.getValue()));
+                            });
+                });
         return props;
     }
 

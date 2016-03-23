@@ -35,6 +35,7 @@
         <openesdh.office.version>1.0-SNAPSHOT</openesdh.office.version>
         <openesdh.doctemplates.version>1.0-SNAPSHOT</openesdh.doctemplates.version>
         <openesdh.project.rooms.version>1.0-SNAPSHOT</openesdh.project.rooms.version>
+        <openesdh.google.docs.version>1.0-SNAPSHOT</openesdh.google.docs.version>
     </properties>
 
     <!-- Here we realize the connection with the Alfresco selected platform (e.g.version and edition) -->

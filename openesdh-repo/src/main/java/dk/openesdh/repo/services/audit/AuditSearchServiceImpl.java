@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -79,8 +80,9 @@ public class AuditSearchServiceImpl implements AuditSearchService {
 
     private final List<String> applications = new ArrayList<>();
     private final Map<String, AuditEntryHandler> auditEntryHandlers = new HashMap<>();
-    private final List<QName> ignoredProperties = new ArrayList<>();
-    private Map<Predicate<Map<String, Serializable>>, IAuditEntryHandler> transactionPathEntryHandlers = new HashMap<>();
+    private final Set<QName> ignoredProperties = new HashSet<>();
+    private final Map<Predicate<Map<String, Serializable>>, IAuditEntryHandler> transactionPathEntryHandlers = new HashMap<>();
+    private final Set<QName> ignoredAspects = new HashSet<>();
 
     @PostConstruct
     public void init() {
@@ -99,7 +101,7 @@ public class AuditSearchServiceImpl implements AuditSearchService {
         auditEntryHandlers.put(MEMBER_ADD_PATH, new MemberAddAuditEntryHandler());
         auditEntryHandlers.put(MEMBER_REMOVE_PATH, new MemberRemoveAuditEntryHandler());
         auditEntryHandlers.put(TRANSACTION_USER,
-                new TransactionPathAuditEntryHandler(dictionaryService, ignoredProperties, transactionPathEntryHandlers));
+                new TransactionPathAuditEntryHandler(dictionaryService, ignoredProperties, ignoredAspects, transactionPathEntryHandlers));
         auditEntryHandlers.put(WORKFLOW_START_CASE, new WorkflowStartAuditEntryHandler());
         auditEntryHandlers.put(WORKFLOW_END_TASK_CASE, new WorkflowTaskEndAuditEntryHandler());
         auditEntryHandlers.put(WORKFLOW_CANCEL_CASE, new WorkflowCancelAuditEntryHandler());
@@ -121,6 +123,16 @@ public class AuditSearchServiceImpl implements AuditSearchService {
         ignoredProperties.add(ImapModel.PROP_MAXUID);
         ignoredProperties.add(BlogIntegrationModel.PROP_LINK);
         ignoredProperties.add(ContentModel.PROP_LAST_THUMBNAIL_MODIFICATION_DATA);
+        //locked node properties:
+        ignoredProperties.add(ContentModel.PROP_EXPIRY_DATE);
+        ignoredProperties.add(ContentModel.PROP_LOCK_LIFETIME);
+        ignoredProperties.add(ContentModel.PROP_LOCK_OWNER);
+        ignoredProperties.add(ContentModel.PROP_LOCK_TYPE);
+        ignoredProperties.add(ContentModel.PROP_LOCK_ADDITIONAL_INFO);
+        ignoredProperties.add(OpenESDHModel.PROP_OE_LOCKED_BY);
+        ignoredProperties.add(OpenESDHModel.PROP_OE_ORIGINAL_OWNER);
+        ignoredProperties.add(OpenESDHModel.PROP_OE_LOCKED_DATE);
+        ignoredProperties.add(ContentModel.PROP_OWNER);
     }
 
     public void registerApplication(String name) {
@@ -131,7 +143,12 @@ public class AuditSearchServiceImpl implements AuditSearchService {
     public void registerEntryHandler(String key, AuditEntryHandler handler) {
         auditEntryHandlers.put(key, handler);
     }
-    
+
+    @Override
+    public void registerIgnoredAspects(QName... aspect) {
+        Collections.addAll(ignoredAspects, aspect);
+    }
+
     @Override
     public void addTransactionPathEntryHandler(Predicate<Map<String, Serializable>> predicate,
             IAuditEntryHandler handler) {
