@@ -482,12 +482,12 @@
                     <version>${openesdh.office.version}</version>
                     <type>amp</type>
                 </dependency>
-                <dependency>
+<!--                <dependency>
                     <groupId>${alfresco.groupId}</groupId>
                     <artifactId>alfresco-spp</artifactId>
                     <version>${alfresco.version}</version>
                     <type>amp</type>
-                </dependency>
+                </dependency>-->
 <!--                <dependency>
                     <groupId>dk.openesdh</groupId>
                     <artifactId>openesdh-project-rooms</artifactId>
