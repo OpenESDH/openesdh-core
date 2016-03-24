@@ -50,7 +50,7 @@ public class PartyServiceImpl implements PartyService {
     @Qualifier("NodeService")
     private NodeService nodeService;
     @Autowired
-    @Qualifier("CaseService")
+    @Qualifier(CaseService.BEAN_ID)
     private CaseService caseService;
     @Autowired
     @Qualifier("ContactService")

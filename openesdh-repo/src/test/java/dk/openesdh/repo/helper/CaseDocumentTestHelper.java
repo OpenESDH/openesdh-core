@@ -20,7 +20,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import dk.openesdh.simplecase.model.SimpleCaseModel;
 import dk.openesdh.repo.model.DocumentCategory;
 import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
@@ -29,6 +28,7 @@ import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.DocumentCategoryService;
 import dk.openesdh.repo.services.documents.DocumentService;
 import dk.openesdh.repo.services.documents.DocumentTypeService;
+import dk.openesdh.simplecase.model.SimpleCaseModel;
 
 @Service("CaseDocumentTestHelper")
 public class CaseDocumentTestHelper {
@@ -45,10 +45,10 @@ public class CaseDocumentTestHelper {
     @Qualifier("TestCaseHelper")
     private CaseHelper caseHelper;
     @Autowired
-    @Qualifier("CaseService")
+    @Qualifier(CaseService.BEAN_ID)
     private CaseService caseService;
     @Autowired
-    @Qualifier("DocumentService")
+    @Qualifier(DocumentService.BEAN_ID)
     private DocumentService documentService;
     @Autowired
     @Qualifier("DocumentTypeService")

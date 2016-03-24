@@ -37,7 +37,7 @@ import dk.openesdh.repo.services.cases.CaseService;
 public class CaseDocumentCopyServiceImpl implements CaseDocumentCopyService {
 
     @Autowired
-    @Qualifier("DocumentService")
+    @Qualifier(DocumentService.BEAN_ID)
     private DocumentService documentService;
     @Autowired
     @Qualifier("CopyService")
@@ -46,7 +46,7 @@ public class CaseDocumentCopyServiceImpl implements CaseDocumentCopyService {
     @Qualifier("NodeService")
     private NodeService nodeService;
     @Autowired
-    @Qualifier("CaseService")
+    @Qualifier(CaseService.BEAN_ID)
     private CaseService caseService;
     @Autowired
     private BehaviourFilterService behaviourFilterService;

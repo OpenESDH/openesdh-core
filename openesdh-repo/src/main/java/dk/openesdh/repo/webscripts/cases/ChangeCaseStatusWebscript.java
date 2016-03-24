@@ -25,7 +25,7 @@ import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 public class ChangeCaseStatusWebscript {
 
     @Autowired
-    @Qualifier("CaseService")
+    @Qualifier(CaseService.BEAN_ID)
     private CaseService caseService;
 
     @Attribute

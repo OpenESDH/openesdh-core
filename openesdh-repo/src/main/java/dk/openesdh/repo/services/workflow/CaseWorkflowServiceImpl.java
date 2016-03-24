@@ -65,7 +65,7 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
     @Qualifier("AuthorityService")
     private AuthorityService authorityService;
     @Autowired
-    @Qualifier("CaseService")
+    @Qualifier(CaseService.BEAN_ID)
     private CaseService caseService;
     @Autowired
     @Qualifier("CaseMembersService")

@@ -30,7 +30,7 @@ public class DocumentEditOnlineCheckWebscript {
     private static final String CURRENT_VERSION_DOCUMENT_NAME = "currentVersionDocumentName";
 
     @Autowired
-    @Qualifier("DocumentService")
+    @Qualifier(DocumentService.BEAN_ID)
     private DocumentService documentService;
     @Autowired
     @Qualifier("VersionService")

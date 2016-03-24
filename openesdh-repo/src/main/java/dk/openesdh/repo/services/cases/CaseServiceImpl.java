@@ -72,7 +72,7 @@ import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 /**
  * Created by torben on 19/08/14.
  */
-@Service("CaseService")
+@Service(CaseService.BEAN_ID)
 public class CaseServiceImpl implements CaseService {
 
     private final Logger logger = LoggerFactory.getLogger(CaseServiceImpl.class);
@@ -102,7 +102,7 @@ public class CaseServiceImpl implements CaseService {
     @Qualifier("OwnableService")
     private OwnableService ownableService;
     @Autowired
-    @Qualifier("DocumentService")
+    @Qualifier(DocumentService.BEAN_ID)
     private DocumentService documentService;
     @Autowired
     @Qualifier("OELockService")

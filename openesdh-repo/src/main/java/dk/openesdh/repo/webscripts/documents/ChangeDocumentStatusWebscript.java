@@ -26,7 +26,7 @@ import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 public class ChangeDocumentStatusWebscript {
 
     @Autowired
-    @Qualifier("DocumentService")
+    @Qualifier(DocumentService.BEAN_ID)
     private DocumentService documentService;
 
     @Attribute

@@ -55,7 +55,7 @@ public class DocumentBehaviour {
     @Qualifier("policyComponent")
     private PolicyComponent policyComponent;
     @Autowired
-    @Qualifier("DocumentService")
+    @Qualifier(DocumentService.BEAN_ID)
     private DocumentService documentService;
     @Autowired
     @Qualifier("DocumentTypeService")

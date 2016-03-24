@@ -18,9 +18,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 
-import dk.openesdh.simplecase.model.SimpleCaseModel;
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.simplecase.model.SimpleCaseModel;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -34,7 +34,7 @@ public class CaseTypeServiceImplIT {
     @Qualifier("CaseDocumentTestHelper")
     private CaseDocumentTestHelper caseTestHelper;
     @Autowired
-    @Qualifier("CaseService")
+    @Qualifier(CaseService.BEAN_ID)
     private CaseServiceImpl caseService;
 
     @Test

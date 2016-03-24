@@ -49,7 +49,7 @@ public class CaseActivityServiceImpl implements CaseActivityService {
     @Qualifier("PersonService")
     private PersonService personService;
     @Autowired
-    @Qualifier("CaseService")
+    @Qualifier(CaseService.BEAN_ID)
     private CaseService caseService;
     @Autowired
     @Qualifier("CaseOwnersService")
@@ -58,7 +58,7 @@ public class CaseActivityServiceImpl implements CaseActivityService {
     @Qualifier("CaseMembersService")
     private CaseMembersService caseMembersService;
     @Autowired
-    @Qualifier("DocumentService")
+    @Qualifier(DocumentService.BEAN_ID)
     private DocumentService documentService;
     @Autowired
     @Qualifier("activityService")

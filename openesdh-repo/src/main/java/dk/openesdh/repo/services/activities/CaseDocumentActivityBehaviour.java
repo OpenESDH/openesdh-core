@@ -38,7 +38,8 @@ public class CaseDocumentActivityBehaviour implements OnCreateChildAssociationPo
     @Autowired
     @Qualifier("CaseActivityService")
     private CaseActivityService activityService;
-
+    @Autowired
+    @Qualifier(DocumentService.BEAN_ID)
     private DocumentService documentService;
 
     @PostConstruct
@@ -49,12 +50,6 @@ public class CaseDocumentActivityBehaviour implements OnCreateChildAssociationPo
 
         this.policyComponent.bindClassBehaviour(OnCreateVersionPolicy.QNAME, OpenESDHModel.TYPE_DOC_FILE,
                 new JavaBehaviour(this, "onCreateVersion"));
-    }
-
-    @Autowired
-    @Qualifier("DocumentService")
-    public void setDocumentService(DocumentService documentService) {
-        this.documentService = documentService;
     }
 
     @Override

@@ -18,7 +18,7 @@ public class CaseDocumentsAttachmentsSearchServiceImpl extends XSearchServiceImp
         CaseDocumentsAttachmentsSearchService {
 
     @Autowired
-    @Qualifier("DocumentService")
+    @Qualifier(DocumentService.BEAN_ID)
     protected DocumentService documentService;
 
     @Override

@@ -23,7 +23,7 @@ import dk.openesdh.repo.services.members.CaseMembersService;
 public class CaseMembersActivityBehaviour implements OnCreateChildAssociationPolicy, OnDeleteChildAssociationPolicy {
 
     @Autowired
-    @Qualifier("CaseService")
+    @Qualifier(CaseService.BEAN_ID)
     private CaseService caseService;
     @Autowired
     @Qualifier("CaseMembersService")

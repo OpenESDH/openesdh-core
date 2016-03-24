@@ -21,7 +21,7 @@ import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 public class CaseDocumentsFolderNodeRefWebScript {
 
     @Autowired
-    @Qualifier("CaseService")
+    @Qualifier(CaseService.BEAN_ID)
     private CaseService caseService;
 
     @Uri("/api/openesdh/case/{caseId}/docfolder/noderef")

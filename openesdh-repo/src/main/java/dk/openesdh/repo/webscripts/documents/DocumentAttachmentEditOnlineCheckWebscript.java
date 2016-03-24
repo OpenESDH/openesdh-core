@@ -31,7 +31,7 @@ import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 public class DocumentAttachmentEditOnlineCheckWebscript {
 
     @Autowired
-    @Qualifier("DocumentService")
+    @Qualifier(DocumentService.BEAN_ID)
     private DocumentService documentService;
     @Autowired
     @Qualifier("VersionService")

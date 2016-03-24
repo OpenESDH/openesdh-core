@@ -40,6 +40,8 @@ public class CaseBehaviour implements OnCreateNodePolicy, BeforeCreateNodePolicy
     @Autowired
     @Qualifier("NodeService")
     private NodeService nodeService;
+    @Autowired
+    @Qualifier(CaseService.BEAN_ID)
     private CaseService caseService;
     @Autowired
     @Qualifier("CasePermissionService")
@@ -77,12 +79,6 @@ public class CaseBehaviour implements OnCreateNodePolicy, BeforeCreateNodePolicy
 
         this.policyComponent.bindClassBehaviour(NodeServicePolicies.OnUpdateNodePolicy.QNAME,
                 OpenESDHModel.ASPECT_OE_JOURNALIZABLE, new JavaBehaviour(this, "onUpdateNode"));
-    }
-
-    @Autowired
-    @Qualifier("CaseService")
-    public void setCaseService(CaseService caseService) {
-        this.caseService = caseService;
     }
 
     @Override

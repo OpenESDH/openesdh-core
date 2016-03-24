@@ -38,11 +38,11 @@ import dk.openesdh.repo.services.documents.DocumentService;
 public class CaseDocumentsSearchServiceImpl extends AbstractXSearchService {
 
     @Autowired
-    @Qualifier("CaseService")
+    @Qualifier(CaseService.BEAN_ID)
     protected CaseService caseService;
 
     @Autowired
-    @Qualifier("DocumentService")
+    @Qualifier(DocumentService.BEAN_ID)
     protected DocumentService documentService;
 
     @Autowired

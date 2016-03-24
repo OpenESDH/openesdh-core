@@ -32,8 +32,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import fr.opensagres.xdocreport.core.utils.StringUtils;
-
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.NodeInfoService;
 import dk.openesdh.repo.services.cases.CaseService;
@@ -41,6 +39,7 @@ import dk.openesdh.repo.services.documents.CaseDocumentCopyService;
 import dk.openesdh.repo.services.documents.DocumentService;
 import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 import dk.openesdh.repo.utils.JSONArrayCollector;
+import fr.opensagres.xdocreport.core.utils.StringUtils;
 
 @Component
 public class OeFilesServiceImpl implements OeFilesService {
@@ -60,10 +59,10 @@ public class OeFilesServiceImpl implements OeFilesService {
     @Qualifier("PersonService")
     private PersonService personService;
     @Autowired
-    @Qualifier("DocumentService")
+    @Qualifier(DocumentService.BEAN_ID)
     private DocumentService documentService;
     @Autowired
-    @Qualifier("CaseService")
+    @Qualifier(CaseService.BEAN_ID)
     private CaseService caseService;
     @Autowired
     @Qualifier("CommentService")

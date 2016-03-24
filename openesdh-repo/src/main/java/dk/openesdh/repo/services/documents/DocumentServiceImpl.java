@@ -85,7 +85,7 @@ import dk.openesdh.repo.webscripts.documents.Documents;
 /**
  * Created by torben on 11/09/14.
  */
-@Service("DocumentService")
+@Service(DocumentService.BEAN_ID)
 public class DocumentServiceImpl implements DocumentService {
 
     private static final Log logger = LogFactory.getLog(DocumentServiceImpl.class);
@@ -105,7 +105,7 @@ public class DocumentServiceImpl implements DocumentService {
     @Qualifier("SearchService")
     private SearchService searchService;
     @Autowired
-    @Qualifier("CaseService")
+    @Qualifier(CaseService.BEAN_ID)
     private CaseService caseService;
     @Autowired
     @Qualifier("namespaceService")

@@ -33,7 +33,7 @@ public class CaseHistoryWebScript {
     @Autowired
     private AuditSearchService auditSearchService;
     @Autowired
-    @Qualifier("CaseService")
+    @Qualifier(CaseService.BEAN_ID)
     private CaseService caseService;
 
     @Uri(value = "/api/openesdh/case/{caseId}/history", method = HttpMethod.GET, defaultFormat = "json")

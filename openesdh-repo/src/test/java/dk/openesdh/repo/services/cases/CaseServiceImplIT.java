@@ -79,7 +79,7 @@ public class CaseServiceImplIT {
     private CaseDocumentTestHelper docTestHelper;
 
     @Autowired
-    @Qualifier("DocumentService")
+    @Qualifier(DocumentService.BEAN_ID)
     private DocumentService documentService;
 
     @Autowired
@@ -87,7 +87,7 @@ public class CaseServiceImplIT {
     private OELockService oeLockService;
 
     @Autowired
-    @Qualifier("CaseService")
+    @Qualifier(CaseService.BEAN_ID)
     private CaseServiceImpl caseService;
 
     @Autowired

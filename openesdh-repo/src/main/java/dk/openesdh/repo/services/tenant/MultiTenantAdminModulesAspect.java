@@ -35,7 +35,6 @@ import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.classification.sync.ClassificationSynchronizer;
 import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.utils.ClassUtils;
 
 /**
  * This aspect enables us to intercept modules initialization when a new tenant is created.
@@ -98,7 +97,7 @@ public class MultiTenantAdminModulesAspect implements BeanFactoryAware {
         if (!beanFactory.containsBean(TENANT_ADMIN_SERVICE) || !beanFactory.containsBean(OPENE_MODULE_SERVICE)) {
             return;
         }
-        ClassUtils.checkHasMethods(ModuleService.class, "startModules");
+
         this.beanFactory = (ListableBeanFactory) beanFactory;
         openeModuleIdsWithMtSuffix = getOpeneModuleIdsWithMtSuffix();
         moduleSpacesImporterBeanIds = getImporterBeanIds(ImporterBootstrap.class);

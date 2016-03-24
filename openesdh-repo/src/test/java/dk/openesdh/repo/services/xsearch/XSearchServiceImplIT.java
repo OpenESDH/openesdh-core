@@ -63,7 +63,7 @@ public class XSearchServiceImplIT {
     private CaseHelper caseHelper;
 
     @Autowired
-    @Qualifier("CaseService")
+    @Qualifier(CaseService.BEAN_ID)
     private CaseService caseService;
 
     private XSearchServiceImpl xSearchService = null;
