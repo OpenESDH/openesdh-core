@@ -88,7 +88,7 @@ public class CaseServiceImplIT {
 
     @Autowired
     @Qualifier(CaseService.BEAN_ID)
-    private CaseServiceImpl caseService;
+    private CaseService caseService;
 
     @Autowired
     @Qualifier("CaseMembersService")

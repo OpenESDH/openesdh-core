@@ -664,7 +664,8 @@ public class CaseServiceImpl implements CaseService {
      * @param caseNodeRef
      * @param caseId
      */
-    void setupPermissionGroups(NodeRef caseNodeRef, String caseId) {
+    @Override
+    public void setupPermissionGroups(NodeRef caseNodeRef, String caseId) {
         permissionService.getSettablePermissions(caseNodeRef)
                 .stream()
                 .forEach(permission -> setupPermissionGroup(caseNodeRef, caseId, permission));
@@ -722,7 +723,8 @@ public class CaseServiceImpl implements CaseService {
         createFolderForCaseDocuments(caseNodeRef);
     }
 
-    String getCaseId(long uniqueNumber) {
+    @Override
+    public String getCaseId(long uniqueNumber) {
         //Generating Case ID
         DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         Date date = new Date();
@@ -741,7 +743,8 @@ public class CaseServiceImpl implements CaseService {
      * @param calendarType The type of calendar info to look up, i.e. Calendar.YEAR, Calendar.MONTH, or Calendar.DATE
      * @return
      */
-    NodeRef getCasePathNodeRef(NodeRef parent, int calendarType) {
+    @Override
+    public NodeRef getCasePathNodeRef(NodeRef parent, int calendarType) {
         // Add 1 for months, as they are indexed form 0
         String casePathName = Integer.toString(Calendar.getInstance().get(calendarType) + (calendarType == Calendar.MONTH ? 1 : 0));
         NodeRef casePathNodeRef = nodeService.getChildByName(parent, ContentModel.ASSOC_CONTAINS, casePathName);

@@ -195,4 +195,10 @@ public interface CaseService extends HasStatus<CaseStatus> {
     public String getCaseRoleGroupName(String caseId, String role);
 
     void createFolderForCaseDocuments(NodeRef caseNodeRef);
+
+    void setupPermissionGroups(NodeRef caseNodeRef, String caseId);
+
+    String getCaseId(long uniqueNumber);
+
+    NodeRef getCasePathNodeRef(NodeRef parent, int calendarType);
 }
