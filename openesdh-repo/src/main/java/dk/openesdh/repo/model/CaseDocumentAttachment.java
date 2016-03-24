@@ -1,8 +1,11 @@
 package dk.openesdh.repo.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.PersonService.PersonInfo;
@@ -22,7 +25,9 @@ public class CaseDocumentAttachment {
     private boolean locked;
     private String lockOwner;
     private String lockOwnerInfo;
-    private List<CaseDocumentAttachment> versions = new ArrayList<>();
+    private String mimetype;
+    private final List<CaseDocumentAttachment> versions = new ArrayList<>();
+    private final Map<String, Serializable> otherProps = new HashMap<>();
 
     public String getName() {
         return name;
@@ -108,10 +113,6 @@ public class CaseDocumentAttachment {
         return versions;
     }
 
-    public void setVersions(List<CaseDocumentAttachment> versions) {
-        this.versions = versions;
-    }
-
     public boolean isLocked() {
         return locked;
     }
@@ -138,5 +139,17 @@ public class CaseDocumentAttachment {
 
     public NodeRef nodeRefObject() {
         return new NodeRef(nodeRef);
+    }
+
+    public Map<String, Serializable> getOtherProps() {
+        return otherProps;
+    }
+
+    public String getMimetype() {
+        return mimetype;
+    }
+
+    public void setMimetype(String mimetype) {
+        this.mimetype = mimetype;
     }
 }

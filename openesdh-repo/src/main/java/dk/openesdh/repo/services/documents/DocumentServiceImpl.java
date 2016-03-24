@@ -20,6 +20,7 @@ import javax.annotation.PostConstruct;
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.content.MimetypeMap;
+import org.alfresco.repo.domain.node.ContentDataWithId;
 import org.alfresco.repo.lock.mem.LockState;
 import org.alfresco.repo.rendition.executer.ReformatRenderingEngine;
 import org.alfresco.repo.search.impl.lucene.LuceneQueryParserException;
@@ -31,6 +32,7 @@ import org.alfresco.service.cmr.lock.LockService;
 import org.alfresco.service.cmr.rendition.RenditionDefinition;
 import org.alfresco.service.cmr.rendition.RenditionService;
 import org.alfresco.service.cmr.rendition.RenditionServiceException;
+import org.alfresco.service.cmr.repository.AspectMissingException;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.ContentIOException;
@@ -86,8 +88,10 @@ import dk.openesdh.repo.webscripts.documents.Documents;
 @Service("DocumentService")
 public class DocumentServiceImpl implements DocumentService {
 
-    private static final QName FINAL_PDF_RENDITION_DEFINITION_NAME = QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "finalPdfRenditionDefinition");
     private static final Log logger = LogFactory.getLog(DocumentServiceImpl.class);
+
+    private static final QName FINAL_PDF_RENDITION_DEFINITION_NAME = QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "finalPdfRenditionDefinition");
+
     @Autowired
     @Qualifier("NodeService")
     private NodeService nodeService;
@@ -145,8 +149,9 @@ public class DocumentServiceImpl implements DocumentService {
     @Value("${openesdh.document.acceptableFinalizedFileFormats}")
     private String acceptableFinalizedFileFormats;
 
-    private Set<String> acceptableFinalizedFileMimeTypes;
+    private final Set<String> acceptableFinalizedFileMimeTypes = new HashSet<>(20);
     private RenditionDefinition pdfRenditionDefinition;
+    private final Set<String> otherPropNamespaceUris = new HashSet<>();
 
     /**
      * Returns true if the file name has an extension
@@ -161,13 +166,16 @@ public class DocumentServiceImpl implements DocumentService {
 
     @PostConstruct
     public void init() {
-        acceptableFinalizedFileMimeTypes = new HashSet<>(20);
         for (String extension : acceptableFinalizedFileFormats.split(",")) {
             String mimetype = mimetypeService.getMimetype(extension);
             if (!mimetype.equals(MimetypeMap.MIMETYPE_BINARY)) {
                 acceptableFinalizedFileMimeTypes.add(mimetype);
             }
         }
+    }
+
+    public void addOtherPropNamespaceUris(String... nsUri) {
+        Collections.addAll(otherPropNamespaceUris, nsUri);
     }
 
     private boolean canLeaveStatus(DocumentStatus status, String user, NodeRef nodeRef) {
@@ -674,10 +682,15 @@ public class DocumentServiceImpl implements DocumentService {
     private CaseDocumentAttachment getAttachmentWithVersions(NodeRef nodeRef) {
         CaseDocumentAttachment attachment = getAttachment(nodeRef);
 
-        if (!versionService.isVersioned(nodeRef)) {
-            return attachment;
+        if (versionService.isVersioned(nodeRef)) {
+            setAttachmentVersions(nodeRef, attachment);
         }
 
+        attachment.getOtherProps().putAll(getOtherDocProperties(nodeRef));
+        return attachment;
+    }
+
+    private void setAttachmentVersions(NodeRef nodeRef, CaseDocumentAttachment attachment) throws AspectMissingException {
         VersionHistory versionHistory = versionService.getVersionHistory(nodeRef);
         List<CaseDocumentAttachment> versions = versionHistory.getAllVersions()
                 .stream()
@@ -695,8 +708,21 @@ public class DocumentServiceImpl implements DocumentService {
 
         versions.remove(currentAttachmentVersion);
         attachment.getVersions().addAll(versions);
+    }
 
-        return attachment;
+    private Map<String, Serializable> getOtherDocProperties(NodeRef nodeRef) {
+        Map<String, Serializable> props = new HashMap<>();
+        nodeService.getProperties(nodeRef).entrySet()
+                .stream()
+                .filter(e -> otherPropNamespaceUris.contains(e.getKey().getNamespaceURI()))
+                .forEach(e -> {
+                    namespaceService.getPrefixes(e.getKey().getNamespaceURI()).stream()
+                            .findAny()
+                            .ifPresent(ns -> {
+                                props.put(ns + "_" + e.getKey().getLocalName(), Objects.toString(e.getValue()));
+                            });
+                });
+        return props;
     }
 
     private CaseDocumentAttachment getAttachment(NodeRef nodeRef) {
@@ -711,6 +737,7 @@ public class DocumentServiceImpl implements DocumentService {
         attachment.setType(nodeService.getType(nodeRef).toPrefixString(namespaceService));
         String extension = FilenameUtils.getExtension(attachment.getName());
         attachment.setFileType(extension);
+        attachment.setMimetype(getMimetype(properties.get(ContentModel.PROP_CONTENT)));
 
         LockState state = AuthenticationUtil.runAsSystem(() -> {
             return lockService.getLockState(nodeRef);
@@ -734,6 +761,10 @@ public class DocumentServiceImpl implements DocumentService {
             attachment.setModifier(personService.getPerson(modifierNodeRef));
         }
         return attachment;
+    }
+
+    private static String getMimetype(Serializable content) {
+        return content == null ? null : ((ContentDataWithId) content).getMimetype();
     }
 
     private CaseDocumentAttachment createAttachmentVersion(Version version) {

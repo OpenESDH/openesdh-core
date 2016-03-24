@@ -6,6 +6,7 @@ import static dk.openesdh.repo.model.CaseDocumentJson.CATEGORY_NAME;
 import static dk.openesdh.repo.model.CaseDocumentJson.DESCRIPTION;
 import static dk.openesdh.repo.model.CaseDocumentJson.EDIT_LOCK_STATE;
 import static dk.openesdh.repo.model.CaseDocumentJson.EDIT_ONLINE_PATH;
+import static dk.openesdh.repo.model.CaseDocumentJson.FILE_MIME_TYPE;
 import static dk.openesdh.repo.model.CaseDocumentJson.IS_LOCKED;
 import static dk.openesdh.repo.model.CaseDocumentJson.MAIN_DOC_NODE_REF;
 import static dk.openesdh.repo.model.CaseDocumentJson.OWNER;
@@ -21,6 +22,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.domain.node.ContentDataWithId;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.PersonService.PersonInfo;
 import org.alfresco.service.namespace.NamespaceService;
@@ -122,6 +124,7 @@ public class DocumentRecordInfoWebScript {
     private void addMainDocProperties(JSONObject result, NodeRef mainDocNodeRef) throws JSONException {
         NodeInfoService.NodeInfo mainDocNodeInfo = nodeInfoService.getNodeInfo(mainDocNodeRef);
         result.put(DESCRIPTION, StringUtils.defaultIfEmpty((String) mainDocNodeInfo.properties.get(ContentModel.PROP_DESCRIPTION), ""));
+        result.put(FILE_MIME_TYPE, ((ContentDataWithId) mainDocNodeInfo.properties.get(ContentModel.PROP_CONTENT)).getMimetype());
         Map<QName, Serializable> mainDocProperties = mainDocNodeInfo.properties.entrySet()
                 .stream()
                 .filter(entry -> {

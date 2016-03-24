@@ -230,7 +230,7 @@ public interface DocumentService extends HasStatus<DocumentStatus> {
     /**
      * Retrieves attachments associations for the provided main document
      * nodeRef.
-     * 
+     *
      * @param mainDocNodeRef
      * @return
      */
@@ -238,11 +238,18 @@ public interface DocumentService extends HasStatus<DocumentStatus> {
 
     /**
      * Retrieves case document with attachments
-     * 
+     *
      * @param docRecordNodeRef
      * @return
      */
     CaseDocument getCaseDocument(NodeRef docRecordNodeRef);
+
+    /**
+     * register namespace, and all properties of that namespace will be included into json as document.otherProps.<ns>_<property>
+     *
+     * @param nsUri
+     */
+    void addOtherPropNamespaceUris(String... nsUri);
 
     /**
      * Determines whether provided doc
