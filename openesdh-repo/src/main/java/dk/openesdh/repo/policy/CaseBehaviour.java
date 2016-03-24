@@ -31,14 +31,17 @@ import dk.openesdh.repo.services.tenant.TenantOpeneModulesService;
 /**
  * Created by torben on 19/08/14.
  */
-@Service("caseBehaviour")
+@Service(CaseBehaviour.BEAN_ID)
 public class CaseBehaviour implements OnCreateNodePolicy, BeforeCreateNodePolicy, OnUpdatePropertiesPolicy,
         OnUpdateNodePolicy {
+
+    public static final String BEAN_ID = "caseBehaviour";
+
     @Autowired
     @Qualifier("NodeService")
     private NodeService nodeService;
     @Autowired
-    @Qualifier("CaseService")
+    @Qualifier(CaseService.BEAN_ID)
     private CaseService caseService;
     @Autowired
     @Qualifier("CasePermissionService")

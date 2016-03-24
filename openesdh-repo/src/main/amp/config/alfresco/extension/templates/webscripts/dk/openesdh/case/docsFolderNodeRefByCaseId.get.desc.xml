@@ -1,9 +1,0 @@
-<webscript>
-    <shortname>Get case documents folder by ID</shortname>
-    <description>Returns a case documents folder nodeRef for given case Id</description>
-    <url>/api/openesdh/case/docfolder/noderef/{caseId}</url>
-    <format default="json"></format>
-    <authentication>user</authentication>
-    <transaction>required</transaction>
-    <family>Case Tools</family>
-</webscript>

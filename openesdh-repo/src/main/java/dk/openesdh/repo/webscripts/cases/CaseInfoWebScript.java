@@ -17,7 +17,6 @@ import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
 import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 
-import dk.openesdh.repo.services.cases.CaseOwnersService;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
@@ -30,9 +29,6 @@ public class CaseInfoWebScript {
 
     @Autowired
     private CaseService caseService;
-
-    @Autowired
-    private CaseOwnersService caseOwnersService;
 
     @Authentication(AuthenticationType.USER)
     @Uri(value = "/{caseId}", method = HttpMethod.GET)
@@ -52,8 +48,6 @@ public class CaseInfoWebScript {
 
     private Resolution getCaseInfo(NodeRef caseNodeRef) throws JSONException {
         JSONObject json = caseService.getCaseInfoJson(caseNodeRef);
-        JSONObject properties = (JSONObject) json.get("properties");
-        properties.put("owners", caseOwnersService.getCaseOwners(caseNodeRef));
         return WebScriptUtils.jsonResolution(json);
     }
 }

@@ -58,8 +58,8 @@ public class PartyServiceImplIT {
     private ContactServiceImpl contactService;
 
     @Autowired
-    @Qualifier("CaseService")
-    private CaseServiceImpl caseService;
+    @Qualifier(CaseService.BEAN_ID)
+    private CaseService caseService;
 
     @Autowired
     private TransactionRunner transactionRunner;

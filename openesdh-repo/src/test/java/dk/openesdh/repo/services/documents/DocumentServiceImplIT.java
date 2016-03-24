@@ -55,7 +55,7 @@ public class DocumentServiceImplIT {
     private NodeService nodeService;
 
     @Autowired
-    @Qualifier("CaseService")
+    @Qualifier(CaseService.BEAN_ID)
     private CaseService caseService;
 
     @Autowired
@@ -63,7 +63,7 @@ public class DocumentServiceImplIT {
     private CaseDocumentTestHelper docTestHelper;
 
     @Autowired
-    @Qualifier("DocumentService")
+    @Qualifier(DocumentService.BEAN_ID)
     private DocumentService documentService;
 
     @Autowired

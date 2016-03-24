@@ -29,8 +29,8 @@ import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.helper.CaseHelper;
-import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.services.lock.OELockService;
 import dk.openesdh.repo.services.members.CaseMembersService;
 
@@ -63,8 +63,8 @@ public class CaseMembersServiceImplIT {
     private OELockService oeLockService;
 
     @Autowired
-    @Qualifier("CaseService")
-    private CaseServiceImpl caseService;
+    @Qualifier(CaseService.BEAN_ID)
+    private CaseService caseService;
 
     @Autowired
     @Qualifier("CaseMembersService")

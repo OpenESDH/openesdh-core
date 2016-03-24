@@ -22,6 +22,8 @@ import dk.openesdh.repo.services.HasStatus;
  */
 public interface CaseService extends HasStatus<CaseStatus> {
 
+    String BEAN_ID = "CaseService";
+
     String DATE_FORMAT = "yyyyMMdd";
 
     String CASE_ROLE_GROUP_NAME_PREFIX = "GROUP_case_";
@@ -191,4 +193,12 @@ public interface CaseService extends HasStatus<CaseStatus> {
     public JSONObject getCaseInfoJson(NodeRef caseNodeRef) throws JSONException;
 
     public String getCaseRoleGroupName(String caseId, String role);
+
+    void createFolderForCaseDocuments(NodeRef caseNodeRef);
+
+    void setupPermissionGroups(NodeRef caseNodeRef, String caseId);
+
+    String getCaseId(long uniqueNumber);
+
+    NodeRef getCasePathNodeRef(NodeRef parent, int calendarType);
 }

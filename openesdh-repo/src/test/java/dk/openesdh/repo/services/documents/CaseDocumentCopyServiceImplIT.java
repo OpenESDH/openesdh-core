@@ -41,7 +41,7 @@ public class CaseDocumentCopyServiceImplIT {
     private NodeService nodeService;
 
     @Autowired
-    @Qualifier("CaseService")
+    @Qualifier(CaseService.BEAN_ID)
     private CaseService caseService;
 
     @Autowired
@@ -53,7 +53,7 @@ public class CaseDocumentCopyServiceImplIT {
     private CaseDocumentCopyService caseDocumentCopyService;
 
     @Autowired
-    @Qualifier("DocumentService")
+    @Qualifier(DocumentService.BEAN_ID)
     private DocumentService documentService;
 
     private static final String TEST_FOLDER_NAME = "DocumentServiceImpIT";

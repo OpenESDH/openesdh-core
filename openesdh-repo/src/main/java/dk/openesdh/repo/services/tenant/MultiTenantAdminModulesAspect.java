@@ -97,6 +97,7 @@ public class MultiTenantAdminModulesAspect implements BeanFactoryAware {
         if (!beanFactory.containsBean(TENANT_ADMIN_SERVICE) || !beanFactory.containsBean(OPENE_MODULE_SERVICE)) {
             return;
         }
+
         this.beanFactory = (ListableBeanFactory) beanFactory;
         openeModuleIdsWithMtSuffix = getOpeneModuleIdsWithMtSuffix();
         moduleSpacesImporterBeanIds = getImporterBeanIds(ImporterBootstrap.class);

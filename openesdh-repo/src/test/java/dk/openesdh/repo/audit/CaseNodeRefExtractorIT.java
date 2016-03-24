@@ -1,8 +1,5 @@
 package dk.openesdh.repo.audit;
 
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
-
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
@@ -18,6 +15,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
@@ -35,7 +35,7 @@ public class CaseNodeRefExtractorIT {
     protected CaseDocumentTestHelper docTestHelper;
 
     @Autowired
-    @Qualifier("CaseService")
+    @Qualifier(CaseService.BEAN_ID)
     protected CaseService caseService;
 
     @Autowired

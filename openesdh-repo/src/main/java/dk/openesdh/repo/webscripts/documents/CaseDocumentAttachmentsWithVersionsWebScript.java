@@ -20,7 +20,7 @@ import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 public class CaseDocumentAttachmentsWithVersionsWebScript{
 
     @Autowired
-    @Qualifier("DocumentService")
+    @Qualifier(DocumentService.BEAN_ID)
     private DocumentService documentService;
     
     @Uri(value = "/api/openesdh/case/document/version/attachments", defaultFormat = "json")

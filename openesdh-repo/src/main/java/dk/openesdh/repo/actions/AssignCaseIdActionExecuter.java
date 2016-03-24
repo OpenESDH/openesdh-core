@@ -28,7 +28,7 @@ public class AssignCaseIdActionExecuter extends ActionExecuterAbstractBase {
     @Qualifier("NodeService")
     private NodeService nodeService;
     @Autowired
-    @Qualifier("CaseService")
+    @Qualifier(CaseService.BEAN_ID)
     private CaseService caseService;
 
     @Override

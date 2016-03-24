@@ -32,7 +32,7 @@ import dk.openesdh.repo.services.cases.CaseService;
 public class GroupsServiceImpl implements GroupsService {
 
     @Autowired
-    @Qualifier("CaseService")
+    @Qualifier(CaseService.BEAN_ID)
     private CaseService caseService;
 
     @Autowired

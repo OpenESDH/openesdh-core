@@ -38,11 +38,11 @@ import dk.openesdh.repo.services.documents.DocumentService;
 public class CaseDocumentsSearchServiceImpl extends AbstractXSearchService {
 
     @Autowired
-    @Qualifier("CaseService")
+    @Qualifier(CaseService.BEAN_ID)
     protected CaseService caseService;
 
     @Autowired
-    @Qualifier("DocumentService")
+    @Qualifier(DocumentService.BEAN_ID)
     protected DocumentService documentService;
 
     @Autowired
@@ -102,7 +102,7 @@ public class CaseDocumentsSearchServiceImpl extends AbstractXSearchService {
      * @throws JSONException
      */
     @Override
-    protected JSONObject nodeToJSON(NodeRef nodeRef) throws JSONException {
+    public JSONObject nodeToJSON(NodeRef nodeRef) throws JSONException {
         JSONObject json = super.nodeToJSON(nodeRef);
         NodeRef mainDocNodeRef = documentService.getMainDocument(nodeRef);
 

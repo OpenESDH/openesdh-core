@@ -59,7 +59,7 @@ public class DocumentRecordInfoWebScript {
     @Qualifier("NodeInfoService")
     private NodeInfoService nodeInfoService;
     @Autowired
-    @Qualifier("DocumentService")
+    @Qualifier(DocumentService.BEAN_ID)
     private DocumentService documentService;
     @Autowired
     @Qualifier("OELockService")

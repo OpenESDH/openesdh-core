@@ -130,10 +130,6 @@
         <property name="nodeService" ref="NodeService" />
     </bean>
     
-    <bean id="webscript.dk.openesdh.case.docsFolderNodeRefByCaseId.get" class="dk.openesdh.repo.webscripts.cases.CaseDocumentsFolderNodeRefByCaseId" parent="webscript">
-        <property name="caseService" ref="CaseService" />
-    </bean>
-
     <bean id="openesdhNotesWebscript"
           class="dk.openesdh.repo.webscripts.notes.NotesWebScript"
           parent="webscript">

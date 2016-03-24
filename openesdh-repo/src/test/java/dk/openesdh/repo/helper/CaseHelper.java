@@ -1,7 +1,5 @@
 package dk.openesdh.repo.helper;
 
-import dk.openesdh.repo.services.TransactionRunner;
-
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -20,11 +18,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import dk.openesdh.simplecase.model.SimpleCaseModel;
 import dk.openesdh.repo.model.CaseStatus;
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.services.cases.CasePermission;
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.simplecase.model.SimpleCaseModel;
 
 /**
  * Created by ole on 18/08/14.
@@ -47,7 +46,7 @@ public class CaseHelper {
     @Qualifier("policyBehaviourFilter")
     private BehaviourFilter behaviourFilter;
     @Autowired
-    @Qualifier("CaseService")
+    @Qualifier(CaseService.BEAN_ID)
     private CaseService caseService;
 
     public static final String MIKE_JACKSON = "mjackson";

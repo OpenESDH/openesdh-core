@@ -39,7 +39,7 @@ public class StatusTransitionBehaviourIT {
     private NodeService nodeService;
 
     @Autowired
-    @Qualifier("CaseService")
+    @Qualifier(CaseService.BEAN_ID)
     private CaseService caseService;
 
     @Autowired

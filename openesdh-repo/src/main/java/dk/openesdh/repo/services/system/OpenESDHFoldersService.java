@@ -1,5 +1,7 @@
 package dk.openesdh.repo.services.system;
 
+import java.util.Optional;
+
 import org.alfresco.service.cmr.repository.NodeRef;
 
 public interface OpenESDHFoldersService {
@@ -39,4 +41,8 @@ public interface OpenESDHFoldersService {
     public NodeRef getSubsystemRootNodeRef();
 
     public NodeRef getParametersRootNodeRef();
+
+    NodeRef getFolder(NodeRef parent, String folderName);
+
+    Optional<NodeRef> getFolderOptional(NodeRef parent, String folderName);
 }

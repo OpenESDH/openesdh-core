@@ -69,6 +69,7 @@ public class XSearchServiceImpl extends AbstractXSearchService {
 
         if (filtersJSON == null) {
             searchTerms.add("TYPE:" + quote(baseType));
+            searchTerms.add("ISNOTNULL:\"oe:id\"");
             return StringUtils.join(searchTerms, " AND ");
         }
 
@@ -84,7 +85,7 @@ public class XSearchServiceImpl extends AbstractXSearchService {
                     .ifPresent(searchTerm -> searchTerms.add(searchTerm));
         }
 
-        return "TYPE:" + quote(baseType) + " AND ("
+        return "TYPE:" + quote(baseType) + " AND ISNOTNULL:\"oe:id\" AND ("
                 + StringUtils.join(searchTerms, " " + filterType.name() + " ") + ")";
     }
 

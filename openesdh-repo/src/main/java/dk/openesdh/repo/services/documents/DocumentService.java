@@ -27,6 +27,8 @@ import dk.openesdh.repo.webscripts.documents.Documents;
  */
 public interface DocumentService extends HasStatus<DocumentStatus> {
 
+    String BEAN_ID = "DocumentService";
+
     public static final String DOCUMENT_STORED_IN_CASE_MESSAGE = "The document or it's copy has already been stored in the case ";
 
     /**
@@ -250,5 +252,13 @@ public interface DocumentService extends HasStatus<DocumentStatus> {
      * @param nsUri
      */
     void addOtherPropNamespaceUris(String... nsUri);
+
+    /**
+     * Determines whether provided doc
+     * 
+     * @param docRef
+     * @return
+     */
+    boolean isDocBelongsToCase(NodeRef docRef);
 
 }

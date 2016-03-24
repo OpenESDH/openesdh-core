@@ -33,9 +33,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 
-import dk.openesdh.simplecase.model.SimpleCaseModel;
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.simplecase.model.SimpleCaseModel;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -63,7 +63,7 @@ public class XSearchServiceImplIT {
     private CaseHelper caseHelper;
 
     @Autowired
-    @Qualifier("CaseService")
+    @Qualifier(CaseService.BEAN_ID)
     private CaseService caseService;
 
     private XSearchServiceImpl xSearchService = null;
@@ -126,7 +126,7 @@ public class XSearchServiceImplIT {
     public void testBuildQuery() throws Exception {
         JSONArray filters = createTestFilters(testCaseTitle, null);
         String query = xSearchService.buildQuery(BASE_TYPE, filters.toString());
-        assertEquals("TYPE:" + AbstractXSearchService.quote(BASE_TYPE) + " AND ("
+        assertEquals("TYPE:" + AbstractXSearchService.quote(BASE_TYPE) + " AND ISNOTNULL:\"oe:id\" AND ("
                 + "@cm\\:title:" + AbstractXSearchService.quote(testCaseTitle) + ")", query);
     }
 
@@ -144,7 +144,7 @@ public class XSearchServiceImplIT {
         JSONArray filters = createTestFilters(testCaseTitle, caseId);
 
         String query = xSearchService.buildQuery(BASE_TYPE, filters.toString(), filterType);
-        assertEquals("TYPE:" + AbstractXSearchService.quote(BASE_TYPE) + " AND ("
+        assertEquals("TYPE:" + AbstractXSearchService.quote(BASE_TYPE) + " AND ISNOTNULL:\"oe:id\" AND ("
                 + "@cm\\:title:" + AbstractXSearchService.quote(testCaseTitle) + " " + filterType.name() + " "
                 + "@oe\\:id:" + AbstractXSearchService.quote(caseId) + ")",
                 query);

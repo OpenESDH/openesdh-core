@@ -34,7 +34,7 @@ public class CaseWorkflowServiceActivityAspect implements BeanFactoryAware {
     @Qualifier(WORKFLOW_SERVICE)
     private WorkflowService workflowService;
     @Autowired
-    @Qualifier("CaseService")
+    @Qualifier(CaseService.BEAN_ID)
     private CaseService caseService;
     @Autowired
     @Qualifier("CaseActivityService")

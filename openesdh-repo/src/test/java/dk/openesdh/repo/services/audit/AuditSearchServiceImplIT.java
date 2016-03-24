@@ -58,7 +58,7 @@ public class AuditSearchServiceImplIT {
     private TransactionRunner transactionRunner;
 
     @Autowired
-    @Qualifier("CaseService")
+    @Qualifier(CaseService.BEAN_ID)
     private CaseService caseService;
 
     @Autowired

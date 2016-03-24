@@ -2,7 +2,6 @@ package dk.openesdh.repo.services.activities;
 
 import java.io.Serializable;
 import java.util.Map;
-import java.util.Objects;
 
 import javax.annotation.PostConstruct;
 
@@ -24,9 +23,11 @@ import org.springframework.stereotype.Service;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.documents.DocumentService;
 
-@Service("caseDocumentActivityBehaviour")
+@Service(CaseDocumentActivityBehaviour.BEAN_ID)
 public class CaseDocumentActivityBehaviour implements OnCreateChildAssociationPolicy,
         OnCreateVersionPolicy {
+
+    public static final String BEAN_ID = "caseDocumentActivityBehaviour";
 
     @Autowired
     @Qualifier("NodeService")
@@ -38,7 +39,7 @@ public class CaseDocumentActivityBehaviour implements OnCreateChildAssociationPo
     @Qualifier("CaseActivityService")
     private CaseActivityService activityService;
     @Autowired
-    @Qualifier("DocumentService")
+    @Qualifier(DocumentService.BEAN_ID)
     private DocumentService documentService;
 
     @PostConstruct
@@ -54,7 +55,7 @@ public class CaseDocumentActivityBehaviour implements OnCreateChildAssociationPo
     @Override
     public void onCreateChildAssociation(ChildAssociationRef childAssocRef, boolean isNewNode) {
         NodeRef docNodeRef = childAssocRef.getChildRef();
-        if (!nodeService.exists(docNodeRef) || docDoesntBelongToCase(docNodeRef)) {
+        if (!nodeService.exists(docNodeRef) || !documentService.isDocBelongsToCase(docNodeRef)) {
             return;
         }
 
@@ -68,7 +69,7 @@ public class CaseDocumentActivityBehaviour implements OnCreateChildAssociationPo
     @Override
     public void onCreateVersion(QName classRef, NodeRef versionableNode,
             Map<String, Serializable> versionProperties, PolicyScope nodeDetails) {
-        if (docDoesntBelongToCase(versionableNode)) {
+        if (!documentService.isDocBelongsToCase(versionableNode)) {
             return;
         }
         if (nodeService.hasAspect(versionableNode, OpenESDHModel.ASPECT_DOC_IS_MAIN_FILE)) {
@@ -76,9 +77,5 @@ public class CaseDocumentActivityBehaviour implements OnCreateChildAssociationPo
         } else {
             activityService.postOnCaseDocumentAttachmentNewVersionUpload(versionableNode);
         }
-    }
-
-    private boolean docDoesntBelongToCase(NodeRef versionableNode) {
-        return Objects.isNull(documentService.getCaseNodeRef(versionableNode));
     }
 }
