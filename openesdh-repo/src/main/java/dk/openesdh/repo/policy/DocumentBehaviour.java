@@ -94,8 +94,7 @@ public class DocumentBehaviour {
         this.policyComponent.bindClassBehaviour(
                 OnCopyCompletePolicy.QNAME, 
                 OpenESDHModel.TYPE_DOC_SIMPLE,
-                new JavaBehaviour(this, "onCopyCaseDocumentComplete",
-                        Behaviour.NotificationFrequency.TRANSACTION_COMMIT));
+                new JavaBehaviour(this, "onCopyCaseDocumentComplete"));
 
         this.policyComponent.bindClassBehaviour(
                 NodeServicePolicies.OnCreateNodePolicy.QNAME,

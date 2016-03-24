@@ -121,12 +121,15 @@ public class NodeInfoServiceImpl implements NodeInfoService {
             valueObj.put("type", "String");
         } else if (propertyDefinition.getDataType().getName().equals(DataTypeDefinition.CATEGORY)) {
             valueObj = getCategoryValue((NodeRef) value);
+        } else if (propertyDefinition.isMultiValued()) {
+            valueObj.put("value", value);
+            valueObj.put("displayValue", getDisplayLabel(propertyDefinition, value));
+            valueObj.put("type", "String");
         } else {
             valueObj.put("value", value.toString());
             valueObj.put("displayValue", getDisplayLabel(propertyDefinition, value));
             valueObj.put("type", "String");
         }
-
         if (propertyDefinition != null) {
             valueObj.put("label", propertyDefinition.getTitle(dictionaryService));
         }

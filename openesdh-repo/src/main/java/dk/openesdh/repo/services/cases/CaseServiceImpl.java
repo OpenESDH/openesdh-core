@@ -122,6 +122,9 @@ public class CaseServiceImpl implements CaseService {
     @Autowired
     @Qualifier("PartyService")
     private PartyService partyService;
+    @Autowired
+    @Qualifier("CaseOwnersService")
+    private CaseOwnersService caseOwnersService;
 
     @Override
     public NodeRef getCasesRootNodeRef() {
@@ -225,6 +228,12 @@ public class CaseServiceImpl implements CaseService {
 
             return null;
         }, AuthenticationUtil.getAdminUserName());
+    }
+
+    @Override
+    public void createFolderForCaseDocuments(NodeRef caseNodeRef) {
+        NodeRef documentsNodeRef = createNode(caseNodeRef, OpenESDHModel.DOCUMENTS_FOLDER_NAME);
+        nodeService.addAspect(documentsNodeRef, OpenESDHModel.ASPECT_DOCUMENT_CONTAINER, null);
     }
 
     /**
@@ -687,7 +696,7 @@ public class CaseServiceImpl implements CaseService {
      * @param name
      * @return
      */
-    private NodeRef createNode(final NodeRef parentFolderNodeRef, final String name) {
+    protected NodeRef createNode(final NodeRef parentFolderNodeRef, final String name) {
         Map<QName, Serializable> properties = new HashMap<>();
         properties.put(ContentModel.PROP_NAME, name);
         return nodeService.createNode(parentFolderNodeRef, ContentModel.ASSOC_CONTAINS, QName.createQName(OpenESDHModel.CASE_URI, name), ContentModel.TYPE_FOLDER, properties).getChildRef();
@@ -710,8 +719,7 @@ public class CaseServiceImpl implements CaseService {
 
         // Create folder for documents
         // TODO: Test
-        NodeRef documentsNodeRef = createNode(caseNodeRef, OpenESDHModel.DOCUMENTS_FOLDER_NAME);
-        nodeService.addAspect(documentsNodeRef, OpenESDHModel.ASPECT_DOCUMENT_CONTAINER, null);
+        createFolderForCaseDocuments(caseNodeRef);
     }
 
     String getCaseId(long uniqueNumber) {
@@ -830,6 +838,7 @@ public class CaseServiceImpl implements CaseService {
         JSONObject properties = (JSONObject) json.get("properties");
         addEmptyPropsIfNull(properties);
         properties.put("nodeRef", caseNodeRef.toString());
+        properties.put("owners", caseOwnersService.getCaseOwners(caseNodeRef));
         return json;
     }
 

@@ -9,6 +9,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -862,5 +863,10 @@ public class DocumentServiceImpl implements DocumentService {
     public List<ChildAssociationRef> getAttachmentsAssoc(NodeRef mainDocNodeRef) {
         return this.nodeService.getChildAssocs(mainDocNodeRef, OpenESDHModel.ASSOC_DOC_ATTACHMENTS,
                 RegexQNamePattern.MATCH_ALL);
+    }
+
+    @Override
+    public boolean isDocBelongsToCase(NodeRef docRef) {
+        return Objects.nonNull(getCaseNodeRef(docRef));
     }
 }

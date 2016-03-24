@@ -73,23 +73,38 @@ public class OpenESDHFoldersServiceImpl implements OpenESDHFoldersService {
         return getFolder(getOpenESDHRootFolder(), PARAMETERS_ROOT);
     }
 
-    private NodeRef getFolder(NodeRef parent, String folderName) {
+    @Override
+    public NodeRef getFolder(NodeRef parent, String folderName) {
         NodeRef folderNodeRef = nodeService.getChildByName(parent, ContentModel.ASSOC_CONTAINS, folderName);
         if (folderNodeRef == null) {
             return getByAssociationOrThrowError(parent, folderName);
         }
         return folderNodeRef;
     }
+    
+    @Override
+    public Optional<NodeRef> getFolderOptional(NodeRef parent, String folderName){
+        NodeRef folderNodeRef = nodeService.getChildByName(parent, ContentModel.ASSOC_CONTAINS, folderName);
+        if (folderNodeRef != null) {
+            return Optional.of(folderNodeRef);
+        }
+        return getByAssociation(parent, folderName);
+    }
 
     private NodeRef getByAssociationOrThrowError(NodeRef parent, String folderName) throws InvalidNodeRefException, AlfrescoRuntimeException {
-        Optional<ChildAssociationRef> folder = nodeService.getChildAssocs(parent)
-                .stream()
-                .filter((ChildAssociationRef t) -> t.getQName().getLocalName().equals(folderName))
-                .findFirst();
+        Optional<NodeRef> folder = getByAssociation(parent, folderName);
         if (folder.isPresent()) {
-            return folder.get().getChildRef();
+            return folder.get();
         }
         //Throw an exception. This should have been created on first boot along with the context root folder
         throw new AlfrescoRuntimeException("The \"" + folderName + "\" folder doesn't exist.");
+    }
+    
+    private Optional<NodeRef> getByAssociation(NodeRef parent, String folderName){
+        return nodeService.getChildAssocs(parent)
+                .stream()
+                .filter((ChildAssociationRef t) -> t.getQName().getLocalName().equals(folderName))
+                .findFirst()
+                .map(ChildAssociationRef::getChildRef);
     }
 }

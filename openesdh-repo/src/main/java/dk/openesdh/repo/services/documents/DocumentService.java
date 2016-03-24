@@ -244,4 +244,12 @@ public interface DocumentService extends HasStatus<DocumentStatus> {
      */
     CaseDocument getCaseDocument(NodeRef docRecordNodeRef);
 
+    /**
+     * Determines whether provided doc
+     * 
+     * @param docRef
+     * @return
+     */
+    boolean isDocBelongsToCase(NodeRef docRef);
+
 }

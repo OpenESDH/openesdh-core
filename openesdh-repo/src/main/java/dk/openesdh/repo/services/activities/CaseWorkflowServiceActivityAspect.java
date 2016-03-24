@@ -24,6 +24,7 @@ import dk.openesdh.repo.audit.CaseWorkflowReviewOutcomeExtractor;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.workflow.CaseWorkflowService;
+import dk.openesdh.repo.utils.ClassUtils;
 
 @Service("CaseWorkflowServiceActivityAspect")
 public class CaseWorkflowServiceActivityAspect implements BeanFactoryAware {
@@ -43,6 +44,9 @@ public class CaseWorkflowServiceActivityAspect implements BeanFactoryAware {
     @Override
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
         if (beanFactory.containsBean(WORKFLOW_SERVICE)) {
+
+            ClassUtils.checkHasMethods(WorkflowService.class, "endTask", "cancelWorkflow");
+
             NameMatchMethodPointcutAdvisor beforeEndTaskAdvisor = new NameMatchMethodPointcutAdvisor(
                     (MethodBeforeAdvice) this::beforeEndWorkflowTask);
             beforeEndTaskAdvisor.addMethodName("endTask");
@@ -57,6 +61,7 @@ public class CaseWorkflowServiceActivityAspect implements BeanFactoryAware {
         }
 
         if (beanFactory.containsBean(CaseWorkflowService.NAME)) {
+            ClassUtils.checkHasMethods(CaseWorkflowService.class, "startWorkflow");
             NameMatchMethodPointcutAdvisor advisor = new NameMatchMethodPointcutAdvisor(
                     (AfterReturningAdvice) this::afterStartWorkflow);
             advisor.addMethodName("startWorkflow");

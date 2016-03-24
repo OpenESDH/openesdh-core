@@ -191,4 +191,6 @@ public interface CaseService extends HasStatus<CaseStatus> {
     public JSONObject getCaseInfoJson(NodeRef caseNodeRef) throws JSONException;
 
     public String getCaseRoleGroupName(String caseId, String role);
+
+    void createFolderForCaseDocuments(NodeRef caseNodeRef);
 }

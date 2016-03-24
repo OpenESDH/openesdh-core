@@ -102,7 +102,7 @@ public class CaseDocumentsSearchServiceImpl extends AbstractXSearchService {
      * @throws JSONException
      */
     @Override
-    protected JSONObject nodeToJSON(NodeRef nodeRef) throws JSONException {
+    public JSONObject nodeToJSON(NodeRef nodeRef) throws JSONException {
         JSONObject json = super.nodeToJSON(nodeRef);
         NodeRef mainDocNodeRef = documentService.getMainDocument(nodeRef);
 

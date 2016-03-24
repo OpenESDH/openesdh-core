@@ -66,7 +66,7 @@ public class XSearchServiceImpl extends AbstractXSearchService {
 
     protected String buildQuery(String baseType, String filtersJSON, FilterType filterType) throws JSONException {
         List<String> searchTerms = new ArrayList<>();
-
+        searchTerms.add("ISNOTNULL:\"oe:id\"");
         if (filtersJSON == null) {
             searchTerms.add("TYPE:" + quote(baseType));
             return StringUtils.join(searchTerms, " AND ");
