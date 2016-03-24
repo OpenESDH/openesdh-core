@@ -59,7 +59,7 @@ public class PartyServiceImplIT {
 
     @Autowired
     @Qualifier(CaseService.BEAN_ID)
-    private CaseServiceImpl caseService;
+    private CaseService caseService;
 
     @Autowired
     private TransactionRunner transactionRunner;

@@ -35,7 +35,7 @@ public class CaseTypeServiceImplIT {
     private CaseDocumentTestHelper caseTestHelper;
     @Autowired
     @Qualifier(CaseService.BEAN_ID)
-    private CaseServiceImpl caseService;
+    private CaseService caseService;
 
     @Test
     public void testGetCaseType_NodeRef() {
