@@ -74,7 +74,9 @@ public class ContactSearch extends AbstractWebScript {
 
     private JSONObject nodeToJSON(NodeRef nodeRef) throws JSONException {
         Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
-        properties.put(OpenESDHModel.PROP_CONTACT_DEPARTMENT, getParentsDepartment(nodeRef));
+        if (!properties.containsKey(OpenESDHModel.PROP_CONTACT_DEPARTMENT)) {
+            properties.put(OpenESDHModel.PROP_CONTACT_DEPARTMENT, getParentsDepartment(nodeRef));
+        }
         return ContactUtils.createContactJson(nodeRef, properties);
     }
 
