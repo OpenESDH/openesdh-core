@@ -33,6 +33,8 @@ public class CaseHelper {
 
     public static final String ADMIN_USER_NAME = "admin";
     public final static String DEFAULT_USERNAME = "username12";
+    public static final String SIMPLE_CASE_TYPE = SimpleCaseModel.SIMPLE_CASE_PREFIX + ":"
+            + SimpleCaseModel.TYPE_CASE;
 
     @Autowired
     @Qualifier("NodeService")
