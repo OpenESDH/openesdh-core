@@ -114,19 +114,19 @@ public class NoteServiceImpl implements NoteService {
                 .stream()
                 .map(AssociationRef::getTargetRef)
                 .collect(Collectors.toList());
-        
+
         List<NodeRef> currentParties = note.getConcernedParties();
         Predicate<NodeRef> isNotAmongCurrent = party -> !currentParties.contains(party);
         oldParties.stream()
-            .filter(isNotAmongCurrent)
-            .forEach(party -> nodeService.removeAssociation(
-                                note.getNodeRef(), party, OpenESDHModel.ASSOC_NOTE_CONCERNED_PARTIES));
-        
+                .filter(isNotAmongCurrent)
+                .forEach(party -> nodeService.removeAssociation(
+                        note.getNodeRef(), party, OpenESDHModel.ASSOC_NOTE_CONCERNED_PARTIES));
+
         Predicate<NodeRef> isNotAmongOld = party -> !oldParties.contains(party);
         currentParties.stream()
-            .filter(isNotAmongOld)
-            .forEach(party -> nodeService.createAssociation(
-                                note.getNodeRef(), party, OpenESDHModel.ASSOC_NOTE_CONCERNED_PARTIES));
+                .filter(isNotAmongOld)
+                .forEach(party -> nodeService.createAssociation(
+                        note.getNodeRef(), party, OpenESDHModel.ASSOC_NOTE_CONCERNED_PARTIES));
     }
 
     private Note getNote(NodeRef parentNodeRef, NodeRef noteNodeRef) {
@@ -134,10 +134,10 @@ public class NoteServiceImpl implements NoteService {
         Note note = new Note();
         note.setParent(parentNodeRef);
         note.setNodeRef(noteNodeRef);
-        note.setAuthor(props.get(ContentModel.PROP_AUTHOR).toString());
-        note.setHeadline(props.get(OpenESDHModel.PROP_NOTE_HEADLINE).toString());
-        note.setContent(props.get(OpenESDHModel.PROP_NOTE_CONTENT).toString());
-        note.setCreator(props.get(ContentModel.PROP_CREATOR).toString());
+        note.setAuthor((String) props.get(ContentModel.PROP_AUTHOR));
+        note.setTitle((String) props.get(ContentModel.PROP_TITLE));
+        note.setContent((String) props.get(OpenESDHModel.PROP_NOTE_CONTENT));
+        note.setCreator((String) props.get(ContentModel.PROP_CREATOR));
         note.setCreated(((Date) props.get(ContentModel.PROP_CREATED)));
         note.setCreated(((Date) props.get(ContentModel.PROP_MODIFIED)));
 
@@ -159,7 +159,7 @@ public class NoteServiceImpl implements NoteService {
 
     private Map<QName, Serializable> getNoteProperties(Note note) {
         Map<QName, Serializable> properties = new HashMap<>();
-        properties.put(OpenESDHModel.PROP_NOTE_HEADLINE, note.getHeadline());
+        properties.put(ContentModel.PROP_TITLE, note.getTitle());
         properties.put(OpenESDHModel.PROP_NOTE_CONTENT, note.getContent());
         properties.put(ContentModel.PROP_AUTHOR, note.getAuthor());
         return properties;
