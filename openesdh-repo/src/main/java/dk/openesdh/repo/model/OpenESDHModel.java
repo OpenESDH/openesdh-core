@@ -181,7 +181,6 @@ public interface OpenESDHModel {
     QName PROP_CONTACT_INTERNAL = QName.createQName(CONTACT_URI, "internal");
     QName PROP_CONTACT_LOCKED_IN_CASES = QName.createQName(CONTACT_URI, "lockedInCases");
 
-    QName PROP_NOTE_HEADLINE = QName.createQName(NOTE_URI, "headline");
     QName PROP_NOTE_CONTENT = QName.createQName(NOTE_URI, "content");
     QName PROP_ATTACHMENT_COUNT = QName.createQName(DOC_URI, "attachmentCount");
 

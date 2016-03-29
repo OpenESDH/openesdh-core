@@ -13,7 +13,7 @@ public class Note {
 
     private NodeRef parent;
 
-    private String headline;
+    private String title;
 
     private String content;
 
@@ -51,12 +51,12 @@ public class Note {
         this.parent = parent;
     }
 
-    public String getHeadline() {
-        return headline;
+    public String getTitle() {
+        return title;
     }
 
-    public void setHeadline(String headline) {
-        this.headline = headline;
+    public void setTitle(String title) {
+        this.title = title;
     }
 
     public String getContent() {

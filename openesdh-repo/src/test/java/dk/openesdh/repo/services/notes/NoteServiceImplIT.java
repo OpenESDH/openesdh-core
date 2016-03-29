@@ -84,7 +84,7 @@ public class NoteServiceImplIT {
     private static final String CASE_READER_USER_NAME = "caseReaderUser";
     private static final String NON_CASE_READER_USER_NAME = "nonCaseReaderUser";
 
-    private static final String TEST_NOTE_HEADLINE = "My headline";
+    private static final String TEST_NOTE_TITLE = "My title";
     private static final String TEST_NOTE_CONTENT = "My note";
 
     private NodeRef parentNodeRef;
@@ -114,7 +114,7 @@ public class NoteServiceImplIT {
             nodes.add(noteNodeRef);
         }
         nodes.addAll(notes);
-        
+
         docTestHelper.removeNodesAndDeleteUsersInTransaction(nodes, Arrays.asList(caseNodeRef),
                 Arrays.asList(NON_CASE_READER_USER_NAME, CaseHelper.DEFAULT_USERNAME, CASE_READER_USER_NAME));
     }
@@ -126,7 +126,7 @@ public class NoteServiceImplIT {
         noteNodeRef = createNoteForNonCaseNode();
 
         assertTrue("A node of the created note should exist, but it doesn't", nodeService.exists(noteNodeRef));
-        assertTrue("Notes list should contain newly created note", 
+        assertTrue("Notes list should contain newly created note",
                 noteService.getNotes(parentNodeRef)
                 .stream()
                 .anyMatch(note -> noteNodeRef.equals(note.getNodeRef()))
@@ -140,7 +140,7 @@ public class NoteServiceImplIT {
         Note note = new Note();
         note.setNodeRef(noteNodeRef);
         note.setParent(parentNodeRef);
-        note.setHeadline("Updated headline");
+        note.setTitle("Updated title");
         note.setAuthor("Updated author");
         note.setContent("My updated note");
 
@@ -148,8 +148,8 @@ public class NoteServiceImplIT {
 
         NodeRef updatedNote = noteService.getNotes(parentNodeRef).get(0).getNodeRef();
 
-        assertEquals("Updated note should contain updated headline", "Updated headline",
-                nodeService.getProperty(updatedNote, OpenESDHModel.PROP_NOTE_HEADLINE));
+        assertEquals("Updated note should contain updated title", "Updated title",
+                nodeService.getProperty(updatedNote, ContentModel.PROP_TITLE));
 
         assertEquals("Updated note should contain updated content", "My updated note",
                 nodeService.getProperty(updatedNote, OpenESDHModel.PROP_NOTE_CONTENT));
@@ -157,9 +157,9 @@ public class NoteServiceImplIT {
         assertEquals("Updated note should contain updated author", "Updated author",
                 nodeService.getProperty(updatedNote, ContentModel.PROP_AUTHOR));
     }
-    
+
     @Test
-    public void testGetNotesPaging()throws Exception{
+    public void testGetNotesPaging() throws Exception {
         AuthenticationUtil.setFullyAuthenticatedUser(CaseHelper.DEFAULT_USERNAME);
         NodeRef firstNote = createCaseNote(CaseHelper.DEFAULT_USERNAME, "first note", "first note content");
         NodeRef secondNote = createCaseNote(CaseHelper.DEFAULT_USERNAME, "second note", "second note content");
@@ -168,12 +168,12 @@ public class NoteServiceImplIT {
         List<Note> firstNoteList = noteService.getNotes(caseNodeRef, 0, 1).getResultList();
         Assert.assertEquals("Result notes list should contain only 1 element", 1, firstNoteList.size());
         Assert.assertEquals("Result notes list should contain first note", "first note", firstNoteList.get(0)
-                .getHeadline());
+                .getTitle());
 
         List<Note> secondNoteList = noteService.getNotes(caseNodeRef, 1, 1).getResultList();
         Assert.assertEquals("Result notes list should contain only 1 element", 1, secondNoteList.size());
         Assert.assertEquals("Result notes list should contain second note", "second note", secondNoteList.get(0)
-                .getHeadline());
+                .getTitle());
 
         List<Note> twoNotesList = noteService.getNotes(caseNodeRef, 0, 3).getResultList();
         Assert.assertEquals("Result notes list should contain 2 elements", 2, twoNotesList.size());
@@ -193,7 +193,7 @@ public class NoteServiceImplIT {
         Note note = new Note();
         note.setParent(parentNodeRef);
         note.setAuthor("Author");
-        note.setHeadline("Test headline");
+        note.setTitle("Test title");
         note.setContent("My note");
 
         return noteService.createNote(note);
@@ -219,7 +219,7 @@ public class NoteServiceImplIT {
         Note note = new Note();
         note.setNodeRef(noteNodeRef);
         note.setParent(caseNodeRef);
-        note.setHeadline("Updated headline");
+        note.setTitle("Updated title");
         note.setContent("My updated note");
         note.setAuthor("Updated author");
 
@@ -227,8 +227,8 @@ public class NoteServiceImplIT {
 
         NodeRef updatedNote = noteService.getNotes(caseNodeRef).get(0).getNodeRef();
 
-        assertEquals("Updated note should contain updated content", "Updated headline",
-                nodeService.getProperty(updatedNote, OpenESDHModel.PROP_NOTE_HEADLINE));
+        assertEquals("Updated note should contain updated content", "Updated title",
+                nodeService.getProperty(updatedNote, ContentModel.PROP_TITLE));
 
         assertEquals("Updated note should contain updated content", "My updated note",
                 nodeService.getProperty(updatedNote, OpenESDHModel.PROP_NOTE_CONTENT));
@@ -285,7 +285,7 @@ public class NoteServiceImplIT {
         Note note = new Note();
         note.setNodeRef(noteNodeRef);
         note.setParent(caseNodeRef);
-        note.setHeadline("Updated header");
+        note.setTitle("Updated title");
         note.setContent("Updated note");
         note.setAuthor(CASE_READER_USER_NAME);
 
@@ -305,13 +305,13 @@ public class NoteServiceImplIT {
     }
 
     private NodeRef createCaseNote(String noteAuthor) {
-        return createCaseNote(noteAuthor, TEST_NOTE_HEADLINE, TEST_NOTE_CONTENT);
+        return createCaseNote(noteAuthor, TEST_NOTE_TITLE, TEST_NOTE_CONTENT);
     }
-    
-    private NodeRef createCaseNote(String noteAuthor, String headline, String content) {
+
+    private NodeRef createCaseNote(String noteAuthor, String title, String content) {
         Note note = new Note();
         note.setParent(caseNodeRef);
-        note.setHeadline(headline);
+        note.setTitle(title);
         note.setContent(content);
         note.setAuthor(noteAuthor);
 
