@@ -12,13 +12,12 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Optional;
 
-import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONObject;
 import org.springframework.extensions.surf.util.I18NUtil;
 
-import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.audit.AuditEntryHandler;
+import dk.openesdh.repo.services.audit.AuditUtils;
 
 public class CaseNoteAuditEntryHandler extends AuditEntryHandler {
 
@@ -27,8 +26,8 @@ public class CaseNoteAuditEntryHandler extends AuditEntryHandler {
     @Override
     public Optional<JSONObject> handleEntry(String user, long time, Map<String, Serializable> values) {
         String transactionAction = (String) values.get(TRANSACTION_ACTION);
-        switch(transactionAction){
-            case TRANSACTION_ACTION_CREATE: 
+        switch (transactionAction) {
+            case TRANSACTION_ACTION_CREATE:
                 return handleEntry(user, time, values, TRANSACTION_PROPERTIES_ADD, "auditlog.label.note.added");
             case TRANSACTION_ACTION_UPDATE_NODE_PROPERTIES:
                 return handleEntry(user, time, values, TRANSACTION_PROPERTIES_TO, "auditlog.label.note.updated");
@@ -36,11 +35,9 @@ public class CaseNoteAuditEntryHandler extends AuditEntryHandler {
                 return Optional.empty();
         }
     }
-    
-    private Optional<JSONObject> handleEntry(String user, long time, Map<String, Serializable> values, String propertiesField, String actionMessageKey){
-        Map<QName, Serializable> properties = (Map<QName, Serializable>) values.get(propertiesField);
-        String trimmedNote = StringUtils.abbreviate((String) properties.get(OpenESDHModel.PROP_NOTE_HEADLINE),
-                MAX_NOTE_TEXT_LENGTH);
+
+    private Optional<JSONObject> handleEntry(String user, long time, Map<String, Serializable> values, String propertiesField, String actionMessageKey) {
+        String trimmedNote = StringUtils.abbreviate(AuditUtils.getTitle(values), MAX_NOTE_TEXT_LENGTH);
         JSONObject auditEntry = createNewAuditEntry(user, time);
         auditEntry.put(ACTION, I18NUtil.getMessage(actionMessageKey, trimmedNote));
         auditEntry.put(TYPE, getTypeMessage(NOTE));

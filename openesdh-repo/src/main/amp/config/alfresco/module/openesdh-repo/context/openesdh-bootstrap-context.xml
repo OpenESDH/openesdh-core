@@ -208,4 +208,17 @@
         </property>
     </bean>
     
+    <bean id="patch.noteHeadlineToTitle"
+        class="dk.openesdh.repo.pathes.NoteHeadLineToTitlePatch"
+        parent="basePatch">
+        <property name="id"><value>patch.noteHeadlineToTitle</value></property>
+        <property name="patchDAO" ref="patchDAO"/>
+        <property name="qnameDAO" ref="qnameDAO" />
+        <property name="nodeDAO" ref="nodeDAO" />
+        <property name="description"><value>Moves Note's Headline property to Title</value></property>
+        <property name="fixesFromSchema"><value>0</value></property>
+        <property name="fixesToSchema"><value>${version.schema}</value></property>
+        <property name="targetSchema"><value>10000</value></property>
+    </bean>
+    
 </beans>
