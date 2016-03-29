@@ -244,13 +244,11 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
             return Optional.empty();
         }
 
-        Map<QName, Serializable> fromMap = (Map<QName, Serializable>) values.get(TRANSACTION_PROPERTIES_FROM);
         Map<QName, Serializable> toMap = (Map<QName, Serializable>) values.get(TRANSACTION_PROPERTIES_TO);
         Map<QName, Serializable> addMap = (Map<QName, Serializable>) values.get(TRANSACTION_PROPERTIES_ADD);
-        if (fromMap == null || (addMap == null && toMap == null)) {
+        if (addMap == null && toMap == null) {
             return Optional.empty();
         }
-        fromMap = filterUndesirableProps(fromMap);
         toMap = filterUndesirableProps(toMap);
         if (addMap != null) {
             addMap = filterUndesirableProps(addMap);
@@ -258,20 +256,13 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
         }
 
         List<String> changes = new ArrayList<>();
-        final Map<QName, Serializable> finalFromMap = fromMap;
         toMap.forEach((qName, value) -> {
-            Optional<String> from = getLocalizedProperty(finalFromMap, qName);
             Optional<String> to = getLocalizedPropertyValue(value);
             if (!to.isPresent()) {
-                changes.add(I18NUtil.getMessage("auditlog.label.property.remove",
+                changes.add(I18NUtil.getMessage("auditlog.label.property.removed",
                         getPropertyTitle(qName)));
-            } else if (from.isPresent()) {
-                changes.add(I18NUtil.getMessage("auditlog.label.property.update",
-                        getPropertyTitle(qName),
-                        from.get(),
-                        to.orElse("")));
             } else {
-                changes.add(I18NUtil.getMessage("auditlog.label.property.create",
+                changes.add(I18NUtil.getMessage("auditlog.label.property.changed",
                         getPropertyTitle(qName),
                         to.orElse("")));
             }
