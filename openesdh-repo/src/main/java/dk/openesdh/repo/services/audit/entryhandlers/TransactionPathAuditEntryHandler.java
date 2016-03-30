@@ -36,7 +36,7 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
     public static final String TRANSACTION_TYPE = "/esdh/transaction/type";
     public static final String TRANSACTION_ACTION = "/esdh/transaction/action";
     private static final String TRANSACTION_SUB_ACTIONS = "/esdh/transaction/sub-actions";
-    private static final String TRANSACTION_ASPECT_ADD = "/esdh/transaction/aspects/add";
+    public static final String TRANSACTION_ASPECT_ADD = "/esdh/transaction/aspects/add";
     private static final String TRANSACTION_DOC_FROM_FILES = "/esdh/transaction/move/from/path";
 
     public static final String TRANSACTION_ACTION_CREATE = "CREATE";
