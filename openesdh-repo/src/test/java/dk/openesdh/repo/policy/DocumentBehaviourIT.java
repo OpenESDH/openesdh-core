@@ -2,6 +2,7 @@ package dk.openesdh.repo.policy;
 
 import java.io.Serializable;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -84,6 +85,7 @@ public class DocumentBehaviourIT {
     @Qualifier("DocumentCategoryService")
     private DocumentCategoryService documentCategoryService;
 
+    private String testUsername;
     private NodeRef testFolder;
     private NodeRef testCase1;
     private NodeRef testCase1DocumentsFolder;
@@ -95,8 +97,9 @@ public class DocumentBehaviourIT {
     public void setUp() throws Exception {
         // TODO: All of this could have been done only once
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
+        testUsername = CaseHelper.DEFAULT_USERNAME + new Date().getTime();
         testFolder = docTestHelper.createFolder(TEST_FOLDER_NAME);
-        testCase1 = docTestHelper.createCaseBehaviourOn(TEST_CASE_NAME1, testFolder, CaseHelper.DEFAULT_USERNAME);
+        testCase1 = docTestHelper.createCaseBehaviourOn(TEST_CASE_NAME1, testFolder, testUsername);
         testCase1DocumentsFolder = caseService.getDocumentsFolder(testCase1);
         documentType = documentTypeService.getDocumentTypes().stream().findAny().get();
         documentCategory = documentCategoryService.getDocumentCategories().stream().findAny().get();
@@ -107,7 +110,7 @@ public class DocumentBehaviourIT {
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
         List<NodeRef> folders = Arrays.asList(testFolder);
         List<NodeRef> cases = Arrays.asList(testCase1);
-        List<String> users = Arrays.asList(CaseHelper.DEFAULT_USERNAME);
+        List<String> users = Arrays.asList(testUsername);
         docTestHelper.removeNodesAndDeleteUsersInTransaction(folders, cases, users);
     }
 
