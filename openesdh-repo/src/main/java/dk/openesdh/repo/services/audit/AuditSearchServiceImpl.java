@@ -52,6 +52,7 @@ import dk.openesdh.repo.services.audit.entryhandlers.CaseEmailSentAuditEntryHand
 import dk.openesdh.repo.services.audit.entryhandlers.CaseNoteAuditEntryHandler;
 import dk.openesdh.repo.services.audit.entryhandlers.MemberAddAuditEntryHandler;
 import dk.openesdh.repo.services.audit.entryhandlers.MemberRemoveAuditEntryHandler;
+import dk.openesdh.repo.services.audit.entryhandlers.NodePropertyChangesAuditEntrySubHandler;
 import dk.openesdh.repo.services.audit.entryhandlers.PartyAddAuditEntryHandler;
 import dk.openesdh.repo.services.audit.entryhandlers.PartyRemoveAuditEntryHandler;
 import dk.openesdh.repo.services.audit.entryhandlers.TransactionPathAuditEntryHandler;
@@ -96,18 +97,23 @@ public class AuditSearchServiceImpl implements AuditSearchService {
     }
 
     private void initAuditEntryHandlers() {
+        NodePropertyChangesAuditEntrySubHandler nodePropertyChangesHandler = new NodePropertyChangesAuditEntrySubHandler(dictionaryService, ignoredProperties);
+
         auditEntryHandlers.put(PARTY_REMOVE_NAME, new PartyRemoveAuditEntryHandler());
         auditEntryHandlers.put(PARTY_ADD_NAME, new PartyAddAuditEntryHandler());
         auditEntryHandlers.put(MEMBER_ADD_PATH, new MemberAddAuditEntryHandler());
         auditEntryHandlers.put(MEMBER_REMOVE_PATH, new MemberRemoveAuditEntryHandler());
-        auditEntryHandlers.put(TRANSACTION_USER,
-                new TransactionPathAuditEntryHandler(dictionaryService, ignoredProperties, ignoredAspects, transactionPathEntryHandlers));
+        auditEntryHandlers.put(TRANSACTION_USER, new TransactionPathAuditEntryHandler(
+                dictionaryService,
+                nodePropertyChangesHandler,
+                ignoredAspects,
+                transactionPathEntryHandlers));
         auditEntryHandlers.put(WORKFLOW_START_CASE, new WorkflowStartAuditEntryHandler());
         auditEntryHandlers.put(WORKFLOW_END_TASK_CASE, new WorkflowTaskEndAuditEntryHandler());
         auditEntryHandlers.put(WORKFLOW_CANCEL_CASE, new WorkflowCancelAuditEntryHandler());
         auditEntryHandlers.put(CASE_EMAIL_RECIPIENTS, new CaseEmailSentAuditEntryHandler());
 
-        addTransactionPathEntryHandler(CaseNoteAuditEntryHandler::canHandle, new CaseNoteAuditEntryHandler());
+        addTransactionPathEntryHandler(CaseNoteAuditEntryHandler::canHandle, new CaseNoteAuditEntryHandler(nodePropertyChangesHandler));
     }
 
     private void initIgnoredProperties() {

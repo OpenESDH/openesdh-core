@@ -1,11 +1,17 @@
 package dk.openesdh.repo.services.audit;
 
 import java.io.Serializable;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 
+import org.alfresco.service.namespace.QName;
 import org.json.simple.JSONObject;
 import org.springframework.extensions.surf.util.I18NUtil;
+
+import com.google.common.base.Strings;
 
 public abstract class AuditEntryHandler implements IAuditEntryHandler {
 
@@ -37,7 +43,31 @@ public abstract class AuditEntryHandler implements IAuditEntryHandler {
     protected String getTypeMessage(String type) {
         return I18NUtil.getMessage("auditlog.label.type." + type);
     }
+
     protected String getTypeMessage(REC_TYPE type) {
         return getTypeMessage(type.name().toLowerCase());
     }
+
+    protected Optional<String> getLocalizedProperty(Map<QName, Serializable> properties, QName propQName) {
+        return getLocalizedPropertyValue(properties.get(propQName));
+    }
+
+    protected Optional<String> getLocalizedPropertyValue(Serializable property) {
+        if (property == null) {
+            return Optional.empty();
+        }
+        if ((property instanceof Date)) {
+            return Optional.of(AuditSearchService.AUDIT_DATE_FORMAT.format(property));
+        }
+        if (!(property instanceof Map)) {
+            return Optional.ofNullable(Strings.emptyToNull(Objects.toString(property, null)));
+        }
+
+        String value = ((Map<Locale, String>) property).get(I18NUtil.getContentLocale());
+        if (value == null) {
+            value = ((Map<Locale, String>) property).get(Locale.ENGLISH);
+        }
+        return Optional.ofNullable(value);
+    }
+
 }

@@ -9,34 +9,24 @@ import static dk.openesdh.repo.services.audit.AuditUtils.getTitle;
 import static dk.openesdh.repo.services.system.OpenESDHFoldersService.FILES_ROOT_PATH;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
-import org.alfresco.service.cmr.dictionary.PropertyDefinition;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONObject;
 import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.util.CollectionUtils;
 
-import com.google.common.base.Strings;
-
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.audit.AuditEntryHandler;
-import dk.openesdh.repo.services.audit.AuditSearchService;
 import dk.openesdh.repo.services.audit.IAuditEntryHandler;
 
 public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
@@ -60,14 +50,16 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
     public static final String TRANSACTION_PROPERTIES_TO = "/esdh/transaction/properties/to";
 
     private final DictionaryService dictionaryService;
-    private final Set<QName> ignoredProperties;
     private final Set<QName> ignoredAspects;
+    private final NodePropertyChangesAuditEntrySubHandler nodePropertyChangesHandler;
     private Map<Predicate<Map<String, Serializable>>, IAuditEntryHandler> trPathEntryHandlers = new HashMap<>();
 
-    public TransactionPathAuditEntryHandler(DictionaryService dictionaryService, Set<QName> ignoredProperties,
-            Set<QName> ignoredAspects, Map<Predicate<Map<String, Serializable>>, IAuditEntryHandler> trPathEntryHandlers) {
+    public TransactionPathAuditEntryHandler(DictionaryService dictionaryService,
+            NodePropertyChangesAuditEntrySubHandler nodePropertyChangesHandler,
+            Set<QName> ignoredAspects,
+            Map<Predicate<Map<String, Serializable>>, IAuditEntryHandler> trPathEntryHandlers) {
         this.dictionaryService = dictionaryService;
-        this.ignoredProperties = ignoredProperties;
+        this.nodePropertyChangesHandler = nodePropertyChangesHandler;
         this.ignoredAspects = ignoredAspects;
         this.trPathEntryHandlers = trPathEntryHandlers;
     }
@@ -244,34 +236,10 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
             return Optional.empty();
         }
 
-        Map<QName, Serializable> toMap = (Map<QName, Serializable>) values.get(TRANSACTION_PROPERTIES_TO);
-        Map<QName, Serializable> addMap = (Map<QName, Serializable>) values.get(TRANSACTION_PROPERTIES_ADD);
-        if (addMap == null && toMap == null) {
-            return Optional.empty();
-        }
-        toMap = filterUndesirableProps(toMap);
-        if (addMap != null) {
-            addMap = filterUndesirableProps(addMap);
-            toMap.putAll(addMap);
-        }
-
-        List<String> changes = new ArrayList<>();
-        toMap.forEach((qName, value) -> {
-            Optional<String> to = getLocalizedPropertyValue(value);
-            if (!to.isPresent()) {
-                changes.add(I18NUtil.getMessage("auditlog.label.property.removed",
-                        getPropertyTitle(qName)));
-            } else {
-                changes.add(I18NUtil.getMessage("auditlog.label.property.changed",
-                        getPropertyTitle(qName),
-                        to.orElse("")));
-            }
-        });
+        List<String> changes = nodePropertyChangesHandler.getChangedProperties(values);
         if (changes.isEmpty()) {
             return Optional.empty();
         }
-
-        Collections.sort(changes);
 
         String nodeTitle = "";
         //do not add case title in case history
@@ -286,50 +254,10 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
         return Optional.of(auditEntry);
     }
 
-    private Map<QName, Serializable> filterUndesirableProps(Map<QName, Serializable> map) {
-        return map.entrySet()
-                .stream()
-                .filter(p -> !ignoredProperties.contains(p.getKey()))
-                .collect(Collectors.toMap(p -> p.getKey(), p -> Optional.ofNullable(p.getValue()).orElse("")));
-    }
-
     private Serializable getFromPropertyMap(Map<String, Serializable> values, String mapProperty, QName name) {
         return values.containsKey(mapProperty)
                 ? ((Map<QName, Serializable>) values.get(mapProperty)).get(name)
                 : null;
-    }
-
-    private Optional<String> getLocalizedProperty(Map<QName, Serializable> properties, QName propQName) {
-        return getLocalizedPropertyValue(properties.get(propQName));
-    }
-
-    private Optional<String> getLocalizedPropertyValue(Serializable property) {
-        if (property == null) {
-            return Optional.empty();
-        }
-        if ((property instanceof Date)) {
-            return Optional.of(AuditSearchService.AUDIT_DATE_FORMAT.format(property));
-        }
-        if (!(property instanceof Map)) {
-            return Optional.ofNullable(Strings.emptyToNull(Objects.toString(property, null)));
-        }
-
-        String value = ((Map<Locale, String>) property).get(I18NUtil.getContentLocale());
-        if (value == null) {
-            value = ((Map<Locale, String>) property).get(Locale.ENGLISH);
-        }
-        return Optional.ofNullable(value);
-    }
-
-    private String getPropertyTitle(QName qName) {
-        PropertyDefinition property = dictionaryService.getProperty(qName);
-        if (property != null) {
-            String title = property.getTitle(dictionaryService);
-            if (title != null) {
-                return title;
-            }
-        }
-        return qName.getLocalName();
     }
 
     private static boolean isMovedFromOeFile(Map<String, Serializable> values) {

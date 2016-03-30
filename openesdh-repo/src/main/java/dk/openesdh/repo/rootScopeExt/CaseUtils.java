@@ -1,19 +1,21 @@
 package dk.openesdh.repo.rootScopeExt;
 
-import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.documents.DocumentService;
 import org.alfresco.repo.jscript.BaseScopableProcessorExtension;
 import org.alfresco.repo.jscript.ScriptNode;
 import org.alfresco.repo.jscript.ValueConverter;
 import org.alfresco.service.ServiceRegistry;
 import org.alfresco.service.cmr.repository.NodeRef;
 
-public class CaseUtils extends BaseScopableProcessorExtension{
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.documents.DocumentService;
+
+public class CaseUtils extends BaseScopableProcessorExtension {
+
     private CaseService caseService;
     private DocumentService documentService;
     private ServiceRegistry services;
 
-    public ScriptNode getCaseInfo(String caseId ){
+    public ScriptNode getCaseInfo(String caseId) {
         NodeRef caseNodeRef = this.caseService.getCaseInfo(caseId).getNodeRef();
 
         ScriptNode oeCase = new ScriptNode(caseNodeRef, services, getScope());
@@ -21,18 +23,19 @@ public class CaseUtils extends BaseScopableProcessorExtension{
         return oeCase;
     }
 
-    public String getCaseId(ScriptNode nodeObj){
-        String caseId="";
-
+    public String getCaseId(ScriptNode nodeObj) {
         NodeRef objNodeRef = nodeObj.getNodeRef();
-        if(caseService.isCaseNode(objNodeRef) || caseService.isCaseDocNode(objNodeRef)) {
+        if (caseService.isCaseNode(objNodeRef) || caseService.isCaseDocNode(objNodeRef)) {
             NodeRef caseNodeRef = documentService.getCaseNodeRef(objNodeRef);
-            caseId = caseService.getCaseId(caseNodeRef);
+            if (caseNodeRef == null) {
+                return "";
+            }
+            return caseService.getCaseId(caseNodeRef);
         }
-        return caseId;
+        return "";
     }
 
-    public ScriptNode resolveCasesHomeNodeRef(){
+    public ScriptNode resolveCasesHomeNodeRef() {
         NodeRef nodeRef = caseService.getCasesRootNodeRef();
         return (ScriptNode) new ValueConverter().convertValueForScript(this.services, getScope(), null, nodeRef);
     }
