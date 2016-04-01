@@ -120,12 +120,12 @@ public class OeFilesWebScript {
 
     @Uri(value = "/api/openesdh/case/{caseId}/addFile", method = HttpMethod.PUT, defaultFormat = JSON)
     public void addFileToCase(
-            @UriVariable("caseId") final String caseId,
-            @RequestParam("nodeRef") final NodeRef file,
-            @RequestParam("title") final String title,
-            @RequestParam("doc_type") final NodeRef docType,
-            @RequestParam("doc_category") final NodeRef docCategory,
-            @RequestParam(value = "description", required = false) final String description) {
+            @UriVariable(WebScriptUtils.CASE_ID) final String caseId,
+            @RequestParam(WebScriptUtils.NODE_REF) final NodeRef file,
+            @RequestParam(WebScriptUtils.TITLE) final String title,
+            @RequestParam(WebScriptUtils.DOC_TYPE) final NodeRef docType,
+            @RequestParam(WebScriptUtils.DOC_CATEGORY) final NodeRef docCategory,
+            @RequestParam(value = WebScriptUtils.DESCRIPTION, required = false) final String description) {
         filesService.addToCase(caseId, file, title, docType, docCategory, description);
     }
 

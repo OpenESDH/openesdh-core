@@ -7,11 +7,13 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
 import org.alfresco.repo.domain.node.ContentDataWithId;
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.dictionary.Constraint;
 import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
 import org.alfresco.service.cmr.dictionary.DataTypeDefinition;
@@ -21,6 +23,7 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.NoSuchPersonException;
 import org.alfresco.service.cmr.security.PersonService;
+import org.alfresco.service.cmr.security.PersonService.PersonInfo;
 import org.alfresco.service.namespace.NamespaceException;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
@@ -160,9 +163,15 @@ public class NodeInfoServiceImpl implements NodeInfoService {
         ArrayList<String> fullNames = new ArrayList<>();
         List<String> nodeRefs = new ArrayList<>();
         for (String userName : userNames) {
-            PersonService.PersonInfo person = getPersonInfo(userName);
-            nodeRefs.add(person.getNodeRef().toString());
-            fullNames.add(getPersonFullName(person));
+            Optional<PersonService.PersonInfo> optPerson = getPersonInfo(userName);
+            if (optPerson.isPresent()) {
+                PersonService.PersonInfo person = optPerson.get();
+                nodeRefs.add(person.getNodeRef().toString());
+                fullNames.add(getPersonFullName(person));
+            } else {
+                nodeRefs.add("");
+                fullNames.add(userName);
+            }
         }
         String commaDelimitedFullNames = StringUtils.collectionToDelimitedString(fullNames, ", ");
         valueObj.put("fullname", commaDelimitedFullNames);
@@ -171,8 +180,11 @@ public class NodeInfoServiceImpl implements NodeInfoService {
         return valueObj;
     }
 
-    private PersonService.PersonInfo getPersonInfo(String userName) throws NoSuchPersonException {
-        return personService.getPerson(personService.getPerson(userName));
+    private Optional<PersonService.PersonInfo> getPersonInfo(String userName) throws NoSuchPersonException {
+        if (AuthenticationUtil.getSystemUserName().equals(userName)) {
+            return Optional.empty();
+        }
+        return Optional.of(personService.getPerson(personService.getPerson(userName)));
     }
 
     private String getPersonFullName(PersonService.PersonInfo person) {
@@ -232,7 +244,10 @@ public class NodeInfoServiceImpl implements NodeInfoService {
         if (value instanceof Date) {
             return ((Date) value).getTime();
         } else if (personProperties.contains(qname)) {
-            return getPersonFullName(getPersonInfo((String) value));
+            String userName = (String) value;
+            return getPersonInfo(userName)
+                    .map(this::getPersonFullName)
+                    .orElse(userName);
         } else if (qname.equals(ContentModel.PROP_CONTENT)) {
             ContentDataWithId val = (ContentDataWithId) value;
             org.json.simple.JSONObject content = new org.json.simple.JSONObject();
