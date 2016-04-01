@@ -32,6 +32,7 @@ import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 import dk.openesdh.repo.services.authorities.GroupsService;
 import dk.openesdh.repo.services.files.OeFilesService;
 import dk.openesdh.repo.utils.JSONArrayCollector;
+import dk.openesdh.repo.webscripts.WebScriptParams;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 @Component
@@ -120,12 +121,12 @@ public class OeFilesWebScript {
 
     @Uri(value = "/api/openesdh/case/{caseId}/addFile", method = HttpMethod.PUT, defaultFormat = JSON)
     public void addFileToCase(
-            @UriVariable(WebScriptUtils.CASE_ID) final String caseId,
-            @RequestParam(WebScriptUtils.NODE_REF) final NodeRef file,
-            @RequestParam(WebScriptUtils.TITLE) final String title,
-            @RequestParam(WebScriptUtils.DOC_TYPE) final NodeRef docType,
-            @RequestParam(WebScriptUtils.DOC_CATEGORY) final NodeRef docCategory,
-            @RequestParam(value = WebScriptUtils.DESCRIPTION, required = false) final String description) {
+            @UriVariable(WebScriptParams.CASE_ID) final String caseId,
+            @RequestParam(WebScriptParams.NODE_REF) final NodeRef file,
+            @RequestParam(WebScriptParams.TITLE) final String title,
+            @RequestParam(WebScriptParams.DOC_TYPE) final NodeRef docType,
+            @RequestParam(WebScriptParams.DOC_CATEGORY) final NodeRef docCategory,
+            @RequestParam(value = WebScriptParams.DESCRIPTION, required = false) final String description) {
         filesService.addToCase(caseId, file, title, docType, docCategory, description);
     }
 

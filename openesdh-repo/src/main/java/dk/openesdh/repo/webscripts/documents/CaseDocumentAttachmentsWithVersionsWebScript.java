@@ -13,7 +13,7 @@ import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 import dk.openesdh.repo.model.CaseDocumentAttachment;
 import dk.openesdh.repo.services.documents.DocumentService;
 import dk.openesdh.repo.webscripts.PageableWebScript;
-import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
+import dk.openesdh.repo.webscripts.WebScriptParams;
 
 @Component
 @WebScript(description = "Retrieves attachments of a case document", families = "Case Documents")
@@ -24,7 +24,7 @@ public class CaseDocumentAttachmentsWithVersionsWebScript{
     private DocumentService documentService;
     
     @Uri(value = "/api/openesdh/case/document/version/attachments", defaultFormat = "json")
-    public Resolution getDocumentVersionAttachments(@RequestParam(value = WebScriptUtils.NODE_REF) String versionNodeRef){
+    public Resolution getDocumentVersionAttachments(@RequestParam(value = WebScriptParams.NODE_REF) String versionNodeRef){
         PageableWebScript<CaseDocumentAttachment> ws = 
                 (int startIndex, int pageSize) -> documentService.getDocumentVersionAttachments(new NodeRef(versionNodeRef), startIndex, pageSize);
         return PageableWebScript.getItemsPage(ws);

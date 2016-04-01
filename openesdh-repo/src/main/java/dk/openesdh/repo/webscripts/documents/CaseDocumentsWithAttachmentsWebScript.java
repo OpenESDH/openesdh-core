@@ -11,6 +11,7 @@ import org.springframework.util.StringUtils;
 
 import dk.openesdh.repo.model.CaseDocument;
 import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.webscripts.WebScriptParams;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 public class CaseDocumentsWithAttachmentsWebScript extends AbstractWebScript {
@@ -24,7 +25,7 @@ public class CaseDocumentsWithAttachmentsWebScript extends AbstractWebScript {
     @Override
     public void execute(WebScriptRequest req, WebScriptResponse res) throws IOException {
         Map<String, String> templateArgs = req.getServiceMatch().getTemplateVars();
-        String caseId = templateArgs.get(WebScriptUtils.CASE_ID);
+        String caseId = templateArgs.get(WebScriptParams.CASE_ID);
         if (StringUtils.isEmpty(caseId)) {
             return;
         }

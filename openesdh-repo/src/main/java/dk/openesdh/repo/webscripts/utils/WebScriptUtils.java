@@ -34,20 +34,6 @@ public class WebScriptUtils {
     private static final String NODE_ID = "node_id";
     private static final String STORE_ID = "store_id";
     private static final String STORE_TYPE = "store_type";
-    public static final String CASE_ID = "caseId";
-
-    public static final String TITLE = "title";
-
-    public static final String DESCRIPTION = "description";
-
-    public static final String DESTINATION = "destination";
-
-    public static final String DOC_TYPE = "doc_type";
-
-    public static final String DOC_CATEGORY = "doc_category";
-
-    public static final String NODE_REF = "nodeRef";
-
     public static final String CONTENT_ENCODING_UTF_8 = "UTF-8";
 
     public static final String TASK_ID = "taskId";

@@ -14,6 +14,7 @@ import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
 import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.webscripts.WebScriptParams;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 @Component
@@ -25,7 +26,7 @@ public class CaseDocumentsFolderNodeRefWebScript {
     private CaseService caseService;
 
     @Uri("/api/openesdh/case/{caseId}/docfolder/noderef")
-    public Resolution getCaseDocsFolderByCaseId(@UriVariable(WebScriptUtils.CASE_ID) String caseId) {
+    public Resolution getCaseDocsFolderByCaseId(@UriVariable(WebScriptParams.CASE_ID) String caseId) {
         NodeRef caseNodeRef = caseService.getCaseById(caseId);
         return getCaseDocsFolderRef(caseNodeRef);
     }

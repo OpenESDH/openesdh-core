@@ -1,8 +1,9 @@
 package dk.openesdh.repo.webscripts.cases;
 
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.webscripts.WebScriptParams;
 import dk.openesdh.repo.webscripts.notes.NotesWebScript;
-import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
+
 import java.util.Map;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.springframework.extensions.webscripts.WebScriptRequest;
@@ -13,7 +14,7 @@ public class CaseNotesWebScript extends NotesWebScript {
 
     @Override
     protected NodeRef getNodeRef(WebScriptRequest req, Map<String, String> templateArgs) {
-        String caseId = templateArgs.get(WebScriptUtils.CASE_ID);
+        String caseId = templateArgs.get(WebScriptParams.CASE_ID);
         return caseService.getCaseById(caseId);
     }
 

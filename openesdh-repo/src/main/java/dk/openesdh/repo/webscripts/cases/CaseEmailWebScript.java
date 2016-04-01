@@ -22,6 +22,7 @@ import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.PartyService;
 import dk.openesdh.repo.services.documents.DocumentEmailService;
+import dk.openesdh.repo.webscripts.WebScriptParams;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 @Component
@@ -37,7 +38,7 @@ public class CaseEmailWebScript {
 
     @Uri(value = "/{caseId}/email", method = HttpMethod.POST)
     public void execute(
-            @UriVariable(WebScriptUtils.CASE_ID) final String caseId,
+            @UriVariable(WebScriptParams.CASE_ID) final String caseId,
             @Attribute Params params) {
         if (params.to.isEmpty()) {
             throw new WebScriptException(Status.STATUS_BAD_REQUEST, "No recipients");
