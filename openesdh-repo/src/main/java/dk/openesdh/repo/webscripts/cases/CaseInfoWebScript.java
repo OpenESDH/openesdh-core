@@ -18,6 +18,7 @@ import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
 import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.webscripts.WebScriptParams;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 /**
@@ -32,7 +33,7 @@ public class CaseInfoWebScript {
 
     @Authentication(AuthenticationType.USER)
     @Uri(value = "/{caseId}", method = HttpMethod.GET)
-    public Resolution getCaseInfoById(@UriVariable(WebScriptUtils.CASE_ID) final String caseId) throws JSONException {
+    public Resolution getCaseInfoById(@UriVariable(WebScriptParams.CASE_ID) final String caseId) throws JSONException {
         NodeRef caseNodeRef = caseService.getCaseById(caseId);
         if (caseNodeRef == null) {
             throw new WebScriptException(Status.STATUS_BAD_REQUEST, "CASE_NOT_FOUND");
@@ -42,7 +43,7 @@ public class CaseInfoWebScript {
 
     @Authentication(AuthenticationType.USER)
     @Uri(method = HttpMethod.GET)
-    public Resolution getCaseInfoByNodeRef(@RequestParam(value = WebScriptUtils.NODE_REF) NodeRef caseNodeRef) throws JSONException {
+    public Resolution getCaseInfoByNodeRef(@RequestParam(value = WebScriptParams.NODE_REF) NodeRef caseNodeRef) throws JSONException {
         return getCaseInfo(caseNodeRef);
     }
 

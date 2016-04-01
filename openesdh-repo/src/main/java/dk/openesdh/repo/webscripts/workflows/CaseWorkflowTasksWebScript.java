@@ -29,6 +29,7 @@ import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
 import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.webscripts.WebScriptParams;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 @Component
@@ -40,7 +41,7 @@ public class CaseWorkflowTasksWebScript extends AbstractCaseWorkflowWebScript {
     private ContentStreamer streamer;
 
     @Uri(value = "/api/openesdh/case/{caseId}/tasks", method = HttpMethod.GET, defaultFormat = WebScriptUtils.JSON)
-    public Resolution getCaseWorkflowTasks(@UriVariable(WebScriptUtils.CASE_ID) final String caseId) {
+    public Resolution getCaseWorkflowTasks(@UriVariable(WebScriptParams.CASE_ID) final String caseId) {
         WorkflowTaskQuery tasksQuery = new WorkflowTaskQuery();
         tasksQuery.setActive(null);
         Map<QName, Object> processCustomProps = new HashMap<>();

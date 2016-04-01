@@ -19,6 +19,7 @@ import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 
 import dk.openesdh.repo.model.CasePrintInfo;
 import dk.openesdh.repo.services.cases.PrintCaseService;
+import dk.openesdh.repo.webscripts.WebScriptParams;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 import fr.opensagres.xdocreport.core.XDocReportException;
 import freemarker.template.TemplateModelException;
@@ -37,7 +38,7 @@ public class CasePrintWebScript {
 
     @Uri(value = "/api/openesdh/case/{caseId}/print", method = HttpMethod.POST, defaultFormat = "application/pdf")
     public Resolution printCase(
-            @UriVariable(WebScriptUtils.CASE_ID) final String caseId,
+            @UriVariable(WebScriptParams.CASE_ID) final String caseId,
             @Attribute CasePrintInfo printInfo) throws JSONException, XDocReportException, IOException, COSVisitorException, TemplateModelException {
 
         PDFMergerUtility mergeUtility = new PDFMergerUtility();

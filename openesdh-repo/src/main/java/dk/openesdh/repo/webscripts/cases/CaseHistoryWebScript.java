@@ -22,6 +22,7 @@ import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 import dk.openesdh.repo.services.audit.AuditSearchService;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.webscripts.PageableWebScript;
+import dk.openesdh.repo.webscripts.WebScriptParams;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 @Component
@@ -38,7 +39,7 @@ public class CaseHistoryWebScript {
 
     @Uri(value = "/api/openesdh/case/{caseId}/history", method = HttpMethod.GET, defaultFormat = "json")
     public Resolution getHistoryByCaseId(
-            @UriVariable(WebScriptUtils.CASE_ID) final String caseId,
+            @UriVariable(WebScriptParams.CASE_ID) final String caseId,
             @Header("x-range") final String rangeHeader,
             WebScriptResponse res
     ) throws IOException {
@@ -48,7 +49,7 @@ public class CaseHistoryWebScript {
 
     @Uri(value = "/api/openesdh/casehistory", method = HttpMethod.GET, defaultFormat = "json")
     public Resolution getHistoryByCaseNodeRef(
-            @RequestParam(value = WebScriptUtils.NODE_REF) NodeRef caseNodeRef,
+            @RequestParam(value = WebScriptParams.NODE_REF) NodeRef caseNodeRef,
             @Header("x-range") final String rangeHeader,
             WebScriptResponse res
     ) throws IOException {
