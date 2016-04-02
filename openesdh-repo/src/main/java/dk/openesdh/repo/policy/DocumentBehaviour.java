@@ -136,12 +136,13 @@ public class DocumentBehaviour {
 
             String fileName = (String) nodeService.getProperty(fileRef, ContentModel.PROP_NAME);
             String documentName = FilenameUtils.removeExtension(fileName).trim();
-
             // Set a temporary file name
             // This is to avoid duplicates child node exception when the
             // document record is created below
             String tempFileName = UUID.randomUUID().toString() + fileName;
             nodeService.setProperty(fileRef, ContentModel.PROP_NAME, tempFileName);
+
+            documentName = documentService.getUniqueName(documentsFolderRef, documentName, true);
 
             // Create document folder
             NodeRef documentFolderRef = documentService.createDocumentFolder(documentsFolderRef, documentName).getChildRef();
@@ -346,7 +347,6 @@ public class DocumentBehaviour {
                 OpenESDHModel.ASSOC_DOC_MAIN);
 
         NodeRef copyDocRecordNode = copyMap.get(docRecordRef);
-        nodeService.setProperty(copyDocRecordNode, ContentModel.PROP_NAME, documentName);
 
         ChildAssociationRef copyDocMainAssoc = getDocMainAssociation(copyDocRecordNode);
         if (copyDocMainAssoc != null) {
