@@ -20,6 +20,8 @@ import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
 
+import dk.openesdh.repo.webscripts.WebScriptParams;
+
 @Component
 @WebScript(description = "Generates document thumbnail and sends it back as response", families = "Case Documents")
 public class DocumentThumbnailWebScript {
@@ -29,10 +31,11 @@ public class DocumentThumbnailWebScript {
     private ContentService contentService;
 
     @Uri(value = "/api/openesdh/case/document/{storeType}/{storeId}/{id}/thumbnail", method = HttpMethod.GET)
-    public void generateThumbnail(@UriVariable("storeType") String storeType, 
-                                    @UriVariable("storeId") String storeId, 
-                                    @UriVariable("id") String id,
-                                    WebScriptResponse res) throws ContentIOException, IOException{
+    public void generateThumbnail(
+            @UriVariable(WebScriptParams.STORE_TYPE) String storeType,
+            @UriVariable(WebScriptParams.STORE_ID) String storeId,
+            @UriVariable(WebScriptParams.ID) String id,
+            WebScriptResponse res) throws ContentIOException, IOException{
 
         NodeRef nodeRef = new NodeRef(storeType, storeId, id);
         TransformationOptions options = new TransformationOptions();

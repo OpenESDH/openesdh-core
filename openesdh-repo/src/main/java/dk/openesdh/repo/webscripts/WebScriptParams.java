@@ -2,6 +2,10 @@ package dk.openesdh.repo.webscripts;
 
 public interface WebScriptParams {
 
+    String STORE_TYPE = "storeType";
+    String STORE_ID = "storeId";
+    String ID = "id";
+
     String TITLE = "title";
     String DESCRIPTION = "description";
     String DESTINATION = "destination";
