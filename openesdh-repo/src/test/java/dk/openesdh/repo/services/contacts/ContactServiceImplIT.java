@@ -1,5 +1,7 @@
 package dk.openesdh.repo.services.contacts;
 
+import static dk.openesdh.repo.services.contacts.ContactServiceImpl.ERROR_NO_SUCH_CONTACT;
+
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -26,7 +28,7 @@ import com.ibm.icu.text.MessageFormat;
 import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 
-import dk.openesdh.exceptions.contacts.NoSuchContactException;
+import dk.openesdh.repo.exceptions.DomainException;
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.ContactInfo;
 import dk.openesdh.repo.model.ContactType;
@@ -212,7 +214,10 @@ public class ContactServiceImplIT {
             try {
                 resultList = contactService.getContactByFilter(TEST_PERSON_CONTACT_EMAIL,
                         ContactType.PERSON.name());
-            } catch (NoSuchContactException e) {
+            } catch (DomainException e) {
+                if (!e.getErrorCode().equals(ERROR_NO_SUCH_CONTACT)) {
+                    throw e;
+                }
                 sleepCount++;
                 if (sleepCount > maxSleepCount) {
                     break;

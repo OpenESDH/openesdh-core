@@ -1,6 +1,5 @@
 package dk.openesdh.repo.services.contacts;
 
-//import dk.openesdh.exceptions.contacts.InvalidContactTypeException;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -28,9 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import dk.openesdh.exceptions.contacts.GenericContactException;
-import dk.openesdh.exceptions.contacts.InvalidContactTypeException;
-import dk.openesdh.exceptions.contacts.NoSuchContactException;
+import dk.openesdh.repo.exceptions.DomainException;
 import dk.openesdh.repo.model.ContactInfo;
 import dk.openesdh.repo.model.ContactType;
 import dk.openesdh.repo.model.OpenESDHModel;
@@ -45,6 +42,12 @@ import dk.openesdh.repo.services.xsearch.XResultSet;
 public class ContactServiceImpl implements ContactService {
 
     private static final Log logger = LogFactory.getLog(ContactServiceImpl.class);
+    static final String ERROR_EMAIL_IS_MANDATORY = "CONTACT.ERRORS.EMAIL_IS_MANDATORY";
+    static final String ERROR_INVALID_TYPE = "CONTACT.ERRORS.INVALID_TYPE";
+    static final String ERROR_NO_SUCH_CONTACT = "CONTACT.ERRORS.NO_SUCH_CONTACT";
+    static final String ERROR_MORE_THEN_ONE_WITH_ID = "CONTACT.ERRORS.MORE_THAN_ONE_CONTACT_EXITS";
+    static final String ERROR_TYPE_MUST_BE_PERSON = "CONTACT.ERRORS.TYPE_MUST_BE_PERSON";
+    static final String ERROR_TYPE_MUST_BE_ORG = "CONTACT.ERRORS.TYPE_MUST_BE_ORG";
 
     @Autowired
     @Qualifier("NodeService")
@@ -86,11 +89,11 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public NodeRef createContact(String email, String type, Map<QName, Serializable> properties, Set<String> authorityZones) {
         if (!type.equalsIgnoreCase(ContactType.valueOf(StringUtils.capitalize(type)).toString())) {
-            throw new InvalidContactTypeException("The type of contact is not recognised. Can only create types PERSON/ORGANIZATION");
+            throw new DomainException(ERROR_INVALID_TYPE);
         }
 
         if (StringUtils.isEmpty(email)) {
-            throw new NullPointerException("Email is mandatory for contact creation");
+            throw new DomainException(ERROR_EMAIL_IS_MANDATORY);
         }
         return transactionRunner.runAsAdmin(() -> {
             return this.contactDAO.createContact(email, StringUtils.capitalize(type), properties, DEFAULT_ZONES);
@@ -114,17 +117,13 @@ public class ContactServiceImpl implements ContactService {
             try {
                 results = searchService.query(searchParams);
                 if (results.getNodeRefs().size() > 1) {
-                    throw new GenericContactException("There is more than one contact associated with this id (" + id + ").");
+                    throw new DomainException(ERROR_MORE_THEN_ONE_WITH_ID);
                 }
                 if (results.getNodeRefs().size() < 1) {
-                    throw new NoSuchContactException();
+                    throw new DomainException(ERROR_NO_SUCH_CONTACT);
                 }
                 contact = results.getNodeRef(0);
-            } catch (GenericContactException | NoSuchContactException err) {
-                if (logger.isDebugEnabled()) {
-                    logger.debug("\t\t***** Error *****\n There was a problem finding the contact: " + query.toString(), err);
-                }
-                throw err;
+
             } finally {
                 if (results != null) {
                     results.close();
@@ -191,10 +190,10 @@ public class ContactServiceImpl implements ContactService {
     @Override
     public NodeRef addPersonToOrganization(NodeRef organizationNodeRef, NodeRef personNodeRef) {
         if (!this.nodeService.getType(organizationNodeRef).equals(OpenESDHModel.TYPE_CONTACT_ORGANIZATION)) {
-            throw new InvalidContactTypeException("The type of contact must be ORGANIZATION");
+            throw new DomainException(ERROR_TYPE_MUST_BE_ORG);
         }
         if (!this.nodeService.getType(personNodeRef).equals(OpenESDHModel.TYPE_CONTACT_PERSON)) {
-            throw new InvalidContactTypeException("The type of contact must be PERSON");
+            throw new DomainException(ERROR_TYPE_MUST_BE_PERSON);
         }
         AssociationRef association = nodeService.createAssociation(organizationNodeRef, personNodeRef, OpenESDHModel.ASSOC_CONTACT_MEMBERS);
         return association.getSourceRef();
