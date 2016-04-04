@@ -33,7 +33,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import dk.openesdh.exceptions.contacts.InvalidContactTypeException;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.BehaviourFilterService;
 import dk.openesdh.repo.services.contacts.ContactService;
@@ -87,7 +86,7 @@ public class PartyServiceImpl implements PartyService {
      */
     public void addCaseParty(String caseId, String role, List<String> contactIds) {
         if (StringUtils.isAnyEmpty(caseId, role)) {
-            throw new InvalidContactTypeException("The caseId and/or the role is missing");
+            throw new RuntimeException("The caseId and/or the role is missing");
         }
         NodeRef caseNodeRef = caseService.getCaseById(caseId);
         if (!caseService.isLocked(caseNodeRef)) {
