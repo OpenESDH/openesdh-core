@@ -1,9 +1,11 @@
 package dk.openesdh.repo.policy;
 
 import java.io.Serializable;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -130,28 +132,33 @@ public class DocumentBehaviour {
 
     public void onCreateCaseDocContentBehaviour(ChildAssociationRef childAssociationRef, boolean isNewNode) {
         QName childType = nodeService.getType(childAssociationRef.getChildRef());
-        if (childType.equals(ContentModel.TYPE_CONTENT)) {
-            NodeRef documentsFolderRef = childAssociationRef.getParentRef();
-            NodeRef fileRef = childAssociationRef.getChildRef();
-
-            String fileName = (String) nodeService.getProperty(fileRef, ContentModel.PROP_NAME);
-            String documentName = FilenameUtils.removeExtension(fileName).trim();
-            // Set a temporary file name
-            // This is to avoid duplicates child node exception when the
-            // document record is created below
-            String tempFileName = UUID.randomUUID().toString() + fileName;
-            nodeService.setProperty(fileRef, ContentModel.PROP_NAME, tempFileName);
-
-            documentName = documentService.getUniqueName(documentsFolderRef, documentName, true);
-
-            // Create document folder
-            NodeRef documentFolderRef = documentService.createDocumentFolder(documentsFolderRef, documentName).getChildRef();
-            nodeService.moveNode(fileRef, documentFolderRef, ContentModel.ASSOC_CONTAINS,
-                    Utils.createDocumentContentAssociationName(documentName));
-
-            // Set the filename back to the original, after it has been moved
-            nodeService.setProperty(fileRef, ContentModel.PROP_NAME, fileName);
+        if (!childType.equals(ContentModel.TYPE_CONTENT)) {
+            return;
         }
+
+        NodeRef documentsFolderRef = childAssociationRef.getParentRef();
+        NodeRef fileRef = childAssociationRef.getChildRef();
+
+        String fileName = (String) nodeService.getProperty(fileRef, ContentModel.PROP_NAME);
+        String documentName = FilenameUtils.removeExtension(fileName).trim();
+        // Set a temporary file name
+        // This is to avoid duplicates child node exception when the
+        // document record is created below
+        String tempFileName = UUID.randomUUID().toString() + fileName;
+        nodeService.setProperty(fileRef, ContentModel.PROP_NAME, tempFileName);
+
+        documentName = documentService.getUniqueName(documentsFolderRef, documentName, true);
+
+        // Create document folder
+        NodeRef documentFolderRef = documentService.createDocumentFolder(documentsFolderRef, documentName)
+                .getChildRef();
+        nodeService.moveNode(fileRef, documentFolderRef, ContentModel.ASSOC_CONTAINS,
+                Utils.createDocumentContentAssociationName(documentName));
+
+        // Set the filename back to the original, after it has been moved
+        nodeService.setProperty(fileRef, ContentModel.PROP_NAME, fileName);
+
+        setCaseModifiedDate(documentFolderRef);
     }
 
     public void beforeCopyCaseDocument(QName classRef, NodeRef sourceNodeRef, NodeRef targetNodeRef) {
@@ -374,6 +381,16 @@ public class DocumentBehaviour {
         QName docContentAssocName = Utils.createDocumentContentAssociationName(documentName);
         return nodeService.getChildAssocs(docRecordRef, ContentModel.ASSOC_CONTAINS, docContentAssocName).stream()
                 .map(ChildAssociationRef::getChildRef).findFirst().get();
+    }
+
+    private void setCaseModifiedDate(NodeRef docRef) {
+        NodeRef caseRef = documentService.getCaseNodeRef(docRef);
+        if (Objects.isNull(caseRef)) {
+            return;
+        }
+        behaviourFilterService.executeWithoutBehavior(caseRef, () -> {
+            nodeService.setProperty(caseRef, ContentModel.PROP_MODIFIED, new Date());
+        });
     }
     // </editor-fold>
 }
