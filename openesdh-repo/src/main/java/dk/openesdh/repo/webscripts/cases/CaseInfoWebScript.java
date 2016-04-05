@@ -4,8 +4,6 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.extensions.webscripts.Status;
-import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.stereotype.Component;
 
 import com.github.dynamicextensionsalfresco.webscripts.annotations.Authentication;
@@ -17,6 +15,7 @@ import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
 import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 
+import dk.openesdh.repo.exceptions.DomainException;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.webscripts.WebScriptParams;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
@@ -36,7 +35,7 @@ public class CaseInfoWebScript {
     public Resolution getCaseInfoById(@UriVariable(WebScriptParams.CASE_ID) final String caseId) throws JSONException {
         NodeRef caseNodeRef = caseService.getCaseById(caseId);
         if (caseNodeRef == null) {
-            throw new WebScriptException(Status.STATUS_BAD_REQUEST, "CASE_NOT_FOUND");
+            throw new DomainException("CASE.CASE_NOT_FOUND");
         }
         return getCaseInfo(caseNodeRef);
     }
