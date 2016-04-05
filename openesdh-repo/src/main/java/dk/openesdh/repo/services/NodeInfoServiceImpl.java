@@ -13,7 +13,7 @@ import java.util.Set;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
 import org.alfresco.repo.domain.node.ContentDataWithId;
-import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.repo.security.authentication.AuthenticationContext;
 import org.alfresco.service.cmr.dictionary.Constraint;
 import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
 import org.alfresco.service.cmr.dictionary.DataTypeDefinition;
@@ -23,7 +23,6 @@ import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.NoSuchPersonException;
 import org.alfresco.service.cmr.security.PersonService;
-import org.alfresco.service.cmr.security.PersonService.PersonInfo;
 import org.alfresco.service.namespace.NamespaceException;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
@@ -61,6 +60,9 @@ public class NodeInfoServiceImpl implements NodeInfoService {
     @Autowired
     @Qualifier("namespaceService")
     private NamespaceService namespaceService;
+    @Autowired
+    @Qualifier("authenticationContext")
+    private AuthenticationContext authenticationContext;
 
     @Override
     public NodeInfo getNodeInfo(NodeRef nodeRef) {
@@ -181,7 +183,7 @@ public class NodeInfoServiceImpl implements NodeInfoService {
     }
 
     private Optional<PersonService.PersonInfo> getPersonInfo(String userName) throws NoSuchPersonException {
-        if (AuthenticationUtil.getSystemUserName().equals(userName)) {
+        if (authenticationContext.isSystemUserName(userName)) {
             return Optional.empty();
         }
         return Optional.of(personService.getPerson(personService.getPerson(userName)));
