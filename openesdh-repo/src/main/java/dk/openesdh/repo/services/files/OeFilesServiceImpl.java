@@ -211,22 +211,25 @@ public class OeFilesServiceImpl implements OeFilesService {
 
         AuthenticationUtil.runAsSystem(() -> {
             String oldOwner = (String) nodeService.getProperty(oldAssociation.getParentRef(), ContentModel.PROP_NAME);
+
+            String title = (String) nodeService.getProperty(oldAssociation.getChildRef(), ContentModel.PROP_TITLE);
+            if (StringUtils.isNotEmpty(comment)) {
+                commentService.createComment(file, title, comment, false);
+            }
+
             if (authorityName.equals(oldOwner)) {
                 //nothing to do
                 return null;
             }
+
             //move
             NodeRef toFolder = getOrCreateAuthorityFolder(authorityName);
-            String title = (String) nodeService.getProperty(oldAssociation.getChildRef(), ContentModel.PROP_TITLE);
             String uniqueName = documentService.getUniqueName(toFolder, title, false);
             nodeService.moveNode(
                     file,
                     toFolder,
                     ContentModel.ASSOC_CONTAINS,
                     QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, uniqueName));
-            if (StringUtils.isNotEmpty(comment)) {
-                commentService.createComment(file, title, comment, false);
-            }
             return null;
         });
     }
