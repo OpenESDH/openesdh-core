@@ -104,7 +104,8 @@ public class PartyServiceImpl implements PartyService {
                 createdGroup = caseRole.getFullName();
             } else {
                 createdGroup = AuthenticationUtil.runAsSystem(() -> {
-                    return authorityService.createAuthority(AuthorityType.GROUP, caseRole.getName(), role, authorityService.getDefaultZones());
+                    return authorityService.createAuthority(AuthorityType.GROUP, caseRole.getName(), role,
+                            caseService.getDefaultZonesForCaseGroups());
                 });
             }
             return authorityService.getAuthorityNodeRef(createdGroup);

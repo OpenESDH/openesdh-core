@@ -676,18 +676,25 @@ public class CaseServiceImpl implements CaseService {
         String groupName = getCaseRoleGroupName(caseId, permission);
 
         if (!authorityService.authorityExists(groupName)) {
-            HashSet<String> shareZones = new HashSet<>();
-            shareZones.add(AuthorityService.ZONE_APP_SHARE);
-            shareZones.add(AuthorityService.ZONE_AUTH_ALFRESCO);
+
             // Add the authority group to the Share zone so that it is not
             // searchable from the authority picker.
-            groupName = authorityService.createAuthority(AuthorityType.GROUP, groupSuffix, groupSuffix, shareZones);
+            groupName = authorityService.createAuthority(AuthorityType.GROUP, groupSuffix, groupSuffix,
+                    getDefaultZonesForCaseGroups());
         }
         permissionService.setPermission(caseNodeRef, groupName, permission, true);
 
         // TODO: Allow only certain roles to read case members from case
         // role groups.
         return groupName;
+    }
+
+    @Override
+    public HashSet<String> getDefaultZonesForCaseGroups() {
+        HashSet<String> shareZones = new HashSet<>();
+        shareZones.add(AuthorityService.ZONE_APP_SHARE);
+        shareZones.add(AuthorityService.ZONE_AUTH_ALFRESCO);
+        return shareZones;
     }
 
     /**

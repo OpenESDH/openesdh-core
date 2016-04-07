@@ -1,6 +1,7 @@
 package dk.openesdh.repo.services.cases;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -201,4 +202,6 @@ public interface CaseService extends HasStatus<CaseStatus> {
     String getCaseId(long uniqueNumber);
 
     NodeRef getCasePathNodeRef(NodeRef parent, int calendarType);
+
+    HashSet<String> getDefaultZonesForCaseGroups();
 }
