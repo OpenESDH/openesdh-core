@@ -9,7 +9,6 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -676,12 +675,11 @@ public class CaseServiceImpl implements CaseService {
         String groupName = getCaseRoleGroupName(caseId, permission);
 
         if (!authorityService.authorityExists(groupName)) {
-            HashSet<String> shareZones = new HashSet<>();
-            shareZones.add(AuthorityService.ZONE_APP_SHARE);
-            shareZones.add(AuthorityService.ZONE_AUTH_ALFRESCO);
+
             // Add the authority group to the Share zone so that it is not
             // searchable from the authority picker.
-            groupName = authorityService.createAuthority(AuthorityType.GROUP, groupSuffix, groupSuffix, shareZones);
+            groupName = authorityService.createAuthority(AuthorityType.GROUP, groupSuffix, groupSuffix,
+                    CaseService.DEFAULT_CASE_GROUP_ZONES);
         }
         permissionService.setPermission(caseNodeRef, groupName, permission, true);
 
