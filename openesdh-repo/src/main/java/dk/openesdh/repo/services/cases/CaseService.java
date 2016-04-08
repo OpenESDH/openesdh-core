@@ -8,10 +8,13 @@ import java.util.regex.Pattern;
 import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.namespace.QName;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import com.google.common.collect.Sets;
 
 import dk.openesdh.repo.model.CaseInfo;
 import dk.openesdh.repo.model.CaseStatus;
@@ -33,6 +36,9 @@ public interface CaseService extends HasStatus<CaseStatus> {
     Pattern CASE_ID_PATTERN = Pattern.compile(CASE_ID_PATTERN_STRING);
 
     Pattern CASE_ROLE_GROUP_NAME_PATTERN = Pattern.compile("GROUP_case_([\\d\\-]+)_(.+)");
+
+    Set<String> DEFAULT_CASE_GROUP_ZONES = Sets.newHashSet(AuthorityService.ZONE_APP_SHARE,
+            AuthorityService.ZONE_AUTH_ALFRESCO);
 
     /**
      * Get the root folder for storing cases
@@ -201,4 +207,5 @@ public interface CaseService extends HasStatus<CaseStatus> {
     String getCaseId(long uniqueNumber);
 
     NodeRef getCasePathNodeRef(NodeRef parent, int calendarType);
+
 }
