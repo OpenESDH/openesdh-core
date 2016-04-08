@@ -69,6 +69,11 @@ public class OpenESDHFoldersServiceImpl implements OpenESDHFoldersService {
     }
 
     @Override
+    public NodeRef getPartyRolesRootNodeRef() {
+        return getFolder(getClassificationsRootNodeRef(), PARTY_ROLES);
+    }
+
+    @Override
     public NodeRef getParametersRootNodeRef() {
         return getFolder(getOpenESDHRootFolder(), PARAMETERS_ROOT);
     }

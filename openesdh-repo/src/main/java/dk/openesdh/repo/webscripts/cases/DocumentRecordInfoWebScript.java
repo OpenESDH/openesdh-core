@@ -41,8 +41,7 @@ import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
 import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 import com.google.common.collect.Sets;
 
-import dk.openesdh.repo.model.DocumentCategory;
-import dk.openesdh.repo.model.DocumentType;
+import dk.openesdh.repo.model.ClassifValue;
 import dk.openesdh.repo.services.NodeInfoService;
 import dk.openesdh.repo.services.documents.DocumentService;
 import dk.openesdh.repo.services.lock.OELockService;
@@ -78,8 +77,8 @@ public class DocumentRecordInfoWebScript {
         PersonInfo docOwner = documentService.getDocumentOwner(documentNodeRef);
         NodeInfoService.NodeInfo documentNodeInfo = nodeInfoService.getNodeInfo(documentNodeRef);
 
-        DocumentType documentType = documentService.getDocumentType(documentNodeRef);
-        DocumentCategory documentCategory = documentService.getDocumentCategory(documentNodeRef);
+        ClassifValue documentType = documentService.getDocumentType(documentNodeRef);
+        ClassifValue documentCategory = documentService.getDocumentCategory(documentNodeRef);
 
         JSONObject result = new JSONObject();
         try {

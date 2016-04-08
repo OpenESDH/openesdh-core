@@ -70,14 +70,14 @@ import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.model.CaseDocument;
 import dk.openesdh.repo.model.CaseDocumentAttachment;
-import dk.openesdh.repo.model.DocumentCategory;
+import dk.openesdh.repo.model.ClassifValue;
 import dk.openesdh.repo.model.DocumentStatus;
-import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.model.ResultSet;
 import dk.openesdh.repo.services.BehaviourFilterService;
 import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.classification.ClassificatorManagementService;
 import dk.openesdh.repo.services.lock.OELockService;
 import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 import dk.openesdh.repo.webscripts.documents.Documents;
@@ -129,10 +129,10 @@ public class DocumentServiceImpl implements DocumentService {
     private TransactionRunner transactionRunner;
     @Autowired
     @Qualifier("DocumentTypeService")
-    private DocumentTypeService documentTypeService;
+    private ClassificatorManagementService documentTypeService;
     @Autowired
     @Qualifier("DocumentCategoryService")
-    private DocumentCategoryService documentCategoryService;
+    private ClassificatorManagementService documentCategoryService;
     @Autowired
     private BehaviourFilterService behaviourFilterService;
     @Autowired
@@ -796,24 +796,24 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     @Override
-    public DocumentType getDocumentType(NodeRef docNodeRef) {
+    public ClassifValue getDocumentType(NodeRef docNodeRef) {
         Optional<AssociationRef> assocRef = nodeService.getTargetAssocs(docNodeRef, OpenESDHModel.ASSOC_DOC_TYPE).stream().findFirst();
-        return assocRef.isPresent() ? documentTypeService.getDocumentType(assocRef.get().getTargetRef()) : null;
+        return assocRef.isPresent() ? documentTypeService.getClassifValue(assocRef.get().getTargetRef()) : null;
     }
 
     @Override
-    public void updateDocumentType(NodeRef docNodeRef, DocumentType type) {
+    public void updateDocumentType(NodeRef docNodeRef, ClassifValue type) {
         nodeService.setAssociations(docNodeRef, OpenESDHModel.ASSOC_DOC_TYPE, Arrays.asList(type.getNodeRef()));
     }
 
     @Override
-    public DocumentCategory getDocumentCategory(NodeRef docNodeRef) {
+    public ClassifValue getDocumentCategory(NodeRef docNodeRef) {
         Optional<AssociationRef> assocRef = nodeService.getTargetAssocs(docNodeRef, OpenESDHModel.ASSOC_DOC_CATEGORY).stream().findFirst();
-        return assocRef.isPresent() ? documentCategoryService.getDocumentCategory(assocRef.get().getTargetRef()) : null;
+        return assocRef.isPresent() ? documentCategoryService.getClassifValue(assocRef.get().getTargetRef()) : null;
     }
 
     @Override
-    public void updateDocumentCategory(NodeRef docNodeRef, DocumentCategory category) {
+    public void updateDocumentCategory(NodeRef docNodeRef, ClassifValue category) {
         nodeService.setAssociations(docNodeRef, OpenESDHModel.ASSOC_DOC_CATEGORY, Arrays.asList(category.getNodeRef()));
     }
 

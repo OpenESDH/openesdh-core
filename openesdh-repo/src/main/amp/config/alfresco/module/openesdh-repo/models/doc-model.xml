@@ -9,6 +9,7 @@
         <import uri="http://www.alfresco.org/model/system/1.0" prefix="sys" />
         <import uri="http://openesdh.dk/model/openesdh/1.0" prefix="oe" />
         <import uri="http://openesdh.dk/model/case/base/1.0" prefix="base" />
+        <import uri="http://openesdh.dk/model/classif/1.0" prefix="classif"/>
     </imports>
     <namespaces>
         <namespace uri="http://openesdh.dk/model/document/1.0" prefix="doc" />
@@ -252,35 +253,11 @@
         <!-- other types -->
         <type name="doc:dtype">
             <title>Document type</title>
-            <parent>cm:cmobject</parent>
-            <properties>
-                <property name="doc:typeDisplayName">
-                    <type>d:mltext</type>
-                    <constraints>
-                        <constraint ref="doc:displayNameConstr"/>
-                    </constraints>
-                </property>
-                <property name="doc:systemType">
-                    <type>d:boolean</type>
-                    <default>false</default>
-                </property>
-            </properties>
+            <parent>classif:classifValue</parent>
         </type>
         <type name="doc:dcategory">
             <title>Document category</title>
-            <parent>cm:cmobject</parent>
-            <properties>
-                <property name="doc:categoryDisplayName">
-                    <type>d:mltext</type>
-                    <constraints>
-                        <constraint ref="doc:displayNameConstr"/>
-                    </constraints>
-                </property>
-                <property name="doc:systemCategory">
-                    <type>d:boolean</type>
-                    <default>false</default>
-                </property>
-            </properties>
+            <parent>classif:classifValue</parent>
         </type>
 
     </types>

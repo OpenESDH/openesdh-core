@@ -27,8 +27,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import dk.openesdh.repo.model.DocumentCategory;
-import dk.openesdh.repo.model.DocumentType;
+import dk.openesdh.repo.model.ClassifValue;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.DocumentService;
 /**
@@ -112,12 +111,12 @@ public class CaseDocumentsSearchServiceImpl extends AbstractXSearchService {
 
         json.put(MAIN_DOC_NODE_REF, mainDocNodeRef.toString());
         // get document type
-        DocumentType documentType = documentService.getDocumentType(nodeRef);
+        ClassifValue documentType = documentService.getDocumentType(nodeRef);
         if (documentType != null) {
             json.put(DOC_TYPE, documentType.getDisplayName());
         }
         // get document category
-        DocumentCategory documentCategory = documentService.getDocumentCategory(nodeRef);
+        ClassifValue documentCategory = documentService.getDocumentCategory(nodeRef);
         if (documentCategory != null) {
             json.put(DOC_CATEGORY, documentCategory.getDisplayName());
         }

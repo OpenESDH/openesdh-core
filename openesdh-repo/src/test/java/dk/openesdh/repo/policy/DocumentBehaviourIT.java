@@ -35,14 +35,12 @@ import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
-import dk.openesdh.repo.model.DocumentCategory;
-import dk.openesdh.repo.model.DocumentType;
+import dk.openesdh.repo.model.ClassifValue;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.documents.DocumentCategoryService;
+import dk.openesdh.repo.services.classification.ClassificatorManagementService;
 import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.services.documents.DocumentTypeService;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -79,19 +77,19 @@ public class DocumentBehaviourIT {
 
     @Autowired
     @Qualifier("DocumentTypeService")
-    private DocumentTypeService documentTypeService;
+    private ClassificatorManagementService documentTypeService;
 
     @Autowired
     @Qualifier("DocumentCategoryService")
-    private DocumentCategoryService documentCategoryService;
+    private ClassificatorManagementService documentCategoryService;
 
     private String testUsername;
     private NodeRef testFolder;
     private NodeRef testCase1;
     private NodeRef testCase1DocumentsFolder;
     private NodeRef testAddDocument;
-    private DocumentType documentType;
-    private DocumentCategory documentCategory;
+    private ClassifValue documentType;
+    private ClassifValue documentCategory;
 
     @Before
     public void setUp() throws Exception {
@@ -101,8 +99,8 @@ public class DocumentBehaviourIT {
         testFolder = docTestHelper.createFolder(TEST_FOLDER_NAME);
         testCase1 = docTestHelper.createCaseBehaviourOn(TEST_CASE_NAME1, testFolder, testUsername);
         testCase1DocumentsFolder = caseService.getDocumentsFolder(testCase1);
-        documentType = documentTypeService.getDocumentTypes().stream().findAny().get();
-        documentCategory = documentCategoryService.getDocumentCategories().stream().findAny().get();
+        documentType = documentTypeService.getClassifValues().stream().findAny().get();
+        documentCategory = documentCategoryService.getClassifValues().stream().findAny().get();
     }
 
     @After

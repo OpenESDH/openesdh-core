@@ -20,14 +20,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
-import dk.openesdh.repo.model.DocumentCategory;
-import dk.openesdh.repo.model.DocumentType;
+import dk.openesdh.repo.model.ClassifValue;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.documents.DocumentCategoryService;
+import dk.openesdh.repo.services.classification.ClassificatorManagementService;
 import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.services.documents.DocumentTypeService;
 import dk.openesdh.simplecase.model.SimpleCaseModel;
 
 @Service("CaseDocumentTestHelper")
@@ -52,10 +50,10 @@ public class CaseDocumentTestHelper {
     private DocumentService documentService;
     @Autowired
     @Qualifier("DocumentTypeService")
-    private DocumentTypeService documentTypeService;
+    private ClassificatorManagementService documentTypeService;
     @Autowired
     @Qualifier("DocumentCategoryService")
-    private DocumentCategoryService documentCategoryService;
+    private ClassificatorManagementService documentCategoryService;
 
     // Create temporary node for use during testing
     public NodeRef createFolder(final String folderName) {
@@ -149,12 +147,12 @@ public class CaseDocumentTestHelper {
         nodeService.deleteNode(documentFolderRef);
     }
 
-    private DocumentType getFirstDocumentType() {
-        return documentTypeService.getDocumentTypes().stream().findFirst().get();
+    private ClassifValue getFirstDocumentType() {
+        return documentTypeService.getClassifValues().stream().findFirst().get();
     }
 
-    private DocumentCategory getFirstDocumentCategory() {
-        return documentCategoryService.getDocumentCategories().stream().findFirst().get();
+    private ClassifValue getFirstDocumentCategory() {
+        return documentCategoryService.getClassifValues().stream().findFirst().get();
     }
 
     public NodeRef createCaseDocument(final String documentName, final NodeRef caseNodeRef) {

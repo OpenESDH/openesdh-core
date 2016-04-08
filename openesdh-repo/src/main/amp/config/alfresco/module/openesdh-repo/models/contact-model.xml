@@ -9,6 +9,7 @@
         <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>
         <import uri="http://www.alfresco.org/model/system/1.0" prefix="sys"/>
         <import uri="http://www.alfresco.org/model/datalist/1.0" prefix="dl"/>
+        <import uri="http://openesdh.dk/model/classif/1.0" prefix="classif"/>
     </imports>
     <namespaces>
         <namespace uri="http://openesdh.dk/model/contact/1.0" prefix="contact"/>
@@ -270,6 +271,29 @@
                 </property>
             </overrides>
         </type>
+        
+        <!-- 
+            Objects of this type are used instead of associations with contacts, to be able to reference contact versions.
+            Alfresco associations don't support references to version store.
+         -->
+        <type name="contact:party">
+            <title>Party</title>
+            <parent>cm:cmobject</parent>
+            <properties>
+	            <property name="contact:contact">
+	                <type>d:noderef</type>
+	                <mandatory>true</mandatory>
+	            </property>
+	            <property name="contact:partyRole">
+	                <type>d:noderef</type>
+	                <mandatory>true</mandatory>
+	            </property>
+            </properties>
+        </type>
+        <type name="contact:partyRole">
+            <title>Party role</title>
+            <parent>classif:classifValue</parent>
+        </type>        
     </types>
 
     <!--aspects-->

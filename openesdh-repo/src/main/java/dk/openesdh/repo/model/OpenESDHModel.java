@@ -9,6 +9,9 @@ public interface OpenESDHModel {
 
     String OPENESDH_REPO_MODULE_ID = "openesdh-repo";
 
+    String CLASSIF_URI = "http://openesdh.dk/model/classif/1.0";
+    String CLASSIF_PREFIX = "classif";
+
     String CASE_URI = "http://openesdh.dk/model/case/base/1.0";
     String CASE_PREFIX = "base";
     String DOC_URI = "http://openesdh.dk/model/document/1.0";
@@ -37,6 +40,8 @@ public interface OpenESDHModel {
     /**
      * Types
      */
+    QName TYPE_CLASSIF_VALUE = QName.createQName(CLASSIF_URI, "classifValue");
+
     QName TYPE_OE_BASE = QName.createQName(OE_URI, TYPE_BASE_NAME);
     QName TYPE_OE_PARAMETER = QName.createQName(OE_URI, "parameter");
     QName TYPE_OE_AUTHORITY_FILES_FOLDER = QName.createQName(OE_URI, "authorityFilesFolder");
@@ -56,6 +61,8 @@ public interface OpenESDHModel {
     QName TYPE_CONTACT_BASE = QName.createQName(CONTACT_URI, "base");
     QName TYPE_CONTACT_PERSON = QName.createQName(CONTACT_URI, "person");
     QName TYPE_CONTACT_ORGANIZATION = QName.createQName(CONTACT_URI, "organization");
+    QName TYPE_CONTACT_PARTY = QName.createQName(CONTACT_URI, "party");
+    QName TYPE_CONTACT_PARTY_ROLE = QName.createQName(CONTACT_URI, "partyRole");
 
     QName TYPE_NOTE_NOTE = QName.createQName(NOTE_URI, "note");
 
@@ -102,6 +109,8 @@ public interface OpenESDHModel {
 
     QName ASSOC_CONTACT_LOGIN = QName.createQName(CONTACT_URI, "userLogin");
 
+    QName ASSOC_CONTACT_PARTY_ROLE = QName.createQName(CONTACT_URI, "aPartyRole");
+
     QName ASSOC_NOTE_NOTES = QName.createQName(NOTE_URI, "notes");
 
     QName ASSOC_NOTE_CONCERNED_PARTIES = QName.createQName(NOTE_URI, "concernedParties");
@@ -109,6 +118,10 @@ public interface OpenESDHModel {
     /**
      * Properties
      */
+    QName PROP_CLASSIF_DISPLAY_NAME = QName.createQName(CLASSIF_URI, "displayName");
+    QName PROP_CLASSIF_DISABLED = QName.createQName(CLASSIF_URI, "disabled");
+    QName PROP_CLASSIF_IS_SYSTEM = QName.createQName(CLASSIF_URI, "isSystem");
+
     QName PROP_OE_OPENE_TYPE = QName.createQName(OpenESDHModel.OE_URI, "openeType");
     QName PROP_OE_ID = QName.createQName(OE_URI, "id");
     QName PROP_OE_LOCKED_BY = QName.createQName(OE_URI, "lockedBy");
@@ -132,12 +145,8 @@ public interface OpenESDHModel {
     QName PROP_DOC_VARIANT = QName.createQName(DOC_URI, "variant");
     //document types
     QName PROP_DOC_TYPE = QName.createQName(DOC_URI, "type");
-    QName PROP_DOC_TYPE_DISPLAY_NAME = QName.createQName(DOC_URI, "typeDisplayName");
-    QName PROP_DOC_TYPE_SYSTEM = QName.createQName(DOC_URI, "systemType");
     //document categories
     QName PROP_DOC_CATEGORY = QName.createQName(DOC_URI, "category");
-    QName PROP_DOC_CATEGORY_DISPLAY_NAME = QName.createQName(DOC_URI, "categoryDisplayName");
-    QName PROP_DOC_CATEGORY_SYSTEM = QName.createQName(DOC_URI, "systemCategory");
 
     QName PROP_CONTACT_EMAIL = QName.createQName(CONTACT_URI, "email");
     QName PROP_CONTACT_TYPE = QName.createQName(CONTACT_URI, "contactType");
@@ -180,6 +189,9 @@ public interface OpenESDHModel {
     QName PROP_CONTACT_REGISTERED = QName.createQName(CONTACT_URI, "registered");
     QName PROP_CONTACT_INTERNAL = QName.createQName(CONTACT_URI, "internal");
     QName PROP_CONTACT_LOCKED_IN_CASES = QName.createQName(CONTACT_URI, "lockedInCases");
+
+    QName PROP_CONTACT_CONTACT = QName.createQName(CONTACT_URI, "contact");
+    QName PROP_CONTACT_PARTY_ROLE = QName.createQName(CONTACT_URI, "partyRole");
 
     QName PROP_NOTE_CONTENT = QName.createQName(NOTE_URI, "content");
     QName PROP_ATTACHMENT_COUNT = QName.createQName(DOC_URI, "attachmentCount");

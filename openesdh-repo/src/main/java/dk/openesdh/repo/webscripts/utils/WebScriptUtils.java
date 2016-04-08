@@ -21,12 +21,17 @@ import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.Version;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.StdSerializer;
 import com.github.dynamicextensionsalfresco.webscripts.AnnotationWebscriptResponse;
 import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
+
+import dk.openesdh.repo.services.system.MultiLanguageValue;
 
 public class WebScriptUtils {
 
@@ -99,6 +104,10 @@ public class WebScriptUtils {
     public static Object readJson(Class<? extends Object> clazz, WebScriptRequest req) throws IOException {
         checkContentTypeJson(req);
         MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
+        Version version = new Version(1, 0, 0, "SNAPSHOT", "dk.openesdh", "multi-language-value-deserializer");
+        SimpleModule module = new SimpleModule("MultiLanguageValueDeserializer", version);
+        module = module.addDeserializer(MultiLanguageValue.class, new MultiLanguageValueDeserializer());
+        converter.getObjectMapper().registerModule(module);
         return converter.read(clazz, getHttpInputMessage(req));
     }
 
@@ -221,5 +230,20 @@ public class WebScriptUtils {
                         throws IOException, JsonProcessingException {
             jgen.writeString(value.toString());
         }
+    }
+
+    private static class MultiLanguageValueDeserializer extends StdDeserializer<MultiLanguageValue> {
+
+        protected MultiLanguageValueDeserializer() {
+            super(MultiLanguageValue.class);
+        }
+
+        @Override
+        public MultiLanguageValue deserialize(JsonParser jp, DeserializationContext ctxt)
+                throws IOException, JsonProcessingException {
+            Map<String, String> map = jp.readValueAs(Map.class);
+            return MultiLanguageValue.createFromMap(map);
+        }
+
     }
 }

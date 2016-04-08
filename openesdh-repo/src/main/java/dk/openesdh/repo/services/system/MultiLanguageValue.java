@@ -1,6 +1,7 @@
 package dk.openesdh.repo.services.system;
 
 import java.util.Iterator;
+import java.util.Map;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -39,5 +40,12 @@ public class MultiLanguageValue extends NativeObject {
             json.put(entry.getKey().toString(), entry.getValue().toString());
         }
         return json;
+    }
+
+    public static MultiLanguageValue createFromMap(Map<String, String> map) {
+        MultiLanguageValue mlNames = new MultiLanguageValue();
+        map.entrySet()
+                .forEach(entry -> mlNames.defineProperty(entry.getKey(), entry.getValue(), NativeObject.PERMANENT));
+        return mlNames;
     }
 }

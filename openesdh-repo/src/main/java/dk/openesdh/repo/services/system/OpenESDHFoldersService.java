@@ -15,6 +15,7 @@ public interface OpenESDHFoldersService {
     public static String DOCUMENT_TYPES = "document_types";
     public static String DOCUMENT_TEMPLATES = "officeTemplates";
     public static String DOCUMENT_CATEGORIES = "document_categories";
+    public static String PARTY_ROLES = "party_roles";
     public static String SUBSYSTEM_ROOT = "subsystems";
     public static String PARAMETERS_ROOT = "parameters";
     public static String FILES_ROOT = "files";
@@ -38,6 +39,8 @@ public interface OpenESDHFoldersService {
 
     public NodeRef getDocumentCategoriesRootNodeRef();
 
+    public NodeRef getPartyRolesRootNodeRef();
+
     public NodeRef getSubsystemRootNodeRef();
 
     public NodeRef getParametersRootNodeRef();
@@ -46,3 +49,4 @@ public interface OpenESDHFoldersService {
 
     Optional<NodeRef> getFolderOptional(NodeRef parent, String folderName);
 }
+

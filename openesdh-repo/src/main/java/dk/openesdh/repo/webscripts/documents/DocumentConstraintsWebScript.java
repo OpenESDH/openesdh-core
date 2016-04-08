@@ -1,10 +1,5 @@
 package dk.openesdh.repo.webscripts.documents;
 
-import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
-import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
-
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -14,14 +9,18 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
 
-import dk.openesdh.repo.model.DocumentCategory;
-import dk.openesdh.repo.model.DocumentType;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
+import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
+
+import dk.openesdh.repo.model.ClassifValue;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.documents.DocumentCategoryService;
-import dk.openesdh.repo.services.documents.DocumentTypeService;
+import dk.openesdh.repo.services.classification.ClassificatorManagementService;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 @Component
@@ -33,9 +32,11 @@ public class DocumentConstraintsWebScript {
     @Autowired
     private CaseService caseService;
     @Autowired
-    private DocumentTypeService documentTypeService;
+    @Qualifier("DocumentTypeService")
+    private ClassificatorManagementService documentTypeService;
     @Autowired
-    private DocumentCategoryService documentCategoryService;
+    @Qualifier("DocumentCategoryService")
+    private ClassificatorManagementService documentCategoryService;
 
     @Uri(value = "/api/openesdh/case/document/constraints", method = HttpMethod.GET, defaultFormat = "json")
     public Resolution get() {
@@ -52,15 +53,15 @@ public class DocumentConstraintsWebScript {
             }
 
             //documentTypes
-            jsonResponse.put("documentTypes", new JSONArray(documentTypeService.getDocumentTypes()
+            jsonResponse.put("documentTypes", new JSONArray(documentTypeService.getClassifValues()
                     .stream()
-                    .map(DocumentType::toJSONObject)
+                    .map(ClassifValue::toJSONObject)
                     .collect(Collectors.toList())));
 
             //documentCategories
-            jsonResponse.put("documentCategories", new JSONArray(documentCategoryService.getDocumentCategories()
+            jsonResponse.put("documentCategories", new JSONArray(documentCategoryService.getClassifValues()
                     .stream()
-                    .map(DocumentCategory::toJSONObject)
+                    .map(ClassifValue::toJSONObject)
                     .collect(Collectors.toList())));
 
         } catch (JSONException e) {
