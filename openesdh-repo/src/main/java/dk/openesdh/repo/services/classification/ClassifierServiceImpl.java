@@ -9,6 +9,8 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import javax.annotation.PostConstruct;
+
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
@@ -27,7 +29,7 @@ import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.system.MultiLanguagePropertyService;
 import dk.openesdh.repo.services.system.MultiLanguageValue;
 
-public abstract class ClassificatorManagementServiceImpl implements ClassificatorManagementService {
+public abstract class ClassifierServiceImpl<T extends ClassifValue> implements ClassifierAdminService {
 
     private static final String CANNOT_CHANGE_SYSTEM_NAME = "Can not change name of system object.";
 
@@ -40,27 +42,66 @@ public abstract class ClassificatorManagementServiceImpl implements Classificato
     @Qualifier("MultiLanguagePropertyService")
     protected MultiLanguagePropertyService multiLanguagePropertyService;
     
-    @Override
-    public List<ClassifValue> getClassifValues() {
-        return getClassifValuesStream().collect(Collectors.toList());
-    }
+    @Autowired
+    @Qualifier("ClassifierAdminRegistry")
+    protected ClassifierAdminRegistry classifAdminRegistry;
 
-    @Override
-    public List<ClassifValue> getEnabledClassifValues() {
-        return getClassifValuesStream()
-                .filter(role -> BooleanUtils.isNotTrue(role.getDisabled()))
-                .collect(Collectors.toList());
-    }
-    
-    @Override
-    public ClassifValue createOrUpdateClassifValue(ClassifValue classifValue, MultiLanguageValue mlDisplayNames)
-            throws JSONException {
-        classifValue.setMlDisplayNames(mlDisplayNames);
-        return createOrUpdateClassifValue(classifValue);
+    @PostConstruct
+    public void init() {
+        classifAdminRegistry.registerClassifierAdminService(getClassifierType(), this);
     }
 
     @Override
     public ClassifValue createOrUpdateClassifValue(ClassifValue classifValue) throws JSONException {
+        return createOrUpdateClassifValueImpl((T) classifValue);
+    }
+
+    @Override
+    public void deleteClassifValue(NodeRef classifValueRef) {
+        if (isSystemValue(classifValueRef)) {
+            throw new AlfrescoRuntimeException(getCannotDeleteSystemMessage());
+        }
+        nodeService.deleteNode(classifValueRef);
+    }
+
+    @Override
+    public List<? extends ClassifValue> getAdminClassifValues() {
+        return getClassifValues();
+    }
+
+    public List<T> getClassifValues() {
+        return getClassifValuesStream().collect(Collectors.toList());
+    }
+
+    public List<T> getEnabledClassifValues() {
+        return getClassifValuesStream().filter(role -> BooleanUtils.isNotTrue(role.getDisabled()))
+                .collect(Collectors.toList());
+    }
+
+    public T getClassifValue(NodeRef nodeRef) {
+        try {
+            QName nodeType = nodeService.getType(nodeRef);
+            if (!nodeType.isMatch(getClassifValueType())) {
+                throw new AlfrescoRuntimeException(
+                        "Invalid type. Expected: " + getClassifValueType() + ", actual: " + nodeType.toString());
+            }
+            Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
+            return getClassifValue(nodeRef, properties);
+        } catch (InvalidNodeRefException none) {
+            // node does not exist
+            return null;
+        }
+    }
+
+    public Optional<T> getClassifValueByName(String name) {
+        return getClassifValuesStream().filter(value -> value.getName().equals(name)).findAny();
+    }
+
+    public MultiLanguageValue getMultiLanguageDisplayNames(NodeRef nodeRef) {
+        return multiLanguagePropertyService.getMLValues(nodeRef, OpenESDHModel.PROP_CLASSIF_DISPLAY_NAME);
+    }
+
+    protected T createOrUpdateClassifValueImpl(T classifValue) throws JSONException {
         MultiLanguageValue mlDisplayNames = classifValue.getMlDisplayNames();
         Map<QName, Serializable> properties = getPropertiesToSave(classifValue);
         classifValue.setDisplayName((String) mlDisplayNames.get(I18NUtil.getContentLocale().getLanguage()));
@@ -79,42 +120,13 @@ public abstract class ClassificatorManagementServiceImpl implements Classificato
         return classifValue;
     }
 
-    @Override
-    public void deleteClassifValue(NodeRef classifValueRef) {
-        if (isSystemValue(classifValueRef)) {
-            throw new AlfrescoRuntimeException(getCannotDeleteSystemMessage());
-        }
-        nodeService.deleteNode(classifValueRef);
-    }
-
-    @Override
-    public ClassifValue getClassifValue(NodeRef nodeRef) {
+    protected T getClassifValue(NodeRef nodeRef, Map<QName, Serializable> properties) {
+        T classifValue = null;
         try {
-            QName nodeType = nodeService.getType(nodeRef);
-            if (!nodeType.isMatch(getClassifValueType())) {
-                throw new AlfrescoRuntimeException(
-                        "Invalid type. Expected: " + getClassifValueType() + ", actual: " + nodeType.toString());
-            }
-            Map<QName, Serializable> properties = nodeService.getProperties(nodeRef);
-            return getClassifValue(nodeRef, properties);
-        } catch (InvalidNodeRefException none) {
-            // node does not exist
-            return null;
+            classifValue = (T) getClassifValueClass().newInstance();
+        } catch (InstantiationException | IllegalAccessException e) {
+            throw new AlfrescoRuntimeException("Error instantiating classifier value object", e);
         }
-    }
-
-    @Override
-    public Optional<ClassifValue> getClassifValueByName(String name) {
-        return getClassifValuesStream().filter(value -> value.getName().equals(name)).findAny();
-    }
-
-    @Override
-    public MultiLanguageValue getMultiLanguageDisplayNames(NodeRef nodeRef) {
-        return multiLanguagePropertyService.getMLValues(nodeRef, OpenESDHModel.PROP_CLASSIF_DISPLAY_NAME);
-    }
-
-    protected ClassifValue getClassifValue(NodeRef nodeRef, Map<QName, Serializable> properties) {
-        ClassifValue classifValue = newClassifValue();
         classifValue.setNodeRef(nodeRef);
         classifValue.setName((String) properties.get(ContentModel.PROP_NAME));
         classifValue.setDisplayName((String) properties.get(OpenESDHModel.PROP_CLASSIF_DISPLAY_NAME));
@@ -124,11 +136,7 @@ public abstract class ClassificatorManagementServiceImpl implements Classificato
         return classifValue;
     }
 
-    protected ClassifValue newClassifValue() {
-        return new ClassifValue();
-    }
-
-    protected Map<QName, Serializable> getPropertiesToSave(ClassifValue classifValue) {
+    protected Map<QName, Serializable> getPropertiesToSave(T classifValue) {
         Map<QName, Serializable> props = getProperties(classifValue.getNodeRef());
         checkSysNameChanged(props, classifValue);
         props.put(ContentModel.PROP_NAME, classifValue.getName());
@@ -150,7 +158,7 @@ public abstract class ClassificatorManagementServiceImpl implements Classificato
         return nodeService.getProperties(nodeRef);
     }
 
-    protected void checkSysNameChanged(Map<QName, Serializable> properties, ClassifValue value) {
+    protected void checkSysNameChanged(Map<QName, Serializable> properties, T value) {
         if (isSystemValue(properties)) {
             throwErrorIfSystemNameWasChanged(properties, value);
         } else {
@@ -158,7 +166,7 @@ public abstract class ClassificatorManagementServiceImpl implements Classificato
         }
     }
 
-    protected void throwErrorIfSystemNameWasChanged(Map<QName, Serializable> properties, ClassifValue value)
+    protected void throwErrorIfSystemNameWasChanged(Map<QName, Serializable> properties, T value)
             throws AlfrescoRuntimeException {
         if (!properties.get(ContentModel.PROP_NAME).equals(value.getName())) {
             throw new AlfrescoRuntimeException(getCannotChangeNameMessage());
@@ -192,7 +200,7 @@ public abstract class ClassificatorManagementServiceImpl implements Classificato
                 mlDisplayNames);
     }
     
-    protected Stream<ClassifValue> getClassifValuesStream() {
+    protected Stream<T> getClassifValuesStream() {
         return nodeService.getChildAssocs(getClassificatorValuesRootFolder())
                 .stream()
                 .map(assocItem -> getClassifValue(assocItem.getChildRef()))
@@ -204,4 +212,7 @@ public abstract class ClassificatorManagementServiceImpl implements Classificato
     protected abstract QName getClassifValueAssociationName();
 
     protected abstract NodeRef getClassificatorValuesRootFolder();
+
+    protected abstract String getClassifierType();
+
 }

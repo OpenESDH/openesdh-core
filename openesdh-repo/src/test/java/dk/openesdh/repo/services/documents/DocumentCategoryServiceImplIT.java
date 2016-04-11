@@ -27,7 +27,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 
-import dk.openesdh.repo.model.ClassifValue;
+import dk.openesdh.repo.model.DocumentCategory;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.services.system.MultiLanguageValue;
@@ -39,8 +39,8 @@ public class DocumentCategoryServiceImplIT {
 
     private static final String TEST_CATEGORY_NAME_PROOF = "testProof";
     private static final String TEST_CATEGORY_NAME_ANNEX = "testAnnex";
-    private ClassifValue documentCategory1;
-    private ClassifValue documentCategory2;
+    private DocumentCategory documentCategory1;
+    private DocumentCategory documentCategory2;
 
     @Autowired
     @Qualifier("DocumentCategoryService")
@@ -75,18 +75,21 @@ public class DocumentCategoryServiceImplIT {
     public void documentCategoryCrudExecutesSuccessfully() {
         transactionRunner.runInTransaction(() -> {
             //create
-            documentCategory1 = new ClassifValue();
+            documentCategory1 = new DocumentCategory();
             documentCategory1.setName(TEST_CATEGORY_NAME_ANNEX);
             documentCategory1.setDisplayName(TEST_CATEGORY_NAME_ANNEX + "DN");
-            documentCategory1 = documentCategoryService.createOrUpdateClassifValue(documentCategory1, createMLName(TEST_CATEGORY_NAME_ANNEX + "DN"));
+            documentCategory1.setMlDisplayNames(createMLName(TEST_CATEGORY_NAME_ANNEX + "DN"));
+            documentCategory1 = (DocumentCategory) documentCategoryService
+                    .createOrUpdateClassifValue(documentCategory1);
             //read
-            ClassifValue saved = documentCategoryService.getClassifValue(documentCategory1.getNodeRef());
+            DocumentCategory saved = documentCategoryService.getClassifValue(documentCategory1.getNodeRef());
             assertEquals(documentCategory1.getNodeRef(), saved.getNodeRef());
             assertEquals(TEST_CATEGORY_NAME_ANNEX, saved.getName());
             assertEquals(TEST_CATEGORY_NAME_ANNEX + "DN", saved.getDisplayName());
             //update
             saved.setName(TEST_CATEGORY_NAME_PROOF);
-            saved = documentCategoryService.createOrUpdateClassifValue(saved, createMLName(TEST_CATEGORY_NAME_PROOF + "DN"));
+            saved.setMlDisplayNames(createMLName(TEST_CATEGORY_NAME_PROOF + "DN"));
+            saved = (DocumentCategory) documentCategoryService.createOrUpdateClassifValue(saved);
             //get by name
             documentCategory2 = documentCategoryService.getClassifValueByName(TEST_CATEGORY_NAME_PROOF)
                     .orElseThrow(AssertionError::new);
@@ -94,7 +97,7 @@ public class DocumentCategoryServiceImplIT {
             assertEquals(TEST_CATEGORY_NAME_PROOF, saved.getName());
             assertEquals(TEST_CATEGORY_NAME_PROOF + "DN", saved.getDisplayName());
             //readList
-            List<ClassifValue> documentCategories = documentCategoryService.getClassifValues();
+            List<DocumentCategory> documentCategories = documentCategoryService.getClassifValues();
             assertTrue(documentCategories.size() > 0);
             //delete
             documentCategoryService.deleteClassifValue(saved.getNodeRef());
@@ -109,7 +112,7 @@ public class DocumentCategoryServiceImplIT {
         assertTrue(documentCategoryService.getClassifValueByName(OpenESDHModel.DOCUMENT_CATEGORY_ANNEX).isPresent());
     }
 
-    private void safelyDelete(ClassifValue documentCategory) {
+    private void safelyDelete(DocumentCategory documentCategory) {
         if (documentCategory != null && documentCategory.getNodeRef() != null) {
             try {
                 nodeService.deleteNode(documentCategory.getNodeRef());

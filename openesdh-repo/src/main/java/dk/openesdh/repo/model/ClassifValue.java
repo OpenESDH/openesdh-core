@@ -9,7 +9,7 @@ import org.json.JSONObject;
 
 import dk.openesdh.repo.services.system.MultiLanguageValue;
 
-public class ClassifValue {
+public abstract class ClassifValue {
     private NodeRef nodeRef;
     private String name;
     private String displayName;

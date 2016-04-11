@@ -34,8 +34,9 @@ import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.model.CaseDocument;
 import dk.openesdh.repo.model.CaseDocumentAttachment;
-import dk.openesdh.repo.model.ClassifValue;
+import dk.openesdh.repo.model.DocumentCategory;
 import dk.openesdh.repo.model.DocumentStatus;
+import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.model.ResultSet;
 import dk.openesdh.repo.services.cases.CaseService;
@@ -259,10 +260,10 @@ public class DocumentServiceImplIT {
         document.setNodeRef(caseDocNodeRef.toString());
         document.setTitle(TEST_TITLE);
 
-        ClassifValue documentType2 = getSecondItemFrom(documentTypeService.getClassifValues());
+        DocumentType documentType2 = getSecondItemFrom(documentTypeService.getClassifValues());
         document.setType(documentType2);
 
-        ClassifValue documentCategory2 = getSecondItemFrom(documentCategoryService.getClassifValues());
+        DocumentCategory documentCategory2 = getSecondItemFrom(documentCategoryService.getClassifValues());
         document.setCategory(documentCategory2);
 
         documentService.updateCaseDocumentProperties(document);

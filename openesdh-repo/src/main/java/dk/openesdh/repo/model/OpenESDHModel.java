@@ -31,6 +31,10 @@ public interface OpenESDHModel {
     String FROZEN_CASE_PARTIES_PROP_PREFIX = "frozenParties";
     String CASE_PARTY_ROLE_SENDER = "Afsender";
 
+    String STYPE_DOC_TYPE = "dtype";
+    String STYPE_DOC_CATEGORY = "dcategory";
+    String STYPE_PARTY_ROLE = "partyRole";
+
     /**
      * Models
      */
@@ -52,8 +56,8 @@ public interface OpenESDHModel {
     QName TYPE_DOC_BASE = QName.createQName(DOC_URI, TYPE_BASE_NAME);
     QName TYPE_DOC_SIMPLE = QName.createQName(DOC_URI, TYPE_SIMPLE_NAME);
 
-    QName TYPE_DOC_TYPE = QName.createQName(DOC_URI, "dtype");
-    QName TYPE_DOC_CATEGORY = QName.createQName(DOC_URI, "dcategory");
+    QName TYPE_DOC_TYPE = QName.createQName(DOC_URI, STYPE_DOC_TYPE);
+    QName TYPE_DOC_CATEGORY = QName.createQName(DOC_URI, STYPE_DOC_CATEGORY);
     QName TYPE_DOC_FILE = QName.createQName(DOC_URI, "file");
     QName TYPE_DOC_DIGITAL_FILE = QName.createQName(DOC_URI, "digitalFile");
     QName TYPE_DOC_PHYSICAL_FILE = QName.createQName(DOC_URI, "physicalFile");

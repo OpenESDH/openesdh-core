@@ -35,11 +35,13 @@ import org.springframework.extensions.webscripts.WebScriptException;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
-import dk.openesdh.repo.model.ClassifValue;
+import dk.openesdh.repo.model.DocumentCategory;
+import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.BehaviourFilterService;
-import dk.openesdh.repo.services.classification.ClassificatorManagementService;
+import dk.openesdh.repo.services.documents.DocumentCategoryService;
 import dk.openesdh.repo.services.documents.DocumentService;
+import dk.openesdh.repo.services.documents.DocumentTypeService;
 import dk.openesdh.repo.utils.Utils;
 
 /**
@@ -59,10 +61,10 @@ public class DocumentBehaviour {
     private DocumentService documentService;
     @Autowired
     @Qualifier("DocumentTypeService")
-    private ClassificatorManagementService documentTypeService;
+    private DocumentTypeService documentTypeService;
     @Autowired
     @Qualifier("DocumentCategoryService")
-    private ClassificatorManagementService documentCategoryService;
+    private DocumentCategoryService documentCategoryService;
     @Autowired
     @Qualifier("CaseDocumentVersionService")
     private VersionService versionService;
@@ -267,12 +269,12 @@ public class DocumentBehaviour {
                    // copied.
         }
 
-        ClassifValue documentCategory = documentCategoryService
+        DocumentCategory documentCategory = documentCategoryService
                 .getClassifValue(new NodeRef(optDocCategory.get().toString()));
         // type
         String doc_type = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_TYPE)
                 .toString();
-        ClassifValue documentType = documentTypeService.getClassifValue(new NodeRef(doc_type));
+        DocumentType documentType = documentTypeService.getClassifValue(new NodeRef(doc_type));
         if (documentCategory == null || documentType == null) {
             throw new WebScriptException(
                     "The following meta-data is required for a main document:\n\tCategory\n\ttype");

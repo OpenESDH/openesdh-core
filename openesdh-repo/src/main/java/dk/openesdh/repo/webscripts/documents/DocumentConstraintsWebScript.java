@@ -17,10 +17,12 @@ import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
 import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 
-import dk.openesdh.repo.model.ClassifValue;
+import dk.openesdh.repo.model.DocumentCategory;
+import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.classification.ClassificatorManagementService;
+import dk.openesdh.repo.services.documents.DocumentCategoryService;
+import dk.openesdh.repo.services.documents.DocumentTypeService;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 @Component
@@ -33,10 +35,10 @@ public class DocumentConstraintsWebScript {
     private CaseService caseService;
     @Autowired
     @Qualifier("DocumentTypeService")
-    private ClassificatorManagementService documentTypeService;
+    private DocumentTypeService documentTypeService;
     @Autowired
     @Qualifier("DocumentCategoryService")
-    private ClassificatorManagementService documentCategoryService;
+    private DocumentCategoryService documentCategoryService;
 
     @Uri(value = "/api/openesdh/case/document/constraints", method = HttpMethod.GET, defaultFormat = "json")
     public Resolution get() {
@@ -55,13 +57,13 @@ public class DocumentConstraintsWebScript {
             //documentTypes
             jsonResponse.put("documentTypes", new JSONArray(documentTypeService.getClassifValues()
                     .stream()
-                    .map(ClassifValue::toJSONObject)
+                    .map(DocumentType::toJSONObject)
                     .collect(Collectors.toList())));
 
             //documentCategories
             jsonResponse.put("documentCategories", new JSONArray(documentCategoryService.getClassifValues()
                     .stream()
-                    .map(ClassifValue::toJSONObject)
+                    .map(DocumentCategory::toJSONObject)
                     .collect(Collectors.toList())));
 
         } catch (JSONException e) {

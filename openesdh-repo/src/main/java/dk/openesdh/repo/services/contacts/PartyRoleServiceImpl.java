@@ -6,12 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import dk.openesdh.repo.model.ClassifValue;
 import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.classification.ClassificatorManagementServiceImpl;
+import dk.openesdh.repo.model.PartyRole;
+import dk.openesdh.repo.services.classification.ClassifierServiceImpl;
 import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 
 @Service("PartyRoleService")
-public class PartyRoleServiceImpl extends ClassificatorManagementServiceImpl {
+public class PartyRoleServiceImpl extends ClassifierServiceImpl<PartyRole> implements PartyRoleService {
 
     private static final String CANNOT_CHANGE_SYSTEM_NAME = "Can not change name of system party role.";
 
@@ -20,6 +22,7 @@ public class PartyRoleServiceImpl extends ClassificatorManagementServiceImpl {
     @Autowired
     @Qualifier("OpenESDHFoldersService")
     private OpenESDHFoldersService openESDHFoldersService;
+
 
     @Override
     protected String getCannotDeleteSystemMessage() {
@@ -44,6 +47,16 @@ public class PartyRoleServiceImpl extends ClassificatorManagementServiceImpl {
     @Override
     protected NodeRef getClassificatorValuesRootFolder() {
         return openESDHFoldersService.getPartyRolesRootNodeRef();
+    }
+
+    @Override
+    protected String getClassifierType() {
+        return OpenESDHModel.STYPE_PARTY_ROLE;
+    }
+
+    @Override
+    public Class<? extends ClassifValue> getClassifValueClass() {
+        return PartyRole.class;
     }
 
 }

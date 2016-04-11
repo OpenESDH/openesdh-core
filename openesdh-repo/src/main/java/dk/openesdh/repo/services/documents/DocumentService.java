@@ -15,8 +15,9 @@ import org.json.JSONObject;
 
 import dk.openesdh.repo.model.CaseDocument;
 import dk.openesdh.repo.model.CaseDocumentAttachment;
-import dk.openesdh.repo.model.ClassifValue;
+import dk.openesdh.repo.model.DocumentCategory;
 import dk.openesdh.repo.model.DocumentStatus;
+import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.ResultSet;
 import dk.openesdh.repo.services.HasStatus;
 import dk.openesdh.repo.webscripts.documents.Documents;
@@ -152,7 +153,7 @@ public interface DocumentService extends HasStatus<DocumentStatus> {
      * @param docNodeRef
      * @return DocumentType
      */
-    public ClassifValue getDocumentType(NodeRef docNodeRef);
+    public DocumentType getDocumentType(NodeRef docNodeRef);
 
     /**
      * Set document type for document
@@ -160,7 +161,7 @@ public interface DocumentService extends HasStatus<DocumentStatus> {
      * @param docNodeRef
      * @param type
      */
-    public void updateDocumentType(NodeRef docNodeRef, ClassifValue type);
+    public void updateDocumentType(NodeRef docNodeRef, DocumentType type);
 
     /**
      * Get document category by document NodeRef
@@ -168,7 +169,7 @@ public interface DocumentService extends HasStatus<DocumentStatus> {
      * @param docNodeRef
      * @return DocumentCategory
      */
-    public ClassifValue getDocumentCategory(NodeRef docNodeRef);
+    public DocumentCategory getDocumentCategory(NodeRef docNodeRef);
 
     /**
      * Set document type for document
@@ -176,7 +177,7 @@ public interface DocumentService extends HasStatus<DocumentStatus> {
      * @param docNodeRef
      * @param category
      */
-    public void updateDocumentCategory(NodeRef docNodeRef, ClassifValue category);
+    public void updateDocumentCategory(NodeRef docNodeRef, DocumentCategory category);
 
     /**
      * Retrieves document record nodeRef for provided document or attachment

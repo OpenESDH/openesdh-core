@@ -11,8 +11,8 @@ public class CaseDocument {
 
     private String title;
     private String docNo;
-    private ClassifValue type;
-    private ClassifValue category;
+    private DocumentType type;
+    private DocumentCategory category;
     private String status;
     private Date created;
     private Date modified;
@@ -47,19 +47,19 @@ public class CaseDocument {
         this.docNo = docNo;
     }
 
-    public ClassifValue getType() {
+    public DocumentType getType() {
         return type;
     }
 
-    public void setType(ClassifValue type) {
+    public void setType(DocumentType type) {
         this.type = type;
     }
 
-    public ClassifValue getCategory() {
+    public DocumentCategory getCategory() {
         return category;
     }
 
-    public void setCategory(ClassifValue category) {
+    public void setCategory(DocumentCategory category) {
         this.category = category;
     }
 

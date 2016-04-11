@@ -9,14 +9,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import dk.openesdh.repo.model.ClassifValue;
+import dk.openesdh.repo.model.DocumentCategory;
 import dk.openesdh.repo.model.OpenESDHModel;
-import dk.openesdh.repo.services.classification.ClassificatorManagementService;
-import dk.openesdh.repo.services.classification.ClassificatorManagementServiceImpl;
+import dk.openesdh.repo.services.classification.ClassifierServiceImpl;
 import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 
 @Service("DocumentCategoryService")
-public class DocumentCategoryServiceImpl extends ClassificatorManagementServiceImpl
-        implements ClassificatorManagementService {
+public class DocumentCategoryServiceImpl extends ClassifierServiceImpl<DocumentCategory>
+        implements DocumentCategoryService {
 
     private static final String CANNOT_CHANGE_SYSTEM_NAME = "Can not change name of system document category.";
 
@@ -52,4 +53,15 @@ public class DocumentCategoryServiceImpl extends ClassificatorManagementServiceI
     protected NodeRef getClassificatorValuesRootFolder() {
         return openESDHFoldersService.getDocumentCategoriesRootNodeRef();
     }
+
+    @Override
+    protected String getClassifierType() {
+        return OpenESDHModel.STYPE_DOC_CATEGORY;
+    }
+
+    @Override
+    public Class<? extends ClassifValue> getClassifValueClass() {
+        return DocumentCategory.class;
+    }
+
 }
