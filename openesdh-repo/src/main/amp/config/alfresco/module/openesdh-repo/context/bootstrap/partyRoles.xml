@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<view:view xmlns:view="http://www.alfresco.org/view/repository/1.0"
+           xmlns:cm="http://www.alfresco.org/model/content/1.0"
+           xmlns:contact="http://openesdh.dk/model/contact/1.0"
+           xmlns:classif="http://openesdh.dk/model/classif/1.0"
+           xmlns:sys="http://www.alfresco.org/model/system/1.0">
+    
+    <contact:partyRole view:childName="contact:aPartyRole">
+        <cm:name>citizen</cm:name>
+        <view:properties>
+            <classif:displayName>
+                <view:mlvalue view:locale="en">Citizen</view:mlvalue>
+                <view:mlvalue view:locale="da">Borger</view:mlvalue>
+            </classif:displayName>
+            <sys:store-protocol>workspace</sys:store-protocol>
+            <sys:store-identifier>SpacesStore</sys:store-identifier>
+            <sys:node-uuid>397510b9-8b12-4004-9dad-15ab037064ba</sys:node-uuid>
+        </view:properties>
+    </contact:partyRole>
+    <contact:partyRole view:childName="contact:aPartyRole">
+        <cm:name>member</cm:name>
+        <view:properties>
+            <classif:displayName>
+                <view:mlvalue view:locale="en">Member</view:mlvalue>
+                <view:mlvalue view:locale="da">Medlem</view:mlvalue>
+            </classif:displayName>
+            <sys:store-protocol>workspace</sys:store-protocol>
+            <sys:store-identifier>SpacesStore</sys:store-identifier>
+            <sys:node-uuid>14a62342-6674-4260-b56e-208d3a0ebb60</sys:node-uuid>
+        </view:properties>
+    </contact:partyRole>
+    <contact:partyRole view:childName="contact:aPartyRole">
+        <cm:name>customer</cm:name>
+        <view:properties>
+            <classif:displayName>
+                <view:mlvalue view:locale="en">Customer</view:mlvalue>
+                <view:mlvalue view:locale="da">Kunde</view:mlvalue>
+            </classif:displayName>
+            <sys:store-protocol>workspace</sys:store-protocol>
+            <sys:store-identifier>SpacesStore</sys:store-identifier>
+            <sys:node-uuid>dbcfd28b-3f86-4dd7-b868-fcc453a4630f</sys:node-uuid>
+        </view:properties>
+    </contact:partyRole>
+    <contact:partyRole view:childName="contact:aPartyRole">
+        <cm:name>business</cm:name>
+        <view:properties>
+            <classif:displayName>
+                <view:mlvalue view:locale="en">Business</view:mlvalue>
+                <view:mlvalue view:locale="da">Virksomhed</view:mlvalue>
+            </classif:displayName>
+            <sys:store-protocol>workspace</sys:store-protocol>
+            <sys:store-identifier>SpacesStore</sys:store-identifier>
+            <sys:node-uuid>c33f07d6-2f5f-4158-994a-dac9b392d708</sys:node-uuid>
+        </view:properties>
+    </contact:partyRole>
+    <contact:partyRole view:childName="contact:aPartyRole">
+        <cm:name>supplier</cm:name>
+        <view:properties>
+            <classif:displayName>
+                <view:mlvalue view:locale="en">Supplier</view:mlvalue>
+                <view:mlvalue view:locale="da">Leverandør</view:mlvalue>
+            </classif:displayName>
+            <sys:store-protocol>workspace</sys:store-protocol>
+            <sys:store-identifier>SpacesStore</sys:store-identifier>
+            <sys:node-uuid>8ffca1ca-cddf-4993-a23f-56ec4d218fe8</sys:node-uuid>
+        </view:properties>
+    </contact:partyRole>
+</view:view>

@@ -2,16 +2,17 @@
 <view:view xmlns:view="http://www.alfresco.org/view/repository/1.0"
            xmlns:cm="http://www.alfresco.org/model/content/1.0"
            xmlns:doc="http://openesdh.dk/model/document/1.0"
+           xmlns:classif="http://openesdh.dk/model/classif/1.0"
            xmlns:sys="http://www.alfresco.org/model/system/1.0">
     
     <doc:dtype view:childName="doc:atype">
         <cm:name>invoice</cm:name>
         <view:properties>
-            <doc:typeDisplayName>
+            <classif:displayName>
                 <view:mlvalue view:locale="en">Invoice</view:mlvalue>
                 <view:mlvalue view:locale="da">Faktura</view:mlvalue>
-            </doc:typeDisplayName>
-            <doc:systemType>true</doc:systemType>
+            </classif:displayName>
+            <classif:isSystem>true</classif:isSystem>
             <sys:store-protocol>workspace</sys:store-protocol>
             <sys:store-identifier>SpacesStore</sys:store-identifier>
             <sys:node-uuid>be36694a-a463-4d0a-8389-9473bdc65280</sys:node-uuid>
@@ -20,11 +21,11 @@
     <doc:dtype view:childName="doc:atype">
         <cm:name>letter</cm:name>
         <view:properties>
-            <doc:systemType>true</doc:systemType>
-            <doc:typeDisplayName>
+            <classif:isSystem>true</classif:isSystem>
+            <classif:displayName>
                 <view:mlvalue view:locale="en">Letter</view:mlvalue>
                 <view:mlvalue view:locale="da">Brev</view:mlvalue>
-            </doc:typeDisplayName>
+            </classif:displayName>
             <sys:store-protocol>workspace</sys:store-protocol>
             <sys:store-identifier>SpacesStore</sys:store-identifier>
             <sys:node-uuid>fe217374-95d9-4375-ad1d-c951d86efe73</sys:node-uuid>
@@ -33,10 +34,10 @@
     <doc:dtype view:childName="doc:atype">
         <cm:name>note</cm:name>
         <view:properties>
-            <doc:typeDisplayName>
+            <classif:displayName>
                 <view:mlvalue view:locale="en">Note</view:mlvalue>
                 <view:mlvalue view:locale="da">Notat</view:mlvalue>
-            </doc:typeDisplayName>
+            </classif:displayName>
             <sys:store-protocol>workspace</sys:store-protocol>
             <sys:store-identifier>SpacesStore</sys:store-identifier>
             <sys:node-uuid>3940af24-ebc2-428a-90ab-3a1283fe21f8</sys:node-uuid>
@@ -45,10 +46,10 @@
     <doc:dtype view:childName="doc:atype">
         <cm:name>report</cm:name>
         <view:properties>
-            <doc:typeDisplayName>
+            <classif:displayName>
                 <view:mlvalue view:locale="en">Report</view:mlvalue>
                 <view:mlvalue view:locale="da">Rapport</view:mlvalue>
-            </doc:typeDisplayName>
+            </classif:displayName>
             <sys:store-protocol>workspace</sys:store-protocol>
             <sys:store-identifier>SpacesStore</sys:store-identifier>
             <sys:node-uuid>bfa3b2d0-b44d-40f1-a45d-bbdccf9d9a0c</sys:node-uuid>
@@ -57,10 +58,10 @@
     <doc:dtype view:childName="doc:atype">
         <cm:name>agenda</cm:name>
         <view:properties>
-            <doc:typeDisplayName>
+            <classif:displayName>
                 <view:mlvalue view:locale="en">Agenda</view:mlvalue>
                 <view:mlvalue view:locale="da">Dagsorden</view:mlvalue>
-            </doc:typeDisplayName>
+            </classif:displayName>
             <sys:store-protocol>workspace</sys:store-protocol>
             <sys:store-identifier>SpacesStore</sys:store-identifier>
             <sys:node-uuid>ba386dce-0c27-4c97-b731-2617c2eb04b3</sys:node-uuid>
@@ -69,10 +70,10 @@
     <doc:dtype view:childName="doc:atype">
         <cm:name>other</cm:name>
         <view:properties>
-            <doc:typeDisplayName>
+            <classif:displayName>
                 <view:mlvalue view:locale="en">Other</view:mlvalue>
                 <view:mlvalue view:locale="da">Andet</view:mlvalue>
-            </doc:typeDisplayName>
+            </classif:displayName>
             <sys:store-protocol>workspace</sys:store-protocol>
             <sys:store-identifier>SpacesStore</sys:store-identifier>
             <sys:node-uuid>74148a6c-1cce-42e9-9d1e-765218f2d6b6</sys:node-uuid>

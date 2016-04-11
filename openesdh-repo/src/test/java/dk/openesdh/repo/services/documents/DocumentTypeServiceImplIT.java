@@ -27,9 +27,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 
-import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.services.system.MultiLanguageValue;
 
 @RunWith(RemoteTestRunner.class)
@@ -77,9 +77,10 @@ public class DocumentTypeServiceImplIT {
             //create
             documentType1 = new DocumentType();
             documentType1.setName(TEST_TYPE_NAME_INVOICE);
-            documentType1 = documentTypeService.createOrUpdateDocumentType(documentType1, createMLName(TEST_TYPE_NAME_INVOICE + "DN"));
+            documentType1.setMlDisplayNames(createMLName(TEST_TYPE_NAME_INVOICE + "DN"));
+            documentType1 = (DocumentType) documentTypeService.createOrUpdateClassifValue(documentType1);
             //read
-            DocumentType saved = documentTypeService.getDocumentType(documentType1.getNodeRef());
+            DocumentType saved = documentTypeService.getClassifValue(documentType1.getNodeRef());
             assertEquals(documentType1.getNodeRef(), saved.getNodeRef());
             assertEquals(TEST_TYPE_NAME_INVOICE, saved.getName());
             assertEquals(TEST_TYPE_NAME_INVOICE + "DN", saved.getDisplayName());
@@ -88,9 +89,10 @@ public class DocumentTypeServiceImplIT {
                     .get(I18NUtil.getContentLocale().getLanguage()));
             //update
             saved.setName(TEST_TYPE_NAME_LETTER);
-            saved = documentTypeService.createOrUpdateDocumentType(saved, createMLName(TEST_TYPE_NAME_LETTER + "DN"));
+            saved.setMlDisplayNames(createMLName(TEST_TYPE_NAME_LETTER + "DN"));
+            saved = (DocumentType) documentTypeService.createOrUpdateClassifValue(saved);
             //get by name
-            documentType2 = documentTypeService.getDocumentTypeByName(TEST_TYPE_NAME_LETTER)
+            documentType2 = documentTypeService.getClassifValueByName(TEST_TYPE_NAME_LETTER)
                     .orElseThrow(AssertionError::new);
             assertEquals(saved.getNodeRef().toString(), documentType2.getNodeRef().toString());
             assertEquals(TEST_TYPE_NAME_LETTER, saved.getName());
@@ -99,11 +101,11 @@ public class DocumentTypeServiceImplIT {
                     .getMultiLanguageDisplayNames(saved.getNodeRef())
                     .get(I18NUtil.getContentLocale().getLanguage()));
             //readList
-            List<DocumentType> documentTypes = documentTypeService.getDocumentTypes();
+            List<DocumentType> documentTypes = documentTypeService.getClassifValues();
             assertTrue(documentTypes.size() > 0);
             //delete
-            documentTypeService.deleteDocumentType(saved);
-            saved = documentTypeService.getDocumentType(saved.getNodeRef());
+            documentTypeService.deleteClassifValue(saved.getNodeRef());
+            saved = documentTypeService.getClassifValue(saved.getNodeRef());
             assertNull(saved);
             return null;
         });
@@ -111,8 +113,8 @@ public class DocumentTypeServiceImplIT {
 
     @Test
     public void testSystemTypesExists() {
-        assertTrue(documentTypeService.getDocumentTypeByName(OpenESDHModel.DOCUMENT_TYPE_INVOICE).isPresent());
-        assertTrue(documentTypeService.getDocumentTypeByName(OpenESDHModel.DOCUMENT_TYPE_LETTER).isPresent());
+        assertTrue(documentTypeService.getClassifValueByName(OpenESDHModel.DOCUMENT_TYPE_INVOICE).isPresent());
+        assertTrue(documentTypeService.getClassifValueByName(OpenESDHModel.DOCUMENT_TYPE_LETTER).isPresent());
     }
 
     private void safelyDelete(DocumentType documentType) {

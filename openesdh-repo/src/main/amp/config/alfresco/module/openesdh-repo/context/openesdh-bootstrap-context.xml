@@ -145,6 +145,26 @@
             </list>
         </property>
     </bean>
+    <!-- initial party roles -->
+    <bean id="${project.artifactId}_mt_partyRolesBootstrap" parent="spacesStoreImporter">
+        <property name="log">
+            <value>true</value>
+        </property>
+        <property name="useExistingStore">
+            <value>true</value>
+        </property>
+        <property name="transactionService" ref="transactionService"/>
+        <property name="bootstrapViews">
+            <list>
+                <props>
+                    <prop key="path">app:company_home/oe:OpenESDH/oe:classifications/oe:party_roles</prop>
+                    <prop key="uuidBinding">UPDATE_EXISTING</prop>
+                    <prop key="location">alfresco/module/${project.artifactId}/context/bootstrap/partyRoles.xml
+                    </prop>
+                </props>
+            </list>
+        </property>
+    </bean>
     <!--Contacts store-->
     <bean id="${project.artifactId}_mt_contactBootstrap" parent="spacesStoreImporter">
         <property name="log">

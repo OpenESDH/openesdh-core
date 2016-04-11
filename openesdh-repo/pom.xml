@@ -490,18 +490,21 @@
                     <version>${openesdh.staff.case.version}</version>
                     <type>amp</type>
                 </dependency>
+                <!--
                 <dependency>
                     <groupId>dk.openesdh</groupId>
                     <artifactId>openesdh-doc-templates</artifactId>
                     <version>${openesdh.doctemplates.version}</version>
                     <type>amp</type>
                 </dependency>
+                 
                 <dependency>
                     <groupId>dk.openesdh</groupId>
                     <artifactId>openesdh-office</artifactId>
                     <version>${openesdh.office.version}</version>
                     <type>amp</type>
                 </dependency>
+                 
                 <dependency>
                     <groupId>dk.openesdh</groupId>
                     <artifactId>openesdh-project-rooms</artifactId>
@@ -526,6 +529,7 @@
                     <version>${openesdh.case.templates.version}</version>
                     <type>amp</type>
                 </dependency>
+                -->
             </dependencies>
         </profile>
         <profile>

@@ -1,10 +1,5 @@
 package dk.openesdh.repo.webscripts.documents;
 
-import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
-import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
-import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
-
 import java.util.Collection;
 import java.util.stream.Collectors;
 
@@ -14,7 +9,13 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Component;
+
+import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
+import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 
 import dk.openesdh.repo.model.DocumentCategory;
 import dk.openesdh.repo.model.DocumentType;
@@ -33,8 +34,10 @@ public class DocumentConstraintsWebScript {
     @Autowired
     private CaseService caseService;
     @Autowired
+    @Qualifier("DocumentTypeService")
     private DocumentTypeService documentTypeService;
     @Autowired
+    @Qualifier("DocumentCategoryService")
     private DocumentCategoryService documentCategoryService;
 
     @Uri(value = "/api/openesdh/case/document/constraints", method = HttpMethod.GET, defaultFormat = "json")
@@ -52,13 +55,13 @@ public class DocumentConstraintsWebScript {
             }
 
             //documentTypes
-            jsonResponse.put("documentTypes", new JSONArray(documentTypeService.getDocumentTypes()
+            jsonResponse.put("documentTypes", new JSONArray(documentTypeService.getClassifValues()
                     .stream()
                     .map(DocumentType::toJSONObject)
                     .collect(Collectors.toList())));
 
             //documentCategories
-            jsonResponse.put("documentCategories", new JSONArray(documentCategoryService.getDocumentCategories()
+            jsonResponse.put("documentCategories", new JSONArray(documentCategoryService.getClassifValues()
                     .stream()
                     .map(DocumentCategory::toJSONObject)
                     .collect(Collectors.toList())));

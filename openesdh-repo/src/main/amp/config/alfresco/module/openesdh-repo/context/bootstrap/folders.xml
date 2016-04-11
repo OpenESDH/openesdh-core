@@ -166,6 +166,15 @@
                             <cm:description>This folder stores OpenESDH DocumentCategories</cm:description>
                         </view:properties>
                     </cm:folder>
+                    <cm:folder view:childName="oe:party_roles">
+                        <cm:name>Party Roles</cm:name>
+                        <view:properties>
+                            <sys:store-protocol>workspace</sys:store-protocol>
+                            <sys:store-identifier>SpacesStore</sys:store-identifier>
+                            <sys:node-uuid>07c1e639-38ba-43a3-a2fe-fc8d53642989</sys:node-uuid>
+                            <cm:description>This folder stores OpenESDH party roles</cm:description>
+                        </view:properties>
+                    </cm:folder>
                 </cm:contains>
             </cm:folder>
             <cm:folder view:childName="oe:parameters">

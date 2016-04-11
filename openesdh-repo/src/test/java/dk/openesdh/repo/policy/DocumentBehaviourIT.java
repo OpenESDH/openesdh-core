@@ -101,8 +101,8 @@ public class DocumentBehaviourIT {
         testFolder = docTestHelper.createFolder(TEST_FOLDER_NAME);
         testCase1 = docTestHelper.createCaseBehaviourOn(TEST_CASE_NAME1, testFolder, testUsername);
         testCase1DocumentsFolder = caseService.getDocumentsFolder(testCase1);
-        documentType = documentTypeService.getDocumentTypes().stream().findAny().get();
-        documentCategory = documentCategoryService.getDocumentCategories().stream().findAny().get();
+        documentType = documentTypeService.getClassifValues().stream().findAny().get();
+        documentCategory = documentCategoryService.getClassifValues().stream().findAny().get();
     }
 
     @After

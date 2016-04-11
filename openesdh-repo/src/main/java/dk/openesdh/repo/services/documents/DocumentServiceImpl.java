@@ -798,7 +798,7 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public DocumentType getDocumentType(NodeRef docNodeRef) {
         Optional<AssociationRef> assocRef = nodeService.getTargetAssocs(docNodeRef, OpenESDHModel.ASSOC_DOC_TYPE).stream().findFirst();
-        return assocRef.isPresent() ? documentTypeService.getDocumentType(assocRef.get().getTargetRef()) : null;
+        return assocRef.isPresent() ? documentTypeService.getClassifValue(assocRef.get().getTargetRef()) : null;
     }
 
     @Override
@@ -809,7 +809,7 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public DocumentCategory getDocumentCategory(NodeRef docNodeRef) {
         Optional<AssociationRef> assocRef = nodeService.getTargetAssocs(docNodeRef, OpenESDHModel.ASSOC_DOC_CATEGORY).stream().findFirst();
-        return assocRef.isPresent() ? documentCategoryService.getDocumentCategory(assocRef.get().getTargetRef()) : null;
+        return assocRef.isPresent() ? documentCategoryService.getClassifValue(assocRef.get().getTargetRef()) : null;
     }
 
     @Override

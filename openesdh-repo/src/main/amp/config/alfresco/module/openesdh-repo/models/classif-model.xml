@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model name="classif:classifModel"
+       xmlns="http://www.alfresco.org/model/dictionary/1.0">
+    <description>OpenESDH Classificators Model</description>
+    <author>Jurij Rudinskij</author>
+    <version>1.0</version>
+    <imports>
+        <import uri="http://www.alfresco.org/model/dictionary/1.0" prefix="d"/>
+        <import uri="http://www.alfresco.org/model/content/1.0" prefix="cm"/>
+        <import uri="http://www.alfresco.org/model/system/1.0" prefix="sys"/>
+        <import uri="http://www.alfresco.org/model/datalist/1.0" prefix="dl"/>
+    </imports>
+    <namespaces>
+        <namespace uri="http://openesdh.dk/model/classif/1.0" prefix="classif"/>
+    </namespaces>
+    <constraints>
+        <constraint name="classif:displayNameConstr" type="LENGTH">
+            <parameter name="maxLength">
+                <value>150</value>
+            </parameter>
+        </constraint>
+    </constraints>
+    <types>
+        <type name="classif:classifValue">
+            <title>Classificator Value</title>
+            <parent>cm:cmobject</parent>
+            <properties>
+                <property name="classif:displayName">
+                    <type>d:mltext</type>
+                    <constraints>
+                        <constraint ref="classif:displayNameConstr"/>
+                    </constraints>
+                </property>
+                <property name="classif:disabled">
+                    <type>d:boolean</type>
+                    <default>false</default>
+                </property>
+                <property name="classif:isSystem">
+                    <type>d:boolean</type>
+                    <default>false</default>
+                </property>
+            </properties>
+        </type>
+    </types>
+</model>

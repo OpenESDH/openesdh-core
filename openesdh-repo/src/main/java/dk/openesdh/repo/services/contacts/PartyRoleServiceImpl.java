@@ -1,7 +1,4 @@
-package dk.openesdh.repo.services.documents;
-
-import java.util.Arrays;
-import java.util.List;
+package dk.openesdh.repo.services.contacts;
 
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.namespace.QName;
@@ -10,20 +7,22 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.model.ClassifValue;
-import dk.openesdh.repo.model.DocumentCategory;
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.model.PartyRole;
 import dk.openesdh.repo.services.classification.ClassifierServiceImpl;
 import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 
-@Service("DocumentCategoryService")
-public class DocumentCategoryServiceImpl extends ClassifierServiceImpl<DocumentCategory>
-        implements DocumentCategoryService {
+@Service("PartyRoleService")
+public class PartyRoleServiceImpl extends ClassifierServiceImpl<PartyRole> implements PartyRoleService {
 
-    private static final String CANNOT_CHANGE_SYSTEM_NAME = "Can not change name of system document category.";
+    private static final String CANNOT_CHANGE_SYSTEM_NAME = "Can not change name of system party role.";
 
-    private static final String CANNOT_DELETE_SYSTEM_OBJECT = "Cannot delete system document category.";
+    private static final String CANNOT_DELETE_SYSTEM_OBJECT = "Cannot delete system party role.";
 
-    public static final List<String> SYSTEM_TYPES = Arrays.asList("annex");
+    @Autowired
+    @Qualifier("OpenESDHFoldersService")
+    private OpenESDHFoldersService openESDHFoldersService;
+
 
     @Override
     protected String getCannotDeleteSystemMessage() {
@@ -35,33 +34,29 @@ public class DocumentCategoryServiceImpl extends ClassifierServiceImpl<DocumentC
         return CANNOT_CHANGE_SYSTEM_NAME;
     }
 
-    @Autowired
-    @Qualifier("OpenESDHFoldersService")
-    private OpenESDHFoldersService openESDHFoldersService;
-
     @Override
     protected QName getClassifValueType() {
-        return OpenESDHModel.TYPE_DOC_CATEGORY;
+        return OpenESDHModel.TYPE_CONTACT_PARTY_ROLE;
     }
 
     @Override
     protected QName getClassifValueAssociationName() {
-        return OpenESDHModel.ASSOC_DOC_CATEGORY;
+        return OpenESDHModel.ASSOC_CONTACT_PARTY_ROLE;
     }
 
     @Override
     protected NodeRef getClassificatorValuesRootFolder() {
-        return openESDHFoldersService.getDocumentCategoriesRootNodeRef();
+        return openESDHFoldersService.getPartyRolesRootNodeRef();
     }
 
     @Override
     protected String getClassifierType() {
-        return OpenESDHModel.STYPE_DOC_CATEGORY;
+        return OpenESDHModel.STYPE_PARTY_ROLE;
     }
 
     @Override
     public Class<? extends ClassifValue> getClassifValueClass() {
-        return DocumentCategory.class;
+        return PartyRole.class;
     }
 
 }

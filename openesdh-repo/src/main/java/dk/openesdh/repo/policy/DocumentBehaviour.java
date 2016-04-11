@@ -270,11 +270,11 @@ public class DocumentBehaviour {
         }
 
         DocumentCategory documentCategory = documentCategoryService
-                .getDocumentCategory(new NodeRef(optDocCategory.get().toString()));
+                .getClassifValue(new NodeRef(optDocCategory.get().toString()));
         // type
         String doc_type = nodeService.getProperty(childAssocRef.getChildRef(), OpenESDHModel.PROP_DOC_TYPE)
                 .toString();
-        DocumentType documentType = documentTypeService.getDocumentType(new NodeRef(doc_type));
+        DocumentType documentType = documentTypeService.getClassifValue(new NodeRef(doc_type));
         if (documentCategory == null || documentType == null) {
             throw new WebScriptException(
                     "The following meta-data is required for a main document:\n\tCategory\n\ttype");

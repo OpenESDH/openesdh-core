@@ -260,10 +260,10 @@ public class DocumentServiceImplIT {
         document.setNodeRef(caseDocNodeRef.toString());
         document.setTitle(TEST_TITLE);
 
-        DocumentType documentType2 = getSecondItemFrom(documentTypeService.getDocumentTypes());
+        DocumentType documentType2 = getSecondItemFrom(documentTypeService.getClassifValues());
         document.setType(documentType2);
 
-        DocumentCategory documentCategory2 = getSecondItemFrom(documentCategoryService.getDocumentCategories());
+        DocumentCategory documentCategory2 = getSecondItemFrom(documentCategoryService.getClassifValues());
         document.setCategory(documentCategory2);
 
         documentService.updateCaseDocumentProperties(document);
@@ -305,8 +305,8 @@ public class DocumentServiceImplIT {
     private NodeRef creeateCaseTestDocument(NodeRef caseNodeRef) {
         return documentService.createCaseDocument(caseNodeRef,
                 TEST_DOCUMENT_NAME, TEST_DOCUMENT_FILE_NAME,
-                documentTypeService.getDocumentTypeByName(OpenESDHModel.DOCUMENT_TYPE_LETTER).get().getNodeRef(),
-                documentCategoryService.getDocumentCategoryByName(OpenESDHModel.DOCUMENT_CATEGORY_OTHER).get().getNodeRef(),
+                documentTypeService.getClassifValueByName(OpenESDHModel.DOCUMENT_TYPE_LETTER).get().getNodeRef(),
+                documentCategoryService.getClassifValueByName(OpenESDHModel.DOCUMENT_CATEGORY_OTHER).get().getNodeRef(),
                 writer -> {
                     writer.setMimetype(MimetypeMap.MIMETYPE_TEXT_PLAIN);
                     writer.putContent("Some content");
