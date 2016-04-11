@@ -33,14 +33,14 @@ public class ClassifierAdminWebScript {
     private ClassifierAdminRegistry classifAdminRegistry;
 
     @Uri(value = "/api/openesdh/classifer/{classifType}", method = HttpMethod.GET, defaultFormat = "json")
-    public Resolution getAllTypes(@UriVariable("classifType") String classifType)
+    public Resolution getValues(@UriVariable("classifType") String classifType)
             throws IOException, JSONException {
         return WebScriptUtils.jsonResolution(classifAdminRegistry.getService(classifType).getAdminClassifValues());
     }
 
     @Authentication(AuthenticationType.ADMIN)
     @Uri(value = "/api/openesdh/classifer/{classifType}", method = HttpMethod.POST, defaultFormat = "json")
-    public Resolution post(@UriVariable("classifType") String classifType, WebScriptRequest req) throws IOException, JSONException {
+    public Resolution createOrUpdate(@UriVariable("classifType") String classifType, WebScriptRequest req) throws IOException, JSONException {
         ClassifierAdminService service = classifAdminRegistry.getService(classifType);
         ClassifValue value = getClassifValue(service.getClassifValueClass(), req);
         return WebScriptUtils.jsonResolution(service.createOrUpdateClassifValue(value));
