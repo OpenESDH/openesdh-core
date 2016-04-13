@@ -143,8 +143,10 @@ public class PartyServiceImpl implements PartyService {
         NodeRef contactRef = (NodeRef) nodeService.getProperty(partyRef, OpenESDHModel.PROP_CONTACT_CONTACT);
         JSONObject contactJson = contactService.getContactInfo(contactRef).toJSONObject();
         json.put(PartyService.FIELD_CONTACT, contactJson);
-        json.put(PartyService.FIELD_ROLE_REF,
-                nodeService.getProperty(partyRef, OpenESDHModel.PROP_CONTACT_PARTY_ROLE).toString());
+        NodeRef roleRef = (NodeRef) nodeService.getProperty(partyRef, OpenESDHModel.PROP_CONTACT_PARTY_ROLE);
+        json.put(PartyService.FIELD_ROLE_REF, roleRef.toString());
+        json.put(PartyService.FIELD_ROLE_DISPLAY_NAME,
+                nodeService.getProperty(roleRef, OpenESDHModel.PROP_CLASSIF_DISPLAY_NAME));
         return json;
     }
 

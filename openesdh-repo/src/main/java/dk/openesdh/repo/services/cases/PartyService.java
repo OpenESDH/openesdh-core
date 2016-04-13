@@ -25,6 +25,7 @@ public interface PartyService {
     String FIELD_NODE_REF = "nodeRef";
     String FIELD_CONTACT = "contact";
     String FIELD_ROLE_REF = "roleRef";
+    String FIELD_ROLE_DISPLAY_NAME = "roleDisplayName";
     String FIELD_CONTACT_IDS = "contactIds";
 
     /**
