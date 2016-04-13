@@ -158,11 +158,4 @@
         <property name="documentService" ref="DocumentService"/>
     </bean>
 
-    <!--Parties-->
-    <!--Permitted Roles-->
-    <bean id="webscript.dk.openesdh.case.permittedRoles.get" parent="webscript"
-          class="dk.openesdh.repo.webscripts.cases.PermittedRoles">
-
-        <property name="dictionaryService" ref="dictionaryService"/>
-    </bean>
 </beans>

@@ -50,8 +50,6 @@ public class MultiTenantAdminModulesAspect implements BeanFactoryAware {
 
     private static final String TENANT_ADMIN_SERVICE = "tenantAdminService";
 
-    private static final String OPENE_MODULE_SERVICE = "OpeneMultiTenantModuleService";
-
     private static final String OPENE_MULTI_TENANT = "opene-multi-tenant";
 
     private ListableBeanFactory beanFactory;
@@ -94,7 +92,8 @@ public class MultiTenantAdminModulesAspect implements BeanFactoryAware {
      */
     @Override
     public void setBeanFactory(BeanFactory beanFactory) throws BeansException {
-        if (!beanFactory.containsBean(TENANT_ADMIN_SERVICE) || !beanFactory.containsBean(OPENE_MODULE_SERVICE)) {
+        if (!beanFactory.containsBean(TENANT_ADMIN_SERVICE)
+                || !beanFactory.containsBean(AlfrescoModuleServiceProxy.MODULE_SERVICE_PROXY)) {
             return;
         }
 
@@ -106,7 +105,7 @@ public class MultiTenantAdminModulesAspect implements BeanFactoryAware {
 
         MultiTAdminServiceImpl tenantAdminService = (MultiTAdminServiceImpl) beanFactory
                 .getBean(TENANT_ADMIN_SERVICE);
-        Advised moduleServiceProxy = (Advised) beanFactory.getBean(OPENE_MODULE_SERVICE);
+        Advised moduleServiceProxy = (Advised) beanFactory.getBean(AlfrescoModuleServiceProxy.MODULE_SERVICE_PROXY);
         tenantAdminService.setModuleService((ModuleService) moduleServiceProxy);
 
         NameMatchMethodPointcutAdvisor afterStartModulesAdvisor = new NameMatchMethodPointcutAdvisor(

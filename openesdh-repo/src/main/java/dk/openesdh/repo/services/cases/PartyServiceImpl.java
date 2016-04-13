@@ -7,43 +7,40 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-import javax.annotation.PostConstruct;
-
-import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
-import org.alfresco.repo.dictionary.constraint.ListOfValuesConstraint;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
-import org.alfresco.service.cmr.repository.InvalidNodeRefException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthorityService;
-import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.namespace.NamespacePrefixResolver;
 import org.alfresco.service.namespace.QName;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import com.google.common.collect.Sets;
+
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.BehaviourFilterService;
 import dk.openesdh.repo.services.contacts.ContactService;
+import dk.openesdh.repo.utils.JSONArrayCollector;
 
 /**
  * @author Lanre Abiwon.
  */
-@Service("PartyService")
+@Service(PartyService.BEAN_ID)
 public class PartyServiceImpl implements PartyService {
-
-    private String CONTENT_URI;
 
     @Autowired
     @Qualifier("NodeService")
@@ -69,84 +66,96 @@ public class PartyServiceImpl implements PartyService {
     @Qualifier("namespaceService")
     private NamespacePrefixResolver namespacePrefixResolver;
 
-    @PostConstruct
-    public void init() {
-        CONTENT_URI = namespacePrefixResolver.getNamespaceURI("cm");
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public List<NodeRef> addCaseParty(String caseId, NodeRef role, String... contactId) {
+        return addCaseParty(caseId, role, Arrays.asList(contactId));
     }
 
     /**
      * {@inheritDoc}
      */
-    public void addCaseParty(String caseId, String role, String... contactId) {
-        addCaseParty(caseId, role, Arrays.asList(contactId));
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void addCaseParty(String caseId, String role, List<String> contactIds) {
-        if (StringUtils.isAnyEmpty(caseId, role)) {
-            throw new RuntimeException("The caseId and/or the role is missing");
+    @Override
+    public List<NodeRef> addCaseParty(String caseId, NodeRef roleRef, List<String> contactIds) {
+        if (StringUtils.isAnyEmpty(caseId)) {
+            throw new RuntimeException("The caseId is missing");
+        }
+        if (Objects.isNull(roleRef)) {
+            throw new RuntimeException("The roleRef is missing");
         }
         NodeRef caseNodeRef = caseService.getCaseById(caseId);
-        if (!caseService.isLocked(caseNodeRef)) {
-            caseService.checkCanUpdateCaseRoles(caseNodeRef);
-            NodeRef casePartyRoleRef = getOrCreateCasePartyRole(caseNodeRef, role);
-            addContactsToCaseRole(casePartyRoleRef, contactIds);
+        if (caseService.isLocked(caseNodeRef)) {
+            return Collections.emptyList();
         }
+        caseService.checkCanUpdateCaseRoles(caseNodeRef);
+        return contactIds.stream()
+            .map(contactId -> addContactToCaseParty(caseNodeRef, roleRef, contactId))
+            .collect(Collectors.toList());
     }
 
-    private NodeRef getOrCreateCasePartyRole(NodeRef caseNodeRef, String role) {
-        try {
-            CaseRole caseRole = getCaseRole(caseNodeRef, role);
-            String createdGroup;
-            if (caseRole.isPresent()) {
-                createdGroup = caseRole.getFullName();
-            } else {
-                createdGroup = AuthenticationUtil.runAsSystem(() -> {
-                    return authorityService.createAuthority(AuthorityType.GROUP, caseRole.getName(), role,
-                            CaseService.DEFAULT_CASE_GROUP_ZONES);
-                });
-            }
-            return authorityService.getAuthorityNodeRef(createdGroup);
-        } catch (Exception ge) {
-            throw new AlfrescoRuntimeException("Unable to create party due to the following reason(s): " + ge.getMessage());
-        }
-    }
-
-    private void addContactsToCaseRole(NodeRef casePartyRoleRef, List<String> contacts) {
-        if (casePartyRoleRef == null) {
-            throw new AlfrescoRuntimeException("Case party nodeRef is missing");
-        }
-        if (CollectionUtils.isNotEmpty(contacts)) {
-            AuthenticationUtil.runAsSystem(() -> {
-                List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(casePartyRoleRef);
-                for (String contactId : contacts) {
-                    if (hasNoChildWithName(childAssocs, contactId)) {
-                        nodeService.addChild(
-                                casePartyRoleRef,
-                                getContactNodeRefId(contactId),
-                                ContentModel.ASSOC_MEMBER,
-                                QName.createQName(CONTENT_URI, contactId));
-                    }
-                }
-                return null;
-            });
-        }
+    @Override
+    public void updateCaseParty(NodeRef partyRef, NodeRef roleRef) {
+        nodeService.setProperty(partyRef, OpenESDHModel.PROP_CONTACT_PARTY_ROLE, roleRef);
     }
 
     /**
-     * check if child is not added yet
-     *
-     * @param childAssocs
-     * @param name
-     * @return
+     * {@inheritDoc}
      */
-    private boolean hasNoChildWithName(List<ChildAssociationRef> childAssocs, String name) {
-        return childAssocs.stream()
-                .map(ChildAssociationRef::getQName)
-                .map(QName::getLocalName)
-                .noneMatch(localName -> localName.equals(name));
+    @Override
+    public void removeCaseParty(String caseId, NodeRef partyRef) {
+        NodeRef caseNodeRef = caseService.getCaseById(caseId);
+        caseService.checkCanUpdateCaseRoles(caseNodeRef);
+        AuthenticationUtil.runAsSystem(() -> {
+            nodeService.deleteNode(partyRef);
+            return null;
+        });
+    }
+
+    @Override
+    public JSONArray getCasePartiesJson(String caseId){
+        NodeRef caseNodeRef = caseService.getCaseById(caseId);
+        return nodeService.getChildAssocs(caseNodeRef, Sets.newHashSet(OpenESDHModel.TYPE_CONTACT_PARTY))
+                .stream()
+                .map(ChildAssociationRef::getChildRef)
+                .map(this::getCasePartyJson)
+                .collect(JSONArrayCollector.simple());
+    }
+
+    @Override
+    public void lockCasePartiesToVersions(NodeRef caseNodeRef) {
+        getCasePartiesRefsStream(caseNodeRef).forEach(partyRef -> freezePartyContact(caseNodeRef, partyRef));
+    }
+
+    @Override
+    public void unlockCaseParties(NodeRef caseNodeRef) {
+        behaviourFilterService.executeWithoutBehavior(caseNodeRef, () -> {
+            // allow version to be deleted -> if any version is locked, then
+            // original node will not be deleted
+            getCasePartiesRefsStream(caseNodeRef).forEach(partyRef -> unfreezePartyContact(caseNodeRef, partyRef));
+        });
+    }
+    
+    private JSONObject getCasePartyJson(NodeRef partyRef) {
+        JSONObject json = new JSONObject();
+        json.put(PartyService.FIELD_NODE_REF, partyRef.toString());
+        NodeRef contactRef = (NodeRef) nodeService.getProperty(partyRef, OpenESDHModel.PROP_CONTACT_CONTACT);
+        JSONObject contactJson = contactService.getContactInfo(contactRef).toJSONObject();
+        json.put(PartyService.FIELD_CONTACT, contactJson);
+        NodeRef roleRef = (NodeRef) nodeService.getProperty(partyRef, OpenESDHModel.PROP_CONTACT_PARTY_ROLE);
+        json.put(PartyService.FIELD_ROLE_REF, roleRef.toString());
+        json.put(PartyService.FIELD_ROLE_DISPLAY_NAME,
+                nodeService.getProperty(roleRef, OpenESDHModel.PROP_CLASSIF_DISPLAY_NAME));
+        return json;
+    }
+
+    private NodeRef addContactToCaseParty(NodeRef caseRef, NodeRef partyRoleRef, String contactId) {
+        Map<QName, Serializable> props = new HashMap<>();
+        props.put(OpenESDHModel.PROP_CONTACT_PARTY_ROLE, partyRoleRef);
+        props.put(OpenESDHModel.PROP_CONTACT_CONTACT, getContactNodeRefId(contactId));
+        return nodeService.createNode(caseRef, ContentModel.ASSOC_CONTAINS, QName.createQName(contactId),
+                OpenESDHModel.TYPE_CONTACT_PARTY, props).getChildRef();
     }
 
     private NodeRef getContactNodeRefId(String contactId) {
@@ -156,117 +165,31 @@ public class PartyServiceImpl implements PartyService {
         return contactService.getContactById(contactId);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void removeCaseParty(String caseId, String contactId, String role) {
-        NodeRef caseNodeRef = caseService.getCaseById(caseId);
-        caseService.checkCanUpdateCaseRoles(caseNodeRef);
-
-        CaseRole caseRole = getCaseRole(caseNodeRef, role);
-        if (!caseRole.isPresent()) {
-            return;
-        }
-
-        AuthenticationUtil.runAsSystem(() -> {
-            NodeRef partyRef = getContactNodeRefId(contactId);
-            nodeService.removeChild(caseRole.getNodeRef(), partyRef);
-            return null;
-        });
+    private void freezePartyContact(NodeRef caseRef, NodeRef partyRef) {
+        NodeRef contactRef = (NodeRef) nodeService.getProperty(partyRef, OpenESDHModel.PROP_CONTACT_CONTACT);
+        NodeRef frozenContactRef = getFrozenStateNodeRef(contactRef);
+        nodeService.setProperty(partyRef, OpenESDHModel.PROP_CONTACT_CONTACT, frozenContactRef);
+        lockContact(caseRef, contactRef);
+    }
+    
+    private void unfreezePartyContact(NodeRef caseNodeRef, NodeRef partyRef) {
+        NodeRef frozenContactRef = (NodeRef) nodeService.getProperty(partyRef, OpenESDHModel.PROP_CONTACT_CONTACT);
+        NodeRef contactRef = versionService.getVersionHistory(frozenContactRef).getHeadVersion()
+                .getVersionedNodeRef();
+        nodeService.setProperty(partyRef, OpenESDHModel.PROP_CONTACT_CONTACT, contactRef);
+        unlockContact(caseNodeRef, frozenContactRef);
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public Map<String, List<NodeRef>> getCaseParties(String caseId) {
-        NodeRef caseNodeRef = caseService.getCaseById(caseId);
-        return getContactsByRole(caseNodeRef);
-    }
-
-    private Map<String, List<NodeRef>> getContactsByRole(NodeRef caseNodeRef) {
-        if (nodeService.hasAspect(caseNodeRef, OpenESDHModel.ASPECT_CASE_FREEZABLE_PARTIES)) {
-            return getFrozzenCaseParties(caseNodeRef);
-        }
-        return getCasePartiesByAssoc(caseNodeRef);
-    }
-
-    private Map<String, List<NodeRef>> getFrozzenCaseParties(NodeRef caseNodeRef) throws InvalidNodeRefException {
-        List<String> roles = getAvailablePartyRoles();
-        Map<String, List<NodeRef>> frozenContacts = new HashMap<>();
-        for (String role : roles) {
-            ArrayList<NodeRef> roleFrozenContacts = (ArrayList<NodeRef>) nodeService.getProperty(caseNodeRef,
-                    getFrozenParamQName(role));
-            if (roleFrozenContacts != null && roleFrozenContacts.size() > 0) {
-                frozenContacts.put(role, roleFrozenContacts);
-            }
-        }
-        return frozenContacts;
-    }
-
-    private Map<String, List<NodeRef>> getCasePartiesByAssoc(NodeRef caseNodeRef) {
-        List<String> roles = getAvailablePartyRoles();
-        return roles.stream().collect(Collectors.toMap(
-                role -> role,
-                role -> {
-                    CaseRole caseRole = getCaseRole(caseNodeRef, role);
-                    if (!caseRole.isPresent()) {
-                        return Collections.EMPTY_LIST;
-                    }
-                    List<ChildAssociationRef> childAssocs = nodeService.getChildAssocs(caseRole.getNodeRef());
-                    return childAssocs
-                    .stream()
-                    .map(ChildAssociationRef::getChildRef)
-                    .collect(Collectors.toList());
-                }
-        ));
-    }
-
-    private List<String> getAvailablePartyRoles() {
-        List<String> roles = (List<String>) dictionaryService
-                .getConstraint(OpenESDHModel.CONSTRAINT_CASE_ALLOWED_PARTY_ROLES)
-                .getConstraint()
-                .getParameters()
-                .get(ListOfValuesConstraint.ALLOWED_VALUES_PARAM);
-        return roles;
-    }
-
-    @Override
-    public void lockCasePartiesToVersions(NodeRef caseNodeRef) {
-        Map<QName, Serializable> props = new HashMap<>();
-        getCasePartiesByAssoc(caseNodeRef)
-                .entrySet()
+    private Stream<NodeRef> getCasePartiesRefsStream(NodeRef caseRef){
+        return nodeService.getChildAssocs(caseRef,Sets.newHashSet(OpenESDHModel.TYPE_CONTACT_PARTY))
                 .stream()
-                .filter(roleEntry -> CollectionUtils.isNotEmpty(roleEntry.getValue()))
-                .forEach(roleEntry -> {
-                    ArrayList<NodeRef> frozenNodes = new ArrayList();
-                    roleEntry.getValue()
-                            .forEach(contactNodeRef -> {
-                                lockContact(caseNodeRef, contactNodeRef);
-                                frozenNodes.add(getFrozenStateNodeRef(contactNodeRef));
-                            });
-                    props.put(getFrozenParamQName(roleEntry.getKey()), frozenNodes);
-                });
-        behaviourFilterService.executeWithoutBehavior(caseNodeRef,
-                () -> nodeService.addAspect(caseNodeRef, OpenESDHModel.ASPECT_CASE_FREEZABLE_PARTIES, props));
-    }
-
-    public void unlockCaseParties(NodeRef caseNodeRef) {
-        behaviourFilterService.executeWithoutBehavior(caseNodeRef, () -> {
-            //allow version to be deleted -> if any version is locked, then original node will not be deleted
-            getContactsByRole(caseNodeRef).values()
-                    .forEach(group -> {
-                        group.forEach((contactVersionNodeRef) -> unlockContact(caseNodeRef, contactVersionNodeRef));
-                    });
-            nodeService.removeAspect(caseNodeRef, OpenESDHModel.ASPECT_CASE_FREEZABLE_PARTIES);
-        });
+                .map(ChildAssociationRef::getChildRef);
     }
 
     private ArrayList<NodeRef> getLockedInCases(NodeRef contactNodeRef) {
         ArrayList<NodeRef> cases = (ArrayList<NodeRef>) nodeService.getProperty(contactNodeRef, OpenESDHModel.PROP_CONTACT_LOCKED_IN_CASES);
         if (cases == null) {
-            cases = new ArrayList();
+            cases = new ArrayList<>();
         }
         return cases;
     }
@@ -293,24 +216,9 @@ public class PartyServiceImpl implements PartyService {
         });
     }
 
-    CaseRole getCaseRole(NodeRef caseNodeRef, String roleName) {
-        CaseRole caseRole = new CaseRole();
-        Optional<Serializable> dbid = Optional.ofNullable(nodeService.getProperty(caseNodeRef, ContentModel.PROP_NODE_DBID));
-        if (dbid.isPresent()) {
-            caseRole.setName(dbid.get().toString(), roleName);
-            caseRole.setNodeRef(Optional.ofNullable(authorityService.getAuthorityNodeRef(caseRole.getFullName())));
-            return caseRole;
-        }
-        return caseRole;
-    }
-
     private NodeRef getFrozenStateNodeRef(NodeRef nodeRef) {
         Version currentVersion = versionService.getCurrentVersion(nodeRef);
         return currentVersion.getFrozenStateNodeRef();
-    }
-
-    private QName getFrozenParamQName(String role) {
-        return QName.createQName(OpenESDHModel.CASE_URI, OpenESDHModel.FROZEN_CASE_PARTIES_PROP_PREFIX + role);
     }
 
 }

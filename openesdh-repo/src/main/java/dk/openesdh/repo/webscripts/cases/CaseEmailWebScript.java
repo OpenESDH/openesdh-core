@@ -1,6 +1,7 @@
 package dk.openesdh.repo.webscripts.cases;
 
-import java.util.*;
+import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -19,8 +20,8 @@ import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
 
-import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.PartyService;
+import dk.openesdh.repo.services.contacts.PartyRoleService;
 import dk.openesdh.repo.services.documents.DocumentEmailService;
 import dk.openesdh.repo.webscripts.WebScriptParams;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
@@ -30,11 +31,14 @@ import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 public class CaseEmailWebScript {
 
     @Autowired
-    @Qualifier("DocumentEmailService")
+    @Qualifier(DocumentEmailService.BEAN_ID)
     private DocumentEmailService documentEmailService;
     @Autowired
-    @Qualifier("PartyService")
+    @Qualifier(PartyService.BEAN_ID)
     private PartyService partyService;
+    @Autowired
+    @Qualifier("PartyRoleService")
+    private PartyRoleService partyRoleService;
 
     @Uri(value = "/{caseId}/email", method = HttpMethod.POST)
     public void execute(
@@ -43,7 +47,9 @@ public class CaseEmailWebScript {
         if (params.to.isEmpty()) {
             throw new WebScriptException(Status.STATUS_BAD_REQUEST, "No recipients");
         }
-        partyService.addCaseParty(caseId, OpenESDHModel.CASE_PARTY_ROLE_SENDER, params.contacts);
+        NodeRef memberRoleRef = partyRoleService.getClassifValueByName(PartyRoleService.MEMBER_ROLE).get()
+                .getNodeRef();
+        partyService.addCaseParty(caseId, memberRoleRef, params.contacts);
         documentEmailService.send(caseId, params.to, params.subject, params.text, params.attachments);
     }
 
