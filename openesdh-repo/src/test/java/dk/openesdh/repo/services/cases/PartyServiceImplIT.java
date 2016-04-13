@@ -67,7 +67,7 @@ public class PartyServiceImplIT {
 
     @Autowired
     @Qualifier(PartyService.BEAN_ID)
-    private PartyServiceImpl partyService;
+    private PartyService partyService;
 
     @Autowired
     @Qualifier("PartyRoleService")
