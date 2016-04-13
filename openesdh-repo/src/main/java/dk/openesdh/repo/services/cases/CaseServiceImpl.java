@@ -119,7 +119,7 @@ public class CaseServiceImpl implements CaseService {
     @Qualifier("CasePermissionService")
     private CasePermissionService casePermissionService;
     @Autowired
-    @Qualifier("PartyService")
+    @Qualifier(PartyService.BEAN_ID)
     private PartyService partyService;
     @Autowired
     @Qualifier("CaseOwnersService")

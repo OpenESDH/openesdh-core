@@ -7,6 +7,8 @@ import org.alfresco.service.cmr.repository.NodeRef;
 
 public interface DocumentEmailService {
 
+    String BEAN_ID = "DocumentEmailService";
+
     /**
      * Sends email to recipients with attached document
      *

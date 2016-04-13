@@ -3,8 +3,6 @@ package dk.openesdh.repo.services.audit;
 import static dk.openesdh.repo.services.audit.entryhandlers.CaseEmailSentAuditEntryHandler.CASE_EMAIL_RECIPIENTS;
 import static dk.openesdh.repo.services.audit.entryhandlers.MemberAddAuditEntryHandler.MEMBER_ADD_PATH;
 import static dk.openesdh.repo.services.audit.entryhandlers.MemberRemoveAuditEntryHandler.MEMBER_REMOVE_PATH;
-import static dk.openesdh.repo.services.audit.entryhandlers.PartyAddAuditEntryHandler.PARTY_ADD_NAME;
-import static dk.openesdh.repo.services.audit.entryhandlers.PartyRemoveAuditEntryHandler.PARTY_REMOVE_NAME;
 import static dk.openesdh.repo.services.audit.entryhandlers.TransactionPathAuditEntryHandler.TRANSACTION_USER;
 import static dk.openesdh.repo.services.audit.entryhandlers.WorkflowCancelAuditEntryHandler.WORKFLOW_CANCEL_CASE;
 import static dk.openesdh.repo.services.audit.entryhandlers.WorkflowStartAuditEntryHandler.WORKFLOW_START_CASE;
@@ -34,6 +32,7 @@ import org.alfresco.service.cmr.audit.AuditQueryParameters;
 import org.alfresco.service.cmr.audit.AuditService;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.NodeRef;
+import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AccessPermission;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
@@ -53,13 +52,13 @@ import dk.openesdh.repo.services.audit.entryhandlers.CaseNoteAuditEntryHandler;
 import dk.openesdh.repo.services.audit.entryhandlers.MemberAddAuditEntryHandler;
 import dk.openesdh.repo.services.audit.entryhandlers.MemberRemoveAuditEntryHandler;
 import dk.openesdh.repo.services.audit.entryhandlers.NodePropertyChangesAuditEntrySubHandler;
-import dk.openesdh.repo.services.audit.entryhandlers.PartyAddAuditEntryHandler;
-import dk.openesdh.repo.services.audit.entryhandlers.PartyRemoveAuditEntryHandler;
+import dk.openesdh.repo.services.audit.entryhandlers.PartyAuditEntryHandler;
 import dk.openesdh.repo.services.audit.entryhandlers.TransactionPathAuditEntryHandler;
 import dk.openesdh.repo.services.audit.entryhandlers.WorkflowCancelAuditEntryHandler;
 import dk.openesdh.repo.services.audit.entryhandlers.WorkflowStartAuditEntryHandler;
 import dk.openesdh.repo.services.audit.entryhandlers.WorkflowTaskEndAuditEntryHandler;
 import dk.openesdh.repo.services.cases.CasePermission;
+import dk.openesdh.repo.services.contacts.ContactService;
 
 @Service
 public class AuditSearchServiceImpl implements AuditSearchService {
@@ -76,6 +75,12 @@ public class AuditSearchServiceImpl implements AuditSearchService {
     @Autowired
     @Qualifier("DictionaryService")
     private DictionaryService dictionaryService;
+    @Autowired
+    @Qualifier("ContactService")
+    private ContactService contactService;
+    @Autowired
+    @Qualifier("NodeService")
+    private NodeService nodeService;
 
     private static final String MSG_ACCESS_DENIED = "auditlog.permissions.err_access_denied";
 
@@ -99,8 +104,6 @@ public class AuditSearchServiceImpl implements AuditSearchService {
     private void initAuditEntryHandlers() {
         NodePropertyChangesAuditEntrySubHandler nodePropertyChangesHandler = new NodePropertyChangesAuditEntrySubHandler(dictionaryService, ignoredProperties);
 
-        auditEntryHandlers.put(PARTY_REMOVE_NAME, new PartyRemoveAuditEntryHandler());
-        auditEntryHandlers.put(PARTY_ADD_NAME, new PartyAddAuditEntryHandler());
         auditEntryHandlers.put(MEMBER_ADD_PATH, new MemberAddAuditEntryHandler());
         auditEntryHandlers.put(MEMBER_REMOVE_PATH, new MemberRemoveAuditEntryHandler());
         auditEntryHandlers.put(TRANSACTION_USER, new TransactionPathAuditEntryHandler(
@@ -113,7 +116,11 @@ public class AuditSearchServiceImpl implements AuditSearchService {
         auditEntryHandlers.put(WORKFLOW_CANCEL_CASE, new WorkflowCancelAuditEntryHandler());
         auditEntryHandlers.put(CASE_EMAIL_RECIPIENTS, new CaseEmailSentAuditEntryHandler());
 
+        PartyAuditEntryHandler partyAuditEntryHandler = new PartyAuditEntryHandler();
+        auditEntryHandlers.put(PartyAuditEntryHandler.CASE_PARTIES_REMOVE, partyAuditEntryHandler);
+
         addTransactionPathEntryHandler(CaseNoteAuditEntryHandler::canHandle, new CaseNoteAuditEntryHandler(nodePropertyChangesHandler));
+        addTransactionPathEntryHandler(PartyAuditEntryHandler::canHandleTransactionEntry, partyAuditEntryHandler);
     }
 
     private void initIgnoredProperties() {
