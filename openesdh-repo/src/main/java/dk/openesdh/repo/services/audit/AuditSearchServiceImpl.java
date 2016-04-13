@@ -32,7 +32,6 @@ import org.alfresco.service.cmr.audit.AuditQueryParameters;
 import org.alfresco.service.cmr.audit.AuditService;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.NodeRef;
-import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AccessPermission;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
@@ -58,7 +57,6 @@ import dk.openesdh.repo.services.audit.entryhandlers.WorkflowCancelAuditEntryHan
 import dk.openesdh.repo.services.audit.entryhandlers.WorkflowStartAuditEntryHandler;
 import dk.openesdh.repo.services.audit.entryhandlers.WorkflowTaskEndAuditEntryHandler;
 import dk.openesdh.repo.services.cases.CasePermission;
-import dk.openesdh.repo.services.contacts.ContactService;
 
 @Service
 public class AuditSearchServiceImpl implements AuditSearchService {
@@ -75,12 +73,6 @@ public class AuditSearchServiceImpl implements AuditSearchService {
     @Autowired
     @Qualifier("DictionaryService")
     private DictionaryService dictionaryService;
-    @Autowired
-    @Qualifier("ContactService")
-    private ContactService contactService;
-    @Autowired
-    @Qualifier("NodeService")
-    private NodeService nodeService;
 
     private static final String MSG_ACCESS_DENIED = "auditlog.permissions.err_access_denied";
 
