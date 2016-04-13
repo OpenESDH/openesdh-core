@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -29,6 +30,8 @@ import org.alfresco.service.namespace.QName;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -43,6 +46,8 @@ import com.google.common.collect.Sets;
  */
 @Service("NodeInfoService")
 public class NodeInfoServiceImpl implements NodeInfoService {
+
+    private final Logger logger = LoggerFactory.getLogger(NodeInfoServiceImpl.class);
 
     private static final Set<QName> personProperties = Sets.newHashSet(
             ContentModel.PROP_CREATOR,
@@ -259,6 +264,32 @@ public class NodeInfoServiceImpl implements NodeInfoService {
             return content;
         }
         return Objects.toString(value, "");
+    }
+
+    public Map<QName, Serializable> getNodePropertiesFromJSON(JSONObject json) {
+        Map<QName, Serializable> props = new HashMap<>();
+        json.keys().forEachRemaining(ns -> {
+            try {
+                String nsUri = namespaceService.getNamespaceURI((String) ns);
+                if (nsUri == null || !(json.get((String) ns) instanceof JSONObject)) {
+                    return;
+                }
+                JSONObject namespace = json.getJSONObject((String) ns);
+                namespace.keys().forEachRemaining(propKey -> {
+                    try {
+                        props.put(QName.createQName(nsUri, (String) propKey), namespace.getString((String) propKey));
+                    } catch (JSONException ex) {
+                        throw new RuntimeException(ex);
+                    }
+                });
+            } catch (NamespaceException e) {
+                //ignore not a namaspace properities
+                logger.warn("Ignoring not a namespaced user property");
+            } catch (JSONException ex) {
+                throw new RuntimeException(ex);
+            }
+        });
+        return props;
     }
 
     public void setNamespaceService(NamespaceService namespaceService) {

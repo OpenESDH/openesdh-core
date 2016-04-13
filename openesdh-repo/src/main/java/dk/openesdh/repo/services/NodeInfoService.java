@@ -33,4 +33,25 @@ public interface NodeInfoService {
 
     Object formatValue(QName qname, Serializable value);
 
+    /**
+     * convert namespaced properties json to properties map
+     *
+     * @param json must match format of <pre>{ 'namespace_prefix' : { 'property_name' : 'value'}}</pre>
+     * Example:
+     * <pre>
+     * {
+     *   cm: {
+     *          title: 'this is title',
+     *          name: 'this is name'
+     *       },
+     *   oe: {
+     *          locked: true
+     *       }
+     * }
+     * </pre>
+     *
+     * @return
+     */
+    Map<QName, Serializable> getNodePropertiesFromJSON(JSONObject json);
+
 }
