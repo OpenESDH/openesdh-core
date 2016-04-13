@@ -29,11 +29,11 @@ public interface OpenESDHModel {
     String NOTE_URI = "http://openesdh.dk/model/note/1.0";
 
     String FROZEN_CASE_PARTIES_PROP_PREFIX = "frozenParties";
-    String CASE_PARTY_ROLE_SENDER = "Afsender";
 
     String STYPE_DOC_TYPE = "dtype";
     String STYPE_DOC_CATEGORY = "dcategory";
     String STYPE_PARTY_ROLE = "partyRole";
+    String STYPE_PARTY = "party";
 
     /**
      * Models
@@ -65,8 +65,8 @@ public interface OpenESDHModel {
     QName TYPE_CONTACT_BASE = QName.createQName(CONTACT_URI, "base");
     QName TYPE_CONTACT_PERSON = QName.createQName(CONTACT_URI, "person");
     QName TYPE_CONTACT_ORGANIZATION = QName.createQName(CONTACT_URI, "organization");
-    QName TYPE_CONTACT_PARTY = QName.createQName(CONTACT_URI, "party");
-    QName TYPE_CONTACT_PARTY_ROLE = QName.createQName(CONTACT_URI, "partyRole");
+    QName TYPE_CONTACT_PARTY = QName.createQName(CONTACT_URI, STYPE_PARTY);
+    QName TYPE_CONTACT_PARTY_ROLE = QName.createQName(CONTACT_URI, STYPE_PARTY_ROLE);
 
     QName TYPE_NOTE_NOTE = QName.createQName(NOTE_URI, "note");
 

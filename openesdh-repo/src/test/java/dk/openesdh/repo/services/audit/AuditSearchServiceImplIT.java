@@ -36,6 +36,7 @@ import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.cases.PartyService;
 import dk.openesdh.repo.services.contacts.ContactServiceImpl;
+import dk.openesdh.repo.services.contacts.PartyRoleService;
 import dk.openesdh.repo.services.members.CaseMembersService;
 
 /**
@@ -66,8 +67,12 @@ public class AuditSearchServiceImplIT {
     private CaseMembersService caseMembersService;
 
     @Autowired
-    @Qualifier("PartyService")
+    @Qualifier(PartyService.BEAN_ID)
     private PartyService partyService;
+
+    @Autowired
+    @Qualifier("PartyRoleService")
+    private PartyRoleService partyRoleService;
 
     @Autowired
     @Qualifier("ContactService")
@@ -85,7 +90,6 @@ public class AuditSearchServiceImplIT {
 
     private static final String CASE_A_TITLE = "caseH" + new Date().getTime();
     private static final String TEST_PERSON_CONTACT_EMAIL = CASE_A_TITLE + "@opene.dk";
-    private static final String SENDER_ROLE = "Afsender";
     private static final String NAME = "test1";
     private static final String DUMMY_USER = "dummyH" + new Date().getTime();
     private String caseAId;
@@ -108,12 +112,15 @@ public class AuditSearchServiceImplIT {
             contact = createTestContact();
             return null;
         });
-        transactionRunner.runInTransaction(() -> {
 
-            //add party
-            partyService.addCaseParty(caseAId, SENDER_ROLE, TEST_PERSON_CONTACT_EMAIL);
+        // add party
+        NodeRef partyRef = transactionRunner.runInTransaction(() -> {
+            return partyService.addCaseParty(caseAId, this.getMemberPartyRole(), TEST_PERSON_CONTACT_EMAIL).get(0);
+        });
+
+        transactionRunner.runInTransaction(() -> {
             //remove party
-            partyService.removeCaseParty(caseAId, TEST_PERSON_CONTACT_EMAIL, SENDER_ROLE);
+            partyService.removeCaseParty(caseAId, partyRef);
 
             NodeRef mjacksonNodeRef = authorityService.getAuthorityNodeRef(CaseHelper.MIKE_JACKSON);
             // add member
@@ -171,5 +178,9 @@ public class AuditSearchServiceImplIT {
             caseHelper.deleteDummyUser(DUMMY_USER);
             return true;
         });
+    }
+
+    private NodeRef getMemberPartyRole() {
+        return partyRoleService.getClassifValueByName(PartyRoleService.MEMBER_ROLE).get().getNodeRef();
     }
 }

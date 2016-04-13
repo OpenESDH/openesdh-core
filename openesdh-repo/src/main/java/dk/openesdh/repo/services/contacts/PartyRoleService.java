@@ -5,4 +5,5 @@ import dk.openesdh.repo.services.classification.ClassifiеrService;
 
 public interface PartyRoleService extends ClassifiеrService<PartyRole> {
 
+    String MEMBER_ROLE = "member";
 }

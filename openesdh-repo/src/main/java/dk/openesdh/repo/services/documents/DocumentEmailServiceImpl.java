@@ -27,7 +27,7 @@ import org.springframework.util.FileCopyUtils;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseService;
 
-@Service(value = "documentEmailService")
+@Service(DocumentEmailService.BEAN_ID)
 public class DocumentEmailServiceImpl implements DocumentEmailService {
 
     @Autowired
