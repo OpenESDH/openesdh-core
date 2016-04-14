@@ -4,9 +4,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -38,9 +38,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.stereotype.Service;
 
-import com.google.common.base.Joiner;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 
 import dk.openesdh.repo.exceptions.DomainException;
 import dk.openesdh.repo.model.OpenESDHModel;
@@ -53,13 +51,12 @@ public class UsersServiceImpl implements UsersService {
 
     private static final String MSG_CREATED = "person.msg.userCSV.created";
     private static final String MSG_EXISTING = "person.msg.userCSV.existing";
-    private static final QName PROP_CM_PASSWORD = QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, "password");
     private static final String USERNAME_BY_EMAIL_CMIS_QUERY = "SELECT cm:userName FROM cm:person WHERE cm:userName IS NOT NULL AND cm:email='%s'";
 
-    private final Set<Consumer<JSONObject>> userJsonDecorators = new HashSet<>();
-    private final Set<Consumer<UserSavingContext>> userValidators = new HashSet<>();
-    private final Set<Consumer<UserSavingContext>> beforeSaveActions = new HashSet<>();
-    private final Set<Consumer<UserSavingContext>> afterSaveActions = new HashSet<>();
+    private final List<Consumer<JSONObject>> userJsonDecorators = new ArrayList<>();
+    private final List<Consumer<UserSavingContext>> userValidators = new ArrayList<>();
+    private final List<Consumer<UserSavingContext>> beforeSaveActions = new ArrayList<>();
+    private final List<Consumer<UserSavingContext>> afterSaveActions = new ArrayList<>();
 
     @Autowired
     @Qualifier("PersonService")
@@ -130,6 +127,8 @@ public class UsersServiceImpl implements UsersService {
         userValidators.add(uniqueEmailValidator());
 
         userJsonDecorators.add(getManagerAssocDecorator());
+
+        afterSaveActions.add(getAssociationsSaver());
     }
 
     public JSONObject getUserJson(NodeRef nodeRef) {
@@ -139,7 +138,7 @@ public class UsersServiceImpl implements UsersService {
         return userJson;
     }
 
-    private UserSavingContext createUserSavingContext(Map<QName, Serializable> userProps, boolean accountEnabled) {
+    private UserSavingContext createUserSavingContext(Map<QName, Serializable> userProps, boolean accountEnabled, List<UserSavingContext.Assoc> associations) {
         UserSavingContext context = new UserSavingContext();
         if (userProps.containsKey(ContentModel.PROP_NODE_UUID)) {
             context.setNodeRef(new NodeRef(
@@ -151,11 +150,12 @@ public class UsersServiceImpl implements UsersService {
         context.setAccountEnabled(accountEnabled);
         context.setProps(userProps);
         context.setCopiedProps(Maps.newHashMap(userProps));
+        context.setAssociations(associations);
         return context;
     }
 
-    public NodeRef createUser(Map<QName, Serializable> userProps, boolean accountEnabled) {
-        UserSavingContext context = createUserSavingContext(userProps, accountEnabled);
+    public NodeRef createUser(Map<QName, Serializable> userProps, boolean accountEnabled, List<UserSavingContext.Assoc> associations) {
+        UserSavingContext context = createUserSavingContext(userProps, accountEnabled, associations);
 
         executeValidators(context);
 
@@ -166,8 +166,8 @@ public class UsersServiceImpl implements UsersService {
             throw new UsernameExistsDomainException().forField("userName");
         }
 
-        String password = (String) context.getProps().get(PROP_CM_PASSWORD);
-        context.getProps().remove(PROP_CM_PASSWORD);
+        String password = (String) context.getProps().get(ContentModel.PROP_PASSWORD);
+        context.getProps().remove(ContentModel.PROP_PASSWORD);
 
         executeBeforeSaveActions(context);
 
@@ -183,15 +183,15 @@ public class UsersServiceImpl implements UsersService {
     }
 
     @Override
-    public NodeRef updateUser(Map<QName, Serializable> userProps, boolean accountEnabled) {
-        UserSavingContext context = createUserSavingContext(userProps, accountEnabled);
+    public NodeRef updateUser(Map<QName, Serializable> userProps, boolean accountEnabled, List<UserSavingContext.Assoc> associations) {
+        UserSavingContext context = createUserSavingContext(userProps, accountEnabled, associations);
 
         executeValidators(context);
 
         String userName = (String) userProps.get(ContentModel.PROP_USERNAME);
         userName = PersonServiceImpl.updateUsernameForTenancy(userName, tenantService);
 
-        context.getProps().remove(PROP_CM_PASSWORD);
+        context.getProps().remove(ContentModel.PROP_PASSWORD);
 
         executeBeforeSaveActions(context);
 
@@ -209,7 +209,7 @@ public class UsersServiceImpl implements UsersService {
 
     private String addUser(Map<QName, String> userProps) {
         try {
-            createUser((Map<QName, Serializable>) (Map) userProps, true);
+            createUser((Map<QName, Serializable>) (Map) userProps, true, null);
         } catch (UsernameExistsDomainException e) {
             return MSG_EXISTING;
         }
@@ -315,36 +315,23 @@ public class UsersServiceImpl implements UsersService {
     private Consumer<JSONObject> getManagerAssocDecorator() {
         return json -> {
             getNodeRefFromUserJson(json).ifPresent(nodeRef -> {
-                nodeService.getChildAssocs(nodeRef, Sets.newHashSet(OpenESDHModel.ASSOC_OE_MANAGER)).forEach(managerAssoc -> {
-                    //create manager
-                    JSONObject manager = new JSONObject();
-
-                    PersonService.PersonInfo person = personService.getPerson(managerAssoc.getChildRef());
-                    manager.put("nodeRef", nodeRef.toString());
-                    manager.put("name", getPersonFullName(person));
-                    manager.put("userName", person.getUserName());
-
-                    //add to json
+                nodeService.getTargetAssocs(nodeRef, OpenESDHModel.ASSOC_OE_MANAGER).forEach(managerAssoc -> {
                     if (!json.containsKey("assoc")) {
                         json.put("assoc", new JSONObject());
                     }
                     JSONObject assoc = (JSONObject) json.get("assoc");
-                    assoc.put("manager", manager);
+                    assoc.put("manager", managerAssoc.getTargetRef().toString());
                 });
             });
 
         };
     }
 
-    private String getPersonFullName(PersonService.PersonInfo person) {
-        return Joiner.on(" ").skipNulls().join(person.getFirstName(), person.getLastName()).trim();
-    }
-
     private Optional<NodeRef> getNodeRefFromUserJson(JSONObject json) {
         if (json.containsKey(NamespaceService.SYSTEM_MODEL_PREFIX)
                 && json.get(NamespaceService.SYSTEM_MODEL_PREFIX) instanceof JSONObject) {
             JSONObject sys = (JSONObject) json.get(NamespaceService.SYSTEM_MODEL_PREFIX);
-            if (sys.containsKey(ContentModel.PROP_NODE_UUID)) {
+            if (sys.containsKey(ContentModel.PROP_NODE_UUID.getLocalName())) {
                 NodeRef nodeRef = new NodeRef(
                         (String) sys.get(ContentModel.PROP_STORE_PROTOCOL.getLocalName()),
                         (String) sys.get(ContentModel.PROP_STORE_IDENTIFIER.getLocalName()),
@@ -353,5 +340,25 @@ public class UsersServiceImpl implements UsersService {
             }
         }
         return Optional.empty();
+    }
+
+    private Consumer<UserSavingContext> getAssociationsSaver() {
+        return context -> {
+            if (context.getAssociations() == null || context.getAssociations().isEmpty()) {
+                return;
+            }
+            context.getAssociations().forEach(assoc -> {
+                if (assoc.getTarget() == null) {
+                    nodeService.removeAspect(context.getNodeRef(), assoc.getAspect());
+                    nodeService.getTargetAssocs(context.getNodeRef(), assoc.getAssociation()).forEach(
+                            oldAssoc -> nodeService.removeAssociation(
+                                    context.getNodeRef(),
+                                    oldAssoc.getSourceRef(),
+                                    assoc.getAssociation()));
+                }
+                nodeService.addAspect(context.getNodeRef(), assoc.getAspect(), Collections.emptyMap());
+                nodeService.setAssociations(context.getNodeRef(), assoc.getAssociation(), Arrays.asList(assoc.getTarget()));
+            });
+        };
     }
 }

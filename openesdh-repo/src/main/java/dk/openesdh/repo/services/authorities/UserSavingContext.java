@@ -1,6 +1,7 @@
 package dk.openesdh.repo.services.authorities;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -12,8 +13,33 @@ public class UserSavingContext {
     private String userName;
     private boolean accountEnabled;
     private Map<QName, Serializable> props;
-
     private Map<QName, Serializable> copiedProps;
+    private List<Assoc> associations;
+
+    public static class Assoc {
+
+        private final QName aspect;
+        private final QName association;
+        private final NodeRef target;
+
+        public Assoc(QName aspect, QName association, NodeRef target) {
+            this.aspect = aspect;
+            this.association = association;
+            this.target = target;
+        }
+
+        public QName getAspect() {
+            return aspect;
+        }
+
+        public QName getAssociation() {
+            return association;
+        }
+
+        public NodeRef getTarget() {
+            return target;
+        }
+    }
 
     public NodeRef getNodeRef() {
         return nodeRef;
@@ -55,4 +81,11 @@ public class UserSavingContext {
         this.copiedProps = copiedProps;
     }
 
+    public List<Assoc> getAssociations() {
+        return associations;
+    }
+
+    public void setAssociations(List<Assoc> associations) {
+        this.associations = associations;
+    }
 }

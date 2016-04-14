@@ -2,6 +2,8 @@ package dk.openesdh.repo.webscripts.authorities;
 
 import java.io.IOException;
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -25,7 +27,9 @@ import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
 import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 
 import dk.openesdh.repo.exceptions.DomainException;
+import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.NodeInfoService;
+import dk.openesdh.repo.services.authorities.UserSavingContext;
 import dk.openesdh.repo.services.authorities.UsersService;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
@@ -60,7 +64,7 @@ public class UsersWebScript {
         JSONObject json = new JSONObject(req.getContent().getContent());
         Map<QName, Serializable> props = getUserProperties(json, userName);
         boolean enableAccount = (json.has("disableAccount") && json.getBoolean("disableAccount")) == false;
-        NodeRef createdUser = userService.createUser(props, enableAccount);
+        NodeRef createdUser = userService.createUser(props, enableAccount, getUserAssociations(json));
         return getUserResolution(createdUser);
     }
 
@@ -69,7 +73,7 @@ public class UsersWebScript {
         JSONObject json = new JSONObject(req.getContent().getContent());
         Map<QName, Serializable> props = getUserProperties(json, userName);
         boolean enableAccount = (json.has("disableAccount") && json.getBoolean("disableAccount")) == false;
-        NodeRef createdUser = userService.updateUser(props, enableAccount);
+        NodeRef createdUser = userService.updateUser(props, enableAccount, getUserAssociations(json));
         return getUserResolution(createdUser);
     }
 
@@ -82,6 +86,22 @@ public class UsersWebScript {
         checkMandatoryValue(cmJSON, "email", "USER.ERRORS.NO_EMAIL");
 
         return nodeInfoService.getNodePropertiesFromJSON(json);
+    }
+
+    private List<UserSavingContext.Assoc> getUserAssociations(JSONObject json) throws JSONException {
+        List<UserSavingContext.Assoc> assoc = new ArrayList<>();
+        NodeRef managerOrNull = null;
+        if (json.has("assoc")) {
+            JSONObject assocJSON = json.getJSONObject("assoc");
+            managerOrNull = assocJSON.has("manager") && NodeRef.isNodeRef(assocJSON.getString("manager"))
+                    ? new NodeRef(assocJSON.getString("manager"))
+                    : null;
+        }
+        assoc.add(new UserSavingContext.Assoc(
+                OpenESDHModel.ASPECT_OE_MANAGEABLE,
+                OpenESDHModel.ASSOC_OE_MANAGER,
+                managerOrNull));
+        return assoc;
     }
 
     private void checkMandatoryValue(JSONObject json, String field, String errCode) throws JSONException {

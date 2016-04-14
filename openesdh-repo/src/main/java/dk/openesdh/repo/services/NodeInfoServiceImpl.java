@@ -250,6 +250,8 @@ public class NodeInfoServiceImpl implements NodeInfoService {
     public Object formatValue(QName qname, Serializable value) {
         if (value instanceof Date) {
             return ((Date) value).getTime();
+        } else if (value instanceof Boolean) {
+            return value;
         } else if (personProperties.contains(qname)) {
             String userName = (String) value;
             return getPersonInfo(userName)
@@ -277,7 +279,7 @@ public class NodeInfoServiceImpl implements NodeInfoService {
                 JSONObject namespace = json.getJSONObject((String) ns);
                 namespace.keys().forEachRemaining(propKey -> {
                     try {
-                        props.put(QName.createQName(nsUri, (String) propKey), namespace.getString((String) propKey));
+                        props.put(QName.createQName(nsUri, (String) propKey), (Serializable) namespace.get((String) propKey));
                     } catch (JSONException ex) {
                         throw new RuntimeException(ex);
                     }

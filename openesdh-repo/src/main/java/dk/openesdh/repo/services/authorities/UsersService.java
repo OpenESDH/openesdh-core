@@ -2,6 +2,7 @@ package dk.openesdh.repo.services.authorities;
 
 import java.io.InputStream;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
 
@@ -15,9 +16,9 @@ public interface UsersService {
     String ERROR_EMAIL_EXISTS = "USER.ERRORS.EMAIL_EXIST";
     String ERROR_USERNAME_EXISTS = "USER.ERRORS.USERNAME_EXISTS";
 
-    NodeRef createUser(Map<QName, Serializable> userProps, boolean accountEnabled);
+    NodeRef createUser(Map<QName, Serializable> userProps, boolean accountEnabled, List<UserSavingContext.Assoc> associations);
 
-    NodeRef updateUser(Map<QName, Serializable> userProps, boolean accountEnabled);
+    NodeRef updateUser(Map<QName, Serializable> userProps, boolean accountEnabled, List<UserSavingContext.Assoc> associations);
 
     JSONObject uploadUsersCsv(InputStream usersCsv) throws Exception;
 
