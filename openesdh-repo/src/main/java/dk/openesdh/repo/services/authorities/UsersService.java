@@ -12,7 +12,7 @@ import org.json.simple.JSONObject;
 
 public interface UsersService {
 
-    String ERROR_REQUIRED = "REQUIRED";
+    String ERROR_REQUIRED = "ERROR.REQUIRED";
     String ERROR_EMAIL_EXISTS = "USER.ERRORS.EMAIL_EXIST";
     String ERROR_USERNAME_EXISTS = "USER.ERRORS.USERNAME_EXISTS";
 

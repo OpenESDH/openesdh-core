@@ -32,6 +32,7 @@ import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
+import org.codehaus.plexus.util.StringUtils;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -191,6 +192,7 @@ public class UsersServiceImpl implements UsersService {
         String userName = (String) userProps.get(ContentModel.PROP_USERNAME);
         userName = PersonServiceImpl.updateUsernameForTenancy(userName, tenantService);
 
+        String password = (String) context.getProps().get(ContentModel.PROP_PASSWORD);
         context.getProps().remove(ContentModel.PROP_PASSWORD);
 
         executeBeforeSaveActions(context);
@@ -198,6 +200,10 @@ public class UsersServiceImpl implements UsersService {
         personService.setPersonProperties(userName, context.getProps());
         if (authenticationService.getAuthenticationEnabled(userName) != context.isAccountEnabled()) {
             authenticationService.setAuthenticationEnabled(userName, context.isAccountEnabled());
+        }
+
+        if (StringUtils.isNotEmpty(password)) {
+            authenticationService.setAuthentication(userName, password.toCharArray());
         }
 
         NodeRef person = personService.getPerson(userName);
