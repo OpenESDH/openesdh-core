@@ -9,11 +9,13 @@
         <DataExtractor name="nodeTypeValue" registeredName="auditModel.extractor.nodeType"/>
         <DataExtractor name="caseIDValue" registeredName="audit.dk.openesdh.CaseIDExtractor" />
         <DataExtractor name="contactNameValue" registeredName="audit.dk.openesdh.ContactNameExtractor" />
-        <DataExtractor name="groupNameValue" registeredName="audit.dk.openesdh.GroupNameExtractor" />
         <DataExtractor name="workflowInitiatorValue" registeredName="audit.dk.openesdh.CaseWorkflowInitiatorExtractor" />
         <DataExtractor name="workflowDescriptionValue" registeredName="audit.dk.openesdh.CaseWorkflowDescriptionExtractor" />
         <DataExtractor name="workflowReviewOutcomeValue" registeredName="audit.dk.openesdh.CaseWorkflowReviewOutcomeExtractor" />
         <DataExtractor name="nodeTitleValue" registeredName="audit.dk.openesdh.TitleExtractor" />
+        <DataExtractor name="partyContactNameExtractor" registeredName="audit.dk.openesdh.PartyContactNameExtractor" />
+        <DataExtractor name="partyRoleNameExtractor" registeredName="audit.dk.openesdh.PartyRoleNameExtractor" />
+        
     </DataExtractors>
 
     <DataGenerators>
@@ -41,9 +43,6 @@
         <PathMap source="/esdh/transaction/properties/add/cm:versionLabel" target="/esdh/transaction/cm:versionLabel"/>
         <PathMap source="/esdh/transaction/properties/to/cm:versionLabel" target="/esdh/transaction/cm:versionLabel"/>
         
-        <PathMap source="/alfresco-api/post/NodeService/addChild" target="/esdh/child/add"/>
-        <PathMap source="/alfresco-api/post/NodeService/removeChild" target="/esdh/child/remove"/>
-        
         <PathMap source="/alfresco-api/post/WorkflowService/startWorkflow" target="/esdh/workflow/start"/>
         <PathMap source="/alfresco-api/pre/WorkflowService/endTask" target="/esdh/workflow/endTask"/>
         <PathMap source="/alfresco-api/pre/WorkflowService/cancelWorkflow" target="/esdh/workflow/cancelWorkflow"/>
@@ -51,6 +50,10 @@
         <PathMap source="/alfresco-api/post/DocumentEmailService/send/no-error" target="/esdh/action/case-email"/>
         <PathMap source="/alfresco-api/post/DocumentEmailService/send/args/attachments" target="/esdh/action/case-email-attachments"/>
         <PathMap source="/alfresco-api/post/DocumentEmailService/send/args/recipients" target="/esdh/action/case-email-recipients"/>
+        
+        <PathMap source="/alfresco-api/pre/PartyService/removeCaseParty/args/partyRef" target="/esdh/case-parties/remove/partyRef"/>
+        <PathMap source="/alfresco-api/pre/PartyService/removeCaseParty/args/caseId" target="/esdh/case" />
+        
     </PathMappings>
 
     <Application name="esdh" key="esdh">
@@ -68,6 +71,13 @@
 
         <AuditPath key="case">
             <RecordValue key="value" dataExtractor="caseIDValue"/>
+        </AuditPath>
+        
+        <AuditPath key="case-parties">
+            <AuditPath key="remove">
+                <RecordValue key="partyRef" dataExtractor="simpleValue" dataSource="/esdh/case-parties/remove/partyRef" dataTrigger="/esdh/case-parties/remove/partyRef" />
+                <RecordValue key="contactName" dataExtractor="partyContactNameExtractor" dataSource="/esdh/case-parties/remove/partyRef" dataTrigger="/esdh/case-parties/remove/partyRef" />
+            </AuditPath>
         </AuditPath>
 
         <AuditPath key="security">
@@ -126,7 +136,7 @@
             <RecordValue key="nodeType" dataExtractor="nodeTypeValue" dataSource="/esdh/transaction/node" dataTrigger="/esdh/transaction/node" />
             <RecordValue key="version" dataExtractor="simpleValue" dataSource="/esdh/transaction/cm:versionLabel" dataTrigger="/esdh/transaction/cm:versionLabel" />
             <RecordValue key="workingcopy" dataExtractor="simpleValue" dataSource="/esdh/transaction/cm:workingCopyMode" dataTrigger="/esdh/transaction/cm:workingCopyMode" />
-
+            
             <AuditPath key="copy">
                 <AuditPath key="from">
                     <RecordValue key="path" dataExtractor="simpleValue" dataSource="/esdh/transaction/copy/from/path" dataTrigger="/esdh/transaction/copy/from/path" />
@@ -147,26 +157,15 @@
                 <RecordValue key="add" dataExtractor="simpleValue" dataSource="/esdh/transaction/properties/add" dataTrigger="/esdh/transaction/properties/add" />
                 <RecordValue key="delete" dataExtractor="simpleValue" dataSource="/esdh/transaction/properties/delete" dataTrigger="/esdh/transaction/properties/delete" />
                 <RecordValue key="title" dataExtractor="nodeTitleValue" dataSource="/esdh/transaction/node" dataTrigger="/esdh/transaction/node" />
+                <RecordValue key="addContactName" dataExtractor="partyContactNameExtractor" dataSource="/esdh/transaction/properties/add/contact:contact" dataTrigger="/esdh/transaction/properties/add/contact:contact" />
+                <RecordValue key="updateContactName" dataExtractor="partyContactNameExtractor" dataSource="/esdh/transaction/node" dataTrigger="/esdh/transaction/properties/from/contact:partyRole" />
+                <RecordValue key="partyRoleFrom" dataExtractor="partyRoleNameExtractor" dataSource="/esdh/transaction/properties/from/contact:partyRole" dataTrigger="/esdh/transaction/properties/from/contact:partyRole" />
+                <RecordValue key="partyRoleTo" dataExtractor="partyRoleNameExtractor" dataSource="/esdh/transaction/properties/to/contact:partyRole" dataTrigger="/esdh/transaction/properties/to/contact:partyRole" />
             </AuditPath>
 
             <AuditPath key="aspects">
                 <RecordValue key="add" dataExtractor="simpleValue" dataSource="/esdh/transaction/aspects/add" dataTrigger="/esdh/transaction/aspects/add" />
                 <RecordValue key="delete" dataExtractor="simpleValue" dataSource="/esdh/transaction/aspects/delete" dataTrigger="/esdh/transaction/aspects/delete" />
-            </AuditPath>
-        </AuditPath>
-        
-        <AuditPath key="child">
-            <AuditPath key="add">
-                <AuditPath key="args">
-                    <RecordValue key="contactName" dataExtractor="contactNameValue" dataSource="/esdh/child/add/args/childRef" dataTrigger="/esdh/child/add/args/childRef" />
-                    <RecordValue key="groupName" dataExtractor="groupNameValue" dataSource="/esdh/child/add/args/parentRef" dataTrigger="/esdh/child/add/args/parentRef" />
-                </AuditPath>
-            </AuditPath>
-            <AuditPath key="remove">
-                <AuditPath key="args">
-                    <RecordValue key="contactName" dataExtractor="contactNameValue" dataSource="/esdh/child/remove/args/childRef" dataTrigger="/esdh/child/remove/args/childRef" />
-                    <RecordValue key="groupName" dataExtractor="groupNameValue" dataSource="/esdh/child/remove/args/parentRef" dataTrigger="/esdh/child/remove/args/parentRef" />
-                </AuditPath>
             </AuditPath>
         </AuditPath>
         

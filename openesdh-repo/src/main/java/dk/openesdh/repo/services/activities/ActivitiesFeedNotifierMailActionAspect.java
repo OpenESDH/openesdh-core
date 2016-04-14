@@ -1,7 +1,6 @@
 package dk.openesdh.repo.services.activities;
 
 import java.io.Serializable;
-import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.Locale;
 import java.util.Map;
@@ -17,12 +16,6 @@ import org.alfresco.service.cmr.action.Action;
 import org.alfresco.service.cmr.preference.PreferenceService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.security.PersonService.PersonInfo;
-import org.springframework.aop.MethodBeforeAdvice;
-import org.springframework.aop.framework.Advised;
-import org.springframework.aop.support.NameMatchMethodPointcutAdvisor;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.BeanFactory;
-import org.springframework.beans.factory.BeanFactoryAware;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;

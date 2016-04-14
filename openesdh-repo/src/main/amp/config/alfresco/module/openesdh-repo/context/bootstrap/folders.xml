@@ -168,6 +168,12 @@
                     </cm:folder>
                     <cm:folder view:childName="oe:party_roles">
                         <cm:name>Party Roles</cm:name>
+                        <view:acl view:inherit="false">
+		                    <view:ace view:access="ALLOWED">
+		                        <view:authority>GROUP_EVERYONE</view:authority>
+		                        <view:permission>Consumer</view:permission>
+		                    </view:ace>
+		                </view:acl>
                         <view:properties>
                             <sys:store-protocol>workspace</sys:store-protocol>
                             <sys:store-identifier>SpacesStore</sys:store-identifier>

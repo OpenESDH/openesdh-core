@@ -17,10 +17,6 @@
     <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-javascript-rootscope-context.xml" />
     
     <context:annotation-config/>
-    <context:component-scan base-package="dk.openesdh.repo.services, dk.openesdh.repo.audit, dk.openesdh.repo.policy, dk.openesdh.repo.actions" />
+    <context:component-scan base-package="dk.openesdh.repo.services, dk.openesdh.repo.audit, dk.openesdh.repo.policy, dk.openesdh.repo.actions, dk.openesdh.repo.webscripts" />
     
-    <import resource="classpath:alfresco/module/${project.artifactId}/context/openesdh-public-service-context.xml" />
-    
-    <context:annotation-config/>
-    <context:component-scan base-package="dk.openesdh.repo.webscripts" />
 </beans>
