@@ -170,5 +170,20 @@
                 </property>
             </properties>
         </aspect>
+        <aspect name="oe:manageable">
+            <associations>
+                <association name="oe:manager">
+                    <source>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </source>
+                    <target>
+                        <class>cm:person</class>
+                        <mandatory>true</mandatory>
+                        <many>false</many>
+                    </target>
+                </association>
+            </associations>
+        </aspect>
     </aspects>
 </model>

@@ -78,6 +78,8 @@ public interface OpenESDHModel {
     QName ASPECT_OE_LOCKED = QName.createQName(OE_URI, "locked");
     QName ASPECT_OE_CASE_ID = QName.createQName(OE_URI, "caseId");
 
+    QName ASPECT_OE_MANAGEABLE = QName.createQName(OE_URI, "manageable");
+
     QName ASPECT_CASE_COUNTER = QName.createQName(CASE_URI, "counter");
     QName ASPECT_CASE_FREEZABLE_PARTIES = QName.createQName(CASE_URI, "freezableParties");
 
@@ -118,6 +120,8 @@ public interface OpenESDHModel {
     QName ASSOC_NOTE_NOTES = QName.createQName(NOTE_URI, "notes");
 
     QName ASSOC_NOTE_CONCERNED_PARTIES = QName.createQName(NOTE_URI, "concernedParties");
+
+    QName ASSOC_OE_MANAGER = QName.createQName(OE_URI, "manager");
 
     /**
      * Properties

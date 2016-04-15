@@ -1,5 +1,6 @@
 package dk.openesdh.repo.services.authorities;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.Charset;
@@ -15,6 +16,8 @@ import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVStrategy;
 import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.util.StringUtils;
+
+import dk.openesdh.repo.exceptions.DomainException;
 
 public class UsersCsvParser {
 
@@ -34,20 +37,25 @@ public class UsersCsvParser {
     };
 
     private static final String ERROR_BLANK_COLUMN = "person.err.userCSV.blankColumn";
+    private static final String ERROR_INVALID_CSV_FILE = "ERROR.INVALID_CSV_FILE";
 
-    public List<User> parse(InputStream usersCsv) throws Exception {
-        InputStreamReader reader = new InputStreamReader(usersCsv, Charset.forName("UTF-8"));
-        CSVParser csv = new CSVParser(reader, CSVStrategy.EXCEL_STRATEGY);
-        String[][] data = csv.getAllValues();
-        List<User> users = new ArrayList<>();
-        for (int lineNumber = 0; lineNumber < data.length; lineNumber++) {
-            String[] line = data[lineNumber];
-            if (isEmptyLine(line) || isHeader(line)) {
-                continue;
+    public List<User> parse(InputStream usersCsv) {
+        try {
+            InputStreamReader reader = new InputStreamReader(usersCsv, Charset.forName("UTF-8"));
+            CSVParser csv = new CSVParser(reader, CSVStrategy.EXCEL_STRATEGY);
+            String[][] data = csv.getAllValues();
+            List<User> users = new ArrayList<>();
+            for (int lineNumber = 0; lineNumber < data.length; lineNumber++) {
+                String[] line = data[lineNumber];
+                if (isEmptyLine(line) || isHeader(line)) {
+                    continue;
+                }
+                users.add(parseUser(line, lineNumber));
             }
-            users.add(parseUser(line, lineNumber));
+            return users;
+        } catch (IOException ex) {
+            throw new DomainException(ERROR_INVALID_CSV_FILE, ex);
         }
-        return users;
     }
 
     private boolean isEmptyLine(String[] line) {
@@ -58,7 +66,7 @@ public class UsersCsvParser {
         return "username".equalsIgnoreCase(line[0]) || "user name".equalsIgnoreCase(line[0]);
     }
 
-    private User parseUser(String[] line, int lineNumber) throws Exception {
+    private User parseUser(String[] line, int lineNumber) {
         Map<QName, String> userProps = new HashMap<>();
         boolean required = true;
         for (int i = 0; i < COLUMNS.length; i++) {
@@ -73,7 +81,8 @@ public class UsersCsvParser {
             }
             if (required && StringUtils.isEmpty(value)) {
                 String message = I18NUtil.getMessage(ERROR_BLANK_COLUMN, COLUMNS[i].getLocalName(), (i + 1), (lineNumber + 1));
-                throw new Exception(message);
+                //TODO: throw DomainException
+                throw new RuntimeException(message);
             } else {
                 userProps.put(COLUMNS[i], value);
             }

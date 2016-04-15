@@ -9,6 +9,9 @@
             <#if status.exception.domain??>
                 "domain" : true,
                 "code" : "${jsonUtils.encodeJSONString(status.message)}"
+            <#elseif status.exception.class.name == "org.alfresco.repo.security.permissions.AccessDeniedException" || (status.exception.cause?? && status.exception.class.name == "org.alfresco.repo.security.permissions.AccessDeniedException")>
+                "domain" : true,
+                "code": "ERROR.ACCESS_DENIED"
             <#else>
                 "domain" : false,
                 "message" : <@recursestack exception=status.exception/>
