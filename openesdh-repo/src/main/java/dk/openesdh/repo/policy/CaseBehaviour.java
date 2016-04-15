@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.cases.CaseCreatorServiceRegistry;
 import dk.openesdh.repo.services.cases.CasePermissionService;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.tenant.TenantOpeneModulesService;
@@ -43,6 +44,9 @@ public class CaseBehaviour implements OnCreateNodePolicy, BeforeCreateNodePolicy
     @Autowired
     @Qualifier(CaseService.BEAN_ID)
     private CaseService caseService;
+    @Autowired
+    @Qualifier("CaseCreatorServiceRegistry")
+    private CaseCreatorServiceRegistry caseCreatorServiceRegistry;
     @Autowired
     @Qualifier("CasePermissionService")
     private CasePermissionService casePermissionService;
@@ -83,7 +87,7 @@ public class CaseBehaviour implements OnCreateNodePolicy, BeforeCreateNodePolicy
 
     @Override
     public void onCreateNode(ChildAssociationRef childAssociationRef) {
-        caseService.createCase(childAssociationRef);
+        caseCreatorServiceRegistry.getCaseCreatorService(childAssociationRef).accept(childAssociationRef);
     }
 
     @Override

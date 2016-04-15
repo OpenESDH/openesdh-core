@@ -3,6 +3,7 @@ package dk.openesdh.repo.services.cases;
 import java.io.Serializable;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collection;
@@ -13,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.stream.Collectors;
@@ -125,6 +127,13 @@ public class CaseServiceImpl implements CaseService {
     @Qualifier("CaseOwnersService")
     private CaseOwnersService caseOwnersService;
 
+    private List<Consumer<ChildAssociationRef>> afterCreateCaseListeners = new ArrayList<>();
+
+    @Override
+    public void addAfterCreateCaseListener(Consumer<ChildAssociationRef> listener) {
+        afterCreateCaseListeners.add(listener);
+    }
+
     @Override
     public NodeRef getCasesRootNodeRef() {
         return openESDHFoldersService.getCasesRootNodeRef();
@@ -227,6 +236,8 @@ public class CaseServiceImpl implements CaseService {
 
             return null;
         }, AuthenticationUtil.getAdminUserName());
+
+        afterCreateCase(childAssocRef);
     }
 
     @Override
@@ -397,6 +408,10 @@ public class CaseServiceImpl implements CaseService {
                     + "switch case from status " + fromStatus + " to "
                     + toStatus + " for case " + nodeRef);
         }
+    }
+
+    private void afterCreateCase(ChildAssociationRef childAssocRef) {
+        afterCreateCaseListeners.forEach(listener -> listener.accept(childAssocRef));
     }
 
     private boolean canLeaveStatus(CaseStatus status, String user, NodeRef nodeRef) {

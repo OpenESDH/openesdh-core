@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.ContentWriter;
@@ -260,5 +261,12 @@ public interface DocumentService extends HasStatus<DocumentStatus> {
      * @return
      */
     boolean isDocBelongsToCase(NodeRef docRef);
+
+    /**
+     * Adds extra checker for documents belonging to a case
+     * 
+     * @param checker
+     */
+    void addDocBelongsToCaseChecker(Predicate<NodeRef> checker);
 
 }

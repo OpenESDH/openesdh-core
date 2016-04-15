@@ -3,6 +3,7 @@ package dk.openesdh.repo.services.cases;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
 import org.alfresco.service.cmr.dictionary.ConstraintDefinition;
@@ -207,5 +208,7 @@ public interface CaseService extends HasStatus<CaseStatus> {
     String getCaseId(long uniqueNumber);
 
     NodeRef getCasePathNodeRef(NodeRef parent, int calendarType);
+
+    void addAfterCreateCaseListener(Consumer<ChildAssociationRef> listener);
 
 }
