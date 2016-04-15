@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -153,6 +154,8 @@ public class DocumentServiceImpl implements DocumentService {
     private RenditionDefinition pdfRenditionDefinition;
     private final Set<String> otherPropNamespaceUris = new HashSet<>();
 
+    private List<Predicate<NodeRef>> docBelongsToCaseCheckers = new ArrayList<>();
+
     /**
      * Returns true if the file name has an extension
      *
@@ -172,6 +175,11 @@ public class DocumentServiceImpl implements DocumentService {
                 acceptableFinalizedFileMimeTypes.add(mimetype);
             }
         }
+    }
+
+    @Override
+    public void addDocBelongsToCaseChecker(Predicate<NodeRef> checker) {
+        docBelongsToCaseCheckers.add(checker);
     }
 
     public void addOtherPropNamespaceUris(String... nsUri) {
@@ -898,6 +906,15 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public boolean isDocBelongsToCase(NodeRef docRef) {
-        return Objects.nonNull(getCaseNodeRef(docRef));
+        boolean notBelongsToCase = Objects.isNull(getCaseNodeRef(docRef));
+        if (notBelongsToCase) {
+            return false;
+        }
+        for (Predicate<NodeRef> checker : docBelongsToCaseCheckers) {
+            if (!checker.test(docRef)) {
+                return false;
+            }
+        }
+        return true;
     }
 }
