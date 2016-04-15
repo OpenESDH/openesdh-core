@@ -18,6 +18,7 @@ import javax.annotation.PostConstruct;
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.person.PersonServiceImpl;
 import org.alfresco.repo.tenant.TenantService;
+import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.repository.StoreRef;
@@ -355,12 +356,16 @@ public class UsersServiceImpl implements UsersService {
             }
             context.getAssociations().forEach(assoc -> {
                 if (assoc.getTarget() == null) {
-                    nodeService.removeAspect(context.getNodeRef(), assoc.getAspect());
-                    nodeService.getTargetAssocs(context.getNodeRef(), assoc.getAssociation()).forEach(
+                    List<AssociationRef> existingAssociations = nodeService.getTargetAssocs(context.getNodeRef(), assoc.getAssociation());
+                    if (existingAssociations.isEmpty()) {
+                        return;
+                    }
+                    existingAssociations.forEach(
                             oldAssoc -> nodeService.removeAssociation(
                                     context.getNodeRef(),
                                     oldAssoc.getSourceRef(),
                                     assoc.getAssociation()));
+                    nodeService.removeAspect(context.getNodeRef(), assoc.getAspect());
                 }
                 nodeService.addAspect(context.getNodeRef(), assoc.getAspect(), Collections.emptyMap());
                 nodeService.setAssociations(context.getNodeRef(), assoc.getAssociation(), Arrays.asList(assoc.getTarget()));
