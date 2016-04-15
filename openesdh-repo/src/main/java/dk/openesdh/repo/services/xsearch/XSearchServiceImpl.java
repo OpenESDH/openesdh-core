@@ -85,8 +85,16 @@ public class XSearchServiceImpl extends AbstractXSearchService {
                     .ifPresent(searchTerm -> searchTerms.add(searchTerm));
         }
 
-        return "TYPE:" + quote(baseType) + " AND ISNOTNULL:\"oe:id\" AND ("
-                + StringUtils.join(searchTerms, " " + filterType.name() + " ") + ")";
+        return String.format(SEARCH_QUERY, quote(baseType)) + queryAND(searchTerms, filterType.name());
+    }
+
+    private static final String SEARCH_QUERY = "TYPE:%1$s AND ISNOTNULL:\"oe:id\"";
+
+    private static String queryAND(List<String> searchTerms, String filterTypeName) {
+        if (searchTerms.isEmpty()) {
+            return "";
+        }
+        return " AND (" + StringUtils.join(searchTerms, " " + filterTypeName + " ") + ")";
     }
 
     protected Optional<JSONArray> parseJsonArray(String s) {

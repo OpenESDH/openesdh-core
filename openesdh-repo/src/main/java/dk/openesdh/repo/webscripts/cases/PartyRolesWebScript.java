@@ -12,7 +12,7 @@ import dk.openesdh.repo.services.contacts.PartyRoleService;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 @Component
-@WebScript(description = "Provides API for party roles")
+@WebScript(description = "Provides API for party roles", families = {"Classification Tools"})
 public class PartyRolesWebScript {
 
     @Autowired

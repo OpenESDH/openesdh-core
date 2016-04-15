@@ -1,5 +1,6 @@
 package dk.openesdh.repo.exceptions;
 
+import org.json.JSONException;
 import org.json.JSONObject;
 
 public class DomainException extends RuntimeException {
@@ -16,7 +17,7 @@ public class DomainException extends RuntimeException {
      * @param errorCode - code will be used as translate code in front-end
      */
     public DomainException(String errorCode) {
-        this(errorCode, (JSONObject) null);
+        this(errorCode, new JSONObject());
     }
 
     /**
@@ -26,7 +27,7 @@ public class DomainException extends RuntimeException {
      * @param cause
      */
     public DomainException(String errorCode, Throwable cause) {
-        this(errorCode, cause, null);
+        this(errorCode, cause, new JSONObject());
     }
 
     /**
@@ -50,6 +51,15 @@ public class DomainException extends RuntimeException {
     public DomainException(String errorCode, Throwable cause, JSONObject props) {
         super(errorCode, cause);
         this.props = props;
+    }
+
+    public DomainException forField(String field) {
+        try {
+            this.props.put("field", field);
+        } catch (JSONException ex) {
+            throw new RuntimeException(ex);
+        }
+        return this;
     }
 
     public boolean isDomain() {

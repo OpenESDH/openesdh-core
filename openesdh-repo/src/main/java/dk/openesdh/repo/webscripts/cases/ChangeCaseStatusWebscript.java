@@ -21,7 +21,7 @@ import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 @Component
-@WebScript(description = "Change case status", families = "Case tools")
+@WebScript(description = "Change case status", families = "Case Tools")
 public class ChangeCaseStatusWebscript {
 
     @Autowired
