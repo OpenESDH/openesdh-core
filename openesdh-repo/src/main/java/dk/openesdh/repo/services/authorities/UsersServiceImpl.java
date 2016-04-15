@@ -140,14 +140,13 @@ public class UsersServiceImpl implements UsersService {
         return userJson;
     }
 
-    private UserSavingContext createUserSavingContext(Map<QName, Serializable> userProps, boolean accountEnabled, List<UserSavingContext.Assoc> associations) {
+    private UserSavingContext createUserSavingContext(
+            NodeRef nodeRef,
+            Map<QName, Serializable> userProps,
+            boolean accountEnabled,
+            List<UserSavingContext.Assoc> associations) {
         UserSavingContext context = new UserSavingContext();
-        if (userProps.containsKey(ContentModel.PROP_NODE_UUID)) {
-            context.setNodeRef(new NodeRef(
-                    (String) userProps.get(ContentModel.PROP_STORE_PROTOCOL),
-                    (String) userProps.get(ContentModel.PROP_STORE_IDENTIFIER),
-                    (String) userProps.get(ContentModel.PROP_NODE_UUID)));
-        }
+        context.setNodeRef(nodeRef);
         context.setUserName((String) userProps.get(ContentModel.PROP_USERNAME));
         context.setAccountEnabled(accountEnabled);
         context.setProps(userProps);
@@ -157,7 +156,7 @@ public class UsersServiceImpl implements UsersService {
     }
 
     public NodeRef createUser(Map<QName, Serializable> userProps, boolean accountEnabled, List<UserSavingContext.Assoc> associations) {
-        UserSavingContext context = createUserSavingContext(userProps, accountEnabled, associations);
+        UserSavingContext context = createUserSavingContext(null, userProps, accountEnabled, associations);
 
         executeValidators(context);
 
@@ -186,12 +185,13 @@ public class UsersServiceImpl implements UsersService {
 
     @Override
     public NodeRef updateUser(Map<QName, Serializable> userProps, boolean accountEnabled, List<UserSavingContext.Assoc> associations) {
-        UserSavingContext context = createUserSavingContext(userProps, accountEnabled, associations);
-
-        executeValidators(context);
-
         String userName = (String) userProps.get(ContentModel.PROP_USERNAME);
         userName = PersonServiceImpl.updateUsernameForTenancy(userName, tenantService);
+        NodeRef userNodeRef = authorityService.getAuthorityNodeRef(userName);
+
+        UserSavingContext context = createUserSavingContext(userNodeRef, userProps, accountEnabled, associations);
+
+        executeValidators(context);
 
         String password = (String) context.getProps().get(ContentModel.PROP_PASSWORD);
         context.getProps().remove(ContentModel.PROP_PASSWORD);
