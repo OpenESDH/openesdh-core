@@ -157,6 +157,22 @@
                     <multiple>true</multiple>
                 </property>
             </properties>
+            <associations>
+                <child-association name="contact:files">
+                    <!-- files of organization (association same as in cm:folder) -->
+                    <source>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </source>
+                    <target>
+                        <class>sys:base</class>
+                        <mandatory>false</mandatory>
+                        <many>true</many>
+                    </target>
+                    <duplicate>false</duplicate>
+                    <propagateTimestamps>true</propagateTimestamps>
+                </child-association>
+            </associations>
             <mandatory-aspects>
                 <aspect>contact:address</aspect>
                 <aspect>cm:versionable</aspect>
@@ -273,21 +289,21 @@
         </type>
         
         <!-- 
-            Objects of this type are used instead of associations with contacts, to be able to reference contact versions.
-            Alfresco associations don't support references to version store.
-         -->
+           Objects of this type are used instead of associations with contacts, to be able to reference contact versions.
+           Alfresco associations don't support references to version store.
+        -->
         <type name="contact:party">
             <title>Party</title>
             <parent>cm:cmobject</parent>
             <properties>
-	            <property name="contact:contact">
-	                <type>d:noderef</type>
-	                <mandatory>true</mandatory>
-	            </property>
-	            <property name="contact:partyRole">
-	                <type>d:noderef</type>
-	                <mandatory>true</mandatory>
-	            </property>
+                <property name="contact:contact">
+                    <type>d:noderef</type>
+                    <mandatory>true</mandatory>
+                </property>
+                <property name="contact:partyRole">
+                    <type>d:noderef</type>
+                    <mandatory>true</mandatory>
+                </property>
             </properties>
         </type>
         <type name="contact:partyRole">

@@ -44,10 +44,14 @@ import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
 @ContextConfiguration({"classpath:alfresco/application-context.xml", "classpath:alfresco/extension/openesdh-test-context.xml"})
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-public class OeFilesServiceImplIT {
+public class OeAuthorityFilesServiceImplIT {
 
     @Autowired
-    private OeFilesServiceImpl filesService;
+    @Qualifier("OeAuthorityFilesService")
+    private OeAuthorityFilesServiceImpl authorityFilesService;
+    @Autowired
+    @Qualifier("OeFilesService")
+    private OeFilesService filesService;
     @Autowired
     @Qualifier("TestCaseHelper")
     private CaseHelper caseHelper;
@@ -81,7 +85,7 @@ public class OeFilesServiceImplIT {
         owner2 = caseHelper.createDummyUser(USER_OWNER2);
         long timestamp = new Date().getTime();
         testComment = "Test Comment On file " + timestamp;
-        file1 = filesService.addFile(owner1, "test_file_" + timestamp + ".txt", MimetypeMap.MIMETYPE_TEXT_PLAIN, fileBytes, testComment);
+        file1 = authorityFilesService.addFile(owner1, "test_file_" + timestamp + ".txt", MimetypeMap.MIMETYPE_TEXT_PLAIN, fileBytes, testComment);
     }
 
     @After
@@ -93,8 +97,8 @@ public class OeFilesServiceImplIT {
                 caseHelper.deleteDummyUser(USER_OWNER1);
                 caseHelper.deleteDummyUser(USER_OWNER2);
 
-                filesService.getAuthorityFolder(USER_OWNER1).ifPresent(nodeService::deleteNode);
-                filesService.getAuthorityFolder(USER_OWNER2).ifPresent(nodeService::deleteNode);
+                authorityFilesService.getAuthorityFolder(USER_OWNER1).ifPresent(nodeService::deleteNode);
+                authorityFilesService.getAuthorityFolder(USER_OWNER2).ifPresent(nodeService::deleteNode);
                 return null;
             }
         });
@@ -112,14 +116,14 @@ public class OeFilesServiceImplIT {
     @Test
     public void owner1_gets_his_files() {
         setFullyAuthenticatedUser(USER_OWNER1);
-        List<JSONObject> files = filesService.getFiles(USER_OWNER1);
+        List<JSONObject> files = authorityFilesService.getFiles(USER_OWNER1);
         assertEquals(USER_OWNER1 + " has one file", 1, files.size());
     }
 
     @Test(expected = AccessDeniedException.class)
     public void owner2_doesnt_get_owner1s_files() {
         setFullyAuthenticatedUser(USER_OWNER2);
-        filesService.getFiles(USER_OWNER1);
+        authorityFilesService.getFiles(USER_OWNER1);
     }
 
     @Test
@@ -146,18 +150,18 @@ public class OeFilesServiceImplIT {
     @Test
     public void owner2_gets_his_file_after_move() {
         setFullyAuthenticatedUser(USER_OWNER1);
-        filesService.move(file1, owner2, "Some comment");
+        authorityFilesService.move(file1, owner2, "Some comment");
 
         setFullyAuthenticatedUser(USER_OWNER2);
-        List<JSONObject> files = filesService.getFiles(USER_OWNER2);
+        List<JSONObject> files = authorityFilesService.getFiles(USER_OWNER2);
         assertEquals(USER_OWNER2 + " has one file", 1, files.size());
     }
 
     @Test
     public void owner1_doesnt_get_owner2s_file_after_move() {
         setFullyAuthenticatedUser(USER_OWNER1);
-        filesService.move(file1, owner2, "Some comment");
-        assertTrue(USER_OWNER1 + " has no files after move", filesService.getFiles(USER_OWNER1).isEmpty());
+        authorityFilesService.move(file1, owner2, "Some comment");
+        assertTrue(USER_OWNER1 + " has no files after move", authorityFilesService.getFiles(USER_OWNER1).isEmpty());
     }
 
     @Test
@@ -173,15 +177,15 @@ public class OeFilesServiceImplIT {
             NodeRef group1 = authorityService.getAuthorityNodeRef(GROUP1);
 
             setFullyAuthenticatedUser(USER_OWNER1);
-            filesService.move(file1, group1, "moving to group");
+            authorityFilesService.move(file1, group1, "moving to group");
 
-            List<JSONObject> files = filesService.getFiles(GROUP1);
+            List<JSONObject> files = authorityFilesService.getFiles(GROUP1);
             assertEquals(USER_OWNER1 + " has one file from group", 1, files.size());
         } finally {
             //cleanup
             transactionRunner.runInTransactionAsAdmin(() -> {
                 authorityService.deleteAuthority(GROUP1);
-                filesService.getAuthorityFolder(GROUP1).ifPresent(nodeService::deleteNode);
+                authorityFilesService.getAuthorityFolder(GROUP1).ifPresent(nodeService::deleteNode);
                 return null;
             });
         }

@@ -111,6 +111,8 @@ public interface OpenESDHModel {
     QName ASSOC_DOC_FILE_CONTENT = QName.createQName(DOC_URI, "fileContent");
     QName ASSOC_DOC_FILE_POSITION = QName.createQName(DOC_URI, "filePosition");
 
+    QName ASSOC_CONTACT_FILES = QName.createQName(CONTACT_URI, "files");
+
     QName ASSOC_CONTACT_MEMBERS = QName.createQName(CONTACT_URI, "members");
 
     QName ASSOC_CONTACT_LOGIN = QName.createQName(CONTACT_URI, "userLogin");

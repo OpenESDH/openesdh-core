@@ -2,12 +2,10 @@ package dk.openesdh.repo.services.files;
 
 import java.io.InputStream;
 import java.io.Serializable;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.alfresco.model.ContentModel;
@@ -15,43 +13,39 @@ import org.alfresco.query.PagingRequest;
 import org.alfresco.repo.domain.node.ContentDataWithId;
 import org.alfresco.repo.forum.CommentService;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
+import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.ContentWriter;
-import org.alfresco.service.cmr.repository.InvalidNodeRefException;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
+import org.alfresco.service.namespace.RegexQNamePattern;
+import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.NodeInfoService;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.documents.CaseDocumentCopyService;
 import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 import dk.openesdh.repo.utils.JSONArrayCollector;
-import fr.opensagres.xdocreport.core.utils.StringUtils;
 
-@Component
+@Service("OeFilesService")
 public class OeFilesServiceImpl implements OeFilesService {
 
-    @Autowired
-    private OpenESDHFoldersService foldersService;
+    private final Map<QName, QName> ASSOC_BY_PARENT_TYPE = new HashMap<>();
+
     @Autowired
     @Qualifier("NodeService")
     private NodeService nodeService;
-    @Autowired
-    @Qualifier("AuthorityService")
-    private AuthorityService authorityService;
     @Autowired
     @Qualifier("ContentService")
     private ContentService contentService;
@@ -73,35 +67,38 @@ public class OeFilesServiceImpl implements OeFilesService {
     @Autowired
     @Qualifier("NodeInfoService")
     private NodeInfoService nodeInfoService;
+    @Autowired
+    @Qualifier("DictionaryService")
+    private DictionaryService dictionaryService;
+
+    public OeFilesServiceImpl() {
+        setAssocionTypes();
+    }
+
+    private void setAssocionTypes() {
+        ASSOC_BY_PARENT_TYPE.put(ContentModel.TYPE_FOLDER, ContentModel.ASSOC_CONTAINS);
+        ASSOC_BY_PARENT_TYPE.put(OpenESDHModel.TYPE_CONTACT_BASE, OpenESDHModel.ASSOC_CONTACT_FILES);
+    }
 
     @Override
     public JSONObject getFile(NodeRef nodeRef) {
-        NodeRef folder = nodeService.getPrimaryParent(nodeRef).getParentRef();
-        String authorityName = (String) nodeService.getProperty(folder, ContentModel.PROP_NAME);
-        return fileNodeToJSONObject(nodeRef, authorityName);
+        return fileNodeToJSONObject(nodeRef);
     }
 
     @Override
-    public List<JSONObject> getFiles(String authorityName) {
-        Optional<NodeRef> authorityFolder = getAuthorityFolder(authorityName);
-        if (authorityFolder.isPresent()) {
-            List<JSONObject> fileList = nodeService.getChildAssocs(authorityFolder.get())
-                    .stream()
-                    .map(ChildAssociationRef::getChildRef)
-                    .map(fileNode -> fileNodeToJSONObject(fileNode, authorityName))
-                    .collect(Collectors.toList());
-            return fileList;
-        }
-        return Collections.emptyList();
+    public List<JSONObject> getFiles(NodeRef nodeRef) {
+        List<JSONObject> fileList = nodeService.getChildAssocs(nodeRef, getAssociationByParent(nodeRef), RegexQNamePattern.MATCH_ALL)
+                .stream()
+                .map(ChildAssociationRef::getChildRef)
+                .map(this::fileNodeToJSONObject)
+                .collect(Collectors.toList());
+        return fileList;
     }
 
     @SuppressWarnings("unchecked")
-    private JSONObject fileNodeToJSONObject(NodeRef fileNode, String authorityName) {
+    private JSONObject fileNodeToJSONObject(NodeRef fileNode) {
         JSONObject json = nodeInfoService.getNodeParametersJSON(fileNode);
         json.put("nodeRef", fileNode.toString());
-        if (authorityName.startsWith("GROUP_")) {
-            json.put("group", authorityService.getAuthorityDisplayName(authorityName.substring(6)));
-        }
         json.put("comments", getComments(fileNode));
         return json;
     }
@@ -131,11 +128,9 @@ public class OeFilesServiceImpl implements OeFilesService {
     }
 
     @Override
-    public NodeRef addFile(NodeRef owner, String fileName, String mimetype, InputStream fileInputStream, String comment) {
-        String authorityName = getAuthorityName(owner);
+    public NodeRef addFile(NodeRef parent, String fileName, String mimetype, InputStream fileInputStream, String comment) {
         return AuthenticationUtil.runAsSystem(() -> {
-            NodeRef folder = getOrCreateAuthorityFolder(authorityName);
-            NodeRef file = writeFile(fileName, folder, mimetype, fileInputStream);
+            NodeRef file = writeFile(fileName, parent, mimetype, fileInputStream);
             if (StringUtils.isNotEmpty(comment)) {
                 commentService.createComment(file, fileName, comment, false);
             }
@@ -143,24 +138,16 @@ public class OeFilesServiceImpl implements OeFilesService {
         });
     }
 
-    private String getAuthorityName(NodeRef owner) throws InvalidNodeRefException {
-        Map<QName, Serializable> properties = nodeService.getProperties(owner);
-        String authorityName = (String) properties.getOrDefault(
-                ContentModel.PROP_AUTHORITY_NAME,
-                properties.get(ContentModel.PROP_USERNAME));
-        return authorityName;
-    }
-
-    private NodeRef writeFile(String fileName, NodeRef folder, String mimetype, InputStream fileInputStream) {
+    private NodeRef writeFile(String fileName, NodeRef parent, String mimetype, InputStream fileInputStream) {
         String title = fileName;
-        String uniqueName = documentService.getUniqueName(folder, fileName, false);
+        String uniqueName = documentService.getUniqueName(parent, fileName, false);
 
         Map<QName, Serializable> props = new HashMap<>();
         props.put(ContentModel.PROP_NAME, uniqueName);
         props.put(ContentModel.PROP_TITLE, title);
         NodeRef fileNode = nodeService.createNode(
-                folder,
-                ContentModel.ASSOC_CONTAINS,
+                parent,
+                getAssociationByParent(parent),
                 QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, uniqueName),
                 ContentModel.TYPE_CONTENT,
                 props).getChildRef();
@@ -170,65 +157,19 @@ public class OeFilesServiceImpl implements OeFilesService {
         return fileNode;
     }
 
-    private NodeRef getOrCreateAuthorityFolder(String authorityName) {
-        return getAuthorityFolder(authorityName)
-                .orElseGet(() -> createAuthorityFolder(authorityName));
-    }
-
-    Optional<NodeRef> getAuthorityFolder(String authorityName) {
-        NodeRef documentsRoot = foldersService.getFilesRootNodeRef();
-        Optional<NodeRef> folder = Optional.ofNullable(
-                nodeService.getChildByName(documentsRoot, ContentModel.ASSOC_CONTAINS, authorityName));
-        return folder;
-    }
-
-    private NodeRef createAuthorityFolder(String authorityName) {
-        return AuthenticationUtil.runAsSystem(() -> {
-            Map<QName, Serializable> params = new HashMap<>();
-            params.put(ContentModel.PROP_NAME, authorityName);
-
-            NodeRef authorityFolder = nodeService.createNode(
-                    foldersService.getFilesRootNodeRef(),
-                    ContentModel.ASSOC_CONTAINS,
-                    QName.createQName(OpenESDHModel.DOC_URI, authorityName),
-                    OpenESDHModel.TYPE_OE_AUTHORITY_FILES_FOLDER,
-                    params)
-                    .getChildRef();
-            return authorityFolder;
-        });
+    private QName getAssociationByParent(NodeRef parent) {
+        final QName parentType = nodeService.getType(parent);
+        if (ASSOC_BY_PARENT_TYPE.containsKey(parentType)) {
+            return ASSOC_BY_PARENT_TYPE.get(parentType);
+        }
+        return ASSOC_BY_PARENT_TYPE.get(ASSOC_BY_PARENT_TYPE.keySet().stream()
+                .filter(type -> dictionaryService.isSubClass(parentType, type))
+                .findFirst().orElseThrow(() -> new RuntimeException("Invalid parrent type")));
     }
 
     @Override
     public void delete(NodeRef nodeRef) {
         nodeService.deleteNode(nodeRef);
-    }
-
-    @Override
-    public void move(NodeRef file, NodeRef newOwner, String comment) {
-        String authorityName = getAuthorityName(newOwner);
-        //checks permissions and selects association
-        ChildAssociationRef oldAssociation = nodeService.getParentAssocs(file).get(0);
-
-        AuthenticationUtil.runAsSystem(() -> {
-            String oldOwner = (String) nodeService.getProperty(oldAssociation.getParentRef(), ContentModel.PROP_NAME);
-            if (authorityName.equals(oldOwner)) {
-                //nothing to do
-                return null;
-            }
-            //move
-            NodeRef toFolder = getOrCreateAuthorityFolder(authorityName);
-            String title = (String) nodeService.getProperty(oldAssociation.getChildRef(), ContentModel.PROP_TITLE);
-            String uniqueName = documentService.getUniqueName(toFolder, title, false);
-            nodeService.moveNode(
-                    file,
-                    toFolder,
-                    ContentModel.ASSOC_CONTAINS,
-                    QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, uniqueName));
-            if (StringUtils.isNotEmpty(comment)) {
-                commentService.createComment(file, title, comment, false);
-            }
-            return null;
-        });
     }
 
     @Override
@@ -249,5 +190,4 @@ public class OeFilesServiceImpl implements OeFilesService {
             return null;
         });
     }
-
 }
