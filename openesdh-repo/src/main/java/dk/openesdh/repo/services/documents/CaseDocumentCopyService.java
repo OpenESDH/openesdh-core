@@ -25,8 +25,9 @@ public interface CaseDocumentCopyService {
      *            the document record folder node ref to copy
      * @param targetFolder
      *            the folder to copy the document to
+     * @return
      */
-    void copyDocumentToFolder(NodeRef documentRecFolderToCopy, NodeRef targetFolder);
+    NodeRef copyDocumentToFolder(NodeRef documentRecFolderToCopy, NodeRef targetFolder);
 
     /**
      * Moves provided document to the target case
@@ -65,4 +66,6 @@ public interface CaseDocumentCopyService {
      * @param targetDocumentRef
      */
     void copyDocContentRetainVersionLabel(NodeRef newVersionContentRef, NodeRef targetDocumentRef);
+
+    void moveDocumentComments(NodeRef sourceNode, NodeRef targetNode);
 }

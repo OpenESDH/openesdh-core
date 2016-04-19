@@ -39,6 +39,7 @@ import dk.openesdh.repo.model.DocumentCategory;
 import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.BehaviourFilterService;
+import dk.openesdh.repo.services.documents.CaseDocumentCopyService;
 import dk.openesdh.repo.services.documents.DocumentCategoryService;
 import dk.openesdh.repo.services.documents.DocumentService;
 import dk.openesdh.repo.services.documents.DocumentTypeService;
@@ -70,6 +71,9 @@ public class DocumentBehaviour {
     private VersionService versionService;
     @Autowired
     private BehaviourFilterService behaviourFilterService;
+    @Autowired
+    @Qualifier("CaseDocumentCopyService")
+    private CaseDocumentCopyService caseDocumentCopyService;
 
     @PostConstruct
     public void init() {
@@ -238,6 +242,8 @@ public class DocumentBehaviour {
         }
 
         setDocTitleCategoryAndType(childAssocRef);
+
+        caseDocumentCopyService.moveDocumentComments(childAssocRef.getChildRef(), childAssocRef.getParentRef());
     }
 
     private void setDocTitleCategoryAndType(ChildAssociationRef childAssocRef) {
