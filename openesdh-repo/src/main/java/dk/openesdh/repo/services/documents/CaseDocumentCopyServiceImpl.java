@@ -2,12 +2,15 @@ package dk.openesdh.repo.services.documents;
 
 import java.io.Serializable;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
 import org.alfresco.error.AlfrescoRuntimeException;
 import org.alfresco.model.ContentModel;
+import org.alfresco.model.ForumModel;
+import org.alfresco.repo.forum.CommentService;
 import org.alfresco.service.cmr.coci.CheckOutCheckInService;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
@@ -21,6 +24,7 @@ import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
+import org.alfresco.service.namespace.RegexQNamePattern;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -35,6 +39,8 @@ import dk.openesdh.repo.services.cases.CaseService;
 
 @Service("CaseDocumentCopyService")
 public class CaseDocumentCopyServiceImpl implements CaseDocumentCopyService {
+
+    private static final String COMMENTS_TOPIC_NAME = "Comments";
 
     @Autowired
     @Qualifier(DocumentService.BEAN_ID)
@@ -62,6 +68,9 @@ public class CaseDocumentCopyServiceImpl implements CaseDocumentCopyService {
     @Autowired
     @Qualifier("TransactionRunner")
     private TransactionRunner tr;
+    @Autowired
+    @Qualifier("CommentService")
+    private CommentService commentService;
 
     @Override
     public void moveDocumentToCase(NodeRef documentRecFolderToMove, String targetCaseId) throws Exception {
@@ -119,8 +128,8 @@ public class CaseDocumentCopyServiceImpl implements CaseDocumentCopyService {
     }
     
     @Override
-    public void copyDocumentToFolder(NodeRef documentRecFolderToCopy, NodeRef targetFolder) {
-        copyDocument(documentRecFolderToCopy, targetFolder, true);
+    public NodeRef copyDocumentToFolder(NodeRef documentRecFolderToCopy, NodeRef targetFolder) {
+        return copyDocument(documentRecFolderToCopy, targetFolder, true);
     }
 
     @Override
@@ -254,5 +263,46 @@ public class CaseDocumentCopyServiceImpl implements CaseDocumentCopyService {
         Map<String, Serializable> versionProps = new HashMap<>();
         versionProps.put(OpenESDHModel.RETAIN_VERSION_LABEL, originalVersion.getVersionLabel());
         versionService.createVersion(docCopy, versionProps);
+    }
+
+    @Override
+    public void moveDocumentComments(NodeRef sourceNode, NodeRef targetNode) {
+        if (!nodeService.hasAspect(sourceNode, ForumModel.ASPECT_DISCUSSABLE)) {
+            return;
+        }
+        tr.runAsSystem(() -> {
+            NodeRef targetCommentsFolder = getOrCreateCommentsFolder(targetNode);
+            NodeRef sourceCommentsFolder = getCommentsFolder(sourceNode);
+            nodeService.getChildAssocs(sourceCommentsFolder, ContentModel.ASSOC_CONTAINS, null).stream()
+                    .map(ChildAssociationRef::getChildRef)
+                    .forEach(commentRef -> moveComment(commentRef, targetCommentsFolder));
+            return null;
+        });
+    }
+
+    private NodeRef getOrCreateCommentsFolder(NodeRef discussableNode) {
+        if (!nodeService.hasAspect(discussableNode, ForumModel.ASPECT_DISCUSSABLE)) {
+            NodeRef fakeComment = commentService.createComment(discussableNode, "fake", "fake", false);
+            commentService.deleteComment(fakeComment);
+        }
+        return getCommentsFolder(discussableNode);
+    }
+
+    private NodeRef getCommentsFolder(NodeRef discussableNode) {
+        List<ChildAssociationRef> assocs = nodeService.getChildAssocs(discussableNode, ForumModel.ASSOC_DISCUSSION,
+                RegexQNamePattern.MATCH_ALL);
+        ChildAssociationRef firstAssoc = assocs.get(0);
+        return nodeService.getChildByName(firstAssoc.getChildRef(), ContentModel.ASSOC_CONTAINS,
+                COMMENTS_TOPIC_NAME);
+    }
+
+    private void moveComment(NodeRef commentRef, NodeRef targetCommentsFolder) {
+        String name = getUniqueChildName("comment");
+        nodeService.moveNode(commentRef, targetCommentsFolder, ContentModel.ASSOC_CONTAINS,
+                QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, QName.createValidLocalName(name)));
+    }
+
+    private String getUniqueChildName(String prefix) {
+        return prefix + "-" + System.currentTimeMillis();
     }
 }
