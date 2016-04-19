@@ -40,9 +40,7 @@ import dk.openesdh.repo.model.DocumentType;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.services.cases.CaseService;
-import dk.openesdh.repo.services.documents.DocumentCategoryService;
 import dk.openesdh.repo.services.documents.DocumentService;
-import dk.openesdh.repo.services.documents.DocumentTypeService;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -77,14 +75,6 @@ public class DocumentBehaviourIT {
     @Qualifier(DocumentService.BEAN_ID)
     private DocumentService documentService;
 
-    @Autowired
-    @Qualifier("DocumentTypeService")
-    private DocumentTypeService documentTypeService;
-
-    @Autowired
-    @Qualifier("DocumentCategoryService")
-    private DocumentCategoryService documentCategoryService;
-
     private String testUsername;
     private NodeRef testFolder;
     private NodeRef testCase1;
@@ -101,8 +91,8 @@ public class DocumentBehaviourIT {
         testFolder = docTestHelper.createFolder(TEST_FOLDER_NAME);
         testCase1 = docTestHelper.createCaseBehaviourOn(TEST_CASE_NAME1, testFolder, testUsername);
         testCase1DocumentsFolder = caseService.getDocumentsFolder(testCase1);
-        documentType = documentTypeService.getClassifValues().stream().findAny().get();
-        documentCategory = documentCategoryService.getClassifValues().stream().findAny().get();
+        documentType = docTestHelper.getFirstDocumentType();
+        documentCategory = docTestHelper.getFirstDocumentCategory();
     }
 
     @After

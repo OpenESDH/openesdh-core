@@ -8,14 +8,20 @@ import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 
 import org.alfresco.model.ContentModel;
+import org.alfresco.query.PagingRequest;
 import org.alfresco.repo.content.MimetypeMap;
+import org.alfresco.repo.forum.CommentService;
 import org.alfresco.repo.security.authority.script.ScriptAuthorityService;
 import org.alfresco.repo.security.authority.script.ScriptGroup;
 import org.alfresco.repo.security.permissions.AccessDeniedException;
+import org.alfresco.service.cmr.repository.ContentReader;
+import org.alfresco.service.cmr.repository.ContentService;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
 import org.alfresco.service.cmr.security.AuthorityService;
@@ -23,6 +29,7 @@ import org.alfresco.service.cmr.security.PermissionService;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.junit.After;
+import org.junit.Assert;
 import org.junit.Before;
 import org.junit.FixMethodOrder;
 import org.junit.Test;
@@ -36,8 +43,12 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import com.tradeshift.test.remote.Remote;
 import com.tradeshift.test.remote.RemoteTestRunner;
 
+import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
+import dk.openesdh.repo.model.CaseDocument;
 import dk.openesdh.repo.services.TransactionRunner;
+import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.documents.DocumentService;
 import dk.openesdh.repo.services.system.OpenESDHFoldersService;
 
 @RunWith(RemoteTestRunner.class)
@@ -56,8 +67,6 @@ public class OeAuthorityFilesServiceImplIT {
     @Qualifier("TestCaseHelper")
     private CaseHelper caseHelper;
     @Autowired
-    private TransactionRunner transactionRunner;
-    @Autowired
     @Qualifier("authorityServiceScript")
     private ScriptAuthorityService scriptAuthorityService;
     @Autowired
@@ -68,15 +77,35 @@ public class OeAuthorityFilesServiceImplIT {
     private NodeService nodeService;
     @Autowired
     private OpenESDHFoldersService openESDHFoldersService;
+    @Autowired
+    @Qualifier("CaseDocumentTestHelper")
+    private CaseDocumentTestHelper caseDocTestHelper;
+    @Autowired
+    @Qualifier(CaseService.BEAN_ID)
+    private CaseService caseService;
+    @Autowired
+    @Qualifier(DocumentService.BEAN_ID)
+    private DocumentService documentService;
+    @Autowired
+    @Qualifier("TransactionRunner")
+    private TransactionRunner tr;
+    @Autowired
+    @Qualifier("CommentService")
+    private CommentService commentService;
+    @Autowired
+    @Qualifier("ContentService")
+    private ContentService contentService;
 
     private static final String USER_OWNER1 = "fileTestOwner1";
     private static final String USER_OWNER2 = "fileTestOwner2";
     private static final String GROUP1_WITH_OWNER1 = "fileTestGroup1";
+    private static final String TEST_FILES_CASE = "Test files case";
     private final InputStream fileBytes = new ByteArrayInputStream("Test file content".getBytes());
     private NodeRef file1;
     private NodeRef owner1;
     private NodeRef owner2;
     private String testComment;
+    private String testFileTitle;
 
     @Before
     public void setUp() {
@@ -85,22 +114,25 @@ public class OeAuthorityFilesServiceImplIT {
         owner2 = caseHelper.createDummyUser(USER_OWNER2);
         long timestamp = new Date().getTime();
         testComment = "Test Comment On file " + timestamp;
-        file1 = authorityFilesService.addFile(owner1, "test_file_" + timestamp + ".txt", MimetypeMap.MIMETYPE_TEXT_PLAIN, fileBytes, testComment);
+        testFileTitle = "test_file_" + timestamp + ".txt";
+        file1 = authorityFilesService.addFile(owner1, testFileTitle, MimetypeMap.MIMETYPE_TEXT_PLAIN, fileBytes, testComment);
     }
 
     @After
     public void tearDown() {
-        transactionRunner.runInTransactionAsAdmin(() -> {
+        tr.runInTransactionAsAdmin(() -> {
             try {
-                filesService.delete(file1);
+                if (nodeService.exists(file1)) {
+                    filesService.delete(file1);
+                }
             } finally {
                 caseHelper.deleteDummyUser(USER_OWNER1);
                 caseHelper.deleteDummyUser(USER_OWNER2);
 
                 authorityFilesService.getAuthorityFolder(USER_OWNER1).ifPresent(nodeService::deleteNode);
                 authorityFilesService.getAuthorityFolder(USER_OWNER2).ifPresent(nodeService::deleteNode);
-                return null;
             }
+            return null;
         });
     }
 
@@ -143,11 +175,6 @@ public class OeAuthorityFilesServiceImplIT {
     }
 
     @Test
-    public void testDelete() {
-        //tested in tearDown()
-    }
-
-    @Test
     public void owner2_gets_his_file_after_move() {
         setFullyAuthenticatedUser(USER_OWNER1);
         authorityFilesService.move(file1, owner2, "Some comment");
@@ -169,7 +196,7 @@ public class OeAuthorityFilesServiceImplIT {
         final String GROUP1 = PermissionService.GROUP_PREFIX + GROUP1_WITH_OWNER1;
         try {
             setAdminUserAsFullyAuthenticatedUser();
-            transactionRunner.runInTransactionAsAdmin(() -> {
+            tr.runInTransactionAsAdmin(() -> {
                 ScriptGroup group = scriptAuthorityService.createRootGroup(GROUP1_WITH_OWNER1, GROUP1_WITH_OWNER1);
                 authorityService.addAuthority(group.getFullName(), USER_OWNER1);
                 return group.getFullName();
@@ -183,7 +210,7 @@ public class OeAuthorityFilesServiceImplIT {
             assertEquals(USER_OWNER1 + " has one file from group", 1, files.size());
         } finally {
             //cleanup
-            transactionRunner.runInTransactionAsAdmin(() -> {
+            tr.runInTransactionAsAdmin(() -> {
                 authorityService.deleteAuthority(GROUP1);
                 authorityFilesService.getAuthorityFolder(GROUP1).ifPresent(nodeService::deleteNode);
                 return null;
@@ -216,5 +243,36 @@ public class OeAuthorityFilesServiceImplIT {
         setFullyAuthenticatedUser(USER_OWNER2);
         //check access to file DENIED
         nodeService.getProperty(file1, ContentModel.PROP_NAME);
+    }
+
+    @Test
+    public void shouldMoveFileWithCommentsToCase() {
+
+        NodeRef caseRef = caseDocTestHelper.createCaseBehaviourOn(TEST_FILES_CASE,
+                openESDHFoldersService.getCasesRootNodeRef(), USER_OWNER1);
+        String caseId = caseService.getCaseId(caseRef);
+        try {
+
+            tr.runInTransaction(() -> {
+                filesService.addToCase(caseId, file1, testFileTitle, caseDocTestHelper.getFirstDocumentType().getNodeRef(),
+                        caseDocTestHelper.getFirstDocumentCategory().getNodeRef(), null);
+                return null;
+            });
+            List<CaseDocument> docs = documentService.getCaseDocumentsWithAttachments(caseId);
+            Assert.assertEquals("The file should be move to case. Wrong number of case docs", 1, docs.size());
+            CaseDocument doc = docs.get(0);
+            Assert.assertEquals("Wrong title of the file moved to case", testFileTitle, doc.getTitle());
+
+            List<NodeRef> commentRefs = commentService.listComments(doc.nodeRefObject(), new PagingRequest(100))
+                    .getPage();
+            Assert.assertEquals("Wrong number of comments moved to case doc", 1, commentRefs.size());
+
+            ContentReader reader = contentService.getReader(commentRefs.get(0), ContentModel.PROP_CONTENT);
+            Assert.assertEquals("Wrong case document comment", testComment, reader.getContentString());
+
+        } finally {
+            caseDocTestHelper.removeNodesAndDeleteUsersInTransaction(Collections.emptyList(),
+                    Arrays.asList(caseRef), Collections.emptyList());
+        }
     }
 }
