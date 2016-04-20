@@ -20,6 +20,7 @@ import org.apache.commons.logging.LogFactory;
 
 /**
  * fixed original alfresco filter
+ * in order to work: class file MUST be replaced in original alfresco.war
  */
 public class WebscriptCookieAuthenticationFilter extends BaseAuthenticationFilter implements DependencyInjectedFilter {
 

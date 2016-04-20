@@ -113,7 +113,7 @@ public class CaseDocumentTestHelper {
     public void removeNodesAndDeleteUsersInTransaction(final List<NodeRef> nodes, final List<NodeRef> cases,
             final List<String> userNames) {
         transactionRunner.runInTransaction(() -> {
-            return transactionRunner.runAsSystem(()->{
+            return transactionRunner.runAsSystem(() -> {
                 cases.stream()
                         .filter(Objects::nonNull)
                         .forEach(this::removeCase);
@@ -124,7 +124,7 @@ public class CaseDocumentTestHelper {
                 userNames.stream()
                         .filter(Objects::nonNull)
                         .forEach(caseHelper::deleteDummyUser);
-                return true;                
+                return true;
             });
         });
     }
@@ -149,11 +149,11 @@ public class CaseDocumentTestHelper {
         nodeService.deleteNode(documentFolderRef);
     }
 
-    private DocumentType getFirstDocumentType() {
+    public DocumentType getFirstDocumentType() {
         return documentTypeService.getClassifValues().stream().findFirst().get();
     }
 
-    private DocumentCategory getFirstDocumentCategory() {
+    public DocumentCategory getFirstDocumentCategory() {
         return documentCategoryService.getClassifValues().stream().findFirst().get();
     }
 
