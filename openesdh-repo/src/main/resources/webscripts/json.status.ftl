@@ -19,6 +19,9 @@
             <#if status.exception.props??>
                 ,"props": ${jsonUtils.encodeJSONString(status.exception.props)}
             </#if>
+        <#elseif status.message?contains("org.alfresco.service.cmr.lock.NodeLockedException")>
+            "domain": "true",
+            "code": "ERROR.NODE_LOCKED"
         <#else>
             "domain" : false,
             "message" : "${jsonUtils.encodeJSONString(status.message)}"
