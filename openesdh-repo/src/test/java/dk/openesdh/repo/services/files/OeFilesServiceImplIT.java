@@ -116,7 +116,7 @@ public class OeFilesServiceImplIT {
     }
 
     private void checkIfExpectedFile(JSONObject file) {
-        assertEquals("file title is not as expected", testFileTitle, ((JSONObject) file.get("cm")).get(""));
+        assertEquals("file title is not as expected", testFileTitle, ((JSONObject) file.get("cm")).get("title"));
         JSONArray comments = (JSONArray) file.get("comments");
         assertEquals("file has incorrect number of comments", 1, comments.size());
         assertEquals("comment is not as expected", testComment, ((JSONObject) comments.get(0)).get("comment"));
