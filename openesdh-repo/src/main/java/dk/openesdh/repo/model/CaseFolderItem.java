@@ -1,11 +1,14 @@
 package dk.openesdh.repo.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.PersonService.PersonInfo;
 
-public class CaseFolderItem {
+public class CaseFolderItem implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     public static final String ITEM_TYPE_FOLDER = "cm:folder";
 
@@ -73,6 +76,6 @@ public class CaseFolderItem {
     }
 
     public boolean isFolder() {
-        return itemType.equals(ITEM_TYPE_FOLDER);
+        return ITEM_TYPE_FOLDER.equals(itemType);
     }
 }

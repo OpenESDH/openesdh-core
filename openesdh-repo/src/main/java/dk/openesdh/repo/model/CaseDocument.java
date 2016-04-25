@@ -11,6 +11,7 @@ import org.alfresco.service.cmr.security.PersonService.PersonInfo;
 
 public class CaseDocument extends CaseFolderItem {
 
+    private static final long serialVersionUID = 1L;
     private String docNo;
     private DocumentType type;
     private DocumentCategory category;

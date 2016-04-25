@@ -4,6 +4,8 @@ import org.alfresco.service.cmr.repository.NodeRef;
 
 public class CaseDocsFolder extends CaseFolderItem {
 
+    private static final long serialVersionUID = 1L;
+
     public CaseDocsFolder() {
         setItemType(ITEM_TYPE_FOLDER);
     }
