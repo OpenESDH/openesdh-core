@@ -149,8 +149,8 @@ public class CaseDocumentCopyServiceImpl implements CaseDocumentCopyService {
     public NodeRef copyDocumentToFolderRetainVersionLabels(CaseDocument document, NodeRef targetFolder) {
 
         Map<NodeRef, NodeRef> copyMap = new HashMap<>();
-        NodeRef documentRec = new NodeRef(document.getNodeRef());
-        NodeRef mainDocRef = new NodeRef(document.getMainDocNodeRef());
+        NodeRef documentRec = document.getNodeRef();
+        NodeRef mainDocRef = document.getMainDocNodeRef();
 
         // Copy in new transaction to make sure all necessary behaviors run
         // and all aspects set

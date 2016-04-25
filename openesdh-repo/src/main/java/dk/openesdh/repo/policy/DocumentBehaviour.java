@@ -82,7 +82,7 @@ public class DocumentBehaviour {
         this.policyComponent.bindAssociationBehaviour(
                 NodeServicePolicies.OnCreateChildAssociationPolicy.QNAME,
                 OpenESDHModel.ASPECT_DOCUMENT_CONTAINER,
-                new JavaBehaviour(this, "onCreateCaseDocContentBehaviour", 
+                new JavaBehaviour(this, "onCreateCaseDocumentOrFolder", 
                         Behaviour.NotificationFrequency.TRANSACTION_COMMIT));
 
         this.policyComponent.bindAssociationBehaviour(
@@ -134,9 +134,13 @@ public class DocumentBehaviour {
         }
     }
 
-    public void onCreateCaseDocContentBehaviour(ChildAssociationRef childAssociationRef, boolean isNewNode) {
+    public void onCreateCaseDocumentOrFolder(ChildAssociationRef childAssociationRef, boolean isNewNode) {
         QName childType = nodeService.getType(childAssociationRef.getChildRef());
-        if (!childType.equals(ContentModel.TYPE_CONTENT)) {
+
+        if (childType.equals(ContentModel.TYPE_FOLDER)) {
+            nodeService.addAspect(childAssociationRef.getChildRef(), OpenESDHModel.ASPECT_DOCUMENT_CONTAINER, null);
+            return;
+        } else if (!childType.equals(ContentModel.TYPE_CONTENT)) {
             return;
         }
 

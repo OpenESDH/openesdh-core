@@ -1,27 +1,43 @@
 package dk.openesdh.repo.model;
 
+import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.PersonService.PersonInfo;
 
-public class CaseDocument {
+public class CaseDocument extends CaseFolderItem {
 
-    private String title;
     private String docNo;
     private DocumentType type;
     private DocumentCategory category;
     private String status;
-    private Date created;
-    private Date modified;
-    private String nodeRef;
-    private String mainDocNodeRef;
+    private NodeRef mainDocNodeRef;
     private PersonInfo owner;
     private boolean locked;
+    private String mimetype;
+    private Map<String, Serializable> aspects = new HashMap<>();
 
     private List<CaseDocumentAttachment> attachments = new ArrayList<>();
+
+    public CaseDocument() {
+
+    }
+
+    public CaseDocument(NodeRef nodeRef) {
+        super(nodeRef);
+    }
+
+    public String getMimetype() {
+        return mimetype;
+    }
+
+    public void setMimetype(String mimetype) {
+        this.mimetype = mimetype;
+    }
 
     public List<CaseDocumentAttachment> getAttachments() {
         return attachments;
@@ -29,14 +45,6 @@ public class CaseDocument {
 
     public void setAttachments(List<CaseDocumentAttachment> attachments) {
         this.attachments = attachments;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public void setTitle(String tite) {
-        this.title = tite;
     }
 
     public String getDocNo() {
@@ -71,38 +79,6 @@ public class CaseDocument {
         this.status = status;
     }
 
-    public Date getCreated() {
-        return created;
-    }
-
-    public void setCreated(Date created) {
-        this.created = created;
-    }
-
-    public Date getModified() {
-        return modified;
-    }
-
-    public void setModified(Date modified) {
-        this.modified = modified;
-    }
-
-    public String getNodeRef() {
-        return nodeRef;
-    }
-
-    public void setNodeRef(String nodeRef) {
-        this.nodeRef = nodeRef;
-    }
-
-    public String getMainDocNodeRef() {
-        return mainDocNodeRef;
-    }
-
-    public void setMainDocNodeRef(String mainDocNodeRef) {
-        this.mainDocNodeRef = mainDocNodeRef;
-    }
-
     public PersonInfo getOwner() {
         return owner;
     }
@@ -111,8 +87,16 @@ public class CaseDocument {
         this.owner = owner;
     }
 
+    public NodeRef getMainDocNodeRef() {
+        return mainDocNodeRef;
+    }
+
+    public void setMainDocNodeRef(NodeRef mainDocNodeRef) {
+        this.mainDocNodeRef = mainDocNodeRef;
+    }
+
     public NodeRef nodeRefObject() {
-        return new NodeRef(this.nodeRef);
+        return getNodeRef();
     }
 
     public boolean isLocked() {
@@ -121,6 +105,14 @@ public class CaseDocument {
 
     public void setLocked(boolean locked) {
         this.locked = locked;
+    }
+
+    public Map<String, Serializable> getAspects() {
+        return aspects;
+    }
+
+    public void setAspects(Map<String, Serializable> aspects) {
+        this.aspects = aspects;
     }
 
 }

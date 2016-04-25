@@ -257,7 +257,7 @@ public class DocumentServiceImplIT {
     public void shouldUpdateCaseDocumentProperties() {
         NodeRef caseDocNodeRef = testDocumentRecFolder;
         CaseDocument document = new CaseDocument();
-        document.setNodeRef(caseDocNodeRef.toString());
+        document.setNodeRef(caseDocNodeRef);
         document.setTitle(TEST_TITLE);
 
         DocumentType documentType2 = getSecondItemFrom(documentTypeService.getClassifValues());
