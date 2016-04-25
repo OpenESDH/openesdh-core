@@ -14,6 +14,7 @@ import org.alfresco.service.namespace.QName;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import dk.openesdh.repo.model.CaseDocsFolder;
 import dk.openesdh.repo.model.CaseDocument;
 import dk.openesdh.repo.model.CaseDocumentAttachment;
 import dk.openesdh.repo.model.DocumentCategory;
@@ -268,5 +269,20 @@ public interface DocumentService extends HasStatus<DocumentStatus> {
      * @param checker
      */
     void addDocBelongsToCaseChecker(Predicate<NodeRef> checker);
+
+    /**
+     * Retrieves case documents folder object by provided nodeRef
+     * 
+     * @param folderRef
+     * @return
+     */
+    CaseDocsFolder getCaseDocsFolder(NodeRef folderRef);
+
+    /**
+     * Registers case document extra properties setter (e.g. aspects)
+     * 
+     * @param setter
+     */
+    void addCaseDocumentPropSetter(Consumer<CaseDocument> setter);
 
 }

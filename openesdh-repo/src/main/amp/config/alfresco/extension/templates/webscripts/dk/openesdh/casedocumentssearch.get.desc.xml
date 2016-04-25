@@ -1,8 +1,0 @@
-<webscript>
-    <shortname>Case Documents Search</shortname>
-    <description>Performs a search of case's documents</description>
-    <url>/api/openesdh/casedocumentssearch</url>
-    <format default="json"></format>
-    <authentication>user</authentication>
-    <transaction>required</transaction>
-</webscript>

@@ -25,6 +25,7 @@ import org.alfresco.repo.domain.node.ContentDataWithId;
 import org.alfresco.repo.lock.mem.LockState;
 import org.alfresco.repo.rendition.executer.ReformatRenderingEngine;
 import org.alfresco.repo.search.impl.lucene.LuceneQueryParserException;
+import org.alfresco.repo.security.authentication.AuthenticationContext;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.permissions.AccessDeniedException;
 import org.alfresco.repo.version.VersionModel;
@@ -36,6 +37,7 @@ import org.alfresco.service.cmr.rendition.RenditionServiceException;
 import org.alfresco.service.cmr.repository.AspectMissingException;
 import org.alfresco.service.cmr.repository.AssociationRef;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
+import org.alfresco.service.cmr.repository.ContentData;
 import org.alfresco.service.cmr.repository.ContentIOException;
 import org.alfresco.service.cmr.repository.ContentReader;
 import org.alfresco.service.cmr.repository.ContentService;
@@ -69,8 +71,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import dk.openesdh.repo.model.CaseDocsFolder;
 import dk.openesdh.repo.model.CaseDocument;
 import dk.openesdh.repo.model.CaseDocumentAttachment;
+import dk.openesdh.repo.model.CaseFolderItem;
 import dk.openesdh.repo.model.DocumentCategory;
 import dk.openesdh.repo.model.DocumentStatus;
 import dk.openesdh.repo.model.DocumentType;
@@ -140,6 +144,9 @@ public class DocumentServiceImpl implements DocumentService {
     @Qualifier("PermissionService")
     private PermissionService permissionService;
     @Autowired
+    @Qualifier("authenticationContext")
+    private AuthenticationContext authenticationContext;
+    @Autowired
     @Qualifier("LockService")
     private LockService lockService;
     @Autowired
@@ -155,6 +162,8 @@ public class DocumentServiceImpl implements DocumentService {
     private final Set<String> otherPropNamespaceUris = new HashSet<>();
 
     private List<Predicate<NodeRef>> docBelongsToCaseCheckers = new ArrayList<>();
+
+    private List<Consumer<CaseDocument>> caseDocumentPropSetters = new ArrayList<>();
 
     /**
      * Returns true if the file name has an extension
@@ -180,6 +189,11 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public void addDocBelongsToCaseChecker(Predicate<NodeRef> checker) {
         docBelongsToCaseCheckers.add(checker);
+    }
+
+    @Override
+    public void addCaseDocumentPropSetter(Consumer<CaseDocument> setter) {
+        caseDocumentPropSetters.add(setter);
     }
 
     public void addOtherPropNamespaceUris(String... nsUri) {
@@ -551,7 +565,7 @@ public class DocumentServiceImpl implements DocumentService {
 
     @Override
     public void updateCaseDocumentProperties(CaseDocument caseDocument) {
-        NodeRef documentNodeRef = new NodeRef(caseDocument.getNodeRef());
+        NodeRef documentNodeRef = caseDocument.getNodeRef();
         Map<QName, Serializable> properties = nodeService.getProperties(documentNodeRef);
         properties.put(ContentModel.PROP_TITLE, caseDocument.getTitle());
         nodeService.setProperties(documentNodeRef, properties);
@@ -648,17 +662,24 @@ public class DocumentServiceImpl implements DocumentService {
     @Override
     public CaseDocument getCaseDocument(NodeRef docRecordNodeRef) {
         NodeRef mainDocNodeRef = getMainDocument(docRecordNodeRef);
-        CaseDocument caseDocument = new CaseDocument();
-        caseDocument.setNodeRef(docRecordNodeRef.toString());
-        caseDocument.setMainDocNodeRef(mainDocNodeRef.toString());
+        CaseDocument caseDocument = new CaseDocument(docRecordNodeRef);
+        caseDocument.setMainDocNodeRef(mainDocNodeRef);
+
         Map<QName, Serializable> props = nodeService.getProperties(docRecordNodeRef);
-        caseDocument.setTitle(props.get(ContentModel.PROP_TITLE).toString());
+        getCaseFolderItemProps(caseDocument, props);
+
+        QName docType = nodeService.getType(docRecordNodeRef);
+        caseDocument.setItemType(docType.toPrefixString(namespaceService));
+
         caseDocument.setType(getDocumentType(docRecordNodeRef));
         caseDocument.setStatus(props.get(OpenESDHModel.PROP_OE_STATUS).toString());
         caseDocument.setCategory(getDocumentCategory(docRecordNodeRef));
-        caseDocument.setCreated((Date) props.get(ContentModel.PROP_CREATED));
-        caseDocument.setModified((Date) props.get(ContentModel.PROP_MODIFIED));
         caseDocument.setOwner(getDocumentOwner(docRecordNodeRef));
+
+        ContentData docData = (ContentData) nodeService.getProperty(mainDocNodeRef, ContentModel.PROP_CONTENT);
+        if (Objects.nonNull(docData)) {
+            caseDocument.setMimetype(docData.getMimetype());
+        }
 
         LockState state = AuthenticationUtil.runAsSystem(() -> {
             return lockService.getLockState(mainDocNodeRef);
@@ -669,7 +690,30 @@ public class DocumentServiceImpl implements DocumentService {
         List<ChildAssociationRef> attachmentsAssocs = getAttachmentsChildAssociations(mainDocNodeRef);
         caseDocument.setAttachments(getAttachments(attachmentsAssocs));
 
+        caseDocumentPropSetters.forEach(setter -> setter.accept(caseDocument));
+
         return caseDocument;
+    }
+
+    @Override
+    public CaseDocsFolder getCaseDocsFolder(NodeRef folderRef) {
+        CaseDocsFolder folder = new CaseDocsFolder(folderRef);
+        Map<QName, Serializable> props = nodeService.getProperties(folderRef);
+        getCaseFolderItemProps(folder, props);
+        return folder;
+    }
+
+    private void getCaseFolderItemProps(CaseFolderItem item, Map<QName, Serializable> props) {
+        item.setTitle(props.get(ContentModel.PROP_TITLE).toString());
+        item.setCreated((Date) props.get(ContentModel.PROP_CREATED));
+        item.setModified((Date) props.get(ContentModel.PROP_MODIFIED));
+        String creatorName = (String) props.get(ContentModel.PROP_CREATOR);
+        if (authenticationContext.isSystemUserName(creatorName)) {
+            item.setCreator(new PersonInfo(null, creatorName, creatorName, ""));
+        } else {
+            PersonInfo creator = personService.getPerson(personService.getPerson(creatorName));
+            item.setCreator(creator);
+        }
     }
 
     private List<CaseDocumentAttachment> getAttachments(List<ChildAssociationRef> attachmentsAssocs) {

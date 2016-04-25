@@ -47,13 +47,6 @@
         <property name="xSearchService" ref="ClassificationSearchService"/>
     </bean>
 
-    <bean id="webscript.dk.openesdh.casedocumentssearch.get"
-          class="dk.openesdh.repo.webscripts.xsearch.DocumentSearch"
-          parent="xsearchWebscript">
-        <property name="xSearchService" ref="CaseDocumentsSearchService"/>
-        <property name="caseService" ref="CaseService"/>
-    </bean>
-
     <bean id="webscript.dk.openesdh.case.documentAttachments.get" class="dk.openesdh.repo.webscripts.xsearch.CaseDocumentAttachements"
           parent="xsearchWebscript">
         <property name="caseDocumentsSearchService" ref="CaseDocumentsAttachmentsSearchService"/>
