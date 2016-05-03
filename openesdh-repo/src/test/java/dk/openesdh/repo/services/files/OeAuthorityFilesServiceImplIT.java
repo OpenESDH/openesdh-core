@@ -263,7 +263,7 @@ public class OeAuthorityFilesServiceImplIT {
             CaseDocument doc = docs.get(0);
             Assert.assertEquals("Wrong title of the file moved to case", testFileTitle, doc.getTitle());
 
-            List<NodeRef> commentRefs = commentService.listComments(doc.nodeRefObject(), new PagingRequest(100))
+            List<NodeRef> commentRefs = commentService.listComments(doc.getNodeRef(), new PagingRequest(100))
                     .getPage();
             Assert.assertEquals("Wrong number of comments moved to case doc", 1, commentRefs.size());
 

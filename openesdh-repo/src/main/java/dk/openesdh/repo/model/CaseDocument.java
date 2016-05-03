@@ -96,10 +96,6 @@ public class CaseDocument extends CaseFolderItem {
         this.mainDocNodeRef = mainDocNodeRef;
     }
 
-    public NodeRef nodeRefObject() {
-        return getNodeRef();
-    }
-
     public boolean isLocked() {
         return locked;
     }

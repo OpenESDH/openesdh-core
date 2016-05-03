@@ -6,7 +6,7 @@ import java.util.Date;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.PersonService.PersonInfo;
 
-public class CaseFolderItem implements Serializable {
+public abstract class CaseFolderItem implements Serializable {
 
     private static final long serialVersionUID = 1L;
 
@@ -77,5 +77,13 @@ public class CaseFolderItem implements Serializable {
 
     public boolean isFolder() {
         return ITEM_TYPE_FOLDER.equals(itemType);
+    }
+
+    /**
+     * This method is intended to prevent deserialization errors
+     * 
+     * @deprecated
+     */
+    public void setFolder(boolean folder) {
     }
 }

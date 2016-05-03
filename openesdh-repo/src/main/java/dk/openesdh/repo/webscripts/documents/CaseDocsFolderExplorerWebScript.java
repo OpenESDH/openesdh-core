@@ -29,6 +29,15 @@ public class CaseDocsFolderExplorerWebScript {
         NodeRef folderRef = new NodeRef(storeType, storeId, id);
         return WebScriptUtils.jsonResolution(caseDocsFolderExplorerService.getCaseDocsFolderContents(folderRef));
     }
+    
+    @Uri("/api/openesdh/case/docs/folder/{storeType}/{storeId}/{id}/hierarchy")
+    public Resolution getDocsFolderHierarchy(
+            @UriVariable String storeType, 
+            @UriVariable String storeId,
+            @UriVariable String id) {
+        NodeRef folderRef = new NodeRef(storeType, storeId, id);
+        return WebScriptUtils.jsonResolution(caseDocsFolderExplorerService.getCaseDocsFoldersHierarchy(folderRef));
+    }
 
     @Uri("/api/openesdh/case/docs/folder/{storeType}/{storeId}/{id}/path")
     public Resolution getDocsFolderPath(@UriVariable String storeType, @UriVariable String storeId,

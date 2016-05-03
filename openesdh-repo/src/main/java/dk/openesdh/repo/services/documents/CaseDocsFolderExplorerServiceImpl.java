@@ -78,4 +78,18 @@ public class CaseDocsFolderExplorerServiceImpl implements CaseDocsFolderExplorer
         return Collator.getInstance().compare(o1.getTitle(), o2.getTitle());
     }
 
+    @Override
+    public List<CaseFolderItem> getCaseDocsFoldersHierarchy(NodeRef folderRef) {
+        List<CaseFolderItem> rootLevel = getCaseDocsFolderContents(folderRef);
+        rootLevel.stream()
+            .filter(CaseFolderItem::isFolder)
+            .map(item -> (CaseDocsFolder)item)
+            .forEach(this::populateChildrenCaseFolderItems);
+        return rootLevel;
+    }
+
+    private void populateChildrenCaseFolderItems(CaseDocsFolder parent) {
+        parent.setChildren(getCaseDocsFoldersHierarchy(parent.getNodeRef()));
+    }
+
 }

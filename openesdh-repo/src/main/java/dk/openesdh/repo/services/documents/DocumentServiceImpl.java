@@ -704,7 +704,9 @@ public class DocumentServiceImpl implements DocumentService {
     }
 
     private void getCaseFolderItemProps(CaseFolderItem item, Map<QName, Serializable> props) {
-        item.setTitle(props.get(ContentModel.PROP_TITLE).toString());
+
+        item.setTitle(props.get(ContentModel.PROP_TITLE) != null ? props.get(ContentModel.PROP_TITLE).toString()
+                : props.get(ContentModel.PROP_NAME).toString());
         item.setCreated((Date) props.get(ContentModel.PROP_CREATED));
         item.setModified((Date) props.get(ContentModel.PROP_MODIFIED));
         String creatorName = (String) props.get(ContentModel.PROP_CREATOR);

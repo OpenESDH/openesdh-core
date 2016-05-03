@@ -3,6 +3,7 @@ package dk.openesdh.repo.services.documents;
 import org.alfresco.service.cmr.repository.NodeRef;
 
 import dk.openesdh.repo.model.CaseDocument;
+import dk.openesdh.repo.model.CaseFolderItem;
 
 public interface CaseDocumentCopyService {
     
@@ -56,7 +57,9 @@ public interface CaseDocumentCopyService {
 
     NodeRef copyDocumentToFolderRetainVersionLabels(CaseDocument document, NodeRef targetFolder);
 
-    NodeRef copyDocument(NodeRef documentContentRef, NodeRef targetFolder, boolean copyChildren);
+    NodeRef copyDocFolderItemRetainVersionLabels(CaseFolderItem item, NodeRef targetFolder);
+
+    NodeRef copyDocFolderItem(NodeRef documentContentRef, NodeRef targetFolder, boolean copyChildren);
 
     /**
      * Copies content from provided node into target document and retains
