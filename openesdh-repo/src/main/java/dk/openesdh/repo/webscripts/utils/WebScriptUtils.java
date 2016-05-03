@@ -21,17 +21,9 @@ import org.springframework.http.HttpOutputMessage;
 import org.springframework.http.MediaType;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.Version;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
-import com.fasterxml.jackson.databind.module.SimpleModule;
-import com.fasterxml.jackson.databind.ser.std.StdSerializer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.dynamicextensionsalfresco.webscripts.AnnotationWebscriptResponse;
 import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
-
-import dk.openesdh.repo.services.system.MultiLanguageValue;
 
 public class WebScriptUtils {
 
@@ -39,6 +31,8 @@ public class WebScriptUtils {
     private static final String NODE_ID = "node_id";
     private static final String STORE_ID = "store_id";
     private static final String STORE_TYPE = "store_type";
+    private static final MappingJackson2HttpMessageConverter jsonMessageConverter = new MappingJackson2HttpMessageConverter();
+
     public static final String CONTENT_ENCODING_UTF_8 = "UTF-8";
 
     public static final String TASK_ID = "taskId";
@@ -48,6 +42,14 @@ public class WebScriptUtils {
     public static final String WEBSCRIPT_TEMPLATES_FOLDER_PATH = "alfresco/extension/templates/webscripts";
 
     public static final String JSON = "json";
+
+    static {
+        ObjectMapper objectMapper = jsonMessageConverter.getObjectMapper();
+        objectMapper.registerModule(MultiLanguageValueDeserializer.getDeserializerModule());
+        objectMapper.registerModule(PersonInfoDeserializer.getDeserializerModule());
+        objectMapper.registerModule(CaseFolderItemDeserializer.getDeserializerModule());
+        objectMapper.registerModule(NodeRefSerializer.getSerializerModule());
+    }
 
     public static final String webScriptTemplatePath(String relativeTemplatePath) {
         return WEBSCRIPT_TEMPLATES_FOLDER_PATH + "/" + relativeTemplatePath;
@@ -103,21 +105,11 @@ public class WebScriptUtils {
 
     public static Object readJson(Class<? extends Object> clazz, WebScriptRequest req) throws IOException {
         checkContentTypeJson(req);
-        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-        Version version = new Version(1, 0, 0, "SNAPSHOT", "dk.openesdh", "multi-language-value-deserializer");
-        SimpleModule module = new SimpleModule("MultiLanguageValueDeserializer", version);
-        module = module.addDeserializer(MultiLanguageValue.class, new MultiLanguageValueDeserializer());
-        converter.getObjectMapper().registerModule(module);
-        return converter.read(clazz, getHttpInputMessage(req));
+        return jsonMessageConverter.read(clazz, getHttpInputMessage(req));
     }
 
     public static void writeJson(Object obj, WebScriptResponse res) throws IOException {
-        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-        Version version = new Version(1, 0, 0, "SNAPSHOT", "dk.openesdh", "node-ref-serializer");
-        SimpleModule module = new SimpleModule("NodeRefSerializer", version);
-        module = module.addSerializer(new NodeRefSerializer());
-        converter.getObjectMapper().registerModule(module);
-        converter.write(obj, MediaType.APPLICATION_JSON, getHttpOutputMessage(res));
+        jsonMessageConverter.write(obj, MediaType.APPLICATION_JSON, getHttpOutputMessage(res));
     }
 
     private static HttpOutputMessage getHttpOutputMessage(WebScriptResponse res) {
@@ -216,34 +208,5 @@ public class WebScriptUtils {
     public static Resolution jsonResolution(org.json.simple.JSONStreamAware o) {
         return (req, res, params) -> write(res, ()
                 -> o.writeJSONString(res.getWriter()));
-    }
-
-    private static class NodeRefSerializer extends StdSerializer<NodeRef> {
-
-        public NodeRefSerializer() {
-            super(NodeRef.class);
-        }
-
-        @Override
-        public void serialize(NodeRef value, com.fasterxml.jackson.core.JsonGenerator jgen,
-                com.fasterxml.jackson.databind.SerializerProvider provider)
-                        throws IOException, JsonProcessingException {
-            jgen.writeString(value.toString());
-        }
-    }
-
-    private static class MultiLanguageValueDeserializer extends StdDeserializer<MultiLanguageValue> {
-
-        protected MultiLanguageValueDeserializer() {
-            super(MultiLanguageValue.class);
-        }
-
-        @Override
-        public MultiLanguageValue deserialize(JsonParser jp, DeserializationContext ctxt)
-                throws IOException, JsonProcessingException {
-            Map<String, String> map = jp.readValueAs(Map.class);
-            return MultiLanguageValue.createFromMap(map);
-        }
-
     }
 }

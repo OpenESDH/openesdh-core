@@ -12,4 +12,6 @@ public interface CaseDocsFolderExplorerService {
     List<CaseDocsFolder> getCaseDocsFolderPath(NodeRef folderRef);
 
     List<CaseFolderItem> getCaseDocsFolderContents(NodeRef folderRef);
+
+    List<CaseFolderItem> getCaseDocsFoldersHierarchy(NodeRef folderRef);
 }

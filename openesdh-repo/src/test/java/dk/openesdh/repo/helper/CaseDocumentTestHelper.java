@@ -158,6 +158,11 @@ public class CaseDocumentTestHelper {
     }
 
     public NodeRef createCaseDocument(final String documentName, final NodeRef caseNodeRef) {
+        NodeRef caseDocumentsFolder = caseService.getDocumentsFolder(caseNodeRef);
+        return createCaseDocumentInFolder(documentName, caseDocumentsFolder);
+    }
+
+    public NodeRef createCaseDocumentInFolder(final String documentName, final NodeRef targetFolderRef) {
         final Map<QName, Serializable> properties = new HashMap<>();
         properties.put(ContentModel.PROP_NAME, documentName);
         //this will be transfered to folder in DocumentBehavior
@@ -165,10 +170,22 @@ public class CaseDocumentTestHelper {
         properties.put(OpenESDHModel.PROP_DOC_CATEGORY, getFirstDocumentCategory().getNodeRef().toString());
 
         return transactionRunner.runInTransactionAsAdmin(() -> {
-            NodeRef caseDocumentsFolder = caseService.getDocumentsFolder(caseNodeRef);
-            return nodeService.createNode(caseDocumentsFolder, ContentModel.ASSOC_CONTAINS,
+            return nodeService.createNode(targetFolderRef, ContentModel.ASSOC_CONTAINS,
                     QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, documentName),
                     ContentModel.TYPE_CONTENT, properties).getChildRef();
+        });
+    }
+
+    public NodeRef createCaseDocFolder(String folderName, NodeRef targetFolderRef) {
+        final Map<QName, Serializable> properties = new HashMap<>();
+        properties.put(ContentModel.PROP_NAME, folderName);
+        properties.put(ContentModel.PROP_TITLE, folderName);
+        return transactionRunner.runInTransactionAsAdmin(() -> {
+            NodeRef nodeRef = nodeService.createNode(targetFolderRef, ContentModel.ASSOC_CONTAINS,
+                    QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI, folderName), ContentModel.TYPE_FOLDER,
+                    properties).getChildRef();
+            nodeService.addAspect(nodeRef, OpenESDHModel.ASPECT_DOCUMENT_CONTAINER, null);
+            return nodeRef;
         });
     }
 

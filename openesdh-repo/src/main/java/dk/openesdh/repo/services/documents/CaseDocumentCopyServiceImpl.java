@@ -30,8 +30,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import dk.openesdh.repo.model.CaseDocsFolder;
 import dk.openesdh.repo.model.CaseDocument;
 import dk.openesdh.repo.model.CaseDocumentAttachment;
+import dk.openesdh.repo.model.CaseFolderItem;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.BehaviourFilterService;
 import dk.openesdh.repo.services.TransactionRunner;
@@ -129,17 +131,17 @@ public class CaseDocumentCopyServiceImpl implements CaseDocumentCopyService {
     
     @Override
     public NodeRef copyDocumentToFolder(NodeRef documentRecFolderToCopy, NodeRef targetFolder) {
-        return copyDocument(documentRecFolderToCopy, targetFolder, true);
+        return copyDocFolderItem(documentRecFolderToCopy, targetFolder, true);
     }
 
     @Override
     public NodeRef copyDocumentToFolder(NodeRef documentRecRef, NodeRef targetFolder, boolean copyWithAttachments) {
 
         if (copyWithAttachments) {
-            return copyDocument(documentRecRef, targetFolder, copyWithAttachments);
+            return copyDocFolderItem(documentRecRef, targetFolder, copyWithAttachments);
         }
 
-        NodeRef documentCopyRef = copyDocumentRecord(documentRecRef, targetFolder);
+        NodeRef documentCopyRef = copyDocsFolder(documentRecRef, targetFolder);
         NodeRef mainDocRef = documentService.getMainDocument(documentRecRef);
         copyMainDocument(mainDocRef, documentCopyRef);
         return documentCopyRef;
@@ -155,7 +157,7 @@ public class CaseDocumentCopyServiceImpl implements CaseDocumentCopyService {
         // Copy in new transaction to make sure all necessary behaviors run
         // and all aspects set
         NodeRef documentCopy = tr.runInNewTransaction(() -> {
-            NodeRef documentRecCopy = copyDocumentRecord(documentRec, targetFolder);
+            NodeRef documentRecCopy = copyDocsFolder(documentRec, targetFolder);
             NodeRef mainDocCopy = copyMainDocument(mainDocRef, documentRecCopy);
             copyMap.put(mainDocRef, mainDocCopy);
             document.getAttachments()
@@ -174,10 +176,10 @@ public class CaseDocumentCopyServiceImpl implements CaseDocumentCopyService {
     }
 
     @Override
-    public NodeRef copyDocument(NodeRef documentContentRef, NodeRef targetFolder, boolean copyChildren) {
-        String documentName = (String) nodeService.getProperty(documentContentRef, ContentModel.PROP_NAME);
-        return copyService.copyAndRename(documentContentRef, targetFolder, ContentModel.ASSOC_CONTAINS,
-                QName.createQName(OpenESDHModel.DOC_URI, documentName), copyChildren);
+    public NodeRef copyDocFolderItem(NodeRef itemRef, NodeRef targetFolder, boolean copyChildren) {
+        String itemName = (String) nodeService.getProperty(itemRef, ContentModel.PROP_NAME);
+        return copyService.copyAndRename(itemRef, targetFolder, ContentModel.ASSOC_CONTAINS,
+                QName.createQName(OpenESDHModel.DOC_URI, itemName), copyChildren);
     }
 
     @Override
@@ -200,17 +202,31 @@ public class CaseDocumentCopyServiceImpl implements CaseDocumentCopyService {
         retainVersionLabel(newVersionContentRef, targetDocumentRef);
     }
 
-    private NodeRef copyDocumentRecord(NodeRef documentRecRef, NodeRef targetFolder) {
-        return copyDocument(documentRecRef, targetFolder, false);
+    @Override
+    public NodeRef copyDocFolderItemRetainVersionLabels(CaseFolderItem item, NodeRef targetFolder) {
+        if (item.isFolder()) {
+            NodeRef folderCopyRef = tr.runInNewTransaction(() -> {
+                return copyDocsFolder(item.getNodeRef(), targetFolder);
+            });
+            CaseDocsFolder folder = (CaseDocsFolder) item;
+            folder.getChildren()
+                    .forEach(childItem -> copyDocFolderItemRetainVersionLabels(childItem, folderCopyRef));
+            return folderCopyRef;
+        }
+        return copyDocumentToFolderRetainVersionLabels((CaseDocument) item, targetFolder);
+    }
+
+    private NodeRef copyDocsFolder(NodeRef documentRecRef, NodeRef targetFolder) {
+        return copyDocFolderItem(documentRecRef, targetFolder, false);
     }
 
     private NodeRef copyMainDocument(NodeRef mainDocRef, NodeRef targetDocumentRecRef) {
-        NodeRef mainDocCopyRef = copyDocument(mainDocRef, targetDocumentRecRef, false);
+        NodeRef mainDocCopyRef = copyDocFolderItem(mainDocRef, targetDocumentRecRef, false);
         return mainDocCopyRef;
     }
 
     private NodeRef copyAttachment(NodeRef attachmentRef, NodeRef documentRecRef, NodeRef mainDocRef) {
-        NodeRef attachmentCopy = copyDocument(attachmentRef, documentRecRef, false);
+        NodeRef attachmentCopy = copyDocFolderItem(attachmentRef, documentRecRef, false);
         String attachmentName = (String) nodeService.getProperty(attachmentCopy, ContentModel.PROP_NAME);
         nodeService.addChild(mainDocRef, attachmentCopy, OpenESDHModel.ASSOC_DOC_ATTACHMENTS,
                 QName.createQName(OpenESDHModel.DOC_URI, attachmentName));
