@@ -48,6 +48,7 @@ public class WebScriptUtils {
         objectMapper.registerModule(MultiLanguageValueDeserializer.getDeserializerModule());
         objectMapper.registerModule(PersonInfoDeserializer.getDeserializerModule());
         objectMapper.registerModule(CaseFolderItemDeserializer.getDeserializerModule());
+        objectMapper.registerModule(NodeRefSerializer.getSerializerModule());
     }
 
     public static final String webScriptTemplatePath(String relativeTemplatePath) {
@@ -108,9 +109,7 @@ public class WebScriptUtils {
     }
 
     public static void writeJson(Object obj, WebScriptResponse res) throws IOException {
-        MappingJackson2HttpMessageConverter converter = new MappingJackson2HttpMessageConverter();
-        converter.getObjectMapper().registerModule(NodeRefSerializer.getSerializerModule());
-        converter.write(obj, MediaType.APPLICATION_JSON, getHttpOutputMessage(res));
+        jsonMessageConverter.write(obj, MediaType.APPLICATION_JSON, getHttpOutputMessage(res));
     }
 
     private static HttpOutputMessage getHttpOutputMessage(WebScriptResponse res) {
