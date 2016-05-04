@@ -62,7 +62,7 @@ public class CaseEmailWebScript {
                 (Set<NodeRef>) to.stream().map(this::extractNodeRef).collect(Collectors.toSet()),
                 (List<String>) to.stream().map(this::extractContactEmail).collect(Collectors.toList()),
                 (String) json.get("subject"),
-                (List<NodeRef>) docs.stream().map(this::extractNodeRef).collect(Collectors.toList()),
+                (List<NodeRef>) docs.stream().map(this::toNodeRef).collect(Collectors.toList()),
                 (String) json.get("message")
         );
     }
@@ -82,6 +82,10 @@ public class CaseEmailWebScript {
             this.attachments = attachments;
             this.text = text;
         }
+    }
+
+    private NodeRef toNodeRef(Object o) {
+        return new NodeRef((String) o);
     }
 
     private NodeRef extractNodeRef(Object o) {
