@@ -1,8 +1,5 @@
 package dk.openesdh.repo.services.workflow;
 
-import com.tradeshift.test.remote.Remote;
-import com.tradeshift.test.remote.RemoteTestRunner;
-
 import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Collections;
@@ -36,6 +33,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+
+import com.tradeshift.test.remote.Remote;
+import com.tradeshift.test.remote.RemoteTestRunner;
 
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
@@ -155,7 +155,7 @@ public class CaseWorkflowServiceImplIT {
         WorkflowInfo wi = new WorkflowInfo();
         wi.setWorkflowType(wfDef.getId());
         wi.setPriority(CaseWorkflowService.WORKFLOW_PRIORITY_MEDIUM);
-        wi.getItems().add(testDocument.toString());
+        wi.getItems().add(testDocument);
         wi.setDueDate(new Date());
         wi.setMessage("Worflow for assignee group person");
         wi.setSendEmailNotifications(false);
@@ -180,7 +180,7 @@ public class CaseWorkflowServiceImplIT {
         WorkflowInfo wi = new WorkflowInfo();
         wi.setWorkflowType(wfDef.getId());
         wi.setPriority(CaseWorkflowService.WORKFLOW_PRIORITY_MEDIUM);
-        wi.getItems().add(testDocument.toString());
+        wi.getItems().add(testDocument);
         wi.setDueDate(new Date());
         wi.setMessage("Workflow for assignee list");
         wi.setSendEmailNotifications(false);
@@ -219,7 +219,7 @@ public class CaseWorkflowServiceImplIT {
         WorkflowInfo wi = new WorkflowInfo();
         wi.setWorkflowType(wfDef.getId());
         wi.setPriority(CaseWorkflowService.WORKFLOW_PRIORITY_MEDIUM);
-        wi.getItems().add(testDocument.toString());
+        wi.getItems().add(testDocument);
         wi.setDueDate(new Date());
         wi.setMessage("Workflow for assignee group");
         wi.setSendEmailNotifications(false);

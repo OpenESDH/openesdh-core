@@ -6,10 +6,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.alfresco.service.cmr.repository.NodeRef;
+
 public class WorkflowInfo {
 
     private String workflowType;
-    private List<String> items = new ArrayList<>();
+    private List<NodeRef> items = new ArrayList<>();
     private List<String> assignees = new ArrayList<>();
     private List<String> groupAssignees = new ArrayList<>();
     private String assignTo;
@@ -28,11 +30,11 @@ public class WorkflowInfo {
         this.workflowType = workflowType;
     }
 
-    public List<String> getItems() {
+    public List<NodeRef> getItems() {
         return items;
     }
 
-    public void setItems(List<String> items) {
+    public void setItems(List<NodeRef> items) {
         this.items = items;
     }
 

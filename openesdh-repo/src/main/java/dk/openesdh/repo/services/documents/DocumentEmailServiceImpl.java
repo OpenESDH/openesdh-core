@@ -62,7 +62,7 @@ public class DocumentEmailServiceImpl implements DocumentEmailService {
             message.setText(text);
             message.setFrom(new InternetAddress(defaultFromEmail));
 
-            attachments.stream().map(documentService::getMainDocument).forEach(attachment -> {
+            attachments.forEach(attachment -> {
                 String name = (String) nodeService.getProperty(attachment, ContentModel.PROP_NAME);
                 ContentReader reader = contentService.getReader(attachment, ContentModel.PROP_CONTENT);
                 ByteArrayOutputStream os = new ByteArrayOutputStream();

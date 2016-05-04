@@ -398,10 +398,9 @@ public class CaseWorkflowServiceImpl implements CaseWorkflowService {
     private void addItemsToWorkflowPackage(NodeRef workflowPackage, WorkflowInfo workflow) {
         workflow.getItems()
                 .stream()
-                .forEach(item -> {
-                    NodeRef itemNodeRef = new NodeRef(item);
-                    String itemName = nodeService.getProperty(itemNodeRef, ContentModel.PROP_NAME).toString();
-                    nodeService.addChild(workflowPackage, new NodeRef(item),
+                .forEach(itemRef -> {
+                    String itemName = nodeService.getProperty(itemRef, ContentModel.PROP_NAME).toString();
+                    nodeService.addChild(workflowPackage, itemRef,
                             ContentModel.ASSOC_CONTAINS,
                             QName.createQName(NamespaceService.CONTENT_MODEL_1_0_URI,
                                     QName.createValidLocalName(itemName)));

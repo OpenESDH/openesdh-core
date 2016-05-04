@@ -118,7 +118,7 @@ public class WorkflowTaskServiceImplIT {
         WorkflowInfo wi = new WorkflowInfo();
         wi.setWorkflowType(wfDef.getId());
         wi.setPriority(CaseWorkflowService.WORKFLOW_PRIORITY_MEDIUM);
-        wi.getItems().add(testDocument.toString());
+        wi.getItems().add(testDocument);
         wi.setDueDate(new Date());
         wi.setMessage("Worflow to test task info retrieving with package contents");
         wi.setSendEmailNotifications(false);
