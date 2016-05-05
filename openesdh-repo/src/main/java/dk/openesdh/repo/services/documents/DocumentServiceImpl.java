@@ -472,10 +472,17 @@ public class DocumentServiceImpl implements DocumentService {
     public NodeRef createCaseDocument(NodeRef caseNodeRef, String title, String fileName, NodeRef docType,
             NodeRef docCatagory, Consumer<ContentWriter> contentWriter) {
         NodeRef caseDocumentsFolder = caseService.getDocumentsFolder(caseNodeRef);
+        return createCaseDocumentInFolder(caseDocumentsFolder, title, fileName, docType, docCatagory,
+                contentWriter);
+    }
+
+    @Override
+    public NodeRef createCaseDocumentInFolder(NodeRef targetFolderRef, String title, String fileName,
+            NodeRef docType, NodeRef docCatagory, Consumer<ContentWriter> contentWriter) {
 
         //we need new transaction for DocumentBehavior to kick in
         NodeRef file = transactionRunner.runInNewTransaction(() -> {
-            return createDocumentFile(caseDocumentsFolder, title, fileName, docType, docCatagory, contentWriter);
+            return createDocumentFile(targetFolderRef, title, fileName, docType, docCatagory, contentWriter);
         });
 
         return nodeService.getPrimaryParent(file).getParentRef();
