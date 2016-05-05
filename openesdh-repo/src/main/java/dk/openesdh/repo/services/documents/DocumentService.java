@@ -101,13 +101,32 @@ public interface DocumentService extends HasStatus<DocumentStatus> {
             NodeRef docType, NodeRef docCatagory, Consumer<ContentWriter> contentWriter);
 
     /**
+     * Creates case document in the provided target folder
+     * 
+     * @param targetFolderRef
+     * @param title
+     * @param fileName
+     * @param docType
+     * @param docCatagory
+     * @param contentWriter
+     * @return
+     */
+    NodeRef createCaseDocumentInFolder(NodeRef targetFolderRef, String title, String fileName, NodeRef docType,
+            NodeRef docCatagory, Consumer<ContentWriter> contentWriter);
+
+    /**
      *
      * @param documentFolder
      * @param title
      * @param fileName
-     * @param docType nodeRefId
-     * @param docCatagory nodeRefId
-     * @param contentWriter writer -> {writer.setMimetype(MimetypeMap.MIMETYPE_TEXT_PLAIN); writer.putContent(content);}
+     * @param docType
+     *            nodeRefId
+     * @param docCatagory
+     *            nodeRefId
+     * @param contentWriter
+     *            writer ->
+     *            {writer.setMimetype(MimetypeMap.MIMETYPE_TEXT_PLAIN);
+     *            writer.putContent(content);}
      * @return Created document folder
      */
     public NodeRef createDocumentFile(NodeRef documentFolder, String title, String fileName,
