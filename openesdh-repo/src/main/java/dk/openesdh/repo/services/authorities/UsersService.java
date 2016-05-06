@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -32,4 +33,10 @@ public interface UsersService {
 
     JSONObject getUserJson(NodeRef nodeRef);
 
+    /**
+     * Retrieves names of the users the current user is a manager of
+     * 
+     * @return
+     */
+    Set<String> getCurrentUserSubordinateNames();
 }

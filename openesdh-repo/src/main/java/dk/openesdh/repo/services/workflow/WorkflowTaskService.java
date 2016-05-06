@@ -1,8 +1,11 @@
 package dk.openesdh.repo.services.workflow;
 
 import java.io.Serializable;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+
+import org.alfresco.service.cmr.workflow.WorkflowTask;
 
 public interface WorkflowTaskService {
 
@@ -43,5 +46,12 @@ public interface WorkflowTaskService {
      * @return
      */
     Optional<Serializable> getCaseIdByTaskId(String taskId);
+
+    /**
+     * Retrieves tasks of the users the current user is a manager of
+     * 
+     * @return
+     */
+    List<WorkflowTask> getCurrentUserSubordinatesTasks();
 
 }

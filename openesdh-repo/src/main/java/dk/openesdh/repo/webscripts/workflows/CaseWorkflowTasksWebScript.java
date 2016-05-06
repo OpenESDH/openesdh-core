@@ -6,8 +6,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -33,7 +35,7 @@ import dk.openesdh.repo.webscripts.WebScriptParams;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 @Component
-@WebScript(description = "Retrieves workflow tasks by caseId", families = "Case Workflow Tools")
+@WebScript(description = "Provides case workflow tasks API", families = "Case Workflow Tools")
 public class CaseWorkflowTasksWebScript extends AbstractCaseWorkflowWebScript {
 
     @Autowired
@@ -69,5 +71,14 @@ public class CaseWorkflowTasksWebScript extends AbstractCaseWorkflowWebScript {
         return (req, res, par) -> {
             streamer.streamContent(req, res, file, null, false, null, null);
         };
+    }
+
+    @Uri(value = "/api/openesdh/workflow/subordinates/tasks", defaultFormat = WebScriptUtils.JSON)
+    public Resolution getSubordinatesTasks() {
+        List<Map<String, Object>> tasks = workflowTaskService.getCurrentUserSubordinatesTasks()
+            .stream()
+            .map(task -> modelBuilder.buildSimple(task, null))
+            .collect(Collectors.toList());
+        return WebScriptUtils.jsonResolution(tasks);
     }
 }
