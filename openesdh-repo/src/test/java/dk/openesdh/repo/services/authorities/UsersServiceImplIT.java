@@ -7,22 +7,17 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.security.AuthorityService;
-import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.MutableAuthenticationService;
-import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
-import org.apache.commons.io.IOUtils;
 import org.json.simple.JSONObject;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -44,15 +39,7 @@ import dk.openesdh.repo.services.TransactionRunner;
     "classpath:alfresco/extension/openesdh-test-context.xml"})
 public class UsersServiceImplIT {
 
-    private static final String HEADER = "User Name,First Name,Last Name,E-mail Address,,Password,Company,"
-            + "Job Title,Location,Telephone,Mobile,Skype,IM,Google User Name,Address,"
-            + "Address Line 2,Address Line 3,Post Code,Telephone,Fax,Email,Member of groups\n";
-
-    private static final String PERSON_USERNAME = "csvtestuser";
-    private static final String HR_GROUP_SHORT_NAME = "HR_test";
-    private static final String HR_GROUP_NAME = PermissionService.GROUP_PREFIX + "HR_test";
-    private static final String IT_GROUP_SHORT_NAME = "IT_test";
-    private static final String IT_GROUP_NAME = PermissionService.GROUP_PREFIX + "IT_test";
+    private static final String PERSON_USERNAME = "testuser";
 
     @Autowired
     @Qualifier("UsersService")
@@ -76,8 +63,6 @@ public class UsersServiceImplIT {
     @Before
     public void setUp() {
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
-        authorityService.createAuthority(AuthorityType.GROUP, HR_GROUP_SHORT_NAME);
-        authorityService.createAuthority(AuthorityType.GROUP, IT_GROUP_SHORT_NAME);
     }
 
     @After
@@ -85,25 +70,6 @@ public class UsersServiceImplIT {
         if (personService.personExists(PERSON_USERNAME)) {
             personService.deletePerson(PERSON_USERNAME);
         }
-        authorityService.deleteAuthority(HR_GROUP_NAME);
-        authorityService.deleteAuthority(IT_GROUP_NAME);
-    }
-
-    @Test
-    public void shouldCreateUsersFromCSV() throws Exception {
-        String csv = new StringBuilder(HEADER)
-                .append(PERSON_USERNAME
-                        + ",Testuser,Testsurname,csvtestuser@opene.org,,passs,some company,some job,US,123456,,skypename,imname,googleuser,some address,,1234,,,,,HR_test;IT_test")
-                .toString();
-
-        usersService.uploadUsersCsv(IOUtils.toInputStream(csv));
-        Assert.assertTrue("Should create a user from csv", personService.personExists(PERSON_USERNAME));
-
-        Set<String> hrUsers = authorityService.getContainedAuthorities(AuthorityType.USER, HR_GROUP_NAME, true);
-        Assert.assertTrue("HR group should contain uploaded csv user", hrUsers.contains(PERSON_USERNAME));
-
-        Set<String> itUsers = authorityService.getContainedAuthorities(AuthorityType.USER, IT_GROUP_NAME, true);
-        Assert.assertTrue("IT group should contain uploaded csv user", itUsers.contains(PERSON_USERNAME));
     }
 
     @Test

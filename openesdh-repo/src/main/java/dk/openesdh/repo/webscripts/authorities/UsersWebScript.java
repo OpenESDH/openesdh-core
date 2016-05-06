@@ -30,6 +30,7 @@ import dk.openesdh.repo.exceptions.DomainException;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.NodeInfoService;
 import dk.openesdh.repo.services.authorities.UserSavingContext;
+import dk.openesdh.repo.services.authorities.UsersCsvImportService;
 import dk.openesdh.repo.services.authorities.UsersService;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
@@ -42,6 +43,9 @@ public class UsersWebScript {
     @Autowired
     @Qualifier("UsersService")
     private UsersService userService;
+    @Autowired
+    @Qualifier("UsersCsvImportService")
+    private UsersCsvImportService usersCsvImportService;
     @Autowired
     @Qualifier("NodeInfoService")
     private NodeInfoService nodeInfoService;
@@ -112,15 +116,8 @@ public class UsersWebScript {
 
     @Uri(value = "/api/openesdh/users/upload", multipartProcessing = true, method = HttpMethod.POST, defaultFormat = WebScriptUtils.JSON)
     public Resolution uploadUsersCsvFile(@FileField("filedata") FormField fileField) throws JSONException {
-        try {
-            return WebScriptUtils.jsonResolution(
-                    userService.uploadUsersCsv(fileField.getInputStream()));
-        } catch (Exception e) {
-            JSONObject json = new JSONObject();
-            json.put("error", "true");
-            json.put("message", e.getMessage());
-            return WebScriptUtils.jsonResolution(json);
-        }
+        return WebScriptUtils.jsonResolution(
+                usersCsvImportService.uploadUsersCsv(fileField.getInputStream()));
     }
 
     @Uri(value = "/api/openesdh/users/upload/sample", method = HttpMethod.GET)

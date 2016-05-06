@@ -14,7 +14,8 @@ import org.alfresco.model.ContentModel;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.csv.CSVParser;
 import org.apache.commons.csv.CSVStrategy;
-import org.springframework.extensions.surf.util.I18NUtil;
+import org.json.JSONException;
+import org.json.JSONObject;
 import org.springframework.util.StringUtils;
 
 import dk.openesdh.repo.exceptions.DomainException;
@@ -36,7 +37,6 @@ public class UsersCsvParser {
         ContentModel.PROP_COMPANYEMAIL, ContentModel.ASSOC_MEMBER
     };
 
-    private static final String ERROR_BLANK_COLUMN = "person.err.userCSV.blankColumn";
     private static final String ERROR_INVALID_CSV_FILE = "ERROR.INVALID_CSV_FILE";
 
     public List<User> parse(InputStream usersCsv) {
@@ -80,9 +80,15 @@ public class UsersCsvParser {
                 value = line[i];
             }
             if (required && StringUtils.isEmpty(value)) {
-                String message = I18NUtil.getMessage(ERROR_BLANK_COLUMN, COLUMNS[i].getLocalName(), (i + 1), (lineNumber + 1));
-                //TODO: throw DomainException
-                throw new RuntimeException(message);
+                try {
+                    JSONObject errorData = new JSONObject();
+                    errorData.put("columnName", COLUMNS[i].getLocalName());
+                    errorData.put("columnNumber", i + 1);
+                    errorData.put("line", lineNumber + 1);
+                    throw new DomainException("USER.ERRORS.INVALID_CSV_COLUMN", errorData);
+                } catch (JSONException ex) {
+                    throw new RuntimeException(ex);
+                }
             } else {
                 userProps.put(COLUMNS[i], value);
             }
