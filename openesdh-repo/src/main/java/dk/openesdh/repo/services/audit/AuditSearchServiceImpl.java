@@ -46,6 +46,7 @@ import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.audit.entryhandlers.CaseDocsFolderAuditEntryHandler;
 import dk.openesdh.repo.services.audit.entryhandlers.CaseEmailSentAuditEntryHandler;
 import dk.openesdh.repo.services.audit.entryhandlers.CaseNoteAuditEntryHandler;
 import dk.openesdh.repo.services.audit.entryhandlers.MemberAddAuditEntryHandler;
@@ -113,6 +114,7 @@ public class AuditSearchServiceImpl implements AuditSearchService {
 
         addTransactionPathEntryHandler(CaseNoteAuditEntryHandler::canHandle, new CaseNoteAuditEntryHandler(nodePropertyChangesHandler));
         addTransactionPathEntryHandler(PartyAuditEntryHandler::canHandleTransactionEntry, partyAuditEntryHandler);
+        addTransactionPathEntryHandler(CaseDocsFolderAuditEntryHandler::canHandle, new CaseDocsFolderAuditEntryHandler()); 
     }
 
     private void initIgnoredProperties() {
