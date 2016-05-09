@@ -234,6 +234,7 @@ public interface OpenESDHModel {
      * Documents
      */
     String DOCUMENTS_FOLDER_NAME = "documents";
+    String PREFIXED_DOCUMENTS_FOLDER_NAME = CASE_PREFIX + ":" + DOCUMENTS_FOLDER_NAME;
     String DOCUMENT_PROP_NAME = "name";
     String DOCUMENT_PROP_MODIFIED = "modified";
     String DOCUMENT_PROP_MODIFIER = "modifier";

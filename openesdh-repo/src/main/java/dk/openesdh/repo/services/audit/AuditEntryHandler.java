@@ -22,7 +22,8 @@ public abstract class AuditEntryHandler implements IAuditEntryHandler {
         SYSTEM,
         MEMBER,
         PARTY,
-        NOTE
+        NOTE,
+        FOLDER
     }
     public static final String TIME = "time";
     public static final String USER = "user";

@@ -35,7 +35,7 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
     public static final String TRANSACTION_PATH = "/esdh/transaction/path";
     public static final String TRANSACTION_TYPE = "/esdh/transaction/type";
     public static final String TRANSACTION_ACTION = "/esdh/transaction/action";
-    private static final String TRANSACTION_SUB_ACTIONS = "/esdh/transaction/sub-actions";
+    public static final String TRANSACTION_SUB_ACTIONS = "/esdh/transaction/sub-actions";
     public static final String TRANSACTION_ASPECT_ADD = "/esdh/transaction/aspects/add";
     private static final String TRANSACTION_DOC_FROM_FILES = "/esdh/transaction/move/from/path";
 
@@ -49,6 +49,7 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
     public static final String TRANSACTION_PROPERTIES_ADD = "/esdh/transaction/properties/add";
     public static final String TRANSACTION_PROPERTIES_FROM = "/esdh/transaction/properties/from";
     public static final String TRANSACTION_PROPERTIES_TO = "/esdh/transaction/properties/to";
+    public static final String TRANSACTION_PROPERTIES_TITLE = "/esdh/transaction/properties/title";
 
     private final DictionaryService dictionaryService;
     private final Set<QName> ignoredAspects;
