@@ -44,6 +44,7 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
     public static final String TRANSACTION_ACTION_CHECK_IN = "CHECK IN";
     public static final String TRANSACTION_ACTION_CREATE_VERSION = "CREATE VERSION";
     public static final String TRANSACTION_ACTION_UPDATE_NODE_PROPERTIES = "updateNodeProperties";
+    public static final String TRANSACTION_ACTION_COPY = "COPY";
 
     public static final String TRANSACTION_PROPERTIES_ADD = "/esdh/transaction/properties/add";
     public static final String TRANSACTION_PROPERTIES_FROM = "/esdh/transaction/properties/from";
@@ -76,7 +77,8 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
     }
 
     private Optional<JSONObject> defaultHandleEntry(String user, long time, Map<String, Serializable> values) {
-        switch ((String) values.get(TRANSACTION_ACTION)) {
+        String transactionAction = (String) values.get(TRANSACTION_ACTION);
+        switch (transactionAction) {
             case TRANSACTION_ACTION_CREATE:
                 return getEntryTransactionCreate(user, time, values);
             case TRANSACTION_ACTION_DELETE:
@@ -98,7 +100,8 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
             default:
                 if (values.containsKey(TRANSACTION_SUB_ACTIONS)) {
                     String subActions = (String) values.get(TRANSACTION_SUB_ACTIONS);
-                    if (subActions.contains(TRANSACTION_ACTION_UPDATE_NODE_PROPERTIES)) {
+                    if (subActions.contains(TRANSACTION_ACTION_UPDATE_NODE_PROPERTIES)
+                        && !transactionAction.equals(TRANSACTION_ACTION_COPY)) {
                         if (isIgnoredAspectAddTransaction(values)) {
                             return Optional.empty();
                         }
