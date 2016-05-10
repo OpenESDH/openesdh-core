@@ -118,10 +118,11 @@ public class OeAuthorityFilesServiceImpl implements OeAuthorityFilesService {
                 .orElseGet(() -> createAuthorityFolder(authorityName));
     }
 
-    Optional<NodeRef> getAuthorityFolder(String authorityName) {
+    @Override
+    public Optional<NodeRef> getAuthorityFolder(String authorityName) {
         NodeRef documentsRoot = foldersService.getFilesRootNodeRef();
-        Optional<NodeRef> folder = Optional.ofNullable(
-                nodeService.getChildByName(documentsRoot, ContentModel.ASSOC_CONTAINS, authorityName));
+        Optional<NodeRef> folder = Optional
+                .ofNullable(nodeService.getChildByName(documentsRoot, ContentModel.ASSOC_CONTAINS, authorityName));
         return folder;
     }
 

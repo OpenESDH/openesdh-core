@@ -2,12 +2,15 @@ package dk.openesdh.repo.services.documents;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
+import org.alfresco.service.cmr.security.PersonService;
+import org.apache.commons.lang3.StringUtils;
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
@@ -27,6 +30,7 @@ import com.tradeshift.test.remote.RemoteTestRunner;
 import dk.openesdh.repo.helper.CaseDocumentTestHelper;
 import dk.openesdh.repo.helper.CaseHelper;
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.files.OeAuthorityFilesService;
 
 @RunWith(RemoteTestRunner.class)
 @Remote(runnerClass = SpringJUnit4ClassRunner.class)
@@ -51,6 +55,12 @@ public class CaseDocumentCopyServiceImplIT {
     @Autowired
     @Qualifier("CaseDocumentCopyService")
     private CaseDocumentCopyService caseDocumentCopyService;
+    @Autowired
+    @Qualifier("PersonService")
+    private PersonService personService;
+    @Autowired
+    @Qualifier("OeAuthorityFilesService")
+    private OeAuthorityFilesService authorityFilesService;
 
     @Autowired
     @Qualifier(DocumentService.BEAN_ID)
@@ -67,11 +77,13 @@ public class CaseDocumentCopyServiceImplIT {
     private NodeRef testCase2;
     private NodeRef testDocument;
     private NodeRef testDocumentRecFolder;
+    private NodeRef adminNodeRef;
 
     @Before
     public void setUp() throws Exception {
         // TODO: All of this could have been done only once
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
+        adminNodeRef = personService.getPerson(AuthenticationUtil.getAdminUserName());
         testFolder = docTestHelper.createFolder(TEST_FOLDER_NAME);
         testCase1 = docTestHelper.createCaseBehaviourOn(TEST_CASE_NAME1, testFolder, CaseHelper.DEFAULT_USERNAME);
         testCase2 = docTestHelper.createCaseBehaviourOn(TEST_CASE_NAME2, testFolder, CaseHelper.DEFAULT_USERNAME);
@@ -84,7 +96,7 @@ public class CaseDocumentCopyServiceImplIT {
     @After
     public void tearDown() throws Exception {
         AuthenticationUtil.setFullyAuthenticatedUser(AuthenticationUtil.getAdminUserName());
-        List<NodeRef> folders = Arrays.asList(new NodeRef[] { testFolder });
+        List<NodeRef> folders = Arrays.asList(new NodeRef[] { testFolder, testDocument });
         List<NodeRef> cases = Arrays.asList(new NodeRef[] { testCase1, testCase2 });
         List<String> users = Arrays.asList(new String[] { CaseHelper.DEFAULT_USERNAME });
         try {
@@ -180,5 +192,30 @@ public class CaseDocumentCopyServiceImplIT {
                     DocumentService.DOCUMENT_STORED_IN_CASE_MESSAGE + testCase2Id, e.getMessage());
             Assert.assertTrue("The exception is thrown which is OK", true);
         }
+    }
+
+    @Test
+    public void shouldDetachCaseDocumentAndMoveToOwnerFolder() {
+        NodeRef docRecordRef = documentService.getDocRecordNodeRef(testDocument);
+        NodeRef mainDocRef = testDocument;
+        caseDocumentCopyService.detachCaseDocument(docRecordRef, adminNodeRef, StringUtils.EMPTY);
+        Optional<NodeRef> caseDocumentRef = documentService.getDocumentsForCase(testCase1)
+                .stream()
+                .map(ChildAssociationRef::getChildRef)
+                .filter(docRef -> docRef.equals(docRecordRef))
+                .findAny();
+        Assert.assertFalse("Detached document should be removed from case", caseDocumentRef.isPresent());
+
+        NodeRef authorityFolder = authorityFilesService.getAuthorityFolder(AuthenticationUtil.getAdminUserName()).get();
+        
+        Optional<NodeRef> detachedDocRef = nodeService.getChildAssocs(authorityFolder, ContentModel.ASSOC_CONTAINS, null)
+                .stream()
+                .map(ChildAssociationRef::getChildRef)
+                .filter(docRef -> docRef.equals(mainDocRef))
+                .findAny();
+        Assert.assertTrue("Detached document should be moved to owner folder", detachedDocRef.isPresent());
+
+        Assert.assertEquals("Detached document type should be changed to CONTENT", ContentModel.TYPE_CONTENT,
+                nodeService.getType(mainDocRef));
     }
 }
