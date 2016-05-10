@@ -303,7 +303,7 @@ public class CaseDocumentCopyServiceImpl implements CaseDocumentCopyService {
     @Override
     public void detachCaseDocument(NodeRef documentRef, NodeRef newOwner, String comment) {
         NodeRef mainDocNodeRef = documentService.getMainDocument(documentRef);
-        tr.runInTransactionAsSystem(() -> {
+        tr.runInTransaction(() -> {
             authorityFilesService.move(mainDocNodeRef, newOwner, comment);
             nodeService.setType(mainDocNodeRef, ContentModel.TYPE_CONTENT);
             moveDocumentComments(documentRef, mainDocNodeRef);
