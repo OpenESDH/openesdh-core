@@ -1,12 +1,8 @@
 package dk.openesdh.repo.webscripts.documents;
 
-import java.io.IOException;
-import java.util.Map;
-
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.extensions.webscripts.WebScriptRequest;
 import org.springframework.stereotype.Component;
 
 import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
@@ -30,7 +26,7 @@ public class DocumentsWebScript {
     public Resolution detachDocument(
             @RequestParam final NodeRef documentRef,
             @RequestParam final NodeRef newOwnerRef,
-            @RequestParam(required = false) final String comment) throws IOException {
+            @RequestParam(required = false) final String comment) {
         caseDocumentCopyService.detachCaseDocument(documentRef, newOwnerRef, comment);
         return WebScriptUtils.jsonResolution("success");
     }
