@@ -52,6 +52,10 @@ public class TransactionRunner {
         return runAsAdmin(() -> retryingTransactionHelper.doInTransaction(callBack));
     }
 
+    public <R> R runInTransactionAsSystem(RetryingTransactionHelper.RetryingTransactionCallback<R> callBack) {
+        return runAsSystem(() -> retryingTransactionHelper.doInTransaction(callBack));
+    }
+
     public <R> R runAsAdmin(AuthenticationUtil.RunAsWork<R> callback) {
         return runAs(callback, getAdminUserName());
     }
