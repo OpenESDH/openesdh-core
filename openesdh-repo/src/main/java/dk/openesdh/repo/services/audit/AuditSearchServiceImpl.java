@@ -26,6 +26,7 @@ import org.alfresco.model.BlogIntegrationModel;
 import org.alfresco.model.ContentModel;
 import org.alfresco.model.ForumModel;
 import org.alfresco.model.ImapModel;
+import org.alfresco.repo.security.authentication.AuthenticationContext;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.permissions.AccessDeniedException;
 import org.alfresco.service.cmr.audit.AuditQueryParameters;
@@ -78,6 +79,9 @@ public class AuditSearchServiceImpl implements AuditSearchService {
     @Autowired
     @Qualifier("PersonService")
     private PersonService personService;
+    @Autowired
+    @Qualifier("authenticationContext")
+    private AuthenticationContext authenticationContext;
 
     private static final String MSG_ACCESS_DENIED = "auditlog.permissions.err_access_denied";
 
@@ -187,7 +191,8 @@ public class AuditSearchServiceImpl implements AuditSearchService {
             auditQueryParameters.addSearchKey(null, nodeRef.toString());
 
             // create auditQueryCallback inside this method, putting it outside, will make it a singleton as the class is a service.
-            final OpenESDHAuditQueryCallBack auditQueryCallback = new OpenESDHAuditQueryCallBack(auditEntryHandlers, personService);
+            final OpenESDHAuditQueryCallBack auditQueryCallback = new OpenESDHAuditQueryCallBack(
+                    auditEntryHandlers, personService, authenticationContext);
 
             // Only users with ACL_METHOD.ROLE_ADMINISTRATOR are allowed to call
             // AuditService methods.

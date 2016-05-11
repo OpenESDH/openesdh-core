@@ -9,6 +9,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import org.alfresco.error.AlfrescoRuntimeException;
+import org.alfresco.repo.security.authentication.AuthenticationContext;
 import org.alfresco.service.cmr.audit.AuditService;
 import org.alfresco.service.cmr.security.PersonService;
 
@@ -18,13 +19,16 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
 
     private final Map<String, AuditEntryHandler> auditEntryHandlers;
     private final PersonService personService;
+    private final AuthenticationContext authenticationContext;
     private final Map<String, String> userFullNames = new HashMap<>();
 
     private final List<AuditEntry> result = new ArrayList<>();
 
-    public OpenESDHAuditQueryCallBack(Map<String, AuditEntryHandler> auditEntryHandlers, PersonService personService) {
+    public OpenESDHAuditQueryCallBack(Map<String, AuditEntryHandler> auditEntryHandlers, PersonService personService,
+            AuthenticationContext authenticationContext) {
         this.auditEntryHandlers = auditEntryHandlers;
         this.personService = personService;
+        this.authenticationContext = authenticationContext;
     }
 
     public List<AuditEntry> getResult() {
@@ -65,6 +69,10 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
             return userFullNames.get(username);
         }
         //if not cached:
+        if (authenticationContext.isSystemUserName(username)) {
+            userFullNames.put(username, username);
+            return username;
+        }
         PersonService.PersonInfo person = personService.getPerson(personService.getPerson(username));
         String fullName = Joiner.on(" ").skipNulls().join(person.getFirstName(), person.getLastName()).trim();
         userFullNames.put(username, fullName);
