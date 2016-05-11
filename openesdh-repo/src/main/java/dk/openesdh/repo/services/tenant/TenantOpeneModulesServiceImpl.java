@@ -28,7 +28,6 @@ import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -42,7 +41,7 @@ import dk.openesdh.repo.utils.Utils;
 @Service("TenantOpeneModulesService")
 public class TenantOpeneModulesServiceImpl implements TenantOpeneModulesService {
 
-    private static final String MSG_TENANT_ENABLED_MODULES_PERMISSION_VIOLATION = "security.permission.err_tenant_enabled_modules_permission_violation";
+    private static final String MSG_TENANT_ENABLED_MODULES_PERMISSION_VIOLATION = "The module \"%1$s\" is not enabled for the tenant \"%2$s\"";
 
     @Autowired
     @Qualifier("SearchService")
@@ -133,7 +132,8 @@ public class TenantOpeneModulesServiceImpl implements TenantOpeneModulesService 
         ContentReader reader = contentService.getReader(mapNodeRef, ContentModel.PROP_CONTENT);
         String content = reader.getContentString();
         try {
-            return new ObjectMapper().readValue(content, new TypeReference<Map<String, TenantInfo>>() {});
+            return new ObjectMapper().readValue(content, new TypeReference<Map<String, TenantInfo>>() {
+            });
         } catch (IOException ex) {
             throw new RuntimeException(ex);
         }
@@ -182,8 +182,9 @@ public class TenantOpeneModulesServiceImpl implements TenantOpeneModulesService 
         try {
             TenantUtil.runAsDefaultTenant(() -> {
                 if (!getTenantModules(tenant).contains(module)) {
-                    throw new AccessDeniedException(I18NUtil.getMessage(
-                            MSG_TENANT_ENABLED_MODULES_PERMISSION_VIOLATION, module, tenant));
+
+                    throw new AccessDeniedException(
+                            String.format(MSG_TENANT_ENABLED_MODULES_PERMISSION_VIOLATION, module, tenant));
                 }
                 return null;
             });

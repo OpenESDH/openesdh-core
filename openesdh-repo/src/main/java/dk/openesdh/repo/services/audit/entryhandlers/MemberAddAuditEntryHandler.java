@@ -1,13 +1,13 @@
 package dk.openesdh.repo.services.audit.entryhandlers;
 
+import static dk.openesdh.repo.services.audit.AuditEntryHandler.REC_TYPE.MEMBER;
+
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
 
-import org.json.simple.JSONObject;
-import org.springframework.extensions.surf.util.I18NUtil;
-
+import dk.openesdh.repo.services.audit.AuditEntry;
 import dk.openesdh.repo.services.audit.AuditEntryHandler;
 import dk.openesdh.repo.services.cases.CaseService;
 
@@ -17,16 +17,18 @@ public class MemberAddAuditEntryHandler extends AuditEntryHandler {
     private static final String MEMBER_ADD_CHILD = "/esdh/security/addAuthority/args/childName/value";
 
     @Override
-    public Optional<JSONObject> handleEntry(String user, long time, Map<String, Serializable> values) {
+    public Optional<AuditEntry> handleEntry(String user, long time, Map<String, Serializable> values) {
         String parent = (String) values.get(MEMBER_ADD_PATH);
         String role = getRoleFromCaseGroupName(parent);
         if (role == null) {
             return Optional.empty();
         }
         String authority = (String) values.get(MEMBER_ADD_CHILD);
-        JSONObject auditEntry = createNewAuditEntry(user, time);
-        auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.member.added", authority, role));
-        auditEntry.put(TYPE, getTypeMessage("member"));
+        AuditEntry auditEntry = new AuditEntry(user, time);
+        auditEntry.setType(MEMBER);
+        auditEntry.setAction("auditlog.label.member.added");
+        auditEntry.addData("authority", authority);
+        auditEntry.addData("role", role);
         return Optional.of(auditEntry);
     }
 

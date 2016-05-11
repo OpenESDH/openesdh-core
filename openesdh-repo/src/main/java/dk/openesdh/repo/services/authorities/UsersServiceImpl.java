@@ -1,12 +1,9 @@
 package dk.openesdh.repo.services.authorities;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -29,9 +26,7 @@ import org.alfresco.service.cmr.search.ResultSet;
 import org.alfresco.service.cmr.search.SearchParameters;
 import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AuthorityService;
-import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.MutableAuthenticationService;
-import org.alfresco.service.cmr.security.PermissionService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.security.PersonService.PersonInfo;
 import org.alfresco.service.namespace.NamespaceService;
@@ -40,7 +35,6 @@ import org.codehaus.plexus.util.StringUtils;
 import org.json.simple.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.extensions.surf.util.I18NUtil;
 import org.springframework.stereotype.Service;
 
 import com.google.common.collect.Maps;
@@ -48,14 +42,10 @@ import com.google.common.collect.Maps;
 import dk.openesdh.repo.exceptions.DomainException;
 import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.NodeInfoService;
-import dk.openesdh.repo.services.TransactionRunner;
-import dk.openesdh.repo.services.authorities.UsersCsvParser.User;
 
 @Service("UsersService")
 public class UsersServiceImpl implements UsersService {
 
-    private static final String MSG_CREATED = "person.msg.userCSV.created";
-    private static final String MSG_EXISTING = "person.msg.userCSV.existing";
     private static final String USERNAME_BY_EMAIL_CMIS_QUERY = "SELECT cm:userName FROM cm:person WHERE cm:userName IS NOT NULL AND cm:email='%s'";
 
     private final List<Consumer<JSONObject>> userJsonDecorators = new ArrayList<>();
@@ -82,47 +72,7 @@ public class UsersServiceImpl implements UsersService {
     @Qualifier("NodeService")
     private NodeService nodeService;
     @Autowired
-    private TransactionRunner transactionRunner;
-    @Autowired
     private SearchService searchService;
-
-    @Override
-    public JSONObject uploadUsersCsv(InputStream usersCsv) throws IOException {
-
-        UsersCsvParser parser = new UsersCsvParser();
-        List<User> users = parser.parse(usersCsv);
-        JSONObject json = new JSONObject();
-        json.put("totalUsers", users.size());
-        json.put("addedUsers", 0);
-        json.put("users", Collections.emptyList());
-        if (users.isEmpty()) {
-            return json;
-        }
-        return addUsers(users);
-    }
-
-    private JSONObject addUsers(List<User> users) {
-
-        List<Map<String, String>> uploadResults = new ArrayList<>();
-
-        int addedUsers = transactionRunner.runInTransaction(() -> {
-            int iAddedUsers = 0;
-            for (User user : users) {
-                String status = addUser(user.getProperties());
-                uploadResults.add(getUploadStatus(user.getProperties(), status));
-                if (MSG_CREATED.equals(status)) {
-                    iAddedUsers++;
-                }
-                manageUserMemberships(user);
-            }
-            return iAddedUsers;
-        });
-        JSONObject json = new JSONObject();
-        json.put("totalUsers", users.size());
-        json.put("addedUsers", addedUsers);
-        json.put("users", uploadResults);
-        return json;
-    }
 
     @PostConstruct
     public void init() {
@@ -229,32 +179,6 @@ public class UsersServiceImpl implements UsersService {
                 .collect(Collectors.toSet());
     }
 
-    private String addUser(Map<QName, String> userProps) {
-        try {
-            createUser((Map<QName, Serializable>) (Map) userProps, true, null);
-        } catch (UsernameExistsDomainException e) {
-            return MSG_EXISTING;
-        }
-        return MSG_CREATED;
-    }
-
-    private Map<String, String> getUploadStatus(Map<QName, String> props, String status) {
-        Map<String, String> result = new HashMap<>();
-        result.put("username", props.get(ContentModel.PROP_USERNAME));
-        result.put("uploadStatus", I18NUtil.getMessage(status, props.get(ContentModel.PROP_EMAIL)));
-        return result;
-    }
-
-    private void manageUserMemberships(User user) {
-        String userName = user.getProperties().get(ContentModel.PROP_USERNAME);
-        Set<String> currentGroups = authorityService.getContainingAuthorities(AuthorityType.GROUP, userName, true);
-        user.getGroups()
-                .stream()
-                .map(group -> PermissionService.GROUP_PREFIX + group)
-                .filter(group -> !currentGroups.contains(group))
-                .forEach(group -> authorityService.addAuthority(group, userName));
-    }
-
     private Consumer<UserSavingContext> mandatoryPropValidator(QName qname, String fieldName) {
         return context -> {
             if (!context.getProps().containsKey(qname)) {
@@ -268,7 +192,7 @@ public class UsersServiceImpl implements UsersService {
             Optional<String> personByEmail = getPersonByEmail((String) context.getProps().get(ContentModel.PROP_EMAIL));
             personByEmail.ifPresent(p -> {
                 if (!p.equals((String) context.getUserName())) {
-                    throw new DomainException(ERROR_EMAIL_EXISTS).forField("email");
+                    throw new UserEmailExistsDomainException().forField("email");
                 }
             });
         };

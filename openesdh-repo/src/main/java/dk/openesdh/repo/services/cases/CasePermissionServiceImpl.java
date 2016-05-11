@@ -2,7 +2,6 @@ package dk.openesdh.repo.services.cases;
 
 import java.util.Set;
 
-import org.alfresco.repo.model.Repository;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.permissions.AccessDeniedException;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -34,12 +33,6 @@ public class CasePermissionServiceImpl implements CasePermissionService {
     @Autowired
     @Qualifier("AuthorityService")
     private AuthorityService authorityService;
-    @Autowired
-    @Qualifier("PermissionService")
-    private PermissionService permissionService;
-    @Autowired
-    @Qualifier("repositoryHelper")
-    private Repository repositoryHelper;
 
     @Override
     public String getPermissionName(String caseType, CasePermission casePermission) {

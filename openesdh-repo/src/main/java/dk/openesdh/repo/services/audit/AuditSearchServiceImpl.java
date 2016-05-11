@@ -26,6 +26,7 @@ import org.alfresco.model.BlogIntegrationModel;
 import org.alfresco.model.ContentModel;
 import org.alfresco.model.ForumModel;
 import org.alfresco.model.ImapModel;
+import org.alfresco.repo.security.authentication.AuthenticationContext;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.permissions.AccessDeniedException;
 import org.alfresco.service.cmr.audit.AuditQueryParameters;
@@ -36,6 +37,7 @@ import org.alfresco.service.cmr.security.AccessPermission;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.AuthorityType;
 import org.alfresco.service.cmr.security.PermissionService;
+import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang.ObjectUtils;
 import org.json.simple.JSONArray;
@@ -59,7 +61,7 @@ import dk.openesdh.repo.services.audit.entryhandlers.WorkflowStartAuditEntryHand
 import dk.openesdh.repo.services.audit.entryhandlers.WorkflowTaskEndAuditEntryHandler;
 import dk.openesdh.repo.services.cases.CasePermission;
 
-@Service
+@Service("AuditSearchService")
 public class AuditSearchServiceImpl implements AuditSearchService {
 
     @Autowired
@@ -74,6 +76,12 @@ public class AuditSearchServiceImpl implements AuditSearchService {
     @Autowired
     @Qualifier("DictionaryService")
     private DictionaryService dictionaryService;
+    @Autowired
+    @Qualifier("PersonService")
+    private PersonService personService;
+    @Autowired
+    @Qualifier("authenticationContext")
+    private AuthenticationContext authenticationContext;
 
     private static final String MSG_ACCESS_DENIED = "auditlog.permissions.err_access_denied";
 
@@ -114,7 +122,7 @@ public class AuditSearchServiceImpl implements AuditSearchService {
 
         addTransactionPathEntryHandler(CaseNoteAuditEntryHandler::canHandle, new CaseNoteAuditEntryHandler(nodePropertyChangesHandler));
         addTransactionPathEntryHandler(PartyAuditEntryHandler::canHandleTransactionEntry, partyAuditEntryHandler);
-        addTransactionPathEntryHandler(CaseDocsFolderAuditEntryHandler::canHandle, new CaseDocsFolderAuditEntryHandler()); 
+        addTransactionPathEntryHandler(CaseDocsFolderAuditEntryHandler::canHandle, new CaseDocsFolderAuditEntryHandler());
     }
 
     private void initIgnoredProperties() {
@@ -183,7 +191,8 @@ public class AuditSearchServiceImpl implements AuditSearchService {
             auditQueryParameters.addSearchKey(null, nodeRef.toString());
 
             // create auditQueryCallback inside this method, putting it outside, will make it a singleton as the class is a service.
-            final OpenESDHAuditQueryCallBack auditQueryCallback = new OpenESDHAuditQueryCallBack(auditEntryHandlers);
+            final OpenESDHAuditQueryCallBack auditQueryCallback = new OpenESDHAuditQueryCallBack(
+                    auditEntryHandlers, personService, authenticationContext);
 
             // Only users with ACL_METHOD.ROLE_ADMINISTRATOR are allowed to call
             // AuditService methods.
@@ -192,8 +201,9 @@ public class AuditSearchServiceImpl implements AuditSearchService {
                 auditService.auditQuery(auditQueryCallback, auditQueryParameters, OpenESDHModel.AUDIT_LOG_MAX);
                 return null;
             });
-            auditQueryCallback
-                    .getResult()
+            auditQueryCallback.getResult()
+                    .stream()
+                    .map(AuditEntry::toJSON)
                     .forEach(result::add);
         }
         // sortByTime
@@ -248,10 +258,5 @@ public class AuditSearchServiceImpl implements AuditSearchService {
 
     private <R> R runAsAdmin(AuthenticationUtil.RunAsWork<R> r) {
         return AuthenticationUtil.runAs(r, AuthenticationUtil.getAdminUserName());
-    }
-
-    void setService4Tests(AuditService auditService, AuthorityService authorityService) {
-        this.auditService = auditService;
-        this.authorityService = authorityService;
     }
 }

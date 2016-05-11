@@ -1,10 +1,6 @@
 package dk.openesdh.repo.services.audit.entryhandlers;
 
-import static dk.openesdh.repo.services.audit.entryhandlers.TransactionPathAuditEntryHandler.TRANSACTION_ACTION;
-import static dk.openesdh.repo.services.audit.entryhandlers.TransactionPathAuditEntryHandler.TRANSACTION_ACTION_CREATE;
-import static dk.openesdh.repo.services.audit.entryhandlers.TransactionPathAuditEntryHandler.TRANSACTION_ACTION_UPDATE_NODE_PROPERTIES;
-import static dk.openesdh.repo.services.audit.entryhandlers.TransactionPathAuditEntryHandler.TRANSACTION_PATH;
-import static dk.openesdh.repo.services.audit.entryhandlers.TransactionPathAuditEntryHandler.TRANSACTION_SUB_ACTIONS;
+import static dk.openesdh.repo.services.audit.AuditEntryHandler.REC_TYPE.FOLDER;
 import static dk.openesdh.repo.services.audit.entryhandlers.TransactionPathAuditEntryHandler.*;
 
 import java.io.Serializable;
@@ -12,35 +8,36 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-import org.json.simple.JSONObject;
-import org.springframework.extensions.surf.util.I18NUtil;
-
 import dk.openesdh.repo.model.CaseFolderItem;
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.audit.AuditEntry;
 import dk.openesdh.repo.services.audit.AuditEntryHandler;
 
 public class CaseDocsFolderAuditEntryHandler extends AuditEntryHandler {
 
     @Override
-    public Optional<JSONObject> handleEntry(String user, long time, Map<String, Serializable> values) {
-        JSONObject auditEntry = createNewAuditEntry(user, time);
-        auditEntry.put(TYPE, getTypeMessage(REC_TYPE.FOLDER));
+    public Optional<AuditEntry> handleEntry(String user, long time, Map<String, Serializable> values) {
+        AuditEntry auditEntry = new AuditEntry(user, time);
+        auditEntry.setType(FOLDER);
+
         String transactionAction = (String) values.get(TRANSACTION_ACTION);
         Optional<String> folderPath = getFolderPath(values);
         if (!folderPath.isPresent()) {
             return Optional.empty();
         }
+
+        auditEntry.addData("title", folderPath.get());
         switch (transactionAction) {
             case TRANSACTION_ACTION_CREATE:
-                auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.folder.created", folderPath.get()));
+                auditEntry.setAction("auditlog.label.folder.created");
                 break;
             case TRANSACTION_ACTION_DELETE:
-                auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.folder.deleted", folderPath.get()));
+                auditEntry.setAction("auditlog.label.folder.deleted");
                 break;
             default:
                 String subActions = (String) values.get(TRANSACTION_SUB_ACTIONS);
                 if (Objects.nonNull(subActions) && subActions.contains(TRANSACTION_ACTION_UPDATE_NODE_PROPERTIES)) {
-                    auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.folder.updated", folderPath.get()));
+                    auditEntry.setAction("auditlog.label.folder.updated");
                     break;
                 } else {
                     return Optional.empty();

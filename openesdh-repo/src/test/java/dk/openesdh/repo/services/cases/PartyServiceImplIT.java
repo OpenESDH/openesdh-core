@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -156,7 +158,7 @@ public class PartyServiceImplIT {
         Assert.assertTrue("Created party should contain added test organization contact",
                 resultContacts.contains(testOrgContact));
     }
-    
+
     @Test(expected = AccessDeniedException.class)
     public void shouldFailAddingPersonContactBecauseOfPermissions() throws Exception {
         String caseId = caseService.getCaseId(caseNodeRef);
@@ -165,26 +167,26 @@ public class PartyServiceImplIT {
         // should fail
         partyService.addCaseParty(caseId, getMemberPartyRoleRef(), TEST_PERSON_CONTACT_EMAIL,
                 TEST_ORG_CONTACT_EMAIL);
-     }
+    }
 
     @Test
     public void shouldCreatePartiesWithContactsAndGetCasePartiesJson() throws Exception {
         String caseId = caseService.getCaseId(caseNodeRef);
         NodeRef memberRoleRef = getMemberPartyRoleRef();
         partyService.addCaseParty(caseId, memberRoleRef, TEST_PERSON_CONTACT_EMAIL, TEST_ORG_CONTACT_EMAIL);
-        
+
         JSONArray partiesArray = partyService.getCasePartiesJson(caseId);
         Assert.assertNotNull("The retrieved case parties json cannot be null", partiesArray);
-        
+
         Assert.assertEquals("Wrong number of retrieved case parties", 2, partiesArray.size());
 
         JSONObject jsonObj = (JSONObject) partiesArray.get(0);
         String partyRoleRef = (String) jsonObj.get(PartyService.FIELD_ROLE_REF);
         Assert.assertEquals("Wrong party role ref. Should be one of 'Member' role.", memberRoleRef.toString(),
                 partyRoleRef);
-        
+
         List<NodeRef> casePartyContactRefs = getPartyContactRefs(partiesArray);
-        
+
         Assert.assertTrue("The retrieved case parties json should contain receiver test person contact",
                 casePartyContactRefs.contains(testPersonContact));
         Assert.assertTrue("The retrieved case parties json should contain receiver test organization contact",
@@ -279,6 +281,33 @@ public class PartyServiceImplIT {
         }
     }
 
+    @Test
+    public void shuldNotAddDuplicateParties() {
+        String caseId = caseService.getCaseId(caseNodeRef);
+        //first add
+        partyService.addCaseParty(caseId, getMemberPartyRoleRef(), TEST_PERSON_CONTACT_EMAIL);
+        //second add
+        partyService.addCaseParty(caseId, getMemberPartyRoleRef(), TEST_PERSON_CONTACT_EMAIL);
+        //result must be only one
+        final Map<NodeRef, Set<NodeRef>> partyAndRole = new HashMap<>();
+        JSONArray partiesArray = partyService.getCasePartiesJson(caseId);
+        partiesArray.forEach(item -> {
+            JSONObject party = (JSONObject) item;
+            JSONObject contact = (JSONObject) party.get(PartyService.FIELD_CONTACT);
+            NodeRef contactNodeRef = new NodeRef((String) contact.get(PartyService.FIELD_NODE_REF));
+            NodeRef roleNodeRef = new NodeRef((String) party.get(PartyService.FIELD_ROLE_REF));
+            if (partyAndRole.containsKey(contactNodeRef)) {
+                //should not contains same role
+                Set<NodeRef> roles = partyAndRole.get(contactNodeRef);
+                //roles.add() returns false if element already exists:
+                Assert.assertTrue("Parties should be added only once", roles.add(roleNodeRef));
+            } else {
+                //add first party role
+                partyAndRole.put(contactNodeRef, Sets.newHashSet(roleNodeRef));
+            }
+        });
+    }
+
     private NodeRef getMemberPartyRoleRef() {
         return partyRoleService.getClassifValueByName(PartyRoleService.MEMBER_ROLE).get().getNodeRef();
     }
@@ -297,4 +326,3 @@ public class PartyServiceImplIT {
         return casePartyContactRefs;
     }
 }
-

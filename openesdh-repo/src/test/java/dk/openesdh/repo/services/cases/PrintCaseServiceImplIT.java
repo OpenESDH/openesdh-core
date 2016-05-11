@@ -68,7 +68,8 @@ public class PrintCaseServiceImplIT {
         List<String> users = Arrays.asList(new String[]{CaseHelper.DEFAULT_USERNAME});
         try {
             docTestHelper.removeNodesAndDeleteUsersInTransaction(Collections.EMPTY_LIST, cases, users);
-        } finally {
+        } catch (Exception e) {
+
         }
     }
 
