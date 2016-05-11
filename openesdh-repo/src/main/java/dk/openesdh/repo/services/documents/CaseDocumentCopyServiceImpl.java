@@ -38,6 +38,7 @@ import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.BehaviourFilterService;
 import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.files.OeAuthorityFilesService;
 
 @Service("CaseDocumentCopyService")
 public class CaseDocumentCopyServiceImpl implements CaseDocumentCopyService {
@@ -67,6 +68,9 @@ public class CaseDocumentCopyServiceImpl implements CaseDocumentCopyService {
     @Autowired
     @Qualifier("ContentService")
     private ContentService contentService;
+    @Autowired
+    @Qualifier("OeAuthorityFilesService")
+    private OeAuthorityFilesService authorityFilesService;
     @Autowired
     @Qualifier("TransactionRunner")
     private TransactionRunner tr;
@@ -292,6 +296,18 @@ public class CaseDocumentCopyServiceImpl implements CaseDocumentCopyService {
             nodeService.getChildAssocs(sourceCommentsFolder, ContentModel.ASSOC_CONTAINS, null).stream()
                     .map(ChildAssociationRef::getChildRef)
                     .forEach(commentRef -> moveComment(commentRef, targetCommentsFolder));
+            return null;
+        });
+    }
+
+    @Override
+    public void detachCaseDocument(NodeRef documentRef, NodeRef newOwner, String comment) {
+        NodeRef mainDocNodeRef = documentService.getMainDocument(documentRef);
+        tr.runInTransaction(() -> {
+            authorityFilesService.move(mainDocNodeRef, newOwner, comment);
+            nodeService.setType(mainDocNodeRef, ContentModel.TYPE_CONTENT);
+            moveDocumentComments(documentRef, mainDocNodeRef);
+            nodeService.deleteNode(documentRef);
             return null;
         });
     }

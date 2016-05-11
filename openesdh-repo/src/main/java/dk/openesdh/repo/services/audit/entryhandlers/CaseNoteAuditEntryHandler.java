@@ -7,15 +7,14 @@ import static dk.openesdh.repo.services.audit.entryhandlers.TransactionPathAudit
 import static dk.openesdh.repo.services.audit.entryhandlers.TransactionPathAuditEntryHandler.TRANSACTION_TYPE;
 
 import java.io.Serializable;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import org.apache.commons.lang3.StringUtils;
-import org.json.simple.JSONObject;
-import org.springframework.extensions.surf.util.I18NUtil;
+import org.json.simple.JSONArray;
 
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.audit.AuditEntry;
 import dk.openesdh.repo.services.audit.AuditEntryHandler;
 import dk.openesdh.repo.services.audit.AuditUtils;
 
@@ -31,21 +30,26 @@ public class CaseNoteAuditEntryHandler extends AuditEntryHandler {
     }
 
     @Override
-    public Optional<JSONObject> handleEntry(String user, long time, Map<String, Serializable> values) {
+    public Optional<AuditEntry> handleEntry(String user, long time, Map<String, Serializable> values) {
         String trimmedNote = StringUtils.abbreviate(AuditUtils.getTitle(values), MAX_NOTE_TEXT_LENGTH);
-        JSONObject auditEntry = createNewAuditEntry(user, time);
-        auditEntry.put(TYPE, getTypeMessage(NOTE));
+        AuditEntry auditEntry = new AuditEntry(user, time);
+        auditEntry.setType(NOTE);
+
         String transactionAction = (String) values.get(TRANSACTION_ACTION);
         switch (transactionAction) {
             case TRANSACTION_ACTION_CREATE:
-                auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.note.added", trimmedNote));
+                auditEntry.setAction("auditlog.label.note.added");
+                auditEntry.addData("note", trimmedNote);
                 break;
             case TRANSACTION_ACTION_UPDATE_NODE_PROPERTIES:
-                List<String> changes = nodePropertiesChangeHandler.getChangedProperties(values);
+                auditEntry.setAction("auditlog.label.note.updated");
+                auditEntry.addData("note", trimmedNote);
+
+                JSONArray changes = nodePropertiesChangeHandler.getChangedProperties(values);
                 if (changes.isEmpty()) {
                     return Optional.empty();
                 }
-                auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.note.updated", trimmedNote, StringUtils.join(changes, ";\n")));
+                auditEntry.addData("props", changes);
                 break;
             default:
                 return Optional.empty();

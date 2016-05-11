@@ -1,12 +1,12 @@
 package dk.openesdh.repo.services.audit.entryhandlers;
 
+import static dk.openesdh.repo.services.audit.AuditEntryHandler.REC_TYPE.WORKFLOW;
+
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Optional;
 
-import org.json.simple.JSONObject;
-import org.springframework.extensions.surf.util.I18NUtil;
-
+import dk.openesdh.repo.services.audit.AuditEntry;
 import dk.openesdh.repo.services.audit.AuditEntryHandler;
 
 public class WorkflowTaskEndAuditEntryHandler extends AuditEntryHandler {
@@ -16,14 +16,13 @@ public class WorkflowTaskEndAuditEntryHandler extends AuditEntryHandler {
     private static final String WORKFLOW_END_TASK_REVIEW_OUTCOME = "/esdh/workflow/endTask/reviewOutcome";
 
     @Override
-    public Optional<JSONObject> handleEntry(String user, long time, Map<String, Serializable> values) {
-        JSONObject auditEntry = createNewAuditEntry(user, time);
-        auditEntry.put(TYPE, getTypeMessage("workflow"));
+    public Optional<AuditEntry> handleEntry(String user, long time, Map<String, Serializable> values) {
+        AuditEntry auditEntry = new AuditEntry(user, time);
+        auditEntry.setType(WORKFLOW);
 
         String taskOutcome = values.getOrDefault(WORKFLOW_END_TASK_REVIEW_OUTCOME, "ended").toString();
-        auditEntry.put(ACTION,
-                I18NUtil.getMessage("auditlog.label.workflow.task." + taskOutcome,
-                        values.get(WORKFLOW_END_TASK_DESCRIPTION)));
+        auditEntry.setAction("auditlog.label.workflow.task." + taskOutcome);
+        auditEntry.addData("description", values.get(WORKFLOW_END_TASK_DESCRIPTION));
         return Optional.of(auditEntry);
     }
 

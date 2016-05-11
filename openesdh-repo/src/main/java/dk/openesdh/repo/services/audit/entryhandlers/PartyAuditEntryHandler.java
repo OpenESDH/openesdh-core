@@ -10,10 +10,8 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Optional;
 
-import org.json.simple.JSONObject;
-import org.springframework.extensions.surf.util.I18NUtil;
-
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.audit.AuditEntry;
 import dk.openesdh.repo.services.audit.AuditEntryHandler;
 
 public class PartyAuditEntryHandler extends AuditEntryHandler {
@@ -28,25 +26,25 @@ public class PartyAuditEntryHandler extends AuditEntryHandler {
     private static final String TRANSACTION_PROPERTIES_PARTY_ROLE_TO = "/esdh/transaction/properties/partyRoleTo";
 
     @Override
-    public Optional<JSONObject> handleEntry(String user, long time, Map<String, Serializable> values) {
-        JSONObject auditEntry = createNewAuditEntry(user, time);
-        auditEntry.put(TYPE, getTypeMessage(PARTY));
+    public Optional<AuditEntry> handleEntry(String user, long time, Map<String, Serializable> values) {
+        AuditEntry auditEntry = new AuditEntry(user, time);
+        auditEntry.setType(PARTY);
 
         if (values.keySet().contains(CASE_PARTIES_REMOVE)) {
             handleOnPartyDelete(values, auditEntry);
-        }else{
+        } else {
             String transactionAction = (String) values.get(TRANSACTION_ACTION);
             switch (transactionAction) {
                 case TRANSACTION_ACTION_CREATE:
                     handleOnPartyCreate(values, auditEntry);
                     break;
                 case TRANSACTION_ACTION_UPDATE_NODE_PROPERTIES:
-                    return Optional.ofNullable(handleOnUpdateRole(values, auditEntry));
+                    handleOnUpdateRole(values, auditEntry);
+                    break;
                 default:
                     return Optional.empty();
-            }    
+            }
         }
-        
         return Optional.of(auditEntry);
     }
 
@@ -55,22 +53,26 @@ public class PartyAuditEntryHandler extends AuditEntryHandler {
         return type.equals(TYPE_PARTY);
     }
 
-    private void handleOnPartyCreate(Map<String, Serializable> values, JSONObject auditEntry) {
+    private void handleOnPartyCreate(Map<String, Serializable> values, AuditEntry auditEntry) {
         String contactName = (String) values.get(TRANSACTION_PROPERTIES_ADD_CONTACT_NAME);
-        auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.party.added", contactName));
+        auditEntry.setAction("auditlog.label.party.added");
+        auditEntry.addData("contactName", contactName);
     }
 
-    private void handleOnPartyDelete(Map<String, Serializable> values, JSONObject auditEntry) {
+    private void handleOnPartyDelete(Map<String, Serializable> values, AuditEntry auditEntry) {
         String contactName = (String) values.get(CASE_PARTIES_REMOVE);
-        auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.party.removed", contactName));
+        auditEntry.setAction("auditlog.label.party.removed");
+        auditEntry.addData("contactName", contactName);
     }
 
-    private JSONObject handleOnUpdateRole(Map<String, Serializable> values, JSONObject auditEntry) {
+    private void handleOnUpdateRole(Map<String, Serializable> values, AuditEntry auditEntry) {
         String contactName = (String) values.get(TRANSACTION_PROPERTIES_UPDATE_CONTACT_NAME);
         String roleBeforeName = (String) values.get(TRANSACTION_PROPERTIES_PARTY_ROLE_FROM);
         String roleAfterName = (String) values.get(TRANSACTION_PROPERTIES_PARTY_ROLE_TO);
-        auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.party.role.changed", contactName, roleBeforeName,
-                roleAfterName));
-        return auditEntry;
+
+        auditEntry.setAction("auditlog.label.party.role_changed");
+        auditEntry.addData("contactName", contactName);
+        auditEntry.addData("roleBeforeName", roleBeforeName);
+        auditEntry.addData("roleAfterName", roleAfterName);
     }
 }

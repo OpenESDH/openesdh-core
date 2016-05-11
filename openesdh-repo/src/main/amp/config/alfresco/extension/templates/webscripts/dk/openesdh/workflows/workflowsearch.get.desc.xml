@@ -1,8 +1,0 @@
-<webscript>
-  <shortname>Webscript to search workflows</shortname>
-  <description>Hands back a little bit of JSON.</description>
-  <url>/api/openesdh/workflowsearch</url>
-  <authentication>user</authentication>
-  <family>Case Workflow Tools</family>
-  <format default="json">argument</format>
-</webscript>

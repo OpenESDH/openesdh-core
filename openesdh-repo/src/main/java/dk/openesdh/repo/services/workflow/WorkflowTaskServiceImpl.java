@@ -16,6 +16,7 @@ import org.alfresco.service.cmr.security.AuthenticationService;
 import org.alfresco.service.cmr.security.PersonService;
 import org.alfresco.service.cmr.workflow.WorkflowService;
 import org.alfresco.service.cmr.workflow.WorkflowTask;
+import org.alfresco.service.cmr.workflow.WorkflowTaskState;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import dk.openesdh.repo.model.OpenESDHModel;
+import dk.openesdh.repo.services.authorities.UsersService;
 import dk.openesdh.repo.services.documents.DocumentService;
 
 @Service
@@ -46,11 +48,34 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
     @Autowired
     @Qualifier(CaseWorkflowService.NAME)
     private CaseWorkflowService caseWorkflowService;
+    @Autowired
+    @Qualifier("UsersService")
+    private UsersService userService;
 
     @Override
     public Map<String, Object> getWorkflowTask(String taskId) {
         WorkflowTask task = workflowService.getTaskById(taskId);
         return getTaskDataMap(task);
+    }
+
+    @Override
+    public Optional<String> getWorkflowCaseId(String workflowOrTaskId) {
+        Optional<Serializable> optCaseId = getCaseIdByWorkflowId(workflowOrTaskId);
+        return (optCaseId.isPresent() ? optCaseId : getCaseIdByTaskId(workflowOrTaskId))
+                .map(Serializable::toString);
+    }
+
+    @Override
+    public Optional<Serializable> getCaseIdByTaskId(String taskId) {
+        return getCaseIdFromWorkflowPath(workflowService.getTaskById(taskId).getPath().getId());
+    }
+
+    @Override
+    public List<WorkflowTask> getCurrentUserSubordinatesTasks() {
+        return userService.getCurrentUserSubordinateNames()
+                .stream()
+                .flatMap(userName -> workflowService.getAssignedTasks(userName, WorkflowTaskState.IN_PROGRESS, true).stream())
+                .collect(Collectors.toList());
     }
 
     @SuppressWarnings("unchecked")
@@ -99,18 +124,6 @@ public class WorkflowTaskServiceImpl implements WorkflowTaskService {
         }
 
         return item;
-    }
-
-    @Override
-    public Optional<String> getWorkflowCaseId(String workflowOrTaskId) {
-        Optional<Serializable> optCaseId = getCaseIdByWorkflowId(workflowOrTaskId);
-        return (optCaseId.isPresent() ? optCaseId : getCaseIdByTaskId(workflowOrTaskId))
-                .map(Serializable::toString);
-    }
-
-    @Override
-    public Optional<Serializable> getCaseIdByTaskId(String taskId) {
-        return getCaseIdFromWorkflowPath(workflowService.getTaskById(taskId).getPath().getId());
     }
 
     private Optional<Serializable> getCaseIdByWorkflowId(String workflowId) {

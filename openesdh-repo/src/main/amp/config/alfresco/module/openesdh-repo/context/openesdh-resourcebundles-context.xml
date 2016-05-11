@@ -6,8 +6,6 @@
         <property name="resourceBundles">
             <list>
                 <value>alfresco.messages.caseHistory</value>
-                <value>alfresco.messages.user-csv-upload</value>
-                <value>alfresco.messages.tenant-messages</value>
                 <value>alfresco.messages.opene-messages</value>
             </list>
         </property>

@@ -4,10 +4,7 @@ import static dk.openesdh.repo.services.audit.entryhandlers.TransactionPathAudit
 import static dk.openesdh.repo.services.audit.entryhandlers.TransactionPathAuditEntryHandler.TRANSACTION_PROPERTIES_TO;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
@@ -16,17 +13,17 @@ import java.util.stream.Collectors;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.dictionary.PropertyDefinition;
 import org.alfresco.service.namespace.QName;
+import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
-import org.springframework.extensions.surf.util.I18NUtil;
 
-import dk.openesdh.repo.services.audit.AuditEntryHandler;
+import dk.openesdh.repo.services.audit.AuditUtils;
 
 /**
  * not a real entry handler, used in other handlers to display changed properties on any node type
  *
  * @author petraarn
  */
-public class NodePropertyChangesAuditEntrySubHandler extends AuditEntryHandler {
+public class NodePropertyChangesAuditEntrySubHandler {
 
     private final DictionaryService dictionaryService;
     private final Set<QName> ignoredProperties;
@@ -36,16 +33,11 @@ public class NodePropertyChangesAuditEntrySubHandler extends AuditEntryHandler {
         this.ignoredProperties = ignoredProperties;
     }
 
-    @Override
-    public Optional<JSONObject> handleEntry(String user, long time, Map<String, Serializable> values) {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    public List<String> getChangedProperties(Map<String, Serializable> values) {
+    public JSONArray getChangedProperties(Map<String, Serializable> values) {
         Map<QName, Serializable> toMap = (Map<QName, Serializable>) values.get(TRANSACTION_PROPERTIES_TO);
         Map<QName, Serializable> addMap = (Map<QName, Serializable>) values.get(TRANSACTION_PROPERTIES_ADD);
         if (addMap == null && toMap == null) {
-            return Collections.emptyList();
+            return new JSONArray();
         }
         toMap = toMap == null ? new HashMap<>() : filterUndesirableProps(toMap);
         if (addMap != null) {
@@ -53,19 +45,22 @@ public class NodePropertyChangesAuditEntrySubHandler extends AuditEntryHandler {
             toMap.putAll(addMap);
         }
 
-        List<String> changes = new ArrayList<>();
+        JSONArray changes = new JSONArray();
         toMap.forEach((qName, value) -> {
-            Optional<String> to = getLocalizedPropertyValue(value);
+            JSONObject item = new JSONObject();
+            JSONObject itemData = new JSONObject();
+            item.put("data", itemData);
+            changes.add(item);
+
+            Optional<String> to = AuditUtils.getLocalizedPropertyValue(value);
+            itemData.put("title", getPropertyTitle(qName));
             if (!to.isPresent()) {
-                changes.add(I18NUtil.getMessage("auditlog.label.property.removed",
-                        getPropertyTitle(qName)));
+                item.put("code", "auditlog.label.property.removed");
             } else {
-                changes.add(I18NUtil.getMessage("auditlog.label.property.changed",
-                        getPropertyTitle(qName),
-                        to.orElse("")));
+                item.put("code", "auditlog.label.property.changed");
+                itemData.put("toValue", to.get());
             }
         });
-        Collections.sort(changes);
         return changes;
     }
 

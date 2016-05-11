@@ -16,12 +16,7 @@
         </property>
         <property name="labels">
             <list>
-                <value>alfresco/module/${project.artifactId}/messages/oe-model</value>
                 <value>alfresco/module/${project.artifactId}/messages/case-model</value>
-                <value>alfresco/module/${project.artifactId}/messages/doc-model</value>
-                <value>alfresco/module/${project.artifactId}/messages/contact-model</value>
-                <value>alfresco/module/${project.artifactId}/messages/note-model</value>
-                <value>alfresco/module/${project.artifactId}/messages/case-print</value>
             </list>
         </property>
     </bean>

@@ -71,4 +71,13 @@ public interface CaseDocumentCopyService {
     void copyDocContentRetainVersionLabel(NodeRef newVersionContentRef, NodeRef targetDocumentRef);
 
     void moveDocumentComments(NodeRef sourceNode, NodeRef targetNode);
+
+    /**
+     * Detaches case document from a case and moves it to the specified owner
+     * folder.
+     * 
+     * @param documentRef
+     * @param newOwner
+     */
+    void detachCaseDocument(NodeRef documentRef, NodeRef newOwner, String comment);
 }

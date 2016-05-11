@@ -7,11 +7,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
 import org.alfresco.model.ContentModel;
+import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.repo.security.person.PersonServiceImpl;
 import org.alfresco.repo.tenant.TenantService;
 import org.alfresco.service.cmr.repository.AssociationRef;
@@ -25,6 +28,7 @@ import org.alfresco.service.cmr.search.SearchService;
 import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.security.MutableAuthenticationService;
 import org.alfresco.service.cmr.security.PersonService;
+import org.alfresco.service.cmr.security.PersonService.PersonInfo;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.codehaus.plexus.util.StringUtils;
@@ -67,7 +71,6 @@ public class UsersServiceImpl implements UsersService {
     @Autowired
     @Qualifier("NodeService")
     private NodeService nodeService;
-
     @Autowired
     private SearchService searchService;
 
@@ -162,6 +165,18 @@ public class UsersServiceImpl implements UsersService {
         executeAfterSaveActions(context);
 
         return person;
+    }
+
+    @Override
+    public Set<String> getCurrentUserSubordinateNames() {
+        String currentUser = AuthenticationUtil.getFullyAuthenticatedUser();
+        NodeRef currentUserRef = personService.getPerson(currentUser);
+        return nodeService.getSourceAssocs(currentUserRef, OpenESDHModel.ASSOC_OE_MANAGER)
+                .stream()
+                .map(AssociationRef::getSourceRef)
+                .map(personService::getPerson)
+                .map(PersonInfo::getUserName)
+                .collect(Collectors.toSet());
     }
 
     private Consumer<UserSavingContext> mandatoryPropValidator(QName qname, String fieldName) {

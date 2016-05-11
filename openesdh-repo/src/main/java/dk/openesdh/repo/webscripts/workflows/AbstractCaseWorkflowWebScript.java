@@ -4,6 +4,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
+
 import org.alfresco.repo.web.scripts.workflow.WorkflowModelBuilder;
 import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.NodeService;
@@ -33,8 +35,16 @@ public abstract class AbstractCaseWorkflowWebScript {
     @Autowired
     private DictionaryService dictionaryService;
     @Autowired
-    private WorkflowTaskService workflowTaskService;
+    protected WorkflowTaskService workflowTaskService;
     
+    protected WorkflowModelBuilder modelBuilder;
+
+    @PostConstruct
+    public void init() {
+        modelBuilder = new CaseWorkflowModelBuilder(namespaceService, nodeService, authenticationService,
+                personService, workflowService, dictionaryService, workflowTaskService);
+    }
+
     protected List<Map<String, Object>> getWorkflowTasks() {
         WorkflowTaskQuery tasksQuery = new WorkflowTaskQuery();
         tasksQuery.setActive(null);
@@ -42,8 +52,6 @@ public abstract class AbstractCaseWorkflowWebScript {
     }
     
     protected List<Map<String, Object>> getWorkflowTasks(WorkflowTaskQuery query) {
-        WorkflowModelBuilder modelBuilder = new CaseWorkflowModelBuilder(namespaceService, nodeService,
-                authenticationService, personService, workflowService, dictionaryService, workflowTaskService);
         return workflowService.queryTasks(query, false)
                 .stream()
                 .map(task -> modelBuilder.buildSimple(task, null))

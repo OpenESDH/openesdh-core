@@ -52,11 +52,6 @@
         <property name="caseDocumentsSearchService" ref="CaseDocumentsAttachmentsSearchService"/>
     </bean>
     
-    <bean id="webscript.dk.openesdh.case.caseDocumentsWithAttachments.get" class="dk.openesdh.repo.webscripts.documents.CaseDocumentsWithAttachmentsWebScript"
-          parent="webscript">
-        <property name="documentService" ref="DocumentService"/>
-    </bean>
-    
     <bean id="webscript.dk.openesdh.case.documentProperties.post" class="dk.openesdh.repo.webscripts.documents.UpdateDocumentPropertiesWebScript"
           parent="webscript">
         <property name="documentService" ref="DocumentService"/>

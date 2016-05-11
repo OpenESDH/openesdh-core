@@ -8,19 +8,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.alfresco.model.ContentModel;
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
-import org.alfresco.service.cmr.dictionary.DictionaryService;
 import org.alfresco.service.cmr.repository.ChildAssociationRef;
 import org.alfresco.service.cmr.repository.NodeRef;
 import org.alfresco.service.cmr.repository.NodeService;
-import org.alfresco.service.cmr.security.AuthorityService;
 import org.alfresco.service.cmr.version.Version;
 import org.alfresco.service.cmr.version.VersionService;
-import org.alfresco.service.namespace.NamespacePrefixResolver;
 import org.alfresco.service.namespace.QName;
 import org.apache.commons.lang3.StringUtils;
 import org.json.simple.JSONArray;
@@ -52,19 +50,10 @@ public class PartyServiceImpl implements PartyService {
     @Qualifier("ContactService")
     private ContactService contactService;
     @Autowired
-    @Qualifier("AuthorityService")
-    private AuthorityService authorityService;
-    @Autowired
-    @Qualifier("DictionaryService")
-    private DictionaryService dictionaryService;
-    @Autowired
     @Qualifier("VersionService")
     private VersionService versionService;
     @Autowired
     private BehaviourFilterService behaviourFilterService;
-    @Autowired
-    @Qualifier("namespaceService")
-    private NamespacePrefixResolver namespacePrefixResolver;
 
     /**
      * {@inheritDoc}
@@ -91,8 +80,8 @@ public class PartyServiceImpl implements PartyService {
         }
         caseService.checkCanUpdateCaseRoles(caseNodeRef);
         return contactIds.stream()
-            .map(contactId -> addContactToCaseParty(caseNodeRef, roleRef, contactId))
-            .collect(Collectors.toList());
+                .map(contactId -> addContactToCaseParty(caseNodeRef, roleRef, contactId))
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -114,11 +103,9 @@ public class PartyServiceImpl implements PartyService {
     }
 
     @Override
-    public JSONArray getCasePartiesJson(String caseId){
+    public JSONArray getCasePartiesJson(String caseId) {
         NodeRef caseNodeRef = caseService.getCaseById(caseId);
-        return nodeService.getChildAssocs(caseNodeRef, Sets.newHashSet(OpenESDHModel.TYPE_CONTACT_PARTY))
-                .stream()
-                .map(ChildAssociationRef::getChildRef)
+        return getCasePartiesRefsStream(caseNodeRef)
                 .map(this::getCasePartyJson)
                 .collect(JSONArrayCollector.simple());
     }
@@ -136,7 +123,7 @@ public class PartyServiceImpl implements PartyService {
             getCasePartiesRefsStream(caseNodeRef).forEach(partyRef -> unfreezePartyContact(caseNodeRef, partyRef));
         });
     }
-    
+
     private JSONObject getCasePartyJson(NodeRef partyRef) {
         JSONObject json = new JSONObject();
         json.put(PartyService.FIELD_NODE_REF, partyRef.toString());
@@ -151,11 +138,25 @@ public class PartyServiceImpl implements PartyService {
     }
 
     private NodeRef addContactToCaseParty(NodeRef caseRef, NodeRef partyRoleRef, String contactId) {
+        NodeRef contactNodeRefId = getContactNodeRefId(contactId);
+        Optional<NodeRef> casePartyNode = getCasePartyIfExists(caseRef, partyRoleRef, contactNodeRefId);
+        if (casePartyNode.isPresent()) {
+            return casePartyNode.get();
+        }
+        //else add new party
         Map<QName, Serializable> props = new HashMap<>();
         props.put(OpenESDHModel.PROP_CONTACT_PARTY_ROLE, partyRoleRef);
-        props.put(OpenESDHModel.PROP_CONTACT_CONTACT, getContactNodeRefId(contactId));
+        props.put(OpenESDHModel.PROP_CONTACT_CONTACT, contactNodeRefId);
         return nodeService.createNode(caseRef, ContentModel.ASSOC_CONTAINS, QName.createQName(contactId),
                 OpenESDHModel.TYPE_CONTACT_PARTY, props).getChildRef();
+    }
+
+    private Optional<NodeRef> getCasePartyIfExists(NodeRef caseRef, NodeRef partyRoleRef, NodeRef contactNodeRefId) {
+        return getCasePartiesRefsStream(caseRef).filter(partyRef -> {
+            NodeRef contactRef = (NodeRef) nodeService.getProperty(partyRef, OpenESDHModel.PROP_CONTACT_CONTACT);
+            NodeRef roleRef = (NodeRef) nodeService.getProperty(partyRef, OpenESDHModel.PROP_CONTACT_PARTY_ROLE);
+            return partyRoleRef.equals(roleRef) && contactNodeRefId.equals(contactRef);
+        }).findAny();
     }
 
     private NodeRef getContactNodeRefId(String contactId) {
@@ -171,7 +172,7 @@ public class PartyServiceImpl implements PartyService {
         nodeService.setProperty(partyRef, OpenESDHModel.PROP_CONTACT_CONTACT, frozenContactRef);
         lockContact(caseRef, contactRef);
     }
-    
+
     private void unfreezePartyContact(NodeRef caseNodeRef, NodeRef partyRef) {
         NodeRef frozenContactRef = (NodeRef) nodeService.getProperty(partyRef, OpenESDHModel.PROP_CONTACT_CONTACT);
         NodeRef contactRef = versionService.getVersionHistory(frozenContactRef).getHeadVersion()
@@ -180,8 +181,8 @@ public class PartyServiceImpl implements PartyService {
         unlockContact(caseNodeRef, frozenContactRef);
     }
 
-    private Stream<NodeRef> getCasePartiesRefsStream(NodeRef caseRef){
-        return nodeService.getChildAssocs(caseRef,Sets.newHashSet(OpenESDHModel.TYPE_CONTACT_PARTY))
+    private Stream<NodeRef> getCasePartiesRefsStream(NodeRef caseRef) {
+        return nodeService.getChildAssocs(caseRef, Sets.newHashSet(OpenESDHModel.TYPE_CONTACT_PARTY))
                 .stream()
                 .map(ChildAssociationRef::getChildRef);
     }

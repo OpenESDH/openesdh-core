@@ -4,9 +4,7 @@ import java.io.Serializable;
 import java.util.Map;
 import java.util.Optional;
 
-import org.json.simple.JSONObject;
-
 public interface IAuditEntryHandler {
 
-    Optional<JSONObject> handleEntry(String user, long time, Map<String, Serializable> values);
+    Optional<AuditEntry> handleEntry(String user, long time, Map<String, Serializable> values);
 }

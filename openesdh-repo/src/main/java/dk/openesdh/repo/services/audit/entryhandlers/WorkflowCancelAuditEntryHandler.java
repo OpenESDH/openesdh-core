@@ -1,12 +1,12 @@
 package dk.openesdh.repo.services.audit.entryhandlers;
 
+import static dk.openesdh.repo.services.audit.AuditEntryHandler.REC_TYPE.WORKFLOW;
+
 import java.io.Serializable;
 import java.util.Map;
 import java.util.Optional;
 
-import org.json.simple.JSONObject;
-import org.springframework.extensions.surf.util.I18NUtil;
-
+import dk.openesdh.repo.services.audit.AuditEntry;
 import dk.openesdh.repo.services.audit.AuditEntryHandler;
 
 public class WorkflowCancelAuditEntryHandler extends AuditEntryHandler {
@@ -15,11 +15,11 @@ public class WorkflowCancelAuditEntryHandler extends AuditEntryHandler {
     private static final String WORKFLOW_CANCEL_DESCRIPTION = "/esdh/workflow/cancelWorkflow/description";
 
     @Override
-    public Optional<JSONObject> handleEntry(String user, long time, Map<String, Serializable> values) {
-        JSONObject auditEntry = createNewAuditEntry(user, time);
-        auditEntry.put(TYPE, getTypeMessage("workflow"));
-        auditEntry.put(ACTION,
-                I18NUtil.getMessage("auditlog.label.workflow.canceled", values.get(WORKFLOW_CANCEL_DESCRIPTION)));
+    public Optional<AuditEntry> handleEntry(String user, long time, Map<String, Serializable> values) {
+        AuditEntry auditEntry = new AuditEntry(user, time);
+        auditEntry.setType(WORKFLOW);
+        auditEntry.setAction("auditlog.label.workflow.canceled");
+        auditEntry.addData("description", values.get(WORKFLOW_CANCEL_DESCRIPTION));
         return Optional.of(auditEntry);
     }
 
