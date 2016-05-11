@@ -482,7 +482,7 @@
         </profile>
         <!--Jenkins specific profiles-->
         <profile>
-            <id>jenkins-integration-all-modules</id>
+            <id>jenkins-integration-all-modules-disabled</id>
             <dependencies>
                 <dependency>
                     <groupId>dk.openesdh</groupId>
