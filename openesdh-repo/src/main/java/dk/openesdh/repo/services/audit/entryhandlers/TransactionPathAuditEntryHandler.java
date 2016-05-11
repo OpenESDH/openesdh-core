@@ -164,8 +164,6 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
                 return Optional.empty();
             }
         } else {
-//            auditEntry.put(ACTION, I18NUtil.getMessage("auditlog.label.case.created", getLastPathElement(values)[1]));
-//            auditEntry.put(TYPE, getTypeMessage(CASE));
             auditEntry.setAction("auditlog.label.case.created");
             auditEntry.setType(CASE);
             auditEntry.addData("title", getLastPathElement(values)[1]);

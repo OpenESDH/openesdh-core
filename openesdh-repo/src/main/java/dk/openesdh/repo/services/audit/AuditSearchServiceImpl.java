@@ -199,9 +199,10 @@ public class AuditSearchServiceImpl implements AuditSearchService {
             auditQueryCallback.getResult()
                     .stream()
                     .map(AuditEntry::toJSON)
-                    .sorted(timePropertyDescComparator())
                     .forEach(result::add);
         }
+        // sortByTime
+        Collections.sort(result, timePropertyDescComparator());
         return result;
     }
 
