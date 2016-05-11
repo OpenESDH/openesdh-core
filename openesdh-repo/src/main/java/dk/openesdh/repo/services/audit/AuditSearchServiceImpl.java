@@ -60,7 +60,7 @@ import dk.openesdh.repo.services.audit.entryhandlers.WorkflowStartAuditEntryHand
 import dk.openesdh.repo.services.audit.entryhandlers.WorkflowTaskEndAuditEntryHandler;
 import dk.openesdh.repo.services.cases.CasePermission;
 
-@Service
+@Service("AuditSearchService")
 public class AuditSearchServiceImpl implements AuditSearchService {
 
     @Autowired
@@ -253,10 +253,5 @@ public class AuditSearchServiceImpl implements AuditSearchService {
 
     private <R> R runAsAdmin(AuthenticationUtil.RunAsWork<R> r) {
         return AuthenticationUtil.runAs(r, AuthenticationUtil.getAdminUserName());
-    }
-
-    void setService4Tests(AuditService auditService, AuthorityService authorityService) {
-        this.auditService = auditService;
-        this.authorityService = authorityService;
     }
 }
