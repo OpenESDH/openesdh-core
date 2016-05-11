@@ -480,9 +480,8 @@
                 </plugins>
             </build>
         </profile>
-        <!--Jenkins specific profiles-->
         <profile>
-            <id>jenkins-integration-all-modules-disabled</id>
+            <id>all-modules</id>
             <dependencies>
                 <dependency>
                     <groupId>dk.openesdh</groupId>
@@ -529,6 +528,10 @@
                     <type>amp</type>
                 </dependency>
             </dependencies>
+        </profile>
+        <!--Jenkins specific profiles-->
+        <profile>
+            <id>jenkins-integration-all-modules</id>
         </profile>
         <profile>
             <id>jenkins-integration-test-compile</id>
