@@ -1,5 +1,7 @@
 package dk.openesdh.repo.services.audit.entryhandlers;
 
+import static dk.openesdh.repo.services.audit.AuditEntryHandler.REC_TYPE.DOCUMENT;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
@@ -23,7 +25,7 @@ public class CaseEmailSentAuditEntryHandler extends AuditEntryHandler {
 
         AuditEntry auditEntry = new AuditEntry(user, time);
         auditEntry.setAction("auditlog.label.email.sent_" + BooleanUtils.toString(attachments.size() == 1, "1", "n"));
-        auditEntry.setType(REC_TYPE.DOCUMENT);
+        auditEntry.setType(DOCUMENT);
         auditEntry.addData("attachments", StringUtils.join(attachments, ", "));
         auditEntry.addData("participants", StringUtils.join(participants, ", "));
         return Optional.of(auditEntry);
