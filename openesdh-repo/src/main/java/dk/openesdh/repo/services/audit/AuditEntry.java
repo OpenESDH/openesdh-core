@@ -11,18 +11,15 @@ public class AuditEntry {
 
     private final String user;
     private final long time;
-    private String fullName;
+    private final String fullName;
     private String action;
     private String type;
     private final JSONObject data = new JSONObject();
 
-    public AuditEntry(String user, long time) {
+    AuditEntry(String user, long time, String fullName) {
         this.user = user;
         this.time = time;
-    }
-
-    public String getUser() {
-        return user;
+        this.fullName = fullName;
     }
 
     public void setAction(String action) {
@@ -44,10 +41,6 @@ public class AuditEntry {
 
     public void addData(String key, Object value) {
         data.put(key, value);
-    }
-
-    public void setFullName(String fullName) {
-        this.fullName = fullName;
     }
 
     public JSONObject toJSON() {

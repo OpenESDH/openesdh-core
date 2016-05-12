@@ -43,11 +43,8 @@ public class OpenESDHAuditQueryCallBack implements AuditService.AuditQueryCallba
     @Override
     public boolean handleAuditEntry(Long entryId, String applicationName, String user, long time, Map<String, Serializable> values) {
         getAuditEntryHandler(values.keySet())
-                .flatMap(handler -> handler.createAuditEntry(user, time, values))
-                .ifPresent(entry -> {
-                    entry.setFullName(getUserFullName(entry.getUser()));
-                    result.add(entry);
-                });
+                .flatMap(handler -> handler.createAuditEntry(new AuditEntry(user, time, getUserFullName(user)), values))
+                .ifPresent(result::add);
         return true;
     }
 

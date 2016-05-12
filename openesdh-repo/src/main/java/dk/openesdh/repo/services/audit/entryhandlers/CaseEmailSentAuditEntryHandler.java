@@ -19,11 +19,10 @@ public class CaseEmailSentAuditEntryHandler extends AuditEntryHandler {
     private static final String CASE_EMAIL_ATTACHMENTS = "/esdh/action/case-email/attachments";
 
     @Override
-    public Optional<AuditEntry> handleEntry(String user, long time, Map<String, Serializable> values) {
+    public Optional<AuditEntry> handleEntry(AuditEntry auditEntry, Map<String, Serializable> values) {
         List<String> participants = (List<String>) values.get(CASE_EMAIL_RECIPIENTS);
         List<String> attachments = (List<String>) values.get(CASE_EMAIL_ATTACHMENTS);
 
-        AuditEntry auditEntry = new AuditEntry(user, time);
         auditEntry.setAction("auditlog.label.email.sent_" + BooleanUtils.toString(attachments.size() == 1, "1", "n"));
         auditEntry.setType(DOCUMENT);
         auditEntry.addData("attachments", StringUtils.join(attachments, ", "));

@@ -16,8 +16,7 @@ public class WorkflowTaskEndAuditEntryHandler extends AuditEntryHandler {
     private static final String WORKFLOW_END_TASK_REVIEW_OUTCOME = "/esdh/workflow/endTask/reviewOutcome";
 
     @Override
-    public Optional<AuditEntry> handleEntry(String user, long time, Map<String, Serializable> values) {
-        AuditEntry auditEntry = new AuditEntry(user, time);
+    public Optional<AuditEntry> handleEntry(AuditEntry auditEntry, Map<String, Serializable> values) {
         auditEntry.setType(WORKFLOW);
 
         String taskOutcome = values.getOrDefault(WORKFLOW_END_TASK_REVIEW_OUTCOME, "ended").toString();

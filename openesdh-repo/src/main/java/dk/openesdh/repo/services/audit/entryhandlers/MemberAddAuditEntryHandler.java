@@ -17,14 +17,13 @@ public class MemberAddAuditEntryHandler extends AuditEntryHandler {
     private static final String MEMBER_ADD_CHILD = "/esdh/security/addAuthority/args/childName/value";
 
     @Override
-    public Optional<AuditEntry> handleEntry(String user, long time, Map<String, Serializable> values) {
+    public Optional<AuditEntry> handleEntry(AuditEntry auditEntry, Map<String, Serializable> values) {
         String parent = (String) values.get(MEMBER_ADD_PATH);
         String role = getRoleFromCaseGroupName(parent);
         if (role == null) {
             return Optional.empty();
         }
         String authority = (String) values.get(MEMBER_ADD_CHILD);
-        AuditEntry auditEntry = new AuditEntry(user, time);
         auditEntry.setType(MEMBER);
         auditEntry.setAction("auditlog.label.member.added");
         auditEntry.addData("authority", authority);

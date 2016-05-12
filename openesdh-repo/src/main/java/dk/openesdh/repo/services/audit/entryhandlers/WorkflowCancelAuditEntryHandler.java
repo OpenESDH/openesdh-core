@@ -15,8 +15,7 @@ public class WorkflowCancelAuditEntryHandler extends AuditEntryHandler {
     private static final String WORKFLOW_CANCEL_DESCRIPTION = "/esdh/workflow/cancelWorkflow/description";
 
     @Override
-    public Optional<AuditEntry> handleEntry(String user, long time, Map<String, Serializable> values) {
-        AuditEntry auditEntry = new AuditEntry(user, time);
+    public Optional<AuditEntry> handleEntry(AuditEntry auditEntry, Map<String, Serializable> values) {
         auditEntry.setType(WORKFLOW);
         auditEntry.setAction("auditlog.label.workflow.canceled");
         auditEntry.addData("description", values.get(WORKFLOW_CANCEL_DESCRIPTION));

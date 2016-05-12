@@ -6,5 +6,5 @@ import java.util.Optional;
 
 public interface IAuditEntryHandler {
 
-    Optional<AuditEntry> handleEntry(String user, long time, Map<String, Serializable> values);
+    Optional<AuditEntry> handleEntry(AuditEntry auditEntry, Map<String, Serializable> values);
 }

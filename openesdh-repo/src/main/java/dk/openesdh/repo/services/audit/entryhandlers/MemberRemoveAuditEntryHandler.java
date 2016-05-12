@@ -14,14 +14,13 @@ public class MemberRemoveAuditEntryHandler extends MemberAddAuditEntryHandler {
     private static final String MEMBER_REMOVE_CHILD = "/esdh/security/removeAuthority/args/childName/value";
 
     @Override
-    public Optional<AuditEntry> handleEntry(String user, long time, Map<String, Serializable> values) {
+    public Optional<AuditEntry> handleEntry(AuditEntry auditEntry, Map<String, Serializable> values) {
         String parent = (String) values.get(MEMBER_REMOVE_PATH);
         String role = getRoleFromCaseGroupName(parent);
         if (role == null) {
             return Optional.empty();
         }
         String authority = (String) values.get(MEMBER_REMOVE_CHILD);
-        AuditEntry auditEntry = new AuditEntry(user, time);
         auditEntry.setType(MEMBER);
         auditEntry.setAction("auditlog.label.member.removed");
         auditEntry.addData("authority", authority);
