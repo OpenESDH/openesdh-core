@@ -4,6 +4,7 @@ import static dk.openesdh.repo.services.audit.AuditEntryHandler.REC_TYPE.ATTACHM
 import static dk.openesdh.repo.services.audit.AuditEntryHandler.REC_TYPE.CASE;
 import static dk.openesdh.repo.services.audit.AuditEntryHandler.REC_TYPE.DOCUMENT;
 import static dk.openesdh.repo.services.audit.AuditEntryHandler.REC_TYPE.SYSTEM;
+import static dk.openesdh.repo.services.audit.AuditUtils.getDocumentPath;
 import static dk.openesdh.repo.services.audit.AuditUtils.getLastPathElement;
 import static dk.openesdh.repo.services.audit.AuditUtils.getLocalizedProperty;
 import static dk.openesdh.repo.services.audit.AuditUtils.getTitle;
@@ -146,6 +147,7 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
                     auditEntry.setAction("auditlog.label.attachment.added");
                     auditEntry.setType(ATTACHMENT);
                     auditEntry.addData("title", title.get());
+                    auditEntry.addData("path", getDocumentPath(values));
                 } else {
                     return Optional.empty();
                     // Adding main doc, don't log an entry because you would
@@ -160,6 +162,7 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
                 auditEntry.setAction("auditlog.label.document.added");
                 auditEntry.setType(DOCUMENT);
                 auditEntry.addData("title", title.get());
+                auditEntry.addData("path", getDocumentPath(values));
             } else {
                 return Optional.empty();
             }
@@ -178,7 +181,7 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
         if (aspects != null && aspects.contains(ContentModel.ASPECT_COPIEDFROM.toString())) {
             auditEntry.setAction("auditlog.label.document.editing_finished");
             auditEntry.setType(SYSTEM);
-            auditEntry.addData("title", lastPathElement[1]);
+            auditEntry.addData("title", getDocumentPath(values) + lastPathElement[1]);
         } else {
             switch (values.get(TRANSACTION_TYPE).toString()) {
                 case "doc:digitalFile":
@@ -198,7 +201,7 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
                     auditEntry.setType(SYSTEM);
             }
             auditEntry.setAction("auditlog.label.document.deleted");
-            auditEntry.addData("title", lastPathElement[1]);
+            auditEntry.addData("title", getDocumentPath(values) + lastPathElement[1]);
         }
         return Optional.of(auditEntry);
     }
@@ -210,10 +213,19 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
     private Optional<AuditEntry> getEntryTransactionCheckIn(String user, long time, Map<String, Serializable> values) {
         AuditEntry auditEntry = new AuditEntry(user, time);
         auditEntry.setAction("auditlog.label.checkedin");
-        auditEntry.setType(SYSTEM);
+
+        String[] lastPathElement = getLastPathElement(values);
+        if (isContent(lastPathElement)) {
+            auditEntry.setType(DOCUMENT);
+        } else if (lastPathElement[0].equals("cm")) {
+            auditEntry.setType(ATTACHMENT);
+        } else {
+            auditEntry.setType(SYSTEM);
+        }
 
         String newVersion = (String) getFromPropertyMap(values, TRANSACTION_PROPERTIES_TO, ContentModel.PROP_VERSION_LABEL);
         auditEntry.addData("title", getTitle(values));
+        auditEntry.addData("path", getDocumentPath(values));
         auditEntry.addData("newVersion", newVersion);
         return Optional.of(auditEntry);
     }
@@ -226,6 +238,7 @@ public class TransactionPathAuditEntryHandler extends AuditEntryHandler {
         String oldVersion = (String) getFromPropertyMap(values, TRANSACTION_PROPERTIES_FROM, ContentModel.PROP_VERSION_LABEL);
         String newVersion = (String) getFromPropertyMap(values, TRANSACTION_PROPERTIES_TO, ContentModel.PROP_VERSION_LABEL);
         auditEntry.addData("title", getTitle(values));
+        auditEntry.addData("path", getDocumentPath(values));
         auditEntry.addData("oldVersion", oldVersion);
         auditEntry.addData("newVersion", newVersion);
         return Optional.of(auditEntry);

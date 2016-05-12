@@ -1,5 +1,7 @@
 package dk.openesdh.repo.services.audit;
 
+import static dk.openesdh.repo.services.audit.entryhandlers.TransactionPathAuditEntryHandler.TRANSACTION_PATH;
+
 import java.io.Serializable;
 import java.util.Date;
 import java.util.Locale;
@@ -8,6 +10,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 import org.alfresco.service.namespace.QName;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.extensions.surf.util.I18NUtil;
 
 import com.google.common.base.Strings;
@@ -27,11 +30,27 @@ public class AuditUtils {
         return title;
     }
 
-    //TODO: get full path to file
     public static String[] getLastPathElement(Map<String, Serializable> values) {
-        String path = (String) values.get("/esdh/transaction/path");
+        String path = (String) values.get(TRANSACTION_PATH);
         String[] pArray = path.split("/");
         return pArray[pArray.length - 1].split(":");
+    }
+
+    public static String getDocumentPath(Map<String, Serializable> values) {
+        String path = (String) values.get(TRANSACTION_PATH);
+        //remove begining
+        path = StringUtils.substringAfter(path, "base:documents");
+        //remove content if exists
+        path = StringUtils.substringBeforeLast(path, "/doc:content_");
+        //remove all namespaces ( "/ns:name" -> "/name" )
+        path = StringUtils.replacePattern(path, "\\/\\w*:", "/");
+        //remove last element, as it is current object
+        path = StringUtils.substringBeforeLast(path, "/");
+        if (StringUtils.isEmpty(path)) {
+            return "";
+        }
+        //return path/
+        return StringUtils.substring(path, 1) + "/";
     }
 
     public static Optional<String> getLocalizedProperty(Map<QName, Serializable> properties, QName propQName) {

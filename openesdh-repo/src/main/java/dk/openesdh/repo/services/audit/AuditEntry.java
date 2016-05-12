@@ -34,12 +34,12 @@ public class AuditEntry {
     }
 
     /**
-     * sets type by enum name
+     * sets type by enum name with prefix "auditlog.type."
      *
      * @param type
      */
     public void setType(Enum type) {
-        this.type = type.name();
+        this.type = "auditlog.type." + type.name();
     }
 
     public void addData(String key, Object value) {
