@@ -30,9 +30,8 @@ public class CaseNoteAuditEntryHandler extends AuditEntryHandler {
     }
 
     @Override
-    public Optional<AuditEntry> handleEntry(String user, long time, Map<String, Serializable> values) {
+    public Optional<AuditEntry> handleEntry(AuditEntry auditEntry, Map<String, Serializable> values) {
         String trimmedNote = StringUtils.abbreviate(AuditUtils.getTitle(values), MAX_NOTE_TEXT_LENGTH);
-        AuditEntry auditEntry = new AuditEntry(user, time);
         auditEntry.setType(NOTE);
 
         String transactionAction = (String) values.get(TRANSACTION_ACTION);

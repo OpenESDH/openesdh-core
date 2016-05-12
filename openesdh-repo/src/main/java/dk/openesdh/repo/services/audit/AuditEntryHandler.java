@@ -22,7 +22,7 @@ public abstract class AuditEntryHandler implements IAuditEntryHandler {
     public static final String TYPE = "type";
     public static final String ACTION = "action";
 
-    public Optional<AuditEntry> createAuditEntry(String user, long time, Map<String, Serializable> values) {
-        return handleEntry(user, time, values);
+    public Optional<AuditEntry> createAuditEntry(AuditEntry auditEntry, Map<String, Serializable> values) {
+        return handleEntry(auditEntry, values);
     }
 }

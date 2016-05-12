@@ -26,8 +26,7 @@ public class PartyAuditEntryHandler extends AuditEntryHandler {
     private static final String TRANSACTION_PROPERTIES_PARTY_ROLE_TO = "/esdh/transaction/properties/partyRoleTo";
 
     @Override
-    public Optional<AuditEntry> handleEntry(String user, long time, Map<String, Serializable> values) {
-        AuditEntry auditEntry = new AuditEntry(user, time);
+    public Optional<AuditEntry> handleEntry(AuditEntry auditEntry, Map<String, Serializable> values) {
         auditEntry.setType(PARTY);
 
         if (values.keySet().contains(CASE_PARTIES_REMOVE)) {
