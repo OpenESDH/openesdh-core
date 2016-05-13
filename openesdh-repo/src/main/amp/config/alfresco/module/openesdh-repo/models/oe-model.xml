@@ -186,7 +186,7 @@
             </associations>
         </aspect>
         <!-- This aspect represents temporary files which were uploaded as attachments. The data of the temporary files is saved in json format. -->
-        <aspect name="oe:tempAttachments">
+        <aspect name="oe:tempAttachmentsAspect">
             <properties>
                 <property name="oe:tempAttachments">
                     <type>d:text</type>

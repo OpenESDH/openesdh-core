@@ -290,25 +290,24 @@ public class CaseDocumentCopyServiceImpl implements CaseDocumentCopyService {
         NodeRef docType = new NodeRef(tempAttachment.getString(WebScriptParams.DOC_TYPE));
         NodeRef docCategory = new NodeRef(tempAttachment.getString(WebScriptParams.DOC_CATEGORY));
 
-        File[] files = TempFileProvider.getTempDir().listFiles((file, name) -> name.equals(tmpFileName));
-        if (files.length == 0) {
+        Optional<File> tmpFile = getTempFileByName(tmpFileName);
+        if (!tmpFile.isPresent()) {
             throw new AlfrescoRuntimeException("Temp attachment file not found " + tmpFileName + " " + fileName);
         }
 
-        Map<QName, Serializable> props = new HashMap<>();
-        String name = documentService.getUniqueName(targetFolderRef, DocumentServiceImpl.sanitizeName(fileName), false);
-        props.put(ContentModel.PROP_NAME, name);
-        props.put(ContentModel.PROP_TITLE, fileName);
-        props.put(OpenESDHModel.PROP_DOC_TYPE, docType);
-        props.put(OpenESDHModel.PROP_DOC_CATEGORY, docCategory);
-        NodeRef newDocRef = nodeService.createNode(targetFolderRef, ContentModel.ASSOC_CONTAINS,
-                        QName.createQName(OpenESDHModel.DOC_URI, fileName), ContentModel.TYPE_CONTENT, props)
-                .getChildRef();
+        return documentService.createDocumentFile(targetFolderRef, fileName, fileName, docType, docCategory,
+                writer -> {
+                    writer.setMimetype(mimeType);
+                    writer.putContent(tmpFile.get());
+                });
+    }
 
-        ContentWriter writer = contentService.getWriter(newDocRef, ContentModel.PROP_CONTENT, true);
-        writer.setMimetype(mimeType);
-        writer.putContent(files[0]);
-        return newDocRef;
+    private Optional<File> getTempFileByName(String tmpFileName) {
+        File[] files = TempFileProvider.getTempDir().listFiles((file, name) -> name.equals(tmpFileName));
+        if (files.length == 0) {
+            return Optional.empty();
+        }
+        return Optional.of(files[0]);
     }
 
     private NodeRef copyDocsFolder(NodeRef documentRecRef, NodeRef targetFolder) {

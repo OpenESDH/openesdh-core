@@ -80,7 +80,7 @@ public interface OpenESDHModel {
 
     QName ASPECT_OE_MANAGEABLE = QName.createQName(OE_URI, "manageable");
 
-    QName ASPECT_OE_TEMP_ATTACHMENTS = QName.createQName(OE_URI, "tempAttachments");
+    QName ASPECT_OE_TEMP_ATTACHMENTS = QName.createQName(OE_URI, "tempAttachmentsAspect");
 
     QName ASPECT_CASE_COUNTER = QName.createQName(CASE_URI, "counter");
     QName ASPECT_CASE_FREEZABLE_PARTIES = QName.createQName(CASE_URI, "freezableParties");
