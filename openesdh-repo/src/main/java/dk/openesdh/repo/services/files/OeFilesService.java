@@ -8,6 +8,12 @@ import org.json.simple.JSONObject;
 
 public interface OeFilesService {
 
+    String TMP_FILE_NAME = "tmpFileName";
+
+    String FILE_NAME = "fileName";
+
+    String MIME_TYPE = "mimeType";
+
     public JSONObject getFile(NodeRef nodeRef);
 
     public List<JSONObject> getFiles(NodeRef nodeRef);

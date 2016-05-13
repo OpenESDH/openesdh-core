@@ -27,6 +27,7 @@ import dk.openesdh.repo.model.OpenESDHModel;
 import dk.openesdh.repo.services.cases.CaseCreatorServiceRegistry;
 import dk.openesdh.repo.services.cases.CasePermissionService;
 import dk.openesdh.repo.services.cases.CaseService;
+import dk.openesdh.repo.services.documents.CaseDocumentCopyService;
 import dk.openesdh.repo.services.tenant.TenantOpeneModulesService;
 
 /**
@@ -53,6 +54,9 @@ public class CaseBehaviour implements OnCreateNodePolicy, BeforeCreateNodePolicy
     @Autowired
     @Qualifier("policyComponent")
     private PolicyComponent policyComponent;
+    @Autowired
+    @Qualifier("CaseDocumentCopyService")
+    private CaseDocumentCopyService caseDocumentCopyService;
 
     @Autowired
     @Qualifier("TenantOpeneModulesService")
@@ -88,6 +92,7 @@ public class CaseBehaviour implements OnCreateNodePolicy, BeforeCreateNodePolicy
     @Override
     public void onCreateNode(ChildAssociationRef childAssociationRef) {
         caseCreatorServiceRegistry.getCaseCreatorService(childAssociationRef).accept(childAssociationRef);
+        caseDocumentCopyService.copyCaseDocumentsFromTempAttachments(childAssociationRef.getChildRef());
     }
 
     @Override

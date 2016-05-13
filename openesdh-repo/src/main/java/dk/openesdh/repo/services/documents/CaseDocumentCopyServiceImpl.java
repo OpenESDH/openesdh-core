@@ -1,5 +1,6 @@
 package dk.openesdh.repo.services.documents;
 
+import java.io.File;
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
@@ -25,7 +26,12 @@ import org.alfresco.service.cmr.version.VersionService;
 import org.alfresco.service.namespace.NamespaceService;
 import org.alfresco.service.namespace.QName;
 import org.alfresco.service.namespace.RegexQNamePattern;
+import org.alfresco.util.TempFileProvider;
 import org.apache.commons.lang3.StringUtils;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import org.json.JSONTokener;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -39,6 +45,8 @@ import dk.openesdh.repo.services.BehaviourFilterService;
 import dk.openesdh.repo.services.TransactionRunner;
 import dk.openesdh.repo.services.cases.CaseService;
 import dk.openesdh.repo.services.files.OeAuthorityFilesService;
+import dk.openesdh.repo.services.files.OeFilesService;
+import dk.openesdh.repo.webscripts.WebScriptParams;
 
 @Service("CaseDocumentCopyService")
 public class CaseDocumentCopyServiceImpl implements CaseDocumentCopyService {
@@ -220,6 +228,88 @@ public class CaseDocumentCopyServiceImpl implements CaseDocumentCopyService {
         return copyDocumentToFolderRetainVersionLabels((CaseDocument) item, targetFolder);
     }
 
+    @Override
+    public void moveDocumentComments(NodeRef sourceNode, NodeRef targetNode) {
+        if (!nodeService.hasAspect(sourceNode, ForumModel.ASPECT_DISCUSSABLE)) {
+            return;
+        }
+        tr.runAsSystem(() -> {
+            NodeRef targetCommentsFolder = getOrCreateCommentsFolder(targetNode);
+            NodeRef sourceCommentsFolder = getCommentsFolder(sourceNode);
+            nodeService.getChildAssocs(sourceCommentsFolder, ContentModel.ASSOC_CONTAINS, null).stream()
+                    .map(ChildAssociationRef::getChildRef)
+                    .forEach(commentRef -> moveComment(commentRef, targetCommentsFolder));
+            return null;
+        });
+    }
+
+    @Override
+    public void detachCaseDocument(NodeRef documentRef, NodeRef newOwner, String comment) {
+        NodeRef mainDocNodeRef = documentService.getMainDocument(documentRef);
+        tr.runInTransaction(() -> {
+            authorityFilesService.move(mainDocNodeRef, newOwner, comment);
+            nodeService.setType(mainDocNodeRef, ContentModel.TYPE_CONTENT);
+            moveDocumentComments(documentRef, mainDocNodeRef);
+            nodeService.deleteNode(documentRef);
+            return null;
+        });
+    }
+
+    @Override
+    public void copyCaseDocumentsFromTempAttachments(NodeRef caseNodeRef) {
+        if (!nodeService.hasAspect(caseNodeRef, OpenESDHModel.ASPECT_OE_TEMP_ATTACHMENTS)) {
+            return;
+        }
+
+        String jsonTempAttachmens = (String) nodeService.getProperty(caseNodeRef,
+                OpenESDHModel.PROP_OE_TEMP_ATTACHMENTS);
+
+        if (StringUtils.isEmpty(jsonTempAttachmens)) {
+            nodeService.removeAspect(caseNodeRef, OpenESDHModel.ASPECT_OE_TEMP_ATTACHMENTS);
+            return;
+        }
+
+        NodeRef caseDocsFolder = caseService.getDocumentsFolder(caseNodeRef);
+        try {
+            JSONArray tempAttachments = new JSONArray(new JSONTokener(jsonTempAttachmens));
+            for (int i = 0; i < tempAttachments.length(); i++) {
+                copyCaseDocFromTempAttachment(tempAttachments.getJSONObject(i), caseDocsFolder);
+            }
+        } catch (JSONException e) {
+            throw new AlfrescoRuntimeException("Error parsing temp attachments json", e);
+        }
+
+        nodeService.removeAspect(caseNodeRef, OpenESDHModel.ASPECT_OE_TEMP_ATTACHMENTS);
+    }
+
+    private NodeRef copyCaseDocFromTempAttachment(JSONObject tempAttachment, NodeRef targetFolderRef)
+            throws JSONException {
+        String tmpFileName = tempAttachment.getString(OeFilesService.TMP_FILE_NAME);
+        String fileName = tempAttachment.getString(OeFilesService.FILE_NAME);
+        String mimeType = tempAttachment.getString(OeFilesService.MIME_TYPE);
+        NodeRef docType = new NodeRef(tempAttachment.getString(WebScriptParams.DOC_TYPE));
+        NodeRef docCategory = new NodeRef(tempAttachment.getString(WebScriptParams.DOC_CATEGORY));
+
+        Optional<File> tmpFile = getTempFileByName(tmpFileName);
+        if (!tmpFile.isPresent()) {
+            throw new AlfrescoRuntimeException("Temp attachment file not found " + tmpFileName + " " + fileName);
+        }
+
+        return documentService.createDocumentFile(targetFolderRef, fileName, fileName, docType, docCategory,
+                writer -> {
+                    writer.setMimetype(mimeType);
+                    writer.putContent(tmpFile.get());
+                });
+    }
+
+    private Optional<File> getTempFileByName(String tmpFileName) {
+        File[] files = TempFileProvider.getTempDir().listFiles((file, name) -> name.equals(tmpFileName));
+        if (files.length == 0) {
+            return Optional.empty();
+        }
+        return Optional.of(files[0]);
+    }
+
     private NodeRef copyDocsFolder(NodeRef documentRecRef, NodeRef targetFolder) {
         return copyDocFolderItem(documentRecRef, targetFolder, false);
     }
@@ -283,33 +373,6 @@ public class CaseDocumentCopyServiceImpl implements CaseDocumentCopyService {
         Map<String, Serializable> versionProps = new HashMap<>();
         versionProps.put(OpenESDHModel.RETAIN_VERSION_LABEL, originalVersion.getVersionLabel());
         versionService.createVersion(docCopy, versionProps);
-    }
-
-    @Override
-    public void moveDocumentComments(NodeRef sourceNode, NodeRef targetNode) {
-        if (!nodeService.hasAspect(sourceNode, ForumModel.ASPECT_DISCUSSABLE)) {
-            return;
-        }
-        tr.runAsSystem(() -> {
-            NodeRef targetCommentsFolder = getOrCreateCommentsFolder(targetNode);
-            NodeRef sourceCommentsFolder = getCommentsFolder(sourceNode);
-            nodeService.getChildAssocs(sourceCommentsFolder, ContentModel.ASSOC_CONTAINS, null).stream()
-                    .map(ChildAssociationRef::getChildRef)
-                    .forEach(commentRef -> moveComment(commentRef, targetCommentsFolder));
-            return null;
-        });
-    }
-
-    @Override
-    public void detachCaseDocument(NodeRef documentRef, NodeRef newOwner, String comment) {
-        NodeRef mainDocNodeRef = documentService.getMainDocument(documentRef);
-        tr.runInTransaction(() -> {
-            authorityFilesService.move(mainDocNodeRef, newOwner, comment);
-            nodeService.setType(mainDocNodeRef, ContentModel.TYPE_CONTENT);
-            moveDocumentComments(documentRef, mainDocNodeRef);
-            nodeService.deleteNode(documentRef);
-            return null;
-        });
     }
 
     private NodeRef getOrCreateCommentsFolder(NodeRef discussableNode) {
