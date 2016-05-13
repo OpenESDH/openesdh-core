@@ -80,4 +80,11 @@ public interface CaseDocumentCopyService {
      * @param newOwner
      */
     void detachCaseDocument(NodeRef documentRef, NodeRef newOwner, String comment);
+
+    /**
+     * Copies case documents from temporary attachments json if present.
+     * 
+     * @param caseNodeRef
+     */
+    void copyCaseDocumentsFromTempAttachments(NodeRef caseNodeRef);
 }

@@ -80,6 +80,8 @@ public interface OpenESDHModel {
 
     QName ASPECT_OE_MANAGEABLE = QName.createQName(OE_URI, "manageable");
 
+    QName ASPECT_OE_TEMP_ATTACHMENTS = QName.createQName(OE_URI, "tempAttachments");
+
     QName ASPECT_CASE_COUNTER = QName.createQName(CASE_URI, "counter");
     QName ASPECT_CASE_FREEZABLE_PARTIES = QName.createQName(CASE_URI, "freezableParties");
 
@@ -145,6 +147,8 @@ public interface OpenESDHModel {
     QName PROP_OE_OWNERS = QName.createQName(OE_URI, "owners");
     QName PROP_OE_STATUS = QName.createQName(OE_URI, "status");
     QName PROP_OE_PARAMETER_BOOL_VALUE = QName.createQName(OE_URI, "boolValue");
+
+    QName PROP_OE_TEMP_ATTACHMENTS = QName.createQName(OE_URI, "tempAttachments");
 
     QName PROP_CASE_STARTDATE = QName.createQName(CASE_URI, "startDate");
     QName PROP_CASE_ENDDATE = QName.createQName(CASE_URI, "endDate");
