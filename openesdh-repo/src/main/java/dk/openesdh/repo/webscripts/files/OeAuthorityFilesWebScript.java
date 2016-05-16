@@ -4,7 +4,9 @@ import static dk.openesdh.repo.webscripts.utils.WebScriptUtils.JSON;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.alfresco.repo.security.authentication.AuthenticationUtil;
 import org.alfresco.service.cmr.repository.NodeRef;
@@ -21,12 +23,14 @@ import org.springframework.stereotype.Component;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.HttpMethod;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.RequestParam;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.Uri;
+import com.github.dynamicextensionsalfresco.webscripts.annotations.UriVariable;
 import com.github.dynamicextensionsalfresco.webscripts.annotations.WebScript;
 import com.github.dynamicextensionsalfresco.webscripts.resolutions.Resolution;
 
 import dk.openesdh.repo.services.authorities.GroupsService;
 import dk.openesdh.repo.services.files.OeAuthorityFilesService;
 import dk.openesdh.repo.utils.JSONArrayCollector;
+import dk.openesdh.repo.webscripts.WebScriptParams;
 import dk.openesdh.repo.webscripts.utils.WebScriptUtils;
 
 @Component
@@ -95,5 +99,13 @@ public class OeAuthorityFilesWebScript {
             @RequestParam final NodeRef owner,
             @RequestParam(required = false) final String comment) {
         authorityFilesService.move(nodeRef, owner, comment);
+    }
+
+    @Uri(value = "/api/openesdh/files/user/{userName}/folder", method = HttpMethod.GET, defaultFormat = JSON)
+    public Resolution getUserFilesFolderRef(@UriVariable String userName) {
+        NodeRef folderRef = authorityFilesService.getOrCreateAuthorityFolder(userName);
+        Map<String, NodeRef> map = new HashMap<>();
+        map.put(WebScriptParams.NODE_REF, folderRef);
+        return WebScriptUtils.jsonResolution(map);
     }
 }
