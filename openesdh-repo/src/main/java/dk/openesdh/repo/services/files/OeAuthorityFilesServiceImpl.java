@@ -105,17 +105,17 @@ public class OeAuthorityFilesServiceImpl implements OeAuthorityFilesService {
         });
     }
 
+    @Override
+    public NodeRef getOrCreateAuthorityFolder(String authorityName) {
+        return getAuthorityFolder(authorityName).orElseGet(() -> createAuthorityFolder(authorityName));
+    }
+
     private String getAuthorityName(NodeRef owner) throws InvalidNodeRefException {
         Map<QName, Serializable> properties = nodeService.getProperties(owner);
         String authorityName = (String) properties.getOrDefault(
                 ContentModel.PROP_AUTHORITY_NAME,
                 properties.get(ContentModel.PROP_USERNAME));
         return authorityName;
-    }
-
-    private NodeRef getOrCreateAuthorityFolder(String authorityName) {
-        return getAuthorityFolder(authorityName)
-                .orElseGet(() -> createAuthorityFolder(authorityName));
     }
 
     @Override

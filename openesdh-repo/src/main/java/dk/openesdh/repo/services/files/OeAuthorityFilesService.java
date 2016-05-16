@@ -16,4 +16,6 @@ public interface OeAuthorityFilesService {
     public void move(NodeRef file, NodeRef newOwner, String comment);
 
     Optional<NodeRef> getAuthorityFolder(String authorityName);
+
+    NodeRef getOrCreateAuthorityFolder(String authorityName);
 }
