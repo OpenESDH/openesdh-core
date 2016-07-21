@@ -36,6 +36,7 @@
     
     <bean id="${project.artifactId}_bootstrapGroups" class="org.alfresco.repo.module.ImporterModuleComponent" parent="module.baseComponent">
       <property name="moduleId" value="${project.artifactId}" />
+      <property name="executeOnceOnly" value="true" />
       <property name="name" value="${project.artifactId}_bootstrapGroups" />
       <property name="description" value="Import Simple Case groups" />
       <property name="sinceVersion" value="${noSnapshotVersion}" />        
