@@ -8,7 +8,8 @@
 		 workflow, and loading custom content models.  -->
 
     <!-- Registration of new models -->
-    <bean id="${project.artifactId}_dictionaryBootstrap" parent="dictionaryModelBootstrap" depends-on="openesdh-repo_dictionaryBootstrap">
+    <bean id="${project.artifactId}_dictionaryBootstrap" parent="dictionaryModelBootstrap"
+          depends-on="openesdh-repo_dictionaryBootstrap">
         <property name="models">
             <list>
                 <value>alfresco/module/${project.artifactId}/model/simple_case-model.xml</value>
@@ -20,12 +21,13 @@
             </list>
         </property>
     </bean>
-    
+
     <bean id="${project.artifactId}_permissionModel" parent="permissionModelBootstrap">
-        <property name="model" value="alfresco/module/${project.artifactId}/model/permission-model-extension.xml" />
+        <property name="model" value="alfresco/module/${project.artifactId}/model/permission-model-extension.xml"/>
     </bean>
-    
-    <bean id="${project.artifactId}_mt_groupsProps" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+
+    <bean id="${project.artifactId}_mt_groupsProps"
+          class="org.springframework.beans.factory.config.PropertiesFactoryBean">
         <property name="properties">
             <props>
                 <prop key="path">/${alfresco_user_store.system_container.childname}</prop>
@@ -33,19 +35,21 @@
             </props>
         </property>
     </bean>
-    
-    <bean id="${project.artifactId}_bootstrapGroups" class="org.alfresco.repo.module.ImporterModuleComponent" parent="module.baseComponent">
-      <property name="moduleId" value="${project.artifactId}" />
-      <property name="name" value="${project.artifactId}_bootstrapGroups" />
-      <property name="description" value="Import Simple Case groups" />
-      <property name="sinceVersion" value="${noSnapshotVersion}" />        
-      <property name="appliesFromVersion" value="1.0" />   
-      <property name="importer" ref="spacesBootstrap"/>
-      <property name="bootstrapViews">
-        <list>
-          <ref bean="${project.artifactId}_mt_groupsProps" />
-        </list>
-      </property>
+
+    <bean id="${project.artifactId}_bootstrapGroups" class="org.alfresco.repo.module.ImporterModuleComponent"
+          parent="module.baseComponent">
+        <property name="moduleId" value="${project.artifactId}"/>
+        <property name="executeOnceOnly" value="true"/>
+        <property name="name" value="${project.artifactId}_bootstrapGroups"/>
+        <property name="description" value="Import Simple Case groups"/>
+        <property name="sinceVersion" value="${noSnapshotVersion}"/>
+        <property name="appliesFromVersion" value="1.0"/>
+        <property name="importer" ref="spacesBootstrap"/>
+        <property name="bootstrapViews">
+            <list>
+                <ref bean="${project.artifactId}_mt_groupsProps"/>
+            </list>
+        </property>
     </bean>
-    
+
 </beans>
